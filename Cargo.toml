@@ -1,0 +1,16 @@
+[workspace]
+members = [
+    "contracts/token/erc20",
+    "contracts/token/erc721",
+    "contracts/token/erc1155",
+    "contracts/access/ownable",
+    "contracts/access/access-control",
+    "contracts/utils",
+]
+exclude = [
+    "examples",
+]
+
+[profile.release]
+panic = "abort"
+lto = true
