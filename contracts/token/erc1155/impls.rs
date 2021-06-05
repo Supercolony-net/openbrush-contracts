@@ -1,4 +1,5 @@
 use crate::traits::{Erc1155Error, Id};
+#[cfg(not(test))]
 use ink_env::{
     call::{build_call, utils::ReturnType, ExecutionInput, Selector},
     DefaultEnvironment, Error as Env_error,

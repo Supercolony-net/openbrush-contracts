@@ -1,5 +1,5 @@
 [package]
-name = "my_erc20"
+name = "my_access_control"
 version = "0.1.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -15,11 +15,12 @@ ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
-erc20 = { version = "0.1.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
-utils = { version = "0.1.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+erc721 = { version = "0.1.0-rc2", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+access-control = { version = "0.1.0-rc2", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+utils = { version = "0.1.0-rc2", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [lib]
-name = "my_erc20"
+name = "my_access_control"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
@@ -40,7 +41,8 @@ std = [
     "scale-info",
     "scale-info/std",
 
-    "erc20/std",
+    "erc721/std",
+    "access-control/std",
     "utils/std",
 ]
 ink-as-dependency = []

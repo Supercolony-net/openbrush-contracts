@@ -1,7 +1,3 @@
-use ::ink_env::{
-    Environment,
-    DefaultEnvironment,
-};
 use utils::{
     traits::{InkStorage, AccountId},
     define_getters,

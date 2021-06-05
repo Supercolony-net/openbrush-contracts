@@ -7,18 +7,18 @@ use utils::{
     traits::{InkStorage, AccountId},
     define_getters,
 };
-use crate::traits::AccessControlError;
+use crate::traits::{ AccessControlError, RoleType };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-pub const DEFAULT_ADMIN_ROLE: u32 = 0;
+pub const DEFAULT_ADMIN_ROLE: RoleType = 0;
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
 pub struct RoleData {
     pub members: Box<StorageHashMap<AccountId, bool>>,
-    pub admin_role: u32,
+    pub admin_role: RoleType,
 }
 
 impl RoleData {
@@ -43,7 +43,7 @@ impl Default for RoleData {
 
 pub trait AccessControlStorage: InkStorage {
     // Mapping of roles to role data which contains information about members of role
-    define_getters!(_roles, _roles_mut, StorageHashMap<u32, RoleData>);
+    define_getters!(_roles, _roles_mut, StorageHashMap<RoleType, RoleData>);
 }
 
 pub trait AccessControl: AccessControlStorage {
@@ -57,7 +57,7 @@ pub trait AccessControl: AccessControlStorage {
         self._init_with_admin(caller);
     }
 
-    fn _set_role_admin(&mut self, role: u32, admin_role: u32) -> Result<(), AccessControlError> {
+    fn _set_role_admin(&mut self, role: RoleType, admin_role: RoleType) -> Result<(), AccessControlError> {
         self._roles_mut()
             .entry(role)
             .or_insert_with(RoleData::default)
@@ -66,7 +66,7 @@ pub trait AccessControl: AccessControlStorage {
         Ok(())
     }
 
-    fn _grant_role(&mut self, role: u32, address: AccountId) -> Result<(), AccessControlError> {
+    fn _grant_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
         self._check_role(&self._get_role_admin(&role), &Self::env().caller())?;
 
         if !self._has_role(&role, &address) {
@@ -82,7 +82,7 @@ pub trait AccessControl: AccessControlStorage {
 
     fn _revoke_role(
         &mut self,
-        role: u32,
+        role: RoleType,
         address: AccountId,
     ) -> Result<(), AccessControlError> {
         let caller = Self::env().caller();
@@ -94,7 +94,7 @@ pub trait AccessControl: AccessControlStorage {
 
     fn _renounce_role(
         &mut self,
-        role: u32,
+        role: RoleType,
         address: AccountId,
     ) -> Result<(), AccessControlError> {
         let caller = Self::env().caller();
@@ -106,28 +106,28 @@ pub trait AccessControl: AccessControlStorage {
         Ok(())
     }
 
-    fn _check_role(&self, role: &u32, address: &AccountId) -> Result<(), AccessControlError> {
+    fn _check_role(&self, role: &RoleType, address: &AccountId) -> Result<(), AccessControlError> {
         if !self._has_role(role, address) {
             return Err(AccessControlError::MissingRole);
         }
         Ok(())
     }
 
-    fn _has_role(&self, role: &u32, address: &AccountId) -> bool {
+    fn _has_role(&self, role: &RoleType, address: &AccountId) -> bool {
         match self._roles().get(role) {
             Some(role_data) => role_data.members.get(address).cloned().unwrap_or(false),
             None => false,
         }
     }
 
-    fn _get_role_admin(&self, role: &u32) -> u32 {
+    fn _get_role_admin(&self, role: &RoleType) -> RoleType {
         match self._roles().get(role) {
             Some(role_data) => role_data.admin_role.clone(),
             None => DEFAULT_ADMIN_ROLE,
         }
     }
 
-    fn _do_revoke_role(&mut self, role: u32, address: AccountId) {
+    fn _do_revoke_role(&mut self, role: RoleType, address: AccountId) {
         if self._has_role(&role, &address) {
             self._roles_mut()
                 .entry(role)
@@ -155,14 +155,14 @@ mod tests {
     use crate::traits::{ IAccessControl };
 
     // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
-    const MINTER: u32 = 0xfd9ab216;
+    const MINTER: RoleType = 0xfd9ab216;
     // ::ink_lang_ir::Selector::new("PAUSER".as_ref()).as_bytes()
-    const PAUSER: u32 = 0x4ce9afe6;
+    const PAUSER: RoleType = 0x4ce9afe6;
 
     #[derive(Default)]
     #[ink(storage)]
     pub struct AccessControlStruct {
-        roles: StorageHashMap<u32, RoleData>,
+        roles: StorageHashMap<RoleType, RoleData>,
     }
 
     impl InkStorage for AccessControlStruct {
@@ -173,33 +173,33 @@ mod tests {
         }
     }
     impl AccessControlStorage for AccessControlStruct {
-        iml_getters!(roles, _roles, _roles_mut, StorageHashMap<u32, RoleData>);
+        iml_getters!(roles, _roles, _roles_mut, StorageHashMap<RoleType, RoleData>);
     }
     impl AccessControl for AccessControlStruct {}
     
     impl IAccessControl for AccessControlStruct {
         #[ink(message)]
-        fn has_role(&self, role: u32, address: AccountId) -> bool {
+        fn has_role(&self, role: RoleType, address: AccountId) -> bool {
             self._has_role(&role, &address)
         }
 
         #[ink(message)]
-        fn get_role_admin(&self, role: u32) -> u32 {
+        fn get_role_admin(&self, role: RoleType) -> RoleType {
             self._get_role_admin(&role)
         }
 
         #[ink(message)]
-        fn grant_role(&mut self, role: u32, address: AccountId) -> Result<(), AccessControlError> {
+        fn grant_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
             self._grant_role(role, address)
         }
 
         #[ink(message)]
-        fn revoke_role(&mut self, role: u32, address: AccountId) -> Result<(), AccessControlError> {
+        fn revoke_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
             self._revoke_role(role, address)
         }
 
         #[ink(message)]
-        fn renounce_role(&mut self, role: u32, address: AccountId) -> Result<(), AccessControlError> {
+        fn renounce_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
             self._renounce_role(role, address)
         }
     }

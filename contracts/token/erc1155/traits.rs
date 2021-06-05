@@ -28,13 +28,6 @@ impl core::fmt::Display for Erc1155Error {
     }
 }
 
-#[ink::trait_definition]
-pub trait IErc1155MetadataURI {
-    /// Returns the URI for token type `id`.
-    #[ink(message)]
-    fn uri(&self, _id: Id) -> Option<String>;
-}
-
 /// A standard trait for contracts that manage multiple token types.
 /// A single deployed contract may include any combination of fungible tokens,
 /// non-fungible tokens or other configurations (e.g. semi-fungible tokens).
@@ -77,6 +70,13 @@ pub trait IErc1155 {
         _amounts: Vec<Balance>,
         _data: Vec<u8>,
     ) -> Result<(), Erc1155Error>;
+}
+
+#[ink::trait_definition]
+pub trait IErc1155MetadataURI {
+    /// Returns the URI for token type `id`.
+    #[ink(message)]
+    fn uri(&self, _id: Id) -> Option<String>;
 }
 
 /// The ERC1155Receiver error types.

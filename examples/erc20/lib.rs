@@ -5,7 +5,7 @@ use ink_lang as ink;
 pub mod my_erc20 {
     use erc20::{
         traits::{ IErc20, Erc20Error },
-        impls::*,
+        impls::{ Erc20Storage, Erc20Internal, Erc20 },
     };
     use ink_prelude::{
         string::{
@@ -68,6 +68,9 @@ pub mod my_erc20 {
         iml_getters!(symbol, _symbol, _symbol_mut, Lazy<Option<String>>);
         iml_getters!(decimal, _decimals, _decimals_mut, Lazy<u8>);
     }
+
+    // Erc20 has additional trait Erc20Internal which contains internal methods which is used for implementation of Erc20 trait.
+    // You also can override them. Methods which emit events is not defined in Erc20Internal, so you MUST define them here by self.
     impl Erc20Internal for MyErc20 {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
