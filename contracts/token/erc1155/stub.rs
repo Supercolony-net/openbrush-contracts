@@ -8,7 +8,10 @@ pub use self::erc1155::{Erc1155};
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod erc1155 {
     use crate::traits::{Erc1155Error, Erc1155ReceiverError, Id};
-    use ink_prelude::{vec::Vec};
+    use ink_prelude::{
+        string::{String},
+        vec::Vec,
+    };
 
     #[ink(storage)]
     pub struct Erc1155 {}
