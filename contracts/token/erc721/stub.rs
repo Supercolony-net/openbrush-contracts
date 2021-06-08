@@ -1,14 +1,13 @@
 // It exports the stub implementation of all Erc721 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-#[cfg(not(test))]
 pub use self::erc721::{Erc721};
+pub use self::erc721receiver::{Erc721Receiver};
 
-#[cfg(not(test))]
 #[ink_lang::contract(compile_as_dependency = true)]
 mod erc721 {
     use ink_prelude::{ string::String, vec::Vec };
-    use crate::traits::{ Erc721Error, Id, Erc721ReceiverError };
+    use crate::traits::{ Erc721Error, Id };
 
     #[derive(Default)]
     #[ink(storage)]
@@ -100,9 +99,26 @@ mod erc721 {
             unimplemented!()
         }
     }
+}
+
+#[ink_lang::contract(compile_as_dependency = true)]
+mod erc721receiver {
+    use ink_prelude::{ vec::Vec };
+    use crate::traits::{ Id, Erc721ReceiverError };
+
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct Erc721Receiver {}
+
+    impl Erc721Receiver {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+    }
 
     #[ink(namespace = "IErc721Receiver")]
-    impl Erc721 {
+    impl Erc721Receiver {
         #[ink(message)]
         pub fn on_erc721_received(
             &mut self,

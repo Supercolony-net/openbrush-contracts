@@ -1,9 +1,12 @@
+#![cfg_attr(test, allow(unused_imports))]
+
 use crate::traits::{Erc1155Error, Id};
-#[cfg(not(test))]
+use crate::stub::{Erc1155Receiver};
 use ink_env::{
-    call::{build_call, utils::ReturnType, ExecutionInput, Selector},
-    DefaultEnvironment, Error as Env_error,
+    call::{FromAccountId},
+    Error as Env_error,
 };
+use ink_lang::ForwardCallMut;
 use ink_prelude::{vec::Vec, string::String, vec};
 use ink_storage::{
     collections::HashMap as StorageHashMap,
@@ -187,19 +190,8 @@ pub trait Erc1155Internal: Erc1155Storage {
         _amount: Balance,
         _data: Vec<u8>,
     ) -> Result<(), Erc1155Error> {
-        match build_call::<DefaultEnvironment>()
-            .callee(_to)
-            .exec_input(
-                // ::ink_lang_ir::Selector::new("IErc1155Receiver::on_erc1155_received".as_ref()).as_bytes()
-                ExecutionInput::new(Selector::new([0xc4, 0xce, 0x40, 0x79]))
-                    .push_arg(_operator)
-                    .push_arg(_from)
-                    .push_arg(_id)
-                    .push_arg(_amount)
-                    .push_arg(_data),
-            )
-            .returns::<ReturnType<Result<(), Erc1155Error>>>()
-            .fire()
+        let mut receiver : Erc1155Receiver = FromAccountId::from_account_id(_to);
+        match receiver.call_mut().on_erc1155_received(_operator, _from, _id, _amount, _data).fire()
         {
             Ok(result) => match result {
                 Ok(_) => Ok(()),
@@ -237,19 +229,8 @@ pub trait Erc1155Internal: Erc1155Storage {
         _amounts: Vec<Balance>,
         _data: Vec<u8>,
     ) -> Result<(), Erc1155Error> {
-        match build_call::<DefaultEnvironment>()
-            .callee(_to)
-            .exec_input(
-                // ::ink_lang_ir::Selector::new("IErc1155Receiver::on_erc1155_batch_received".as_ref()).as_bytes()
-                ExecutionInput::new(Selector::new([0xcc, 0xfa, 0x60, 0x0e]))
-                    .push_arg(_operator)
-                    .push_arg(_from)
-                    .push_arg(_ids)
-                    .push_arg(_amounts)
-                    .push_arg(_data),
-            )
-            .returns::<ReturnType<Result<(), Erc1155Error>>>()
-            .fire()
+        let mut receiver : Erc1155Receiver = FromAccountId::from_account_id(_to);
+        match receiver.call_mut().on_erc1155_batch_received(_operator, _from, _ids, _amounts, _data).fire()
         {
             Ok(result) => match result {
                 Ok(_) => Ok(()),

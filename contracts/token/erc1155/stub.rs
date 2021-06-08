@@ -1,13 +1,12 @@
 // It exports the stub implementation of all Erc1155 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-#[cfg(not(test))]
 pub use self::erc1155::{Erc1155};
+pub use self::erc1155receiver::{Erc1155Receiver};
 
-#[cfg(not(test))]
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod erc1155 {
-    use crate::traits::{Erc1155Error, Erc1155ReceiverError, Id};
+    use crate::traits::{Erc1155Error, Id};
     use ink_prelude::{
         string::{String},
         vec::Vec,
@@ -77,9 +76,27 @@ pub mod erc1155 {
             unimplemented!()
         }
     }
+}
+
+#[ink_lang::contract(compile_as_dependency = true)]
+pub mod erc1155receiver {
+    use crate::traits::{Erc1155ReceiverError, Id};
+    use ink_prelude::{
+        vec::Vec,
+    };
+
+    #[ink(storage)]
+    pub struct Erc1155Receiver {}
+
+    impl Erc1155Receiver {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+    }
 
     #[ink(namespace = "IErc1155Receiver")]
-    impl Erc1155 {
+    impl Erc1155Receiver {
         #[ink(message)]
         pub fn on_erc1155_received(&mut self, _operator: AccountId, _from: AccountId,
                                    _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), Erc1155ReceiverError> {
@@ -87,7 +104,7 @@ pub mod erc1155 {
         }
 
         #[ink(message)]
-        pub fn on_erc1155_batch_received(&self, _operator: AccountId, _from: AccountId,
+        pub fn on_erc1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
                                          _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), Erc1155ReceiverError> {
             unimplemented!()
         }

@@ -1,9 +1,11 @@
 use core::result::Result;
-use crate::traits::{Id, Erc721Error, Erc721ReceiverError };
+use crate::traits::{Id, Erc721Error};
+use crate::stub::{Erc721Receiver};
 use ink_env::{
-    call::{build_call, utils::ReturnType, ExecutionInput, Selector},
-    DefaultEnvironment, Error as Env_error,
+    call::{FromAccountId},
+    Error as Env_error,
 };
+use ink_lang::ForwardCallMut;
 use ink_storage::collections::{hashmap::Entry, HashMap as StorageHashMap};
 use utils::{
     traits::{InkStorage, AccountId},
@@ -250,17 +252,8 @@ pub trait Erc721Internal: Erc721Storage {
         id: Id,
         data: Vec<u8>,
     ) -> Result<(), Erc721Error> {
-        match build_call::<DefaultEnvironment>()
-            .callee(to)
-            .exec_input(
-                // ::ink_lang_ir::Selector::new("IErc721Receiver::on_erc721_received".as_ref()).as_bytes()
-                ExecutionInput::new(Selector::new([0x7a, 0x22, 0x87, 0x43]))
-                    .push_arg(operator)
-                    .push_arg(from)
-                    .push_arg(id)
-                    .push_arg(data),
-            )
-            .returns::<ReturnType<Result<(), Erc721ReceiverError>>>()
+        let mut receiver : Erc721Receiver = FromAccountId::from_account_id(to);
+        match receiver.call_mut().on_erc721_received(operator, from, id, data)
             .fire()
         {
             Ok(result) => match result {
