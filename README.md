@@ -14,17 +14,17 @@ with additional [fix](https://github.com/Supercolony-net/ink/commit/4ade565ca0ad
 !ink will fix that issue in next release.
 
 The library is not production-ready, these issues must be resolved first:
-* https://github.com/Supercolony-net/openbrush-contracts/issues/1
-* https://github.com/Supercolony-net/openbrush-contracts/issues/2
+* [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/issues/1)
+* [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/issues/2)
 
 Usage of the library looks not pretty, but it will be simplified with resolving issues:
-* https://github.com/Supercolony-net/openbrush-contracts/issues/3
-* https://github.com/Supercolony-net/openbrush-contracts/issues/4
-* https://github.com/Supercolony-net/openbrush-contracts/issues/5
-* https://github.com/Supercolony-net/openbrush-contracts/issues/6
-* https://github.com/Supercolony-net/openbrush-contracts/issues/8
+* [Returning of error doesn't mean revert of transaction](https://github.com/Supercolony-net/openbrush-contracts/issues/3)
+* [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
+* [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
+* [Implementation of trait with external methods requires boilerplate code](https://github.com/Supercolony-net/openbrush-contracts/issues/6)
+* [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
 
-The upgradable contract will be available after resolving of https://github.com/Supercolony-net/openbrush-contracts/issues/7
+The upgradable contract will be available after resolving of this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 ## Was it audited?
 
