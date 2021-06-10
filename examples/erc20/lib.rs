@@ -1,7 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-#[ink::contract]
+#[macros::contract]
 pub mod my_erc20 {
     use erc20::{
         traits::{ IErc20, Erc20Error },
@@ -97,62 +96,8 @@ pub mod my_erc20 {
         }
     }
     impl Erc20 for MyErc20 {}
-    impl IErc20 for MyErc20 {
-        #[ink(message)]
-        fn token_name(&self) -> Option<String> {
-            self._token_name()
-        }
 
-        #[ink(message)]
-        fn token_symbol(&self) -> Option<String> {
-            self._token_symbol()
-        }
-
-        #[ink(message)]
-        fn token_decimals(&self) -> u8 {
-            self._token_decimals()
-        }
-
-        #[ink(message)]
-        fn total_supply(&self) -> Balance {
-            self._total_supply()
-        }
-
-        #[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> Balance {
-            self._balance_of(owner)
-        }
-
-        #[ink(message)]
-        fn transfer(&mut self, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
-            panic_on_error(self._transfer(to, value))
-        }
-
-        #[ink(message)]
-        fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self._allowance(owner, spender)
-        }
-
-        #[ink(message)]
-        fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
-            panic_on_error(self._transfer_from(from, to, value))
-        }
-
-        #[ink(message)]
-        fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), Erc20Error> {
-            panic_on_error(self._approve(spender, value))
-        }
-
-        #[ink(message)]
-        fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
-            panic_on_error(self._increase_allowance(spender, delta_value))
-        }
-
-        #[ink(message)]
-        fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
-            panic_on_error(self._decrease_allowance(spender, delta_value))
-        }
-    }
+    make_trait!(MyErc20, IErc20);
 
     impl MyErc20 {
         #[ink(constructor)]
@@ -160,8 +105,8 @@ pub mod my_erc20 {
             let mut instance = Self::_empty();
             *instance._name_mut() = Lazy::new(name);
             *instance._symbol_mut() = Lazy::new(symbol);
-            instance._set_decimals(decimal);
-            instance._mint(instance.env().caller(), _total_supply).expect("Can't mint tokens");
+            instance.set_decimals(decimal);
+            instance.mint(instance.env().caller(), _total_supply).expect("Can't mint tokens");
             instance
         }
 
@@ -173,15 +118,6 @@ pub mod my_erc20 {
         #[ink(message)]
         pub fn get_hated_account(&self) -> AccountId {
             self.hated_account.clone()
-        }
-    }
-
-    // TODO: ink! doesn't revert transactions if you returned error from the public method,
-    // so let's do it manually for now. https://github.com/paritytech/ink/issues/641
-    fn panic_on_error<T, E>(result: Result<T, E>) -> Result<T, E> {
-        match result {
-            Err(_) => panic!("Got error during execution"),
-            Ok(ok) => Ok(ok),
         }
     }
 }

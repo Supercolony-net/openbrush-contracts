@@ -188,7 +188,7 @@ impl MyErc20 {
         let mut instance = Self::_empty();
         *instance._name_mut() = Lazy::new(name);
         *instance._symbol_mut() = Lazy::new(symbol);
-        instance._set_decimals(decimal);
+        instance.set_decimals(decimal);
         instance._mint(instance.env().caller(), _total_supply).expect("Can't mint tokens");
         instance
     }
@@ -231,7 +231,7 @@ impl MyErc20 {
         let mut instance = Self::_empty();
         *instance._name_mut() = Lazy::new(name);
         *instance._symbol_mut() = Lazy::new(symbol);
-        instance._set_decimals(decimal);
+        instance.set_decimals(decimal);
         instance._mint(instance.env().caller(), _total_supply).expect("Can't mint tokens");
         instance
     }

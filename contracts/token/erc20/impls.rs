@@ -79,30 +79,31 @@ pub trait Erc20Internal: Erc20Storage {
 
 pub trait Erc20: Erc20Internal {
     /// Returns the token name.
-    fn _token_name(&self) -> Option<String> {
+    fn token_name(&self) -> Option<String> {
         Lazy::get(self._name()).clone()
     }
 
     /// Returns the token symbol.
-    fn _token_symbol(&self) -> Option<String> {
+    fn token_symbol(&self) -> Option<String> {
         Lazy::get(self._symbol()).clone()
     }
 
     /// Returns the token decimals.
-    fn _token_decimals(&self) -> u8 {
+    fn token_decimals(&self) -> u8 {
         Lazy::get(self._decimals()).clone()
     }
 
     /// Returns the total token supply.
-    fn _total_supply(&self) -> Balance {
+    fn total_supply(&self) -> Balance {
         Lazy::get(self._supply()).clone()
     }
 
     /// Returns the account Balance for the specified `owner`.
     ///
     /// Returns `0` if the account is non-existent.
-    // This function is implemented in Erc20Internal
-    // fn _balance_of(&self, owner: AccountId) -> Balance;
+    fn balance_of(&self, owner: AccountId) -> Balance {
+        self._balance_of(owner)
+    }
 
     /// Transfers `value` amount of tokens from the caller's account to account `to`.
     ///
@@ -116,7 +117,7 @@ pub trait Erc20: Erc20Internal {
     /// Returns `ZeroSenderAddress` error if sender's address is zero.
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
-    fn _transfer(&mut self, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
+    fn transfer(&mut self, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
         let from = Self::env().caller();
         self._transfer_from_to(from, to, value)
     }
@@ -124,7 +125,7 @@ pub trait Erc20: Erc20Internal {
     /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
     ///
     /// Returns `0` if no allowance has been set `0`.
-    fn _allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+    fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
         self._allowances().get(&(owner, spender)).copied().unwrap_or(0)
     }
 
@@ -146,9 +147,9 @@ pub trait Erc20: Erc20Internal {
     /// Returns `ZeroSenderAddress` error if sender's address is zero.
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
-    fn _transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
+    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
         let caller = Self::env().caller();
-        let allowance = self._allowance(from, caller);
+        let allowance = self.allowance(from, caller);
         if allowance < value {
             return Err(Erc20Error::InsufficientAllowance);
         }
@@ -169,13 +170,13 @@ pub trait Erc20: Erc20Internal {
     /// Returns `ZeroSenderAddress` error if sender's address is zero.
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
-    fn _approve(&mut self, spender: AccountId, value: Balance) -> Result<(), Erc20Error> {
+    fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), Erc20Error> {
         let owner = Self::env().caller();
         self._approve_from_to(owner, spender, value)
     }
 
     /// Sets the decimals
-    fn _set_decimals(&mut self, decimals: u8) {
+    fn set_decimals(&mut self, decimals: u8) {
         *self._decimals_mut() = Lazy::new(decimals);
     }
 
@@ -188,9 +189,9 @@ pub trait Erc20: Erc20Internal {
     /// Returns `ZeroSenderAddress` error if sender's address is zero.
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
-    fn _increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
+    fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
         let owner = Self::env().caller();
-        self._approve_from_to(owner, spender, self._allowance(owner, spender) + delta_value)
+        self._approve_from_to(owner, spender, self.allowance(owner, spender) + delta_value)
     }
 
     /// Atomically decreases the allowance granted to `spender` by the caller.
@@ -205,9 +206,9 @@ pub trait Erc20: Erc20Internal {
     /// Returns `ZeroSenderAddress` error if sender's address is zero.
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
-    fn _decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
+    fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
         let owner = Self::env().caller();
-        let allowance = self._allowance(owner, spender);
+        let allowance = self.allowance(owner, spender);
         if allowance < delta_value {
             return Err(Erc20Error::InsufficientAllowance);
         }
@@ -222,7 +223,7 @@ pub trait Erc20: Erc20Internal {
     /// # Errors
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
-    fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), Erc20Error> {
+    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), Erc20Error> {
         if account == ZERO_ADDRESS.into() {
             return Err(Erc20Error::ZeroRecipientAddress);
         }
@@ -230,7 +231,7 @@ pub trait Erc20: Erc20Internal {
         let mut new_balance = self._balance_of(account);
         new_balance += amount;
         self._balances_mut().insert(account, new_balance);
-        *self._supply_mut() = Lazy::new(self._total_supply() + amount);
+        *self._supply_mut() = Lazy::new(self.total_supply() + amount);
         self._emit_transfer_event(None, Some(account), amount);
         Ok(())
     }
@@ -245,7 +246,7 @@ pub trait Erc20: Erc20Internal {
     ///
     /// Returns `InsufficientBalance` error if there are not enough tokens on
     /// the the account Balance of `account`.
-    fn _burn(&mut self, account: AccountId, amount: Balance) -> Result<(), Erc20Error> {
+    fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), Erc20Error> {
         if account == ZERO_ADDRESS.into() {
             return Err(Erc20Error::ZeroSenderAddress);
         }
@@ -257,7 +258,7 @@ pub trait Erc20: Erc20Internal {
 
         from_balance -= amount;
         self._balances_mut().insert(account, from_balance);
-        *self._supply_mut() = Lazy::new(self._total_supply() - amount);
+        *self._supply_mut() = Lazy::new(self.total_supply() - amount);
         self._emit_transfer_event(Some(account), None, amount);
         Ok(())
     }
@@ -345,68 +346,12 @@ mod tests {
         }
     }
     impl Erc20 for Erc20Struct {}
-    impl IErc20 for Erc20Struct {
-        #[ink(message)]
-        fn token_name(&self) -> Option<String> {
-            self._token_name()
-        }
-
-        #[ink(message)]
-        fn token_symbol(&self) -> Option<String> {
-            self._token_symbol()
-        }
-
-        #[ink(message)]
-        fn token_decimals(&self) -> u8 {
-            self._token_decimals()
-        }
-
-        #[ink(message)]
-        fn total_supply(&self) -> Balance {
-            self._total_supply()
-        }
-
-        #[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> Balance {
-            self._balance_of(owner)
-        }
-
-        #[ink(message)]
-        fn transfer(&mut self, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
-            self._transfer(to, value)
-        }
-
-        #[ink(message)]
-        fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self._allowance(owner, spender)
-        }
-
-        #[ink(message)]
-        fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
-            self._transfer_from(from, to, value)
-        }
-
-        #[ink(message)]
-        fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), Erc20Error> {
-            self._approve(spender, value)
-        }
-
-        #[ink(message)]
-        fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
-            self._increase_allowance(spender, delta_value)
-        }
-
-        #[ink(message)]
-        fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
-            self._decrease_allowance(spender, delta_value)
-        }
-    }
     
     impl Erc20Struct {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::_empty();
-            instance._mint(instance.env().caller(), _total_supply).expect("Can't mint tokens");
+            instance.mint(instance.env().caller(), _total_supply).expect("Can't mint tokens");
             instance
         }
     }

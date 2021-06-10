@@ -1,0 +1,21 @@
+[package]
+name = "macros"
+version = "0.1.0"
+authors = ["Supercolony <green.baneling@supercolony.net>"]
+edition = "2018"
+
+[dependencies]
+syn = { version = "1.0", features = ["parsing", "full", "visit", "extra-traits"] }
+quote = "1.0"
+proc-macro2 = "1"
+serde_json = "1.0.64"
+
+[lib]
+name = "macros"
+path = "lib.rs"
+proc-macro = true
+
+[features]
+default = ["std"]
+std = [
+]

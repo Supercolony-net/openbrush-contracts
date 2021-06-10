@@ -16,6 +16,7 @@ scale = { package = "parity-scale-codec", version = "2.0", default-features = fa
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
 utils = { path = "../../utils", default-features = false }
+macros = { path = "../../macros" }
 
 [lib]
 name = "erc20"

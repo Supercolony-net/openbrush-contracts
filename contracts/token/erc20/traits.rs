@@ -25,6 +25,7 @@ impl core::fmt::Display for Erc20Error {
 }
 
 /// Trait implemented by all ERC-20 respecting smart traits.
+#[macros::reflect_trait]
 #[ink::trait_definition]
 pub trait IErc20 {
     /// Returns the token name.
