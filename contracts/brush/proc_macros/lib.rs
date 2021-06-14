@@ -18,8 +18,8 @@ use proc_macro2::{
 };
 use std::collections::HashMap;
 use std::env;
-use std::fs::OpenOptions;
-use std::io::BufReader;
+use std::fs::{OpenOptions, File};
+use std::io::{BufReader, Seek, SeekFrom};
 use std::str::FromStr;
 use serde_json;
 use fs2::FileExt;
@@ -85,9 +85,10 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
     let attrs: TokenStream2 = _attrs.into();
     let trait_item = parse_macro_input!(_input as ItemTrait);
 
-    let mut hash_map = load_hash_map();
+    let locked_file = get_locked_file();
+    let mut hash_map = load_hash_map(&locked_file);
     put_trait(&mut hash_map, trait_item);
-    save_hash_map(hash_map);
+    save_hash_map_and_unlock(locked_file, hash_map);
 
     let code = quote! {
         #attrs
@@ -140,7 +141,9 @@ pub fn impl_trait(_item: TokenStream) -> TokenStream {
 
     let contract_ident = impl_trait.contract;
 
-    let traits = load_hash_map();
+    let locked_file = get_locked_file();
+    let traits = load_hash_map(&locked_file);
+    locked_file.unlock().expect("Can't remove exclusive lock in impl_trait");
     let mut impls: Vec<TokenStream2> = vec![];
 
     // println!("{:?}", impl_trait.clone());
@@ -209,7 +212,7 @@ pub fn impl_trait(_item: TokenStream) -> TokenStream {
     final_code.into()
 }
 
-fn load_hash_map() -> Data {
+fn get_locked_file() -> File {
     let mut dir = env::temp_dir();
     dir = dir.join(TEMP_FILE);
 
@@ -219,23 +222,22 @@ fn load_hash_map() -> Data {
         Err(why) => panic!("Couldn't open temporary storage: {}", why),
         Ok(file) => file,
     };
-    file.lock_shared().expect("Can't do shared lock");
-    let reader = BufReader::new(&file);
+    file.lock_exclusive().expect("Can't do exclusive lock");
+    file
+}
+
+fn load_hash_map(file: &File) -> Data {
+    let reader = BufReader::new(file);
 
     let map = serde_json::from_reader(reader).unwrap_or_default();
-    file.unlock().expect("Can't remove shared lock");
     map
 }
 
-fn save_hash_map(hashmap: Data) {
-    let mut dir = env::temp_dir();
-    dir = dir.join(TEMP_FILE);
-
-    let mut file = OpenOptions::new().write(true).truncate(true).open(&dir)
-        .expect("Can't open file with truncation");
-    file.lock_exclusive().expect("Can't do exclusive lock");
-    serde_json::to_writer(&mut file, &hashmap).expect("Can't dump definition map to file");
-    file.unlock().expect("Can't remove exclusive lock");
+fn save_hash_map_and_unlock(mut locked_file: File, hashmap: Data) {
+    locked_file.set_len(0).expect("Can't truncate the file");
+    locked_file.seek(SeekFrom::Start(0)).expect("Can't set cursor position");
+    serde_json::to_writer(&locked_file, &hashmap).expect("Can't dump definition map to file");
+    locked_file.unlock().expect("Can't remove exclusive lock");
 }
 
 fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
