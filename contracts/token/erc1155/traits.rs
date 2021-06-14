@@ -31,7 +31,7 @@ pub trait IErc1155 {
 
     /// Batched version of {balance_of}.
     #[ink(message)]
-    fn balance_of_batch(&self, _owners: Vec<AccountId>, _ids: Vec<Id>);
+    fn balance_of_batch(&self, _owners: Vec<AccountId>, _ids: Vec<Id>) -> Vec<Balance>;
 
     /// Grants or revokes permission to `_operator` to transfer the caller's tokens, according to `_approved`
     #[ink(message)]
