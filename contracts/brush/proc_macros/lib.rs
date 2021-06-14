@@ -22,8 +22,9 @@ use std::fs::OpenOptions;
 use std::io::BufReader;
 use std::str::FromStr;
 use serde_json;
+use fs2::FileExt;
 
-const TEMP_FILE: &str = "brush_temp";
+const TEMP_FILE: &str = "brush_temp$%$%$";
 type Data = HashMap<String, Vec<String>>;
 
 #[proc_macro_attribute]
@@ -218,18 +219,23 @@ fn load_hash_map() -> Data {
         Err(why) => panic!("Couldn't open temporary storage: {}", why),
         Ok(file) => file,
     };
-    let reader = BufReader::new(file);
+    file.lock_shared().expect("Can't do shared lock");
+    let reader = BufReader::new(&file);
 
-    serde_json::from_reader(reader).unwrap_or_default()
+    let map = serde_json::from_reader(reader).unwrap_or_default();
+    file.unlock().expect("Can't remove shared lock");
+    map
 }
 
 fn save_hash_map(hashmap: Data) {
     let mut dir = env::temp_dir();
     dir = dir.join(TEMP_FILE);
 
-    let file = OpenOptions::new().write(true).truncate(true).open(&dir)
+    let mut file = OpenOptions::new().write(true).truncate(true).open(&dir)
         .expect("Can't open file with truncation");
-    serde_json::to_writer(file, &hashmap).expect("Can't dump definition map to file");
+    file.lock_exclusive().expect("Can't do exclusive lock");
+    serde_json::to_writer(&mut file, &hashmap).expect("Can't dump definition map to file");
+    file.unlock().expect("Can't remove exclusive lock");
 }
 
 fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
