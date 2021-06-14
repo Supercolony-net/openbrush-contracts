@@ -15,7 +15,8 @@ ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
-utils = { path = "../../utils", default-features = false }
+strum_macros = "0.21.1"
+brush = { path = "../../brush", default-features = false }
 
 [lib]
 name = "erc721"
@@ -36,6 +37,6 @@ std = [
     "scale-info",
     "scale-info/std",
 
-    "utils/std",
+    "brush/std",
 ]
 ink-as-dependency = []

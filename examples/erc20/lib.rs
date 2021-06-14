@@ -1,10 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[macros::contract]
+#[brush::contract]
 pub mod my_erc20 {
     use erc20::{
         traits::{ IErc20, Erc20Error },
-        impls::{ Erc20Storage, Erc20Internal, Erc20 },
+        impls::{ Erc20Storage, Erc20 },
     };
     use ink_prelude::{
         string::{
@@ -17,7 +17,7 @@ pub mod my_erc20 {
             HashMap as StorageHashMap,
         }, Lazy
     };
-    use utils::{
+    use brush::{
         traits::{InkStorage},
         iml_getters,
     };
@@ -68,10 +68,8 @@ pub mod my_erc20 {
         iml_getters!(decimal, _decimals, _decimals_mut, Lazy<u8>);
     }
 
-    // Erc20 has additional trait Erc20Internal which contains internal methods which is used for implementation of Erc20 trait.
-    // You also can override them. Methods which emit events is not defined in Erc20Internal, so you MUST define them here by self.
-    impl Erc20Internal for MyErc20 {
-        fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
+    impl Erc20 for MyErc20 {
+        fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
                 to: _to,
@@ -79,7 +77,7 @@ pub mod my_erc20 {
             });
         }
 
-        fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {
+        fn emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {
             self.env().emit_event(Approval {
                 owner: _owner,
                 spender: _spender,
@@ -88,16 +86,12 @@ pub mod my_erc20 {
         }
 
         // Let's override method to reject transactions to bad account
-        fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) -> Result<(), Erc20Error> {
-            if _to == self.hated_account {
-                return Err(Erc20Error::Unknown("I hate this account!".to_string()))
-            }
-            Ok(())
+        fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
+            assert!(_to != self.hated_account, "{}", Erc20Error::Unknown("I hate this account!".to_string()).as_ref());
         }
     }
-    impl Erc20 for MyErc20 {}
 
-    make_trait!(MyErc20, IErc20);
+    impl_trait!(MyErc20, IErc20(Erc20));
 
     impl MyErc20 {
         #[ink(constructor)]
@@ -106,7 +100,7 @@ pub mod my_erc20 {
             *instance._name_mut() = Lazy::new(name);
             *instance._symbol_mut() = Lazy::new(symbol);
             instance.set_decimals(decimal);
-            instance.mint(instance.env().caller(), _total_supply).expect("Can't mint tokens");
+            instance.mint(instance.env().caller(), _total_supply);
             instance
         }
 

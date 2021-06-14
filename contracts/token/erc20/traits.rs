@@ -1,10 +1,8 @@
-use ink_lang as ink;
 use ink_prelude::{string::String};
-use utils::traits::{AccountId, Balance};
+use brush::traits::{AccountId, Balance};
 
-/// The ERC-20 error type.
-#[derive(Debug, scale::Encode, scale::Decode, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+/// The ERC-20 error type. Contract will assert one of this errors.
+#[derive(strum_macros::AsRefStr)]
 pub enum Erc20Error {
     /// Unknown error type for cases if writer of traits added own restrictions
     Unknown(String),
@@ -18,15 +16,8 @@ pub enum Erc20Error {
     ZeroSenderAddress,
 }
 
-impl core::fmt::Display for Erc20Error {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Erc20Error: {:?}", self)
-    }
-}
-
 /// Trait implemented by all ERC-20 respecting smart traits.
-#[macros::reflect_trait]
-#[ink::trait_definition]
+#[brush::trait_definition]
 pub trait IErc20 {
     /// Returns the token name.
     #[ink(message)]
@@ -50,7 +41,7 @@ pub trait IErc20 {
 
     /// Transfers `value` amount of tokens from the caller's account to account `to`.
     #[ink(message)]
-    fn transfer(&mut self, to: AccountId, value: Balance) -> Result<(), Erc20Error>;
+    fn transfer(&mut self, to: AccountId, value: Balance);
 
     /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
     #[ink(message)]
@@ -58,18 +49,18 @@ pub trait IErc20 {
 
     /// Transfers `value` tokens on the behalf of `from` to the account `to`.
     #[ink(message)]
-    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<(), Erc20Error>;
+    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance);
 
     /// Allows `spender` to withdraw from the caller's account multiple times, up to
     /// the `value` amount.
     #[ink(message)]
-    fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), Erc20Error>;
+    fn approve(&mut self, spender: AccountId, value: Balance);
 
     /// Atomically increases the allowance granted to `spender` by the caller on `delta_value`.
     #[ink(message)]
-    fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error>;
+    fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance);
 
     /// Atomically decreases the allowance granted to `spender` by the caller on `delta_value`.
     #[ink(message)]
-    fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error>;
+    fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance);
 }

@@ -16,8 +16,7 @@ scale = { package = "parity-scale-codec", version = "2.1", default-features = fa
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
 erc20 = { path = "../../contracts/token/erc20", default-features = false, features = ["ink-as-dependency"] }
-utils = { path = "../../contracts/utils", default-features = false }
-macros = { path = "../../contracts/macros" }
+brush = { path = "../../contracts/brush", default-features = false }
 
 [lib]
 name = "my_erc20"
@@ -42,6 +41,6 @@ std = [
     "scale-info/std",
 
     "erc20/std",
-    "utils/std",
+    "brush/std",
 ]
 ink-as-dependency = []

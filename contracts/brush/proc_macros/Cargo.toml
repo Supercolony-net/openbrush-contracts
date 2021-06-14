@@ -1,5 +1,5 @@
 [package]
-name = "macros"
+name = "proc_macros"
 version = "0.1.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -11,11 +11,10 @@ proc-macro2 = "1"
 serde_json = "1.0.64"
 
 [lib]
-name = "macros"
+name = "proc_macros"
 path = "lib.rs"
 proc-macro = true
 
 [features]
 default = ["std"]
-std = [
-]
+std = []

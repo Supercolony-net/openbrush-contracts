@@ -6,7 +6,7 @@ pub use self::erc1155receiver::{Erc1155Receiver};
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod erc1155 {
-    use crate::traits::{Erc1155Error, Id};
+    use crate::traits::{Id};
     use ink_prelude::{
         string::{String},
         vec::Vec,
@@ -30,12 +30,12 @@ pub mod erc1155 {
         }
 
         #[ink(message)]
-        pub fn balance_of_batch(&self, _owners: Vec<AccountId>, _ids: Vec<Id>) -> Result<Vec<Balance>, Erc1155Error> {
+        pub fn balance_of_batch(&self, _owners: Vec<AccountId>, _ids: Vec<Id>) -> Vec<Balance> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn set_approval_for_all(&mut self, _operator: AccountId, _approved: bool) -> Result<(), Erc1155Error> {
+        pub fn set_approval_for_all(&mut self, _operator: AccountId, _approved: bool) {
             unimplemented!()
         }
 
@@ -52,7 +52,7 @@ pub mod erc1155 {
             _id: Id,
             _amount: Balance,
             _data: Vec<u8>,
-        ) -> Result<(), Erc1155Error> {
+        ) {
             unimplemented!()
         }
 
@@ -64,7 +64,7 @@ pub mod erc1155 {
             _ids: Vec<Id>,
             _amounts: Vec<Balance>,
             _data: Vec<u8>,
-        ) -> Result<(), Erc1155Error> {
+        ) {
             unimplemented!()
         }
     }

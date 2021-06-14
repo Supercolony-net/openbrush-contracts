@@ -19,7 +19,7 @@ std = [
  ...
    
    "erc20/std",
-   "utils/std",
+   "brush/std",
 ]
 ```
 2. Import according: traits, errors, macros and structs.
@@ -39,7 +39,7 @@ use ink_storage::{
         HashMap as StorageHashMap,
     }, Lazy
 };
-use utils::{
+use brush::{
     traits::{InkStorage},
     iml_getters,
 };
@@ -101,7 +101,7 @@ impl Erc20Storage for MyErc20 {
 // Erc20 has additional trait Erc20Internal which contains internal methods which is used for implementation of Erc20 trait.
 // You also can override them. Methods which emit events is not defined in Erc20Internal, so you MUST define them here by self.
 impl Erc20Internal for MyErc20 {
-    fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
+    fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
         self.env().emit_event(Transfer {
             from: _from,
             to: _to,
@@ -109,7 +109,7 @@ impl Erc20Internal for MyErc20 {
         });
     }
 
-    fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {
+    fn emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {
         self.env().emit_event(Approval {
             owner: _owner,
             spender: _spender,
@@ -200,7 +200,7 @@ Also we will override `_before_token_transfer` method in `Erc20Internal` impleme
 // Erc20 has additional trait Erc20Internal which contains internal methods which is used for implementation of Erc20 trait.
 // You also can override them. Methods which emit events is not defined in Erc20Internal, so you MUST define them here by self.
 impl Erc20Internal for MyErc20 {
-    fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
+    fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
         self.env().emit_event(Transfer {
             from: _from,
             to: _to,
@@ -208,7 +208,7 @@ impl Erc20Internal for MyErc20 {
         });
     }
 
-    fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {
+    fn emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {
         self.env().emit_event(Approval {
             owner: _owner,
             spender: _spender,

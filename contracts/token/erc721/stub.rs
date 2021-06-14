@@ -7,7 +7,7 @@ pub use self::erc721receiver::{Erc721Receiver};
 #[ink_lang::contract(compile_as_dependency = true)]
 mod erc721 {
     use ink_prelude::{ string::String, vec::Vec };
-    use crate::traits::{ Erc721Error, Id };
+    use crate::traits::{ Id };
 
     #[derive(Default)]
     #[ink(storage)]
@@ -43,12 +43,12 @@ mod erc721 {
         }
 
         #[ink(message)]
-        pub fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), Erc721Error> {
+        pub fn set_approval_for_all(&mut self, to: AccountId, approved: bool) {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn approve(&mut self, to: AccountId, id: Id) -> Result<(), Erc721Error> {
+        pub fn approve(&mut self, to: AccountId, id: Id) {
             unimplemented!()
         }
 
@@ -58,7 +58,7 @@ mod erc721 {
             from: AccountId,
             to: AccountId,
             id: Id,
-        ) -> Result<(), Erc721Error> {
+        ) {
             unimplemented!()
         }
 
@@ -69,7 +69,7 @@ mod erc721 {
             to: AccountId,
             id: Id,
             data: Vec<u8>,
-        ) -> Result<(), Erc721Error> {
+        ) {
             unimplemented!()
         }
     }
@@ -90,12 +90,12 @@ mod erc721 {
     #[ink(namespace = "IErc721Mint")]
     impl Erc721 {
         #[ink(message)]
-        pub fn mint(&mut self, id: Id) -> Result<(), Erc721Error> {
+        pub fn mint(&mut self, id: Id) {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn burn(&mut self, id: Id) -> Result<(), Erc721Error> {
+        pub fn burn(&mut self, id: Id) {
             unimplemented!()
         }
     }

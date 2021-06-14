@@ -1,5 +1,5 @@
 [package]
-name = "utils"
+name = "brush"
 version = "0.1.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -7,12 +7,12 @@ edition = "2018"
 [dependencies]
 ink_env = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
 ink_lang = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
+proc_macros = { path = "proc_macros" }
 
 [lib]
-name = "utils"
+name = "brush"
 path = "lib.rs"
 crate-type = [
-	# Used for ABI generation.
 	"rlib",
 ]
 
