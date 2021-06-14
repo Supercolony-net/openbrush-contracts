@@ -30,7 +30,7 @@ type Data = HashMap<String, Vec<String>>;
 pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
     let input: TokenStream2 = ink_module.into();
     let attrs: TokenStream2 = _attrs.into();
-    let mut module = syn::parse2::<syn::ItemMod>(input.clone()).unwrap();
+    let mut module = syn::parse2::<syn::ItemMod>(input.clone()).expect("Can't parse contract module");
     let (braces, items) = match module.content {
         Some((brace, items)) => (brace, items),
         None => {
@@ -46,11 +46,9 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
         .filter_map(|item| {
             if let Item::Macro(macro_item) = &item {
                 if macro_item.mac.path.is_ident("impl_trait") {
-                    // let stream: TokenStream2 = impl_trait(macro_item.mac.tokens.clone().into()).into();
-                    // stream.
                     let mut generated_items = syn::Block::parse_within.
                         parse(impl_trait(macro_item.mac.tokens.clone().into()))
-                        .unwrap()
+                        .expect("Can't parse generate impl code")
                         .iter_mut()
                         .filter_map(|stmt|
                             if let syn::Stmt::Item(item) = stmt {
@@ -106,7 +104,7 @@ struct ImplTrait {
 fn parse_impl_trait(stream: TokenStream2) -> ImplTrait {
     let mut iter = stream.into_iter();
     let mut impl_trait;
-    if let TokenTree::Ident(ident) = iter.next().unwrap() {
+    if let TokenTree::Ident(ident) = iter.next().expect("Empty token stream") {
         impl_trait = ImplTrait{
             contract: ident,
             traits: vec![]
@@ -123,7 +121,7 @@ fn parse_impl_trait(stream: TokenStream2) -> ImplTrait {
             if let Some(pair) = impl_trait.traits.last_mut() {
                 let internal_trait = &mut pair.1;
                 if internal_trait.is_none() {
-                    *internal_trait = Some(syn::parse2::<syn::Ident>(trait_group.stream()).unwrap());
+                    *internal_trait = Some(syn::parse2::<syn::Ident>(trait_group.stream()).expect("Can't find ident of internal trait"));
                 } else {
                     panic!("External trait already contains internal");
                 }
@@ -146,9 +144,10 @@ pub fn impl_trait(_item: TokenStream) -> TokenStream {
 
     // println!("{:?}", impl_trait.clone());
     for (external_trait, internal) in impl_trait.traits.iter() {
-        let trait_methods: Vec<_> = traits.get(&external_trait.to_string()).unwrap().into_iter()
-            .map(|method| TokenStream2::from_str(method).unwrap())
-            .map(|stream| syn::parse2::<syn::TraitItemMethod>(stream).unwrap())
+        let trait_methods: Vec<_> = traits.get(&external_trait.to_string())
+            .expect("Can't find definition of external trait").into_iter()
+            .map(|method| TokenStream2::from_str(method).expect("Can't parse definition of external trait"))
+            .map(|stream| syn::parse2::<syn::TraitItemMethod>(stream).expect("Can't parse external method"))
             .collect();
 
         let implementations = trait_methods.into_iter().map(|item| {
@@ -228,8 +227,9 @@ fn save_hash_map(hashmap: Data) {
     let mut dir = env::temp_dir();
     dir = dir.join(TEMP_FILE);
 
-    let file = OpenOptions::new().write(true).truncate(true).open(&dir).unwrap();
-    serde_json::to_writer(file, &hashmap).unwrap();
+    let file = OpenOptions::new().write(true).truncate(true).open(&dir)
+        .expect("Can't open file with truncation");
+    serde_json::to_writer(file, &hashmap).expect("Can't dump definition map to file");
 }
 
 fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
