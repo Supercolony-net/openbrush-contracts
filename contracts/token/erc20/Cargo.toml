@@ -1,6 +1,6 @@
 [package]
 name = "erc20"
-version = "0.1.0"
+version = "0.2.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
