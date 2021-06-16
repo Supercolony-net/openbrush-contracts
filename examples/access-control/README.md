@@ -21,7 +21,7 @@ std = [
    
    "erc721/std",
    "access-control/std",
-   "utils/std",
+   "brush/std",
 ]
 ```
 2. Import according: traits, errors, macros and structs.
@@ -34,7 +34,7 @@ use access_control::{
     traits::{ IAccessControl, AccessControlError, RoleType },
     impls::{ AccessControlStorage, AccessControl, RoleData }
 };
-use utils::{
+use brush::{
     traits::{ InkStorage },
     iml_getters,
 };
@@ -119,7 +119,7 @@ impl AccessControlStorage for Erc721Struct {
 // Erc721 has additional trait Erc721Internal which contains internal methods which is used for implementation of Erc721 trait.
 // You also can override them. Methods which emit events is not defined in Erc721Internal, so you MUST define them here by self.
 impl Erc721Internal for Erc721Struct {
-    fn _emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
+    fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
         self.env().emit_event(Transfer {
             from: Some(_from),
             to: Some(_to),
@@ -127,7 +127,7 @@ impl Erc721Internal for Erc721Struct {
         });
     }
 
-    fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
+    fn emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
         self.env().emit_event(Approval {
             from: _from,
             to: _to,
@@ -135,7 +135,7 @@ impl Erc721Internal for Erc721Struct {
         });
     }
 
-    fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {
+    fn emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {
         self.env().emit_event(ApprovalForAll {
             owner: _owner,
             operator: _operator,

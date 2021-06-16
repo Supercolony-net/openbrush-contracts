@@ -2,3 +2,4 @@
 
 pub mod traits;
 pub mod impls;
+mod tests;

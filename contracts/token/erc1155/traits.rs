@@ -1,15 +1,13 @@
 use core::result::Result;
-use ink_lang as ink;
 use ink_prelude::{
     string::{String},
     vec::Vec,
 };
-use utils::traits::{AccountId, Balance};
+use brush::traits::{AccountId, Balance};
 
 pub type Id = [u8; 32];
 
-#[derive(Debug, scale::Encode, scale::Decode, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(strum_macros::AsRefStr)]
 pub enum Erc1155Error {
     Unknown(String),
     CallFailed,
@@ -22,16 +20,10 @@ pub enum Erc1155Error {
     InputLengthMismatch,
 }
 
-impl core::fmt::Display for Erc1155Error {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Erc1155Error: {:?}", self)
-    }
-}
-
 /// A standard trait for contracts that manage multiple token types.
 /// A single deployed contract may include any combination of fungible tokens,
 /// non-fungible tokens or other configurations (e.g. semi-fungible tokens).
-#[ink::trait_definition]
+#[brush::trait_definition]
 pub trait IErc1155 {
     /// Returns the amount of tokens of token type `_id` owned by `_account`.
     #[ink(message)]
@@ -39,11 +31,11 @@ pub trait IErc1155 {
 
     /// Batched version of {balance_of}.
     #[ink(message)]
-    fn balance_of_batch(&self, _owners: Vec<AccountId>, _ids: Vec<Id>) -> Result<Vec<Balance>, Erc1155Error>;
+    fn balance_of_batch(&self, _owners: Vec<AccountId>, _ids: Vec<Id>) -> Vec<Balance>;
 
     /// Grants or revokes permission to `_operator` to transfer the caller's tokens, according to `_approved`
     #[ink(message)]
-    fn set_approval_for_all(&mut self, _operator: AccountId, _approved: bool) -> Result<(), Erc1155Error>;
+    fn set_approval_for_all(&mut self, _operator: AccountId, _approved: bool);
 
     /// Returns true if `_operator` is approved to transfer ``_account``'s tokens.
     #[ink(message)]
@@ -58,7 +50,7 @@ pub trait IErc1155 {
         _id: Id,
         _amount: Balance,
         _data: Vec<u8>,
-    ) -> Result<(), Erc1155Error>;
+    );
 
     /// Batched version of {safe_transfer_from}.
     #[ink(message)]
@@ -69,10 +61,10 @@ pub trait IErc1155 {
         _ids: Vec<Id>,
         _amounts: Vec<Balance>,
         _data: Vec<u8>,
-    ) -> Result<(), Erc1155Error>;
+    );
 }
 
-#[ink::trait_definition]
+#[brush::trait_definition]
 pub trait IErc1155MetadataURI {
     /// Returns the URI for token type `id`.
     #[ink(message)]
@@ -88,7 +80,7 @@ pub enum Erc1155ReceiverError {
 }
 
 /// Handles the receipt of a single ERC-1155 token type.
-#[ink::trait_definition]
+#[brush::trait_definition]
 pub trait IErc1155Receiver {
     /// This function is called at the end of a safe_transfer_from after the balance has been updated.
     /// If transfer is rejected it wil return an error.

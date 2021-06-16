@@ -8,7 +8,6 @@ pub use self::erc20::{Erc20};
 #[ink_lang::contract]
 mod erc20 {
     use ink_prelude::string::String;
-    use crate::traits::Erc20Error;
 
     #[derive(Default)]
     #[ink(storage)]
@@ -47,7 +46,7 @@ mod erc20 {
         }
 
         #[ink(message)]
-        pub fn transfer(&mut self, _to: AccountId, _value: Balance) -> Result<(), Erc20Error> {
+        pub fn transfer(&mut self, _to: AccountId, _value: Balance) {
             unimplemented!()
         }
 
@@ -57,27 +56,22 @@ mod erc20 {
         }
 
         #[ink(message)]
-        pub fn transfer_from(
-            &mut self,
-            _from: AccountId,
-            _to: AccountId,
-            _value: Balance,
-        ) -> Result<(), Erc20Error> {
+        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _value: Balance) {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn approve(&mut self, _spender: AccountId, _value: Balance) -> Result<(), Erc20Error> {
+        pub fn approve(&mut self, _spender: AccountId, _value: Balance) {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn increase_allowance(&mut self, _spender: AccountId, _delta_value: Balance) -> Result<(), Erc20Error> {
+        pub fn increase_allowance(&mut self, _spender: AccountId, _delta_value: Balance) {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn decrease_allowance(&mut self, _spender: AccountId, _delta_value: Balance) -> Result<(), Erc20Error> {
+        pub fn decrease_allowance(&mut self, _spender: AccountId, _delta_value: Balance) {
             unimplemented!()
         }
     }

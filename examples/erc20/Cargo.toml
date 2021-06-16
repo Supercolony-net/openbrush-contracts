@@ -15,8 +15,8 @@ ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
-erc20 = { version = "0.1.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
-utils = { version = "0.1.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+erc20 = { path = "../../contracts/token/erc20", default-features = false, features = ["ink-as-dependency"] }
+brush = { path = "../../contracts/brush", default-features = false }
 
 [lib]
 name = "my_erc20"
@@ -41,6 +41,6 @@ std = [
     "scale-info/std",
 
     "erc20/std",
-    "utils/std",
+    "brush/std",
 ]
 ink-as-dependency = []

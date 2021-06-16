@@ -5,7 +5,7 @@ members = [
     "contracts/token/erc1155",
     "contracts/access/ownable",
     "contracts/access/access-control",
-    "contracts/utils",
+    "contracts/brush",
 ]
 exclude = [
     "examples",

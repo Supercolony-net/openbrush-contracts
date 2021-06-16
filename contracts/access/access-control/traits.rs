@@ -1,23 +1,15 @@
-use ink_lang as ink;
-use utils::traits::{AccountId};
+use brush::traits::{AccountId};
 
 pub type RoleType = u32;
 
-#[derive(scale::Encode, scale::Decode, Debug, PartialEq, Eq, Copy, Clone)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(strum_macros::AsRefStr)]
 pub enum AccessControlError {
     InvalidCaller,
     MissingRole,
 }
 
-impl core::fmt::Display for AccessControlError {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "AccessControlError: {:?}", self)
-    }
-}
-
 // TODO: Add comments
-#[ink::trait_definition]
+#[brush::trait_definition]
 pub trait IAccessControl {
     #[ink(message)]
     fn has_role(&self, role: RoleType, address: AccountId) -> bool;
@@ -29,11 +21,11 @@ pub trait IAccessControl {
     fn get_role_admin(&self, role: RoleType) -> RoleType;
 
     #[ink(message)]
-    fn grant_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError>;
+    fn grant_role(&mut self, role: RoleType, address: AccountId);
 
     #[ink(message)]
-    fn revoke_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError>;
+    fn revoke_role(&mut self, role: RoleType, address: AccountId);
 
     #[ink(message)]
-    fn renounce_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError>;
+    fn renounce_role(&mut self, role: RoleType, address: AccountId);
 }
