@@ -70,18 +70,6 @@ mod tests {
     }
 
     #[ink::test]
-    fn should_init_with_defined_role() {
-        let accounts = setup();
-        let access_control = AccessControlStruct::new(accounts.alice);
-
-        assert!(access_control.has_role(DEFAULT_ADMIN_ROLE, accounts.alice));
-        assert_eq!(
-            access_control.get_role_admin(DEFAULT_ADMIN_ROLE),
-            DEFAULT_ADMIN_ROLE
-        );
-    }
-
-    #[ink::test]
     fn should_grant_role() {
         let accounts = setup();
         let mut access_control = AccessControlStruct::new(accounts.alice);

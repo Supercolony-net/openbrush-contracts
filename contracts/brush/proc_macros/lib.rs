@@ -27,6 +27,7 @@ use fs2::FileExt;
 const TEMP_FILE: &str = "brush_temp$%$%$";
 type Data = HashMap<String, Vec<String>>;
 
+// TODO: Add comments with detailed description and examples
 #[proc_macro_attribute]
 pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
     let input: TokenStream2 = ink_module.into();

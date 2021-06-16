@@ -37,6 +37,10 @@ export const setupContract = async (name, constructor, ...args) => {
   }
 }
 
+// It removes prefix from the function and adds only name of method like a function
+// Erc20::token_name
+// query["Erc20,tokenName"]
+// query.tokenName()
 const patchMethods = (object) => {
   for (const prop in object) {
     if (prop.includes(',')) {
