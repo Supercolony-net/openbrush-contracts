@@ -1,4 +1,6 @@
 # OpenBrush-Contracts
+
+## Summary
 **A Rust library for secure smart contract development on ink!.**
 
 This library contains traits definition of standard tokens. 
@@ -9,11 +11,16 @@ which can be reused or customized by everyone.
 
 To understand how to use the library better to check [examples](examples) and [doc](doc) folders.
 
-At the moment library is using own version of ink!, but it is the same [ink!-3.0-rc3](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc3)
+At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc3](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc3)
 with additional [fix](https://github.com/Supercolony-net/ink/commit/4ade565ca0adf746c130ef32e50f54a9504970cb). 
 !ink will fix that issue in next release.
 
-The library is not production-ready, these issues must be resolved first:
+## Events feature is disabled
+Due to the ink's current state of events generation event feature is currently disabled
+As soon as we or ink has fixed this issue event support will be easiy enabled.
+[Here](https://github.com/Supercolony-net/openbrush-contracts/issues/2) is a more detailed overview of a problem
+
+## The library is not production-ready, these issues must be resolved first:
 * [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/issues/1)
 * [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/issues/2)
 
