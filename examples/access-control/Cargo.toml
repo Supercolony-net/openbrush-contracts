@@ -15,9 +15,9 @@ ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
-erc721 = { path = "../../contracts/token/erc721", default-features = false, features = ["ink-as-dependency"] }
-access-control = { path = "../../contracts/access/access-control", default-features = false, features = ["ink-as-dependency"] }
-brush = { path = "../../contracts/brush", default-features = false }
+erc721 = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+access-control = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+brush = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [lib]
 name = "my_access_control"

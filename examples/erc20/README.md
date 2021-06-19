@@ -5,13 +5,13 @@ This example shows how you can reuse the implementation of
 Also, this example shows how you can customize the logic, for example, to not allow transfer tokens to `hated_account`.
 
 ## Steps
-1. You need to include `erc20` and `utils` in cargo file.
+1. You need to include `erc20` and `brush` in cargo file.
 ```markdown
 [dependencies]
 ...
 
-erc20 = { version = "0.1.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
-utils = { version = "0.1.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+erc20 = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+utils = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
@@ -22,31 +22,35 @@ std = [
    "brush/std",
 ]
 ```
-2. Import according: traits, errors, macros and structs.
+2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`.
+Import traits, errors, macros and structs which you want to use.
 ```rust
-use erc20::{
-    traits::{ IErc20, Erc20Error },
-    impls::{ Erc20Storage, Erc20Internal, Erc20 },
-};
-use ink_prelude::{
-    string::{
-        String,
-        ToString,
-    }
-};
-use ink_storage::{
-    collections::{
-        HashMap as StorageHashMap,
-    }, Lazy
-};
-use brush::{
-    traits::{InkStorage},
-    iml_getters,
-};
-use ink_lang::{Env, EmitEvent};
+#[brush::contract]
+pub mod my_erc20 {
+    use erc20::{
+        traits::{ IErc20, Erc20Error },
+        impls::{ Erc20Storage, Erc20 },
+    };
+    use ink_prelude::{
+        string::{
+            String,
+            ToString,
+        }
+    };
+    use ink_storage::{
+        collections::{
+            HashMap as StorageHashMap,
+        }, Lazy
+    };
+    use brush::{
+        traits::{InkStorage},
+        iml_getters,
+    };
+    use ink_lang::{Env, EmitEvent};
 ```
-3. Define storage struct that will contains all fields for 
-`Erc20Storage` trait. Define events(example of events you can find in tests of [Erc20](contracts/token/erc20/impls.rs))
+3. Declare storage struct that will contain all fields for 
+`Erc20Storage` trait.
+Declare events(example of events you can find in tests of [Erc20](contracts/token/erc20/impls.rs))
 
 ```rust
 /// Event emitted when a token transfer occurs.
@@ -98,9 +102,8 @@ impl Erc20Storage for MyErc20 {
 ```
 5. After that you can inherit implementation of `Erc20`.
 ```rust
-// Erc20 has additional trait Erc20Internal which contains internal methods which is used for implementation of Erc20 trait.
-// You also can override them. Methods which emit events is not defined in Erc20Internal, so you MUST define them here by self.
-impl Erc20Internal for MyErc20 {
+// Inheritance of Erc20 requires you to implement methods for event dispatching
+impl Erc20 for MyErc20 {
     fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
         self.env().emit_event(Transfer {
             from: _from,
@@ -117,68 +120,14 @@ impl Erc20Internal for MyErc20 {
         });
     }
 }
-impl Erc20 for MyErc20 {}
 ```
 6. Now you have all basic logic of `Erc20` on rust level.
-All methods are private now. If you want to make them public you MUST implement `IErc20` trait.
-
+   But all methods are internal now(it means that anyone can't call these methods from outside of contract).
+   If you want to make them external you MUST implement `IErc20` trait.
+   Library provides macro `impl_trait` that will generate external implementation of all methods from `IErc20` trait.
+   Macro will call the methods with the same name from `Erc20` trait.
 ```rust
-impl IErc20 for MyErc20 {
-    #[ink(message)]
-    fn token_name(&self) -> Option<String> {
-        self._token_name()
-    }
-
-    #[ink(message)]
-    fn token_symbol(&self) -> Option<String> {
-        self._token_symbol()
-    }
-
-    #[ink(message)]
-    fn token_decimals(&self) -> u8 {
-        self._token_decimals()
-    }
-
-    #[ink(message)]
-    fn total_supply(&self) -> Balance {
-        self._total_supply()
-    }
-
-    #[ink(message)]
-    fn balance_of(&self, owner: AccountId) -> Balance {
-        self._balance_of(owner)
-    }
-
-    #[ink(message)]
-    fn transfer(&mut self, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
-        self._transfer(to, value)
-    }
-
-    #[ink(message)]
-    fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        self._allowance(owner, spender)
-    }
-
-    #[ink(message)]
-    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
-        self._transfer_from(from, to, value)
-    }
-
-    #[ink(message)]
-    fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), Erc20Error> {
-        self._approve(spender, value)
-    }
-
-    #[ink(message)]
-    fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
-        self._increase_allowance(spender, delta_value)
-    }
-
-    #[ink(message)]
-    fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
-        self._decrease_allowance(spender, delta_value)
-    }
-}
+impl_trait!(MyErc20, IErc20(Erc20));
 ```
 7. Now you only need to define constructor and your basic version of `Erc20` contract is ready.
 ```rust
@@ -194,12 +143,11 @@ impl MyErc20 {
     }
 }
 ```
-8. Let's customize it. It will contains two public methods `set_hated_account` and `get_hated_account`.
-Also we will override `_before_token_transfer` method in `Erc20Internal` implementation.
+8. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`.
+Also we will override `_before_token_transfer` method in `Erc20` implementation.
 ```rust
-// Erc20 has additional trait Erc20Internal which contains internal methods which is used for implementation of Erc20 trait.
-// You also can override them. Methods which emit events is not defined in Erc20Internal, so you MUST define them here by self.
-impl Erc20Internal for MyErc20 {
+// Inheritance of Erc20 requires you to implement methods for event dispatching
+impl Erc20 for MyErc20 {
     fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
         self.env().emit_event(Transfer {
             from: _from,
@@ -217,11 +165,8 @@ impl Erc20Internal for MyErc20 {
     }
 
     // Let's override method to reject transactions to bad account
-    fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) -> Result<(), Erc20Error> {
-        if _to == self.hated_account {
-            return Err(Erc20Error::Unknown("I hate this account!".to_string()))
-        }
-        Ok(())
+    fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
+        assert!(_to != self.hated_account, "{}", Erc20Error::Unknown("I hate this account!".to_string()).as_ref());
     }
 }
 
@@ -244,74 +189,6 @@ impl MyErc20 {
     #[ink(message)]
     pub fn get_hated_account(&self) -> AccountId {
         self.hated_account.clone()
-    }
-}
-```
-9. The last step(but it is optional) is to panic on error in public methods to force revert of transaction.
-For that let's call wrapper function in public methods.
-```rust
-impl IErc20 for MyErc20 {
-    #[ink(message)]
-    fn token_name(&self) -> Option<String> {
-        self._token_name()
-    }
-
-    #[ink(message)]
-    fn token_symbol(&self) -> Option<String> {
-        self._token_symbol()
-    }
-
-    #[ink(message)]
-    fn token_decimals(&self) -> u8 {
-        self._token_decimals()
-    }
-
-    #[ink(message)]
-    fn total_supply(&self) -> Balance {
-        self._total_supply()
-    }
-
-    #[ink(message)]
-    fn balance_of(&self, owner: AccountId) -> Balance {
-        self._balance_of(owner)
-    }
-
-    #[ink(message)]
-    fn transfer(&mut self, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
-        panic_on_error(self._transfer(to, value))
-    }
-
-    #[ink(message)]
-    fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        self._allowance(owner, spender)
-    }
-
-    #[ink(message)]
-    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<(), Erc20Error> {
-        panic_on_error(self._transfer_from(from, to, value))
-    }
-
-    #[ink(message)]
-    fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), Erc20Error> {
-        panic_on_error(self._approve(spender, value))
-    }
-
-    #[ink(message)]
-    fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
-        panic_on_error(self._increase_allowance(spender, delta_value))
-    }
-
-    #[ink(message)]
-    fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), Erc20Error> {
-        panic_on_error(self._decrease_allowance(spender, delta_value))
-    }
-}
-// TODO: ink! doesn't revert transactions if you returned error from the public method,
-// so let's do it manually for now. https://github.com/paritytech/ink/issues/641
-fn panic_on_error<T, E>(result: Result<T, E>) -> Result<T, E> {
-    match result {
-        Err(_) => panic!("Got error during execution"),
-        Ok(ok) => Ok(ok),
     }
 }
 ```

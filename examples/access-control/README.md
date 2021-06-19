@@ -5,14 +5,14 @@ This example shows how you can use the implementation of
 to mint and burn NFT tokens.
 
 ## Steps
-1. You need to include `erc721`, `access-control` and `utils` in cargo file.
+1. You need to include `erc721`, `access-control` and `brush` in cargo file.
 ```markdown
 [dependencies]
 ...
 
-erc721 = { version = "0.1.0-rc2", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
-access-control = { version = "0.1.0-rc2", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
-utils = { version = "0.1.0-rc2", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+erc721 = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+access-control = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+brush = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
@@ -24,30 +24,34 @@ std = [
    "brush/std",
 ]
 ```
-2. Import according: traits, errors, macros and structs.
+2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. 
+Import traits, errors, macros and structs which you want to use.
 ```rust
-use erc721::{
-    traits::{ IErc721, Erc721Error, Id },
-    impls::{ Erc721Storage, Erc721Internal, Erc721 }
-};
-use access_control::{
-    traits::{ IAccessControl, AccessControlError, RoleType },
-    impls::{ AccessControlStorage, AccessControl, RoleData }
-};
-use brush::{
-    traits::{ InkStorage },
-    iml_getters,
-};
-use ink_storage::{
-    collections::{
-        HashMap as StorageHashMap,
-    },
-};
-use ink_lang::{ Env, EmitEvent };
-use ink_prelude::{ vec::Vec };
+#[brush::contract]
+pub mod my_access_control {
+    use erc721::{
+        traits::{ IErc721, Id, IErc721Mint },
+        impls::{ Erc721Storage, Erc721, Erc721Mint }
+    };
+    use access_control::{
+        traits::{ IAccessControl, RoleType },
+        impls::{ AccessControlStorage, AccessControl, RoleData }
+    };
+    use brush::{
+        traits::{ InkStorage },
+        iml_getters,
+    };
+    use ink_storage::{
+        collections::{
+            HashMap as StorageHashMap,
+        },
+    };
+    use ink_lang::{ Env, EmitEvent };
+    use ink_prelude::{ vec::Vec };
 ```
-3. Define storage struct that will contains all fields for 
-`AccessControlStorage` and `Erc721Storage` traits. Define events(example of events you can find in tests of [Erc721](contracts/token/erc721/impls.rs))
+3. Declare storage struct that will contain all fields for 
+`AccessControlStorage` and `Erc721Storage` traits.
+Declare events(example of events you can find in tests of [Erc721](contracts/token/erc721/impls.rs))
 
 ```rust
 /// Event emitted when a token transfer occurs.
@@ -116,9 +120,8 @@ impl AccessControlStorage for Erc721Struct {
 ```
 5. After that you can inherit implementation of `Erc721` and `AccessControl` traits.
 ```rust
-// Erc721 has additional trait Erc721Internal which contains internal methods which is used for implementation of Erc721 trait.
-// You also can override them. Methods which emit events is not defined in Erc721Internal, so you MUST define them here by self.
-impl Erc721Internal for Erc721Struct {
+// Inheritance of Erc721 requires you to implement methods for event dispatching
+impl Erc721 for Erc721Struct {
     fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
         self.env().emit_event(Transfer {
             from: Some(_from),
@@ -143,92 +146,15 @@ impl Erc721Internal for Erc721Struct {
         });
     }
 }
-impl Erc721 for Erc721Struct {}
 impl AccessControl for Erc721Struct {}
 ```
 6. Now you have all basic logic of `Erc721` and `AccessControl` on rust level.
-All methods are private now. If you want to make them public you MUST implement `IErc721` and `IAccessControl` traits.
-
+But all methods are internal now(it means that anyone can't call these methods from outside of contract). 
+If you want to make them external you MUST implement `IErc721` and `IAccessControl` traits.
+Library provides macro `impl_trait` that will generate external implementation of all methods from `IErc721` and `IAccessControl` traits.
+Macro will call the methods with the same name from `Erc721` and `AccessControl` traits.
 ```rust
-impl IErc721 for Erc721Struct {
-    #[ink(message)]
-    fn balance_of(&self, owner: AccountId) -> u32 {
-        self._balance_of(owner)
-    }
-
-    #[ink(message)]
-    fn owner_of(&self, id: Id) -> Option<AccountId> {
-        self._owner_of(&id)
-    }
-
-    #[ink(message)]
-    fn get_approved(&self, id: Id) -> Option<AccountId> {
-        self._get_approved(id)
-    }
-
-    #[ink(message)]
-    fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-        self._is_approved_for_all(owner, operator)
-    }
-
-    #[ink(message)]
-    fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), Erc721Error> {
-        self._set_approval_for_all(to, approved)
-    }
-
-    #[ink(message)]
-    fn approve(&mut self, to: AccountId, id: Id) -> Result<(), Erc721Error> {
-        self._approve(to, id)
-    }
-
-    #[ink(message)]
-    fn transfer_from(
-        &mut self,
-        from: AccountId,
-        to: AccountId,
-        id: Id,
-    ) -> Result<(), Erc721Error> {
-        self._transfer_from(from, to, id)
-    }
-
-    #[ink(message)]
-    fn safe_transfer_from(
-        &mut self,
-        from: AccountId,
-        to: AccountId,
-        id: Id,
-        data: Vec<u8>,
-    ) -> Result<(), Erc721Error> {
-        self._safe_transfer_from(from, to, id, data)
-    }
-}
-
-impl IAccessControl for Erc721Struct {
-    #[ink(message)]
-    fn has_role(&self, role: RoleType, address: AccountId) -> bool {
-        self._has_role(&role, &address)
-    }
-
-    #[ink(message)]
-    fn get_role_admin(&self, role: RoleType) -> RoleType {
-        self._get_role_admin(&role)
-    }
-
-    #[ink(message)]
-    fn grant_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
-        self._grant_role(role, address)
-    }
-
-    #[ink(message)]
-    fn revoke_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
-        self._revoke_role(role, address)
-    }
-
-    #[ink(message)]
-    fn renounce_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
-        self._renounce_role(role, address)
-    }
-}
+impl_trait!(Erc721Struct, IErc721(Erc721), IAccessControl(AccessControl));
 ```
 7. Now you only need to define constructor and your basic version of `Erc721` contract is ready.
 ```rust
@@ -251,8 +177,8 @@ impl InkStorage for Erc721Struct {
 }
 ```
 8. Let's customize it. We will implement `IErc721Mint` trait. For that we need inherit `Erc721Mint`. 
-But it will call `only_minter` function inside to verify that caller has minter role.
-Also we updated `_empty` function to grant minter role to caller by default.
+It will call `only_minter` function inside to verify that caller has minter role.
+Also, we need to update `_empty` function to grant minter role to caller by default.
 ```rust
 // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
 const MINTER: RoleType = 0xfd9ab216;
@@ -288,129 +214,18 @@ impl InkStorage for Erc721Struct {
     }
 }
 
-impl Erc721Mint for Erc721Struct {
-    fn _mint(&mut self, id: Id) -> Result<(), Erc721Error> {
-        self.only_minter()?;
-        Erc721Mint::_mint(self, id)
-    }
-
-    fn _burn(&mut self, id: Id) -> Result<(), Erc721Error> {
-        self.only_minter()?;
-        Erc721Mint::_burn(self, id)
-    }
-}
+impl Erc721Mint for Erc721Struct {}
 impl IErc721Mint for Erc721Struct {
     #[ink(message)]
-    fn mint(&mut self, id: Id) -> Result<(), Erc721Error> {
-        self._mint(id)
+    fn mint(&mut self, id: Id) {
+        self.only_minter();
+        Erc721Mint::mint(self, id);
     }
 
     #[ink(message)]
-    fn burn(&mut self, id: Id) -> Result<(), Erc721Error> {
-        self._burn(id)
-    }
-}
-```
-9. The last step(but it is optional) is to panic on error in public methods to force revert of transaction.
-For that let's call wrapper function in public methods.
-```rust
-impl IErc721 for Erc721Struct {
-    #[ink(message)]
-    fn balance_of(&self, owner: AccountId) -> u32 {
-        self._balance_of(owner)
-    }
-
-    #[ink(message)]
-    fn owner_of(&self, id: Id) -> Option<AccountId> {
-        self._owner_of(&id)
-    }
-
-    #[ink(message)]
-    fn get_approved(&self, id: Id) -> Option<AccountId> {
-        self._get_approved(id)
-    }
-
-    #[ink(message)]
-    fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-        self._is_approved_for_all(owner, operator)
-    }
-
-    #[ink(message)]
-    fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), Erc721Error> {
-        panic_on_error(self._set_approval_for_all(to, approved))
-    }
-
-    #[ink(message)]
-    fn approve(&mut self, to: AccountId, id: Id) -> Result<(), Erc721Error> {
-        panic_on_error(self._approve(to, id))
-    }
-
-    #[ink(message)]
-    fn transfer_from(
-        &mut self,
-        from: AccountId,
-        to: AccountId,
-        id: Id,
-    ) -> Result<(), Erc721Error> {
-        panic_on_error(self._transfer_from(from, to, id))
-    }
-
-    #[ink(message)]
-    fn safe_transfer_from(
-        &mut self,
-        from: AccountId,
-        to: AccountId,
-        id: Id,
-        data: Vec<u8>,
-    ) -> Result<(), Erc721Error> {
-        panic_on_error(self._safe_transfer_from(from, to, id, data))
-    }
-}
-
-impl IAccessControl for Erc721Struct {
-    #[ink(message)]
-    fn has_role(&self, role: RoleType, address: AccountId) -> bool {
-        self._has_role(&role, &address)
-    }
-
-    #[ink(message)]
-    fn get_role_admin(&self, role: RoleType) -> RoleType {
-        self._get_role_admin(&role)
-    }
-
-    #[ink(message)]
-    fn grant_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
-        panic_on_error(self._grant_role(role, address))
-    }
-
-    #[ink(message)]
-    fn revoke_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
-        panic_on_error(self._revoke_role(role, address))
-    }
-
-    #[ink(message)]
-    fn renounce_role(&mut self, role: RoleType, address: AccountId) -> Result<(), AccessControlError> {
-        panic_on_error(self._renounce_role(role, address))
-    }
-}
-
-impl IErc721Mint for Erc721Struct {
-    #[ink(message)]
-    fn mint(&mut self, id: Id) -> Result<(), Erc721Error> {
-        panic_on_error(self._mint(id))
-    }
-
-    #[ink(message)]
-    fn burn(&mut self, id: Id) -> Result<(), Erc721Error> {
-        panic_on_error(self._burn(id))
-    }
-}
-// TODO: ink! doesn't revert transactions if you returned error from the public method,
-// so let's do it manually for now. https://github.com/paritytech/ink/issues/641
-fn panic_on_error<T, E>(result: Result<T, E>) -> Result<T, E> {
-    match result {
-        Err(_) => panic!("Got error during execution"),
-        Ok(ok) => Ok(ok),
+    fn burn(&mut self, id: Id) {
+        self.only_minter();
+        Erc721Mint::burn(self, id);
     }
 }
 ```
