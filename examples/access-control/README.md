@@ -10,9 +10,9 @@ to mint and burn NFT tokens.
 [dependencies]
 ...
 
-erc721 = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
-access-control = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
-brush = { version = "0.2.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+erc721 = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+access-control = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
@@ -31,7 +31,7 @@ Import traits, errors, macros and structs which you want to use.
 pub mod my_access_control {
     use erc721::{
         traits::{ IErc721, Id, IErc721Mint },
-        impls::{ Erc721Storage, Erc721, Erc721Mint }
+        impls::{ Erc721Storage, Erc721, Erc721Mint, StorageHashMap }
     };
     use access_control::{
         traits::{ IAccessControl, RoleType },
@@ -39,146 +39,50 @@ pub mod my_access_control {
     };
     use brush::{
         traits::{ InkStorage },
-        iml_getters,
-    };
-    use ink_storage::{
-        collections::{
-            HashMap as StorageHashMap,
-        },
     };
     use ink_lang::{ Env, EmitEvent };
     use ink_prelude::{ vec::Vec };
 ```
-3. Declare storage struct that will contain all fields for 
-`AccessControlStorage` and `Erc721Storage` traits.
-Declare events(example of events you can find in tests of [Erc721](contracts/token/erc721/impls.rs))
-
+3. Declare storage struct and derive `Erc721Storage` and `AccessControlStorage` 
+   traits. Deriving these traits will add required fields to your structure 
+   for implementation of according traits. Your structure must implement 
+   `Erc721Storage` and `AccessControlStorage` traits if you want to use the 
+   default implementation of `Erc721` and `AccessControl`.
 ```rust
-/// Event emitted when a token transfer occurs.
-#[ink(event)]
-pub struct Transfer {
-    #[ink(topic)]
-    from: Option<AccountId>,
-    #[ink(topic)]
-    to: Option<AccountId>,
-    #[ink(topic)]
-    id: Id,
-}
-
-/// Event emitted when a token approve occurs.
-#[ink(event)]
-pub struct Approval {
-    #[ink(topic)]
-    from: AccountId,
-    #[ink(topic)]
-    to: AccountId,
-    #[ink(topic)]
-    id: Id,
-}
-
-/// Event emitted when an operator is enabled or disabled for an owner.
-/// The operator can manage all NFTs of the owner.
-#[ink(event)]
-pub struct ApprovalForAll {
-    #[ink(topic)]
-    owner: AccountId,
-    #[ink(topic)]
-    operator: AccountId,
-    approved: bool,
-}
-
-#[derive(Default)]
 #[ink(storage)]
-pub struct Erc721Struct {
-    // Fields of Erc721Storage
-    /// Mapping from token to owner.
-    token_owner: StorageHashMap<Id, AccountId>,
-    /// Mapping from token to approvals users.
-    token_approvals: StorageHashMap<Id, AccountId>,
-    /// Mapping from owner to number of owned token.
-    owned_tokens_count: StorageHashMap<AccountId, u32>,
-    /// Mapping from owner to operator approvals.
-    operator_approvals: StorageHashMap<(AccountId, AccountId), bool>,
-
-    // Fields of AccessControlStorage
-    /// Mapping from role type to role data(the list of members and admin role).
-    roles: StorageHashMap<RoleType, RoleData>,
-}
+#[derive(Default, Erc721Storage, AccessControlStorage)]
+pub struct Erc721Struct {}
 ```
-4. Implement storage traits by using `iml_getters` macro.
+4. After that you can inherit implementation of `Erc721` and `AccessControl` traits.
+You can customize(override) some methods there.
 ```rust
+// InkStorage is a utils trait required by any Storage trait
 impl InkStorage for Erc721Struct {}
-impl Erc721Storage for Erc721Struct {
-    iml_getters!(token_owner, _token_owner, _token_owner_mut, StorageHashMap<Id, AccountId>);
-    iml_getters!(token_approvals, _token_approvals, _token_approvals_mut, StorageHashMap<Id, AccountId>);
-    iml_getters!(owned_tokens_count, _owned_tokens_count, _owned_tokens_count_mut, StorageHashMap<AccountId, u32>);
-    iml_getters!(operator_approvals, _operator_approvals, _operator_approvals_mut, StorageHashMap<(AccountId, AccountId), bool>);
-}
-impl AccessControlStorage for Erc721Struct {
-    iml_getters!(roles, _roles, _roles_mut, StorageHashMap<RoleType, RoleData>);
-}
-```
-5. After that you can inherit implementation of `Erc721` and `AccessControl` traits.
-```rust
-// Inheritance of Erc721 requires you to implement methods for event dispatching
-impl Erc721 for Erc721Struct {
-    fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
-        self.env().emit_event(Transfer {
-            from: Some(_from),
-            to: Some(_to),
-            id: _id,
-        });
-    }
-
-    fn emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
-        self.env().emit_event(Approval {
-            from: _from,
-            to: _to,
-            id: _id,
-        });
-    }
-
-    fn emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {
-        self.env().emit_event(ApprovalForAll {
-            owner: _owner,
-            operator: _operator,
-            approved: _approved,
-        });
-    }
-}
+impl Erc721 for Erc721Struct {}
 impl AccessControl for Erc721Struct {}
 ```
-6. Now you have all basic logic of `Erc721` and `AccessControl` on rust level.
+5. Now you have all basic logic of `Erc721` and `AccessControl` on rust level.
 But all methods are internal now(it means that anyone can't call these methods from outside of contract). 
-If you want to make them external you MUST implement `IErc721` and `IAccessControl` traits.
-Library provides macro `impl_trait` that will generate external implementation of all methods from `IErc721` and `IAccessControl` traits.
+If you want to make them external you MUST derive `IErc721` and `IAccessControl` traits.
+Deriving of these traits will generate external implementation of all methods from `IErc721` and `IAccessControl`.
 Macro will call the methods with the same name from `Erc721` and `AccessControl` traits.
 ```rust
-impl_trait!(Erc721Struct, IErc721(Erc721), IAccessControl(AccessControl));
+#[ink(storage)]
+#[derive(Default, Erc721Storage, AccessControlStorage, IErc721, IAccessControl)]
+pub struct Erc721Struct {}
 ```
-7. Now you only need to define constructor and your basic version of `Erc721` contract is ready.
+6. Now you only need to define constructor and your basic version of `Erc721` contract is ready.
 ```rust
 impl Erc721Struct {
     #[ink(constructor)]
     pub fn new() -> Self {
-        Self::_empty()
-    }
-}
-// We override _empty method and use it in the constructor. 
-// _empty is a base constructor which can create an empty struct. 
-// Some implementations require initialization of some variables, you can do it in _empty function. 
-// In this case, all your constructors which are using _empty function will be initialized properly.
-impl InkStorage for Erc721Struct {
-    fn _empty() -> Self {
-        let mut instance = Self::default();
-        instance._init_with_admin(Self::env().caller());
-        instance
+        Self::default()
     }
 }
 ```
-8. Let's customize it. We will implement `IErc721Mint` trait. For that we need inherit `Erc721Mint`. 
+7. Let's customize it. We will implement `IErc721Mint` trait. For that we need inherit `Erc721Mint`. 
 It will call `only_minter` function inside to verify that caller has minter role.
-Also, we need to update `_empty` function to grant minter role to caller by default.
+Also, we need to update constructor to grant minter role to caller by default.
 ```rust
 // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
 const MINTER: RoleType = 0xfd9ab216;
@@ -186,31 +90,17 @@ const MINTER: RoleType = 0xfd9ab216;
 impl Erc721Struct {
     #[ink(constructor)]
     pub fn new() -> Self {
-        Self::_empty()
+        let mut instance = Self::default();
+        let caller = instance.env().caller();
+        instance._init_with_admin(caller);
+        // We grant minter role to caller in constructor, so he can mint/burn tokens
+        AccessControl::grant_role(&mut instance,MINTER, caller);
+        instance
     }
 
     #[inline]
-    fn only_minter(&self) -> Result<(), Erc721Error> {
-        if !self.has_role(MINTER, self.env().caller()) {
-            return Err(Erc721Error::Unknown("Caller is not minter".to_string()));
-        }
-
-        Ok(())
-    }
-}
-
-// We override _empty method and use it in the constructor.
-// _empty is a base constructor which can create an empty struct.
-// Some implementations require initialization of some variables, you can do it in _empty function.
-// In this case, all your constructors which are using _empty function will be initialized properly.
-impl InkStorage for Erc721Struct {
-    fn _empty() -> Self {
-        let mut instance = Self::default();
-        let caller = Self::env().caller();
-        instance._init_with_admin(caller);
-        // We grant minter role to caller in constructor, so he can mint/burn tokens
-        instance._grant_role(MINTER, caller).expect("Can't provide Minter to caller");
-        instance
+    fn only_minter(&self) {
+        self._check_role(&MINTER, &self.env().caller());
     }
 }
 

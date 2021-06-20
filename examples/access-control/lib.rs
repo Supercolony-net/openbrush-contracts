@@ -73,6 +73,7 @@ pub mod my_access_control {
         }
     }
 
+    // InkStorage is a utils trait required by any Storage trait
     impl InkStorage for Erc721Struct {}
 
     // Inheritance of Erc721 requires you to implement methods for event dispatching

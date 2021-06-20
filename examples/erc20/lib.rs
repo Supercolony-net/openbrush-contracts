@@ -44,6 +44,7 @@ pub mod my_erc20 {
         hated_account: AccountId,
     }
 
+    // InkStorage is a utils trait required by any Storage trait
     impl InkStorage for MyErc20 {}
 
     // Inheritance of Erc20 requires you to implement methods for event dispatching
