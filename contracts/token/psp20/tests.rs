@@ -2,7 +2,7 @@
 #[brush::contract]
 mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
-    use crate::impls::{Erc20, Erc20Storage, StorageHashMap, Lazy};
+    use crate::impls::{PSP20, PSP20Storage, StorageHashMap, Lazy};
     use ink_prelude::{string::{String}};
     use ink_lang as ink;
     use brush::{
@@ -40,14 +40,14 @@ mod tests {
         value: Balance,
     }
 
-    /// A simple ERC-20 contract.
+    /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, Erc20Storage)]
-    pub struct Erc20Struct {}
-    type Event = <Erc20Struct as ::ink_lang::BaseEvent>::Type;
+    #[derive(Default, PSP20Storage)]
+    pub struct PSP20Struct {}
+    type Event = <PSP20Struct as ::ink_lang::BaseEvent>::Type;
 
-    impl InkStorage for Erc20Struct {}
-    impl Erc20 for Erc20Struct {
+    impl InkStorage for PSP20Struct {}
+    impl PSP20 for PSP20Struct {
         fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
@@ -65,7 +65,7 @@ mod tests {
         }
     }
 
-    impl Erc20Struct {
+    impl PSP20Struct {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
@@ -113,19 +113,19 @@ mod tests {
         }
         let expected_topics = vec![
             encoded_into_hash(&PrefixedValue {
-                value: b"Erc20Struct::Transfer",
+                value: b"PSP20Struct::Transfer",
                 prefix: b"",
             }),
             encoded_into_hash(&PrefixedValue {
-                prefix: b"Erc20Struct::Transfer::from",
+                prefix: b"PSP20Struct::Transfer::from",
                 value: &expected_from,
             }),
             encoded_into_hash(&PrefixedValue {
-                prefix: b"Erc20Struct::Transfer::to",
+                prefix: b"PSP20Struct::Transfer::to",
                 value: &expected_to,
             }),
             encoded_into_hash(&PrefixedValue {
-                prefix: b"Erc20Struct::Transfer::value",
+                prefix: b"PSP20Struct::Transfer::value",
                 value: &expected_value,
             }),
         ];
@@ -143,7 +143,7 @@ mod tests {
     #[ink::test]
     fn new_works() {
         // Constructor works.
-        let _erc20 = Erc20Struct::new(100);
+        let _psp20 = PSP20Struct::new(100);
 
         // Transfer event triggered during initial construction.
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
@@ -161,7 +161,7 @@ mod tests {
     #[ink::test]
     fn total_supply_works() {
         // Constructor works.
-        let erc20 = Erc20Struct::new(100);
+        let psp20 = PSP20Struct::new(100);
         // Transfer event triggered during initial construction.
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(
@@ -171,14 +171,14 @@ mod tests {
             100,
         );
         // Get the token total supply.
-        assert_eq!(erc20.total_supply(), 100);
+        assert_eq!(psp20.total_supply(), 100);
     }
 
     /// Get the actual balance of an account.
     #[ink::test]
     fn balance_of_works() {
         // Constructor works
-        let erc20 = Erc20Struct::new(100);
+        let psp20 = PSP20Struct::new(100);
         // Transfer event triggered during initial construction
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(
@@ -191,29 +191,29 @@ mod tests {
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");
         // Alice owns all the tokens on deployment
-        assert_eq!(erc20.balance_of(accounts.alice), 100);
+        assert_eq!(psp20.balance_of(accounts.alice), 100);
         // Bob does not owns tokens
-        assert_eq!(erc20.balance_of(accounts.bob), 0);
+        assert_eq!(psp20.balance_of(accounts.bob), 0);
     }
 
     #[ink::test]
     fn transfer_works() {
         // Constructor works.
-        let mut erc20 = Erc20Struct::new(100);
+        let mut psp20 = PSP20Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");
 
-        assert_eq!(erc20.balance_of(accounts.bob), 0);
+        assert_eq!(psp20.balance_of(accounts.bob), 0);
         // Alice transfers 10 tokens to Bob.
-        erc20.transfer(accounts.bob, 10);
+        psp20.transfer(accounts.bob, 10);
         // Bob owns 10 tokens.
-        assert_eq!(erc20.balance_of(accounts.bob), 10);
+        assert_eq!(psp20.balance_of(accounts.bob), 10);
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
-        // Check first transfer event related to ERC-20 instantiation.
+        // Check first transfer event related to PSP-20 instantiation.
         assert_transfer_event(
             &emitted_events[0],
             None,
@@ -233,12 +233,12 @@ mod tests {
     #[should_panic(expected = "InsufficientBalance")]
     fn invalid_transfer_should_fail() {
         // Constructor works.
-        let mut erc20 = Erc20Struct::new(100);
+        let mut psp20 = PSP20Struct::new(100);
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");
 
-        assert_eq!(erc20.balance_of(accounts.bob), 0);
+        assert_eq!(psp20.balance_of(accounts.bob), 0);
         // Get contract address.
         let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
             .unwrap_or([0x0; 32].into());
@@ -256,34 +256,34 @@ mod tests {
         );
 
         // Bob fails to transfers 10 tokens to Eve.
-        erc20.transfer(accounts.eve, 10);
+        psp20.transfer(accounts.eve, 10);
     }
 
     #[ink::test]
     #[should_panic(expected = "InsufficientAllowance")]
     fn transfer_from_fails() {
         // Constructor works.
-        let mut erc20 = Erc20Struct::new(100);
+        let mut psp20 = PSP20Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");
 
         // Bob fails to transfer tokens owned by Alice.
-        erc20.transfer_from(accounts.alice, accounts.eve, 10);
+        psp20.transfer_from(accounts.alice, accounts.eve, 10);
     }
 
     #[ink::test]
     fn transfer_from_works() {
         // Constructor works.
-        let mut erc20 = Erc20Struct::new(100);
+        let mut psp20 = PSP20Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");
 
         // Alice approves Bob for token transfers on her behalf.
-        erc20.approve(accounts.bob, 10);
+        psp20.approve(accounts.bob, 10);
 
         // The approve event takes place.
         assert_eq!(ink_env::test::recorded_events().count(), 2);
@@ -305,9 +305,9 @@ mod tests {
         );
 
         // Bob transfers tokens from Alice to Eve.
-        erc20.transfer_from(accounts.alice, accounts.eve, 10);
+        psp20.transfer_from(accounts.alice, accounts.eve, 10);
         // Eve owns tokens.
-        assert_eq!(erc20.balance_of(accounts.eve), 10);
+        assert_eq!(psp20.balance_of(accounts.eve), 10);
 
         // Check all transfer events that happened during the previous calls:
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
@@ -330,15 +330,15 @@ mod tests {
     #[ink::test]
     #[should_panic(expected = "InsufficientBalance")]
     fn allowance_must_not_change_on_failed_transfer() {
-        let mut erc20 = Erc20Struct::new(100);
+        let mut psp20 = PSP20Struct::new(100);
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");
 
         // Alice approves Bob for token transfers on her behalf.
-        let alice_balance = erc20.balance_of(accounts.alice);
+        let alice_balance = psp20.balance_of(accounts.alice);
         let initial_allowance = alice_balance + 2;
-        erc20.approve(accounts.bob, initial_allowance);
+        psp20.approve(accounts.bob, initial_allowance);
 
         // Get contract address.
         let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
@@ -356,7 +356,7 @@ mod tests {
             data,
         );
 
-        erc20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1);
+        psp20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1);
     }
 
     /// For calculating the event topic hash.

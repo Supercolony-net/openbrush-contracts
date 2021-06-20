@@ -4,7 +4,7 @@ use brush::traits::{AccountId};
 pub type Id = [u8; 32];
 
 #[derive(strum_macros::AsRefStr)]
-pub enum Erc721Error {
+pub enum PSP721Error {
     Unknown(String),
     CallFailed,
     NotOwner,
@@ -17,7 +17,7 @@ pub enum Erc721Error {
 }
 
 #[brush::trait_definition]
-pub trait IErc721 {
+pub trait IPSP721 {
     /// Returns the balance of the owner.
     ///
     /// This represents the amount of unique tokens the owner has.
@@ -54,7 +54,7 @@ pub trait IErc721 {
 }
 
 #[brush::trait_definition]
-pub trait IErc721Metadata {
+pub trait IPSP721Metadata {
     /// Returns the token name.
     #[ink(message)]
     fn name(&self) -> Option<String>;
@@ -65,7 +65,7 @@ pub trait IErc721Metadata {
 }
 
 #[brush::trait_definition]
-pub trait IErc721Mint {
+pub trait IPSP721Mint {
     /// Creates a new token.
     #[ink(message)]
     fn mint(&mut self, id: Id);
@@ -75,25 +75,25 @@ pub trait IErc721Mint {
     fn burn(&mut self, id: Id);
 }
 
-/// The ERC721Receiver error types.
+/// The PSP721Receiver error types.
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum Erc721ReceiverError {
+pub enum PSP721ReceiverError {
     /// Returned if transfer is rejected.
     TransferRejected(String),
 }
 
-/// Handles the receipt of a single ERC-721 token type.
+/// Handles the receipt of a single PSP-721 token type.
 #[brush::trait_definition]
-pub trait IErc721Receiver {
+pub trait IPSP721Receiver {
     /// This function is called at the end of a safe_transfer_from after the balance has been updated.
     /// If transfer is rejected it wil return an error.
     #[ink(message)]
-    fn on_erc721_received(
+    fn on_psp721_received(
         &mut self,
         operator: AccountId,
         from: AccountId,
         id: Id,
         data: Vec<u8>,
-    ) -> Result<(), Erc721ReceiverError>;
+    ) -> Result<(), PSP721ReceiverError>;
 }

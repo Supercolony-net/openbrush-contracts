@@ -2,7 +2,7 @@
 #[brush::contract]
 mod tests {
     use crate::traits::{Id};
-    use crate::impls::{Erc1155Storage, Erc1155};
+    use crate::impls::{PSP1155Storage, PSP1155};
     use ink_prelude::{vec::Vec, vec};
     use ink_storage::{
         collections::HashMap as StorageHashMap,
@@ -46,12 +46,12 @@ mod tests {
         approved: bool,
     }
 
-    #[derive(Default, Erc1155Storage)]
+    #[derive(Default, PSP1155Storage)]
     #[ink(storage)]
-    pub struct Erc1155Struct {}
+    pub struct PSP1155Struct {}
 
-    impl InkStorage for Erc1155Struct {}
-    impl Erc1155 for Erc1155Struct {
+    impl InkStorage for PSP1155Struct {}
+    impl PSP1155 for PSP1155Struct {
         fn emit_transfer_single_event(&self,
                                       _operator: AccountId, _from: AccountId, _to: AccountId, _id: Id, _amount: Balance) {
             self.env().emit_event(TransferSingle {
@@ -83,7 +83,7 @@ mod tests {
         }
     }
 
-    impl Erc1155Struct {
+    impl PSP1155Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self::default()
@@ -93,7 +93,7 @@ mod tests {
         pub fn temp(&self) {}
     }
 
-    type Event = <Erc1155Struct as ::ink_lang::BaseEvent>::Type;
+    type Event = <PSP1155Struct as ::ink_lang::BaseEvent>::Type;
 
     #[ink::test]
     fn balance_of() {
@@ -102,7 +102,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         // Token 1 does not exists.
         assert_eq!(nft.balance_of(accounts.alice, token_id), 0);
         // mint some token 1
@@ -131,7 +131,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         // Token 1 does not exists.
         assert_eq!(
             nft
@@ -192,7 +192,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         // no approvall exists yet
         assert!(!nft.is_approved_for_all(accounts.alice, accounts.bob),);
         // set approval
@@ -223,7 +223,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         nft.mint(accounts.alice, token_id, transfer_amount);
         nft.safe_transfer_from(
             accounts.alice,
@@ -271,7 +271,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         nft.mint(accounts.alice, token_id_1, token_1_amount);
         nft.mint(accounts.alice, token_id_2, token_2_amount);
         nft.safe_batch_transfer_from(
@@ -336,7 +336,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         nft.mint(accounts.alice, token_id, mint_amount);
         nft.safe_transfer_from(
             accounts.alice,
@@ -355,7 +355,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         nft.mint(accounts.bob, token_id, mint_amount);
         nft.safe_transfer_from(
             accounts.bob,
@@ -373,7 +373,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         nft.mint(accounts.alice, token_id, mint_amount);
         nft.set_approval_for_all(accounts.bob, true);
 
@@ -443,7 +443,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         nft.mint(accounts.alice, token_id_1, token_1_amount);
         nft.mint(accounts.alice, token_id_2, token_2_amount);
         nft.safe_batch_transfer_from(
@@ -467,7 +467,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         nft.mint(accounts.bob, token_id_1, token_1_amount);
         nft.mint(accounts.bob, token_id_2, token_2_amount);
 
@@ -491,7 +491,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc1155Struct::new();
+        let mut nft = PSP1155Struct::new();
         nft.mint(accounts.alice, token_id_1, token_1_amount);
         nft.mint(accounts.alice, token_id_2, token_2_amount);
         nft.set_approval_for_all(accounts.bob, true);

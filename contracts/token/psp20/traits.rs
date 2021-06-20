@@ -1,11 +1,11 @@
 use ink_prelude::{string::String};
 use brush::traits::{AccountId, Balance};
 
-/// The ERC-20 error type. Contract will assert one of this errors.
+/// The PSP-20 error type. Contract will assert one of this errors.
 #[derive(strum_macros::AsRefStr)]
-pub enum Erc20Error {
+pub enum PSP20Error {
     /// Unknown error type for cases if writer of traits added own restrictions
-    Unknown(String),
+    Unknown(&'static str),
     /// Returned if not enough balance to fulfill a request is available.
     InsufficientBalance,
     /// Returned if not enough allowance to fulfill a request is available.
@@ -16,9 +16,9 @@ pub enum Erc20Error {
     ZeroSenderAddress,
 }
 
-/// Trait implemented by all ERC-20 respecting smart traits.
+/// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
-pub trait IErc20 {
+pub trait IPSP20 {
     /// Returns the token name.
     #[ink(message)]
     fn token_name(&self) -> Option<String>;

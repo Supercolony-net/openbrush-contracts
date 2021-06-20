@@ -1,5 +1,5 @@
 [package]
-name = "erc20"
+name = "psp721"
 version = "0.2.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -19,10 +19,10 @@ strum_macros = "0.21.1"
 brush = { path = "../../brush", default-features = false }
 
 [lib]
-name = "erc20"
+name = "psp721"
 path = "lib.rs"
 crate-type = [
-	"rlib",
+    "rlib",
 ]
 
 [features]
@@ -32,7 +32,6 @@ std = [
     "ink_env/std",
     "ink_storage/std",
     "ink_primitives/std",
-    "ink_lang/std",
 
     "scale/std",
     "scale-info",

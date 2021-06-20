@@ -1,5 +1,5 @@
 [package]
-name = "erc721"
+name = "psp1155"
 version = "0.2.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -19,7 +19,7 @@ strum_macros = "0.21.1"
 brush = { path = "../../brush", default-features = false }
 
 [lib]
-name = "erc721"
+name = "psp1155"
 path = "lib.rs"
 crate-type = [
     "rlib",

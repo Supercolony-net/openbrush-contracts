@@ -1,27 +1,27 @@
-// It exports the stub implementation of all Erc721 traits.
+// It exports the stub implementation of all PSP721 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-pub use self::erc721::{Erc721};
-pub use self::erc721receiver::{Erc721Receiver};
+pub use self::psp721::{PSP721};
+pub use self::psp721receiver::{PSP721Receiver};
 
 #[ink_lang::contract(compile_as_dependency = true)]
-mod erc721 {
+mod psp721 {
     use ink_prelude::{ string::String, vec::Vec };
     use crate::traits::{ Id };
 
     #[derive(Default)]
     #[ink(storage)]
-    pub struct Erc721 {}
+    pub struct PSP721 {}
 
-    impl Erc721 {
+    impl PSP721 {
         #[ink(constructor)]
         pub fn new() -> Self {
             unimplemented!()
         }
     }
 
-    #[ink(namespace = "IErc721")]
-    impl Erc721 {
+    #[ink(namespace = "IPSP721")]
+    impl PSP721 {
         #[ink(message)]
         pub fn balance_of(&self, owner: AccountId) -> u32 {
             unimplemented!()
@@ -74,8 +74,8 @@ mod erc721 {
         }
     }
 
-    #[ink(namespace = "IErc721Metadata")]
-    impl Erc721 {
+    #[ink(namespace = "IPSP721Metadata")]
+    impl PSP721 {
         #[ink(message)]
         pub fn name(&self) -> Option<String> {
             unimplemented!()
@@ -87,8 +87,8 @@ mod erc721 {
         }
     }
 
-    #[ink(namespace = "IErc721Mint")]
-    impl Erc721 {
+    #[ink(namespace = "IPSP721Mint")]
+    impl PSP721 {
         #[ink(message)]
         pub fn mint(&mut self, id: Id) {
             unimplemented!()
@@ -102,31 +102,31 @@ mod erc721 {
 }
 
 #[ink_lang::contract(compile_as_dependency = true)]
-mod erc721receiver {
+mod psp721receiver {
     use ink_prelude::{ vec::Vec };
-    use crate::traits::{ Id, Erc721ReceiverError };
+    use crate::traits::{ Id, PSP721ReceiverError };
 
     #[derive(Default)]
     #[ink(storage)]
-    pub struct Erc721Receiver {}
+    pub struct PSP721Receiver {}
 
-    impl Erc721Receiver {
+    impl PSP721Receiver {
         #[ink(constructor)]
         pub fn new() -> Self {
             unimplemented!()
         }
     }
 
-    #[ink(namespace = "IErc721Receiver")]
-    impl Erc721Receiver {
+    #[ink(namespace = "IPSP721Receiver")]
+    impl PSP721Receiver {
         #[ink(message)]
-        pub fn on_erc721_received(
+        pub fn on_psp721_received(
             &mut self,
             operator: AccountId,
             from: AccountId,
             id: Id,
             data: Vec<u8>,
-        ) -> Result<(), Erc721ReceiverError> {
+        ) -> Result<(), PSP721ReceiverError> {
             unimplemented!()
         }
     }

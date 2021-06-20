@@ -6,7 +6,7 @@ describe('MY_ACCESS_CONTROL', () => {
     return setupContract('my_access_control', 'new')
   }
 
-  it('ERC 721 - mint works', async () => {
+  it('PSP 721 - mint works', async () => {
     const {
       contract,
       query,
@@ -17,14 +17,13 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(query.balanceOf(sender.address)).to.have.output(0)
 
     // Act - Sender mint a token
-    await expect(contract.tx.mint(bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(consts.EMPTY_ADDRESS, sender.address, bnArg(0))
+    await expect(contract.tx.mint(bnArg(0))).to.eventually.be.fulfilled
 
     // Assert - Sender balance is now 1
     await expect(query.balanceOf(sender.address)).to.have.output(1)
   })
 
-  it('ERC 721 - mint existing should fail', async () => {
+  it('PSP 721 - mint existing should fail', async () => {
     const {
       contract,
       query,
@@ -32,8 +31,7 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Sender mint a token with id [0; 32] and have balance of 1
-    await expect(contract.tx.mint(bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(consts.EMPTY_ADDRESS, sender.address, bnArg(0))
+    await expect(contract.tx.mint(bnArg(0))).to.eventually.be.fulfilled
     await expect(query.balanceOf(sender.address)).to.have.output(1)
     await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
 
@@ -44,7 +42,7 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(query.balanceOf(sender.address)).to.have.output(1)
   })
 
-  it('ERC 721 - approved transfer works', async () => {
+  it('PSP 721 - approved transfer works', async () => {
     const {
       contract,
       query,
@@ -53,21 +51,19 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Sender mint a Token and Approve Alice as spender of this token
-    await expect(contract.tx.mint(bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(consts.EMPTY_ADDRESS, sender.address, bnArg(0))
+    await expect(contract.tx.mint(bnArg(0))).to.eventually.be.fulfilled
     await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
-    await expect(contract.tx.approve(alice.address, bnArg(0)))
-      .to.emit(contract, 'Approval').withArgs(sender.address, alice.address, bnArg(0))
+    await expect(contract.tx.approve(alice.address, bnArg(0))).to.eventually.be.fulfilled
 
     // Act - Alice transfer the token form sender to bob
     await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, bob.address, bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(sender.address, bob.address, bnArg(0))
+        .to.eventually.be.fulfilled
 
     // Assert - Bob is now owner of the token
     await expect(query.ownerOf(bnArg(0))).to.have.output(bob.address)
   })
 
-  it('ERC 721 - approved for all works', async () => {
+  it('PSP 721 - approved for all works', async () => {
     const {
       contract,
       query,
@@ -76,19 +72,16 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Sender mint 2 tokens and Approve Alice to spend on all his tokens
-    await expect(contract.tx.mint(bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(consts.EMPTY_ADDRESS, sender.address, bnArg(0))
-    await expect(contract.tx.mint(bnArg(1)))
-      .to.emit(contract, 'Transfer').withArgs(consts.EMPTY_ADDRESS, sender.address, bnArg(1))
+    await expect(contract.tx.mint(bnArg(0))).to.eventually.be.fulfilled
+    await expect(contract.tx.mint(bnArg(1))).to.eventually.be.fulfilled
     await expect(query.balanceOf(sender.address)).to.have.output(2)
-    await expect(contract.tx.setApprovalForAll(alice.address, true))
-      .to.emit(contract, 'ApprovalForAll').withArgs(sender.address, alice.address, true)
+    await expect(contract.tx.setApprovalForAll(alice.address, true)).to.eventually.be.fulfilled
 
     // Act - Alice Transfer the two tokens to bob
     await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, bob.address, bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(sender.address, bob.address, bnArg(0))
+        .to.eventually.be.fulfilled
     await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, bob.address, bnArg(1)))
-      .to.emit(contract, 'Transfer').withArgs(sender.address, bob.address, bnArg(1))
+        .to.eventually.be.fulfilled
 
     // Assert - Bob owns the two tokens
     await expect(query.ownerOf(bnArg(0))).to.have.output(bob.address)
@@ -99,7 +92,7 @@ describe('MY_ACCESS_CONTROL', () => {
       .to.eventually.be.rejected
   })
 
-  it('ERC 721 - burn works', async () => {
+  it('PSP 721 - burn works', async () => {
     const {
       contract,
       query,
@@ -107,13 +100,11 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Alice mint a token & have a balance of 1
-    await expect(contract.tx.mint(bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(consts.EMPTY_ADDRESS, sender.address, bnArg(0))
+    await expect(contract.tx.mint(bnArg(0))).to.eventually.be.fulfilled
     await expect(query.balanceOf(sender.address)).to.have.output(1)
 
     // Act - Alice burn the token
-    await expect(contract.tx.burn(bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(sender.address, consts.EMPTY_ADDRESS, bnArg(0))
+    await expect(contract.tx.burn(bnArg(0))).to.eventually.be.fulfilled
 
     // Assert - Alice balance is 0
     await expect(query.balanceOf(sender.address)).to.have.output(0)
@@ -136,8 +127,7 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
 
     // Assert - Alice can mint a token
-    await expect(fromSigner(contract, alice.address).tx.mint(bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(consts.EMPTY_ADDRESS, alice.address, bnArg(0))
+    await expect(fromSigner(contract, alice.address).tx.mint(bnArg(0))).to.eventually.be.fulfilled
     await expect(query.ownerOf(bnArg(0))).to.have.output(alice.address)
   })
 
@@ -278,8 +268,7 @@ describe('MY_ACCESS_CONTROL', () => {
     // Assert - Grant Alice minter role & mint a token
     await tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
-    await expect(fromSigner(contract, alice.address).tx.mint(bnArg(0)))
-      .to.emit(contract, 'Transfer').withArgs(consts.EMPTY_ADDRESS, alice.address, bnArg(0))
+    await expect(fromSigner(contract, alice.address).tx.mint(bnArg(0))).to.eventually.be.fulfilled
     await expect(query.ownerOf(bnArg(0))).to.have.output(alice.address)
 
     // Act - revoke Alice minter role

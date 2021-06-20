@@ -9,7 +9,7 @@ mod tests {
     };
     use ink::{Env, EmitEvent};
     use crate::traits::{ Id };
-    use crate::impls::{ Erc721Storage, Erc721, Erc721Mint, Erc721MetadataStorage, Erc721Metadata, StorageHashMap };
+    use crate::impls::{ PSP721Storage, PSP721, PSP721Mint, PSP721MetadataStorage, PSP721Metadata, StorageHashMap };
 
     const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
@@ -46,12 +46,12 @@ mod tests {
         approved: bool,
     }
 
-    #[derive(Default, Erc721Storage, Erc721MetadataStorage)]
+    #[derive(Default, PSP721Storage, PSP721MetadataStorage)]
     #[ink(storage)]
-    pub struct Erc721Struct {}
+    pub struct PSP721Struct {}
 
-    impl InkStorage for Erc721Struct {}
-    impl Erc721 for Erc721Struct {
+    impl InkStorage for PSP721Struct {}
+    impl PSP721 for PSP721Struct {
         fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
             self.env().emit_event(Transfer {
                 from: Some(_from),
@@ -76,10 +76,10 @@ mod tests {
             });
         }
     }
-    impl Erc721Mint for Erc721Struct {}
-    impl Erc721Metadata for Erc721Struct {}
+    impl PSP721Mint for PSP721Struct {}
+    impl PSP721Metadata for PSP721Struct {}
 
-    impl Erc721Struct {
+    impl PSP721Struct {
         #[ink(constructor)]
         pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
             let mut instance = Self::default();
@@ -93,7 +93,7 @@ mod tests {
 
     #[ink::test]
     fn init_with_name_and_symbol_works() {
-        let nft = Erc721Struct::new(Some(String::from("TOKEN")), Some(String::from("TKN")));
+        let nft = PSP721Struct::new(Some(String::from("TOKEN")), Some(String::from("TKN")));
 
         assert_eq!(nft.name(), Some(String::from("TOKEN")));
         assert_eq!(nft.symbol(), Some(String::from("TKN")));
@@ -104,7 +104,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc721Struct::new(None, None);
+        let mut nft = PSP721Struct::new(None, None);
         // Token 1 does not _exists.
         assert_eq!(nft.owner_of([1; 32]), None);
         // Alice does not owns tokens.
@@ -121,7 +121,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc721Struct::new(None, None);
+        let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1.
         nft.mint([1; 32]);
         // The first Transfer event takes place
@@ -140,7 +140,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc721Struct::new(None, None);
+        let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1.
         nft.mint([1; 32]);
         // Token Id 1 is owned by Alice.
@@ -178,7 +178,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc721Struct::new(None, None);
+        let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1.
         nft.mint([1; 32]);
         // Create token Id 2.
@@ -235,7 +235,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc721Struct::new(None, None);
+        let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1.
         nft.mint([1; 32]);
         // Alice owns 1 token.
@@ -267,7 +267,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc721Struct::new(None, None);
+        let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1 for Alice
         nft.mint([1; 32]);
         // Alice owns 1 token.
@@ -286,7 +286,7 @@ mod tests {
     #[should_panic(expected = "TokenNotFound")]
     fn burn_fails_token_not_found() {
         // Create a new contract instance.
-        let mut nft = Erc721Struct::new(None, None);
+        let mut nft = PSP721Struct::new(None, None);
         // Try burning a non existent token
         nft.burn([1; 32]);
     }
@@ -297,7 +297,7 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
             .expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = Erc721Struct::new(None, None);
+        let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1 for Alice
         nft.mint([1; 32]);
         // Try burning this token with a different account

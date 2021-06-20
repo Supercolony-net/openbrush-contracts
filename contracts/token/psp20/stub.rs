@@ -1,20 +1,20 @@
-// It exports the stub implementation of all Erc20 traits.
+// It exports the stub implementation of all PSP20 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
 #[cfg(not(test))]
-pub use self::erc20::{Erc20};
+pub use self::psp20::{PSP20};
 
 #[cfg(not(test))]
 #[ink_lang::contract]
-mod erc20 {
+mod psp20 {
     use ink_prelude::string::String;
 
     #[derive(Default)]
     #[ink(storage)]
-    pub struct Erc20 {}
+    pub struct PSP20 {}
 
-    #[ink(namespace = "IErc20")]
-    impl Erc20 {
+    #[ink(namespace = "IPSP20")]
+    impl PSP20 {
         #[ink(constructor)]
         pub fn new() -> Self {
             unimplemented!()

@@ -1,4 +1,4 @@
-use crate::traits::Erc20Error;
+use crate::traits::PSP20Error;
 pub use ink_storage::{
     collections::{
         HashMap as StorageHashMap,
@@ -13,7 +13,7 @@ pub use ink_prelude::{string::{String}};
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
 #[brush::internal_trait_definition]
-pub trait Erc20Storage: InkStorage {
+pub trait PSP20Storage: InkStorage {
     fn _supply(&self) -> & Lazy<Balance>;
     fn _supply_mut(&mut self) -> &mut Lazy<Balance>;
 
@@ -33,12 +33,12 @@ pub trait Erc20Storage: InkStorage {
     fn _decimals_mut(&mut self) -> &mut Lazy<u8>;
 }
 
-pub trait Erc20: Erc20Storage {
+pub trait PSP20: PSP20Storage {
     /// Emit transfer event. It must be implemented in inherited struct
-    fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance);
+    fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {}
 
     /// Emit approval event. It must be implemented in inherited struct
-    fn emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance);
+    fn emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
     /// Returns the token name.
     fn token_name(&self) -> Option<String> {
@@ -112,7 +112,7 @@ pub trait Erc20: Erc20Storage {
     fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) {
         let caller = Self::env().caller();
         let allowance = self.allowance(from, caller);
-        assert!(allowance >= value, "{}", Erc20Error::InsufficientAllowance.as_ref());
+        assert!(allowance >= value, "{}", PSP20Error::InsufficientAllowance.as_ref());
         self._transfer_from_to(from, to, value);
         self._approve_from_to(from, caller, allowance - value);
     }
@@ -168,7 +168,7 @@ pub trait Erc20: Erc20Storage {
     fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) {
         let owner = Self::env().caller();
         let allowance = self.allowance(owner, spender);
-        assert!(allowance >= delta_value, "{}", Erc20Error::InsufficientAllowance.as_ref());
+        assert!(allowance >= delta_value, "{}", PSP20Error::InsufficientAllowance.as_ref());
 
         self._approve_from_to(owner, spender, allowance - delta_value)
     }
@@ -181,7 +181,7 @@ pub trait Erc20: Erc20Storage {
     ///
     /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
     fn mint(&mut self, account: AccountId, amount: Balance) {
-        assert!(account != ZERO_ADDRESS.into(), "{}", Erc20Error::ZeroRecipientAddress.as_ref());
+        assert!(account != ZERO_ADDRESS.into(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
 
         let mut new_balance = self.balance_of(account);
         new_balance += amount;
@@ -201,10 +201,10 @@ pub trait Erc20: Erc20Storage {
     /// Panics `InsufficientBalance` error if there are not enough tokens on
     /// the the account Balance of `account`.
     fn burn(&mut self, account: AccountId, amount: Balance) {
-        assert!(account != ZERO_ADDRESS.into(), "{}", Erc20Error::ZeroSenderAddress.as_ref());
+        assert!(account != ZERO_ADDRESS.into(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
 
         let mut from_balance = self.balance_of(account);
-        assert!(from_balance >= amount, "{}", Erc20Error::InsufficientBalance.as_ref());
+        assert!(from_balance >= amount, "{}", PSP20Error::InsufficientBalance.as_ref());
 
         from_balance -= amount;
         self._balances_mut().insert(account, from_balance);
@@ -217,13 +217,13 @@ pub trait Erc20: Erc20Storage {
     fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {}
 
     fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
-        assert!(from != ZERO_ADDRESS.into(), "{}", Erc20Error::ZeroSenderAddress.as_ref());
-        assert!(to != ZERO_ADDRESS.into(), "{}", Erc20Error::ZeroRecipientAddress.as_ref());
+        assert!(from != ZERO_ADDRESS.into(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
+        assert!(to != ZERO_ADDRESS.into(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
 
         self._before_token_transfer(from, to, amount);
 
         let from_balance = self.balance_of(from);
-        assert!(from_balance >= amount, "{}", Erc20Error::InsufficientBalance.as_ref());
+        assert!(from_balance >= amount, "{}", PSP20Error::InsufficientBalance.as_ref());
         self._balances_mut().insert(from, from_balance - amount);
         let to_balance = self.balance_of(to);
         self._balances_mut().insert(to, to_balance + amount);
@@ -231,8 +231,8 @@ pub trait Erc20: Erc20Storage {
     }
 
     fn _approve_from_to(&mut self, owner: AccountId, spender: AccountId, amount: Balance) {
-        assert!(owner != ZERO_ADDRESS.into(), "{}", Erc20Error::ZeroSenderAddress.as_ref());
-        assert!(spender != ZERO_ADDRESS.into(), "{}", Erc20Error::ZeroRecipientAddress.as_ref());
+        assert!(owner != ZERO_ADDRESS.into(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
+        assert!(spender != ZERO_ADDRESS.into(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
 
         self._allowances_mut().insert((owner, spender), amount);
         self.emit_approval_event(owner, spender, amount);

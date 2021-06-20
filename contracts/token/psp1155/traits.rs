@@ -8,7 +8,7 @@ use brush::traits::{AccountId, Balance};
 pub type Id = [u8; 32];
 
 #[derive(strum_macros::AsRefStr)]
-pub enum Erc1155Error {
+pub enum PSP1155Error {
     Unknown(String),
     CallFailed,
     ZeroAddress,
@@ -24,7 +24,7 @@ pub enum Erc1155Error {
 /// A single deployed contract may include any combination of fungible tokens,
 /// non-fungible tokens or other configurations (e.g. semi-fungible tokens).
 #[brush::trait_definition]
-pub trait IErc1155 {
+pub trait IPSP1155 {
     /// Returns the amount of tokens of token type `_id` owned by `_account`.
     #[ink(message)]
     fn balance_of(&self, _account: AccountId, _id: Id) -> Balance;
@@ -65,32 +65,32 @@ pub trait IErc1155 {
 }
 
 #[brush::trait_definition]
-pub trait IErc1155MetadataURI {
+pub trait IPSP1155MetadataURI {
     /// Returns the URI for token type `id`.
     #[ink(message)]
     fn uri(&self, _id: Id) -> Option<String>;
 }
 
-/// The ERC1155Receiver error types.
+/// The PSP1155Receiver error types.
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum Erc1155ReceiverError {
+pub enum PSP1155ReceiverError {
     /// Returned if transfer is rejected.
     TransferRejected,
 }
 
-/// Handles the receipt of a single ERC-1155 token type.
+/// Handles the receipt of a single PSP-1155 token type.
 #[brush::trait_definition]
-pub trait IErc1155Receiver {
+pub trait IPSP1155Receiver {
     /// This function is called at the end of a safe_transfer_from after the balance has been updated.
     /// If transfer is rejected it wil return an error.
     #[ink(message)]
-    fn on_erc1155_received(&mut self, _operator: AccountId, _from: AccountId,
-                           _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), Erc1155ReceiverError>;
+    fn on_psp1155_received(&mut self, _operator: AccountId, _from: AccountId,
+                           _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError>;
 
     /// This function is called at the end of a safe_batch_transfer_from after the balance has been updated.
     /// If transfer is rejected it wil return an error.
     #[ink(message)]
-    fn on_erc1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
-                                 _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), Erc1155ReceiverError>;
+    fn on_psp1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
+                                 _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError>;
 }

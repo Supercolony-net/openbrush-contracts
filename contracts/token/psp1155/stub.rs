@@ -1,11 +1,11 @@
-// It exports the stub implementation of all Erc1155 traits.
+// It exports the stub implementation of all PSP1155 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-pub use self::erc1155::{Erc1155};
-pub use self::erc1155receiver::{Erc1155Receiver};
+pub use self::psp1155::{PSP1155};
+pub use self::psp1155receiver::{PSP1155Receiver};
 
 #[ink_lang::contract(compile_as_dependency = true)]
-pub mod erc1155 {
+pub mod psp1155 {
     use crate::traits::{Id};
     use ink_prelude::{
         string::{String},
@@ -13,17 +13,17 @@ pub mod erc1155 {
     };
 
     #[ink(storage)]
-    pub struct Erc1155 {}
+    pub struct PSP1155 {}
 
-    impl Erc1155 {
+    impl PSP1155 {
         #[ink(constructor)]
         pub fn new() -> Self {
             unimplemented!()
         }
     }
 
-    #[ink(namespace = "IErc1155")]
-    impl Erc1155 {
+    #[ink(namespace = "IPSP1155")]
+    impl PSP1155 {
         #[ink(message)]
         pub fn balance_of(&self, _account: AccountId, _id: Id) -> Balance {
             unimplemented!()
@@ -69,8 +69,8 @@ pub mod erc1155 {
         }
     }
 
-    #[ink(namespace = "IErc1155MetadataURI")]
-    impl Erc1155 {
+    #[ink(namespace = "IPSP1155MetadataURI")]
+    impl PSP1155 {
         #[ink(message)]
         pub fn uri(&self, _id: Id) -> Option<String> {
             unimplemented!()
@@ -79,33 +79,33 @@ pub mod erc1155 {
 }
 
 #[ink_lang::contract(compile_as_dependency = true)]
-pub mod erc1155receiver {
-    use crate::traits::{Erc1155ReceiverError, Id};
+pub mod psp1155receiver {
+    use crate::traits::{PSP1155ReceiverError, Id};
     use ink_prelude::{
         vec::Vec,
     };
 
     #[ink(storage)]
-    pub struct Erc1155Receiver {}
+    pub struct PSP1155Receiver {}
 
-    impl Erc1155Receiver {
+    impl PSP1155Receiver {
         #[ink(constructor)]
         pub fn new() -> Self {
             unimplemented!()
         }
     }
 
-    #[ink(namespace = "IErc1155Receiver")]
-    impl Erc1155Receiver {
+    #[ink(namespace = "IPSP1155Receiver")]
+    impl PSP1155Receiver {
         #[ink(message)]
-        pub fn on_erc1155_received(&mut self, _operator: AccountId, _from: AccountId,
-                                   _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), Erc1155ReceiverError> {
+        pub fn on_psp1155_received(&mut self, _operator: AccountId, _from: AccountId,
+                                   _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn on_erc1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
-                                         _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), Erc1155ReceiverError> {
+        pub fn on_psp1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
+                                         _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             unimplemented!()
         }
     }

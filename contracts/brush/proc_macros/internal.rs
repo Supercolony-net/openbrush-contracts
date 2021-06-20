@@ -236,7 +236,7 @@ pub fn impl_external_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, 
             }
             _ => unreachable!("encountered invalid receiver argument for brush message"),
         };
-        // transform IErc20 -> Erc20
+        // transform IPSP20 -> PSP20
         let mut chars = trait_ident.to_string().clone();
         chars.remove(0);
         let internal_trait = format_ident!("{}", chars.as_str());

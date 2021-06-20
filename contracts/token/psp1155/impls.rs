@@ -1,8 +1,8 @@
 // #![cfg_attr(test, allow(unused_imports))]
 
-use crate::traits::{Erc1155Error, Id};
+use crate::traits::{PSP1155Error, Id};
 #[cfg(not(test))]
-use crate::stub::{Erc1155Receiver};
+use crate::stub::{PSP1155Receiver};
 #[cfg(not(test))]
 use ink_env::{
     call::{FromAccountId},
@@ -23,13 +23,13 @@ use brush::{
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
 #[brush::internal_trait_definition]
-pub trait Erc1155MetadataURIStorage: InkStorage {
+pub trait PSP1155MetadataURIStorage: InkStorage {
     fn _uri(&self) -> & Option<String>;
     fn _uri_mut(&mut self) -> &mut Option<String>;
 }
 
 #[brush::internal_trait_definition]
-pub trait Erc1155Storage: InkStorage {
+pub trait PSP1155Storage: InkStorage {
     fn _balances(&self) -> & StorageHashMap<(Id, AccountId), Balance>;
     fn _balances_mut(&mut self) -> &mut StorageHashMap<(Id, AccountId), Balance>;
 
@@ -37,7 +37,7 @@ pub trait Erc1155Storage: InkStorage {
     fn _operator_approval_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), bool>;
 }
 
-pub trait Erc1155MetadataURI: Erc1155MetadataURIStorage {
+pub trait PSP1155MetadataURI: PSP1155MetadataURIStorage {
     fn _init_with_uri(&mut self, uri: Option<String>) {
         *self._uri_mut() = uri;
     }
@@ -47,16 +47,22 @@ pub trait Erc1155MetadataURI: Erc1155MetadataURIStorage {
     }
 }
 
-pub trait Erc1155: Erc1155Storage {
+pub trait PSP1155: PSP1155Storage {
     fn emit_transfer_single_event(&self,
                                   _operator: AccountId, _from: AccountId,
-                                  _to: AccountId, _id: Id, _amount: Balance);
+                                  _to: AccountId, _id: Id, _amount: Balance) {
+        // TODO: Emit events
+    }
 
-    fn emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool);
+    fn emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {
+        // TODO: Emit events
+    }
 
     fn emit_transfer_batch_event(&self,
                                  _operator: AccountId, _from: AccountId,
-                                 _to: AccountId, _ids: Vec<Id>, _amounts: Vec<Balance>);
+                                 _to: AccountId, _ids: Vec<Id>, _amounts: Vec<Balance>) {
+        // TODO: Emit events
+    }
 
     fn balance_of(&self, _account: AccountId, _id: Id) -> Balance {
         self._balance_of_or_zero(_account, _id)
@@ -67,7 +73,7 @@ pub trait Erc1155: Erc1155Storage {
         _accounts: Vec<AccountId>,
         _ids: Vec<Id>,
     ) -> Vec<Balance> {
-        assert_eq!(_accounts.len(), _ids.len(), "{}", Erc1155Error::InputLengthMismatch.as_ref());
+        assert_eq!(_accounts.len(), _ids.len(), "{}", PSP1155Error::InputLengthMismatch.as_ref());
 
         let values: Vec<Balance> = _accounts
             .iter()
@@ -79,7 +85,7 @@ pub trait Erc1155: Erc1155Storage {
 
     fn set_approval_for_all(&mut self, _operator: AccountId, _approved: bool) {
         let caller = Self::env().caller();
-        assert_ne!(caller, _operator, "{}", Erc1155Error::SelfApproval.as_ref());
+        assert_ne!(caller, _operator, "{}", PSP1155Error::SelfApproval.as_ref());
         *self
             ._operator_approval_mut()
             .entry((Self::env().caller(), _operator))
@@ -125,7 +131,7 @@ pub trait Erc1155: Erc1155Storage {
         _amounts: Vec<Balance>,
         _data: Vec<u8>,
     ) {
-        assert_eq!(_ids.len(), _amounts.len(), "{}", Erc1155Error::InputLengthMismatch.as_ref());
+        assert_eq!(_ids.len(), _amounts.len(), "{}", PSP1155Error::InputLengthMismatch.as_ref());
         self._transfer_guard(_from, _to);
         self._before_token_transfer(&_ids);
 
@@ -150,7 +156,7 @@ pub trait Erc1155: Erc1155Storage {
     fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
         let operator = Self::env().caller();
 
-        assert_ne!(to, ZERO_ADDRESS.into(), "{}", Erc1155Error::TransferToZeroAddress.as_ref());
+        assert_ne!(to, ZERO_ADDRESS.into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         self._before_token_transfer(&vec![id]);
         self._increase_receiver_balance(to, id, amount);
@@ -169,7 +175,7 @@ pub trait Erc1155: Erc1155Storage {
     }
 
     fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
-        assert_ne!(from, ZERO_ADDRESS.into(), "{}", Erc1155Error::TransferToZeroAddress.as_ref());
+        assert_ne!(from, ZERO_ADDRESS.into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         self._before_token_transfer(&vec![id]);
         self._decrease_sender_balance(from, id, amount);
@@ -182,12 +188,12 @@ pub trait Erc1155: Erc1155Storage {
 
     #[inline]
     fn _transfer_guard(&self, from: AccountId, to: AccountId) {
-        assert_ne!(to, ZERO_ADDRESS.into(), "{}", Erc1155Error::TransferToZeroAddress.as_ref());
+        assert_ne!(to, ZERO_ADDRESS.into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         let operator = Self::env().caller();
 
         if (from != operator) && (!self._is_approved_for_all(from, operator)) {
-            panic!("{}", Erc1155Error::ApproveRequired.as_ref());
+            panic!("{}", PSP1155Error::ApproveRequired.as_ref());
         }
     }
 
@@ -222,7 +228,7 @@ pub trait Erc1155: Erc1155Storage {
         let to_balance = self._balances_mut().entry((id, to)).or_insert(0);
         match to_balance.checked_add(amount) {
             Some(new_to_balance) => *to_balance = new_to_balance,
-            _ => panic!("{}", Erc1155Error::MaxBalance.as_ref()),
+            _ => panic!("{}", PSP1155Error::MaxBalance.as_ref()),
         }
     }
 
@@ -239,7 +245,7 @@ pub trait Erc1155: Erc1155Storage {
             .map(|old_from_balance| old_from_balance.checked_sub(amount))
         {
             Some(Some(new_from_balance)) => self._balances_mut().insert((id, from), new_from_balance),
-            _ => panic!("{}", Erc1155Error::InsufficientBalance.as_ref()),
+            _ => panic!("{}", PSP1155Error::InsufficientBalance.as_ref()),
         };
     }
 
@@ -269,16 +275,16 @@ pub trait Erc1155: Erc1155Storage {
         _amount: Balance,
         _data: Vec<u8>,
     ) {
-        let mut receiver : Erc1155Receiver = FromAccountId::from_account_id(_to);
-        match receiver.call_mut().on_erc1155_received(_operator, _from, _id, _amount, _data).fire()
+        let mut receiver : PSP1155Receiver = FromAccountId::from_account_id(_to);
+        match receiver.call_mut().on_psp1155_received(_operator, _from, _id, _amount, _data).fire()
         {
             Ok(result) => match result {
                 Ok(_) => (),
-                _ => panic!("{}", Erc1155Error::CallFailed.as_ref()),
+                _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
             },
             Err(e) => match e {
                 Env_error::NotCallable => (),
-                _ => panic!("{}", Erc1155Error::CallFailed.as_ref()),
+                _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
             },
         }
     }
@@ -306,16 +312,16 @@ pub trait Erc1155: Erc1155Storage {
         _amounts: Vec<Balance>,
         _data: Vec<u8>,
     ) {
-        let mut receiver : Erc1155Receiver = FromAccountId::from_account_id(_to);
-        match receiver.call_mut().on_erc1155_batch_received(_operator, _from, _ids, _amounts, _data).fire()
+        let mut receiver : PSP1155Receiver = FromAccountId::from_account_id(_to);
+        match receiver.call_mut().on_psp1155_batch_received(_operator, _from, _ids, _amounts, _data).fire()
         {
             Ok(result) => match result {
                 Ok(_) => (),
-                _ => panic!("{}", Erc1155Error::CallFailed.as_ref()),
+                _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
             },
             Err(e) => match e {
                 Env_error::NotCallable => (),
-                _ => panic!("{}", Erc1155Error::CallFailed.as_ref()),
+                _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
             },
         }
     }
