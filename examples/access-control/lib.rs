@@ -4,7 +4,7 @@
 pub mod my_access_control {
     use erc721::{
         traits::{ IErc721, Id, IErc721Mint },
-        impls::{ Erc721Storage, Erc721, Erc721Mint }
+        impls::{ Erc721Storage, Erc721, Erc721Mint, StorageHashMap }
     };
     use access_control::{
         traits::{ IAccessControl, RoleType },
@@ -12,12 +12,6 @@ pub mod my_access_control {
     };
     use brush::{
         traits::{ InkStorage },
-        iml_getters,
-    };
-    use ink_storage::{
-        collections::{
-            HashMap as StorageHashMap,
-        },
     };
     use ink_lang::{ Env, EmitEvent };
     use ink_prelude::{ vec::Vec };
@@ -55,23 +49,9 @@ pub mod my_access_control {
         approved: bool,
     }
 
-    #[derive(Default)]
     #[ink(storage)]
-    pub struct Erc721Struct {
-        // Fields of Erc721Storage
-        /// Mapping from token to owner.
-        token_owner: StorageHashMap<Id, AccountId>,
-        /// Mapping from token to approvals users.
-        token_approvals: StorageHashMap<Id, AccountId>,
-        /// Mapping from owner to number of owned token.
-        owned_tokens_count: StorageHashMap<AccountId, u32>,
-        /// Mapping from owner to operator approvals.
-        operator_approvals: StorageHashMap<(AccountId, AccountId), bool>,
-
-        // Fields of AccessControlStorage
-        /// Mapping from role type to role data(the list of members and admin role).
-        roles: StorageHashMap<RoleType, RoleData>,
-    }
+    #[derive(Default, Erc721Storage, AccessControlStorage, IErc721, IAccessControl)]
+    pub struct Erc721Struct {}
 
     // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
     const MINTER: RoleType = 0xfd9ab216;
@@ -79,7 +59,12 @@ pub mod my_access_control {
     impl Erc721Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::_empty()
+            let mut instance = Self::default();
+            let caller = instance.env().caller();
+            instance._init_with_admin(caller);
+            // We grant minter role to caller in constructor, so he can mint/burn tokens
+            AccessControl::grant_role(&mut instance,MINTER, caller);
+            instance
         }
 
         #[inline]
@@ -88,30 +73,9 @@ pub mod my_access_control {
         }
     }
 
-    // We override _empty method and use it in the constructor.
-    // _empty is a base constructor which can create an empty struct.
-    // Some implementations require initialization of some variables, you can do it in _empty function.
-    // In this case, all your constructors which are using _empty function will be initialized properly.
-    impl InkStorage for Erc721Struct {
-        fn _empty() -> Self {
-            let mut instance = Self::default();
-            let caller = Self::env().caller();
-            instance._init_with_admin(caller);
-            // We grant minter role to caller in constructor, so he can mint/burn tokens
-            AccessControl::grant_role(&mut instance,MINTER, caller);
-            instance
-        }
-    }
-    impl Erc721Storage for Erc721Struct {
-        iml_getters!(token_owner, _token_owner, _token_owner_mut, StorageHashMap<Id, AccountId>);
-        iml_getters!(token_approvals, _token_approvals, _token_approvals_mut, StorageHashMap<Id, AccountId>);
-        iml_getters!(owned_tokens_count, _owned_tokens_count, _owned_tokens_count_mut, StorageHashMap<AccountId, u32>);
-        iml_getters!(operator_approvals, _operator_approvals, _operator_approvals_mut, StorageHashMap<(AccountId, AccountId), bool>);
-    }
-    impl AccessControlStorage for Erc721Struct {
-        iml_getters!(roles, _roles, _roles_mut, StorageHashMap<RoleType, RoleData>);
-    }
+    impl InkStorage for Erc721Struct {}
 
+    // Inheritance of Erc721 requires you to implement methods for event dispatching
     impl Erc721 for Erc721Struct {
         fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
             self.env().emit_event(Transfer {
@@ -138,8 +102,6 @@ pub mod my_access_control {
         }
     }
     impl AccessControl for Erc721Struct {}
-
-    impl_trait!(Erc721Struct, IErc721(Erc721), IAccessControl(AccessControl));
 
     impl Erc721Mint for Erc721Struct {}
     impl IErc721Mint for Erc721Struct {

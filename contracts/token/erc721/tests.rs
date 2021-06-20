@@ -1,17 +1,15 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use ink_storage::collections::{HashMap as StorageHashMap};
     use ink_prelude::{string::String};
     use ink_env::{call, test};
     use ink_lang as ink;
     use brush::{
         traits::{InkStorage},
-        iml_getters,
     };
     use ink::{Env, EmitEvent};
     use crate::traits::{ Id };
-    use crate::impls::{ Erc721Storage, Erc721, Erc721Mint, Erc721MetadataStorage, Erc721Metadata };
+    use crate::impls::{ Erc721Storage, Erc721, Erc721Mint, Erc721MetadataStorage, Erc721Metadata, StorageHashMap };
 
     const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
@@ -48,30 +46,11 @@ mod tests {
         approved: bool,
     }
 
-    #[derive(Default)]
+    #[derive(Default, Erc721Storage, Erc721MetadataStorage)]
     #[ink(storage)]
-    pub struct Erc721Struct {
-        /// Name of the token
-        name: Option<String>,
-        /// Symbol of the token
-        symbol: Option<String>,
-        /// Mapping from token to owner.
-        token_owner: StorageHashMap<Id, AccountId>,
-        /// Mapping from token to approvals users.
-        token_approvals: StorageHashMap<Id, AccountId>,
-        /// Mapping from owner to number of owned token.
-        owned_tokens_count: StorageHashMap<AccountId, u32>,
-        /// Mapping from owner to operator approvals.
-        operator_approvals: StorageHashMap<(AccountId, AccountId), bool>,
-    }
+    pub struct Erc721Struct {}
 
     impl InkStorage for Erc721Struct {}
-    impl Erc721Storage for Erc721Struct {
-        iml_getters!(token_owner, _token_owner, _token_owner_mut, StorageHashMap<Id, AccountId>);
-        iml_getters!(token_approvals, _token_approvals, _token_approvals_mut, StorageHashMap<Id, AccountId>);
-        iml_getters!(owned_tokens_count, _owned_tokens_count, _owned_tokens_count_mut, StorageHashMap<AccountId, u32>);
-        iml_getters!(operator_approvals, _operator_approvals, _operator_approvals_mut, StorageHashMap<(AccountId, AccountId), bool>);
-    }
     impl Erc721 for Erc721Struct {
         fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
             self.env().emit_event(Transfer {
@@ -98,17 +77,12 @@ mod tests {
         }
     }
     impl Erc721Mint for Erc721Struct {}
-
-    impl Erc721MetadataStorage for Erc721Struct {
-        iml_getters!(name, _name, _name_mut, Option<String>);
-        iml_getters!(symbol, _symbol, _symbol_mut, Option<String>);
-    }
     impl Erc721Metadata for Erc721Struct {}
 
     impl Erc721Struct {
         #[ink(constructor)]
         pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-            let mut instance = Self::_empty();
+            let mut instance = Self::default();
             instance._init_with_metadata(name, symbol);
             instance
         }

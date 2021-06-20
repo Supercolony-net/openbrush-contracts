@@ -5,25 +5,37 @@ use ink_env::{
     Error as Env_error,
 };
 use ink_lang::ForwardCallMut;
-use ink_storage::collections::{hashmap::Entry, HashMap as StorageHashMap};
+use ink_storage::collections::{hashmap::Entry};
+pub use ink_storage::collections::{HashMap as StorageHashMap};
 use brush::{
     traits::{InkStorage, AccountId},
-    define_getters,
 };
 use ink_prelude::{string::String, vec::Vec};
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
+#[brush::internal_trait_definition]
 pub trait Erc721MetadataStorage: InkStorage {
-    define_getters!(_name, _name_mut, Option<String>);
-    define_getters!(_symbol, _symbol_mut, Option<String>);
+    fn _name(&self) -> & Option<String>;
+    fn _name_mut(&mut self) -> &mut Option<String>;
+
+    fn _symbol(&self) -> & Option<String>;
+    fn _symbol_mut(&mut self) -> &mut Option<String>;
 }
 
+#[brush::internal_trait_definition]
 pub trait Erc721Storage: InkStorage {
-    define_getters!(_token_owner, _token_owner_mut, StorageHashMap<Id, AccountId>);
-    define_getters!(_token_approvals, _token_approvals_mut, StorageHashMap<Id, AccountId>);
-    define_getters!(_owned_tokens_count, _owned_tokens_count_mut, StorageHashMap<AccountId, u32>);
-    define_getters!(_operator_approvals, _operator_approvals_mut, StorageHashMap<(AccountId, AccountId), bool>);
+    fn _token_owner(&self) -> & StorageHashMap<Id, AccountId>;
+    fn _token_owner_mut(&mut self) -> &mut StorageHashMap<Id, AccountId>;
+
+    fn _token_approvals(&self) -> & StorageHashMap<Id, AccountId>;
+    fn _token_approvals_mut(&mut self) -> &mut StorageHashMap<Id, AccountId>;
+
+    fn _owned_tokens_count(&self) -> & StorageHashMap<AccountId, u32>;
+    fn _owned_tokens_count_mut(&mut self) -> &mut StorageHashMap<AccountId, u32>;
+
+    fn _operator_approvals(&self) -> & StorageHashMap<(AccountId, AccountId), bool>;
+    fn _operator_approvals_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), bool>;
 }
 
 pub trait Erc721: Erc721Storage {

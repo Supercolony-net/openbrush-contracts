@@ -1,5 +1,5 @@
 use crate::traits::Erc20Error;
-use ink_storage::{
+pub use ink_storage::{
     collections::{
         HashMap as StorageHashMap,
     },
@@ -7,19 +7,30 @@ use ink_storage::{
 };
 use brush::{
     traits::{InkStorage, AccountId, Balance},
-    define_getters,
 };
-use ink_prelude::{string::{String}};
+pub use ink_prelude::{string::{String}};
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
+#[brush::internal_trait_definition]
 pub trait Erc20Storage: InkStorage {
-    define_getters!(_supply, _supply_mut, Lazy<Balance>);
-    define_getters!(_balances, _balances_mut, StorageHashMap<AccountId, Balance>);
-    define_getters!(_allowances, _allowances_mut, StorageHashMap<(AccountId, AccountId), Balance>);
-    define_getters!(_name, _name_mut, Lazy<Option<String>>);
-    define_getters!(_symbol, _symbol_mut, Lazy<Option<String>>);
-    define_getters!(_decimals, _decimals_mut, Lazy<u8>);
+    fn _supply(&self) -> & Lazy<Balance>;
+    fn _supply_mut(&mut self) -> &mut Lazy<Balance>;
+
+    fn _balances(&self) -> & StorageHashMap<AccountId, Balance>;
+    fn _balances_mut(&mut self) -> &mut StorageHashMap<AccountId, Balance>;
+
+    fn _allowances(&self) -> & StorageHashMap<(AccountId, AccountId), Balance>;
+    fn _allowances_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), Balance>;
+
+    fn _name(&self) -> & Lazy<Option<String>>;
+    fn _name_mut(&mut self) -> &mut Lazy<Option<String>>;
+
+    fn _symbol(&self) -> & Lazy<Option<String>>;
+    fn _symbol_mut(&mut self) -> &mut Lazy<Option<String>>;
+
+    fn _decimals(&self) -> & Lazy<u8>;
+    fn _decimals_mut(&mut self) -> &mut Lazy<u8>;
 }
 
 pub trait Erc20: Erc20Storage {

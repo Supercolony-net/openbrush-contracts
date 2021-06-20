@@ -18,31 +18,33 @@ use ink_storage::{
 };
 use brush::{
     traits::{InkStorage, AccountId, Balance},
-    define_getters,
 };
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
+#[brush::internal_trait_definition]
 pub trait Erc1155MetadataURIStorage: InkStorage {
-    define_getters!(_uri, _uri_mut, Option<String>);
+    fn _uri(&self) -> & Option<String>;
+    fn _uri_mut(&mut self) -> &mut Option<String>;
+}
+
+#[brush::internal_trait_definition]
+pub trait Erc1155Storage: InkStorage {
+    fn _balances(&self) -> & StorageHashMap<(Id, AccountId), Balance>;
+    fn _balances_mut(&mut self) -> &mut StorageHashMap<(Id, AccountId), Balance>;
+
+    fn _operator_approval(&self) -> & StorageHashMap<(AccountId, AccountId), bool>;
+    fn _operator_approval_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), bool>;
 }
 
 pub trait Erc1155MetadataURI: Erc1155MetadataURIStorage {
-    fn new(uri: Option<String>) -> Self {
-        let mut instance = Self::_empty();
-        *instance._uri_mut() = uri;
-        instance
+    fn _init_with_uri(&mut self, uri: Option<String>) {
+        *self._uri_mut() = uri;
     }
 
     fn uri(&self, _id: Id) -> Option<String> {
         self._uri().clone()
     }
-}
-
-pub trait Erc1155Storage: InkStorage {
-    define_getters!(_balances, _balances_mut, StorageHashMap<(Id, AccountId), Balance>);
-
-    define_getters!(_operator_approval, _operator_approval_mut, StorageHashMap<(AccountId, AccountId), bool>);
 }
 
 pub trait Erc1155: Erc1155Storage {

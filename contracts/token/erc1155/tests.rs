@@ -1,5 +1,5 @@
 #[cfg(test)]
-#[ink_lang::contract]
+#[brush::contract]
 mod tests {
     use crate::traits::{Id};
     use crate::impls::{Erc1155Storage, Erc1155};
@@ -10,7 +10,6 @@ mod tests {
     use ink_lang as ink;
     use brush::{
         traits::{InkStorage},
-        iml_getters,
     };
     use ink::{Env, EmitEvent};
 
@@ -47,18 +46,11 @@ mod tests {
         approved: bool,
     }
 
-    #[derive(Default)]
+    #[derive(Default, Erc1155Storage)]
     #[ink(storage)]
-    pub struct Erc1155Struct {
-        balances: StorageHashMap<(Id, AccountId), Balance>,
-        operator_approval: StorageHashMap<(AccountId, AccountId), bool>,
-    }
+    pub struct Erc1155Struct {}
 
     impl InkStorage for Erc1155Struct {}
-    impl Erc1155Storage for Erc1155Struct {
-        iml_getters!(balances, _balances, _balances_mut, StorageHashMap<(Id, AccountId), Balance>);
-        iml_getters!(operator_approval, _operator_approval, _operator_approval_mut, StorageHashMap<(AccountId, AccountId), bool>);
-    }
     impl Erc1155 for Erc1155Struct {
         fn emit_transfer_single_event(&self,
                                       _operator: AccountId, _from: AccountId, _to: AccountId, _id: Id, _amount: Balance) {
@@ -94,7 +86,7 @@ mod tests {
     impl Erc1155Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::_empty()
+            Self::default()
         }
 
         #[ink(message)]

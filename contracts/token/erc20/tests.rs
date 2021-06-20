@@ -1,19 +1,12 @@
 #[cfg(test)]
-#[ink_lang::contract]
+#[brush::contract]
 mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
-    use crate::impls::{Erc20, Erc20Storage};
-    use ink_storage::{
-        collections::{
-            HashMap as StorageHashMap,
-        },
-        Lazy,
-    };
+    use crate::impls::{Erc20, Erc20Storage, StorageHashMap, Lazy};
     use ink_prelude::{string::{String}};
     use ink_lang as ink;
     use brush::{
         traits::{InkStorage},
-        iml_getters,
     };
     use ink::{Env, EmitEvent};
     use ink_env::{
@@ -49,26 +42,11 @@ mod tests {
 
     /// A simple ERC-20 contract.
     #[ink(storage)]
-    #[derive(Default)]
-    pub struct Erc20Struct {
-        total_supply: Lazy<Balance>,
-        balances: StorageHashMap<AccountId, Balance>,
-        allowances: StorageHashMap<(AccountId, AccountId), Balance>,
-        name: Lazy<Option<String>>,
-        symbol: Lazy<Option<String>>,
-        decimal: Lazy<u8>,
-    }
+    #[derive(Default, Erc20Storage)]
+    pub struct Erc20Struct {}
     type Event = <Erc20Struct as ::ink_lang::BaseEvent>::Type;
 
     impl InkStorage for Erc20Struct {}
-    impl Erc20Storage for Erc20Struct {
-        iml_getters!(total_supply, _supply, _supply_mut, Lazy<Balance>);
-        iml_getters!(balances, _balances, _balances_mut, StorageHashMap<AccountId, Balance>);
-        iml_getters!(allowances, _allowances, _allowances_mut, StorageHashMap<(AccountId, AccountId), Balance>);
-        iml_getters!(name, _name, _name_mut, Lazy<Option<String>>);
-        iml_getters!(symbol, _symbol, _symbol_mut, Lazy<Option<String>>);
-        iml_getters!(decimal, _decimals, _decimals_mut, Lazy<u8>);
-    }
     impl Erc20 for Erc20Struct {
         fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
@@ -90,7 +68,7 @@ mod tests {
     impl Erc20Struct {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
-            let mut instance = Self::_empty();
+            let mut instance = Self::default();
             instance.mint(instance.env().caller(), _total_supply);
             instance
         }

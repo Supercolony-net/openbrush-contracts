@@ -1,11 +1,12 @@
 use brush::{
     traits::{InkStorage, AccountId},
-    define_getters,
 };
 use crate::traits::OwnableError;
 
+#[brush::internal_trait_definition]
 pub trait OwnableStorage: InkStorage {
-    define_getters!(_owner, _owner_mut, AccountId);
+    fn _owner(&self) -> & AccountId;
+    fn _owner_mut(&mut self) -> &mut AccountId;
 }
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
