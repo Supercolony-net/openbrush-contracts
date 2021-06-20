@@ -1,0 +1,10 @@
+[book]
+title = "OpenBrush-contracts"
+authors = []
+language = "en"
+multilingual = false
+src = "src"
+
+[output.html]
+theme = "polkadot"
+default-theme = "navy"
