@@ -8,9 +8,24 @@ const { api, getSigners } = network
 
 export { expect } from './setup/chai'
 
-const patchContractMethods = (contract: Contract) => {
+const patchContractMethods = (contract: Contract): Contract => {
   patchMethods(contract.query)
   patchMethods(contract.tx)
+  return contract
+}
+
+// It removes prefix from the function and adds only name of method like a function
+// Erc20::token_name
+// query["Erc20,tokenName"]
+// query.tokenName()
+const patchMethods = (object) => {
+  for (const prop in object) {
+    if (prop.includes(',')) {
+      const selectors = prop.split(',')
+      const method = selectors[selectors.length - 1]
+      object[method] = object[prop]
+    }
+  }
 }
 
 export const setupContract = async (name, constructor, ...args) => {
@@ -37,20 +52,8 @@ export const setupContract = async (name, constructor, ...args) => {
   }
 }
 
-// It removes prefix from the function and adds only name of method like a function
-// Erc20::token_name
-// query["Erc20,tokenName"]
-// query.tokenName()
-const patchMethods = (object) => {
-  for (const prop in object) {
-    if (prop.includes(',')) {
-      const selectors = prop.split(',')
-      const method = selectors[selectors.length - 1]
-      object[method] = object[prop]
-    }
-  }
+export const fromSigner = (contract: Contract, address: string): Contract => {
+  return patchContractMethods(contract.connect(address))
 }
 
-export const bnArg = (value: number | string | number[] | Uint8Array | Buffer | BN) => new BN(value, undefined, 'le').toArray('le')
-
-export const zeroArr = (length: number) => new Array(length).fill(0)
+export const bnArg = (value: number | string | number[] | Uint8Array | Buffer | BN, length = 32) => new BN(value, undefined, 'le').toArray('le', length)

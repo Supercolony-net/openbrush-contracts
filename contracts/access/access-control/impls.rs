@@ -89,6 +89,11 @@ pub trait AccessControl: AccessControlStorage {
 
     // Internal functions
 
+    fn _init(&mut self) {
+        let caller = Self::env().caller();
+        self._init_with_admin(caller);
+    }
+
     fn _init_with_admin(&mut self, admin: AccountId) {
         self._roles_mut().insert(DEFAULT_ADMIN_ROLE, RoleData::new(admin));
         // TODO: Emit event
