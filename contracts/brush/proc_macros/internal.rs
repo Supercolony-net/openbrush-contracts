@@ -25,7 +25,7 @@ use fs2::FileExt;
 const TEMP_FILE: &str = "brush_temp$%$%$";
 type Data = HashMap<String, Vec<String>>;
 
-pub trait Methods {
+pub(crate) trait Methods {
     fn methods(&self, ident: &String) -> Vec<syn::TraitItemMethod>;
 }
 
@@ -40,12 +40,12 @@ impl Methods for Data {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
-pub struct Metadata {
+pub(crate) struct Metadata {
     pub internal_traits: Data,
     pub external_traits: Data,
 }
 
-pub fn get_locked_file() -> File {
+pub(crate) fn get_locked_file() -> File {
     let mut dir = env::temp_dir();
     dir = dir.join(TEMP_FILE);
 
@@ -59,21 +59,21 @@ pub fn get_locked_file() -> File {
     file
 }
 
-pub fn load_metadata(file: &File) -> Metadata {
+pub(crate) fn load_metadata(file: &File) -> Metadata {
     let reader = BufReader::new(file);
 
     let map = serde_json::from_reader(reader).unwrap_or_default();
     map
 }
 
-pub fn save_metadata_and_unlock(mut locked_file: File, metadata: Metadata) {
+pub(crate) fn save_metadata_and_unlock(mut locked_file: File, metadata: Metadata) {
     locked_file.set_len(0).expect("Can't truncate the file");
     locked_file.seek(SeekFrom::Start(0)).expect("Can't set cursor position");
     serde_json::to_writer(&locked_file, &metadata).expect("Can't dump definition metadata to file");
     locked_file.unlock().expect("Can't remove exclusive lock");
 }
 
-pub fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
+pub(crate) fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
     let ident = item_trait.ident;
     let items: Vec<_> = item_trait
         .items
@@ -142,7 +142,7 @@ impl NamedField {
     }
 }
 
-pub fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> (Vec<syn::Field>, TokenStream) {
+pub(crate) fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> (Vec<syn::Field>, TokenStream) {
     let trait_methods = metadata.internal_traits.methods(&trait_ident.to_string());
 
     let mut impl_methods = vec![];
@@ -208,7 +208,7 @@ pub fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, 
     (fields, code.into())
 }
 
-pub fn impl_external_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> TokenStream {
+pub(crate) fn impl_external_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> TokenStream {
     let trait_methods = metadata.external_traits.methods(&trait_ident.to_string());
 
     let implementations = trait_methods.into_iter().map(|item| {

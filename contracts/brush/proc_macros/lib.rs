@@ -1,82 +1,25 @@
 extern crate proc_macro;
 mod internal;
+mod contract;
 
 use quote::{
     quote,
 };
 use syn::{
     ItemTrait,
-    Item,
+    ItemFn,
+    TraitItemMethod,
     parse_macro_input,
 };
-use proc_macro::TokenStream;
+use proc_macro::{TokenStream};
 use proc_macro2::{
     TokenStream as TokenStream2,
     TokenTree,
 };
-use fs2::FileExt;
 
 #[proc_macro_attribute]
 pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
-    let input: TokenStream2 = ink_module.into();
-    let attrs: TokenStream2 = _attrs.into();
-    let mut module = syn::parse2::<syn::ItemMod>(input.clone()).expect("Can't parse contract module");
-    let (braces, items) = match module.content {
-        Some((brace, items)) => (brace, items),
-        None => {
-            panic!(
-                "{}", "out-of-line ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}`",
-            )
-        }
-    };
-    let locked_file = internal::get_locked_file();
-    let metadata = internal::load_metadata(&locked_file);
-    locked_file.unlock().expect("Can't remove exclusive lock in extract_fields_and_methods");
-
-    let mut new_items: Vec<syn::Item> = vec![];
-    let mut items: Vec<syn::Item> = items
-        .into_iter()
-        .filter_map(|mut item| {
-            if let Item::Struct(item_struct) = &mut item {
-                let struct_ident = item_struct.ident.clone();
-                let attrs: Vec<syn::Attribute> = item_struct.attrs.clone().iter_mut().map(|attr| {
-                    if attr.path.is_ident("derive") {
-                        let (fields, impls) =
-                            consume_derive(&struct_ident, attr, &metadata);
-
-                        let mut generated_items: Vec<_> = impls
-                            .into_iter()
-                            .map(|impl_stream| {
-                                syn::parse::<syn::ItemImpl>(impl_stream)
-                                    .expect("Can't parse generated implementation")
-                            })
-                            .map(|item_impl| syn::Item::from(item_impl))
-                            .collect();
-
-                        new_items.append(&mut generated_items);
-
-                        if let syn::Fields::Named(name_fields) = &mut item_struct.fields {
-                            fields.into_iter().for_each(|field| name_fields.named.push(field));
-                        } else {
-                            panic!("Contract support only named fields")
-                        }
-                    }
-                    attr.clone()
-                }).collect();
-                item_struct.attrs = attrs;
-            }
-            Some(item)
-        }).collect();
-
-    items.append(&mut new_items);
-    module.content = Some((braces, items));
-
-    let result = quote! {
-        #attrs
-        #[ink_lang::contract]
-        #module
-    };
-    result.into()
+    contract::generate(_attrs, ink_module)
 }
 
 #[proc_macro_attribute]
@@ -116,47 +59,45 @@ pub fn internal_trait_definition(_attrs: TokenStream, _input: TokenStream) -> To
     code.into()
 }
 
-fn consume_derive(struct_ident: &syn::Ident,
-                  attr: &mut syn::Attribute, metadata: &internal::Metadata) -> (Vec<syn::Field>, Vec<TokenStream>) {
-    let mut fields: Vec<syn::Field> = vec![];
-    let mut impls: Vec<TokenStream> = vec![];
-    let tokens: TokenStream2 = attr.tokens.clone().into_iter().map(|token|
-        if let TokenTree::Group(group) = token {
-            let mut last_punct = false;
-            let filtered_stream: TokenStream2 = group.stream().into_iter().filter_map(|token|
-                if let TokenTree::Punct(_) = token {
-                    if last_punct {
-                        None
-                    } else {
-                        last_punct = true;
-                        Some(token)
-                    }
-                } else if let TokenTree::Ident(ident) = &token {
-                    let key = ident.to_string();
-                    if metadata.internal_traits.contains_key(&key) {
-                        let (mut _fields, _impl) = internal::impl_internal_trait(struct_ident, ident, metadata);
-                        fields.append(&mut _fields);
-                        impls.push(_impl);
-                        None
-                    } else if metadata.external_traits.contains_key(&key) {
-                        let _impl = internal::impl_external_trait(struct_ident, ident, metadata);
-                        impls.push(_impl);
-                        None
-                    } else {
-                        last_punct = false;
-                        Some(token)
-                    }
-                } else {
-                    last_punct = false;
-                    Some(token)
-                }
-            ).collect();
+#[proc_macro_attribute]
+pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
+    let attrs: TokenStream2 = _attrs.into();
+    let modifiers = attrs
+        .into_iter()
+        .filter_map(|token|
+            if let TokenTree::Ident(ident) = token {
+                Some(ident)
+            } else {
+                None
+            })
+        .collect();
 
-            proc_macro2::Group::new(group.delimiter(), filtered_stream).into()
-        } else {
-            token
+    let fn_item = syn::parse2::<ItemFn>(method.clone().into());
+    let trait_method_item = syn::parse2::<TraitItemMethod>(method.clone().into());
+
+    let mut code: TokenStream2 = method.into();
+    if let Ok(mut item) = fn_item {
+        add_modifiers_to_block(&mut item.block, modifiers);
+        code = quote! { #item };
+    } else if let Ok(mut item) = trait_method_item {
+        if let Some(block) = &mut item.default {
+            add_modifiers_to_block(block, modifiers);
+            code = quote! { #item };
         }
-    ).collect();
-    attr.tokens = tokens;
-    (fields, impls)
+    }
+
+    code.into()
+}
+
+#[inline]
+fn add_modifiers_to_block(block: &mut syn::Block, modifiers: Vec<syn::Ident>) {
+    modifiers
+        .into_iter()
+        .for_each(|ident| {
+            let code = quote! {
+                self.#ident();
+            };
+            block.stmts.insert(0, syn::parse2::<syn::Stmt>(code)
+                .expect("Can't parse statement of modifier"));
+        });
 }
