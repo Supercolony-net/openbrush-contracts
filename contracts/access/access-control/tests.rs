@@ -1,17 +1,13 @@
 #[cfg(test)]
-#[ink_lang::contract]
+#[brush::contract]
 mod tests {
     use crate::traits::{RoleType};
-    use crate::impls::{AccessControlStorage, AccessControl, RoleData, DEFAULT_ADMIN_ROLE};
-    use ink_storage::{
-        collections::HashMap as StorageHashMap,
-    };
+    use crate::impls::{AccessControlStorage, AccessControl, RoleData, DEFAULT_ADMIN_ROLE, StorageHashMap};
     use ink_env::test::DefaultAccounts;
     use ::ink_env::{DefaultEnvironment};
     use ink_lang as ink;
     use brush::{
         traits::{InkStorage},
-        iml_getters,
     };
     // TODO: Emit events
     // use ink::{Env, EmitEvent};
@@ -21,28 +17,17 @@ mod tests {
     // ::ink_lang_ir::Selector::new("PAUSER".as_ref()).as_bytes()
     const PAUSER: RoleType = 0x4ce9afe6;
 
-    #[derive(Default)]
+    #[derive(Default, AccessControlStorage)]
     #[ink(storage)]
-    pub struct AccessControlStruct {
-        roles: StorageHashMap<RoleType, RoleData>,
-    }
+    pub struct AccessControlStruct {}
 
-    impl InkStorage for AccessControlStruct {
-        fn _empty() -> Self {
-            let mut instance = Self::default();
-            instance._init();
-            instance
-        }
-    }
-    impl AccessControlStorage for AccessControlStruct {
-        iml_getters!(roles, _roles, _roles_mut, StorageHashMap<RoleType, RoleData>);
-    }
+    impl InkStorage for AccessControlStruct {}
     impl AccessControl for AccessControlStruct {}
 
     impl AccessControlStruct {
         #[ink(constructor)]
         pub fn new(admin: AccountId) -> Self {
-            let mut instance = Self::_empty();
+            let mut instance = Self::default();
             instance._init_with_admin(admin);
             instance
         }
