@@ -62,6 +62,12 @@ pub trait IErc1155 {
         _amounts: Vec<Balance>,
         _data: Vec<u8>,
     );
+
+    #[ink(message)]
+    fn mint(&mut self, to: AccountId, id: Id, amount: Balance);
+
+    #[ink(message)]
+    fn burn(&mut self, from: AccountId, id: Id, amount: Balance);
 }
 
 #[brush::trait_definition]
