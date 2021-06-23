@@ -12,6 +12,7 @@ pub mod my_access_control {
     };
     use brush::{
         traits::{ InkStorage },
+        modifiers,
     };
     use ink_prelude::{ vec::Vec };
 
@@ -47,14 +48,14 @@ pub mod my_access_control {
     impl PSP721Mint for PSP721Struct {}
     impl IPSP721Mint for PSP721Struct {
         #[ink(message)]
+        #[modifiers(only_minter)]
         fn mint(&mut self, id: Id) {
-            self.only_minter();
             PSP721Mint::mint(self, id);
         }
 
         #[ink(message)]
+        #[modifiers(only_minter)]
         fn burn(&mut self, id: Id) {
-            self.only_minter();
             PSP721Mint::burn(self, id);
         }
     }
