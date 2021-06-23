@@ -95,7 +95,7 @@ fn add_modifiers_to_block(block: &mut syn::Block, modifiers: Vec<syn::Ident>) {
         .into_iter()
         .for_each(|ident| {
             let code = quote! {
-                self.#ident();
+                #[cfg(not(feature = "ink-as-dependency"))] self.#ident();
             };
             block.stmts.insert(0, syn::parse2::<syn::Stmt>(code)
                 .expect("Can't parse statement of modifier"));
