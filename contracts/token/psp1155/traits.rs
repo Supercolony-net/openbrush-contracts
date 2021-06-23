@@ -4,7 +4,7 @@ use ink_prelude::{
     vec::Vec,
 };
 use brush::traits::{AccountId, Balance};
-pub use psp1155_macro::{IPSP1155, IPSP1155Metadata, IPSP1155Mint, IPSP1155Receiver};
+pub use psp1155_derive::{IPSP1155, IPSP1155Metadata, IPSP1155Mint, IPSP1155Receiver};
 
 pub type Id = [u8; 32];
 

@@ -1,5 +1,5 @@
 [package]
-name = "psp20_macro"
+name = "ownable_derive"
 version = "0.2.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -10,7 +10,7 @@ quote = "1.0"
 proc-macro2 = "1"
 
 [lib]
-name = "psp20_macro"
+name = "ownable_derive"
 path = "lib.rs"
 proc-macro = true
 

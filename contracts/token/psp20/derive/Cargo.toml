@@ -1,0 +1,19 @@
+[package]
+name = "psp20_derive"
+version = "0.2.0-rc1"
+authors = ["Supercolony <green.baneling@supercolony.net>"]
+edition = "2018"
+
+[dependencies]
+syn = { version = "1.0" }
+quote = "1.0"
+proc-macro2 = "1"
+
+[lib]
+name = "psp20_derive"
+path = "lib.rs"
+proc-macro = true
+
+[features]
+default = ["std"]
+std = []
