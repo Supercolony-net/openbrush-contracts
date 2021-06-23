@@ -1,7 +1,7 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use crate::traits::{RoleType};
+    use crate::traits::{RoleType, IAccessControl};
     use crate::impls::{AccessControlStorage, AccessControl, RoleData, DEFAULT_ADMIN_ROLE, StorageHashMap};
     use ink_env::test::DefaultAccounts;
     use ::ink_env::{DefaultEnvironment};
@@ -14,22 +14,23 @@ mod tests {
     // ::ink_lang_ir::Selector::new("PAUSER".as_ref()).as_bytes()
     const PAUSER: RoleType = 0x4ce9afe6;
 
-    #[derive(Default, AccessControlStorage)]
+    #[derive(Default, AccessControlStorage, IAccessControl)]
     #[ink(storage)]
     pub struct AccessControlStruct {}
 
     impl AccessControl for AccessControlStruct {}
 
     impl AccessControlStruct {
+        pub fn new(admin: AccountId) -> impl AccessControl {
+            Self::constructor(admin)
+        }
+
         #[ink(constructor)]
-        pub fn new(admin: AccountId) -> Self {
+        pub fn constructor(admin: AccountId) -> Self {
             let mut instance = Self::default();
             instance._init_with_admin(admin);
             instance
         }
-
-        #[ink(message)]
-        pub fn temp(&self) {}
     }
 
     fn setup() -> DefaultAccounts<DefaultEnvironment> {

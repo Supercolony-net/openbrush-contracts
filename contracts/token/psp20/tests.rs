@@ -3,6 +3,7 @@
 mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
     use crate::impls::{PSP20, PSP20Storage, StorageHashMap, Lazy};
+    use crate::traits::{IPSP20};
     use ink_prelude::{string::{String}};
     use ink_lang as ink;
     use ink::{Env, EmitEvent};
@@ -39,7 +40,7 @@ mod tests {
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, PSP20Storage)]
+    #[derive(Default, PSP20Storage, IPSP20)]
     pub struct PSP20Struct {}
     type Event = <PSP20Struct as ::ink_lang::BaseEvent>::Type;
 
@@ -62,15 +63,16 @@ mod tests {
     }
 
     impl PSP20Struct {
+        pub fn new(_total_supply: Balance) -> impl PSP20 {
+            Self::constructor(_total_supply)
+        }
+
         #[ink(constructor)]
-        pub fn new(_total_supply: Balance) -> Self {
+        pub fn constructor(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
             instance.mint(instance.env().caller(), _total_supply);
             instance
         }
-
-        #[ink(message)]
-        pub fn temp(&self){}
     }
 
     fn assert_transfer_event(

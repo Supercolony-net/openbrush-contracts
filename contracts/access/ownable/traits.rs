@@ -1,4 +1,5 @@
 use brush::traits::{AccountId};
+use brush::modifiers;
 
 #[derive(strum_macros::AsRefStr)]
 pub enum OwnableError {
@@ -12,8 +13,10 @@ pub trait IOwnable {
     fn owner(&self) -> AccountId;
 
     #[ink(message)]
+    #[modifiers(only_owner)]
     fn renounce_ownership(&mut self);
 
     #[ink(message)]
+    #[modifiers(only_owner)]
     fn transfer_ownership(&mut self, new_owner: AccountId);
 }

@@ -1,7 +1,7 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use crate::traits::{Id};
+    use crate::traits::{Id, IPSP1155};
     use crate::impls::{PSP1155Storage, PSP1155};
     use ink_prelude::{vec::Vec, vec};
     use ink_storage::{
@@ -43,7 +43,7 @@ mod tests {
         approved: bool,
     }
 
-    #[derive(Default, PSP1155Storage)]
+    #[derive(Default, PSP1155Storage, IPSP1155)]
     #[ink(storage)]
     pub struct PSP1155Struct {}
 
@@ -80,13 +80,14 @@ mod tests {
     }
 
     impl PSP1155Struct {
-        #[ink(constructor)]
-        pub fn new() -> Self {
-            Self::default()
+        pub fn new() -> impl PSP1155 {
+            Self::constructor()
         }
 
-        #[ink(message)]
-        pub fn temp(&self) {}
+        #[ink(constructor)]
+        pub fn constructor() -> Self {
+            Self::default()
+        }
     }
 
     type Event = <PSP1155Struct as ::ink_lang::BaseEvent>::Type;
