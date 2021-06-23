@@ -19,6 +19,7 @@ use ink_storage::{
 use brush::{
     traits::{InkStorage, AccountId, Balance},
 };
+pub use psp1155_macro::{PSP1155Storage};
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 

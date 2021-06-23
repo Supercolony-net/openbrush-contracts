@@ -11,7 +11,6 @@ use syn::{
 use proc_macro::TokenStream;
 use proc_macro2::{
     TokenStream as TokenStream2,
-    // TokenTree,
 };
 use std::collections::HashMap;
 use std::env;
@@ -200,7 +199,6 @@ pub fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, 
     );
 
     let code = quote! {
-        #[cfg(not(feature = "ink-as-dependency"))]
         impl #trait_ident for #struct_ident {
             #(#impl_methods)*
         }

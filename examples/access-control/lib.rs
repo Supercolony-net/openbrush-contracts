@@ -4,14 +4,11 @@
 pub mod my_access_control {
     use psp721::{
         traits::{ IPSP721, Id, IPSP721Mint },
-        impls::{ PSP721Storage, PSP721, PSP721Mint, StorageHashMap }
+        impls::{ PSP721Storage, PSP721, PSP721Mint, StorageHashMap },
     };
     use access_control::{
         traits::{ IAccessControl, RoleType },
         impls::{ AccessControlStorage, AccessControl, RoleData }
-    };
-    use brush::{
-        traits::{ InkStorage },
     };
     use ink_prelude::{ vec::Vec };
 
@@ -39,12 +36,10 @@ pub mod my_access_control {
         }
     }
 
-    // InkStorage is a utils trait required by any Storage trait
-    impl InkStorage for PSP721Struct {}
     impl PSP721 for PSP721Struct {}
     impl AccessControl for PSP721Struct {}
-
     impl PSP721Mint for PSP721Struct {}
+
     impl IPSP721Mint for PSP721Struct {
         #[ink(message)]
         fn mint(&mut self, id: Id) {

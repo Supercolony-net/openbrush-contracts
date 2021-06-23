@@ -6,9 +6,6 @@ mod tests {
     use ink_env::test::DefaultAccounts;
     use ::ink_env::{DefaultEnvironment};
     use ink_lang as ink;
-    use brush::{
-        traits::{InkStorage},
-    };
     // TODO: Emit events
     // use ink::{Env, EmitEvent};
 
@@ -21,7 +18,6 @@ mod tests {
     #[ink(storage)]
     pub struct AccessControlStruct {}
 
-    impl InkStorage for AccessControlStruct {}
     impl AccessControl for AccessControlStruct {}
 
     impl AccessControlStruct {

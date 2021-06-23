@@ -1,5 +1,6 @@
 use ink_prelude::{string::String};
 use brush::traits::{AccountId, Balance};
+pub use psp20_macro::{IPSP20, IPSP20Metadata, IPSP20Mint, IPSP20Receiver};
 
 /// The PSP-20 error type. Contract will assert one of this errors.
 #[derive(strum_macros::AsRefStr)]

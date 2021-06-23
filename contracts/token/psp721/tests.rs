@@ -4,9 +4,6 @@ mod tests {
     use ink_prelude::{string::String};
     use ink_env::{call, test};
     use ink_lang as ink;
-    use brush::{
-        traits::{InkStorage},
-    };
     use ink::{Env, EmitEvent};
     use crate::traits::{ Id };
     use crate::impls::{ PSP721Storage, PSP721, PSP721Mint, PSP721MetadataStorage, PSP721Metadata, StorageHashMap };
@@ -50,7 +47,6 @@ mod tests {
     #[ink(storage)]
     pub struct PSP721Struct {}
 
-    impl InkStorage for PSP721Struct {}
     impl PSP721 for PSP721Struct {
         fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
             self.env().emit_event(Transfer {
