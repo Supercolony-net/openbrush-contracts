@@ -1,11 +1,12 @@
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
     traits::{PackedLayout, SpreadLayout},
     Box,
 };
+pub use ink_storage::{
+    collections::HashMap as StorageHashMap,
+};
 use brush::{
     traits::{InkStorage, AccountId},
-    define_getters,
 };
 use crate::traits::{ AccessControlError, RoleType };
 
@@ -41,9 +42,11 @@ impl Default for RoleData {
     }
 }
 
+#[brush::internal_trait_definition]
 pub trait AccessControlStorage: InkStorage {
     // Mapping of roles to role data which contains information about members of role
-    define_getters!(_roles, _roles_mut, StorageHashMap<RoleType, RoleData>);
+    fn _roles(&self) -> & StorageHashMap<RoleType, RoleData>;
+    fn _roles_mut(&mut self) -> &mut StorageHashMap<RoleType, RoleData>;
 }
 
 pub trait AccessControl: AccessControlStorage {
@@ -88,6 +91,11 @@ pub trait AccessControl: AccessControlStorage {
     }
 
     // Internal functions
+
+    fn _init(&mut self) {
+        let caller = Self::env().caller();
+        self._init_with_admin(caller);
+    }
 
     fn _init_with_admin(&mut self, admin: AccountId) {
         self._roles_mut().insert(DEFAULT_ADMIN_ROLE, RoleData::new(admin));

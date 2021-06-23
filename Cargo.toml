@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "contracts/token/erc20",
-    "contracts/token/erc721",
-    "contracts/token/erc1155",
+    "contracts/token/psp20",
+    "contracts/token/psp721",
+    "contracts/token/psp1155",
     "contracts/access/ownable",
     "contracts/access/access-control",
     "contracts/brush",

@@ -1,5 +1,5 @@
 [package]
-name = "my_access_control"
+name = "psp1155"
 version = "0.2.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -12,36 +12,31 @@ ink_storage = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc
 ink_lang = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
 ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
-psp721 = { path = "../../contracts/token/psp721", default-features = false, features = ["ink-as-dependency"] }
-access-control = { path = "../../contracts/access/access-control", default-features = false, features = ["ink-as-dependency"] }
-brush = { path = "../../contracts/brush", default-features = false }
+strum_macros = "0.21.1"
+brush = { path = "../../brush", default-features = false }
 
 [lib]
-name = "my_access_control"
+name = "psp1155"
 path = "lib.rs"
 crate-type = [
-	"cdylib",
+    "rlib",
 ]
 
 [features]
 default = ["std"]
 std = [
-    "ink_primitives/std",
-    "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
     "ink_storage/std",
-    "ink_lang/std",
+    "ink_primitives/std",
 
     "scale/std",
     "scale-info",
     "scale-info/std",
 
-    "psp721/std",
-    "access-control/std",
     "brush/std",
 ]
 ink-as-dependency = []
