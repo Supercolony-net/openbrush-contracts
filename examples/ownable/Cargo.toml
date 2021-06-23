@@ -1,5 +1,5 @@
 [package]
-name = "ownable_erc1155"
+name = "my_ownable"
 version = "0.2.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -15,12 +15,12 @@ ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
-erc1155 = { path = "../../contracts/token/erc1155", default-features = false, features = ["ink-as-dependency"] }
+psp1155 = { path = "../../contracts/token/psp1155", default-features = false, features = ["ink-as-dependency"] }
 ownable = { path = "../../contracts/access/ownable", default-features = false, features = ["ink-as-dependency"] }
 brush = { path = "../../contracts/brush", default-features = false }
 
 [lib]
-name = "ownable_erc1155"
+name = "my_ownable"
 path = "lib.rs"
 crate-type = [
     "cdylib",
@@ -40,7 +40,7 @@ std = [
     "scale-info",
     "scale-info/std",
 
-    "erc1155/std",
+    "psp1155/std",
     "ownable/std",
     "brush/std",
 ]

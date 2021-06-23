@@ -62,10 +62,15 @@ pub trait IPSP1155 {
         _amounts: Vec<Balance>,
         _data: Vec<u8>,
     );
+}
 
+#[brush::trait_definition]
+pub trait IPSP1155Mint {
+    /// Creates a new token.
     #[ink(message)]
     fn mint(&mut self, to: AccountId, id: Id, amount: Balance);
 
+    /// Deletes an existing token. Only the owner can burn the token.
     #[ink(message)]
     fn burn(&mut self, from: AccountId, id: Id, amount: Balance);
 }
