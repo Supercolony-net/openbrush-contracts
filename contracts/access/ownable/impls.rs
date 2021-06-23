@@ -37,7 +37,6 @@ pub trait Ownable: OwnableStorage {
     }
 
     fn transfer_ownership(&mut self, new_owner: AccountId) {
-        self.only_owner();
         assert_ne!(new_owner, ZERO_ADDRESS.into(), "{}", OwnableError::NewOwnerIsZero.as_ref());
         let old_owner = self.owner();
         *self._owner_mut() = new_owner;
