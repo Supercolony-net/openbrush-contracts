@@ -11,7 +11,7 @@ use brush::{
     traits::{InkStorage, AccountId},
 };
 use ink_prelude::{string::String, vec::Vec};
-pub use psp721_macro::{PSP721Storage};
+pub use psp721_macro::{PSP721Storage, PSP721MetadataStorage};
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 

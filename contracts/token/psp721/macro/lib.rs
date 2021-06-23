@@ -19,6 +19,15 @@ pub fn derive_psp721_storage(_item: TokenStream) -> TokenStream {
     code.into()
 }
 
+#[proc_macro_derive(PSP721MetadataStorage)]
+pub fn derive_psp721_metadata_storage(_item: TokenStream) -> TokenStream {
+    let DeriveInput { ident, .. } = parse_macro_input!(_item);
+    let code = quote! {
+        impl PSP721MetadataStorage for #ident {}
+    };
+    code.into()
+}
+
 #[proc_macro_derive(IPSP721)]
 pub fn derive_external_psp721(_item: TokenStream) -> TokenStream {
     let DeriveInput { ident, .. } = parse_macro_input!(_item);

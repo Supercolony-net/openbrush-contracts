@@ -19,12 +19,12 @@ use ink_storage::{
 use brush::{
     traits::{InkStorage, AccountId, Balance},
 };
-pub use psp1155_macro::{PSP1155Storage};
+pub use psp1155_macro::{PSP1155Storage, PSP1155MetadataStorage};
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
 #[brush::internal_trait_definition]
-pub trait PSP1155MetadataURIStorage: InkStorage {
+pub trait PSP1155MetadataStorage: InkStorage {
     fn _uri(&self) -> & Option<String>;
     fn _uri_mut(&mut self) -> &mut Option<String>;
 }
@@ -38,7 +38,7 @@ pub trait PSP1155Storage: InkStorage {
     fn _operator_approval_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), bool>;
 }
 
-pub trait PSP1155MetadataURI: PSP1155MetadataURIStorage {
+pub trait PSP1155Metadata: PSP1155MetadataStorage {
     fn _init_with_uri(&mut self, uri: Option<String>) {
         *self._uri_mut() = uri;
     }
