@@ -127,7 +127,7 @@ pub(crate) fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
 //     impl_trait
 // }
 
-struct NamedField(syn::Field);
+pub(crate) struct NamedField(syn::Field);
 
 impl syn::parse::Parse for NamedField {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
@@ -136,7 +136,21 @@ impl syn::parse::Parse for NamedField {
 }
 
 impl NamedField {
-    fn field(&self) -> &syn::Field {
+    pub(crate) fn field(&self) -> &syn::Field {
+        &self.0
+    }
+}
+
+pub(crate) struct Attributes(Vec<syn::Attribute>);
+
+impl syn::parse::Parse for Attributes {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        Ok(Self(syn::Attribute::parse_outer(input)?))
+    }
+}
+
+impl Attributes {
+    pub(crate) fn attr(&self) -> &Vec<syn::Attribute> {
         &self.0
     }
 }
@@ -199,6 +213,7 @@ pub(crate) fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::
     );
 
     let code = quote! {
+        #[cfg(not(feature = "ink-as-dependency"))]
         impl #trait_ident for #struct_ident {
             #(#impl_methods)*
         }
