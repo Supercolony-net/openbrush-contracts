@@ -1,5 +1,6 @@
 use brush::traits::{AccountId};
 use brush::modifiers;
+pub use ownable_derive::IOwnable;
 
 #[derive(strum_macros::AsRefStr)]
 pub enum OwnableError {

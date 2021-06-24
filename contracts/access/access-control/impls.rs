@@ -9,6 +9,7 @@ use brush::{
     traits::{InkStorage, AccountId},
 };
 use crate::traits::{ AccessControlError, RoleType };
+pub use access_control_derive::AccessControlStorage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;

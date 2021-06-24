@@ -17,6 +17,7 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 
 strum_macros = "0.21.1"
 brush = { path = "../../brush", default-features = false }
+psp20_derive = { path = "./derive" }
 testing_utils = { path = "../../brush/testing_utils", default-features = false }
 
 [lib]

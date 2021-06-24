@@ -12,3 +12,5 @@ pub trait InkStorage {
         Default::default()
     }
 }
+
+impl<T> InkStorage for T {}

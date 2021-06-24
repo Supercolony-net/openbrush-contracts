@@ -6,9 +6,6 @@ mod tests {
     use crate::traits::{IPSP20};
     use ink_prelude::{string::{String}};
     use ink_lang as ink;
-    use brush::{
-        traits::{InkStorage},
-    };
     use ink::{Env, EmitEvent};
     use testing_utils::*;
     use std::panic;
@@ -40,7 +37,6 @@ mod tests {
     pub struct PSP20Struct {}
     type Event = <PSP20Struct as ::ink_lang::BaseEvent>::Type;
 
-    impl InkStorage for PSP20Struct {}
     impl PSP20 for PSP20Struct {
         fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {

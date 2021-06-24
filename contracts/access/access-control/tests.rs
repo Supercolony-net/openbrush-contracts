@@ -53,7 +53,6 @@ mod tests {
 
     type Event = <AccessControlStruct as ::ink_lang::BaseEvent>::Type;
 
-    impl InkStorage for AccessControlStruct {}
     impl AccessControl for AccessControlStruct {
         fn emit_role_admin_changed(&mut self, role: u32, previous_admin_role: u32, new_admin_role: u32) {
             Self::env().emit_event(RoleAdminChanged {

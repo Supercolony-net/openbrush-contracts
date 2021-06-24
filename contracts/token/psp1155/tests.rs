@@ -8,9 +8,6 @@ mod tests {
         collections::HashMap as StorageHashMap,
     };
     use ink_lang as ink;
-    use brush::{
-        traits::{InkStorage},
-    };
     use ink::{Env, EmitEvent};
 
     const ZERO_ADDRESS: [u8; 32] = [0; 32];
@@ -50,7 +47,6 @@ mod tests {
     #[ink(storage)]
     pub struct PSP1155Struct {}
 
-    impl InkStorage for PSP1155Struct {}
     impl PSP1155 for PSP1155Struct {
         fn emit_transfer_single_event(&self,
                                       _operator: AccountId, _from: AccountId, _to: AccountId, _id: Id, _amount: Balance) {
