@@ -1,10 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[brush::contract]
-pub mod receiver {
+pub mod erc1155_receiver {
     use psp1155::{
         traits::{Id, IPSP1155Receiver, PSP1155ReceiverError},
     };
+    use ink_prelude::vec::Vec;
 
     #[ink(storage)]
     pub struct PSP1155ReceiverStruct {

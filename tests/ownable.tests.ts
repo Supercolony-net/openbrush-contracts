@@ -7,7 +7,7 @@ describe('MY_OWNABLE', () => {
   }
 
   async function setup_receiver() {
-    return setupContract('receiver', 'new')
+    return setupContract('psp1155_receiver', 'new')
   }
 
   it('PSP 1155 - mint works', async () => {
@@ -65,26 +65,26 @@ describe('MY_OWNABLE', () => {
 
   it('PSP 1155 - safe batch transfer works', async () => {
     const {
-      contract,
-      defaultSigner: sender,
-      accounts: [alice]
+      tx,
+      query,
+      defaultSigner: sender
     } = await setup()
 
     const {
-      query
+      contract
     } = await setup_receiver()
 
     // Arrange - Sender mint 100 of token 0 and 100 of token 1
-    await expect(contract.tx.mint(sender.address, bnArg(0), 100)).to.eventually.be.fulfilled
-    await expect(contract.tx.mint(sender.address, bnArg(1), 100)).to.eventually.be.fulfilled
+    await expect(tx.mint(sender.address, bnArg(0), 100)).to.eventually.be.fulfilled
+    await expect(tx.mint(sender.address, bnArg(1), 100)).to.eventually.be.fulfilled
 
     // Act - Sender transfer 20 of token 0 and 70 of token 1
-    await expect(query.getCallCounter()).to.have.output(0)
-    await expect(contract.tx.safeBatchTransferFrom(sender.address, alice.address, [bnArg(0), bnArg(1)], [20, 70], 'data')).to.eventually.be.fulfilled
-    await expect(query.getCallCounter()).to.have.output(1)
+    await expect(contract.query.getCallCounter()).to.have.output(0)
+    await expect(tx.safeBatchTransferFrom(sender.address, contract.address, [bnArg(0), bnArg(1)], [20, 70], 'data')).to.eventually.be.fulfilled
+    await expect(contract.query.getCallCounter()).to.have.output(1)
 
-    // Assert - Alice own 20 of token 0 and own 70 of token 1
-    await expect(contract.query.balanceOfBatch([alice.address, sender.address, alice.address, sender.address],
+    // Assert - Receiver own 20 of token 0 and own 70 of token 1
+    await expect(query.balanceOfBatch([contract.address, sender.address, contract.address, sender.address],
       [bnArg(0), bnArg(0), bnArg(1), bnArg(1)])).to.have.output([20, 80, 70, 30])
   })
 

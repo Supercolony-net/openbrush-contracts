@@ -1,0 +1,40 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[brush::contract]
+pub mod erc721_receiver {
+    use psp721::{
+        traits::{Id, IPSP721Receiver, PSP721ReceiverError},
+    };
+    use ink_prelude::vec::Vec;
+
+    #[ink(storage)]
+    pub struct PSP721ReceiverStruct {
+        call_counter: u64
+    }
+
+    impl PSP721ReceiverStruct {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            Self { call_counter: 0 }
+        }
+
+        #[ink(message)]
+        pub fn get_call_counter(&self) -> u64 {
+            self.call_counter
+        }
+    }
+
+    impl IPSP721Receiver for PSP721ReceiverStruct {
+        #[ink(message)]
+        fn on_psp721_received(
+            &mut self,
+            _operator: AccountId,
+            _from: AccountId,
+            _id: Id,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP721ReceiverError> {
+            self.call_counter += 1;
+            Ok(())
+        }
+    }
+}

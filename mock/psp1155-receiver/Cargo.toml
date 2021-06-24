@@ -1,5 +1,5 @@
 [package]
-name = "receiver"
+name = "psp1155_receiver"
 version = "0.2.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -19,7 +19,7 @@ psp1155 = { path = "../../contracts/token/psp1155", default-features = false, fe
 brush = { path = "../../contracts/brush", default-features = false }
 
 [lib]
-name = "receiver"
+name = "psp1155_receiver"
 path = "lib.rs"
 crate-type = [
     "cdylib",
