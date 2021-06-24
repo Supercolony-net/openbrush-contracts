@@ -37,9 +37,6 @@ pub mod my_access_control {
       traits::{ IAccessControl, RoleType },
       impls::{ AccessControlStorage, AccessControl, RoleData }
    };
-   use brush::{
-      traits::{ InkStorage },
-   };
    use ink_prelude::{ vec::Vec };
 ```
 3. Declare storage struct and derive `PSP721Storage` and `AccessControlStorage` 
@@ -56,7 +53,6 @@ pub struct PSP721Struct {}
 You can customize(override) some methods there.
 ```rust
 // InkStorage is a utils trait required by any Storage trait
-impl InkStorage for PSP721Struct {}
 impl PSP721 for PSP721Struct {}
 impl AccessControl for PSP721Struct {}
 ```

@@ -2,6 +2,7 @@ use brush::{
     traits::{InkStorage, AccountId},
 };
 use crate::traits::OwnableError;
+pub use ownable_derive::OwnableStorage;
 
 #[brush::internal_trait_definition]
 pub trait OwnableStorage: InkStorage {

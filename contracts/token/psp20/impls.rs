@@ -9,6 +9,7 @@ use brush::{
     traits::{InkStorage, AccountId, Balance},
 };
 pub use ink_prelude::{string::{String}};
+pub use psp20_derive::{PSP20Storage};
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
 

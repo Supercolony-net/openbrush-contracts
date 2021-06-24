@@ -59,6 +59,12 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
                     attr.clone()
                 }).collect();
                 item_struct.attrs = attrs;
+            } else if let Item::Impl(item_impl) = &mut item {
+                // We want to mark all impl sections like ink as dependencies to avoid errors during compilation
+                // because ink! creates wrappers around structures and impl sections is not valid in this case
+                let attr_stream = quote! { #[cfg(not(feature = "ink-as-dependency"))] };
+                let attrs = syn::parse2::<internal::Attributes>(attr_stream).unwrap();
+                item_impl.attrs.append(&mut attrs.attr().clone());
             }
             Some(item)
         }).collect();

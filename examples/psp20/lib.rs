@@ -6,9 +6,6 @@ pub mod my_psp20 {
         traits::{ IPSP20, PSP20Error },
         impls::{ PSP20Storage, PSP20, StorageHashMap, Lazy, String },
     };
-    use brush::{
-        traits::{InkStorage},
-    };
 
     #[ink(storage)]
     #[derive(Default, PSP20Storage, IPSP20)]
@@ -17,8 +14,6 @@ pub mod my_psp20 {
         hated_account: AccountId,
     }
 
-    // InkStorage is a utils trait required by any Storage trait
-    impl InkStorage for MyPSP20 {}
     impl PSP20 for MyPSP20 {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {

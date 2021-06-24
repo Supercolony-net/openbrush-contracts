@@ -32,8 +32,16 @@ Usage of the library looks not pretty, but it will be simplified with resolving 
 
 The upgradable contract will be available after resolving of this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
-## Was it audited?
+## FAQ
 
+### Why IntelliJ rust plugin doesn't autocomplete the library's derive macros?
+It requires enabling of several experimental features:
+* `org.rust.cargo.evaluate.build.scripts` - enables building and collecting build artefacts including proc-macro libraries during importing of project structure
+* `org.rust.macros.proc` - enables expansion of procedural macros
+
+To enable an experimental feature, type `Experimental feature` in the dialog of `Help | Find Action` action and enabled the corresponding item.
+
+### Was it audited?
 Contracts in this repository have not yet been audited. But it is in plans.
 
 ## License
