@@ -25,10 +25,10 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
         }
     };
     let locked_file = internal::get_locked_file();
-    let metadata = internal::load_metadata(&locked_file);
+    let metadata = internal::Metadata::load(&locked_file);
     locked_file.unlock().expect("Can't remove exclusive lock in extract_fields_and_methods");
 
-    let mut new_items: Vec<syn::Item> = vec![];
+    let mut impls: Vec<TokenStream> = vec![];
     let mut items: Vec<syn::Item> = items
         .into_iter()
         .filter_map(|mut item| {
@@ -36,19 +36,10 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
                 let struct_ident = item_struct.ident.clone();
                 let attrs: Vec<syn::Attribute> = item_struct.attrs.clone().iter_mut().map(|attr| {
                     if attr.path.is_ident("derive") {
-                        let (fields, impls) =
+                        let (fields, mut _impls) =
                             consume_derive(&struct_ident, attr, &metadata);
 
-                        let mut generated_items: Vec<_> = impls
-                            .into_iter()
-                            .map(|impl_stream| {
-                                syn::parse::<syn::ItemImpl>(impl_stream)
-                                    .expect("Can't parse generated implementation")
-                            })
-                            .map(|item_impl| syn::Item::from(item_impl))
-                            .collect();
-
-                        new_items.append(&mut generated_items);
+                        impls.append(&mut _impls);
 
                         if let syn::Fields::Named(name_fields) = &mut item_struct.fields {
                             fields.into_iter().for_each(|field| name_fields.named.push(field));
@@ -60,7 +51,16 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
                 }).collect();
                 item_struct.attrs = attrs;
             } else if let Item::Impl(item_impl) = &mut item {
-                // We want to mark all impl sections like ink as dependencies to avoid errors during compilation
+                if let Some((_, trait_path, _)) = item_impl.trait_.clone() {
+                    let trait_ident = trait_path.segments
+                        .last().expect("Trait path is empty").ident.clone();
+                    if metadata.external_traits.contains_key(&trait_ident.to_string()) {
+                        let _impl = internal::impl_external_trait(item_impl, &trait_ident, &metadata);
+                        impls.push(_impl);
+                        return Some(item)
+                    }
+                }
+                // We want to mark all not external impl sections like ink as dependencies to avoid errors during compilation
                 // because ink! creates wrappers around structures and impl sections is not valid in this case
                 let attr_stream = quote! { #[cfg(not(feature = "ink-as-dependency"))] };
                 let attrs = syn::parse2::<internal::Attributes>(attr_stream).unwrap();
@@ -69,7 +69,16 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
             Some(item)
         }).collect();
 
-    items.append(&mut new_items);
+
+    let mut generated_items: Vec<_> = impls
+        .into_iter()
+        .map(|impl_stream| {
+            syn::parse::<syn::ItemImpl>(impl_stream)
+                .expect("Can't parse generated implementation")
+        })
+        .map(|item_impl| syn::Item::from(item_impl))
+        .collect();
+    items.append(&mut generated_items);
     module.content = Some((braces, items));
 
     let result = quote! {
@@ -97,13 +106,9 @@ fn consume_derive(struct_ident: &syn::Ident,
                     }
                 } else if let TokenTree::Ident(ident) = &token {
                     let key = ident.to_string();
-                    if metadata.internal_traits.contains_key(&key) {
-                        let (mut _fields, _impl) = internal::impl_internal_trait(struct_ident, ident, metadata);
+                    if metadata.storage_traits.contains_key(&key) {
+                        let (mut _fields, _impl) = internal::impl_storage_trait(struct_ident, ident, metadata);
                         fields.append(&mut _fields);
-                        impls.push(_impl);
-                        None
-                    } else if metadata.external_traits.contains_key(&key) {
-                        let _impl = internal::impl_external_trait(struct_ident, ident, metadata);
                         impls.push(_impl);
                         None
                     } else {

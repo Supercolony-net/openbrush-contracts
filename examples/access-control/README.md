@@ -25,47 +25,30 @@ std = [
 ]
 ```
 2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. 
-Import traits, errors, macros and structs which you want to use.
+Import **everything** from according trait modules.
 ```rust
 #[brush::contract]
 pub mod my_access_control {
-   use psp721::{
-      traits::{ IPSP721, Id, IPSP721Mint },
-      impls::{ PSP721Storage, PSP721, PSP721Mint, StorageHashMap }
-   };
-   use access_control::{
-      traits::{ IAccessControl, RoleType },
-      impls::{ AccessControlStorage, AccessControl, RoleData }
-   };
-   use ink_prelude::{ vec::Vec };
+   use psp721::traits::*;
+   use access_control::traits::*;
 ```
 3. Declare storage struct and derive `PSP721Storage` and `AccessControlStorage` 
    traits. Deriving these traits will add required fields to your structure 
    for implementation of according traits. Your structure must implement 
    `PSP721Storage` and `AccessControlStorage` traits if you want to use the 
-   default implementation of `PSP721` and `AccessControl`.
+   default implementation of `IPSP721` and `IAccessControl`.
 ```rust
 #[ink(storage)]
 #[derive(Default, PSP721Storage, AccessControlStorage)]
 pub struct PSP721Struct {}
 ```
-4. After that you can inherit implementation of `PSP721` and `AccessControl` traits.
+4. After that you can inherit implementation of `IPSP721` and `IAccessControl` traits.
 You can customize(override) some methods there.
 ```rust
-impl PSP721 for PSP721Struct {}
-impl AccessControl for PSP721Struct {}
+impl IPSP721 for PSP721Struct {}
+impl IAccessControl for PSP721Struct {}
 ```
-5. Now you have all basic logic of `PSP721` and `AccessControl` on rust level.
-But all methods are internal now(it means that anyone can't call these methods from outside of contract). 
-If you want to make them external you MUST derive `IPSP721` and `IAccessControl` traits.
-Deriving of these traits will generate external implementation of all methods from `IPSP721` and `IAccessControl`.
-Macro will call the methods with the same name from `PSP721` and `AccessControl` traits.
-```rust
-#[ink(storage)]
-#[derive(Default, PSP721Storage, AccessControlStorage, IPSP721, IAccessControl)]
-pub struct PSP721Struct {}
-```
-6. Now you only need to define constructor and your basic version of `PSP721` contract is ready.
+5. Now you only need to define constructor and your basic version of `IPSP721` contract is ready.
 ```rust
 impl PSP721Struct {
     #[ink(constructor)]
@@ -74,8 +57,8 @@ impl PSP721Struct {
     }
 }
 ```
-7. Let's customize it. We will implement `IPSP721Mint` trait. For that we need inherit `PSP721Mint`. 
-It will call `only_minter` function inside to verify that caller has minter role.
+6. Let's customize it. We will implement `IPSP721Mint` trait.
+It will use modifier `only_minter`(it verifies that caller has minter role).
 Also, we need to update constructor to grant minter role to caller by default.
 ```rust
 // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
@@ -88,28 +71,28 @@ impl PSP721Struct {
         let caller = instance.env().caller();
         instance._init_with_admin(caller);
         // We grant minter role to caller in constructor, so he can mint/burn tokens
-        AccessControl::grant_role(&mut instance,MINTER, caller);
+        instance.grant_role(MINTER, caller);
         instance
     }
 
-    #[inline]
     fn only_minter(&self) {
         self._check_role(&MINTER, &self.env().caller());
     }
 }
 
-impl PSP721Mint for PSP721Struct {}
 impl IPSP721Mint for PSP721Struct {
-    #[ink(message)]
-    fn mint(&mut self, id: Id) {
-        self.only_minter();
-        PSP721Mint::mint(self, id);
-    }
+   #[modifiers(only_minter)]
+   fn mint(&mut self, id: Id) {
+      // We added modifier to function. 
+      // #[super]self.mint(id) will call default implementation from trait
+      #[super]self.mint(id);
+   }
 
-    #[ink(message)]
-    fn burn(&mut self, id: Id) {
-        self.only_minter();
-        PSP721Mint::burn(self, id);
-    }
+   #[modifiers(only_minter)]
+   fn burn(&mut self, id: Id) {
+      // We added modifier to function. 
+      // #[super]self.burn(id) will call default implementation from trait
+      #[super]self.burn(id);
+   }
 }
 ```

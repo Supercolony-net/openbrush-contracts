@@ -2,21 +2,14 @@
 
 #[brush::contract]
 pub mod my_access_control {
-    use psp721::{
-        traits::{ IPSP721, Id, IPSP721Mint },
-        impls::{ PSP721Storage, PSP721, PSP721Mint, StorageHashMap },
-    };
-    use access_control::{
-        traits::{ IAccessControl, RoleType },
-        impls::{ AccessControlStorage, AccessControl, RoleData }
-    };
+    use psp721::traits::*;
+    use access_control::traits::*;
     use brush::{
         modifiers,
     };
-    use ink_prelude::{ vec::Vec };
 
     #[ink(storage)]
-    #[derive(Default, PSP721Storage, AccessControlStorage, IPSP721, IAccessControl)]
+    #[derive(Default, PSP721Storage, AccessControlStorage)]
     pub struct PSP721Struct {}
 
     // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
@@ -29,31 +22,31 @@ pub mod my_access_control {
             let caller = instance.env().caller();
             instance._init_with_admin(caller);
             // We grant minter role to caller in constructor, so he can mint/burn tokens
-            AccessControl::grant_role(&mut instance,MINTER, caller);
+            instance.grant_role(MINTER, caller);
             instance
         }
 
-        #[inline]
         fn only_minter(&self) {
             self._check_role(&MINTER, &self.env().caller());
         }
     }
 
-    impl PSP721 for PSP721Struct {}
-    impl AccessControl for PSP721Struct {}
-    impl PSP721Mint for PSP721Struct {}
+    impl IPSP721 for PSP721Struct {}
+    impl IAccessControl for PSP721Struct {}
 
     impl IPSP721Mint for PSP721Struct {
-        #[ink(message)]
         #[modifiers(only_minter)]
         fn mint(&mut self, id: Id) {
-            PSP721Mint::mint(self, id);
+            // We added modifier to function.
+            // #[super]self.mint(id) will call default implementation from trait
+            #[super]self.mint(id);
         }
 
-        #[ink(message)]
         #[modifiers(only_minter)]
         fn burn(&mut self, id: Id) {
-            PSP721Mint::burn(self, id);
+            // We added modifier to function.
+            // #[super]self.burn(id) will call default implementation from trait
+            #[super]self.burn(id);
         }
     }
 }

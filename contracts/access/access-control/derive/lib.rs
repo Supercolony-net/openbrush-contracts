@@ -18,12 +18,3 @@ pub fn derive_access_control(_item: TokenStream) -> TokenStream {
     };
     code.into()
 }
-
-#[proc_macro_derive(IAccessControl)]
-pub fn derive_external_access_control(_item: TokenStream) -> TokenStream {
-    let DeriveInput { ident, .. } = parse_macro_input!(_item);
-    let code = quote! {
-        impl IAccessControl for #ident {}
-    };
-    code.into()
-}

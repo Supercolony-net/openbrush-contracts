@@ -1,8 +1,7 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use crate::traits::{RoleType, IAccessControl};
-    use crate::impls::{AccessControlStorage, AccessControl, RoleData, DEFAULT_ADMIN_ROLE, StorageHashMap};
+    use crate::traits::*;
     use ink_env::test::DefaultAccounts;
     use ::ink_env::{DefaultEnvironment};
     use ink_lang as ink;
@@ -14,19 +13,15 @@ mod tests {
     // ::ink_lang_ir::Selector::new("PAUSER".as_ref()).as_bytes()
     const PAUSER: RoleType = 0x4ce9afe6;
 
-    #[derive(Default, AccessControlStorage, IAccessControl)]
+    #[derive(Default, AccessControlStorage)]
     #[ink(storage)]
     pub struct AccessControlStruct {}
 
-    impl AccessControl for AccessControlStruct {}
+    impl IAccessControl for AccessControlStruct {}
 
     impl AccessControlStruct {
-        pub fn new(admin: AccountId) -> impl AccessControl {
-            Self::constructor(admin)
-        }
-
         #[ink(constructor)]
-        pub fn constructor(admin: AccountId) -> Self {
+        pub fn new(admin: AccountId) -> Self {
             let mut instance = Self::default();
             instance._init_with_admin(admin);
             instance
@@ -96,7 +91,7 @@ mod tests {
         let mut access_control = AccessControlStruct::new(accounts.alice);
 
         access_control.grant_role(MINTER, accounts.eve);
-        access_control.set_role_admin(PAUSER, MINTER);
+        access_control._set_role_admin(PAUSER, MINTER);
         change_caller(accounts.eve);
         access_control.grant_role(PAUSER, accounts.bob);
 
@@ -112,7 +107,7 @@ mod tests {
 
         access_control.grant_role(MINTER, accounts.eve);
         access_control.grant_role(PAUSER, accounts.bob);
-        access_control.set_role_admin(PAUSER, MINTER);
+        access_control._set_role_admin(PAUSER, MINTER);
 
         access_control.grant_role(PAUSER, accounts.eve);
     }
@@ -125,7 +120,7 @@ mod tests {
 
         access_control.grant_role(MINTER, accounts.eve);
         access_control.grant_role(PAUSER, accounts.bob);
-        access_control.set_role_admin(PAUSER, MINTER);
+        access_control._set_role_admin(PAUSER, MINTER);
 
         change_caller(accounts.bob);
 
