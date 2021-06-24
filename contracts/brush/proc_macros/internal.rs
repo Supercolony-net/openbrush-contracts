@@ -11,7 +11,6 @@ use syn::{
 use proc_macro::TokenStream;
 use proc_macro2::{
     TokenStream as TokenStream2,
-    // TokenTree,
 };
 use std::collections::HashMap;
 use std::env;
@@ -58,6 +57,10 @@ pub(crate) fn get_locked_file() -> File {
 
     // if the current directory does not contain a Cargo.toml file, go up until you find it.
     while !manifest_path.exists() {
+        if let Some(str) = manifest_path.as_os_str().to_str() {
+            // If `/Cargo.toml` is not exist, it means that we will do infinity while, so break it
+            assert_ne!(str, "/Cargo.toml", "Can't find Cargo.toml in directories tree");
+        }
         // Remove Cargo.toml
         manifest_path.pop();
         // Remove parent folder
