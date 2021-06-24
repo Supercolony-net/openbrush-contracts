@@ -56,13 +56,13 @@ pub trait AccessControl: AccessControlStorage {
     }
 
     /// The user must override this function using their event definition.
-    fn emit_role_admin_changed(&mut self, role: RoleType, previous_admin_role: RoleType, new_admin_role: RoleType);
+    fn emit_role_admin_changed(&mut self, role: RoleType, previous_admin_role: RoleType, new_admin_role: RoleType) { }
 
     /// The user must override this function using their event definition.
-    fn emit_role_granted(&mut self, role: RoleType, grantee: AccountId, grantor: Option<AccountId>);
+    fn emit_role_granted(&mut self, role: RoleType, grantee: AccountId, grantor: Option<AccountId>) { }
 
     /// The user must override this function using their event definition.
-    fn emit_role_revoked(&mut self, role: RoleType, account: AccountId, sender: AccountId);
+    fn emit_role_revoked(&mut self, role: RoleType, account: AccountId, sender: AccountId) { }
 
     fn get_role_admin(&self, role: RoleType) -> RoleType {
         self._get_role_admin(&role)
@@ -92,12 +92,12 @@ pub trait AccessControl: AccessControlStorage {
         self._do_revoke_role(role, address);
     }
 
-    fn set_role_admin(&mut self, role: RoleType, admin_role: RoleType) {
-        let role_admin = self._roles_mut()
+    fn set_role_admin(&mut self, role: RoleType, new_admin: RoleType) {
+        let old_admin = self._roles_mut()
             .entry(role)
             .or_insert_with(RoleData::default).admin_role;
-        self.emit_role_admin_changed(role, role_admin, admin_role);
-        self._roles_mut().entry(role).or_insert_with(RoleData::default).admin_role = admin_role;
+        self.emit_role_admin_changed(role, old_admin, new_admin);
+        self._roles_mut().entry(role).or_insert_with(RoleData::default).admin_role = new_admin;
     }
 
     // Internal functions

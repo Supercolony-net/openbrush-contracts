@@ -1,9 +1,9 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use crate::impls::{OwnableStorage, Ownable};
+    use crate::impls::{OwnableStorage, Ownable, ZERO_ADDRESS};
     use ink_lang as ink;
-    use ink::EmitEvent;
+    use ink::{Env, EmitEvent};
     use brush::traits::InkStorage;
 
     #[ink(event)]
@@ -13,8 +13,6 @@ mod tests {
         #[ink(topic)]
         new_owner: Option<AccountId>
     }
-
-    impl InkStorage for MyOwnable {}
 
     #[ink(storage)]
     #[derive(Default, OwnableStorage)]
@@ -68,16 +66,18 @@ mod tests {
     #[ink::test]
     fn owner_works() {
         let my_ownable = MyOwnable::new();
-        assert_eq!(my_ownable.owner(), AccountId::from([1u8; 32]))
+        let caller = my_ownable.env().caller();
+        assert_eq!(my_ownable.owner(), caller)
     }
 
     #[ink::test]
     fn renounce_ownership_works() {
         let mut my_ownable = MyOwnable::new();
+        let caller = my_ownable.env().caller();
         let creator = my_ownable.owner();
-        assert_eq!(my_ownable.owner(), AccountId::from([1u8; 32]));
+        assert_eq!(creator, caller);
         my_ownable.renounce_ownership();
-        assert_eq!(my_ownable.owner(), AccountId::from([0u8; 32]));
+        assert_eq!(my_ownable.owner(), ZERO_ADDRESS.into());
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(2, emitted_events.len());
         assert_ownership_transferred_event(&emitted_events[0], None, Some(creator));
@@ -87,8 +87,9 @@ mod tests {
     #[ink::test]
     fn transfer_ownership_works() {
         let mut my_ownable = MyOwnable::new();
+        let caller = my_ownable.env().caller();
         let creator = my_ownable.owner();
-        assert_eq!(my_ownable.owner(), AccountId::from([1u8; 32]));
+        assert_eq!(creator, caller);
         let new_owner = AccountId::from([5u8; 32]);
         my_ownable.transfer_ownership(new_owner);
         assert_eq!(my_ownable.owner(), new_owner);

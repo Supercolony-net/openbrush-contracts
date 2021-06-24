@@ -10,7 +10,7 @@ pub trait OwnableStorage: InkStorage {
     fn _owner_mut(&mut self) -> &mut AccountId;
 }
 
-const ZERO_ADDRESS: [u8; 32] = [0; 32];
+pub const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
 pub trait Ownable: OwnableStorage {
     fn only_owner(&self) {
