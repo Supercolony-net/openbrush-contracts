@@ -66,11 +66,11 @@ pub trait IPSP721Metadata {
 
 #[brush::trait_definition]
 pub trait IPSP721Mint {
-    /// Creates a new token.
+    /// Mints a new token.
     #[ink(message)]
     fn mint(&mut self, id: Id);
 
-    /// Deletes an existing token. Only the owner can burn the token.
+    /// Burns an existing token. Only the owner can burn the token.
     #[ink(message)]
     fn burn(&mut self, id: Id);
 }

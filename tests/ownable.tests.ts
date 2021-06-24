@@ -6,6 +6,10 @@ describe('MY_OWNABLE', () => {
     return setupContract('my_ownable', 'new')
   }
 
+  async function setup_receiver() {
+    return setupContract('receiver', 'new')
+  }
+
   it('PSP 1155 - mint works', async () => {
     const {
       contract,
@@ -59,26 +63,57 @@ describe('MY_OWNABLE', () => {
     await expect(query.balanceOf(alice.address, bnArg(0))).to.have.output(50)
   })
 
-  it('PSP 1155 - batch transfer works', async () => {
+  it('PSP 1155 - safe batch transfer works', async () => {
     const {
       contract,
-      query,
       defaultSigner: sender,
       accounts: [alice]
     } = await setup()
+
+    const {
+      query
+    } = await setup_receiver()
 
     // Arrange - Sender mint 100 of token 0 and 100 of token 1
     await expect(contract.tx.mint(sender.address, bnArg(0), 100)).to.eventually.be.fulfilled
     await expect(contract.tx.mint(sender.address, bnArg(1), 100)).to.eventually.be.fulfilled
 
     // Act - Sender transfer 20 of token 0 and 70 of token 1
+    await expect(query.getCallCounter()).to.have.output(0)
     await expect(contract.tx.safeBatchTransferFrom(sender.address, alice.address, [bnArg(0), bnArg(1)], [20, 70], 'data')).to.eventually.be.fulfilled
+    await expect(query.getCallCounter()).to.have.output(1)
 
-    // Assert - Alice own 20 of token 0 and own 70 0f token 1
-    await expect(query.balanceOf(alice.address, bnArg(0))).to.have.output(20)
-    await expect(query.balanceOf(alice.address, bnArg(1))).to.have.output(70)
-    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(80)
-    await expect(query.balanceOf(sender.address, bnArg(1))).to.have.output(30)
+    // Assert - Alice own 20 of token 0 and own 70 of token 1
+    await expect(contract.query.balanceOfBatch([alice.address, sender.address, alice.address, sender.address],
+      [bnArg(0), bnArg(0), bnArg(1), bnArg(1)])).to.have.output([20, 80, 70, 30])
+  })
+
+  it('PSP 1155 - approved for all works', async () => {
+    const {
+      contract,
+      query,
+      defaultSigner: sender,
+      accounts: [alice, bob]
+    } = await setup()
+
+    // Arrange - Sender mint 2 tokens and Approve Alice to spend on all his tokens
+    await expect(contract.tx.mint(sender.address, bnArg(0), 1)).to.eventually.be.fulfilled
+    await expect(contract.tx.mint(sender.address, bnArg(1), 1)).to.eventually.be.fulfilled
+    await expect(query.balanceOfBatch([sender.address, sender.address],
+      [bnArg(0), bnArg(1)])).to.have.output([1, 1])
+    await expect(contract.tx.setApprovalForAll(alice.address, true)).to.eventually.be.fulfilled
+
+    // Act - Alice Transfer the two tokens to bob
+    await expect(fromSigner(contract, alice.address).tx.safeBatchTransferFrom(sender.address, bob.address, [bnArg(0), bnArg(1)], [1, 1], 'data'))
+      .to.eventually.be.fulfilled
+
+    // Assert - Bob owns the two tokens+
+    await expect(query.balanceOfBatch([bob.address, bob.address], [bnArg(0), bnArg(1)]))
+      .to.have.output([1, 1])
+
+    // Assert - Bob is now owner of the tokens: check that sender cannot transfer tokens on his behalf
+    await expect(fromSigner(contract, alice.address).tx.safeBatchTransferFrom(bob.address, alice.address, [bnArg(0), bnArg(1)], [1, 1], 'data'))
+      .to.eventually.be.rejected
   })
 
   it('OWNABLE - owner is by default contract deployer', async () => {
