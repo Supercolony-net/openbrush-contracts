@@ -11,7 +11,6 @@ use syn::{
 use proc_macro::TokenStream;
 use proc_macro2::{
     TokenStream as TokenStream2,
-    // TokenTree,
 };
 use std::collections::HashMap;
 use std::env;
@@ -21,8 +20,10 @@ use std::str::FromStr;
 use serde::{Serialize, Deserialize};
 use serde_json;
 use fs2::FileExt;
+use cargo_metadata::{MetadataCommand};
+use std::path::PathBuf;
 
-const TEMP_FILE: &str = "brush_temp$%$%$";
+const TEMP_FILE: &str = "brush_metadata";
 type Data = HashMap<String, Vec<String>>;
 
 pub(crate) trait Methods {
@@ -45,9 +46,35 @@ pub(crate) struct Metadata {
     pub external_traits: Data,
 }
 
+/// Function returns exclusively locked file for metadata.
+/// It stores file in the nearest target folder
+/// from the directory where the build command has been invoked(output of `pwd` command).
+/// If the directory doesn't contain `Cargo.toml` file,
+/// it will try to find `Cargo.toml` in the upper directories.
 pub(crate) fn get_locked_file() -> File {
-    let mut dir = env::temp_dir();
-    dir = dir.join(TEMP_FILE);
+    let mut manifest_path =
+        PathBuf::from(env::var("PWD").unwrap()).join("Cargo.toml");
+
+    // if the current directory does not contain a Cargo.toml file, go up until you find it.
+    while !manifest_path.exists() {
+        if let Some(str) = manifest_path.as_os_str().to_str() {
+            // If `/Cargo.toml` is not exist, it means that we will do infinity while, so break it
+            assert_ne!(str, "/Cargo.toml", "Can't find Cargo.toml in directories tree");
+        }
+        // Remove Cargo.toml
+        manifest_path.pop();
+        // Remove parent folder
+        manifest_path.pop();
+        manifest_path = manifest_path.join("Cargo.toml");
+    }
+
+    let mut cmd = MetadataCommand::new();
+    let metadata = cmd
+        .manifest_path(manifest_path.clone())
+        .exec()
+        .expect("Error invoking `cargo metadata`");
+
+    let dir = metadata.target_directory.join(TEMP_FILE);
 
     let file = match OpenOptions::new().read(true).write(true)
         .create(true)
