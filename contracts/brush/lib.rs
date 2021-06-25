@@ -7,5 +7,4 @@ pub use proc_macros::{
     storage_trait,
     modifiers,
 };
-#[cfg(feature = "std")]
-pub use test_utils::test_utils;
+pub use test_utils;
