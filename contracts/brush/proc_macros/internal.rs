@@ -228,20 +228,22 @@ pub(crate) fn impl_storage_trait(struct_ident: &syn::Ident, trait_ident: &syn::I
 
 pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &syn::Ident, metadata: &Metadata) -> TokenStream {
     // Map contains only methods with block section
+    let mut default_trait_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
     let mut trait_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
     metadata.external_traits.get(&trait_ident.to_string())
         .methods()
         .into_iter()
-        .filter_map(|method|
+        .filter_map(|method| {
+            trait_methods.insert(method.sig.ident.to_string(), method.clone());
             if method.default.is_some() {
                 Some(method)
             } else {
                 None
             }
-        )
+        })
         .for_each(|method: TraitItemMethod| {
             let key = method.sig.ident.to_string();
-            trait_methods.insert(key, method);
+            default_trait_methods.insert(key, method);
         });
 
     let mut methods_implemented_by_user: HashMap<String, syn::ImplItemMethod> = HashMap::new();
@@ -276,7 +278,7 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
     let mut internal_methods: Vec<_> = vec![];
     // Let's create internal `impl section` with default implementation from the trait
     // for method which has been overridden
-    let default_impl_of_overridden_methods: Vec<_> = trait_methods.clone()
+    let default_impl_of_overridden_methods: Vec<_> = default_trait_methods.clone()
         .into_iter()
         .filter_map(|(k, v)| {
             if methods_implemented_by_user.contains_key(&k) {
