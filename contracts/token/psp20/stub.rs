@@ -90,15 +90,13 @@ pub mod psp17receiver {
     #[ink(storage)]
     pub struct PSP17Receiver {}
 
+    #[ink(namespace = "IPSP17Receiver")]
     impl PSP17Receiver {
         #[ink(constructor)]
         pub fn new() -> Self {
             unimplemented!()
         }
-    }
 
-    #[ink(namespace = "IPSP17Receiver")]
-    impl PSP17Receiver {
         #[ink(message)]
         pub fn on_psp17_received(
             &mut self,

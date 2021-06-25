@@ -1,12 +1,12 @@
-use ink_prelude::{string::String};
+use ink_prelude::{string::String, vec::Vec};
 use brush::traits::{AccountId, Balance};
-pub use psp20_derive::{IPSP20, IPSP20Metadata, IPSP20Mint, IPSP20Receiver};
+pub use psp20_derive::{IPSP20, IPSP20Mint, IPSP20Receiver};
 
 /// The PSP-20 error type. Contract will assert one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP20Error {
     /// Unknown error type for cases if writer of traits added own restrictions
-    Unknown(&'static str),
+    Unknown(String),
     /// Returned if not enough balance to fulfill a request is available.
     InsufficientBalance,
     /// Returned if not enough allowance to fulfill a request is available.
@@ -15,11 +15,13 @@ pub enum PSP20Error {
     ZeroRecipientAddress,
     /// Returned if sender's address is zero.
     ZeroSenderAddress,
+    /// Returned if safe transfer check fails (see _do_safe_transfer_check() in crate::impls::PSP20)
+    SafeTransferCheckFailed(String),
 }
 
-/// Trait implemented by all PSP-20 respecting smart traits.
+/// Trait that contains metadata
 #[brush::trait_definition]
-pub trait IPSP20 {
+pub trait IPSP17Metadata {
     /// Returns the token name.
     #[ink(message)]
     fn token_name(&self) -> Option<String>;
@@ -31,7 +33,11 @@ pub trait IPSP20 {
     /// Returns the token decimals.
     #[ink(message)]
     fn token_decimals(&self) -> u8;
+}
 
+/// Trait implemented by all PSP-20 respecting smart traits.
+#[brush::trait_definition]
+pub trait IPSP20 {
     /// Returns the total token supply.
     #[ink(message)]
     fn total_supply(&self) -> Balance;
@@ -73,6 +79,8 @@ pub enum IPSP17ReceiverError {
     TransferRejected(String),
 }
 
+#[brush::trait_definition]
 pub trait IPSP17Receiver {
-    fn on_psp17_received(&mut self, operator: AccountId, from: AccountId, value: Balance, data: Vec<u8>) -> Result<(), IPSP17ReceiverError>;
+    #[ink(message)]
+    fn on_received(&mut self, operator: AccountId, from: AccountId, value: Balance, data: Vec<u8>) -> Result<(), IPSP17ReceiverError>;
 }

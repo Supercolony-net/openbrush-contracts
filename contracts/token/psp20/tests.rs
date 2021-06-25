@@ -2,7 +2,7 @@
 #[brush::contract]
 mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
-    use crate::impls::{PSP20, PSP20Storage, StorageHashMap, Lazy};
+    use crate::impls::{PSP20, PSP20Storage, PSP17MetadataStorage, StorageHashMap, Lazy};
     use crate::traits::{IPSP20};
     use ink_prelude::{string::{String}};
     use ink_lang as ink;
@@ -33,7 +33,7 @@ mod tests {
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, PSP20Storage, IPSP20)]
+    #[derive(Default, PSP20Storage, IPSP20, PSP17MetadataStorage)]
     pub struct PSP20Struct {}
     type Event = <PSP20Struct as ::ink_lang::BaseEvent>::Type;
 
@@ -54,7 +54,7 @@ mod tests {
             });
         }
         // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
-        fn _do_safe_transfer_check(operator: AccountId, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) { }
+        fn _do_safe_transfer_check(_operator: AccountId, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) { }
     }
 
     impl PSP20Struct {

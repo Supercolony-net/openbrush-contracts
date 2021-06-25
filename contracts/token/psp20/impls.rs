@@ -1,5 +1,5 @@
 use crate::stub::PSP17Receiver;
-use crate::traits::{PSP20Error, IPSP17Receiver, IPSP17ReceiverError};
+use crate::traits::{PSP20Error};
 pub use ink_storage::{
     collections::{
         HashMap as StorageHashMap,
@@ -10,7 +10,7 @@ use brush::{
     traits::{InkStorage, AccountId, Balance},
 };
 use ink_lang::ForwardCallMut;
-pub use ink_prelude::{string::{String}};
+pub use ink_prelude::{string::String, vec::Vec, format};
 use ink_env::Error as EnvError;
 pub use psp20_derive::{PSP20Storage};
 
@@ -26,7 +26,10 @@ pub trait PSP20Storage: InkStorage {
 
     fn _allowances(&self) -> & StorageHashMap<(AccountId, AccountId), Balance>;
     fn _allowances_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), Balance>;
+}
 
+#[brush::internal_trait_definition]
+pub trait PSP17MetadataStorage: InkStorage {
     fn _name(&self) -> & Lazy<Option<String>>;
     fn _name_mut(&mut self) -> &mut Lazy<Option<String>>;
 
@@ -37,13 +40,7 @@ pub trait PSP20Storage: InkStorage {
     fn _decimals_mut(&mut self) -> &mut Lazy<u8>;
 }
 
-pub trait PSP20: PSP20Storage {
-    /// Emit transfer event. It must be implemented in inherited struct
-    fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {}
-
-    /// Emit approval event. It must be implemented in inherited struct
-    fn emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
-
+pub trait PSP17Metadata: PSP17MetadataStorage {
     /// Returns the token name.
     fn token_name(&self) -> Option<String> {
         Lazy::get(self._name()).clone()
@@ -58,6 +55,19 @@ pub trait PSP20: PSP20Storage {
     fn token_decimals(&self) -> u8 {
         Lazy::get(self._decimals()).clone()
     }
+
+    /// Sets the decimals
+    fn set_decimals(&mut self, decimals: u8) {
+        *self._decimals_mut() = Lazy::new(decimals);
+    }
+}
+
+pub trait PSP20: PSP20Storage {
+    /// Emit transfer event. It must be implemented in inherited struct
+    fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {}
+
+    /// Emit approval event. It must be implemented in inherited struct
+    fn emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
     /// Returns the total token supply.
     fn total_supply(&self) -> Balance {
@@ -136,11 +146,6 @@ pub trait PSP20: PSP20Storage {
     fn approve(&mut self, spender: AccountId, value: Balance) {
         let owner = Self::env().caller();
         self._approve_from_to(owner, spender, value)
-    }
-
-    /// Sets the decimals
-    fn set_decimals(&mut self, decimals: u8) {
-        *self._decimals_mut() = Lazy::new(decimals);
     }
 
     /// Atomically increases the allowance granted to `spender` by the caller.
@@ -237,16 +242,20 @@ pub trait PSP20: PSP20Storage {
 
     fn _do_safe_transfer_check(operator: AccountId, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) {
         let mut to_receiver: PSP17Receiver = ink_env::call::FromAccountId::from_account_id(to);
-        match to_receiver.call_mut().on_psp17_received(Self::env().account_id(), from, value, data)
+        match to_receiver.call_mut().on_psp17_received(operator, from, value, data)
             .fire()
         {
             Ok(result) => match result {
                 Ok(_) => (),
-                _ => panic!("{}", IPSP17ReceiverError::TransferRejected(String::from("The contract with `to` address does not accept tokens.")).as_ref()),
-            },
+                e => panic!("{}", PSP20Error::SafeTransferCheckFailed(
+                    String::from(format!("The contract with `to` address does not accept tokens: {:?}", e))
+                ).as_ref())
+            }
             Err(e) => match e {
                 EnvError::NotCallable => (),
-                _ => panic!("{}", IPSP17ReceiverError::TransferRejected(String::from("Unknown error: call failed")).as_ref()),
+                e => panic!("{}", PSP20Error::SafeTransferCheckFailed(
+                    String::from(format!("Unknown error: call failed with {:?}", e))
+                ).as_ref())
             },
         }
     }

@@ -24,31 +24,44 @@ std = [
 ```
 2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`.
 Import traits, errors, macros and structs which you want to use.
+   
+
 ```rust
 #[brush::contract]
 pub mod my_psp20 {
    use psp20::{
-      traits::{ IPSP20, PSP20Error },
-      impls::{ PSP20Storage, PSP20, StorageHashMap, Lazy, String },
+      traits::{IPSP20, PSP20Error},
+      impls::{PSP20Storage, PSP17MetadataStorage, PSP17Metadata, PSP20, StorageHashMap, Lazy, String},
    };
+   ...
+}
 ```
-3. Declare storage struct and derive `PSP20Storage`trait. Deriving this trait 
-   will add required fields to your structure for implementation of according trait. 
+3. Declare storage struct and derive `PSP20Storage` trait. Optionally,
+   you can derive `PSP17MetadataStorage` to include information about token name,
+   token symbol etc. Deriving these traits will add required fields to your struct,
+   required for implementation of according traits. 
    Your structure must implement `PSP20Storage` if you want to use the
-   default implementation of `PSP20`.
+   default implementation of `PSP20`, as well as implement `PSP17MetadataStorage`
+   to use default `PSP17Metadata` implementation.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP20Storage)]
+#[derive(Default, PSP20Storage, PSP17MetadataStorage)]
 pub struct MyPSP20 {}
 ```
 4. After that you can inherit implementation of `PSP20` trait.
    You can customize(override) some methods there.
+   The same goes for PSP17Metadata.
 ```rust
 impl PSP20 for MyPSP20 {}
 ```
+
+```rust
+impl PSP17Metadata for MyPSP20 {}
+```
+
 5. Now you have all basic logic of `PSP20` on rust level.
-   But all methods are internal now(it means that anyone can't call these methods from outside of contract).
+   All methods are internal (no one can call these methods from outside of contract) now, though.
    If you want to make them external you MUST derive `IPSP20` trait.
    Deriving of this trait will generate external implementation of all methods from `IPSP20`.
    Macro will call the methods with the same name from `PSP20` trait.
@@ -72,11 +85,11 @@ impl MyPSP20 {
 }
 ```
 7. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. 
-   Also we will override `_before_token_transfer` method in `PSP20` implementation.
-   And we will add a new field to structure - `hated_account: AccountId`
+   Moreover, will override `_before_token_transfer` method in `PSP20` implementation.
+   To match this logic, we will add a new field to our struct - `hated_account: AccountId`
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP20Storage, IPSP20)]
+#[derive(Default, PSP20Storage, PSP17MetadataStorage, IPSP20)]
 pub struct MyPSP20 {
    // fields for hater logic
    hated_account: AccountId,

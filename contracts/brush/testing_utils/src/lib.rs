@@ -1,3 +1,4 @@
+#![cfg_attr(not(feature = "std"), no_std)]
 use ink_env::hash::{Blake2x256, HashOutput, CryptoHash};
 use ink_env::{Hash, Clear};
 

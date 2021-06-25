@@ -3,12 +3,12 @@
 #[brush::contract]
 pub mod my_psp20 {
     use psp20::{
-        traits::{ IPSP20, PSP20Error },
-        impls::{ PSP20Storage, PSP20, StorageHashMap, Lazy, String },
+        traits::{PSP20Error, IPSP20},
+        impls::{ PSP20Storage, PSP17MetadataStorage, PSP17Metadata, PSP20, StorageHashMap, Lazy, String },
     };
 
     #[ink(storage)]
-    #[derive(Default, PSP20Storage, IPSP20)]
+    #[derive(Default, PSP20Storage, PSP17MetadataStorage, IPSP20)]
     pub struct MyPSP20 {
         // fields for hater logic
         hated_account: AccountId,
@@ -17,7 +17,13 @@ pub mod my_psp20 {
     impl PSP20 for MyPSP20 {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
-            assert!(_to != self.hated_account, "{}", PSP20Error::Unknown("I hate this account!").as_ref());
+            assert!(_to != self.hated_account, "{}", PSP20Error::Unknown(String::from("I hate this account!")).as_ref());
+        }
+    }
+
+    impl PSP17Metadata for MyPSP20 {
+        fn set_decimals(&mut self, decimals: u8) {
+            *self._decimals_mut() = Lazy::new(decimals);
         }
     }
 
