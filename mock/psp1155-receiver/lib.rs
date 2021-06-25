@@ -35,6 +35,7 @@ pub mod erc1155_receiver {
         fn on_psp1155_received(&mut self, _operator: AccountId, _from: AccountId,
                                    _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {
+                self.revert_next_transfer = false;
                 return Err(PSP1155ReceiverError::TransferRejected)
             }
             self.call_counter += 1;
@@ -46,6 +47,7 @@ pub mod erc1155_receiver {
         fn on_psp1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
                                          _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {
+                self.revert_next_transfer = false;
                 return Err(PSP1155ReceiverError::TransferRejected)
             }
             self.call_counter += 1;

@@ -81,7 +81,7 @@ pub trait IPSP721Mint {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP721ReceiverError {
     /// Returned if transfer is rejected.
-    TransferRejected,
+    TransferRejected(String),
 }
 
 /// Handles the receipt of a single PSP-721 token type.

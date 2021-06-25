@@ -5,7 +5,10 @@ pub mod erc721_receiver {
     use psp721::{
         traits::{Id, IPSP721Receiver, PSP721ReceiverError},
     };
-    use ink_prelude::vec::Vec;
+    use ink_prelude::{
+        vec::Vec,
+        string::String
+    };
 
     #[ink(storage)]
     pub struct PSP721ReceiverStruct {
@@ -40,7 +43,8 @@ pub mod erc721_receiver {
             _data: Vec<u8>,
         ) -> Result<(), PSP721ReceiverError> {
             if self.revert_next_transfer {
-                return Err(PSP721ReceiverError::TransferRejected)
+                self.revert_next_transfer = false;
+                return Err(PSP721ReceiverError::TransferRejected(String::from("Transfer Rejected")))
             }
             self.call_counter += 1;
             self.revert_next_transfer = false;
