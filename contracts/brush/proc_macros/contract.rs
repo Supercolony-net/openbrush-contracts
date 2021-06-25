@@ -60,11 +60,25 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
                         return Some(item)
                     }
                 }
+
                 // We want to mark all not external impl sections like ink as dependencies to avoid errors during compilation
                 // because ink! creates wrappers around structures and impl sections is not valid in this case
                 let attr_stream = quote! { #[cfg(not(feature = "ink-as-dependency"))] };
-                let attrs = syn::parse2::<internal::Attributes>(attr_stream).unwrap();
-                item_impl.attrs.append(&mut attrs.attr().clone());
+                let ink_as_dep_attr = syn::parse2::<internal::Attributes>(attr_stream).unwrap();
+
+                item_impl.items
+                    .iter_mut()
+                    .filter_map(|item|
+                        if let syn::ImplItem::Method(method) = item {
+                            Some(method)
+                        } else {
+                            None
+                        })
+                    .for_each(|method| {
+                        if !internal::is_attr(&method.attrs, "ink") {
+                            method.attrs.append(&mut ink_as_dep_attr.attr().clone());
+                        }
+                    });
             }
             Some(item)
         }).collect();
