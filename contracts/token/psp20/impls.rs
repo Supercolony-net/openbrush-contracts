@@ -1,4 +1,5 @@
-use crate::traits::PSP20Error;
+use crate::stub::PSP17Receiver;
+use crate::traits::{PSP20Error, IPSP17Receiver, IPSP17ReceiverError};
 pub use ink_storage::{
     collections::{
         HashMap as StorageHashMap,
@@ -8,7 +9,9 @@ pub use ink_storage::{
 use brush::{
     traits::{InkStorage, AccountId, Balance},
 };
+use ink_lang::ForwardCallMut;
 pub use ink_prelude::{string::{String}};
+use ink_env::Error as EnvError;
 pub use psp20_derive::{PSP20Storage};
 
 const ZERO_ADDRESS: [u8; 32] = [0; 32];
@@ -228,7 +231,24 @@ pub trait PSP20: PSP20Storage {
         self._balances_mut().insert(from, from_balance - amount);
         let to_balance = self.balance_of(to);
         self._balances_mut().insert(to, to_balance + amount);
+        Self::_do_safe_transfer_check(Self::env().caller(), from, to, amount, Vec::<u8>::with_capacity(0));
         self.emit_transfer_event(Some(from), Some(to), amount);
+    }
+
+    fn _do_safe_transfer_check(operator: AccountId, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) {
+        let mut to_receiver: PSP17Receiver = ink_env::call::FromAccountId::from_account_id(to);
+        match to_receiver.call_mut().on_psp17_received(Self::env().account_id(), from, value, data)
+            .fire()
+        {
+            Ok(result) => match result {
+                Ok(_) => (),
+                _ => panic!("{}", IPSP17ReceiverError::TransferRejected(String::from("The contract with `to` address does not accept tokens.")).as_ref()),
+            },
+            Err(e) => match e {
+                EnvError::NotCallable => (),
+                _ => panic!("{}", IPSP17ReceiverError::TransferRejected(String::from("Unknown error: call failed")).as_ref()),
+            },
+        }
     }
 
     fn _approve_from_to(&mut self, owner: AccountId, spender: AccountId, amount: Balance) {

@@ -60,6 +60,8 @@ mod tests {
                 value: _amount,
             });
         }
+        // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
+        fn _do_safe_transfer_check(operator: AccountId, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) { }
     }
 
     impl PSP20Struct {

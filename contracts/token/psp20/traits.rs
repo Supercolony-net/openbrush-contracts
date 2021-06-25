@@ -65,3 +65,14 @@ pub trait IPSP20 {
     #[ink(message)]
     fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance);
 }
+
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(strum_macros::AsRefStr)]
+pub enum IPSP17ReceiverError {
+    TransferRejected(String),
+}
+
+pub trait IPSP17Receiver {
+    fn on_psp17_received(&mut self, operator: AccountId, from: AccountId, value: Balance, data: Vec<u8>) -> Result<(), IPSP17ReceiverError>;
+}

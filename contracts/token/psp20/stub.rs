@@ -4,6 +4,8 @@
 #[cfg(not(test))]
 pub use self::psp20::{PSP20};
 
+pub use self::psp17receiver::PSP17Receiver;
+
 #[cfg(not(test))]
 #[ink_lang::contract]
 mod psp20 {
@@ -72,6 +74,39 @@ mod psp20 {
 
         #[ink(message)]
         pub fn decrease_allowance(&mut self, _spender: AccountId, _delta_value: Balance) {
+            unimplemented!()
+        }
+    }
+}
+
+/// The user has to define their own Receiver contract with custom funds acceptance logic.
+///
+#[ink_lang::contract(compile_as_dependency = true)]
+pub mod psp17receiver {
+    use ink_prelude::{ vec::Vec };
+    use crate::traits::{IPSP17ReceiverError};
+
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct PSP17Receiver {}
+
+    impl PSP17Receiver {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+    }
+
+    #[ink(namespace = "IPSP17Receiver")]
+    impl PSP17Receiver {
+        #[ink(message)]
+        pub fn on_psp17_received(
+            &mut self,
+            operator: AccountId,
+            from: AccountId,
+            value: Balance,
+            data: Vec<u8>,
+        ) -> Result<(), IPSP17ReceiverError> {
             unimplemented!()
         }
     }
