@@ -88,7 +88,7 @@ pub trait IPSP1155MetadataURI {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP1155ReceiverError {
     /// Returned if transfer is rejected.
-    TransferRejected,
+    TransferRejected(String),
 }
 
 /// Handles the receipt of a single PSP-1155 token type.

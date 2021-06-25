@@ -47,7 +47,6 @@ pub mod erc721_receiver {
                 return Err(PSP721ReceiverError::TransferRejected(String::from("Transfer Rejected")))
             }
             self.call_counter += 1;
-            self.revert_next_transfer = false;
             Ok(())
         }
     }

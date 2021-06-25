@@ -5,7 +5,10 @@ pub mod erc1155_receiver {
     use psp1155::{
         traits::{Id, IPSP1155Receiver, PSP1155ReceiverError},
     };
-    use ink_prelude::vec::Vec;
+    use ink_prelude::{
+        vec::Vec,
+        string::String
+    };
 
     #[ink(storage)]
     pub struct PSP1155ReceiverStruct {
@@ -36,10 +39,9 @@ pub mod erc1155_receiver {
                                    _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP1155ReceiverError::TransferRejected)
+                return Err(PSP1155ReceiverError::TransferRejected(String::from("Transfer Rejected")))
             }
             self.call_counter += 1;
-            self.revert_next_transfer = false;
             Ok(())
         }
 
@@ -48,10 +50,9 @@ pub mod erc1155_receiver {
                                          _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP1155ReceiverError::TransferRejected)
+                return Err(PSP1155ReceiverError::TransferRejected(String::from("Transfer Rejected")))
             }
             self.call_counter += 1;
-            self.revert_next_transfer = false;
             Ok(())
         }
     }
