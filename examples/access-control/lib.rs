@@ -4,9 +4,7 @@
 pub mod my_access_control {
     use psp721::traits::*;
     use access_control::traits::*;
-    use brush::{
-        modifiers,
-    };
+    use brush::modifiers;
 
     #[ink(storage)]
     #[derive(Default, PSP721Storage, AccessControlStorage)]

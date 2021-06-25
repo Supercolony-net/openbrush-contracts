@@ -98,7 +98,7 @@ impl TraitDefinitions {
 /// it will try to find `Cargo.toml` in the upper directories.
 pub(crate) fn get_locked_file() -> File {
     let mut manifest_path =
-        PathBuf::from(env::var("PWD").unwrap()).join("Cargo.toml");
+        PathBuf::from(env::var("PWD").expect("Can't get PWD")).join("Cargo.toml");
 
     // if the current directory does not contain a Cargo.toml file, go up until you find it.
     while !manifest_path.exists() {
@@ -169,7 +169,7 @@ pub(crate) fn impl_storage_trait(struct_ident: &syn::Ident, trait_ident: &syn::I
         |method| {
             let mut str = method.sig.ident.to_string();
             // skip every not internal method
-            if str.chars().next().unwrap() != '_' {
+            if str.chars().next().expect("Method signature is empty") != '_' {
                 return
             }
             let mut is_mut = false;
@@ -265,7 +265,8 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
             if let syn::ImplItem::Method(method) = &mut item {
                 let method_key = method.sig.ident.to_string();
 
-                let trait_method = trait_methods.get_mut(&method_key).unwrap();
+                let trait_method = trait_methods.get_mut(&method_key)
+                    .expect("Can't get method of trait");
                 // Copy attributes from trait definition to user's implementation
                 method.attrs.append(&mut trait_method.attrs);
 
@@ -283,7 +284,7 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
             } else {
                 let item = syn::parse2::<ImplItem>(quote! {
                     #v
-                }).unwrap();
+                }).expect("Can't parse default TraitItemMethod like ImplItem");
                 if is_attr(&v.attrs, "ink") {
                     // Let's add default implementation to `impl section`
                     // for methods which are not defined by user
@@ -302,7 +303,7 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
             method.sig.ident = format_ident!("{}_{}", method.sig.ident, trait_ident);
             let item = syn::parse2::<ImplItem>(quote! {
                 #method
-            }).unwrap();
+            }).expect("Can't parse TraitItemMethod like ImplItem");
             item
         }).collect();
 
