@@ -1,0 +1,28 @@
+[package]
+name = "test_utils"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+
+ink_env = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+
+[lib]
+name = "test_utils"
+path = "lib.rs"
+crate-type = [
+    "rlib",
+]
+
+[features]
+default = ["std"]
+std = [
+    "ink_env/std",
+    "scale/std",
+    "scale-info/std",
+]
+
+
