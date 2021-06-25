@@ -333,6 +333,7 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
 
     let self_ty = impl_item.self_ty.clone().as_ref().clone();
     let gen = quote! {
+        #[cfg(not(feature = "ink-as-dependency"))]
         impl #self_ty {
             #(#all_internal_methods)*
         }
