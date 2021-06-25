@@ -242,7 +242,7 @@ pub trait PSP20: PSP20Storage {
 
     fn _do_safe_transfer_check(operator: AccountId, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) {
         let mut to_receiver: PSP17Receiver = ink_env::call::FromAccountId::from_account_id(to);
-        match to_receiver.call_mut().on_psp17_received(operator, from, value, data)
+        match to_receiver.call_mut().on_received(operator, from, value, data)
             .fire()
         {
             Ok(result) => match result {
