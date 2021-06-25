@@ -94,6 +94,30 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(query.ownerOf(bnArg(0))).to.have.output(contract.address)
   })
 
+  it('PSP 721 - receiver can reject the transfer', async () => {
+    const {
+      tx,
+      query,
+      defaultSigner: sender
+    } = await setup()
+
+    const {
+      contract
+    } = await setup_receiver()
+
+    // Arrange - Sender mint a token
+    await expect(tx.mint(bnArg(0))).to.eventually.be.fulfilled
+    await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
+
+    // Act - Receiver wants to reject the next transfer
+    await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
+
+    // Assert - Sender cannot send token to receiver & Sender still own the token
+    await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 'data'))
+      .to.eventually.be.rejected
+    await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
+  })
+
   it('PSP 721 - approved for all works', async () => {
     const {
       contract,

@@ -88,6 +88,29 @@ describe('MY_OWNABLE', () => {
       [bnArg(0), bnArg(0), bnArg(1), bnArg(1)])).to.have.output([20, 80, 70, 30])
   })
 
+  it('PSP 1155 - receiver can reject the transfer', async () => {
+    const {
+      tx,
+      query,
+      defaultSigner: sender
+    } = await setup()
+
+    const {
+      contract
+    } = await setup_receiver()
+
+    // Arrange - Sender mint a token
+    await expect(tx.mint(sender.address, bnArg(0), 1)).to.eventually.be.fulfilled
+
+    // Act - Receiver wants to reject the next transfer
+    await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
+
+    // Assert - Sender cannot send token to receiver
+    await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.rejected
+    await expect(query.balanceOfBatch([contract.address, sender.address],
+      [bnArg(0), bnArg(0)])).to.have.output([0 ,1])
+  })
+
   it('PSP 1155 - approved for all works', async () => {
     const {
       contract,

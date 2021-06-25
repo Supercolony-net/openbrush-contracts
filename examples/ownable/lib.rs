@@ -48,16 +48,12 @@ pub mod ownable {
     impl PSP1155Mint for PSP1155Struct {}
     impl IPSP1155Mint for PSP1155Struct {
         #[ink(message)]
-        fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
-            self.only_owner();
-            PSP1155Mint::mint(self, to, id, amount);
-        }
+        #[modifiers(only_owner)]
+        fn mint(&mut self, to: AccountId, id: Id, amount: Balance) { PSP1155Mint::mint(self, to, id, amount); }
 
         #[ink(message)]
-        fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
-            self.only_owner();
-            PSP1155Mint::burn(self, from, id, amount);
-        }
+        #[modifiers(only_owner)]
+        fn burn(&mut self, from: AccountId, id: Id, amount: Balance) { PSP1155Mint::burn(self, from, id, amount); }
     }
 
     impl PSP1155Metadata for PSP1155Struct {}
