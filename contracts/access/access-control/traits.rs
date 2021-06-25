@@ -1,4 +1,5 @@
 use brush::traits::{AccountId};
+pub use access_control_derive::IAccessControl;
 
 pub type RoleType = u32;
 

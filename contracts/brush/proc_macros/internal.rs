@@ -11,7 +11,6 @@ use syn::{
 use proc_macro::TokenStream;
 use proc_macro2::{
     TokenStream as TokenStream2,
-    // TokenTree,
 };
 use std::collections::HashMap;
 use std::env;
@@ -21,11 +20,13 @@ use std::str::FromStr;
 use serde::{Serialize, Deserialize};
 use serde_json;
 use fs2::FileExt;
+use cargo_metadata::{MetadataCommand};
+use std::path::PathBuf;
 
-const TEMP_FILE: &str = "brush_temp$%$%$";
+const TEMP_FILE: &str = "brush_metadata";
 type Data = HashMap<String, Vec<String>>;
 
-pub trait Methods {
+pub(crate) trait Methods {
     fn methods(&self, ident: &String) -> Vec<syn::TraitItemMethod>;
 }
 
@@ -40,14 +41,40 @@ impl Methods for Data {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
-pub struct Metadata {
+pub(crate) struct Metadata {
     pub internal_traits: Data,
     pub external_traits: Data,
 }
 
-pub fn get_locked_file() -> File {
-    let mut dir = env::temp_dir();
-    dir = dir.join(TEMP_FILE);
+/// Function returns exclusively locked file for metadata.
+/// It stores file in the nearest target folder
+/// from the directory where the build command has been invoked(output of `pwd` command).
+/// If the directory doesn't contain `Cargo.toml` file,
+/// it will try to find `Cargo.toml` in the upper directories.
+pub(crate) fn get_locked_file() -> File {
+    let mut manifest_path =
+        PathBuf::from(env::var("PWD").unwrap()).join("Cargo.toml");
+
+    // if the current directory does not contain a Cargo.toml file, go up until you find it.
+    while !manifest_path.exists() {
+        if let Some(str) = manifest_path.as_os_str().to_str() {
+            // If `/Cargo.toml` is not exist, it means that we will do infinity while, so break it
+            assert_ne!(str, "/Cargo.toml", "Can't find Cargo.toml in directories tree");
+        }
+        // Remove Cargo.toml
+        manifest_path.pop();
+        // Remove parent folder
+        manifest_path.pop();
+        manifest_path = manifest_path.join("Cargo.toml");
+    }
+
+    let mut cmd = MetadataCommand::new();
+    let metadata = cmd
+        .manifest_path(manifest_path.clone())
+        .exec()
+        .expect("Error invoking `cargo metadata`");
+
+    let dir = metadata.target_directory.join(TEMP_FILE);
 
     let file = match OpenOptions::new().read(true).write(true)
         .create(true)
@@ -59,21 +86,21 @@ pub fn get_locked_file() -> File {
     file
 }
 
-pub fn load_metadata(file: &File) -> Metadata {
+pub(crate) fn load_metadata(file: &File) -> Metadata {
     let reader = BufReader::new(file);
 
     let map = serde_json::from_reader(reader).unwrap_or_default();
     map
 }
 
-pub fn save_metadata_and_unlock(mut locked_file: File, metadata: Metadata) {
+pub(crate) fn save_metadata_and_unlock(mut locked_file: File, metadata: Metadata) {
     locked_file.set_len(0).expect("Can't truncate the file");
     locked_file.seek(SeekFrom::Start(0)).expect("Can't set cursor position");
     serde_json::to_writer(&locked_file, &metadata).expect("Can't dump definition metadata to file");
     locked_file.unlock().expect("Can't remove exclusive lock");
 }
 
-pub fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
+pub(crate) fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
     let ident = item_trait.ident;
     let items: Vec<_> = item_trait
         .items
@@ -128,7 +155,7 @@ pub fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
 //     impl_trait
 // }
 
-struct NamedField(syn::Field);
+pub(crate) struct NamedField(syn::Field);
 
 impl syn::parse::Parse for NamedField {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
@@ -137,12 +164,26 @@ impl syn::parse::Parse for NamedField {
 }
 
 impl NamedField {
-    fn field(&self) -> &syn::Field {
+    pub(crate) fn field(&self) -> &syn::Field {
         &self.0
     }
 }
 
-pub fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> (Vec<syn::Field>, TokenStream) {
+pub(crate) struct Attributes(Vec<syn::Attribute>);
+
+impl syn::parse::Parse for Attributes {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        Ok(Self(syn::Attribute::parse_outer(input)?))
+    }
+}
+
+impl Attributes {
+    pub(crate) fn attr(&self) -> &Vec<syn::Attribute> {
+        &self.0
+    }
+}
+
+pub(crate) fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> (Vec<syn::Field>, TokenStream) {
     let trait_methods = metadata.internal_traits.methods(&trait_ident.to_string());
 
     let mut impl_methods = vec![];
@@ -208,7 +249,7 @@ pub fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, 
     (fields, code.into())
 }
 
-pub fn impl_external_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> TokenStream {
+pub(crate) fn impl_external_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> TokenStream {
     let trait_methods = metadata.external_traits.methods(&trait_ident.to_string());
 
     let implementations = trait_methods.into_iter().map(|item| {

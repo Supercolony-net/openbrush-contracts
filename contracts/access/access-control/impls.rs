@@ -9,6 +9,7 @@ use brush::{
     traits::{InkStorage, AccountId},
 };
 use crate::traits::{ AccessControlError, RoleType };
+pub use access_control_derive::AccessControlStorage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -92,7 +93,7 @@ pub trait AccessControl: AccessControlStorage {
 
     // Internal functions
 
-    fn _init(&mut self) {
+    fn _init_with_caller(&mut self) {
         let caller = Self::env().caller();
         self._init_with_admin(caller);
     }
@@ -127,7 +128,6 @@ pub trait AccessControl: AccessControlStorage {
         }
     }
 
-    #[inline]
     fn _check_role(&self, role: &RoleType, address: &AccountId) {
         assert!(self._has_role(role, address), "{}", AccessControlError::MissingRole.as_ref())
     }

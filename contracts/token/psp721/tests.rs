@@ -4,11 +4,8 @@ mod tests {
     use ink_prelude::{string::String};
     use ink_env::{call, test};
     use ink_lang as ink;
-    use brush::{
-        traits::{InkStorage},
-    };
     use ink::{Env, EmitEvent};
-    use crate::traits::{ Id };
+    use crate::traits::{ Id, IPSP721, IPSP721Metadata, IPSP721Mint };
     use crate::impls::{ PSP721Storage, PSP721, PSP721Mint, PSP721MetadataStorage, PSP721Metadata, StorageHashMap };
 
     const ZERO_ADDRESS: [u8; 32] = [0; 32];
@@ -46,11 +43,10 @@ mod tests {
         approved: bool,
     }
 
-    #[derive(Default, PSP721Storage, PSP721MetadataStorage)]
+    #[derive(Default, PSP721Storage, PSP721MetadataStorage, IPSP721, IPSP721Metadata, IPSP721Mint)]
     #[ink(storage)]
     pub struct PSP721Struct {}
 
-    impl InkStorage for PSP721Struct {}
     impl PSP721 for PSP721Struct {
         fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
             self.env().emit_event(Transfer {
@@ -80,15 +76,16 @@ mod tests {
     impl PSP721Metadata for PSP721Struct {}
 
     impl PSP721Struct {
+        pub fn new(name: Option<String>, symbol: Option<String>) -> impl PSP721 + PSP721Metadata + PSP721Mint {
+            Self::constructor(name, symbol)
+        }
+
         #[ink(constructor)]
-        pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
+        pub fn constructor(name: Option<String>, symbol: Option<String>) -> Self {
             let mut instance = Self::default();
             instance._init_with_metadata(name, symbol);
             instance
         }
-
-        #[ink(message)]
-        pub fn temp(&self) {}
     }
 
     #[ink::test]

@@ -31,9 +31,6 @@ pub mod my_psp20 {
       traits::{ IPSP20, PSP20Error },
       impls::{ PSP20Storage, PSP20, StorageHashMap, Lazy, String },
    };
-   use brush::{
-      traits::{InkStorage},
-   };
 ```
 3. Declare storage struct and derive `PSP20Storage`trait. Deriving this trait 
    will add required fields to your structure for implementation of according trait. 
@@ -48,8 +45,6 @@ pub struct MyPSP20 {}
 4. After that you can inherit implementation of `PSP20` trait.
    You can customize(override) some methods there.
 ```rust
-// InkStorage is a utils trait required by any Storage trait
-impl InkStorage for MyPSP20 {}
 impl PSP20 for MyPSP20 {}
 ```
 5. Now you have all basic logic of `PSP20` on rust level.

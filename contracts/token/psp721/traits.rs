@@ -1,5 +1,6 @@
 use ink_prelude::{string::String, vec::Vec};
 use brush::traits::{AccountId};
+pub use psp721_derive::{IPSP721, IPSP721Metadata, IPSP721Mint, IPSP721Receiver};
 
 pub type Id = [u8; 32];
 

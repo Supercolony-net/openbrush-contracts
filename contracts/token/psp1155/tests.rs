@@ -1,16 +1,13 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use crate::traits::{Id};
+    use crate::traits::{Id, IPSP1155};
     use crate::impls::{PSP1155Storage, PSP1155};
     use ink_prelude::{vec::Vec, vec};
     use ink_storage::{
         collections::HashMap as StorageHashMap,
     };
     use ink_lang as ink;
-    use brush::{
-        traits::{InkStorage},
-    };
     use ink::{Env, EmitEvent};
 
     const ZERO_ADDRESS: [u8; 32] = [0; 32];
@@ -46,11 +43,10 @@ mod tests {
         approved: bool,
     }
 
-    #[derive(Default, PSP1155Storage)]
+    #[derive(Default, PSP1155Storage, IPSP1155)]
     #[ink(storage)]
     pub struct PSP1155Struct {}
 
-    impl InkStorage for PSP1155Struct {}
     impl PSP1155 for PSP1155Struct {
         fn emit_transfer_single_event(&self,
                                       _operator: AccountId, _from: AccountId, _to: AccountId, _id: Id, _amount: Balance) {
@@ -84,13 +80,14 @@ mod tests {
     }
 
     impl PSP1155Struct {
-        #[ink(constructor)]
-        pub fn new() -> Self {
-            Self::default()
+        pub fn new() -> impl PSP1155 {
+            Self::constructor()
         }
 
-        #[ink(message)]
-        pub fn temp(&self) {}
+        #[ink(constructor)]
+        pub fn constructor() -> Self {
+            Self::default()
+        }
     }
 
     type Event = <PSP1155Struct as ::ink_lang::BaseEvent>::Type;

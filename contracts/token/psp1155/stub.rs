@@ -69,7 +69,7 @@ pub mod psp1155 {
         }
     }
 
-    #[ink(namespace = "IPSP1155MetadataURI")]
+    #[ink(namespace = "IPSP1155Metadata")]
     impl PSP1155 {
         #[ink(message)]
         pub fn uri(&self, _id: Id) -> Option<String> {

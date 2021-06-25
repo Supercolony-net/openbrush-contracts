@@ -5,4 +5,5 @@ pub use proc_macros::{
     contract,
     trait_definition,
     internal_trait_definition,
+    modifiers,
 };
