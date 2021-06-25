@@ -4,14 +4,14 @@
 pub mod ownable {
     use psp1155::{
         traits::{IPSP1155, Id, IPSP1155MetadataURI, IPSP1155Mint},
-        impls::{PSP1155Storage, PSP1155MetadataURIStorage, PSP1155, PSP1155MetadataURI, PSP1155Mint}
+        impls::{PSP1155Storage, PSP1155MetadataStorage, PSP1155Metadata, PSP1155, PSP1155Mint}
     };
     use ownable::{
         traits::{IOwnable, OwnableError},
         impls::{OwnableStorage, Ownable}
     };
     use brush::{
-        traits::{InkStorage}
+        modifiers,
     };
     use ink_storage::{
         collections::{
@@ -24,7 +24,7 @@ pub mod ownable {
     };
 
     #[ink(storage)]
-    #[derive(Default, PSP1155Storage, PSP1155MetadataURIStorage, OwnableStorage, IPSP1155, IOwnable)]
+    #[derive(Default, PSP1155Storage, PSP1155MetadataStorage, OwnableStorage, IPSP1155, IOwnable)]
     pub struct PSP1155Struct {}
 
     impl PSP1155Struct {
@@ -42,8 +42,6 @@ pub mod ownable {
         }
     }
 
-    // InkStorage is a utils trait required by any Storage trait
-    impl InkStorage for PSP1155Struct {}
     impl Ownable for PSP1155Struct {}
     impl PSP1155 for PSP1155Struct {}
 
@@ -62,7 +60,7 @@ pub mod ownable {
         }
     }
 
-    impl PSP1155MetadataURI for PSP1155Struct {}
+    impl PSP1155Metadata for PSP1155Struct {}
     impl IPSP1155MetadataURI for PSP1155Struct {
         #[ink(message)]
         fn uri(&self, _id: Id) -> Option<String> {
