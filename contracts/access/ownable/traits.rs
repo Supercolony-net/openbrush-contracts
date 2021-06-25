@@ -18,7 +18,7 @@ pub enum OwnableError {
 }
 
 #[brush::trait_definition]
-pub trait IOwnable:  {
+pub trait IOwnable: OwnableStorage {
     #[ink(message)]
     fn owner(&self) -> AccountId {
         self._owner().clone()
