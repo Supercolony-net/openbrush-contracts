@@ -98,7 +98,7 @@ pub mod psp17receiver {
         }
 
         #[ink(message)]
-        pub fn on_psp17_received(
+        pub fn on_received(
             &mut self,
             operator: AccountId,
             from: AccountId,
