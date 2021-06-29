@@ -4,7 +4,7 @@ import chaiAsPromised from 'chai-as-promised'
 declare global {
   export namespace Chai {
     interface Assertion {
-      output(value: string | number | boolean | string[], msg?: string): void
+      output(value: string | number | boolean | string[] | number[], msg?: string): void
     }
   }
 }

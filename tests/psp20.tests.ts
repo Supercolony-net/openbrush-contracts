@@ -6,6 +6,10 @@ describe('MY_PSP20', () => {
     return setupContract('my_psp20', 'new', '1000', 'TOKEN', 'TKN', 2)
   }
 
+  async function setup_receiver() {
+    return setupContract('psp17_receiver', 'new')
+  }
+
   it('Assigns initial balance', async () => {
     const { query, defaultSigner: sender } = await setup()
 
@@ -20,6 +24,19 @@ describe('MY_PSP20', () => {
 
     await expect(() => contract.tx.transfer(receiver.address, 7)).to.changeTokenBalance(contract, receiver, 7)
     await expect(() => contract.tx.transfer(receiver.address, 7)).to.changeTokenBalances(contract, [contract.signer, receiver], [-7, 7])
+  })
+
+  it('Transfers funds successfully if destination account is a receiver and supports transfers', async () => {
+    const {
+      tx
+    } = await setup()
+
+    const {
+      contract
+    } = await setup_receiver()
+
+    await expect(tx.transfer(contract.address, 7)).to.eventually.be.fulfilled
+
   })
 
   it('Can not transfer above the amount', async () => {
