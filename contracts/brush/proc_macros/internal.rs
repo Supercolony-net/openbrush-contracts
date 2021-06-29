@@ -386,7 +386,8 @@ fn consume_super_call(method: &mut syn::ImplItemMethod, trait_ident: &syn::Ident
 
 #[inline]
 pub(crate) fn is_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> bool {
-    if let None = attrs.iter().find(|attr| attr.path.is_ident(ident)) {
+    if let None = attrs.iter().find(|attr|
+        attr.path.segments.last().expect("No segments in path").ident == ident) {
         false
     } else {
         true
