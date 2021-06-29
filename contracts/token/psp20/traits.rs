@@ -1,4 +1,4 @@
-use ink_prelude::{string::String, vec::Vec};
+pub use ink_prelude::{string::String, vec::Vec};
 use brush::traits::{AccountId, Balance};
 pub use psp20_derive::{IPSP20, IPSP20Mint, IPSP20Receiver};
 

@@ -4,7 +4,7 @@
 pub mod my_psp20 {
     use psp20::{
         traits::{PSP20Error, IPSP20},
-        impls::{ PSP20Storage, PSP17MetadataStorage, PSP17Metadata, PSP20, StorageHashMap, Lazy, String },
+        impls::{ PSP20Storage, PSP17MetadataStorage, PSP17Metadata, PSP20, StorageHashMap, Lazy, String, Vec },
     };
 
     #[ink(storage)]

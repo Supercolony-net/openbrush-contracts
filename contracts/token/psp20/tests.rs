@@ -4,7 +4,7 @@ mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
     use crate::impls::{PSP20, PSP20Storage, PSP17MetadataStorage, StorageHashMap, Lazy};
     use crate::traits::{IPSP20};
-    use ink_prelude::{string::{String}};
+    use ink_prelude::{string::{String}, vec::Vec};
     use ink_lang as ink;
     use ink::{Env, EmitEvent};
     use testing_utils::*;

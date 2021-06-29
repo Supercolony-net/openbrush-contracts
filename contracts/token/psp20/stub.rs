@@ -9,7 +9,7 @@ pub use self::psp17receiver::PSP17Receiver;
 #[cfg(not(test))]
 #[ink_lang::contract]
 mod psp20 {
-    use ink_prelude::string::String;
+    use ink_prelude::{string::String, vec::Vec};
 
     #[derive(Default)]
     #[ink(storage)]
@@ -48,7 +48,7 @@ mod psp20 {
         }
 
         #[ink(message)]
-        pub fn transfer(&mut self, _to: AccountId, _value: Balance) {
+        pub fn transfer(&mut self, _to: AccountId, _value: Balance, _data: Vec<u8>) {
             unimplemented!()
         }
 
@@ -58,7 +58,7 @@ mod psp20 {
         }
 
         #[ink(message)]
-        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _value: Balance) {
+        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) {
             unimplemented!()
         }
 
