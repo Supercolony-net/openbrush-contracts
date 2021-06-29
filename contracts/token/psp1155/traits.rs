@@ -297,6 +297,21 @@ pub trait IPSP1155 {
 }
 
 #[brush::trait_definition]
+pub trait IPSP1155Mint: IPSP1155 {
+    /// Mints a new token.
+    #[ink(message)]
+    fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
+        self._mint(to, id, amount)
+    }
+
+    /// Burns an existing token.
+    #[ink(message)]
+    fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
+        self._burn(from, id, amount)
+    }
+}
+
+#[brush::trait_definition]
 pub trait IPSP1155Metadata: PSP1155MetadataStorage {
     /// Returns the URI for token type `id`.
     #[ink(message)]
@@ -310,7 +325,7 @@ pub trait IPSP1155Metadata: PSP1155MetadataStorage {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP1155ReceiverError {
     /// Returned if transfer is rejected.
-    TransferRejected,
+    TransferRejected(String),
 }
 
 /// Handles the receipt of a single PSP-1155 token type.

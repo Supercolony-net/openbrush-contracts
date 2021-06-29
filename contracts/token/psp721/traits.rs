@@ -235,6 +235,18 @@ pub trait IPSP721: PSP721Storage {
             },
         };
     }
+
+    fn _mint(&mut self, id: Id) {
+        let to = Self::env().caller();
+        self._add_to(to, id.clone());
+        self._emit_transfer_event([0; 32].into(), to, id);
+    }
+
+    fn _burn(&mut self, id: Id) {
+        let caller = Self::env().caller();
+        self._remove_from(caller, id.clone());
+        self._emit_transfer_event(caller, [0; 32].into(), id);
+    }
 }
 
 #[brush::trait_definition]
@@ -259,20 +271,16 @@ pub trait IPSP721Metadata: PSP721MetadataStorage {
 
 #[brush::trait_definition]
 pub trait IPSP721Mint: IPSP721 {
-    /// Creates a new token.
+    /// Mints a new token.
     #[ink(message)]
     fn mint(&mut self, id: Id) {
-        let to = Self::env().caller();
-        self._add_to(to, id.clone());
-        self._emit_transfer_event([0; 32].into(), to, id);
+        self._mint(id)
     }
 
-    /// Deletes an existing token. Only the owner can burn the token.
+    /// Burns an existing token.
     #[ink(message)]
     fn burn(&mut self, id: Id) {
-        let caller = Self::env().caller();
-        self._remove_from(caller, id.clone());
-        self._emit_transfer_event(caller, [0; 32].into(), id);
+        self._burn(id)
     }
 }
 
