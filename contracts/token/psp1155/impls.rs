@@ -153,38 +153,6 @@ pub trait PSP1155: PSP1155Storage {
             Self::env().caller(), _from, _to, _ids, _amounts);
     }
 
-
-    fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
-        let operator = Self::env().caller();
-
-        assert_ne!(to, ZERO_ADDRESS.into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
-
-        self._before_token_transfer(&vec![id]);
-        self._increase_receiver_balance(to, id, amount);
-
-        self._do_safe_transfer_acceptance_check(
-            operator,
-            ZERO_ADDRESS.into(),
-            to,
-            id,
-            amount,
-            Vec::new(),
-        );
-
-        self.emit_transfer_single_event(
-            operator, ZERO_ADDRESS.into(), to, id, amount);
-    }
-
-    fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
-        assert_ne!(from, ZERO_ADDRESS.into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
-
-        self._before_token_transfer(&vec![id]);
-        self._decrease_sender_balance(from, id, amount);
-
-        self.emit_transfer_single_event(
-            Self::env().caller(), from, ZERO_ADDRESS.into(), id, amount);
-    }
-
     // Internal functions
 
     #[inline]
@@ -325,5 +293,38 @@ pub trait PSP1155: PSP1155Storage {
                 _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
             },
         }
+    }
+}
+
+pub trait PSP1155Mint: PSP1155 {
+    fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
+        let operator = Self::env().caller();
+
+        assert_ne!(to, ZERO_ADDRESS.into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
+
+        self._before_token_transfer(&vec![id]);
+        self._increase_receiver_balance(to, id, amount);
+
+        self._do_safe_transfer_acceptance_check(
+            operator,
+            ZERO_ADDRESS.into(),
+            to,
+            id,
+            amount,
+            Vec::new(),
+        );
+
+        self.emit_transfer_single_event(
+            operator, ZERO_ADDRESS.into(), to, id, amount);
+    }
+
+    fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
+        assert_ne!(from, ZERO_ADDRESS.into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
+
+        self._before_token_transfer(&vec![id]);
+        self._decrease_sender_balance(from, id, amount);
+
+        self.emit_transfer_single_event(
+            Self::env().caller(), from, ZERO_ADDRESS.into(), id, amount);
     }
 }
