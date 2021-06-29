@@ -181,7 +181,7 @@ mod tests {
 
         assert_eq!(psp20.balance_of(accounts.bob), 0);
         // Alice transfers 10 tokens to Bob.
-        psp20.transfer(accounts.bob, 10);
+        psp20.transfer(accounts.bob, 10, Vec::<u8>::new());
         // Bob owns 10 tokens.
         assert_eq!(psp20.balance_of(accounts.bob), 10);
 
@@ -230,7 +230,7 @@ mod tests {
         );
 
         // Bob fails to transfers 10 tokens to Eve.
-        psp20.transfer(accounts.eve, 10);
+        psp20.transfer(accounts.eve, 10, Vec::<u8>::new());
     }
 
     #[ink::test]
@@ -244,7 +244,7 @@ mod tests {
                 .expect("Cannot get accounts");
 
         // Bob fails to transfer tokens owned by Alice.
-        psp20.transfer_from(accounts.alice, accounts.eve, 10);
+        psp20.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
     }
 
     #[ink::test]
@@ -279,7 +279,7 @@ mod tests {
         );
 
         // Bob transfers tokens from Alice to Eve.
-        psp20.transfer_from(accounts.alice, accounts.eve, 10);
+        psp20.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
         // Eve owns tokens.
         assert_eq!(psp20.balance_of(accounts.eve), 10);
 
@@ -330,7 +330,7 @@ mod tests {
             data,
         );
 
-        psp20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1);
+        psp20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new());
     }
 
 }

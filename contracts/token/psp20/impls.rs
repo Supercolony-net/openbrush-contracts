@@ -81,7 +81,7 @@ pub trait PSP20: PSP20Storage {
         self._balances().get(&owner).copied().unwrap_or(0)
     }
 
-    /// Transfers `value` amount of tokens from the caller's account to account `to`.
+    /// Transfers `value` amount of tokens from the caller's account to account `to` with additional `data` in unspecified format.
     ///
     /// On success a `Transfer` event is emitted.
     ///
@@ -93,9 +93,9 @@ pub trait PSP20: PSP20Storage {
     /// Panics `ZeroSenderAddress` error if sender's address is zero.
     ///
     /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
-    fn transfer(&mut self, to: AccountId, value: Balance) {
+    fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) {
         let from = Self::env().caller();
-        self._transfer_from_to(from, to, value)
+        self._transfer_from_to(from, to, value, data)
     }
 
     /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
@@ -105,7 +105,7 @@ pub trait PSP20: PSP20Storage {
         self._allowances().get(&(owner, spender)).copied().unwrap_or(0)
     }
 
-    /// Transfers `value` tokens on the behalf of `from` to the account `to`.
+    /// Transfers `value` tokens on the behalf of `from` to the account `to` with additional `data` in unspecified format.
     ///
     /// This can be used to allow a contract to transfer tokens on ones behalf and/or
     /// to charge fees in sub-currencies, for example.
@@ -123,11 +123,11 @@ pub trait PSP20: PSP20Storage {
     /// Panics `ZeroSenderAddress` error if sender's address is zero.
     ///
     /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
-    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) {
+    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) {
         let caller = Self::env().caller();
         let allowance = self.allowance(from, caller);
         assert!(allowance >= value, "{}", PSP20Error::InsufficientAllowance.as_ref());
-        self._transfer_from_to(from, to, value);
+        self._transfer_from_to(from, to, value, data);
         self._approve_from_to(from, caller, allowance - value);
     }
 
@@ -225,7 +225,7 @@ pub trait PSP20: PSP20Storage {
 
     fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {}
 
-    fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
+    fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance, data: Vec<u8>) {
         assert!(from != ZERO_ADDRESS.into(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
         assert!(to != ZERO_ADDRESS.into(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
 
@@ -236,7 +236,7 @@ pub trait PSP20: PSP20Storage {
         self._balances_mut().insert(from, from_balance - amount);
         let to_balance = self.balance_of(to);
         self._balances_mut().insert(to, to_balance + amount);
-        Self::_do_safe_transfer_check(Self::env().caller(), from, to, amount, Vec::<u8>::with_capacity(0));
+        Self::_do_safe_transfer_check(Self::env().caller(), from, to, amount, data);
         self.emit_transfer_event(Some(from), Some(to), amount);
     }
 

@@ -17,7 +17,7 @@ pub mod my_psp20 {
     impl PSP20 for MyPSP20 {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
-            assert!(_to != self.hated_account, "{}", PSP20Error::Unknown(String::from("I hate this account!")).as_ref());
+            assert!(_to != self.hated_account, "{}", PSP20Error::Custom(String::from("I hate this account!")).as_ref());
         }
     }
 

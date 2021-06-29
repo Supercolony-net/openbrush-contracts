@@ -6,7 +6,7 @@ pub use psp20_derive::{IPSP20, IPSP20Mint, IPSP20Receiver};
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP20Error {
     /// Unknown error type for cases if writer of traits added own restrictions
-    Unknown(String),
+    Custom(String),
     /// Returned if not enough balance to fulfill a request is available.
     InsufficientBalance,
     /// Returned if not enough allowance to fulfill a request is available.
@@ -46,17 +46,17 @@ pub trait IPSP20 {
     #[ink(message)]
     fn balance_of(&self, owner: AccountId) -> Balance;
 
-    /// Transfers `value` amount of tokens from the caller's account to account `to`.
+    /// Transfers `value` amount of tokens from the caller's account to account `to` with additional `data` in unspecified format.
     #[ink(message)]
-    fn transfer(&mut self, to: AccountId, value: Balance);
+    fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>);
 
     /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
     #[ink(message)]
     fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance;
 
-    /// Transfers `value` tokens on the behalf of `from` to the account `to`.
+    /// Transfers `value` tokens on the behalf of `from` to the account `to` with additional `data` in unspecified format.
     #[ink(message)]
-    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance);
+    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>);
 
     /// Allows `spender` to withdraw from the caller's account multiple times, up to
     /// the `value` amount.
