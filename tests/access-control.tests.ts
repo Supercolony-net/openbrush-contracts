@@ -6,6 +6,10 @@ describe('MY_ACCESS_CONTROL', () => {
     return setupContract('my_access_control', 'new')
   }
 
+  async function setup_receiver() {
+    return setupContract('psp721_receiver', 'new')
+  }
+
   it('PSP 721 - mint works', async () => {
     const {
       contract,
@@ -57,10 +61,61 @@ describe('MY_ACCESS_CONTROL', () => {
 
     // Act - Alice transfer the token form sender to bob
     await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, bob.address, bnArg(0)))
-        .to.eventually.be.fulfilled
+      .to.eventually.be.fulfilled
 
     // Assert - Bob is now owner of the token
     await expect(query.ownerOf(bnArg(0))).to.have.output(bob.address)
+  })
+
+  it('PSP 721 - safe transfer works', async () => {
+    const {
+      tx,
+      query,
+      defaultSigner: sender,
+      accounts: [alice]
+    } = await setup()
+
+    const {
+      contract
+    } = await setup_receiver()
+
+
+    // Arrange - Sender mint a Token and Approve Receiver as spender of this token
+    await expect(tx.mint(bnArg(0))).to.eventually.be.fulfilled
+    await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
+
+    // Act - Alice transfer the token form sender to bob
+    await expect(contract.query.getCallCounter()).to.have.output(0)
+    await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 'data'))
+      .to.eventually.be.fulfilled
+    await expect(contract.query.getCallCounter()).to.have.output(1)
+
+    // Assert - Bob is now owner of the token
+    await expect(query.ownerOf(bnArg(0))).to.have.output(contract.address)
+  })
+
+  it('PSP 721 - receiver can reject the transfer', async () => {
+    const {
+      tx,
+      query,
+      defaultSigner: sender
+    } = await setup()
+
+    const {
+      contract
+    } = await setup_receiver()
+
+    // Arrange - Sender mint a token
+    await expect(tx.mint(bnArg(0))).to.eventually.be.fulfilled
+    await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
+
+    // Act - Receiver wants to reject the next transfer
+    await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
+
+    // Assert - Sender cannot send token to receiver & Sender still own the token
+    await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 'data'))
+      .to.eventually.be.rejected
+    await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
   })
 
   it('PSP 721 - approved for all works', async () => {
@@ -79,9 +134,9 @@ describe('MY_ACCESS_CONTROL', () => {
 
     // Act - Alice Transfer the two tokens to bob
     await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, bob.address, bnArg(0)))
-        .to.eventually.be.fulfilled
+      .to.eventually.be.fulfilled
     await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, bob.address, bnArg(1)))
-        .to.eventually.be.fulfilled
+      .to.eventually.be.fulfilled
 
     // Assert - Bob owns the two tokens
     await expect(query.ownerOf(bnArg(0))).to.have.output(bob.address)
