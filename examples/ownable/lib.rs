@@ -29,7 +29,7 @@ pub mod ownable {
         #[modifiers(only_owner)]
         fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
             // We added modifier to function.
-            // #[super]self.burn(to, id, amount) will call default implementation from trait
+            // #[super]self.mint(to, id, amount) will call default implementation from trait
             #[super]self.mint(to, id, amount);
         }
 
