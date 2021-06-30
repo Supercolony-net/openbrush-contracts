@@ -23,7 +23,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
         trait_item.ident.to_string(), trait_item.clone().into_token_stream().to_string());
     metadata.save_and_unlock(locked_file);
 
-    // ink! doesn't support super trait and default functions, so we need to clean up it
+    // ink! doesn't support super traits and default functions, so we need to clean it up
     // Remove super trait
     trait_item.colon_token = None;
     trait_item.supertraits.clear();
