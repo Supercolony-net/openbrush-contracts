@@ -1,4 +1,4 @@
-# OpenBrush-Contracts
+<a href='https://www.supercolony.net/'><img src='https://uploads-ssl.webflow.com/605da67bb52ee776f70680b7/605e09d0f994d31b1b5c76db_logo.png' height='120'/></a>
 
 ## Summary
 **A Rust library for secure smart contract development on ink!.**
@@ -31,6 +31,36 @@ Usage of the library looks not pretty, but it will be simplified with resolving 
 * [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
 
 The upgradable contract will be available after resolving of this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
+
+## Roadmap 🚗
+------- Release 1.0.0  
+- [ ] Finalize PSP for fungible tokens. Refactor of implementation.  
+- [ ] Support code injection in modifiers. Implement a reentrancy guard with new modifiers.  
+- [ ] Add more examples and documentation on how to use the library.  
+
+
+------- Pre-release 2.0.0
+- [ ] PSPs for NFT and multi-token.  
+- [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
+- [ ] Refactor NFT and multi-token according to final decisions in PSPs.
+
+
+------- Release 2.0.0 - Production ready
+- [ ] Force/help ink! to create new independent events. During this task decide how ink! can generate metadata for events/traits from other crates.
+- [ ] Cover everything with UT and integration tests.
+- [ ] More documentation and examples.
+- [ ] Audit.
+
+
+
+------- Release 3.0.0
+- [ ] All extensions for tokens(Pausable, TimeLockController and etc).
+- [ ] Improve ink! to allow code injection to have default implementation on ink! level instead Rust level.
+- [ ] Refactor the library according to new changes.
+
+
+- [ ] Add support of upgradable contracts to ink!/contract-pallet level.
+- [ ] Create upgradable contracts.
 
 ## FAQ
 
