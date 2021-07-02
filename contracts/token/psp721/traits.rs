@@ -6,11 +6,12 @@ pub use ink_env::{
 pub use ink_lang::{ForwardCallMut, Env, StaticEnv};
 pub use ink_storage::collections::{hashmap::Entry};
 pub use ink_storage::collections::{HashMap as StorageHashMap};
-use brush::{
-    traits::{InkStorage, AccountId},
-};
+pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use ink_prelude::{string::String, vec::Vec};
 pub use psp721_derive::{PSP721Storage, PSP721MetadataStorage};
+
+// We don't need to expose it, because ink! will define AccountId and StaticEnv by self.
+use brush::traits::{InkStorage, AccountId};
 
 pub type Id = [u8; 32];
 
@@ -148,7 +149,7 @@ pub trait IPSP721: PSP721Storage {
             panic!("{}", PSP721Error::NotAllowed.as_ref());
         };
 
-        assert_ne!(to, [0; 32].into(), "{}", PSP721Error::NotAllowed.as_ref());
+        assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
         assert!(self._token_approvals_mut().insert(id, to).is_none(), "{}", PSP721Error::CannotInsert.as_ref());
         self._emit_approval_event(caller, to, id);
     }
@@ -170,7 +171,7 @@ pub trait IPSP721: PSP721Storage {
     /// or it has been approved on behalf of the token `id` owner.
     fn _approved_or_owner(&self, from: Option<AccountId>, id: &Id) -> bool {
         let owner = self._owner_of(id);
-        from != Some([0; 32].into())
+        !from.unwrap_or_default().is_zero()
             && (from == owner
             || from == self._token_approvals().get(id).cloned()
             || self._approved_for_all(
@@ -196,7 +197,7 @@ pub trait IPSP721: PSP721Storage {
             Entry::Vacant(vacant) => vacant,
             Entry::Occupied(_) => panic!("{}", PSP721Error::TokenExists.as_ref()),
         };
-        assert_ne!(to, [0; 32].into(), "{}", PSP721Error::NotAllowed.as_ref());
+        assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
         vacant_token_owner.insert(to.clone());
         let entry = self._owned_tokens_count_mut().entry(to);
         entry.and_modify(|v| *v += 1).or_insert(1);
@@ -239,13 +240,13 @@ pub trait IPSP721: PSP721Storage {
     fn _mint(&mut self, id: Id) {
         let to = Self::env().caller();
         self._add_to(to, id.clone());
-        self._emit_transfer_event([0; 32].into(), to, id);
+        self._emit_transfer_event(ZERO_ADDRESS.into(), to, id);
     }
 
     fn _burn(&mut self, id: Id) {
         let caller = Self::env().caller();
         self._remove_from(caller, id.clone());
-        self._emit_transfer_event(caller, [0; 32].into(), id);
+        self._emit_transfer_event(caller, ZERO_ADDRESS.into(), id);
     }
 }
 

@@ -4,8 +4,7 @@ mod tests {
     use crate::traits::*;
     use ink_lang as ink;
     use ink::{EmitEvent};
-
-    const ZERO_ADDRESS : [u8; 32] = [0; 32];
+    use brush::traits::AccountIdExt;
 
     #[ink(event)]
     pub struct OwnershipTransferred {
@@ -77,7 +76,7 @@ mod tests {
         let creator = my_ownable.owner();
         assert_eq!(creator, caller);
         my_ownable.renounce_ownership();
-        assert_eq!(my_ownable.owner(), ZERO_ADDRESS.into());
+        assert!(my_ownable.owner().is_zero());
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(2, emitted_events.len());
         assert_ownership_transferred_event(&emitted_events[0], None, Some(creator));

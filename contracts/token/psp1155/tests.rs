@@ -4,8 +4,7 @@ mod tests {
     use crate::traits::*;
     use ink_lang as ink;
     use ink::{EmitEvent};
-
-    const ZERO_ADDRESS: [u8; 32] = [0; 32];
+    use brush::traits::ZERO_ADDRESS;
 
     #[ink(event)]
     pub struct TransferSingle {

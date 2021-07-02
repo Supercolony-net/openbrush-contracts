@@ -4,11 +4,12 @@ pub use ink_storage::{
     },
     Lazy,
 };
-use brush::{
-    traits::{InkStorage, AccountId, Balance},
-};
+pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use ink_prelude::{string::{String}};
 pub use ink_lang::{Env, StaticEnv};
+
+// We don't need to expose it, because ink! will define AccountId, Balance and StaticEnv by self.
+use brush::traits::{InkStorage, AccountId, Balance};
 
 pub use psp20_derive::{PSP20Storage};
 
@@ -200,8 +201,8 @@ pub trait IPSP20: PSP20Storage {
     fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {}
 
     fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
-        assert!(from != [0; 32].into(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
-        assert!(to != [0; 32].into(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
+        assert!(!from.is_zero(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
+        assert!(!to.is_zero(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
 
         self._before_token_transfer(from, to, amount);
 
@@ -214,8 +215,8 @@ pub trait IPSP20: PSP20Storage {
     }
 
     fn _approve_from_to(&mut self, owner: AccountId, spender: AccountId, amount: Balance) {
-        assert!(owner != [0; 32].into(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
-        assert!(spender != [0; 32].into(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
+        assert!(!owner.is_zero(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
+        assert!(!spender.is_zero(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
 
         self._allowances_mut().insert((owner, spender), amount);
         self._emit_approval_event(owner, spender, amount);
@@ -229,7 +230,7 @@ pub trait IPSP20: PSP20Storage {
     ///
     /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
     fn _mint(&mut self, account: AccountId, amount: Balance) {
-        assert!(account != [0; 32].into(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
+        assert!(!account.is_zero(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
 
         let mut new_balance = self.balance_of(account);
         new_balance += amount;
@@ -249,7 +250,7 @@ pub trait IPSP20: PSP20Storage {
     /// Panics `InsufficientBalance` error if there are not enough tokens on
     /// the the account Balance of `account`.
     fn _burn(&mut self, account: AccountId, amount: Balance) {
-        assert!(account != [0; 32].into(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
+        assert!(!account.is_zero(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
 
         let mut from_balance = self.balance_of(account);
         assert!(from_balance >= amount, "{}", PSP20Error::InsufficientBalance.as_ref());

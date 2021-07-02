@@ -3,6 +3,7 @@ mod internal;
 mod contract;
 mod trait_definition;
 mod storage_trait;
+mod metadata;
 
 use quote::{
     quote,
@@ -17,17 +18,33 @@ use proc_macro2::{
     TokenTree,
 };
 
+/// Entry point for use brush's macros in ink! smart contracts.
+///
+/// # Description
+///
+/// The macro consumes brush's macros to simplify the usability of the library.
+/// After consumption, it pasts the code of ink! and then ink!'s macros will be processed.
+///
+/// First of all, the macro will process:
+/// [`#[brush::storage_trait]`](`macro@crate::storage_trait`),
+/// [`#[brush::trait_definition]`](`macro@crate::trait_definition`),
+/// [`#[brush::modifier_definition]`](`macro@crate::modifier_definition`).
+///
+/// After that it will consume every usage of:
+/// - Derive of storage trait([`#[brush::storage_trait]`](`macro@crate::storage_trait`)).
+/// - Impl of external trait([`#[brush::trait_definition]`](`macro@crate::trait_definition`)).
+/// - Usage of modifiers.
 #[proc_macro_attribute]
 pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
     contract::generate(_attrs, ink_module)
 }
 
-/// Marks trait definition to brush as special ink trait definition.
+/// Defines extensible trait in the scope of brush::contract.
 /// It is the same ink trait definition, but with additional features:
-/// - Allows using super traits
-/// - Allows defining default implementations of methods
-/// - Allows having internal functions(without `#[ink(message)]`)
-/// - Allows calling implementation from trait when overriding(via #[super] + method)
+/// - Allows using super traits.
+/// - Allows defining default implementations of methods.
+/// - Allows having internal functions(without `#[ink(message)]`).
+/// - Allows calling implementation from trait when overriding (via `#[super] self.transfer( ... )`).
 ///
 /// This macro stores definition of the trait in a temporary file during build process.
 /// Based on this definition [`#[brush::contract]`](`macro@crate::contract`)
@@ -36,12 +53,14 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// and will paste it in impl section. It means that your default implementation must be public
 /// and exported as a part of crate.
 ///
-///  ** Note ** You don't need to copy/paste attributes from trait definition, it will be done automatically
-///  ** Note ** Super trait is not used during build process, it is only syntactic sugar for your IDE
-///  ** Note ** Internal methods are not stored in trait, they will be extracted to separate impl section
-/// of your struct, so their implementation also must be public
+///  ** Note ** You don't need to copy/paste attributes from trait definition, it will be done automatically.
+///  ** Note ** Super trait is not used during build process, it is only syntactic sugar for your IDE.
+///  ** Note ** Internal methods are not stored in trait, they will be extracted to separate impl section.
+/// of your struct, so their implementation also must be public.
 ///  ** Note ** This macro must be processed before [`#[brush::contract]`](`macro@crate::contract`),
-/// otherwise it will fail
+/// otherwise it will fail: It means that [`#[brush::trait_definition]`] must be defined in scope of
+/// [`#[brush::contract]`](`macro@crate::contract`).
+/// Or it must be defined in another crate(macros in dependencies will be processed early).
 ///
 /// # Example: Definition
 ///
@@ -157,8 +176,9 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
 /// This macro stores definition of the trait in a temporary file during build process.
 /// Based on this definition [`#[brush::contract]`](`macro@crate::contract`)
 /// will generate fields and getters for struct, which will derive this trait.
-/// The name of each field is substring between prefix `_` and suffix `_mut`.
-/// The type of the field is the return type of getter(It means that you need to use
+/// The name of each field is substring between prefix `_` and suffix `_mut`
+/// (e.g. given `_method_name_mut` function, field `method_name` will be generated).
+/// The type of the field is the return type of getter (It means that you need to use
 /// the same naming of types in the crate where you will derive this trait).
 ///
 /// There are some restrictions that you must follow:
@@ -171,7 +191,9 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
 /// - The getter by mut reference must have the same name as the getter by reference + suffix `_mut`.
 ///
 ///  ** Note ** This macro must be processed before [`#[brush::contract]`](`macro@crate::contract`),
-/// otherwise it will fail
+/// otherwise it will fail: It means that [`#[brush::trait_definition]`] must be defined in scope of
+/// [`#[brush::contract]`](`macro@crate::contract`).
+/// Or it must be defined in another crate(macros in dependencies will be processed early).
 ///
 /// # Example: Definition
 ///

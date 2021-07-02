@@ -4,132 +4,10 @@ use quote::{
     quote,
     format_ident,
 };
-use syn::{TraitItem, ItemTrait, TraitItemMethod, ImplItem};
+use syn::{TraitItemMethod, ImplItem};
 use proc_macro::TokenStream;
-use proc_macro2::{
-    TokenStream as TokenStream2,
-};
 use std::collections::HashMap;
-use std::env;
-use std::fs::{OpenOptions, File};
-use std::io::{BufReader, Seek, SeekFrom};
-use std::str::FromStr;
-use serde::{Serialize, Deserialize};
-use serde_json;
-use fs2::FileExt;
-use cargo_metadata::{MetadataCommand};
-use std::path::PathBuf;
-
-const TEMP_FILE: &str = "brush_metadata";
-#[derive(Default, Debug, Serialize, Deserialize)]
-pub(crate) struct TraitDefinitions(HashMap<String, String>);
-
-impl std::ops::Deref for TraitDefinitions {
-    type Target = HashMap<String, String>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl std::ops::DerefMut for TraitDefinitions {
-    fn deref_mut(&mut self) -> &mut HashMap<String, String> {
-        &mut self.0
-    }
-}
-
-#[derive(Default, Debug, Serialize, Deserialize)]
-pub(crate) struct Metadata {
-    pub storage_traits: TraitDefinitions,
-    pub external_traits: TraitDefinitions,
-}
-
-impl Metadata {
-    pub(crate) fn load(file: &File) -> Metadata {
-        let reader = BufReader::new(file);
-
-        let map = serde_json::from_reader(reader).unwrap_or_default();
-        map
-    }
-
-    pub(crate) fn save_and_unlock(&self, mut locked_file: File) {
-        locked_file.set_len(0).expect("Can't truncate the file");
-        locked_file.seek(SeekFrom::Start(0)).expect("Can't set cursor position");
-        serde_json::to_writer(&locked_file, self).expect("Can't dump definition metadata to file");
-        locked_file.unlock().expect("Can't remove exclusive lock");
-    }
-}
-
-pub(crate) struct TraitDefinition(ItemTrait);
-
-impl TraitDefinition {
-    pub(crate) fn methods(&self) -> Vec<syn::TraitItemMethod> {
-        self.0.items
-            .clone()
-            .into_iter()
-            .filter_map(|item| {
-                if let TraitItem::Method(method) = item {
-                    Some(method)
-                } else {
-                    None
-                }
-            }).collect()
-    }
-}
-
-impl TraitDefinitions {
-    pub(crate) fn get(&self, ident: &String) -> TraitDefinition {
-        let stream = TokenStream2::from_str(
-            self.0.get(ident).expect("Can't find definition of trait")
-        ).expect("Trait definition is not TokenStream");
-        let trait_item =
-            syn::parse2::<ItemTrait>(stream).expect("Can't parse ItemTrait");
-
-        TraitDefinition {
-            0: trait_item,
-        }
-    }
-}
-
-/// Function returns exclusively locked file for metadata.
-/// It stores file in the nearest target folder
-/// from the directory where the build command has been invoked(output of `pwd` command).
-/// If the directory doesn't contain `Cargo.toml` file,
-/// it will try to find `Cargo.toml` in the upper directories.
-pub(crate) fn get_locked_file() -> File {
-    let mut manifest_path =
-        PathBuf::from(env::var("PWD").expect("Can't get PWD")).join("Cargo.toml");
-
-    // if the current directory does not contain a Cargo.toml file, go up until you find it.
-    while !manifest_path.exists() {
-        if let Some(str) = manifest_path.as_os_str().to_str() {
-            // If `/Cargo.toml` is not exist, it means that we will do infinity while, so break it
-            assert_ne!(str, "/Cargo.toml", "Can't find Cargo.toml in directories tree");
-        }
-        // Remove Cargo.toml
-        manifest_path.pop();
-        // Remove parent folder
-        manifest_path.pop();
-        manifest_path = manifest_path.join("Cargo.toml");
-    }
-
-    let mut cmd = MetadataCommand::new();
-    let metadata = cmd
-        .manifest_path(manifest_path.clone())
-        .exec()
-        .expect("Error invoking `cargo metadata`");
-
-    let dir = metadata.target_directory.join(TEMP_FILE);
-
-    let file = match OpenOptions::new().read(true).write(true)
-        .create(true)
-        .open(&dir) {
-        Err(why) => panic!("Couldn't open temporary storage: {}", why),
-        Ok(file) => file,
-    };
-    file.lock_exclusive().expect("Can't do exclusive lock");
-    file
-}
+use crate::metadata::Metadata;
 
 pub(crate) struct NamedField(syn::Field);
 
@@ -227,8 +105,7 @@ pub(crate) fn impl_storage_trait(struct_ident: &syn::Ident, trait_ident: &syn::I
 }
 
 pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &syn::Ident, metadata: &Metadata) -> TokenStream {
-    // Map contains only methods with block section
-    let mut default_trait_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
+    let mut super_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
     let mut trait_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
     metadata.external_traits.get(&trait_ident.to_string())
         .methods()
@@ -243,42 +120,31 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
         })
         .for_each(|method: TraitItemMethod| {
             let key = method.sig.ident.to_string();
-            default_trait_methods.insert(key, method);
+            super_methods.insert(key, method);
         });
 
     let mut methods_implemented_by_user: HashMap<String, syn::ImplItemMethod> = HashMap::new();
-    impl_item.items.clone()
-        .into_iter()
-        .filter_map(|item|
-            if let syn::ImplItem::Method(method) = item {
-                Some(method)
-            } else {
-                None
-            }
-        )
-        .for_each(|method| {
-            let key = method.sig.ident.to_string();
-            methods_implemented_by_user.insert(key, method);
-        });
 
+    // Consume all super calls and add attributes from trait definition
     impl_item.items
         .iter_mut()
         .for_each(|mut item|
             if let syn::ImplItem::Method(method) = &mut item {
                 let method_key = method.sig.ident.to_string();
+                methods_implemented_by_user.insert(method_key.clone(), method.clone());
 
                 let trait_method = trait_methods.get_mut(&method_key)
-                    .expect("Can't get method of trait");
+                    .expect("Unknown method of trait");
                 // Copy attributes from trait definition to user's implementation
                 method.attrs.append(&mut trait_method.attrs);
 
-                consume_super_call(method, trait_ident);
+                consume_super_call(method, &super_methods);
             });
 
     let mut internal_methods: Vec<_> = vec![];
     // Let's create internal `impl section` with default implementation from the trait
     // for method which has been overridden
-    let default_impl_of_overridden_methods: Vec<_> = default_trait_methods.clone()
+    let default_impl_of_overridden_methods: Vec<_> = super_methods.clone()
         .into_iter()
         .filter_map(|(k, v)| {
             if methods_implemented_by_user.contains_key(&k) {
@@ -302,7 +168,7 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
             method.attrs.clear();
             // we need to change the naming of internal implementation to "old_name + _name_of_trait"
 
-            method.sig.ident = format_ident!("{}_{}", method.sig.ident, trait_ident);
+            method.sig.ident = format_ident!("{}_super", method.sig.ident);
             let item = syn::parse2::<ImplItem>(quote! {
                 #method
             }).expect("Can't parse TraitItemMethod like ImplItem");
@@ -344,7 +210,7 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
     gen.into()
 }
 
-fn consume_super_call(method: &mut syn::ImplItemMethod, trait_ident: &syn::Ident) {
+fn consume_super_call(method: &mut syn::ImplItemMethod, super_methods: &HashMap<String, syn::TraitItemMethod>) {
     // Inside of the code of user's implementation, user may want to call base
     // implementation from the trait. It will contains the next syntax "Trait::method()..."
     // We need to change Trait -> Self and method -> method_Trait.
@@ -370,16 +236,10 @@ fn consume_super_call(method: &mut syn::ImplItemMethod, trait_ident: &syn::Ident
         // If call contains "super" attribute,
         // when paste the call to trait's implementation
         if is_attr(&call.attrs, "super") {
-            call.method = format_ident!("{}_{}", call.method, trait_ident);
-            call.attrs = call.attrs.clone()
-                .into_iter()
-                .filter_map(|attr|
-                    if attr.path.is_ident("super") {
-                        None
-                    } else {
-                        Some(attr)
-                    }
-                ).collect();
+            assert!(super_methods.contains_key(&call.method.to_string()),
+                    "Trait doesn't have default implementation for super call");
+            call.method = format_ident!("{}_super", call.method);
+            call.attrs = remove_attr(&call.attrs, "super");
         }
     });
 }
@@ -392,4 +252,17 @@ pub(crate) fn is_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> bool {
     } else {
         true
     }
+}
+
+#[inline]
+pub(crate) fn remove_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> Vec<syn::Attribute> {
+    attrs.clone()
+        .into_iter()
+        .filter_map(|attr|
+            if is_attr(&vec![attr.clone()], ident) {
+                None
+            } else {
+                Some(attr)
+            })
+        .collect()
 }

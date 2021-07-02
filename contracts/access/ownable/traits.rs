@@ -1,9 +1,10 @@
 pub use brush::modifiers;
 pub use ink_lang::{Env, StaticEnv};
-use brush::{
-    traits::{InkStorage, AccountId},
-};
+pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use ownable_derive::OwnableStorage;
+
+// We don't need to expose it, because ink! will define AccountId and StaticEnv by self.
+use brush::traits::{InkStorage, AccountId};
 
 #[brush::storage_trait]
 pub trait OwnableStorage: InkStorage {
@@ -27,18 +28,18 @@ pub trait IOwnable: OwnableStorage {
     #[ink(message)]
     #[modifiers(only_owner)]
     fn renounce_ownership(&mut self) {
-        let old_owner = self.owner();
-        *self._owner_mut() = [0; 32].into();
+        let old_owner = self._owner().clone();
+        *self._owner_mut() = ZERO_ADDRESS.into();
         self._emit_ownership_transferred_event(Some(old_owner), None);
     }
 
     #[ink(message)]
     #[modifiers(only_owner)]
     fn transfer_ownership(&mut self, new_owner: AccountId) {
-        assert_ne!(new_owner, [0; 32].into(), "{}", OwnableError::NewOwnerIsZero.as_ref());
-        let old_owner = self.owner();
-        *self._owner_mut() = new_owner;
-        self._emit_ownership_transferred_event(Some(old_owner), Some(self.owner()));
+        assert!(!new_owner.is_zero(), "{}", OwnableError::NewOwnerIsZero.as_ref());
+        let old_owner = self._owner().clone();
+        *self._owner_mut() = new_owner.clone();
+        self._emit_ownership_transferred_event(Some(old_owner), Some(new_owner));
     }
     
     // Helper functions

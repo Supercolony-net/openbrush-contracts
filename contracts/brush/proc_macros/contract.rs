@@ -12,6 +12,7 @@ use proc_macro2::{
     TokenTree,
 };
 use fs2::FileExt;
+use crate::metadata;
 use crate::internal::*;
 use crate::storage_trait;
 
@@ -32,8 +33,8 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
     // After we can consume all other stuff.
     items = consume_traits(items);
 
-    let locked_file = internal::get_locked_file();
-    let metadata = internal::Metadata::load(&locked_file);
+    let locked_file = metadata::get_locked_file();
+    let metadata = metadata::Metadata::load(&locked_file);
     locked_file.unlock().expect("Can't remove exclusive lock in extract_fields_and_methods");
 
     items = consume_derives(items, &metadata);
@@ -54,36 +55,18 @@ fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {
         .filter_map(|mut item| {
             if let Item::Trait(item_trait) = &mut item {
                 if is_attr(&item_trait.attrs, "storage_trait") {
-                    let attrs = item_trait.attrs.clone()
-                        .into_iter()
-                        .filter_map(|attr|
-                            if is_attr(&vec![attr.clone()],"storage_trait") {
-                                None
-                            } else {
-                                Some(attr)
-                            });
-                    item_trait.attrs.clear();
+                    item_trait.attrs = remove_attr(&item_trait.attrs, "storage_trait");
 
-                    let attrs = quote! { #(#attrs)* };
                     let stream = storage_trait::generate(
-                        attrs.into(), item_trait.to_token_stream().into());
+                        TokenStream::new(), item_trait.to_token_stream().into());
                     let new_trait_item = syn::parse::<syn::Item>(stream)
                         .expect("Can't parse generated storage trait");
                     return Some(new_trait_item)
                 } else if is_attr(&item_trait.attrs, "trait_definition") {
-                    let attrs = item_trait.attrs.clone()
-                        .into_iter()
-                        .filter_map(|attr|
-                            if is_attr(&vec![attr.clone()], "trait_definition") {
-                                None
-                            } else {
-                                Some(attr)
-                            });
-                    item_trait.attrs.clear();
+                    item_trait.attrs = remove_attr(&item_trait.attrs, "trait_definition");
 
-                    let attrs = quote! { #(#attrs)* };
                     let stream = trait_definition::generate(
-                        attrs.into(), item_trait.to_token_stream().into());
+                        TokenStream::new(), item_trait.to_token_stream().into());
                     let new_trait_item = syn::parse::<syn::Item>(stream)
                         .expect("Can't parse generated trait definition");
                     return Some(new_trait_item)
@@ -93,7 +76,7 @@ fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {
         }).collect()
 }
 
-fn consume_impls(mut items: Vec<syn::Item>, metadata: &internal::Metadata) -> Vec<syn::Item> {
+fn consume_impls(mut items: Vec<syn::Item>, metadata: &metadata::Metadata) -> Vec<syn::Item> {
     let mut impls: Vec<TokenStream> = vec![];
     items = items
         .into_iter()
@@ -143,7 +126,7 @@ fn consume_impls(mut items: Vec<syn::Item>, metadata: &internal::Metadata) -> Ve
     items
 }
 
-fn consume_derives(mut items: Vec<syn::Item>, metadata: &internal::Metadata) -> Vec<syn::Item> {
+fn consume_derives(mut items: Vec<syn::Item>, metadata: &metadata::Metadata) -> Vec<syn::Item> {
     let mut impls: Vec<TokenStream> = vec![];
     items = items
         .into_iter()
@@ -183,7 +166,7 @@ fn consume_derives(mut items: Vec<syn::Item>, metadata: &internal::Metadata) -> 
 }
 
 fn consume_derive(struct_ident: &syn::Ident,
-                  attr: &mut syn::Attribute, metadata: &internal::Metadata) -> (Vec<syn::Field>, Vec<TokenStream>) {
+                  attr: &mut syn::Attribute, metadata: &metadata::Metadata) -> (Vec<syn::Field>, Vec<TokenStream>) {
     let mut fields: Vec<syn::Field> = vec![];
     let mut impls: Vec<TokenStream> = vec![];
     let tokens: TokenStream2 = attr.tokens.clone().into_iter().map(|token|

@@ -14,3 +14,15 @@ pub trait InkStorage {
 }
 
 impl<T> InkStorage for T {}
+
+pub const ZERO_ADDRESS: [u8; 32] = [0; 32];
+
+pub trait AccountIdExt {
+    fn is_zero(&self) -> bool;
+}
+
+impl AccountIdExt for AccountId {
+    fn is_zero(&self) -> bool {
+        self == &ZERO_ADDRESS.into()
+    }
+}

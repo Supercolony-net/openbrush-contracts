@@ -8,10 +8,11 @@ pub use ink_lang::{
 pub use ink_storage::{
     collections::HashMap as StorageHashMap,
 };
-use brush::{
-    traits::{InkStorage, AccountId},
-};
+pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use access_control_derive::{AccessControlStorage};
+
+// We don't need to expose it, because ink! will define AccountId and StaticEnv by self.
+use brush::traits::{InkStorage, AccountId};
 
 #[cfg(feature = "std")]
 pub use ink_storage::traits::StorageLayout;
@@ -106,13 +107,13 @@ pub trait IAccessControl: AccessControlStorage {
     // Helper functions
 
     /// The user must override this function using their event definition.
-    fn _emit_role_admin_changed(&mut self, role: RoleType, previous_admin_role: RoleType, new_admin_role: RoleType) { }
+    fn _emit_role_admin_changed(&mut self, _role: RoleType, _previous_admin_role: RoleType, _new_admin_role: RoleType) { }
 
     /// The user must override this function using their event definition.
-    fn _emit_role_granted(&mut self, role: RoleType, grantee: AccountId, grantor: Option<AccountId>) { }
+    fn _emit_role_granted(&mut self, _role: RoleType, _grantee: AccountId, _grantor: Option<AccountId>) { }
 
     /// The user must override this function using their event definition.
-    fn _emit_role_revoked(&mut self, role: RoleType, account: AccountId, sender: AccountId) { }
+    fn _emit_role_revoked(&mut self, _role: RoleType, _account: AccountId, _sender: AccountId) { }
 
     fn _init_with_caller(&mut self) {
         let caller = Self::env().caller();

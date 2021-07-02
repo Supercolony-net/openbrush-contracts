@@ -5,9 +5,8 @@ mod tests {
     use ink_env::{call, test};
     use ink_lang as ink;
     use ink::{EmitEvent};
+    use brush::traits::ZERO_ADDRESS;
     use crate::traits::*;
-
-    const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]

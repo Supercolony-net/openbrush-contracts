@@ -10,10 +10,11 @@ pub use ink_prelude::{vec::Vec, vec};
 pub use ink_storage::{
     collections::HashMap as StorageHashMap,
 };
-use brush::{
-    traits::{InkStorage, AccountId, Balance},
-};
+pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use psp1155_derive::{PSP1155Storage, PSP1155MetadataStorage};
+
+// We don't need to expose it, because ink! will define AccountId, Balance and StaticEnv by self.
+use brush::traits::{InkStorage, AccountId, Balance};
 
 pub type Id = [u8; 32];
 
@@ -49,7 +50,7 @@ pub enum PSP1155Error {
 /// A single deployed contract may include any combination of fungible tokens,
 /// non-fungible tokens or other configurations (e.g. semi-fungible tokens).
 #[brush::trait_definition]
-pub trait IPSP1155 {
+pub trait IPSP1155: PSP1155Storage {
     /// Returns the amount of tokens of token type `_id` owned by `_account`.
     #[ink(message)]
     fn balance_of(&self, _account: AccountId, _id: Id) -> Balance {
@@ -161,14 +162,14 @@ pub trait IPSP1155 {
     fn _mint(&mut self, to: AccountId, id: Id, amount: Balance) {
         let operator = Self::env().caller();
 
-        assert_ne!(to, [0; 32].into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
+        assert!(!to.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         self._before_token_transfer(&vec![id]);
         self._increase_receiver_balance(to, id, amount);
 
         self._do_safe_transfer_acceptance_check(
             operator,
-            [0; 32].into(),
+            ZERO_ADDRESS.into(),
             to,
             id,
             amount,
@@ -176,21 +177,21 @@ pub trait IPSP1155 {
         );
 
         self._emit_transfer_single_event(
-            operator, [0; 32].into(), to, id, amount);
+            operator, ZERO_ADDRESS.into(), to, id, amount);
     }
 
     fn _burn(&mut self, from: AccountId, id: Id, amount: Balance) {
-        assert_ne!(from, [0; 32].into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
+        assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         self._before_token_transfer(&vec![id]);
         self._decrease_sender_balance(from, id, amount);
 
         self._emit_transfer_single_event(
-            Self::env().caller(), from, [0; 32].into(), id, amount);
+            Self::env().caller(), from, ZERO_ADDRESS.into(), id, amount);
     }
 
     fn _transfer_guard(&self, from: AccountId, to: AccountId) {
-        assert_ne!(to, [0; 32].into(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
+        assert!(!to.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         let operator = Self::env().caller();
 
