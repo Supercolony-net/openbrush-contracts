@@ -1,5 +1,9 @@
 <a href='https://www.supercolony.net/'><img src='https://uploads-ssl.webflow.com/605da67bb52ee776f70680b7/605e09d0f994d31b1b5c76db_logo.png' height='120'/></a>
 
+
+Our mission with this project is to make ink! really usable.
+
+
 ## Summary
 **A Rust library for secure smart contract development on ink!.**
 
