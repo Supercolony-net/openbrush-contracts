@@ -1,4 +1,4 @@
-pub use brush::modifiers;
+pub use brush::{modifiers, modifier_definition};
 pub use ink_lang::{Env, StaticEnv};
 pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use ownable_derive::OwnableStorage;
@@ -44,8 +44,10 @@ pub trait IOwnable: OwnableStorage {
     
     // Helper functions
 
+    #[modifier_definition]
     fn only_owner(&self) {
         assert_eq!(self._owner(), &Self::env().caller(), "{}", OwnableError::CallerIsNotOwner.as_ref());
+        #[body]()
     }
 
     /// User must override this method in their contract.

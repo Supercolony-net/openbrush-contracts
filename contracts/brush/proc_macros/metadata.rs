@@ -1,4 +1,4 @@
-use syn::{TraitItem, ItemTrait};
+use syn::{TraitItem, ItemTrait, ImplItemMethod};
 use proc_macro2::{
     TokenStream as TokenStream2,
 };
@@ -12,6 +12,7 @@ use serde_json;
 use fs2::FileExt;
 use cargo_metadata::{MetadataCommand};
 use std::path::PathBuf;
+use unwrap::unwrap;
 
 const TEMP_FILE: &str = "brush_metadata";
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -32,9 +33,27 @@ impl std::ops::DerefMut for TraitDefinitions {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+pub(crate) struct ModifierDefinitions(HashMap<String, String>);
+
+impl std::ops::Deref for ModifierDefinitions {
+    type Target = HashMap<String, String>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for ModifierDefinitions {
+    fn deref_mut(&mut self) -> &mut HashMap<String, String> {
+        &mut self.0
+    }
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub(crate) struct Metadata {
     pub storage_traits: TraitDefinitions,
     pub external_traits: TraitDefinitions,
+    pub modifiers: ModifierDefinitions,
 }
 
 impl Metadata {
@@ -50,6 +69,16 @@ impl Metadata {
         locked_file.seek(SeekFrom::Start(0)).expect("Can't set cursor position");
         serde_json::to_writer(&locked_file, self).expect("Can't dump definition metadata to file");
         locked_file.unlock().expect("Can't remove exclusive lock");
+    }
+}
+
+pub(crate) struct ModifierDefinition(syn::ImplItemMethod);
+
+impl std::ops::Deref for ModifierDefinition {
+    type Target = syn::ImplItemMethod;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -72,14 +101,28 @@ impl TraitDefinition {
 
 impl TraitDefinitions {
     pub(crate) fn get(&self, ident: &String) -> TraitDefinition {
-        let stream = TokenStream2::from_str(
-            self.0.get(ident).expect("Can't find definition of trait")
-        ).expect("Trait definition is not TokenStream");
+        let stream = unwrap!(TokenStream2::from_str(
+            unwrap!(self.0.get(ident), "Can't find definition of trait {}", ident)
+        ), "Trait definition({}) is not TokenStream", ident);
         let trait_item =
-            syn::parse2::<ItemTrait>(stream).expect("Can't parse ItemTrait");
+            unwrap!(syn::parse2::<ItemTrait>(stream), "Can't parse ItemTrait of {}", ident);
 
         TraitDefinition {
             0: trait_item,
+        }
+    }
+}
+
+impl ModifierDefinitions {
+    pub(crate) fn get(&self, ident: &String) -> ModifierDefinition {
+        let stream = unwrap!(TokenStream2::from_str(
+            unwrap!(self.0.get(ident), "Can't find definition of modifier {}", ident)
+        ), "Modifier definition({}) is not TokenStream", ident);
+        let method_item =
+            unwrap!(syn::parse2::<ImplItemMethod>(stream), "Can't parse ImplItemMethod of {}", ident);
+
+        ModifierDefinition {
+            0: method_item,
         }
     }
 }

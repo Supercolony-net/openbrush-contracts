@@ -5,6 +5,7 @@ members = [
     "contracts/token/psp1155",
     "contracts/access/ownable",
     "contracts/access/access-control",
+    "contracts/security/reentrancy_guard",
     "contracts/brush",
 ]
 exclude = [

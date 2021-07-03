@@ -14,6 +14,7 @@ use proc_macro2::{
 use fs2::FileExt;
 use crate::metadata;
 use crate::internal::*;
+use crate::modifier_definition::{extract_modifier_definitions_impl, extract_modifier_definitions_trait};
 use crate::storage_trait;
 
 pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
@@ -29,6 +30,7 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
         }
     };
 
+    items = consume_modifiers(items);
     // First we need to consume all traits and update metadata file.
     // After we can consume all other stuff.
     items = consume_traits(items);
@@ -47,6 +49,19 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
         #module
     };
     result.into()
+}
+
+fn consume_modifiers(items: Vec<syn::Item>) -> Vec<syn::Item> {
+    items
+        .into_iter()
+        .map(|mut item| {
+            if let Item::Trait(item_trait) = &mut item {
+                extract_modifier_definitions_trait(item_trait);
+            } else if let Item::Impl(item_impl) = &mut item {
+                extract_modifier_definitions_impl(item_impl);
+            }
+            item
+        }).collect()
 }
 
 fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {
