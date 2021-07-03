@@ -24,7 +24,6 @@ use proc_macro::TokenStream;
 /// After that it will consume every usage of:
 /// - Derive of storage trait([`#[brush::storage_trait]`](`macro@crate::storage_trait`)).
 /// - Impl of external trait([`#[brush::trait_definition]`](`macro@crate::trait_definition`)).
-/// - Usage of modifiers.
 #[proc_macro_attribute]
 pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
     contract::generate(_attrs, ink_module)
@@ -50,8 +49,8 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// of your struct, so their implementation also must be public.
 ///  ** Note ** This macro must be processed before [`#[brush::contract]`](`macro@crate::contract`),
 /// otherwise it will fail: It means that [`#[brush::trait_definition]`] must be defined in scope of
-/// [`#[brush::contract]`](`macro@crate::contract`).
-/// Or it must be defined in another crate(macros in dependencies will be processed early).
+/// [`#[brush::contract]`](`macro@crate::contract`)
+/// or it must be defined in another crate(macros in dependencies will be processed early).
 ///
 /// # Example: Definition
 ///
@@ -183,8 +182,8 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
 ///
 ///  ** Note ** This macro must be processed before [`#[brush::contract]`](`macro@crate::contract`),
 /// otherwise it will fail: It means that [`#[brush::trait_definition]`] must be defined in scope of
-/// [`#[brush::contract]`](`macro@crate::contract`).
-/// Or it must be defined in another crate(macros in dependencies will be processed early).
+/// [`#[brush::contract]`](`macro@crate::contract`)
+/// or it must be defined in another crate(macros in dependencies will be processed early).
 ///
 /// # Example: Definition
 ///
@@ -255,11 +254,139 @@ pub fn storage_trait(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
     storage_trait::generate(_attrs, _input)
 }
 
+/// Marks some method as a modifier.
+///
+/// This macro stores definition of the method in a temporary file during build process.
+/// The function marked with [`#[brush::modifiers]`](`macro@crate::modifiers`)
+/// will be expanded with code from the modifier definition.
+///
+/// The modifier definition must contain exactly one construction `#[body]();`.
+/// It is an identifier where the code of the main function must be inserted.
+///
+/// This macro consumes the code of modifier, which means that the method will be extracted and not will be compiled.
+/// All other attributes of the modifier will be ignored.
+///
+/// You can use `return` statement in modifier, but the type of return value must be equal to the function
+/// where this macro will be used. Also you must understand, that `return` can break other modifiers
+/// (the method can have several modifiers).
+///
+///  ** Note ** This macro must be processed before [`#[brush::modifiers]`](`macro@crate::modifiers`),
+/// otherwise it will fail: It means that [`#[brush::modifier_definition]`] must be defined in scope of
+/// [`#[brush::contract]`](`macro@crate::contract`)
+/// or it must be defined in another crate(macros in dependencies will be processed early).
+///
+/// # Example: Definition
+///
+/// ```
+/// #[derive(Default)]
+/// struct Contract {
+///     initialized: bool,
+/// }
+///
+/// impl Contract {
+///     #[brush::modifier_definition]
+///     fn once(&mut self) {
+///         assert!(!self.initialized, "Contract already is initialized");
+///         #[body]();
+///         self.initialized = true;
+///     }
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
     modifier_definition::generate(_attrs, _input)
 }
 
+/// Macro pastes the code from the modifier definition inside of the function.
+/// It means that every stuff from the modifier definition must be available in the scope of marked method.
+///
+/// Modifiers are designed to be used for methods marked with the `#[ink(message)]` attribute.
+/// You can try to use them in internal implementations and foreign functions, but you must be sure,
+/// that [`#[brush::modifier_definition]`](`macro@crate::modifier_definition`) will be processed early.
+///
+/// The method can have several modifiers. They will be expanded in left to right ordering.
+/// If the method returns something, the result will be stored in a temporary variable
+/// and will be returned after the last modifier will be executed.
+///
+/// # Explanation:
+///
+/// Let's define next modifiers.
+/// ```
+/// #[brush::modifier_definition]
+/// fn A() {
+///     println!("A before");
+///     #[body]();
+///     println!("A after");
+/// }
+///
+/// #[brush::modifier_definition]
+/// fn B() {
+///     println!("B before");
+///     #[body]();
+///     println!("B after");
+/// }
+///
+/// #[brush::modifier_definition]
+/// fn C() {
+///     println!("C before");
+///     #[body]();
+///     println!("C after");
+/// }
+///
+/// #[brush::modifiers(A, B, C)]
+/// fn main_logic() -> &'static str {
+///     return "Return value"
+/// }
+/// ```
+/// The code above will be expanded into:
+/// ```
+/// fn main_logic() -> &'static str {
+///     println!("A before");
+///     println!("B before");
+///     println!("C before");
+///     let main_logic_local = || { return "Return value" };
+///     let main_logic_local_out = main_logic_local();
+///     println!("C after");
+///     println!("B after");
+///     println!("A after");
+///     return main_logic_local_out;
+/// }
+///
+/// ```
+///
+/// # Example: Usage
+///
+/// ```
+/// #[brush::contract]
+/// mod example {
+///     #[ink(storage)]
+///     #[derive(Default)]
+///     pub struct Contract {
+///         initialized: bool,
+///         owner: AccountId,
+///     }
+///
+///     impl Contract {
+///         #[brush::modifier_definition]
+///         fn once(&mut self) {
+///             assert!(!self.initialized, "Contract already is initialized");
+///             #[body]();
+///             self.initialized = true;
+///         }
+///
+///         #[ink(constructor)]
+///         pub fn new() -> Self {
+///             Self::default()
+///         }
+///
+///         #[ink(message)]
+///         #[brush::modifiers(once)]
+///         pub fn init(&mut self, owner: AccountId) {
+///             self.owner = owner;
+///         }
+///     }
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
     modifiers::generate(_attrs, method)

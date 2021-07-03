@@ -1,6 +1,7 @@
 pub use brush::{modifiers, modifier_definition};
 pub use ink_lang::{Env, StaticEnv};
 pub use reentrancy_guard_derive::ReentrancyGuardStorage;
+pub use brush::traits::Flush;
 
 // We don't need to expose it, because ink! will define StaticEnv by self.
 use brush::traits::{InkStorage};
@@ -19,7 +20,7 @@ pub enum ReentrancyGuardError {
     ReentrantCall,
 }
 
-pub trait ReentrancyGuardModifier: ReentrancyGuardStorage {
+pub trait ReentrancyGuardModifier: ReentrancyGuardStorage + Flush {
     #[modifier_definition]
     fn non_reentrant(&mut self) {
         assert_eq!(self._status(), &NOT_ENTERED, "{}", ReentrancyGuardError::ReentrantCall.as_ref());
@@ -27,9 +28,8 @@ pub trait ReentrancyGuardModifier: ReentrancyGuardStorage {
         *self._status_mut() = ENTERED;
 
         // We want to flush storage before execution of inner function.
-        // Because ink! doesn't do it by default and status will be not updated in child call
-        let root_key = ink_primitives::Key::from([0x00; 32]);
-        ink_storage::traits::push_spread_root::<Self>(self, &root_key);
+        // Because ink! doesn't do it by default and `status` will be not updated in child calls
+        self.flush();
 
         #[body]();
         *self._status_mut() = NOT_ENTERED;

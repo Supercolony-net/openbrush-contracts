@@ -28,7 +28,7 @@ pub mod flipper {
     }
 }
 
-#[brush::contract]
+#[ink_lang::contract]
 pub mod flip_on_me {
     use ink_env::call::FromAccountId;
     use crate::flipper::Flipper;

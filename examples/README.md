@@ -12,3 +12,6 @@ the base implementation.
   [ownable](contracts/access/ownable) and
   [psp1155](contracts/token/psp1155) together to provide rights
   to mint and burn tokens.
+* [ReentrancyGuard](reentrancy_guard) shows how you can use the implementation of
+  [non_reentrant](contracts/security/reentrancy_guard) 
+  modifier to prevent reentrancy during certain functions.

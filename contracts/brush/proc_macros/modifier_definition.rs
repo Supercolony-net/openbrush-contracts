@@ -40,8 +40,8 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
             })
         .collect();
 
-    assert!(!bodies.is_empty(), "Modifier must contains definition of body to place.");
-    assert_eq!(bodies.len(), 1, "Modifier contains more than one place for body. Must be only one");
+    assert!(!bodies.is_empty(), "Modifier must contains definition of `#[body]();` to place.");
+    assert_eq!(bodies.len(), 1, "Modifier contains more than one place for body. Must be only one `#[body]();`");
 
     TokenStream::new()
 }
