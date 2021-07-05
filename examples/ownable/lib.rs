@@ -2,29 +2,14 @@
 
 #[brush::contract]
 pub mod ownable {
-    use psp1155::{
-        traits::{IPSP1155, Id, IPSP1155MetadataURI, IPSP1155Mint},
-        impls::{PSP1155Storage, PSP1155MetadataStorage, PSP1155Metadata, PSP1155, PSP1155Mint}
-    };
-    use ownable::{
-        traits::{IOwnable, OwnableError},
-        impls::{OwnableStorage, Ownable}
-    };
+    use psp1155::traits::*;
+    use ownable::traits::*;
     use brush::{
         modifiers,
     };
-    use ink_storage::{
-        collections::{
-            HashMap as StorageHashMap,
-        },
-    };
-    use ink_prelude::{
-        string::{String},
-        vec::Vec,
-    };
 
     #[ink(storage)]
-    #[derive(Default, PSP1155Storage, PSP1155MetadataStorage, OwnableStorage, IPSP1155, IOwnable)]
+    #[derive(Default, PSP1155Storage, OwnableStorage)]
     pub struct PSP1155Struct {}
 
     impl PSP1155Struct {
@@ -35,32 +20,24 @@ pub mod ownable {
             instance._init_with_owner(caller);
             instance
         }
-
-        #[inline]
-        fn only_owner(&self) {
-            assert_eq!(self._owner(), &self.env().caller(), "{}", OwnableError::CallerIsNotOwner.as_ref());
-        }
     }
 
-    impl Ownable for PSP1155Struct {}
-    impl PSP1155 for PSP1155Struct {}
+    impl IOwnable for PSP1155Struct {}
+    impl IPSP1155 for PSP1155Struct {}
 
-    impl PSP1155Mint for PSP1155Struct {}
     impl IPSP1155Mint for PSP1155Struct {
-        #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint(&mut self, to: AccountId, id: Id, amount: Balance) { PSP1155Mint::mint(self, to, id, amount); }
+        fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
+            // We added modifier to function.
+            // #[super]self.mint(to, id, amount) will call default implementation from trait
+            #[super]self.mint(to, id, amount);
+        }
 
-        #[ink(message)]
         #[modifiers(only_owner)]
-        fn burn(&mut self, from: AccountId, id: Id, amount: Balance) { PSP1155Mint::burn(self, from, id, amount); }
-    }
-
-    impl PSP1155Metadata for PSP1155Struct {}
-    impl IPSP1155MetadataURI for PSP1155Struct {
-        #[ink(message)]
-        fn uri(&self, _id: Id) -> Option<String> {
-            self._uri().clone()
+        fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
+            // We added modifier to function.
+            // #[super]self.burn(from, id, amount) will call default implementation from trait
+            #[super]self.burn(from, id, amount);
         }
     }
 }

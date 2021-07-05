@@ -23,41 +23,28 @@ std = [
 ]
 ```
 2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`.
-Import traits, errors, macros and structs which you want to use.
+   Import **everything** from `psp20` trait module.
 ```rust
 #[brush::contract]
 pub mod my_psp20 {
-   use psp20::{
-      traits::{ IPSP20, PSP20Error },
-      impls::{ PSP20Storage, PSP20, StorageHashMap, Lazy, String },
-   };
+   use psp20::traits::*;
 ```
 3. Declare storage struct and derive `PSP20Storage`trait. Deriving this trait 
    will add required fields to your structure for implementation of according trait. 
    Your structure must implement `PSP20Storage` if you want to use the
-   default implementation of `PSP20`.
+   default implementation of `IPSP20`.
 
 ```rust
 #[ink(storage)]
 #[derive(Default, PSP20Storage)]
 pub struct MyPSP20 {}
 ```
-4. After that you can inherit implementation of `PSP20` trait.
+4. After that you can inherit implementation of `IPSP20` trait.
    You can customize(override) some methods there.
 ```rust
 impl PSP20 for MyPSP20 {}
 ```
-5. Now you have all basic logic of `PSP20` on rust level.
-   But all methods are internal now(it means that anyone can't call these methods from outside of contract).
-   If you want to make them external you MUST derive `IPSP20` trait.
-   Deriving of this trait will generate external implementation of all methods from `IPSP20`.
-   Macro will call the methods with the same name from `PSP20` trait.
-```rust
-#[ink(storage)]
-#[derive(Default, PSP20Storage, IPSP20)]
-pub struct MyPSP20 {}
-```
-6. Now you only need to define constructor and your basic version of `PSP20` contract is ready.
+5. Now you only need to define constructor and your basic version of `PSP20` contract is ready.
 ```rust
 impl MyPSP20 {
    #[ink(constructor)]
@@ -65,49 +52,48 @@ impl MyPSP20 {
       let mut instance = Self::default();
       *instance._name_mut() = Lazy::new(name);
       *instance._symbol_mut() = Lazy::new(symbol);
-      instance.set_decimals(decimal);
-      instance.mint(instance.env().caller(), _total_supply);
+      *instance._decimals_mut() = Lazy::new(decimal);
+      instance._mint(instance.env().caller(), _total_supply);
       instance
    }
 }
 ```
-7. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. 
-   Also we will override `_before_token_transfer` method in `PSP20` implementation.
+6. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. 
+   Also we will override `_before_token_transfer` method in `IPSP20` implementation.
    And we will add a new field to structure - `hated_account: AccountId`
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP20Storage, IPSP20)]
+#[derive(Default, PSP20Storage)]
 pub struct MyPSP20 {
    // fields for hater logic
    hated_account: AccountId,
 }
-...
-impl PSP20 for MyPSP20 {
-    // Let's override method to reject transactions to bad account
-    fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
-        assert!(_to != self.hated_account, "{}", PSP20Error::Unknown("I hate this account!".to_string()).as_ref());
-    }
+impl IPSP20 for MyPSP20 {
+   // Let's override method to reject transactions to bad account
+   fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
+      assert!(_to != self.hated_account, "{}", PSP20Error::Unknown("I hate this account!").as_ref());
+   }
 }
 
 impl MyPSP20 {
-    #[ink(constructor)]
-    pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
-        let mut instance = Self::_empty();
-        *instance._name_mut() = Lazy::new(name);
-        *instance._symbol_mut() = Lazy::new(symbol);
-        instance.set_decimals(decimal);
-        instance._mint(instance.env().caller(), _total_supply).expect("Can't mint tokens");
-        instance
-    }
+   #[ink(constructor)]
+   pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
+      let mut instance = Self::default();
+      *instance._name_mut() = Lazy::new(name);
+      *instance._symbol_mut() = Lazy::new(symbol);
+      *instance._decimals_mut() = Lazy::new(decimal);
+      instance._mint(instance.env().caller(), _total_supply);
+      instance
+   }
 
-    #[ink(message)]
-    pub fn set_hated_account(&mut self, hated: AccountId) {
-        self.hated_account = hated;
-    }
+   #[ink(message)]
+   pub fn set_hated_account(&mut self, hated: AccountId) {
+      self.hated_account = hated;
+   }
 
-    #[ink(message)]
-    pub fn get_hated_account(&self) -> AccountId {
-        self.hated_account.clone()
-    }
+   #[ink(message)]
+   pub fn get_hated_account(&self) -> AccountId {
+      self.hated_account.clone()
+   }
 }
 ```

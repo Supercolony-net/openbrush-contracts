@@ -6,7 +6,6 @@ members = [
     "contracts/access/ownable",
     "contracts/access/access-control",
     "contracts/brush",
-    "contracts/brush/testing_utils"
 ]
 exclude = [
     "examples",

@@ -18,12 +18,3 @@ pub fn derive_ownable_storage(_item: TokenStream) -> TokenStream {
     };
     code.into()
 }
-
-#[proc_macro_derive(IOwnable)]
-pub fn derive_external_ownable(_item: TokenStream) -> TokenStream {
-    let DeriveInput { ident, .. } = parse_macro_input!(_item);
-    let code = quote! {
-        impl IOwnable for #ident {}
-    };
-    code.into()
-}

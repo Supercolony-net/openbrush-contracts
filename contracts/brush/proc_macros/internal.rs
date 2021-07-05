@@ -4,156 +4,10 @@ use quote::{
     quote,
     format_ident,
 };
-use syn::{
-    TraitItem,
-    ItemTrait,
-};
+use syn::{TraitItemMethod, ImplItem};
 use proc_macro::TokenStream;
-use proc_macro2::{
-    TokenStream as TokenStream2,
-};
 use std::collections::HashMap;
-use std::env;
-use std::fs::{OpenOptions, File};
-use std::io::{BufReader, Seek, SeekFrom};
-use std::str::FromStr;
-use serde::{Serialize, Deserialize};
-use serde_json;
-use fs2::FileExt;
-use cargo_metadata::{MetadataCommand};
-use std::path::PathBuf;
-
-const TEMP_FILE: &str = "brush_metadata";
-type Data = HashMap<String, Vec<String>>;
-
-pub(crate) trait Methods {
-    fn methods(&self, ident: &String) -> Vec<syn::TraitItemMethod>;
-}
-
-impl Methods for Data {
-    fn methods(&self, ident: &String) -> Vec<syn::TraitItemMethod> {
-        self.get(ident)
-            .expect("Can't find definition of trait").into_iter()
-            .map(|method| TokenStream2::from_str(method).expect("Can't parse definition of trait"))
-            .map(|stream| syn::parse2::<syn::TraitItemMethod>(stream).expect("Can't parse method of trait"))
-            .collect()
-    }
-}
-
-#[derive(Default, Debug, Serialize, Deserialize)]
-pub(crate) struct Metadata {
-    pub internal_traits: Data,
-    pub external_traits: Data,
-}
-
-/// Function returns exclusively locked file for metadata.
-/// It stores file in the nearest target folder
-/// from the directory where the build command has been invoked(output of `pwd` command).
-/// If the directory doesn't contain `Cargo.toml` file,
-/// it will try to find `Cargo.toml` in the upper directories.
-pub(crate) fn get_locked_file() -> File {
-    let mut manifest_path =
-        PathBuf::from(env::var("PWD").unwrap()).join("Cargo.toml");
-
-    // if the current directory does not contain a Cargo.toml file, go up until you find it.
-    while !manifest_path.exists() {
-        if let Some(str) = manifest_path.as_os_str().to_str() {
-            // If `/Cargo.toml` is not exist, it means that we will do infinity while, so break it
-            assert_ne!(str, "/Cargo.toml", "Can't find Cargo.toml in directories tree");
-        }
-        // Remove Cargo.toml
-        manifest_path.pop();
-        // Remove parent folder
-        manifest_path.pop();
-        manifest_path = manifest_path.join("Cargo.toml");
-    }
-
-    let mut cmd = MetadataCommand::new();
-    let metadata = cmd
-        .manifest_path(manifest_path.clone())
-        .exec()
-        .expect("Error invoking `cargo metadata`");
-
-    let dir = metadata.target_directory.join(TEMP_FILE);
-
-    let file = match OpenOptions::new().read(true).write(true)
-        .create(true)
-        .open(&dir) {
-        Err(why) => panic!("Couldn't open temporary storage: {}", why),
-        Ok(file) => file,
-    };
-    file.lock_exclusive().expect("Can't do exclusive lock");
-    file
-}
-
-pub(crate) fn load_metadata(file: &File) -> Metadata {
-    let reader = BufReader::new(file);
-
-    let map = serde_json::from_reader(reader).unwrap_or_default();
-    map
-}
-
-pub(crate) fn save_metadata_and_unlock(mut locked_file: File, metadata: Metadata) {
-    locked_file.set_len(0).expect("Can't truncate the file");
-    locked_file.seek(SeekFrom::Start(0)).expect("Can't set cursor position");
-    serde_json::to_writer(&locked_file, &metadata).expect("Can't dump definition metadata to file");
-    locked_file.unlock().expect("Can't remove exclusive lock");
-}
-
-pub(crate) fn put_trait(hash_map: &mut Data, item_trait: ItemTrait) {
-    let ident = item_trait.ident;
-    let items: Vec<_> = item_trait
-        .items
-        .into_iter()
-        .filter_map(|item| {
-            if let TraitItem::Method(method) = item {
-                Some(quote! { #method })
-            } else {
-                None
-            }
-        })
-        .map(|x| { x.to_string() })
-        .collect();
-
-    hash_map.insert(ident.to_string(), items);
-}
-
-// pub struct ImplTrait {
-//     pub contract: syn::Ident,
-//     pub traits: Vec<(syn::Ident, Option<syn::Ident>)>,
-// }
-//
-// pub fn parse_impl_trait(stream: TokenStream2) -> ImplTrait {
-//     let mut iter = stream.into_iter();
-//     let mut impl_trait;
-//     if let TokenTree::Ident(ident) = iter.next().expect("Empty token stream") {
-//         impl_trait = ImplTrait{
-//             contract: ident,
-//             traits: vec![]
-//         };
-//     } else {
-//         panic!("First token is not struct ident");
-//     }
-//     for item in iter {
-//         if let TokenTree::Punct(_) = item {
-//             continue
-//         } else if let TokenTree::Ident(trait_ident) = item {
-//             impl_trait.traits.push((trait_ident, None));
-//         } else if let TokenTree::Group(trait_group) = item {
-//             if let Some(pair) = impl_trait.traits.last_mut() {
-//                 let internal_trait = &mut pair.1;
-//                 if internal_trait.is_none() {
-//                     *internal_trait = Some(syn::parse2::<syn::Ident>(trait_group.stream()).expect("Can't find ident of internal trait"));
-//                 } else {
-//                     panic!("External trait already contains internal");
-//                 }
-//             } else {
-//                 panic!("Internal trait before external");
-//             }
-//         }
-//     }
-//     impl_trait
-// }
+use crate::metadata::Metadata;
 
 pub(crate) struct NamedField(syn::Field);
 
@@ -183,8 +37,9 @@ impl Attributes {
     }
 }
 
-pub(crate) fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> (Vec<syn::Field>, TokenStream) {
-    let trait_methods = metadata.internal_traits.methods(&trait_ident.to_string());
+pub(crate) fn impl_storage_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> (Vec<syn::Field>, TokenStream) {
+    let trait_methods =
+        metadata.storage_traits.get(&trait_ident.to_string()).methods();
 
     let mut impl_methods = vec![];
     let mut fields = vec![];
@@ -192,7 +47,7 @@ pub(crate) fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::
         |method| {
             let mut str = method.sig.ident.to_string();
             // skip every not internal method
-            if str.chars().next().unwrap() != '_' {
+            if str.chars().next().expect("Method signature is empty") != '_' {
                 return
             }
             let mut is_mut = false;
@@ -249,51 +104,165 @@ pub(crate) fn impl_internal_trait(struct_ident: &syn::Ident, trait_ident: &syn::
     (fields, code.into())
 }
 
-pub(crate) fn impl_external_trait(struct_ident: &syn::Ident, trait_ident: &syn::Ident, metadata: &Metadata) -> TokenStream {
-    let trait_methods = metadata.external_traits.methods(&trait_ident.to_string());
+pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &syn::Ident, metadata: &Metadata) -> TokenStream {
+    let mut super_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
+    let mut trait_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
+    metadata.external_traits.get(&trait_ident.to_string())
+        .methods()
+        .into_iter()
+        .filter_map(|method| {
+            trait_methods.insert(method.sig.ident.to_string(), method.clone());
+            if method.default.is_some() {
+                Some(method)
+            } else {
+                None
+            }
+        })
+        .for_each(|method: TraitItemMethod| {
+            let key = method.sig.ident.to_string();
+            super_methods.insert(key, method);
+        });
 
-    let implementations = trait_methods.into_iter().map(|item| {
-        let attrs = item.attrs;
-        let ident = item.sig.ident;
-        let inputs = item.sig.inputs.iter().skip(1);
-        let inputs_params = item.sig.inputs.iter()
-            .skip(1)
-            .filter_map(|pat_type| {
-                if let syn::FnArg::Typed(pat) = pat_type {
-                    let pat_ident = &pat.pat;
-                    Some(quote! { #pat_ident })
+    let mut methods_implemented_by_user: HashMap<String, syn::ImplItemMethod> = HashMap::new();
+
+    // Consume all super calls and add attributes from trait definition
+    impl_item.items
+        .iter_mut()
+        .for_each(|mut item|
+            if let syn::ImplItem::Method(method) = &mut item {
+                let method_key = method.sig.ident.to_string();
+                methods_implemented_by_user.insert(method_key.clone(), method.clone());
+
+                let trait_method = trait_methods.get_mut(&method_key)
+                    .expect("Unknown method of trait");
+                // Copy attributes from trait definition to user's implementation
+                method.attrs.append(&mut trait_method.attrs);
+
+                consume_super_call(method, &super_methods);
+            });
+
+    let mut internal_methods: Vec<_> = vec![];
+    // Let's create internal `impl section` with default implementation from the trait
+    // for method which has been overridden
+    let default_impl_of_overridden_methods: Vec<_> = super_methods.clone()
+        .into_iter()
+        .filter_map(|(k, v)| {
+            if methods_implemented_by_user.contains_key(&k) {
+                Some(v)
+            } else {
+                let item = syn::parse2::<ImplItem>(quote! {
+                    #v
+                }).expect("Can't parse default TraitItemMethod like ImplItem");
+                if is_attr(&v.attrs, "ink") {
+                    // Let's add default implementation to `impl section`
+                    // for methods which are not defined by user
+                    impl_item.items.push(item);
                 } else {
+                    internal_methods.push(item);
+                }
+                None
+            }
+        })
+        .map(|mut method| {
+            // We can remove attributes, because external implementation will use this attributes
+            method.attrs.clear();
+            // we need to change the naming of internal implementation to "old_name + _name_of_trait"
+
+            method.sig.ident = format_ident!("{}_super", method.sig.ident);
+            let item = syn::parse2::<ImplItem>(quote! {
+                #method
+            }).expect("Can't parse TraitItemMethod as ImplItem");
+            item
+        }).collect();
+
+    // Now that `impl section for trait` can contain non-ink functions overridden by user,
+    // we need to extract them and put into `impl section`
+    let mut overridden_not_ink_methods: Vec<_> = vec![];
+    impl_item.items = impl_item.items.clone()
+        .into_iter()
+        .filter_map(|item|
+            if let syn::ImplItem::Method(method) = &item {
+                if is_attr(&method.attrs, "ink") {
+                    Some(item)
+                } else {
+                    overridden_not_ink_methods.push(item);
                     None
                 }
-            });
-        let receiver = match item.sig.inputs.iter().next() {
-            Some(syn::FnArg::Receiver(receiver)) => {
-                debug_assert!(receiver.reference.is_some());
-                if receiver.mutability.is_some() {
-                    quote! { &mut self }
-                } else {
-                    quote! { &self }
-                }
-            }
-            _ => unreachable!("encountered invalid receiver argument for brush message"),
-        };
-        // transform IPSP20 -> PSP20
-        let mut chars = trait_ident.to_string().clone();
-        chars.remove(0);
-        let internal_trait = format_ident!("{}", chars.as_str());
+            } else {
+                Some(item)
+            })
+        .collect();
 
-        let output = item.sig.output;
-        quote! {
-            #( #attrs )*
-            fn #ident( #receiver #(, #inputs )* ) #output {
-                <#struct_ident as #internal_trait>::#ident(self #(,  #inputs_params )*)
-            }
-        }
-    });
+    // Collect internal methods for `impl section`
+    let all_internal_methods = vec![
+        internal_methods,
+        default_impl_of_overridden_methods,
+        overridden_not_ink_methods
+    ].concat();
+
+    let self_ty = impl_item.self_ty.clone().as_ref().clone();
     let gen = quote! {
-        impl #trait_ident for #struct_ident {
-            #(#implementations)*
+        #[cfg(not(feature = "ink-as-dependency"))]
+        impl #self_ty {
+            #(#all_internal_methods)*
         }
     };
     gen.into()
+}
+
+fn consume_super_call(method: &mut syn::ImplItemMethod, super_methods: &HashMap<String, syn::TraitItemMethod>) {
+    // Inside the code of user's implementation, user may want to call base
+    // implementation from the trait. It will contain the next syntax "Trait::method()..."
+    // We need to change Trait -> Self and method -> method_Trait.
+    // method_Trait will be defined in separate `impl section` later
+    method.block.stmts
+        .iter_mut()
+        .filter_map(|stmt|
+            if let syn::Stmt::Expr(exp) = stmt {
+                Some(exp)
+            } else if let syn::Stmt::Semi(exp, _) = stmt {
+                Some(exp)
+            } else {
+                None
+            }
+        )
+        .filter_map(|expr|
+            if let syn::Expr::MethodCall(call) = expr {
+                Some(call)
+            } else {
+                None
+            }
+        ).for_each(|call| {
+        // If the call contains "super" attribute,
+        // then paste the call to trait's implementation
+        if is_attr(&call.attrs, "super") {
+            assert!(super_methods.contains_key(&call.method.to_string()),
+                    "Trait doesn't have default implementation for super call");
+            call.method = format_ident!("{}_super", call.method);
+            call.attrs = remove_attr(&call.attrs, "super");
+        }
+    });
+}
+
+#[inline]
+pub(crate) fn is_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> bool {
+    if let None = attrs.iter().find(|attr|
+        attr.path.segments.last().expect("No segments in path").ident == ident) {
+        false
+    } else {
+        true
+    }
+}
+
+#[inline]
+pub(crate) fn remove_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> Vec<syn::Attribute> {
+    attrs.clone()
+        .into_iter()
+        .filter_map(|attr|
+            if is_attr(&vec![attr.clone()], ident) {
+                None
+            } else {
+                Some(attr)
+            })
+        .collect()
 }

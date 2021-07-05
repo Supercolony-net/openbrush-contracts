@@ -8,3 +8,7 @@ the base implementation.
   [access-control](contracts/access/access-control) and
   [psp721](contracts/token/psp721) together to provide rights
   to mint and burn NFT tokens.
+* [Ownable](ownable) shows how you can use the implementation of
+  [ownable](contracts/access/ownable) and
+  [psp1155](contracts/token/psp1155) together to provide rights
+  to mint and burn tokens.
