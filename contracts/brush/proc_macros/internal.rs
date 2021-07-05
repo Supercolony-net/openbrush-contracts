@@ -175,7 +175,7 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
             item
         }).collect();
 
-    // Now `impl section for trait` can contain not ink functions overridden by user,
+    // Now that `impl section for trait` can contain non-ink functions overridden by user,
     // we need to extract them and put into `impl section`
     let mut overridden_not_ink_methods: Vec<_> = vec![];
     impl_item.items = impl_item.items.clone()
