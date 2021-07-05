@@ -8,7 +8,7 @@ pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use ink_prelude::{string::{String}};
 pub use ink_lang::{Env, StaticEnv};
 
-// We don't need to expose it, because ink! will define AccountId, Balance and StaticEnv by self.
+// We don't need to expose it, because ink! will define AccountId, Balance and StaticEnv itself.
 use brush::traits::{InkStorage, AccountId, Balance};
 
 pub use psp20_derive::{PSP20Storage};
@@ -89,12 +89,12 @@ pub trait IPSP20: PSP20Storage {
     ///
     /// # Errors
     ///
-    /// Panics `InsufficientBalance` error if there are not enough tokens on
+    /// Panics with `InsufficientBalance` error if there are not enough tokens on
     /// the caller's account Balance.
     ///
-    /// Panics `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics with `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics with `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn transfer(&mut self, to: AccountId, value: Balance) {
         let from = Self::env().caller();
@@ -118,15 +118,15 @@ pub trait IPSP20: PSP20Storage {
     ///
     /// # Errors
     ///
-    /// Panics `InsufficientAllowance` error if there are not enough tokens allowed
+    /// Panics with `InsufficientAllowance` error if there are not enough tokens allowed
     /// for the caller to withdraw from `from`.
     ///
-    /// Panics `InsufficientBalance` error if there are not enough tokens on
+    /// Panics with `InsufficientBalance` error if there are not enough tokens on
     /// the the account Balance of `from`.
     ///
-    /// Panics `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics with `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics with `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) {
         let caller = Self::env().caller();
@@ -145,9 +145,9 @@ pub trait IPSP20: PSP20Storage {
     ///
     /// # Errors
     ///
-    /// Panics `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics with `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics with `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn approve(&mut self, spender: AccountId, value: Balance) {
         let owner = Self::env().caller();
@@ -160,9 +160,9 @@ pub trait IPSP20: PSP20Storage {
     ///
     /// # Errors
     ///
-    /// Panics `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics with `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics with `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) {
         let owner = Self::env().caller();
@@ -175,12 +175,12 @@ pub trait IPSP20: PSP20Storage {
     ///
     /// # Errors
     ///
-    /// Panics `InsufficientAllowance` error if there are not enough tokens allowed
+    /// Panics with `InsufficientAllowance` error if there are not enough tokens allowed
     /// by owner for `spender`.
     ///
-    /// Panics `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics with `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics with `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) {
         let owner = Self::env().caller();
@@ -190,12 +190,12 @@ pub trait IPSP20: PSP20Storage {
         self._approve_from_to(owner, spender, allowance - delta_value)
     }
 
-    // Help functions
+    // Helper functions
 
-    /// Emit transfer event. It must be implemented in inherited struct
+    /// Emit transfer event. It must be implemented in inheriting struct
     fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {}
 
-    /// Emit approval event. It must be implemented in inherited struct
+    /// Emit approval event. It must be implemented in inheriting struct
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
     fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {}
@@ -228,7 +228,7 @@ pub trait IPSP20: PSP20Storage {
     ///
     /// # Errors
     ///
-    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics with `ZeroRecipientAddress` error if recipient's address is zero.
     fn _mint(&mut self, account: AccountId, amount: Balance) {
         assert!(!account.is_zero(), "{}", PSP20Error::ZeroRecipientAddress.as_ref());
 
@@ -245,10 +245,10 @@ pub trait IPSP20: PSP20Storage {
     ///
     /// # Errors
     ///
-    /// Panics `ZeroSenderAddress` error if recipient's address is zero.
+    /// Panics with `ZeroSenderAddress` error if recipient's address is zero.
     ///
-    /// Panics `InsufficientBalance` error if there are not enough tokens on
-    /// the the account Balance of `account`.
+    /// Panics with `InsufficientBalance` error if there are not enough tokens on
+    /// the account balance of `account`.
     fn _burn(&mut self, account: AccountId, amount: Balance) {
         assert!(!account.is_zero(), "{}", PSP20Error::ZeroSenderAddress.as_ref());
 

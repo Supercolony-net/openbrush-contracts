@@ -171,11 +171,11 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
             method.sig.ident = format_ident!("{}_super", method.sig.ident);
             let item = syn::parse2::<ImplItem>(quote! {
                 #method
-            }).expect("Can't parse TraitItemMethod like ImplItem");
+            }).expect("Can't parse TraitItemMethod as ImplItem");
             item
         }).collect();
 
-    // Now `impl section for trait` can contain not ink functions overridden by user,
+    // Now that `impl section for trait` can contain non-ink functions overridden by user,
     // we need to extract them and put into `impl section`
     let mut overridden_not_ink_methods: Vec<_> = vec![];
     impl_item.items = impl_item.items.clone()
@@ -193,7 +193,7 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
             })
         .collect();
 
-    // Collect internal method for `impl section`
+    // Collect internal methods for `impl section`
     let all_internal_methods = vec![
         internal_methods,
         default_impl_of_overridden_methods,
@@ -211,8 +211,8 @@ pub(crate) fn impl_external_trait(impl_item: &mut syn::ItemImpl, trait_ident: &s
 }
 
 fn consume_super_call(method: &mut syn::ImplItemMethod, super_methods: &HashMap<String, syn::TraitItemMethod>) {
-    // Inside of the code of user's implementation, user may want to call base
-    // implementation from the trait. It will contains the next syntax "Trait::method()..."
+    // Inside the code of user's implementation, user may want to call base
+    // implementation from the trait. It will contain the next syntax "Trait::method()..."
     // We need to change Trait -> Self and method -> method_Trait.
     // method_Trait will be defined in separate `impl section` later
     method.block.stmts
@@ -233,8 +233,8 @@ fn consume_super_call(method: &mut syn::ImplItemMethod, super_methods: &HashMap<
                 None
             }
         ).for_each(|call| {
-        // If call contains "super" attribute,
-        // when paste the call to trait's implementation
+        // If the call contains "super" attribute,
+        // then paste the call to trait's implementation
         if is_attr(&call.attrs, "super") {
             assert!(super_methods.contains_key(&call.method.to_string()),
                     "Trait doesn't have default implementation for super call");

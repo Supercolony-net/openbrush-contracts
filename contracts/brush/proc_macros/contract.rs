@@ -31,8 +31,8 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
     };
 
     items = consume_modifiers(items);
-    // First we need to consume all traits and update metadata file.
-    // After we can consume all other stuff.
+    // First, we need to consume all traits and update metadata file.
+    // After, we can consume all other stuff.
     items = consume_traits(items);
 
     let locked_file = metadata::get_locked_file();
@@ -140,8 +140,8 @@ fn consume_impls(mut items: Vec<syn::Item>, metadata: &metadata::Metadata) -> Ve
                     }
                 }
 
-                // We want to mark all not external impl sections like ink as dependencies to avoid errors during compilation
-                // because ink! creates wrappers around structures and impl sections is not valid in this case
+                // We want to mark all non-external impl sections like ink as dependencies to avoid errors during compilation,
+                // because ink! creates wrappers around structures, and impl sections are not valid in this case
                 let attr_stream = quote! { #[cfg(not(feature = "ink-as-dependency"))] };
                 let ink_as_dep_attr = syn::parse2::<internal::Attributes>(attr_stream).unwrap();
 

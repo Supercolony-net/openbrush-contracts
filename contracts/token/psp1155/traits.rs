@@ -13,7 +13,7 @@ pub use ink_storage::{
 pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use psp1155_derive::{PSP1155Storage, PSP1155MetadataStorage};
 
-// We don't need to expose it, because ink! will define AccountId, Balance and StaticEnv by self.
+// We don't need to expose it, because ink! will define AccountId, Balance and StaticEnv itself.
 use brush::traits::{InkStorage, AccountId, Balance};
 
 pub type Id = [u8; 32];

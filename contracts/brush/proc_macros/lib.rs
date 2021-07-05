@@ -13,8 +13,8 @@ use proc_macro::TokenStream;
 ///
 /// # Description
 ///
-/// The macro consumes brush's macros to simplify the usability of the library.
-/// After consumption, it pasts the code of ink! and then ink!'s macros will be processed.
+/// The macro consumes brush's macros to simplify the usage of the library.
+/// After consumption, it pastes ink! code and then ink!'s macros will be processed.
 ///
 /// First of all, the macro will process:
 /// [`#[brush::storage_trait]`](`macro@crate::storage_trait`),

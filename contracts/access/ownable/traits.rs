@@ -3,7 +3,7 @@ pub use ink_lang::{Env, StaticEnv};
 pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use ownable_derive::OwnableStorage;
 
-// We don't need to expose it, because ink! will define AccountId and StaticEnv by self.
+// We don't need to expose it, because ink! will define AccountId and StaticEnv itself.
 use brush::traits::{InkStorage, AccountId};
 
 #[brush::storage_trait]

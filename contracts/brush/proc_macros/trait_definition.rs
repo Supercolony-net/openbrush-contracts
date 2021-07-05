@@ -45,7 +45,7 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
             }
         });
 
-    // Remove all not ink functions
+    // Remove all non-ink functions
     trait_item.items = trait_item.items.clone()
         .into_iter()
         .filter_map(|item|
