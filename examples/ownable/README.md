@@ -1,7 +1,7 @@
 ## Overview
 This example shows how you can use the implementation of
 [access-control](contracts/access/ownable) and
-[psp1155](contracts/token/psp1155) together to provide only owner rights to mint and burn tokens.
+[psp1155](contracts/token/psp1155) together to provide `only owner` rights to mint and burn tokens.
 
 ## Steps
 1. You need to include `psp1155`, `ownable` and `brush` in cargo file.

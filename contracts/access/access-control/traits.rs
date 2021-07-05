@@ -11,7 +11,7 @@ pub use ink_storage::{
 pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use access_control_derive::{AccessControlStorage};
 
-// We don't need to expose it, because ink! will define AccountId and StaticEnv by self.
+// We don't need to expose it, because ink! will define AccountId and StaticEnv itself.
 use brush::traits::{InkStorage, AccountId};
 
 #[cfg(feature = "std")]

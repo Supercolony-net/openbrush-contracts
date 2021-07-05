@@ -10,7 +10,7 @@ pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use ink_prelude::{string::String, vec::Vec};
 pub use psp721_derive::{PSP721Storage, PSP721MetadataStorage};
 
-// We don't need to expose it, because ink! will define AccountId and StaticEnv by self.
+// We don't need to expose it, because ink! will define AccountId and StaticEnv itself.
 use brush::traits::{InkStorage, AccountId};
 
 pub type Id = [u8; 32];
