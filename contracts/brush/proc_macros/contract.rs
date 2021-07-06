@@ -14,6 +14,7 @@ use proc_macro2::{
 use fs2::FileExt;
 use crate::metadata;
 use crate::internal::*;
+use crate::modifier_definition::{extract_modifier_definitions_impl, extract_modifier_definitions_trait};
 use crate::storage_trait;
 
 pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
@@ -24,11 +25,12 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
         Some((brace, items)) => (brace, items),
         None => {
             panic!(
-                "{}", "out-of-line ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}`",
+                "{}", "out-of-line brush modules are not supported, use `#[brush::contract] mod name {{ ... }}`",
             )
         }
     };
 
+    items = consume_modifiers(items);
     // First, we need to consume all traits and update metadata file.
     // After, we can consume all other stuff.
     items = consume_traits(items);
@@ -39,6 +41,9 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
 
     items = consume_derives(items, &metadata);
     items = consume_impls(items, &metadata);
+
+    items = add_additional_impls(items);
+
     module.content = Some((braces, items));
 
     let result = quote! {
@@ -47,6 +52,49 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
         #module
     };
     result.into()
+}
+
+fn add_additional_impls(mut items: Vec<syn::Item>) -> Vec<syn::Item> {
+    let storage = items.iter().find(|item|
+        match item {
+            syn::Item::Struct(def) =>
+                if is_attr(&def.attrs, "ink") {
+                    let attr = get_attr(&def.attrs, "ink").unwrap();
+                    attr.tokens.to_string() == "(storage)"
+                } else {
+                    false
+                },
+            _ => false,
+        }
+    );
+
+    if let Some(syn::Item::Struct(def)) = storage {
+        let storage_ident = def.ident.clone();
+
+        let item = syn::parse2::<syn::Item>(quote! {
+            impl ::brush::traits::Flush for #storage_ident {
+                fn flush(&self) {
+                    let root_key = ink_primitives::Key::from([0x00; 32]);
+                    ink_storage::traits::push_spread_root::<Self>(self, &root_key);
+                }
+            }
+        }).unwrap();
+        items.push(item);
+    }
+    items
+}
+
+fn consume_modifiers(items: Vec<syn::Item>) -> Vec<syn::Item> {
+    items
+        .into_iter()
+        .map(|mut item| {
+            if let Item::Trait(item_trait) = &mut item {
+                extract_modifier_definitions_trait(item_trait);
+            } else if let Item::Impl(item_impl) = &mut item {
+                extract_modifier_definitions_impl(item_impl);
+            }
+            item
+        }).collect()
 }
 
 fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {

@@ -255,6 +255,16 @@ pub(crate) fn is_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> bool {
 }
 
 #[inline]
+pub(crate) fn get_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> Option<syn::Attribute> {
+    for attr in attrs.iter() {
+        if is_attr(&vec![attr.clone()], ident) {
+            return Some(attr.clone())
+        }
+    }
+    None
+}
+
+#[inline]
 pub(crate) fn remove_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> Vec<syn::Attribute> {
     attrs.clone()
         .into_iter()

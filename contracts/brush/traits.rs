@@ -26,3 +26,14 @@ impl AccountIdExt for AccountId {
         self == &ZERO_ADDRESS.into()
     }
 }
+
+pub trait Flush {
+    /// Method flushes the current state of `Self` into storage.
+    /// ink! recursively calculate the key of each field.
+    /// So if you want to flush the correct state of the contract,
+    /// you must call this method on storage struct.
+    ///
+    /// ** Note ** `#[brush::contract]` macro provides implementation of `Flush` trait
+    /// by default for storage.
+    fn flush(&self);
+}

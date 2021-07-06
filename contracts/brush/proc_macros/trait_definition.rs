@@ -9,9 +9,11 @@ use syn::{
 use proc_macro::{TokenStream};
 use crate::internal::{is_attr};
 use crate::metadata;
+use crate::modifier_definition::extract_modifier_definitions_trait;
 
 pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
-    let trait_item = parse_macro_input!(_input as ItemTrait);
+    let mut trait_item = parse_macro_input!(_input as ItemTrait);
+    extract_modifier_definitions_trait(&mut trait_item);
 
     // Save trait definition with generics and default methods to metadata.
     let locked_file = metadata::get_locked_file();

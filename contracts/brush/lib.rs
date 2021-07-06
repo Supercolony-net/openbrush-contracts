@@ -6,6 +6,7 @@ pub use proc_macros::{
     contract,
     trait_definition,
     storage_trait,
+    modifier_definition,
     modifiers,
 };
 pub use test_utils;

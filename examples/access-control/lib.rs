@@ -24,8 +24,10 @@ pub mod my_access_control {
             instance
         }
 
+        #[brush::modifier_definition]
         fn only_minter(&self) {
             self._check_role(&MINTER, &self.env().caller());
+            #[body]()
         }
     }
 
