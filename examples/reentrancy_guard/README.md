@@ -73,7 +73,7 @@ impl MyFlipper {
         // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
         // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
         // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
-        // that call of `flip` after `call_flip_on_me` must fail.
+        // that calling `flip` after `call_flip_on_me` must fail.
         let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
         flipper.flip_on_me();
     }
@@ -84,11 +84,11 @@ impl MyFlipper {
    and empty methods but with the same signature as in original contract.
 ```rust
 /// It is stub implementation of contract with method `flip_on_me`.
-/// We need this implementation to create wrapper around account id of contract.
+/// We need this implementation to create a wrapper around account id of contract.
 /// With this wrapper we easy can call method of some contract.
 /// Example:
 /// ```
-/// let mut flipper: CallerOfFlip = FromAccountId::from_account_id(calle);
+/// let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
 /// flipper.flip_on_me();
 /// ```
 #[ink_lang::contract(compile_as_dependency = true)]
@@ -117,7 +117,7 @@ pub mod flip_on_me {
 It is a simple contract which doesn't use any logic from the brush, so you can use simple ink! here.
 
 ### Steps
-1. Define `FlipOnMe` contract. It has only method `flip_on_me` which will call `flip` on caller.
+1. Define `FlipOnMe` contract. It has the only method `flip_on_me`, which will call `flip` on caller.
 ```rust
 #[ink_lang::contract]
 pub mod flip_on_me {
@@ -144,7 +144,7 @@ pub mod flip_on_me {
     }
 }
 ```
-2. To simplify cross contract call to `Flipper` contract let's create wrapper around account id of contract.
+2. To simplify cross contract call to `Flipper` contract let's create wrapper for contract's account id.
    For that we will define another contract in this crate with `#[ink_lang::contract(compile_as_dependency = true)]`
    and empty methods but with the same signature as in original contract.
 ```rust

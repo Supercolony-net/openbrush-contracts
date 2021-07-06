@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 /// It is stub implementation of contract with method `flip_on_me`.
-/// We need this implementation to create wrapper around account id of contract.
+/// We need this implementation to create wrapper for contract's account id.
 /// With this wrapper we easy can call method of some contract.
 /// Example:
 /// ```
-/// let mut flipper: CallerOfFlip = FromAccountId::from_account_id(calle);
+/// let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
 /// flipper.flip_on_me();
 /// ```
 #[ink_lang::contract(compile_as_dependency = true)]

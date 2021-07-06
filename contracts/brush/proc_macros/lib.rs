@@ -261,17 +261,17 @@ pub fn storage_trait(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
 /// will be expanded with code from the modifier definition.
 ///
 /// The modifier definition must contain exactly one construction `#[body]();`.
-/// It is an identifier where the code of the main function must be inserted.
+/// It is an identifier, where the code of the main function must be inserted.
 ///
-/// This macro consumes the code of modifier, which means that the method will be extracted and not will be compiled.
+/// This macro consumes the code of modifier. It means that the method will be extracted, instead of compiled.
 /// All other attributes of the modifier will be ignored.
 ///
-/// You can use `return` statement in modifier, but the type of return value must be equal to the function
+/// You can use `return` statement in modifier, but the type of return value must be the same as the function
 /// where this macro will be used. Also you must understand, that `return` can break other modifiers
 /// (the method can have several modifiers).
 ///
 ///  ** Note ** This macro must be processed before [`#[brush::modifiers]`](`macro@crate::modifiers`),
-/// otherwise it will fail: It means that [`#[brush::modifier_definition]`] must be defined in scope of
+/// otherwise it will fail: It means that [`#[brush::modifier_definition]`] must be defined in the scope of
 /// [`#[brush::contract]`](`macro@crate::contract`)
 /// or it must be defined in another crate(macros in dependencies will be processed early).
 ///
@@ -301,12 +301,12 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// It means that all stuff in the modifier definition must be available in the scope of marked method.
 ///
 /// Modifiers are designed to be used for methods marked with the `#[ink(message)]` attribute.
-/// You can try to use them in internal implementations and foreign functions, but you must be sure,
+/// You can try to use them in internal implementations and external functions, but you must be sure,
 /// that [`#[brush::modifier_definition]`](`macro@crate::modifier_definition`) will be processed earlier.
 ///
-/// The method can have several modifiers. They will be expanded in left to right ordering.
+/// The method can have several modifiers. They will be expanded from left to right.
 /// If the method returns something, the result will be stored in a temporary variable
-/// and will be returned after the last modifier will be executed.
+/// and returned after the last modifier has been executed.
 ///
 /// # Explanation:
 ///

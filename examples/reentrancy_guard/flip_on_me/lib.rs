@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 /// It is stub implementation of contract with method `flip`.
-/// We need this implementation to create wrapper around account id of contract.
+/// We need this implementation to create wrapper for contract's account id.
 /// With this wrapper we easy can call method of some contract.
 /// Example:
 /// ```
