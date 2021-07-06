@@ -16,21 +16,22 @@ which can be reused or customized by everyone.
 To understand how to use the library better to check [examples](examples) and [doc](doc) folders.
 
 At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc3](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc3)
-with additional [fix](https://github.com/Supercolony-net/ink/commit/4ade565ca0adf746c130ef32e50f54a9504970cb). 
-!ink will fix that issue in next release.
+with additional fixes:
+- [Not generate metadata if compile_as_dependency is true](https://github.com/paritytech/ink/pull/811)
+- [Remove Salt in code generation during build_create](https://github.com/paritytech/ink/pull/842)
 
-## Events 
+### Events 
 ‼️ Important ‼️
 
 Events are not supported currently due to how ink! currently handles them.  
 The identifiers of events must be based on the name of the trait. At the moment, ink! doesn't support it,
 but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/809). 
 
-## The library is not production-ready, these issues must be resolved first:
+### The library is not production-ready, these issues must be resolved first:
 * [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/issues/1)
 * [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/issues/2)
 
-Usage of the library looks not pretty, but it will be simplified with resolving issues:
+### Usage of the library looks not pretty, but it will be simplified with resolving issues:
 * [Returning of error doesn't mean revert of transaction](https://github.com/Supercolony-net/openbrush-contracts/issues/3)
 * [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
 * [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
@@ -39,14 +40,38 @@ Usage of the library looks not pretty, but it will be simplified with resolving 
 The upgradable contract will be available after resolving of this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 ## Roadmap 🚗
+------- Release 0.1.0
+- [x] Implement fungible, non-fungible, and multi tokens.
+- [x] Implement AccessControl and Ownable.
+- [x] Add examples of how to reuse ERC20, ERC721, AccessControl implementations.
+- [x] Stub implementations for `token` and `access` folders.
+- [x] Add base description of project
+
+------- Release 0.2.0
+- [x] Remove the boilerplate to make the internal implementation external.
+- - [x] Implement `brush::contract` macro to consume all brush's stuff before ink!.
+- - [x] Implement `brush::trait_definition` which stores definition of trait and allow to use it in `brush::contract` macro.
+- - [x] Implement `impl_trait!` macro which reuse internal implementation in external impl section.
+- [x] Refactor examples and tests with new macros.
+- [x] Decide how to handle errors and implement it in library(Decided to use `panic!` and `assert!`).
+
+------- Release 0.3.0
+- [x] Create derive macro for storage traits. This macro must adds fields to contract's struct.
+- [x] Cover all contracts with unit tests and integration tests.
+- [x] Create documentation based on readme. Add comments to macros with example of usage.
+- [x] Add `Ownable` + `ERC1155` example.
+- [x] Support simple modifiers(which can only call functions without code injection).
+- [x] Instead of `impl_trait!` macro add support of default implementation in external trait definition. 
+  Users can define default implementation in traits and macro will copy/paste this implementation during the generation of the contract.
+
 ------- Release 1.0.0  
 - [ ] Finalize PSP for fungible tokens. Refactor of implementation.  
-- [ ] Support code injection in modifiers. Implement a reentrancy guard with new modifiers.  
-- [ ] Add more examples and documentation on how to use the library.  
-
+- [x] Support code injection in modifiers. 
+- [x] Implement a reentrancy guard and example of usage.  
+- [ ] Add more examples and documentation on how to use the library.
 
 ------- Pre-release 2.0.0
-- [ ] PSPs for NFT and multi-token.  
+- [ ] PSPs for NFT and multi-token.
 - [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
 - [ ] Refactor NFT and multi-token according to final decisions in PSPs.
 
@@ -57,14 +82,12 @@ The upgradable contract will be available after resolving of this [issue](https:
 - [ ] More documentation and examples.
 - [ ] Audit.
 
-
-
 ------- Release 3.0.0
 - [ ] All extensions for tokens(Pausable, TimeLockController and etc).
 - [ ] Improve ink! to allow code injection to have default implementation on ink! level instead Rust level.
 - [ ] Refactor the library according to new changes.
 
-
+------- Release 4.0.0
 - [ ] Add support of upgradable contracts to ink!/contract-pallet level.
 - [ ] Create upgradable contracts.
 
