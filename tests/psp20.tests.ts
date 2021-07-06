@@ -6,6 +6,10 @@ describe('MY_PSP20', () => {
     return setupContract('my_psp20', 'new', '1000', 'TOKEN', 'TKN', 2)
   }
 
+  async function setup_receiver() {
+    return setupContract('psp20_receiver', 'new')
+  }
+
   it('Assigns initial balance', async () => {
     const { query, defaultSigner: sender } = await setup()
 
@@ -18,8 +22,21 @@ describe('MY_PSP20', () => {
       accounts: [receiver]
     } = await setup()
 
-    await expect(() => contract.tx.transfer(receiver.address, 7)).to.changeTokenBalance(contract, receiver, 7)
-    await expect(() => contract.tx.transfer(receiver.address, 7)).to.changeTokenBalances(contract, [contract.signer, receiver], [-7, 7])
+    await expect(() => contract.tx.transfer(receiver.address, 7, [])).to.changeTokenBalance(contract, receiver, 7)
+    await expect(() => contract.tx.transfer(receiver.address, 7, [])).to.changeTokenBalances(contract, [contract.signer, receiver], [-7, 7])
+  })
+
+  it('Transfers funds successfully if destination account is a receiver and supports transfers', async () => {
+    const {
+      tx
+    } = await setup()
+
+    const {
+      contract
+    } = await setup_receiver()
+
+    await expect(tx.transfer(contract.address, 7, [])).to.eventually.be.fulfilled
+
   })
 
   it('Can not transfer above the amount', async () => {
@@ -28,7 +45,7 @@ describe('MY_PSP20', () => {
       accounts: [receiver]
     } = await setup()
 
-    await expect(contract.tx.transfer(receiver.address, 1007)).to.eventually.be.rejected
+    await expect(contract.tx.transfer(receiver.address, 1007, [])).to.eventually.be.rejected
   })
 
   it('Can not transfer to hated account', async () => {
@@ -41,7 +58,7 @@ describe('MY_PSP20', () => {
     } = await setup()
 
     // Check that we can transfer money while account is not hated
-    await expect(tx.transfer(hated_account.address, 10)).to.eventually.be.fulfilled
+    await expect(tx.transfer(hated_account.address, 10, [])).to.eventually.be.fulfilled
     let result = await query.balanceOf(hated_account.address)
     expect(result.output).to.equal(10)
     await expect(query.getHatedAccount()).to.have.output(consts.EMPTY_ADDRESS)
@@ -51,7 +68,7 @@ describe('MY_PSP20', () => {
     await expect(query.getHatedAccount()).to.have.output(hated_account.address)
 
     // Transfer must fail
-    await expect(tx.transfer(hated_account.address, 10)).to.eventually.be.rejected
+    await expect(tx.transfer(hated_account.address, 10, [])).to.eventually.be.rejected
 
     // Amount of tokens must be the same
     result = await query.balanceOf(hated_account.address)

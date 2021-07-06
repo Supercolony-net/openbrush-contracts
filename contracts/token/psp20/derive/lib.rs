@@ -18,3 +18,12 @@ pub fn derive_psp20_storage(_item: TokenStream) -> TokenStream {
     };
     code.into()
 }
+
+#[proc_macro_derive(PSP20MetadataStorage)]
+pub fn derive_psp20metadata_storage(_item: TokenStream) -> TokenStream {
+    let DeriveInput { ident, .. } = parse_macro_input!(_item);
+    let code = quote! {
+        impl PSP20MetadataStorage for #ident {}
+    };
+    code.into()
+}

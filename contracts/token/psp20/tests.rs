@@ -4,7 +4,7 @@ mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
     use crate::traits::*;
     use ink_lang as ink;
-    use ink::{EmitEvent};
+    use ink::{Env, EmitEvent};
     use brush::test_utils::*;
     use std::panic;
 
@@ -31,11 +31,11 @@ mod tests {
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, PSP20Storage)]
+    #[derive(Default, PSP20Storage, PSP20MetadataStorage)]
     pub struct PSP20Struct {}
     type Event = <PSP20Struct as ::ink_lang::BaseEvent>::Type;
 
-    impl IPSP20 for PSP20Struct {
+    impl PSP20 for PSP20Struct {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
@@ -51,6 +51,9 @@ mod tests {
                 value: _amount,
             });
         }
+
+        // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
+        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) { }
     }
 
     impl PSP20Struct {
@@ -77,7 +80,6 @@ mod tests {
         } else {
             panic!("encountered unexpected event kind: expected a Transfer event")
         }
-
         let expected_topics = vec![
             encoded_into_hash(&PrefixedValue {
                 value: b"PSP20Struct::Transfer",
@@ -174,7 +176,7 @@ mod tests {
 
         assert_eq!(psp20.balance_of(accounts.bob), 0);
         // Alice transfers 10 tokens to Bob.
-        psp20.transfer(accounts.bob, 10);
+        psp20.transfer(accounts.bob, 10, Vec::<u8>::new());
         // Bob owns 10 tokens.
         assert_eq!(psp20.balance_of(accounts.bob), 10);
 
@@ -223,7 +225,7 @@ mod tests {
         );
 
         // Bob fails to transfers 10 tokens to Eve.
-        psp20.transfer(accounts.eve, 10);
+        psp20.transfer(accounts.eve, 10, Vec::<u8>::new());
     }
 
     #[ink::test]
@@ -237,7 +239,7 @@ mod tests {
                 .expect("Cannot get accounts");
 
         // Bob fails to transfer tokens owned by Alice.
-        psp20.transfer_from(accounts.alice, accounts.eve, 10);
+        psp20.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
     }
 
     #[ink::test]
@@ -272,7 +274,7 @@ mod tests {
         );
 
         // Bob transfers tokens from Alice to Eve.
-        psp20.transfer_from(accounts.alice, accounts.eve, 10);
+        psp20.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
         // Eve owns tokens.
         assert_eq!(psp20.balance_of(accounts.eve), 10);
 
@@ -323,6 +325,7 @@ mod tests {
             data,
         );
 
-        psp20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1);
+        psp20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new());
     }
+
 }

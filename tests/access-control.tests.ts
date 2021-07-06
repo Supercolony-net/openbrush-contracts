@@ -91,7 +91,7 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(contract.query.getCallCounter()).to.have.output(1)
 
     // Assert - Bob is now owner of the token
-    await expect(query.ownerOf(bnArg(0))).to.have.output(contract.address)
+    await expect(query.ownerOf(bnArg(0))).to.have.output(contract.address.toString())
   })
 
   it('PSP 721 - receiver can reject the transfer', async () => {
