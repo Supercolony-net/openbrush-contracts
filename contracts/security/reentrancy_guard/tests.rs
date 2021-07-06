@@ -20,11 +20,7 @@ mod tests {
         #[brush::modifiers(non_reentrant)]
         pub fn flip(&mut self) -> bool {
             let previous = self.flipped;
-            if self.flipped {
-                self.flipped = false;
-            } else {
-                self.flipped = true;
-            }
+            self.flipped = !previous;
 
             previous
         }

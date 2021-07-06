@@ -3,7 +3,7 @@ pub use ink_lang::{Env, StaticEnv};
 pub use reentrancy_guard_derive::ReentrancyGuardStorage;
 pub use brush::traits::Flush;
 
-// We don't need to expose it, because ink! will define StaticEnv by self.
+// We don't need to expose it, because ink! will define StaticEnv itself.
 use brush::traits::{InkStorage};
 
 pub const NOT_ENTERED: u8 = 0;
@@ -27,8 +27,8 @@ pub trait ReentrancyGuardModifier: ReentrancyGuardStorage + Flush {
         // Any calls to nonReentrant after this point will fail
         *self._status_mut() = ENTERED;
 
-        // We want to flush storage before execution of inner function.
-        // Because ink! doesn't do it by default and `status` will be not updated in child calls
+        // We want to flush storage before execution of inner function,
+        // because ink! doesn't do it by default and `status` will be not updated in child calls
         self.flush();
 
         #[body]();

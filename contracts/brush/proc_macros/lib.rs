@@ -298,11 +298,11 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 }
 
 /// Macro pastes the code from the modifier definition inside of the function.
-/// It means that every stuff from the modifier definition must be available in the scope of marked method.
+/// It means that all stuff in the modifier definition must be available in the scope of marked method.
 ///
 /// Modifiers are designed to be used for methods marked with the `#[ink(message)]` attribute.
 /// You can try to use them in internal implementations and foreign functions, but you must be sure,
-/// that [`#[brush::modifier_definition]`](`macro@crate::modifier_definition`) will be processed early.
+/// that [`#[brush::modifier_definition]`](`macro@crate::modifier_definition`) will be processed earlier.
 ///
 /// The method can have several modifiers. They will be expanded in left to right ordering.
 /// If the method returns something, the result will be stored in a temporary variable

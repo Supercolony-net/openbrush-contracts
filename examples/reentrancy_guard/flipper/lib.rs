@@ -60,12 +60,12 @@ pub mod my_flipper_guard {
 
         #[ink(message)]
         #[modifiers(non_reentrant)]
-        pub fn call_flip_on_me(&mut self, calle: AccountId) {
-            // This method will do a cross-contract call to calle account. It calls method `flip_on_me`.
-            // Calle contract during execution of `flip_on_me` will call `flip` of this contract.
+        pub fn call_flip_on_me(&mut self, callee: AccountId) {
+            // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
+            // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
             // `call_flip_on_me` and `flip` is marked with `non_reentrant` modifier. It means,
             // that call of `flip` after `call_flip_on_me` must fails.
-            let mut flipper: CallerOfFlip = FromAccountId::from_account_id(calle);
+            let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
             flipper.flip_on_me();
         }
     }
