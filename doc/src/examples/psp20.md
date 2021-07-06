@@ -28,7 +28,7 @@ Import traits, errors, macros and structs which you want to use.
 #[brush::contract]
 pub mod my_psp20 {
    use psp20::{
-      traits::{ IPSP20, PSP20Error },
+      traits::{ PSP20, PSP20Error },
       impls::{ PSP20Storage, PSP20, StorageHashMap, Lazy, String },
    };
    use brush::{
@@ -54,12 +54,12 @@ impl PSP20 for MyPSP20 {}
 ```
 5. Now you have all basic logic of `PSP20` on rust level.
    But all methods are internal now(it means that anyone can't call these methods from outside of contract).
-   If you want to make them external you MUST derive `IPSP20` trait.
-   Deriving of this trait will generate external implementation of all methods from `IPSP20`.
+   If you want to make them external you MUST derive `PSP20` trait.
+   Deriving of this trait will generate external implementation of all methods from `PSP20`.
    Macro will call the methods with the same name from `PSP20` trait.
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP20Storage, IPSP20)]
+#[derive(Default, PSP20Storage, PSP20)]
 pub struct MyPSP20 {}
 ```
 6. Now you only need to define constructor and your basic version of `PSP20` contract is ready.
@@ -81,7 +81,7 @@ impl MyPSP20 {
    And we will add a new field to structure - `hated_account: AccountId`
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP20Storage, IPSP20)]
+#[derive(Default, PSP20Storage, PSP20)]
 pub struct MyPSP20 {
    // fields for hater logic
    hated_account: AccountId,

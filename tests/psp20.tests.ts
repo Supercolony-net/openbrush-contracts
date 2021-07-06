@@ -7,7 +7,7 @@ describe('MY_PSP20', () => {
   }
 
   async function setup_receiver() {
-    return setupContract('psp17_receiver', 'new')
+    return setupContract('psp20_receiver', 'new')
   }
 
   it('Assigns initial balance', async () => {

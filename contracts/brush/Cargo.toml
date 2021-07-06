@@ -8,6 +8,7 @@ edition = "2018"
 ink_env = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
 ink_lang = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
 proc_macros = { path = "proc_macros" }
+test_utils = { path = "test_utils", default-features = false }
 
 [lib]
 name = "brush"
@@ -21,4 +22,5 @@ default = ["std"]
 std = [
 	"ink_env/std",
 	"ink_lang/std",
+	"test_utils/std",
 ]

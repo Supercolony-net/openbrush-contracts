@@ -4,11 +4,9 @@ mod tests {
     use ink_prelude::{string::String};
     use ink_env::{call, test};
     use ink_lang as ink;
-    use ink::{Env, EmitEvent};
-    use crate::traits::{ Id, IPSP721, IPSP721Metadata, IPSP721Mint };
-    use crate::impls::{ PSP721Storage, PSP721, PSP721Mint, PSP721MetadataStorage, PSP721Metadata, StorageHashMap };
-
-    const ZERO_ADDRESS: [u8; 32] = [0; 32];
+    use ink::{EmitEvent};
+    use brush::traits::ZERO_ADDRESS;
+    use crate::traits::*;
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
@@ -43,12 +41,12 @@ mod tests {
         approved: bool,
     }
 
-    #[derive(Default, PSP721Storage, PSP721MetadataStorage, IPSP721, IPSP721Metadata, IPSP721Mint)]
+    #[derive(Default, PSP721Storage, PSP721MetadataStorage)]
     #[ink(storage)]
     pub struct PSP721Struct {}
 
-    impl PSP721 for PSP721Struct {
-        fn emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
+    impl IPSP721 for PSP721Struct {
+        fn _emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
             self.env().emit_event(Transfer {
                 from: Some(_from),
                 to: Some(_to),
@@ -56,7 +54,7 @@ mod tests {
             });
         }
 
-        fn emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
+        fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
             self.env().emit_event(Approval {
                 from: _from,
                 to: _to,
@@ -64,7 +62,7 @@ mod tests {
             });
         }
 
-        fn emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {
+        fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {
             self.env().emit_event(ApprovalForAll {
                 owner: _owner,
                 operator: _operator,
@@ -72,16 +70,12 @@ mod tests {
             });
         }
     }
-    impl PSP721Mint for PSP721Struct {}
-    impl PSP721Metadata for PSP721Struct {}
+    impl IPSP721Mint for PSP721Struct {}
+    impl IPSP721Metadata for PSP721Struct {}
 
     impl PSP721Struct {
-        pub fn new(name: Option<String>, symbol: Option<String>) -> impl PSP721 + PSP721Metadata + PSP721Mint {
-            Self::constructor(name, symbol)
-        }
-
         #[ink(constructor)]
-        pub fn constructor(name: Option<String>, symbol: Option<String>) -> Self {
+        pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
             let mut instance = Self::default();
             instance._init_with_metadata(name, symbol);
             instance

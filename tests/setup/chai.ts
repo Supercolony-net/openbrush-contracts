@@ -1,10 +1,11 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import type { AccountId } from '@polkadot/types/interfaces';
 
 declare global {
   export namespace Chai {
     interface Assertion {
-      output(value: string | number | boolean | string[] | number[], msg?: string): void
+      output(value: AccountId | string | number | boolean | string[] | number[], msg?: string): void
     }
   }
 }

@@ -1,4 +1,8 @@
-# OpenBrush-Contracts
+<a href='https://www.supercolony.net/'><img src='https://uploads-ssl.webflow.com/605da67bb52ee776f70680b7/605e09d0f994d31b1b5c76db_logo.png' height='120'/></a>
+
+
+Our mission with this project is to make ink! really usable.
+
 
 ## Summary
 **A Rust library for secure smart contract development on ink!.**
@@ -15,10 +19,12 @@ At the moment library is using own version of ink!, but it is the same as [ink!-
 with additional [fix](https://github.com/Supercolony-net/ink/commit/4ade565ca0adf746c130ef32e50f54a9504970cb). 
 !ink will fix that issue in next release.
 
-## Events feature is disabled
-Due to the ink's current state of events generation event feature is currently disabled
-As soon as we or ink has fixed this issue event support will be easiy enabled.
-[Here](https://github.com/Supercolony-net/openbrush-contracts/issues/2) is a more detailed overview of a problem
+## Events 
+‼️ Important ‼️
+
+Events are not supported currently due to how ink! currently handles them.  
+The identifiers of events must be based on the name of the trait. At the moment, ink! doesn't support it,
+but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/809). 
 
 ## The library is not production-ready, these issues must be resolved first:
 * [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/issues/1)
@@ -31,6 +37,40 @@ Usage of the library looks not pretty, but it will be simplified with resolving 
 * [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
 
 The upgradable contract will be available after resolving of this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
+
+## Roadmap 🚗
+------- Release 1.0.0  
+- [ ] Finalize PSP for fungible tokens. Refactor of implementation.  
+- [ ] Support code injection in modifiers. Implement a reentrancy guard with new modifiers.  
+- [ ] Add more examples and documentation on how to use the library.  
+
+
+------- Pre-release 2.0.0
+- [ ] PSPs for NFT and multi-token.  
+- [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
+- [ ] Refactor NFT and multi-token according to final decisions in PSPs.
+
+
+------- Release 2.0.0 - Production ready
+- [ ] Force/help ink! to create new independent events. During this task decide how ink! can generate metadata for events/traits from other crates.
+- [ ] Cover everything with UT and integration tests.
+- [ ] More documentation and examples.
+- [ ] Audit.
+
+
+
+------- Release 3.0.0
+- [ ] All extensions for tokens(Pausable, TimeLockController and etc).
+- [ ] Improve ink! to allow code injection to have default implementation on ink! level instead Rust level.
+- [ ] Refactor the library according to new changes.
+
+
+- [ ] Add support of upgradable contracts to ink!/contract-pallet level.
+- [ ] Create upgradable contracts.
+
+## History behind
+- [OpenZeppelin in ink!](https://medium.com/supercolony/ink-has-most-of-the-features-required-for-usage-however-the-usability-of-ink-is-low-95f4bc974e22)
+- [Openbrush was born](https://supercolony.medium.com/openbrush-an-early-alpha-of-our-openzeppelin-library-for-ink-a0c3f4f9432)
 
 ## FAQ
 

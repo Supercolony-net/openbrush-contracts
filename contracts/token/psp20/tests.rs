@@ -2,12 +2,10 @@
 #[brush::contract]
 mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
-    use crate::impls::{PSP20, PSP20Storage, PSP17MetadataStorage, StorageHashMap, Lazy};
-    use crate::traits::{IPSP20};
-    use ink_prelude::{string::{String}, vec::Vec};
+    use crate::traits::*;
     use ink_lang as ink;
     use ink::{Env, EmitEvent};
-    use testing_utils::*;
+    use brush::test_utils::*;
     use std::panic;
 
     /// Event emitted when a token transfer occurs.
@@ -33,12 +31,12 @@ mod tests {
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, PSP20Storage, IPSP20, PSP17MetadataStorage)]
+    #[derive(Default, PSP20Storage, PSP20MetadataStorage)]
     pub struct PSP20Struct {}
     type Event = <PSP20Struct as ::ink_lang::BaseEvent>::Type;
 
     impl PSP20 for PSP20Struct {
-        fn emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
+        fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
                 to: _to,
@@ -46,26 +44,23 @@ mod tests {
             });
         }
 
-        fn emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {
+        fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {
             self.env().emit_event(Approval {
                 owner: _owner,
                 spender: _spender,
                 value: _amount,
             });
         }
+
         // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
-        fn _do_safe_transfer_check(_operator: AccountId, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) { }
+        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) { }
     }
 
     impl PSP20Struct {
-        pub fn new(_total_supply: Balance) -> impl PSP20 {
-            Self::constructor(_total_supply)
-        }
-
         #[ink(constructor)]
-        pub fn constructor(_total_supply: Balance) -> Self {
+        pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            instance.mint(instance.env().caller(), _total_supply);
+            instance._mint(instance.env().caller(), _total_supply);
             instance
         }
     }

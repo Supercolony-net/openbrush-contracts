@@ -1,16 +1,16 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[brush::contract]
-pub mod erc721_receiver {
-    use psp721::traits::*;
+pub mod erc20_receiver {
+    use psp20::traits::*;
 
     #[ink(storage)]
-    pub struct PSP721ReceiverStruct {
+    pub struct PSP20ReceiverStruct {
         call_counter: u64,
         revert_next_transfer: bool
     }
 
-    impl PSP721ReceiverStruct {
+    impl PSP20ReceiverStruct {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self { call_counter: 0, revert_next_transfer: false }
@@ -27,17 +27,16 @@ pub mod erc721_receiver {
         }
     }
 
-    impl IPSP721Receiver for PSP721ReceiverStruct {
-        fn on_psp721_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _id: Id,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP721ReceiverError> {
+    impl PSP20Receiver for PSP20ReceiverStruct {
+        fn on_received(
+                &mut self,
+                _operator: AccountId,
+                _from: AccountId,
+                _value: Balance,
+                _data: Vec<u8>) -> Result<(), PSP20ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP721ReceiverError::TransferRejected(String::from("Transfer Rejected")))
+                return Err(PSP20ReceiverError::TransferRejected(String::from("Transfer Rejected")))
             }
             self.call_counter += 1;
             Ok(())

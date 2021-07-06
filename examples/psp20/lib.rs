@@ -2,13 +2,10 @@
 
 #[brush::contract]
 pub mod my_psp20 {
-    use psp20::{
-        traits::{PSP20Error, IPSP20},
-        impls::{ PSP20Storage, PSP17MetadataStorage, PSP17Metadata, PSP20, StorageHashMap, Lazy, String, Vec },
-    };
+    use psp20::traits::*;
 
     #[ink(storage)]
-    #[derive(Default, PSP20Storage, PSP17MetadataStorage, IPSP20)]
+    #[derive(Default, PSP20Storage, PSP20MetadataStorage)]
     pub struct MyPSP20 {
         // fields for hater logic
         hated_account: AccountId,
@@ -21,11 +18,7 @@ pub mod my_psp20 {
         }
     }
 
-    impl PSP17Metadata for MyPSP20 {
-        fn set_decimals(&mut self, decimals: u8) {
-            *self._decimals_mut() = Lazy::new(decimals);
-        }
-    }
+    impl PSP20Metadata for MyPSP20 {}
 
     impl MyPSP20 {
         #[ink(constructor)]
@@ -33,8 +26,8 @@ pub mod my_psp20 {
             let mut instance = Self::default();
             *instance._name_mut() = Lazy::new(name);
             *instance._symbol_mut() = Lazy::new(symbol);
-            instance.set_decimals(decimal);
-            instance.mint(instance.env().caller(), _total_supply);
+            *instance._decimals_mut() = Lazy::new(decimal);
+            instance._mint(instance.env().caller(), _total_supply);
             instance
         }
 
