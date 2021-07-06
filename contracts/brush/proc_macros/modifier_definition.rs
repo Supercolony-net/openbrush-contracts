@@ -21,12 +21,10 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
     let bodies: Vec<_> = impl_item.block.stmts
         .iter_mut()
         .filter_map(|stmt|
-            if let syn::Stmt::Expr(exp) = stmt {
-                Some(exp)
-            } else if let syn::Stmt::Semi(exp, _) = stmt {
-                Some(exp)
-            } else {
-                None
+            match stmt {
+                syn::Stmt::Expr(exp) => Some(exp),
+                syn::Stmt::Semi(exp, _) => Some(exp),
+                _ => None,
             })
         .filter_map(|expr|
             if let syn::Expr::Tuple(tuple) = expr {
