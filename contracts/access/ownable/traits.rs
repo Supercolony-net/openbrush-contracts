@@ -46,6 +46,7 @@ pub trait IOwnable: OwnableStorage {
 
     #[modifier_definition]
     fn only_owner(&self) {
+        #[cfg(not(feature = "ink-as-dependency"))]
         assert_eq!(self._owner(), &Self::env().caller(), "{}", OwnableError::CallerIsNotOwner.as_ref());
         #[body]()
     }
