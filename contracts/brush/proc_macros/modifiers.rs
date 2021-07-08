@@ -15,12 +15,8 @@ use crate::metadata;
 use crate::internal::is_attr;
 
 pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
-    // we don't want to add modifiers logic to forwarder calls
-    if cfg!(feature = "ink-as-dependency") {
-        return _input;
-    }
-
     let attrs: TokenStream2 = _attrs.into();
+    let input: TokenStream2 = _input.clone().into();
     let modifiers: Vec<_> = attrs
         .into_iter()
         .filter_map(|token|
@@ -111,8 +107,13 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     impl_item.block.stmts = final_stmts;
 
     let code = quote! {
+        #[cfg(not(feature = "ink-as-dependency"))]
         #impl_item
+
+        #[cfg(feature = "ink-as-dependency")]
+        #input
     };
+
     code.into()
 }
 
