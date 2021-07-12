@@ -15,6 +15,7 @@ which can be reused or customized by everyone.
 
 To understand how to use the library better to check [examples](examples) and [doc](doc) folders.
 
+### ink! version
 At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc3](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc3)
 with additional fixes:
 - [Not generate metadata if compile_as_dependency is true](https://github.com/paritytech/ink/pull/811)
