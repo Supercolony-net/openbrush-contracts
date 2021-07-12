@@ -102,7 +102,7 @@ pub trait PSP20: PSP20Storage {
     }
 
     /// Transfers `value` tokens on the behalf of `from` to the account `to`
-    /// with additional `data` in unspecified format..
+    /// with additional `data` in unspecified format.
     ///
     /// This can be used to allow a contract to transfer tokens on ones behalf and/or
     /// to charge fees in sub-currencies, for example.

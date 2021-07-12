@@ -1,6 +1,6 @@
 [package]
 name = "my_psp20"
-version = "0.2.0-rc1"
+version = "0.3.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
