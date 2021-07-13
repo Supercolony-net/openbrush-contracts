@@ -1,38 +1,72 @@
-<a href='https://www.supercolony.net/'><img src='https://uploads-ssl.webflow.com/605da67bb52ee776f70680b7/605e09d0f994d31b1b5c76db_logo.png' height='120'/></a>
-
-
-Our mission with this project is to make ink! really usable.
-
+Our mission with this project is to make ink! development faster, safer and easier
 
 ## Summary
-**A Rust library for secure smart contract development on ink!.**
+**OpenBrush is a library for smart contract development on ink!.**
 
-This library contains traits definition of standard tokens. 
-Everyone who implements these traits will have the same API during cross contract calls.
-Also the library provides default implementation on Rust level
-([issue](https://github.com/Supercolony-net/openbrush-contracts/issues/5) describes why) 
-which can be reused or customized by everyone.
+### Library of standard Tokens
 
-To understand how to use the library better to check [examples](examples) and [doc](doc) folders.
+**Why using these standards ?**
+- In order to make contracts **interoperable** to do **safe** cross-contracts calls (by having the same functions signature among every contracts)
+- To ensure the usage of **Polkadot Standards Proposals** (https://github.com/w3f/PSPs)
+- To ensure the usage of the **latest & most secure** implementation
+- To **save time** from writing boiler-plate code
 
-### ink! version
+**Which Standard tokens does it provide ?**
+This library features the **trait definition & implementations** of the following Tokens:
+- **Fungible Token** (ERC20 equivalent)
+- **Non-Fongible Token** (ERC721 equivalent)
+- **Multi-Token** (ERC1155 equivalent)
+
+### Library of useful Contracts
+**Why using these contracts ?**
+- It provides custom logic to be implemented in contracts
+- To ensure the usage of **most secure** implementation
+- To use modifiers as **derive macros**
+- To **save time** from writing boiler-plate code
+
+**Which contracts does it provide ?**
+- **Ownable** Restrict access to action to non-owner
+- **Roles** Define set of roles and restrict access to action by roles
+- **Reentrancy guard** Prevent reentrant calls to a function
+
+### Modifiers
+
+Solidity smart contracts provides modifiers to restrain function call to certain pre-defined parameters. OpenBrush provides derive macros to use standardised modifiers. 
+You can use our useful contracts to use as modifiers, or define your own modifiers.
+
+```rust
+#[modifiers(only_owner)]
+fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
+    // We added modifier to function.
+    // #[super]self.mint(to, id, amount) will call default implementation from trait
+    #[super]self.mint(to, id, amount);
+}
+```
+*Example of only_owner modifier*
+
+### How to use it ?
+Read our **documentation** in [doc](doc) folders
+Go through our **examples** in [examples](examples)
+
+## Ink version
+
 At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc3](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc3)
 with additional fixes:
 - [Not generate metadata if compile_as_dependency is true](https://github.com/paritytech/ink/pull/811)
 - [Remove Salt in code generation during build_create](https://github.com/paritytech/ink/pull/842)
 
-### Events 
+### Events
 ‼️ Important ‼️
 
 Events are not supported currently due to how ink! currently handles them.  
 The identifiers of events must be based on the name of the trait. At the moment, ink! doesn't support it,
-but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/809). 
+but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/809).
 
-### The library is not production-ready, these issues must be resolved first:
+### Issues to be resolved before Production ready:
 * [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/issues/1)
 * [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/issues/2)
 
-### Usage of the library looks not pretty, but it will be simplified with resolving issues:
+### Other Issues open:
 * [Returning of error doesn't mean revert of transaction](https://github.com/Supercolony-net/openbrush-contracts/issues/3)
 * [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
 * [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
@@ -54,21 +88,21 @@ The upgradable contract will be available after resolving of this [issue](https:
 - - [x] Implement `brush::trait_definition` which stores definition of trait and allow to use it in `brush::contract` macro.
 - - [x] Implement `impl_trait!` macro which reuse internal implementation in external impl section.
 - [x] Refactor examples and tests with new macros.
-- [x] Decide how to handle errors and implement it in library(Decided to use `panic!` and `assert!`).
+- [x] Decide how to handle errors and implement it in library (Decided to use `panic!` and `assert!`).
 
 ------- Release 0.3.0
 - [x] Create derive macro for storage traits. This macro must adds fields to contract's struct.
 - [x] Cover all contracts with unit tests and integration tests.
 - [x] Create documentation based on readme. Add comments to macros with example of usage.
 - [x] Add `Ownable` + `ERC1155` example.
-- [x] Support simple modifiers(which can only call functions without code injection).
-- [x] Instead of `impl_trait!` macro add support of default implementation in external trait definition. 
+- [x] Support simple modifiers (which can only call functions without code injection).
+- [x] Instead of `impl_trait!` macro add support of default implementation in external trait definition.
   Users can define default implementation in traits and macro will copy/paste this implementation during the generation of the contract.
 
-------- Release 1.0.0  
-- [ ] Finalize PSP for fungible tokens. Refactor of implementation.  
-- [x] Support code injection in modifiers. 
-- [x] Implement a reentrancy guard and example of usage.  
+------- Release 1.0.0
+- [ ] Finalize PSP for fungible tokens. Refactor of implementation.
+- [x] Support code injection in modifiers.
+- [x] Implement a reentrancy guard and example of usage.
 - [ ] Add more examples and documentation on how to use the library.
 
 ------- Pre-release 2.0.0
