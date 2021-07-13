@@ -1,5 +1,5 @@
 ## Overview
-This example shows how you can use the [non_reentrant](contracts/security/reentrancy_guard)
+This example shows how you can use the **non_reentrant**
 modifier to prevent reentrancy into certain functions.
 In this example we will create two contract:
 - `my_flipper_guard` - this contract is the simple version of [flipper](https://github.com/paritytech/ink/tree/master/examples/flipper),

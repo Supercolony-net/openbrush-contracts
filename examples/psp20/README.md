@@ -5,7 +5,7 @@ This example shows how you can reuse the implementation of
 Also, this example shows how you can customize the logic, for example, to not allow transfer tokens to `hated_account`.
 
 ## Steps
-1. You need to include `psp20` and `brush` in cargo file.
+1. Add dependencies `psp20` and `brush` in cargo file.
 ```markdown
 [dependencies]
 ...
@@ -16,13 +16,13 @@ brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openb
 [features]
 default = ["std"]
 std = [
- ...
-   
-   "psp20/std",
-   "brush/std",
+...
+
+"psp20/std",
+"brush/std",
 ]
 ```
-2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`.
+2. Replace `ink::contract` macro by `brush::contract`.
    Import **everything** from `psp20` trait module.
 ```rust
 #[brush::contract]
@@ -30,8 +30,8 @@ pub mod my_psp20 {
    use psp20::traits::*;
 ```
 3. Declare storage struct and derive `PSP20Storage` and `PSP20MetadataStorage` traits. Deriving these traits
-   will add required fields to your structure for implementation of according trait. 
-   Your structure must implement `PSP20Storage` and `PSP20MetadataStorage` if you want to use the
+   will add required fields to your struct for implementation of according trait.
+   Your struct must implement `PSP20Storage` and `PSP20MetadataStorage` if you want to use the
    default implementation of `PSP20` and `PSP20Metadata`.
 
 ```rust
@@ -39,13 +39,13 @@ pub mod my_psp20 {
 #[derive(Default, PSP20Storage, PSP20MetadataStorage)]
 pub struct MyPSP20 {}
 ```
-4. After that you can inherit implementation of `PSP20` and `PSP20Metadata` traits.
-   You can customize(override) some methods there.
+4. Inherit implementation of `PSP20` and `PSP20Metadata` traits.
+   You can customize(override) methods in this `impl` block.
 ```rust
 impl PSP20 for MyPSP20 {}
 impl PSP20Metadata for MyPSP20 {}
 ```
-5. Now you only need to define constructor and your basic version of `PSP20` contract is ready.
+5. Define constructor and the basic version of `PSP20` contract is ready.
 ```rust
 impl MyPSP20 {
    #[ink(constructor)]
@@ -59,7 +59,7 @@ impl MyPSP20 {
    }
 }
 ```
-6. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. 
+6. Customize it by adding hated account logic. It will contain two public methods `set_hated_account` and `get_hated_account`.
    Also we will override `_before_token_transfer` method in `PSP20` implementation.
    And we will add a new field to structure - `hated_account: AccountId`
 ```rust
