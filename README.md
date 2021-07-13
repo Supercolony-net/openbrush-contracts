@@ -12,7 +12,7 @@ Our mission with this project is to make ink! development faster, safer and easi
 - To **save time** from writing boiler-plate code
 
 **Which Standard tokens does it provide ?**
-This library features the **trait definition & implementations** of the following Tokens:
+
 - **Fungible Token** (ERC20 equivalent)
 - **Non-Fongible Token** (ERC721 equivalent)
 - **Multi-Token** (ERC1155 equivalent)
@@ -42,7 +42,6 @@ fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
     #[super]self.mint(to, id, amount);
 }
 ```
-*Example of only_owner modifier*
 
 ### How to use it ?
 Read our **documentation** in [doc](doc) folders
