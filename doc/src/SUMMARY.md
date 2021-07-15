@@ -10,3 +10,4 @@
 -----------
 
 [Useful links](links.md)
+[EVM & WASM Smart Contracts](EVM-WASM-Smart-Contracts.md)
