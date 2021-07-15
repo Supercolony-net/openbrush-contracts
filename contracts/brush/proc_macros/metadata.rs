@@ -1,4 +1,4 @@
-use syn::{TraitItem, ItemTrait, ImplItemMethod};
+use syn::{TraitItem, ItemTrait};
 use proc_macro2::{
     TokenStream as TokenStream2,
 };
@@ -53,7 +53,6 @@ impl std::ops::DerefMut for ModifierDefinitions {
 pub(crate) struct Metadata {
     pub storage_traits: TraitDefinitions,
     pub external_traits: TraitDefinitions,
-    pub modifiers: ModifierDefinitions,
 }
 
 impl Metadata {
@@ -69,16 +68,6 @@ impl Metadata {
         locked_file.seek(SeekFrom::Start(0)).expect("Can't set cursor position");
         serde_json::to_writer(&locked_file, self).expect("Can't dump definition metadata to file");
         locked_file.unlock().expect("Can't remove exclusive lock");
-    }
-}
-
-pub(crate) struct ModifierDefinition(syn::ImplItemMethod);
-
-impl std::ops::Deref for ModifierDefinition {
-    type Target = syn::ImplItemMethod;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
     }
 }
 
@@ -109,20 +98,6 @@ impl TraitDefinitions {
 
         TraitDefinition {
             0: trait_item,
-        }
-    }
-}
-
-impl ModifierDefinitions {
-    pub(crate) fn get(&self, ident: &String) -> ModifierDefinition {
-        let stream = unwrap!(TokenStream2::from_str(
-            unwrap!(self.0.get(ident), "Can't find definition of modifier {}", ident)
-        ), "Modifier definition({}) is not TokenStream", ident);
-        let method_item =
-            unwrap!(syn::parse2::<ImplItemMethod>(stream), "Can't parse ImplItemMethod of {}", ident);
-
-        ModifierDefinition {
-            0: method_item,
         }
     }
 }

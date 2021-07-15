@@ -259,26 +259,16 @@ pub fn storage_trait(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
     storage_trait::generate(_attrs, _input)
 }
 
-/// Marks some method as a modifier.
+/// This macro only checks that some free-standing function satisfies a set of rules.
 ///
-/// This macro stores definition of the method in a temporary file during build process.
-/// The function marked with [`#[brush::modifiers]`](`macro@crate::modifiers`)
-/// will be expanded with code from the modifier definition.
-///
-/// The modifier definition must contain exactly one construction `#[body]();`.
-/// It is an identifier, where the code of the main function must be inserted.
-///
-/// This macro consumes the code of modifier. It means that the method will be extracted, instead of compiled.
-/// All other attributes of the modifier will be ignored.
-///
-/// You can use `return` statement in modifier, but the type of return value must be the same as the function
-/// where this macro will be used. Also you must understand, that `return` can break other modifiers
-/// (the method can have several modifiers).
-///
-///  ** Note ** This macro must be processed before [`#[brush::modifiers]`](`macro@crate::modifiers`),
-/// otherwise it will fail: It means that [`#[brush::modifier_definition]`] must be defined in the scope of
-/// [`#[brush::contract]`](`macro@crate::contract`)
-/// or it must be defined in another crate(macros in dependencies will be processed early).
+/// Rules:
+/// - First argument is not `self` argument.
+/// - First argument must be reference to some type `instance: &T`. In most cases it is instance of contract.
+/// - Second argument is function's body(this function contains the main code of method attached to the modifier).
+/// The type must be `Fn(&T)` or `FnMut(&T)`.
+/// - Every next argument is not references to object.
+/// Because modifier allows only to pass arguments by value(Modifier will pass the clone of argument).
+/// - The return type of body function(second argument) must be the same as the return type of modifier.
 ///
 /// # Example: Definition
 ///
@@ -288,13 +278,11 @@ pub fn storage_trait(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
 ///     initialized: bool,
 /// }
 ///
-/// impl Contract {
-///     #[brush::modifier_definition]
-///     fn once(&mut self) {
-///         assert!(!self.initialized, "Contract already is initialized");
-///         #[body]();
-///         self.initialized = true;
-///     }
+/// #[brush::modifier_definition]
+/// fn once<BodyFn: Fn(&mut Contract)>(instance: &mut Contract, body: BodyFn, _example_data: u8) {
+///     assert!(!instance.initialized, "Contract already is initialized");
+///     body(instance);
+///     instance.initialized = true;
 /// }
 /// ```
 #[proc_macro_attribute]
@@ -302,59 +290,97 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
     modifier_definition::generate(_attrs, _input)
 }
 
-/// Macro pastes the code from the modifier definition inside of the function.
-/// It means that all stuff in the modifier definition must be available in the scope of marked method.
+/// Macro calls every modifier function by passing self and code of function's body.
+/// It means that modifiers must be available in the scope of marked method.
 ///
-/// Modifiers are designed to be used for methods marked with the `#[ink(message)]` attribute.
-/// You can try to use them in internal implementations and external functions, but you must be sure,
-/// that [`#[brush::modifier_definition]`](`macro@crate::modifier_definition`) will be processed earlier.
-///
+/// Modifiers are designed to be used for methods in impl sections.
 /// The method can have several modifiers. They will be expanded from left to right.
-/// If the method returns something, the result will be stored in a temporary variable
-/// and returned after the last modifier has been executed.
+/// The modifier can accept arguments from the scope of the method definition
+/// (you can pass an argument from the signature of marked method or from the outside scope of function).
+/// The modifier accepts arguments only by value and the type of argument must support `Clone` trait,
+/// because macro will clone the argument and will pass it to the modifier.
 ///
 /// # Explanation:
 ///
 /// Let's define next modifiers.
 /// ```
 /// #[brush::modifier_definition]
-/// fn A() {
+/// fn A<T>(instance: &T, body: impl Fn(&T) -> &'static str) -> &'static str {
 ///     println!("A before");
-///     #[body]();
+///     let result = body(instance);
 ///     println!("A after");
+///     result
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn B() {
-///     println!("B before");
-///     #[body]();
-///     println!("B after");
+/// fn B<T, F: Fn(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
+///     println!("B before {}", data);
+///     let result = body(instance);
+///     println!("B after {}", data);
+///     result
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn C() {
+/// fn C<T, F>(instance: &T, body: F) -> &'static str
+///     where F: Fn(&T) -> &'static str
+/// {
 ///     println!("C before");
-///     #[body]();
+///     let result = body(instance);
 ///     println!("C after");
+///     result
 /// }
 ///
-/// #[brush::modifiers(A, B, C)]
-/// fn main_logic() -> &'static str {
-///     return "Return value"
+/// struct Contract {}
+///
+/// impl Contract {
+///     #[brush::modifiers(A, B(_data), C)]
+///     fn main_logic(&self, _data: u8) -> &'static str {
+///         return "Return value"
+///     }
 /// }
 /// ```
 /// The code above will be expanded into:
 /// ```
-/// fn main_logic() -> &'static str {
+/// #[brush::modifier_definition]
+/// fn A<T>(instance: &T, body: impl Fn(&T) -> &'static str) -> &'static str {
 ///     println!("A before");
-///     println!("B before");
-///     println!("C before");
-///     let main_logic_local = || { return "Return value" };
-///     let main_logic_local_out = main_logic_local();
-///     println!("C after");
-///     println!("B after");
+///     let result = body(instance);
 ///     println!("A after");
-///     return main_logic_local_out;
+///     result
+/// }
+///
+/// #[brush::modifier_definition]
+/// fn B<T, F: Fn(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
+///     println!("B before {}", data);
+///     let result = body(instance);
+///     println!("B after {}", data);
+///     result
+/// }
+///
+/// #[brush::modifier_definition]
+/// fn C<T, F>(instance: &T, body: F) -> &'static str
+///     where F: Fn(&T) -> &'static str
+/// {
+///     println!("C before");
+///     let result = body(instance);
+///     println!("C after");
+///     result
+/// }
+///
+/// struct Contract {}
+///
+/// impl Contract {
+///     fn main_logic(&self, _data: u8) -> &'static str {
+///         let mut __brush_body_2 = |__brush_instance_modifier: &Self| {
+///             let __brush_cloned_0 = _data.clone();
+///             let mut __brush_body_1 = |__brush_instance_modifier: &Self| {
+///                 let mut __brush_body_0 = |__brush_instance_modifier: &Self| return "Return value";
+///                 C(__brush_instance_modifier, __brush_body_0)
+///             };
+///             B(__brush_instance_modifier, __brush_body_1, __brush_cloned_0)
+///         };
+///         A(self, __brush_body_2)
+///     }
 /// }
 ///
 /// ```
@@ -371,14 +397,14 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///         owner: AccountId,
 ///     }
 ///
-///     impl Contract {
-///         #[brush::modifier_definition]
-///         fn once(&mut self) {
-///             assert!(!self.initialized, "Contract already is initialized");
-///             #[body]();
-///             self.initialized = true;
-///         }
+///     #[brush::modifier_definition]
+///     fn once(instance: &mut Contract, body: impl Fn(&mut Contract)) {
+///         assert!(!instance.initialized, "Contract already is initialized");
+///         body(instance);
+///         instance.initialized = true;
+///     }
 ///
+///     impl Contract {
 ///         #[ink(constructor)]
 ///         pub fn new() -> Self {
 ///             Self::default()
