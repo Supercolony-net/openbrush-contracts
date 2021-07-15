@@ -9,7 +9,8 @@ pub mod ownable {
     };
 
     #[ink(storage)]
-    #[derive(Default, PSP1155Storage, OwnableStorage)]
+    #[derive(Default)]
+    #[derive(PSP1155Storage, OwnableStorage)]
     pub struct PSP1155Struct {}
 
     impl PSP1155Struct {
