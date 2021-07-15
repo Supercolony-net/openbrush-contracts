@@ -7,7 +7,8 @@ pub mod my_access_control {
     use brush::modifiers;
 
     #[ink(storage)]
-    #[derive(Default, PSP721Storage, AccessControlStorage)]
+    #[derive(Default)]
+    #[derive(PSP721Storage, AccessControlStorage)]
     pub struct PSP721Struct {}
 
     // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()

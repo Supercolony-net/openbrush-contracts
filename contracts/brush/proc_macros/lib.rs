@@ -62,6 +62,12 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// };
 /// use brush::traits::{AccountId, Balance};
 ///
+/// #[brush::storage_trait]
+/// pub trait PSP20Storage {
+///     fn _balances(&self) -> & StorageHashMap<AccountId, Balance>;
+///     fn _balances_mut(&mut self) -> &mut StorageHashMap<AccountId, Balance>;
+/// }
+///
 /// #[brush::trait_definition]
 /// pub trait PSP20: PSP20Storage {
 ///     /// Returns the account Balance for the specified `owner`.
@@ -73,8 +79,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     /// Transfers `value` amount of tokens from the caller's account to account `to`.
 ///     #[ink(message)]
 ///     fn transfer(&mut self, to: AccountId, value: Balance) {
-///         let from = Self::env().caller();
-///         self._transfer_from_to(from, to, value)
+///         self._transfer_from_to(to, to, value)
 ///     }
 ///
 ///     fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {

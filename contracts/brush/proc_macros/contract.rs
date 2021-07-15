@@ -219,10 +219,13 @@ fn consume_derive(struct_ident: &syn::Ident,
     let mut impls: Vec<TokenStream> = vec![];
     let tokens: TokenStream2 = attr.tokens.clone().into_iter().map(|token|
         if let TokenTree::Group(group) = token {
+            let mut first_exists = false;
             let mut last_punct = false;
             let filtered_stream: TokenStream2 = group.stream().into_iter().filter_map(|token|
                 if let TokenTree::Punct(_) = token {
                     if last_punct {
+                        None
+                    } else if !first_exists {
                         None
                     } else {
                         last_punct = true;
@@ -236,10 +239,12 @@ fn consume_derive(struct_ident: &syn::Ident,
                         impls.push(_impl);
                         None
                     } else {
+                        first_exists = true;
                         last_punct = false;
                         Some(token)
                     }
                 } else {
+                    first_exists = true;
                     last_punct = false;
                     Some(token)
                 }
