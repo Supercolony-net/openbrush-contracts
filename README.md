@@ -3,35 +3,24 @@ Our mission with this project is to make ink! development faster, safer and easi
 ## Summary
 **OpenBrush is a library for smart contract development on ink!.**
 
-### Library of standard Tokens
-
-Why using these standards ?
-- In order to make contracts **interoperable** to do **safe** cross-contracts calls (by having the same functions signature among every contracts)
-- To ensure the usage of **Polkadot Standards Proposals** (https://github.com/w3f/PSPs)
+Why using this library  ?
+- To make contracts **interoperable** to do **safe** cross-contracts calls (by having the same functions signature among every contracts)
+- To ensure the usage of [Polkadot Standards Proposals](https://github.com/w3f/PSPs) *[WIP]*
 - To ensure the usage of the **latest & most secure** implementation
+- Useful contracts that provides custom logic to be implemented in contracts
 - To **save time** from writing boiler-plate code
 
-Which Standard tokens does it provide ?
-
-- **Fungible Token** (ERC20 equivalent)
-- **Non-Fongible Token** (ERC721 equivalent)
-- **Multi-Token** (ERC1155 equivalent)
-
-### Library of useful Contracts
-Why using these contracts ?
-- It provides custom logic to be implemented in contracts
-- To ensure the usage of **most secure** implementation
-- To use modifiers as **derive macros**
-- To **save time** from writing boiler-plate code
-
-Which contracts does it provide ?
+Which Standard tokens & useful contracts does it provide ?
+- **Fungible Token** *ERC20 equivalent*
+- **Non-Fongible Token** *ERC721 equivalent*
+- **Multi-Token** *ERC1155 equivalent*
 - **Ownable** Restrict access to action to non-owner
 - **Roles** Define set of roles and restrict access to action by roles
 - **Reentrancy guard** Prevent reentrant calls to a function
 
 ### Modifiers
 
-Solidity smart contracts provides modifiers to restrain function call to certain pre-defined parameters. OpenBrush provides derive macros to use standardised modifiers. 
+Solidity smart contracts provides modifiers to restrain function call to certain pre-defined parameters. OpenBrush provides attribute macros to use standardised modifiers.
 You can use our useful contracts to use as modifiers, or define your own modifiers.
 
 ```rust
