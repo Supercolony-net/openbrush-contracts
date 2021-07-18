@@ -31,7 +31,7 @@ pub fn non_reentrant<T, F, ReturnType>(instance: &mut T, mut body: F) -> ReturnT
     *instance._status_mut() = ENTERED;
 
     // We want to flush storage before execution of inner function,
-    // because ink! doesn't do it by default and `status` will be not updated in child calls
+    // because ink! doesn't do it by default and `status` will not be updated in child calls
     instance.flush();
 
     let result = body(instance);
