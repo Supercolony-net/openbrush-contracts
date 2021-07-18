@@ -262,11 +262,11 @@ pub fn storage_trait(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
 /// This macro only checks that some free-standing function satisfies a set of rules.
 ///
 /// Rules:
-/// - First argument is not `self` argument.
-/// - First argument must be reference to some type `instance: &T`. In most cases it is instance of contract.
+/// - First argument should not be `self`.
+/// - First argument must be a reference to a type `instance: &T`. In most cases it's the instance of contract.
 /// - Second argument is function's body(this function contains the main code of method attached to the modifier).
 /// The type must be `Fn(&T)` or `FnMut(&T)`.
-/// - Every next argument is not references to object.
+/// - Every next argument should not be references to object.
 /// Because modifier allows only to pass arguments by value(Modifier will pass the clone of argument).
 /// - The return type of body function(second argument) must be the same as the return type of modifier.
 ///
@@ -280,7 +280,7 @@ pub fn storage_trait(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
 ///
 /// #[brush::modifier_definition]
 /// fn once<BodyFn: Fn(&mut Contract)>(instance: &mut Contract, body: BodyFn, _example_data: u8) {
-///     assert!(!instance.initialized, "Contract already is initialized");
+///     assert!(!instance.initialized, "Contract is already initialized");
 ///     body(instance);
 ///     instance.initialized = true;
 /// }
@@ -290,8 +290,8 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
     modifier_definition::generate(_attrs, _input)
 }
 
-/// Macro calls every modifier function by passing self and code of function's body.
-/// It means that modifiers must be available in the scope of marked method.
+/// Macro calls every modifier function by passing self and the code of function's body.
+/// It means that modifiers must be available in the scope of the marked method.
 ///
 /// Modifiers are designed to be used for methods in impl sections.
 /// The method can have several modifiers. They will be expanded from left to right.
@@ -399,7 +399,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///
 ///     #[brush::modifier_definition]
 ///     fn once(instance: &mut Contract, body: impl Fn(&mut Contract)) {
-///         assert!(!instance.initialized, "Contract already is initialized");
+///         assert!(!instance.initialized, "Contract is already initialized");
 ///         body(instance);
 ///         instance.initialized = true;
 ///     }

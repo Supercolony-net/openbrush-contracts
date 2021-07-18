@@ -27,7 +27,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     if impl_item.sig.inputs.is_empty() {
         return (quote_spanned! {
             impl_item.sig.inputs.span() =>
-                compile_error!("Modifiers can by applied only to method with first `self` argument.");
+                compile_error!("Modifiers can only be applied to method whose first argument is `self`. ");
         }).into();
     }
 
