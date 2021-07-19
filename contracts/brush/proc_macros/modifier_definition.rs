@@ -18,8 +18,8 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
         return (quote_spanned! {
                 fn_item.sig.inputs.span() =>
                     compile_error!(
-                        "Modifier must takes at least two arguments. \
-                        Where first is reference on instance `instance: \
+                        "Modifier must take at least two arguments, \
+                        where first is a reference to instance `instance: \
                         & Trait/Struct` and second is Fn or FnMut");
             }).into();
     }
@@ -32,7 +32,7 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
         } else {
             return (quote_spanned! {
                 pat.ty.as_ref().span() =>
-                    compile_error!("First argument of modifier must be reference on instance `&T` or `&mut T`");
+                    compile_error!("First argument of modifier must be a reference to instance `&T` or `&mut T`");
             }).into()
         }
     } else {
@@ -150,7 +150,7 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
                 return (quote_spanned! {
                     refer.span() =>
                         compile_error!("The argument is a reference. \
-                        Modifier accepts arguments only by value which supports `Clone` trait.");
+                        Modifier only accepts arguments which implement `Clone` trait and only by value.");
                 }).into();
             }
         } else {
