@@ -1,4 +1,4 @@
-<a href='https://www.supercolony.net/'><img src='https://uploads-ssl.webflow.com/605da67bb52ee776f70680b7/605e09d0f994d31b1b5c76db_logo.png' height='120'/></a>
+![logo_brush_contracts](https://user-images.githubusercontent.com/18346821/126189742-591b66b2-240b-462e-ad10-84a3e04f55d9.png)
 
 
 Our mission with this project is to make ink! really usable.
