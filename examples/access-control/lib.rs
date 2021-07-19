@@ -14,6 +14,12 @@ pub mod my_access_control {
     // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
     const MINTER: RoleType = 0xfd9ab216;
 
+    #[brush::modifier_definition]
+    pub fn only_minter(instance: &mut PSP721Struct, body: impl Fn(&mut PSP721Struct)) {
+        instance._check_role(&MINTER, &instance.env().caller());
+        body(instance)
+    }
+
     impl PSP721Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
@@ -23,12 +29,6 @@ pub mod my_access_control {
             // We grant minter role to caller in constructor, so he can mint/burn tokens
             instance.grant_role(MINTER, caller);
             instance
-        }
-
-        #[brush::modifier_definition]
-        fn only_minter(&self) {
-            self._check_role(&MINTER, &self.env().caller());
-            #[body]()
         }
     }
 

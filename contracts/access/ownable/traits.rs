@@ -18,6 +18,16 @@ pub enum OwnableError {
     NewOwnerIsZero,
 }
 
+#[modifier_definition]
+pub fn only_owner<T, F, ReturnType>(instance: &mut T, mut body: F) -> ReturnType
+    where
+        T: OwnableStorage,
+        F: FnMut(&mut T) -> ReturnType,
+{
+    assert_eq!(instance._owner(), &T::env().caller(), "{}", OwnableError::CallerIsNotOwner.as_ref());
+    body(instance)
+}
+
 #[brush::trait_definition]
 pub trait IOwnable: OwnableStorage {
     #[ink(message)]
@@ -43,12 +53,6 @@ pub trait IOwnable: OwnableStorage {
     }
     
     // Helper functions
-
-    #[modifier_definition]
-    fn only_owner(&self) {
-        assert_eq!(self._owner(), &Self::env().caller(), "{}", OwnableError::CallerIsNotOwner.as_ref());
-        #[body]()
-    }
 
     /// User must override this method in their contract.
     fn _emit_ownership_transferred_event(&self, _previous_owner: Option<AccountId>, _new_owner: Option<AccountId>) {}
