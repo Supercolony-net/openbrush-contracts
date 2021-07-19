@@ -1,4 +1,4 @@
-![logo_brush_contracts](https://user-images.githubusercontent.com/18346821/126189742-591b66b2-240b-462e-ad10-84a3e04f55d9.png)
+![logo_brush_contracts_white](https://user-images.githubusercontent.com/18346821/126191912-2b5932c6-3d64-4fd0-a74b-326df11e1d07.png)
 
 
 Our mission with this project is to make ink! really usable.
