@@ -37,7 +37,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     } else {
         return (quote_spanned! {
             impl_item.sig.inputs.first().unwrap().span() =>
-                compile_error!("First argument in modifiers must be `self`.");
+                compile_error!("First argument in method must be `self`.");
         }).into();
     }
 
