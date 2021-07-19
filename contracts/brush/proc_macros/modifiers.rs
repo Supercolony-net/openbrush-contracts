@@ -27,7 +27,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     if impl_item.sig.inputs.is_empty() {
         return (quote_spanned! {
             impl_item.sig.inputs.span() =>
-                compile_error!("Modifiers can only be applied to method whose first argument is `self`. ");
+                compile_error!("Modifiers can only be applied to methods, which have `self` as their first argument. ");
         }).into();
     }
 
@@ -107,7 +107,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
         } else {
             return (quote_spanned! {
                 modifier_meta.span() =>
-                    compile_error!("Modifiers doesn't support MetaNameValue in arguments");
+                    compile_error!("Modifiers don't support MetaNameValue in arguments");
             }).into();
         }
     }
