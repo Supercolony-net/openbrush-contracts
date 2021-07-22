@@ -1,11 +1,8 @@
-![logo_brush_contracts_white](https://user-images.githubusercontent.com/18346821/126191912-2b5932c6-3d64-4fd0-a74b-326df11e1d07.png)
+# <img src="https://user-images.githubusercontent.com/18346821/126191912-2b5932c6-3d64-4fd0-a74b-326df11e1d07.png" alt="Openbrush" height="120px">
 
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](doc)
 
-Our mission with this project is to make ink! really usable.
-
-
-## Summary
-**A Rust library for secure smart contract development on ink!.**
+**A Rust library for secure smart contract development on ink!.** 
 
 This library contains traits definition of standard tokens. 
 Everyone who implements these traits will have the same API during cross contract calls.
@@ -14,6 +11,16 @@ Also the library provides default implementation on Rust level
 which can be reused or customized by everyone.
 
 To understand how to use the library better to check [examples](examples) and [doc](doc) folders.
+
+🚀 Our mission with this project is to make ink! really usable.
+
+
+## Overview
+
+### Installation
+
+### Usage 
+
 
 ### ink! version
 At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc3](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc3)
