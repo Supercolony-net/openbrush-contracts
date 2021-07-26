@@ -5,19 +5,19 @@ authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
 [dependencies]
-ink_primitives = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
-ink_metadata = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false, features = ["derive"], optional = true }
-ink_env = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
-ink_storage = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
-ink_lang = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
-ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
+ink_primitives = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_metadata = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false, features = ["derive"], optional = true }
+ink_env = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_storage = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_lang = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
-psp1155 = { path = "../../contracts/token/psp1155", default-features = false, features = ["ink-as-dependency"] }
-ownable = { path = "../../contracts/access/ownable", default-features = false, features = ["ink-as-dependency"] }
-brush = { path = "../../contracts/brush", default-features = false }
+psp1155 = { path = "../../contracts/token/psp1155", default-features = false }
+ownable = { path = "../../contracts/access/ownable", default-features = false }
+brush = { path = "../../utils/brush", default-features = false }
 
 [lib]
 name = "my_ownable"

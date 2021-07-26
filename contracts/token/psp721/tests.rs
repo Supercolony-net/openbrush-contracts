@@ -4,7 +4,7 @@ mod tests {
     use ink_prelude::{string::String};
     use ink_env::{call, test};
     use ink_lang as ink;
-    use ink::{EmitEvent};
+    use ink::{Env, EmitEvent};
     use brush::traits::ZERO_ADDRESS;
     use crate::traits::*;
 
@@ -43,7 +43,12 @@ mod tests {
 
     #[derive(Default, PSP721Storage, PSP721MetadataStorage)]
     #[ink(storage)]
-    pub struct PSP721Struct {}
+    pub struct PSP721Struct {
+        #[PSP721StorageField]
+        psp721: PSP721Data,
+        #[PSP721MetadataStorageField]
+        metadata: PSP721MetadataData,
+    }
 
     impl IPSP721 for PSP721Struct {
         fn _emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {

@@ -6,7 +6,8 @@ members = [
     "contracts/access/ownable",
     "contracts/access/access-control",
     "contracts/security/reentrancy_guard",
-    "contracts/brush",
+    "utils/brush",
+    "utils/brush_derive_macro",
 ]
 exclude = [
     "examples",

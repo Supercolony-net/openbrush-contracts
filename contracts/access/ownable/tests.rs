@@ -3,7 +3,7 @@
 mod tests {
     use crate::traits::*;
     use ink_lang as ink;
-    use ink::{EmitEvent};
+    use ink::{Env, EmitEvent};
     use brush::traits::AccountIdExt;
 
     #[ink(event)]
@@ -16,7 +16,10 @@ mod tests {
 
     #[ink(storage)]
     #[derive(Default, OwnableStorage)]
-    pub struct MyOwnable {}
+    pub struct MyOwnable {
+        #[OwnableStorageField]
+        ownable: OwnableData,
+    }
 
     type Event = <MyOwnable as ::ink_lang::BaseEvent>::Type;
 

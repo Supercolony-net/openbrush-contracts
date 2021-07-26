@@ -3,6 +3,7 @@
 #[brush::contract]
 pub mod erc1155_receiver {
     use psp1155::traits::*;
+    use ink_prelude::{ string::String, vec::Vec };
 
     #[ink(storage)]
     pub struct PSP1155ReceiverStruct {
@@ -28,6 +29,7 @@ pub mod erc1155_receiver {
     }
 
     impl IPSP1155Receiver for PSP1155ReceiverStruct {
+        #[ink(message)]
         fn on_psp1155_received(&mut self, _operator: AccountId, _from: AccountId,
                                    _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {
@@ -38,6 +40,7 @@ pub mod erc1155_receiver {
             Ok(())
         }
 
+        #[ink(message)]
         fn on_psp1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
                                          _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {

@@ -9,7 +9,6 @@ use syn::{
     spanned::Spanned,
 };
 use proc_macro::{TokenStream};
-use crate::internal::is_attr;
 
 pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
     let fn_item = parse_macro_input!(_input as ItemFn);
@@ -165,38 +164,4 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
         #fn_item
     };
     code.into()
-}
-
-pub(crate) fn extract_modifier_definitions_trait(trait_item: &mut syn::ItemTrait) {
-    trait_item.items = trait_item.items.clone()
-        .into_iter()
-        .filter_map(|item|
-            if let syn::TraitItem::Method(method) = &item {
-                if is_attr(&method.attrs, "modifier_definition") {
-                    generate(TokenStream::new(), method.to_token_stream().into());
-                    None
-                } else {
-                    Some(item)
-                }
-            } else {
-                Some(item)
-            })
-        .collect();
-}
-
-pub(crate) fn extract_modifier_definitions_impl(impl_item: &mut syn::ItemImpl) {
-    impl_item.items = impl_item.items.clone()
-        .into_iter()
-        .filter_map(|item|
-            if let syn::ImplItem::Method(method) = &item {
-                if is_attr(&method.attrs, "modifier_definition") {
-                    generate(TokenStream::new(), method.to_token_stream().into());
-                    None
-                } else {
-                    Some(item)
-                }
-            } else {
-                Some(item)
-            })
-        .collect();
 }

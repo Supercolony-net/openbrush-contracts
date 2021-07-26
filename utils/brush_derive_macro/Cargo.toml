@@ -1,0 +1,16 @@
+[package]
+name = "brush_derive_macro"
+version = "0.3.0-rc1"
+authors = ["Supercolony <green.baneling@supercolony.net>"]
+edition = "2018"
+
+[lib]
+name = "brush_derive_macro"
+path = "lib.rs"
+crate-type = [
+	"rlib",
+]
+
+[features]
+default = ["std"]
+std = []

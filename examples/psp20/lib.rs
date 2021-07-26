@@ -3,30 +3,38 @@
 #[brush::contract]
 pub mod my_psp20 {
     use psp20::traits::*;
+    use ink_storage::{
+        Lazy,
+    };
+    use ink_prelude::{string::String, vec::Vec};
 
     #[ink(storage)]
-    #[derive(Default, PSP20Storage, PSP20MetadataStorage)]
-    pub struct MyPSP20 {
+    #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+    pub struct MyPSP22 {
+        #[PSP22StorageField]
+        psp20: PSP22Data,
+        #[PSP22MetadataStorageField]
+        metadata: PSP22MetadataData,
         // fields for hater logic
         hated_account: AccountId,
     }
 
-    impl PSP20 for MyPSP20 {
+    impl PSP22 for MyPSP22 {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
-            assert!(_to != self.hated_account, "{}", PSP20Error::Custom(String::from("I hate this account!")).as_ref());
+            assert!(_to != self.hated_account, "{}", PSP22Error::Custom(String::from("I hate this account!")).as_ref());
         }
     }
 
-    impl PSP20Metadata for MyPSP20 {}
+    impl PSP22Metadata for MyPSP22 {}
 
-    impl MyPSP20 {
+    impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
             let mut instance = Self::default();
-            *instance._name_mut() = Lazy::new(name);
-            *instance._symbol_mut() = Lazy::new(symbol);
-            *instance._decimals_mut() = Lazy::new(decimal);
+            instance.metadata.name = Lazy::new(name);
+            instance.metadata.symbol = Lazy::new(symbol);
+            instance.metadata.decimals = Lazy::new(decimal);
             instance._mint(instance.env().caller(), _total_supply);
             instance
         }

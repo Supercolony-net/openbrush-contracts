@@ -14,7 +14,7 @@ use cargo_metadata::{MetadataCommand};
 use std::path::PathBuf;
 use unwrap::unwrap;
 
-const TEMP_FILE: &str = "brush_metadata";
+const TEMP_FILE: &str = "__brush_metadata";
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub(crate) struct TraitDefinitions(HashMap<String, String>);
 
@@ -51,7 +51,6 @@ impl std::ops::DerefMut for ModifierDefinitions {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub(crate) struct Metadata {
-    pub storage_traits: TraitDefinitions,
     pub external_traits: TraitDefinitions,
 }
 

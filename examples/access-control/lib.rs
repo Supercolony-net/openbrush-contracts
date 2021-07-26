@@ -5,18 +5,24 @@ pub mod my_access_control {
     use psp721::traits::*;
     use access_control::traits::*;
     use brush::modifiers;
+    use ink_prelude::vec::Vec;
 
     #[ink(storage)]
     #[derive(Default)]
     #[derive(PSP721Storage, AccessControlStorage)]
-    pub struct PSP721Struct {}
+    pub struct PSP721Struct {
+        #[PSP721StorageField]
+        psp721: PSP721Data,
+        #[AccessControlStorageField]
+        access: AccessControlData,
+    }
 
     // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
     const MINTER: RoleType = 0xfd9ab216;
 
     #[brush::modifier_definition]
-    pub fn only_minter(instance: &mut PSP721Struct, body: impl Fn(&mut PSP721Struct)) {
-        instance._check_role(&MINTER, &instance.env().caller());
+    pub fn only_minter<T: IAccessControl>(instance: &mut T, body: impl Fn(&mut T)) {
+        instance._check_role(&MINTER, &T::env().caller());
         body(instance)
     }
 
@@ -36,18 +42,16 @@ pub mod my_access_control {
     impl IAccessControl for PSP721Struct {}
 
     impl IPSP721Mint for PSP721Struct {
+        #[ink(message)]
         #[modifiers(only_minter)]
         fn mint(&mut self, id: Id) {
-            // We added modifier to function.
-            // #[super]self.mint(id) will call default implementation from trait
-            #[super]self.mint(id);
+            self._mint(id);
         }
 
+        #[ink(message)]
         #[modifiers(only_minter)]
         fn burn(&mut self, id: Id) {
-            // We added modifier to function.
-            // #[super]self.burn(id) will call default implementation from trait
-            #[super]self.burn(id);
+            self._burn(id);
         }
     }
 }

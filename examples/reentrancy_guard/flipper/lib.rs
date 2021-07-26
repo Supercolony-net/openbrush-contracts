@@ -39,6 +39,8 @@ pub mod my_flipper_guard {
     #[derive(Default)]
     #[derive(ReentrancyGuardStorage)]
     pub struct MyFlipper {
+        #[ReentrancyGuardStorageField]
+        guard: ReentrancyGuardData,
         value: bool,
     }
 

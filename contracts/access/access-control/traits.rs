@@ -1,35 +1,35 @@
-pub use ink_storage::{
+use ink_storage::{
     traits::{PackedLayout, SpreadLayout},
-    Box,
 };
-pub use ink_lang::{
-    Env, StaticEnv,
-};
-pub use ink_storage::{
-    collections::HashMap as StorageHashMap,
-};
-pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
-pub use access_control_derive::{AccessControlStorage};
-
-// We don't need to expose it, because ink! will define AccountId and StaticEnv itself.
+use ink_prelude::collections::BTreeMap;
 use brush::traits::{InkStorage, AccountId};
+use brush::declare_storage_trait;
+pub use access_control_derive::AccessControlStorage;
 
 #[cfg(feature = "std")]
-pub use ink_storage::traits::StorageLayout;
+use ink_storage::traits::StorageLayout;
+
+#[derive(Default, Debug, SpreadLayout)]
+#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub struct AccessControlData {
+    pub roles: BTreeMap<RoleType, RoleData>,
+}
+
+declare_storage_trait!(AccessControlStorage, AccessControlData);
 
 pub const DEFAULT_ADMIN_ROLE: RoleType = 0;
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
 pub struct RoleData {
-    pub members: Box<StorageHashMap<AccountId, bool>>,
+    pub members: BTreeMap<AccountId, bool>,
     pub admin_role: RoleType,
 }
 
 impl RoleData {
     pub fn new(admin: AccountId) -> Self {
         let mut instance = Self {
-            members: Box::new(StorageHashMap::new()),
+            members: BTreeMap::new(),
             admin_role: DEFAULT_ADMIN_ROLE,
         };
         instance.members.insert(admin, true);
@@ -40,17 +40,10 @@ impl RoleData {
 impl Default for RoleData {
     fn default() -> Self {
         Self {
-            members: Box::new(StorageHashMap::new()),
+            members: BTreeMap::new(),
             admin_role: DEFAULT_ADMIN_ROLE,
         }
     }
-}
-
-#[brush::storage_trait]
-pub trait AccessControlStorage: InkStorage {
-    // Mapping of roles to role data which contains information about members of role
-    fn _roles(&self) -> & StorageHashMap<RoleType, RoleData>;
-    fn _roles_mut(&mut self) -> &mut StorageHashMap<RoleType, RoleData>;
 }
 
 pub type RoleType = u32;
@@ -82,7 +75,7 @@ pub trait IAccessControl: AccessControlStorage {
         self._check_role(&self._get_role_admin(&role), &Self::env().caller());
 
         if !self._has_role(&role, &address) {
-            self._roles_mut()
+            self.get_mut().roles
                 .entry(role)
                 .or_insert_with(RoleData::default)
                 .members
@@ -121,19 +114,19 @@ pub trait IAccessControl: AccessControlStorage {
     }
 
     fn _init_with_admin(&mut self, admin: AccountId) {
-        self._roles_mut().insert(DEFAULT_ADMIN_ROLE, RoleData::new(admin));
+        self.get_mut().roles.insert(DEFAULT_ADMIN_ROLE, RoleData::new(admin));
         self._emit_role_granted(DEFAULT_ADMIN_ROLE, admin, None);
     }
 
     fn _has_role(&self, role: &RoleType, address: &AccountId) -> bool {
-        match self._roles().get(role) {
+        match self.get().roles.get(role) {
             Some(role_data) => role_data.members.get(address).cloned().unwrap_or(false),
             None => false,
         }
     }
 
     fn _get_role_admin(&self, role: &RoleType) -> RoleType {
-        match self._roles().get(role) {
+        match self.get().roles.get(role) {
             Some(role_data) => role_data.admin_role.clone(),
             None => DEFAULT_ADMIN_ROLE,
         }
@@ -141,7 +134,7 @@ pub trait IAccessControl: AccessControlStorage {
 
     fn _do_revoke_role(&mut self, role: RoleType, address: AccountId) {
         if self._has_role(&role, &address) {
-            self._roles_mut()
+            self.get_mut().roles
                 .entry(role)
                 .or_insert_with(RoleData::default)
                 .members
@@ -155,10 +148,10 @@ pub trait IAccessControl: AccessControlStorage {
     }
 
     fn _set_role_admin(&mut self, role: RoleType, new_admin: RoleType) {
-        let old_admin = self._roles_mut()
+        let old_admin = self.get_mut().roles
             .entry(role)
             .or_insert_with(RoleData::default).admin_role;
         self._emit_role_admin_changed(role, old_admin, new_admin);
-        self._roles_mut().entry(role).or_insert_with(RoleData::default).admin_role = new_admin;
+        self.get_mut().roles.entry(role).or_insert_with(RoleData::default).admin_role = new_admin;
     }
 }

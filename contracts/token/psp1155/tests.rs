@@ -3,7 +3,7 @@
 mod tests {
     use crate::traits::*;
     use ink_lang as ink;
-    use ink::{EmitEvent};
+    use ink::{Env, EmitEvent};
     use brush::traits::ZERO_ADDRESS;
 
     #[ink(event)]
@@ -39,7 +39,10 @@ mod tests {
 
     #[derive(Default, PSP1155Storage)]
     #[ink(storage)]
-    pub struct PSP1155Struct {}
+    pub struct PSP1155Struct {
+        #[PSP1155StorageField]
+        psp1155: PSP1155Data,
+    }
 
     impl IPSP1155 for PSP1155Struct {
         fn _emit_transfer_single_event(&self,

@@ -2,7 +2,7 @@
 
 [Openbrush](README.md)
 - [Examples](./examples/README.md)
-    - [PSP20](./examples/psp20.md)
+    - [PSP22](./examples/psp20.md)
     - [Access Control](./examples/access-control.md)
     - [Ownable](./examples/ownable.md)
     - [Reentrancy Guard](./examples/reentrancy-guard.md)
