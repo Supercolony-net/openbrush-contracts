@@ -10,7 +10,7 @@ Also, this example shows how you can customize the logic, for example, to not al
 [dependencies]
 ...
 
-psp20 = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ink-as-dependency"] }
+psp20 = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
@@ -29,25 +29,25 @@ std = [
 pub mod my_psp20 {
    use psp20::traits::*;
 ```
-3. Declare storage struct and derive `PSP20Storage` and `PSP20MetadataStorage` traits. Deriving these traits
+3. Declare storage struct and derive `PSP22Storage` and `PSP22MetadataStorage` traits. Deriving these traits
    will add required fields to your structure for implementation of according trait. 
-   Your structure must implement `PSP20Storage` and `PSP20MetadataStorage` if you want to use the
-   default implementation of `PSP20` and `PSP20Metadata`.
+   Your structure must implement `PSP22Storage` and `PSP22MetadataStorage` if you want to use the
+   default implementation of `PSP22` and `PSP22Metadata`.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP20Storage, PSP20MetadataStorage)]
-pub struct MyPSP20 {}
+#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+pub struct MyPSP22 {}
 ```
-4. After that you can inherit implementation of `PSP20` and `PSP20Metadata` traits.
+4. After that you can inherit implementation of `PSP22` and `PSP22Metadata` traits.
    You can customize(override) some methods there.
 ```rust
-impl PSP20 for MyPSP20 {}
-impl PSP20Metadata for MyPSP20 {}
+impl PSP22 for MyPSP22 {}
+impl PSP22Metadata for MyPSP22 {}
 ```
-5. Now you only need to define constructor and your basic version of `PSP20` contract is ready.
+5. Now you only need to define constructor and your basic version of `PSP22` contract is ready.
 ```rust
-impl MyPSP20 {
+impl MyPSP22 {
    #[ink(constructor)]
    pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
       let mut instance = Self::default();
@@ -60,24 +60,24 @@ impl MyPSP20 {
 }
 ```
 6. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. 
-   Also we will override `_before_token_transfer` method in `PSP20` implementation.
+   Also we will override `_before_token_transfer` method in `PSP22` implementation.
    And we will add a new field to structure - `hated_account: AccountId`
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP20Storage, PSP20MetadataStorage)]
-pub struct MyPSP20 {
+#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+pub struct MyPSP22 {
    // fields for hater logic
    hated_account: AccountId,
 }
-impl PSP20 for MyPSP20 {
+impl PSP22 for MyPSP22 {
    // Let's override method to reject transactions to bad account
    fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
-      assert!(_to != self.hated_account, "{}", PSP20Error::Unknown("I hate this account!").as_ref());
+      assert!(_to != self.hated_account, "{}", PSP22Error::Unknown("I hate this account!").as_ref());
    }
 }
-impl PSP20Metadata for MyPSP20 {}
+impl PSP22Metadata for MyPSP22 {}
 
-impl MyPSP20 {
+impl MyPSP22 {
    #[ink(constructor)]
    pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
       let mut instance = Self::default();

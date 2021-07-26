@@ -1,43 +1,49 @@
-pub use crate::stub::{PSP721Receiver};
-pub use ink_env::{
+use crate::stub::{PSP721Receiver};
+use ink_env::{
     call::{FromAccountId},
     Error as Env_error,
 };
-pub use ink_lang::{ForwardCallMut, Env, StaticEnv};
-pub use ink_storage::collections::{hashmap::Entry};
-pub use ink_storage::collections::{HashMap as StorageHashMap};
-pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
-pub use ink_prelude::{string::String, vec::Vec};
+use ink_lang::ForwardCallMut;
+use brush::traits::{AccountIdExt, ZERO_ADDRESS};
+use brush::traits::{InkStorage, AccountId};
+use brush::declare_storage_trait;
+use ink_prelude::{
+    string::String,
+    vec::Vec,
+    collections::{
+        BTreeMap,
+        btree_map::Entry,
+    },
+};
+use ink_storage::{
+    traits::{SpreadLayout},
+};
 pub use psp721_derive::{PSP721Storage, PSP721MetadataStorage};
 
-// We don't need to expose it, because ink! will define AccountId and StaticEnv itself.
-use brush::traits::{InkStorage, AccountId};
+#[cfg(feature = "std")]
+use ink_storage::traits::StorageLayout;
 
 pub type Id = [u8; 32];
 
-#[brush::storage_trait]
-pub trait PSP721MetadataStorage: InkStorage {
-    fn _name(&self) -> & Option<String>;
-    fn _name_mut(&mut self) -> &mut Option<String>;
-
-    fn _symbol(&self) -> & Option<String>;
-    fn _symbol_mut(&mut self) -> &mut Option<String>;
+#[derive(Default, Debug, SpreadLayout)]
+#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub struct PSP721Data {
+    pub token_owner: BTreeMap<Id, AccountId>,
+    pub token_approvals: BTreeMap<Id, AccountId>,
+    pub owned_tokens_count: BTreeMap<AccountId, u32>,
+    pub operator_approvals: BTreeMap<(AccountId, AccountId), bool>,
 }
 
-#[brush::storage_trait]
-pub trait PSP721Storage: InkStorage {
-    fn _token_owner(&self) -> & StorageHashMap<Id, AccountId>;
-    fn _token_owner_mut(&mut self) -> &mut StorageHashMap<Id, AccountId>;
+declare_storage_trait!(PSP721Storage, PSP721Data);
 
-    fn _token_approvals(&self) -> & StorageHashMap<Id, AccountId>;
-    fn _token_approvals_mut(&mut self) -> &mut StorageHashMap<Id, AccountId>;
-
-    fn _owned_tokens_count(&self) -> & StorageHashMap<AccountId, u32>;
-    fn _owned_tokens_count_mut(&mut self) -> &mut StorageHashMap<AccountId, u32>;
-
-    fn _operator_approvals(&self) -> & StorageHashMap<(AccountId, AccountId), bool>;
-    fn _operator_approvals_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), bool>;
+#[derive(Default, Debug, SpreadLayout)]
+#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub struct PSP721MetadataData {
+    pub name: Option<String>,
+    pub symbol: Option<String>,
 }
+
+declare_storage_trait!(PSP721MetadataStorage, PSP721MetadataData);
 
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP721Error {
@@ -59,7 +65,7 @@ pub trait IPSP721: PSP721Storage {
     /// This represents the amount of unique tokens the owner has.
     #[ink(message)]
     fn balance_of(&self, owner: AccountId) -> u32 {
-        self._owned_tokens_count().get(&owner).cloned().unwrap_or(0)
+        self.get().owned_tokens_count.get(&owner).cloned().unwrap_or(0)
     }
 
     /// Returns the owner of the token.
@@ -71,7 +77,7 @@ pub trait IPSP721: PSP721Storage {
     /// Returns the approved account ID for this token if any.
     #[ink(message)]
     fn get_approved(&self, id: Id) -> Option<AccountId> {
-        self._token_approvals().get(&id).cloned()
+        self.get().token_approvals.get(&id).cloned()
     }
 
     /// Returns `true` if the operator is approved by the owner.
@@ -131,11 +137,11 @@ pub trait IPSP721: PSP721Storage {
         self._emit_approval_for_all_event(caller, to, approved);
         if self._approved_for_all(caller, to) {
             let status = self
-                ._operator_approvals_mut()
+                .get_mut().operator_approvals
                 .get_mut(&(caller, to)).unwrap();
             *status = approved;
         } else {
-            self._operator_approvals_mut().insert((caller, to), approved);
+            self.get_mut().operator_approvals.insert((caller, to), approved);
         }
     }
 
@@ -150,19 +156,19 @@ pub trait IPSP721: PSP721Storage {
         };
 
         assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
-        assert!(self._token_approvals_mut().insert(id, to).is_none(), "{}", PSP721Error::CannotInsert.as_ref());
+        assert!(self.get_mut().token_approvals.insert(id, to).is_none(), "{}", PSP721Error::CannotInsert.as_ref());
         self._emit_approval_event(caller, to, id);
     }
 
     /// Returns the owner of the token.
     fn _owner_of(&self, id: &Id) -> Option<AccountId> {
-        self._token_owner().get(id).cloned()
+        self.get().token_owner.get(id).cloned()
     }
 
     /// Gets an operator on other Account's behalf.
     fn _approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
         self
-            ._operator_approvals()
+            .get().operator_approvals
             .get(&(owner, operator))
             .unwrap_or(&false).clone()
     }
@@ -173,7 +179,7 @@ pub trait IPSP721: PSP721Storage {
         let owner = self._owner_of(id);
         !from.unwrap_or_default().is_zero()
             && (from == owner
-            || from == self._token_approvals().get(id).cloned()
+            || from == self.get().token_approvals.get(id).cloned()
             || self._approved_for_all(
             owner.expect("PSP721Error with AccountId"),
             from.expect("PSP721Error with AccountId"),
@@ -183,34 +189,34 @@ pub trait IPSP721: PSP721Storage {
     /// Transfers token `id` `from` the sender to the `to` AccountId.
     fn _transfer_token_from(&mut self, from: &AccountId, to: AccountId, id: Id) {
         let caller = Self::env().caller();
-        assert!(self._token_owner().get(&id).is_some(), "{}", PSP721Error::TokenNotFound.as_ref());
+        assert!(self.get().token_owner.get(&id).is_some(), "{}", PSP721Error::TokenNotFound.as_ref());
         assert!(self._approved_or_owner(Some(caller), &id), "{}", PSP721Error::NotApproved.as_ref());
-        if self._token_approvals().contains_key(&id) {
-            self._token_approvals_mut().take(&id);
+        if self.get().token_approvals.contains_key(&id) {
+            self.get_mut().token_approvals.remove(&id);
         };
         self._remove_from(from.clone(), id);
         self._add_to(to, id);
     }
 
     fn _add_to(&mut self, to: AccountId, id: Id) {
-        let vacant_token_owner = match self._token_owner_mut().entry(id) {
+        let vacant_token_owner = match self.get_mut().token_owner.entry(id) {
             Entry::Vacant(vacant) => vacant,
             Entry::Occupied(_) => panic!("{}", PSP721Error::TokenExists.as_ref()),
         };
         assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
         vacant_token_owner.insert(to.clone());
-        let entry = self._owned_tokens_count_mut().entry(to);
+        let entry = self.get_mut().owned_tokens_count.entry(to);
         entry.and_modify(|v| *v += 1).or_insert(1);
     }
 
     fn _remove_from(&mut self, caller: AccountId, id: Id) {
-        let occupied = match self._token_owner_mut().entry(id) {
+        let occupied = match self.get_mut().token_owner.entry(id) {
             Entry::Vacant(_) => panic!("{}", PSP721Error::TokenNotFound.as_ref()),
             Entry::Occupied(occupied) => occupied,
         };
         assert_eq!(occupied.get(), &caller, "{}", PSP721Error::NotOwner.as_ref());
         occupied.remove_entry();
-        let count = self._owned_tokens_count_mut().get_mut(&caller).expect(PSP721Error::CannotFetchValue.as_ref());
+        let count = self.get_mut().owned_tokens_count.get_mut(&caller).expect(PSP721Error::CannotFetchValue.as_ref());
         *count -= 1;
     }
 
@@ -255,18 +261,18 @@ pub trait IPSP721Metadata: PSP721MetadataStorage {
     /// Returns the token name.
     #[ink(message)]
     fn name(&self) -> Option<String> {
-        self._name().clone()
+        self.get().name.clone()
     }
 
     /// Returns the token symbol.
     #[ink(message)]
     fn symbol(&self) -> Option<String> {
-        self._symbol().clone()
+        self.get().symbol.clone()
     }
 
     fn _init_with_metadata(&mut self, name: Option<String>, symbol: Option<String>) {
-        *self._name_mut() = name;
-        *self._symbol_mut() = symbol;
+        self.get_mut().name = name;
+        self.get_mut().symbol = symbol;
     }
 }
 

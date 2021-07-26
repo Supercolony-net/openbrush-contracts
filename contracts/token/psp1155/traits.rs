@@ -1,37 +1,41 @@
-pub use core::result::Result;
-pub use crate::stub::{PSP1155Receiver};
-pub use ink_env::{
+use core::result::Result;
+use crate::stub::{PSP1155Receiver};
+use ink_env::{
     call::{FromAccountId},
     Error as Env_error,
 };
-pub use ink_lang::{ForwardCallMut, Env, StaticEnv};
-pub use ink_prelude::string::String;
-pub use ink_prelude::{vec::Vec, vec};
-pub use ink_storage::{
-    collections::HashMap as StorageHashMap,
+use ink_lang::ForwardCallMut;
+use ink_prelude::string::String;
+use ink_prelude::{vec::Vec, collections::BTreeMap, vec};
+use brush::traits::{AccountIdExt, ZERO_ADDRESS};
+use brush::traits::{InkStorage, AccountId, Balance};
+use brush::declare_storage_trait;
+use ink_storage::{
+    traits::{SpreadLayout},
 };
-pub use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 pub use psp1155_derive::{PSP1155Storage, PSP1155MetadataStorage};
 
-// We don't need to expose it, because ink! will define AccountId, Balance and StaticEnv itself.
-use brush::traits::{InkStorage, AccountId, Balance};
+#[cfg(feature = "std")]
+use ink_storage::traits::StorageLayout;
 
 pub type Id = [u8; 32];
 
-#[brush::storage_trait]
-pub trait PSP1155MetadataStorage: InkStorage {
-    fn _uri(&self) -> & Option<String>;
-    fn _uri_mut(&mut self) -> &mut Option<String>;
+#[derive(Default, Debug, SpreadLayout)]
+#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub struct PSP1155Data {
+    pub balances: BTreeMap<(Id, AccountId), Balance>,
+    pub operator_approval: BTreeMap<(AccountId, AccountId), bool>,
 }
 
-#[brush::storage_trait]
-pub trait PSP1155Storage: InkStorage {
-    fn _balances(&self) -> & StorageHashMap<(Id, AccountId), Balance>;
-    fn _balances_mut(&mut self) -> &mut StorageHashMap<(Id, AccountId), Balance>;
+declare_storage_trait!(PSP1155Storage, PSP1155Data);
 
-    fn _operator_approval(&self) -> & StorageHashMap<(AccountId, AccountId), bool>;
-    fn _operator_approval_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), bool>;
+#[derive(Default, Debug, SpreadLayout)]
+#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub struct PSP1155MetadataData {
+    pub uri: Option<String>,
 }
+
+declare_storage_trait!(PSP1155MetadataStorage, PSP1155MetadataData);
 
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP1155Error {
@@ -76,7 +80,7 @@ pub trait IPSP1155: PSP1155Storage {
         let caller = Self::env().caller();
         assert_ne!(caller, _operator, "{}", PSP1155Error::SelfApproval.as_ref());
         *self
-            ._operator_approval_mut()
+            .get_mut().operator_approval
             .entry((Self::env().caller(), _operator))
             .or_insert(false) = _approved;
 
@@ -212,11 +216,11 @@ pub trait IPSP1155: PSP1155Storage {
     }
 
     fn _balance_of_or_zero(&self, owner: AccountId, id: Id) -> Balance {
-        self._balances().get(&(id, owner)).cloned().unwrap_or(0)
+        self.get().balances.get(&(id, owner)).cloned().unwrap_or(0)
     }
 
     fn _is_approved_for_all(&self, _account: AccountId, _operator: AccountId) -> bool {
-        self._operator_approval().get(&(_account, _operator)).cloned().unwrap_or(false)
+        self.get().operator_approval.get(&(_account, _operator)).cloned().unwrap_or(false)
     }
 
     fn _increase_receiver_balance(
@@ -225,7 +229,7 @@ pub trait IPSP1155: PSP1155Storage {
         id: Id,
         amount: Balance,
     ) {
-        let to_balance = self._balances_mut().entry((id, to)).or_insert(0);
+        let to_balance = self.get_mut().balances.entry((id, to)).or_insert(0);
         match to_balance.checked_add(amount) {
             Some(new_to_balance) => *to_balance = new_to_balance,
             _ => panic!("{}", PSP1155Error::MaxBalance.as_ref()),
@@ -239,11 +243,11 @@ pub trait IPSP1155: PSP1155Storage {
         amount: Balance,
     ) {
         match self
-            ._balances()
+            .get().balances
             .get(&(id, from))
             .map(|old_from_balance| old_from_balance.checked_sub(amount))
         {
-            Some(Some(new_from_balance)) => self._balances_mut().insert((id, from), new_from_balance),
+            Some(Some(new_from_balance)) => self.get_mut().balances.insert((id, from), new_from_balance),
             _ => panic!("{}", PSP1155Error::InsufficientBalance.as_ref()),
         };
     }
@@ -317,7 +321,7 @@ pub trait IPSP1155Metadata: PSP1155MetadataStorage {
     /// Returns the URI for token type `id`.
     #[ink(message)]
     fn uri(&self, _id: Id) -> Option<String> {
-        self._uri().clone()
+        self.get().uri.clone()
     }
 }
 

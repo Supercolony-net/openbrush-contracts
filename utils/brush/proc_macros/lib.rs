@@ -1,8 +1,8 @@
+#![feature(drain_filter)]
 extern crate proc_macro;
 mod internal;
 mod contract;
 mod trait_definition;
-mod storage_trait;
 mod metadata;
 mod modifier_definition;
 mod modifiers;
@@ -63,13 +63,13 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// use brush::traits::{AccountId, Balance};
 ///
 /// #[brush::storage_trait]
-/// pub trait PSP20Storage {
+/// pub trait PSP22Storage {
 ///     fn _balances(&self) -> & StorageHashMap<AccountId, Balance>;
 ///     fn _balances_mut(&mut self) -> &mut StorageHashMap<AccountId, Balance>;
 /// }
 ///
 /// #[brush::trait_definition]
-/// pub trait PSP20: PSP20Storage {
+/// pub trait PSP22: PSP22Storage {
 ///     /// Returns the account Balance for the specified `owner`.
 ///     #[ink(message)]
 ///     fn balance_of(&self, owner: AccountId) -> Balance {
@@ -102,7 +102,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     pub use ink_storage::collections::{HashMap as StorageHashMap};
 ///
 ///     #[brush::storage_trait]
-///     pub trait PSP20ExampleStorage {
+///     pub trait PSP22ExampleStorage {
 ///         fn _supply(&self) -> & Balance;
 ///         fn _supply_mut(&mut self) -> &mut Balance;
 ///
@@ -114,7 +114,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     }
 ///
 ///     #[brush::trait_definition]
-///     pub trait PSP20Example: PSP20ExampleStorage {
+///     pub trait PSP22Example: PSP22ExampleStorage {
 ///         /// Returns the account Balance for the specified `owner`.
 ///         #[ink(message)]
 ///         fn balance_of(&self, owner: AccountId) -> Balance {
@@ -138,12 +138,12 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     }
 ///
 ///     #[ink(storage)]
-///     #[derive(Default, PSP20ExampleStorage)]
-///     pub struct PSP20Struct {
+///     #[derive(Default, PSP22ExampleStorage)]
+///     pub struct PSP22Struct {
 ///         hated_account: AccountId,
 ///     }
 ///
-///     impl PSP20Example for PSP20Struct {
+///     impl PSP22Example for PSP22Struct {
 ///         // Let's override method to reject transactions to bad account
 ///         fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
 ///             assert!(to != self.hated_account, "I hate this account!");
@@ -151,7 +151,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///         }
 ///     }
 ///
-///     impl PSP20Struct {
+///     impl PSP22Struct {
 ///         #[ink(constructor)]
 ///         pub fn new(hated_account: AccountId) -> Self {
 ///             let mut instance = Self::default();
@@ -164,99 +164,6 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
     trait_definition::generate(_attrs, _input)
-}
-
-/// Marks trait definition to brush as special storage trait definition.
-///
-/// This macro stores definition of the trait in a temporary file during build process.
-/// Based on this definition [`#[brush::contract]`](`macro@crate::contract`)
-/// will generate fields and getters for struct, which will derive this trait.
-/// The name of each field is substring between prefix `_` and suffix `_mut`
-/// (e.g. given `_method_name_mut` function, field `method_name` will be generated).
-/// The type of the field is the return type of getter (It means that you need to use
-/// the same naming of types in the crate where you will derive this trait).
-///
-/// There are some restrictions that you must follow:
-/// - The trait marked by this macro must contain only the definition of getters
-///   for fields of some structure (no other logic).
-/// - The first character of the name of method must be `_` underscore.
-/// - Each field must contain **exactly** two getters:
-///   - Getter by reference `_field() -> & Type`
-///   - Getter by mut reference `_field_mut() -> &mut Type`
-/// - The getter by mut reference must have the same name as the getter by reference + suffix `_mut`.
-///
-///  ** Note ** This macro must be processed before [`#[brush::contract]`](`macro@crate::contract`),
-/// otherwise it will fail: It means that [`#[brush::trait_definition]`] must be defined in scope of
-/// [`#[brush::contract]`](`macro@crate::contract`)
-/// or it must be defined in another crate(macros in dependencies will be processed early).
-///
-/// # Example: Definition
-///
-/// ```
-/// pub use ink_storage::{
-///     collections::{
-///         HashMap as StorageHashMap,
-///     },
-/// };
-/// use brush::traits::{AccountId, Balance};
-///
-/// #[brush::storage_trait]
-/// pub trait PSP20ExampleStorage {
-///     fn _supply(&self) -> & Balance;
-///     fn _supply_mut(&mut self) -> &mut Balance;
-///
-///     fn _balances(&self) -> & StorageHashMap<AccountId, Balance>;
-///     fn _balances_mut(&mut self) -> &mut StorageHashMap<AccountId, Balance>;
-///
-///     fn _allowances(&self) -> & StorageHashMap<(AccountId, AccountId), Balance>;
-///     fn _allowances_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), Balance>;
-/// }
-/// ```
-///
-/// # Example: Implementation
-///
-/// It uses storage trait from above.
-///
-/// ```
-/// #[brush::contract]
-/// mod base_psp20 {
-///     pub use ink_storage::collections::{HashMap as StorageHashMap};
-///
-///     #[brush::storage_trait]
-///     pub trait PSP20ExampleStorage {
-///         fn _supply(&self) -> & Balance;
-///         fn _supply_mut(&mut self) -> &mut Balance;
-///
-///         fn _balances(&self) -> & StorageHashMap<AccountId, Balance>;
-///         fn _balances_mut(&mut self) -> &mut StorageHashMap<AccountId, Balance>;
-///
-///         fn _allowances(&self) -> & StorageHashMap<(AccountId, AccountId), Balance>;
-///         fn _allowances_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), Balance>;
-///     }
-///
-///     #[ink(storage)]
-///     #[derive(Default, PSP20ExampleStorage)]
-///     pub struct PSP20Struct {}
-///
-///     impl PSP20Struct {
-///         #[ink(constructor)]
-///         pub fn new(initial_supply: Balance) -> Self {
-///             let mut instance = Self::default();
-///             *instance._supply_mut() = initial_supply;
-///             instance
-///         }
-///
-///         /// Returns the total supply of the smart contract.
-///         #[ink(message)]
-///         pub fn total_supply(&self) -> Balance {
-///             self._supply().clone()
-///         }
-///     }
-/// }
-/// ```
-#[proc_macro_attribute]
-pub fn storage_trait(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
-    storage_trait::generate(_attrs, _input)
 }
 
 /// This macro only checks that some free-standing function satisfies a set of rules.

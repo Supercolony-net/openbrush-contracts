@@ -20,6 +20,7 @@ At the moment library is using own version of ink!, but it is the same as [ink!-
 with additional fixes:
 - [Not generate metadata if compile_as_dependency is true](https://github.com/paritytech/ink/pull/811)
 - [Remove Salt in code generation during build_create](https://github.com/paritytech/ink/pull/842)
+- [A new `metadata_name` attribute](https://github.com/paritytech/ink/pull/859)
 
 ### Events 
 ‼️ Important ‼️

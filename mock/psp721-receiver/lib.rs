@@ -3,6 +3,7 @@
 #[brush::contract]
 pub mod erc721_receiver {
     use psp721::traits::*;
+    use ink_prelude::{ string::String, vec::Vec };
 
     #[ink(storage)]
     pub struct PSP721ReceiverStruct {
@@ -28,6 +29,7 @@ pub mod erc721_receiver {
     }
 
     impl IPSP721Receiver for PSP721ReceiverStruct {
+        #[ink(message)]
         fn on_psp721_received(
             &mut self,
             _operator: AccountId,

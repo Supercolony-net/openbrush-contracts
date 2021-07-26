@@ -15,8 +15,8 @@ const patchContractMethods = (contract: Contract): Contract => {
 }
 
 // It removes prefix from the function and adds only name of method like a function
-// PSP20::token_name
-// query["PSP20,tokenName"]
+// PSP22::token_name
+// query["PSP22,tokenName"]
 // query.tokenName()
 const patchMethods = (object) => {
   for (const prop in object) {

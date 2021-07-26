@@ -1,7 +1,7 @@
 import { consts } from './constants'
 import {bnArg, expect, setupContract} from './helpers'
 
-describe('MY_PSP20', () => {
+describe('MY_PSP22', () => {
   async function setup() {
     return setupContract('my_psp20', 'new', '1000', 'TOKEN', 'TKN', 2)
   }
