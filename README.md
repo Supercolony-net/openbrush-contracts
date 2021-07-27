@@ -23,11 +23,11 @@ To understand how to use the library better to check [examples](examples) and [d
 
 
 ### ink! version
-At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc3](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc3)
+At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc4](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc4)
 with additional fixes:
-- [Not generate metadata if compile_as_dependency is true](https://github.com/paritytech/ink/pull/811)
-- [Remove Salt in code generation during build_create](https://github.com/paritytech/ink/pull/842)
 - [A new `metadata_name` attribute](https://github.com/paritytech/ink/pull/859)
+
+So if you want to use this library in the project, you must use custom version of ink! in the whole project.
 
 ### Events 
 ‼️ Important ‼️

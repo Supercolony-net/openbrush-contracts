@@ -8,8 +8,7 @@ pub mod my_access_control {
     use ink_prelude::vec::Vec;
 
     #[ink(storage)]
-    #[derive(Default)]
-    #[derive(PSP721Storage, AccessControlStorage)]
+    #[derive(Default, PSP721Storage, AccessControlStorage)]
     pub struct PSP721Struct {
         #[PSP721StorageField]
         psp721: PSP721Data,

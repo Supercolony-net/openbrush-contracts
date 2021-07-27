@@ -35,20 +35,17 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// will generate implementation of additional traits.
 ///
 ///  ** Note ** The name of the trait defined via this macro must be unique for the whole project.
+///  ** Note ** You can't use aliases, generics, and other rust's stuff in signatures of ink!'s methods.
 ///
 /// # Example: Definition
 ///
 /// ```
-/// pub use ink_storage::{
-///     collections::{
-///         HashMap as StorageHashMap,
-///     },
-/// };
+/// use ink_prelude::collections::BTreeMap;
 /// use brush::traits::{AccountId, Balance, InkStorage};
 ///
 /// #[derive(Default, Debug)]
 /// pub struct Data {
-///     pub balances: StorageHashMap<AccountId, Balance>,
+///     pub balances: BTreeMap<AccountId, Balance>,
 /// }
 ///
 /// pub trait PSP22Storage: InkStorage {
@@ -87,18 +84,22 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// ```
 /// #[brush::contract]
 /// mod base_psp20 {
-///     pub use ink_storage::collections::{HashMap as StorageHashMap};
+///     use ink_prelude::collections::BTreeMap;
+///     use brush::traits::InkStorage;
+///     use ink_storage::traits::StorageLayout;
+///     use ink_storage::traits::SpreadLayout;
 ///
-///     #[brush::storage_trait]
-///     pub trait PSP22ExampleStorage {
-///         fn _supply(&self) -> & Balance;
-///         fn _supply_mut(&mut self) -> &mut Balance;
+///     #[derive(Default, Debug, SpreadLayout)]
+///     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+///     pub struct Data {
+///         pub supply: Balance,
+///         pub balances: BTreeMap<AccountId, Balance>,
+///         pub allowances: BTreeMap<(AccountId, AccountId), Balance>,
+///     }
 ///
-///         fn _balances(&self) -> & StorageHashMap<AccountId, Balance>;
-///         fn _balances_mut(&mut self) -> &mut StorageHashMap<AccountId, Balance>;
-///
-///         fn _allowances(&self) -> & StorageHashMap<(AccountId, AccountId), Balance>;
-///         fn _allowances_mut(&mut self) -> &mut StorageHashMap<(AccountId, AccountId), Balance>;
+///     pub trait PSP22ExampleStorage: InkStorage {
+///         fn get(&self) -> &Data;
+///         fn get_mut(&mut self) -> &mut Data;
 ///     }
 ///
 ///     #[brush::trait_definition]
@@ -106,7 +107,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///         /// Returns the account Balance for the specified `owner`.
 ///         #[ink(message)]
 ///         fn balance_of(&self, owner: AccountId) -> Balance {
-///             self._balances().get(&owner).copied().unwrap_or(0)
+///             self.get().balances.get(&owner).copied().unwrap_or(0)
 ///         }
 ///
 ///         /// Transfers `value` amount of tokens from the caller's account to account `to`.
@@ -119,23 +120,39 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///         fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
 ///             let from_balance = self.balance_of(from);
 ///             assert!(from_balance >= amount, "InsufficientBalance");
-///             self._balances_mut().insert(from, from_balance - amount);
+///             self.get_mut().balances.insert(from, from_balance - amount);
 ///             let to_balance = self.balance_of(to);
-///             self._balances_mut().insert(to, to_balance + amount);
+///             self.get_mut().balances.insert(to, to_balance + amount);
 ///         }
 ///     }
 ///
 ///     #[ink(storage)]
-///     #[derive(Default, PSP22ExampleStorage)]
+///     #[derive(Default)]
 ///     pub struct PSP22Struct {
+///         example: Data,
 ///         hated_account: AccountId,
+///     }
+///
+///     impl PSP22ExampleStorage for PSP22Struct {
+///         fn get(&self) -> &Data {
+///             &self.example
+///         }
+///
+///         fn get_mut(&mut self) -> &mut Data {
+///             &mut self.example
+///         }
 ///     }
 ///
 ///     impl PSP22Example for PSP22Struct {
 ///         // Let's override method to reject transactions to bad account
 ///         fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
 ///             assert!(to != self.hated_account, "I hate this account!");
-///             #[super]self._transfer_from_to(from, to, amount);
+///
+///             let from_balance = self.balance_of(from);
+///             assert!(from_balance >= amount, "InsufficientBalance");
+///             self.get_mut().balances.insert(from, from_balance - amount);
+///             let to_balance = self.balance_of(to);
+///             self.get_mut().balances.insert(to, to_balance + amount);
 ///         }
 ///     }
 ///

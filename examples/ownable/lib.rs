@@ -4,14 +4,11 @@
 pub mod ownable {
     use psp1155::traits::*;
     use ownable::traits::*;
-    use brush::{
-        modifiers,
-    };
+    use brush::modifiers;
     use ink_prelude::vec::Vec;
 
     #[ink(storage)]
-    #[derive(Default)]
-    #[derive(PSP1155Storage, OwnableStorage)]
+    #[derive(Default, PSP1155Storage, OwnableStorage)]
     pub struct PSP1155Struct {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,

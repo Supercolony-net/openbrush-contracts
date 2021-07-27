@@ -39,12 +39,15 @@ pub mod my_flipper_guard {
     use ink_env::call::FromAccountId;
     use crate::flip_on_me::CallerOfFlip;
 ```
-3. Declare storage struct and derive `ReentrancyGuardStorage`trait. Deriving this trait 
-   will add required field to your structure for modifier.
+3. Declare storage struct and declare the field for `ReentrancyGuardStorage` trait. 
+   Then you need to derive `ReentrancyGuardStorage` trait and mark the field with `#[ReentrancyGuardStorageField]` attribute.
+   Deriving this trait allows you to use `non_reentrant` modifier.
 ```rust
 #[ink(storage)]
 #[derive(Default, ReentrancyGuardStorage)]
 pub struct MyFlipper {
+    #[ReentrancyGuardStorageField]
+    guard: ReentrancyGuardData,
     value: bool,
 }
 ```
@@ -72,8 +75,8 @@ impl MyFlipper {
     pub fn call_flip_on_me(&mut self, callee: AccountId) {
         // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
         // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
-        // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
-        // that calling `flip` after `call_flip_on_me` must fail.
+        // `call_flip_on_me` and `flip` is marked with `non_reentrant` modifier. It means,
+        // that call of `flip` after `call_flip_on_me` must fails.
         let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
         flipper.flip_on_me();
     }

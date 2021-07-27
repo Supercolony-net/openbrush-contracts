@@ -10,9 +10,7 @@ use ink_prelude::{vec::Vec, collections::BTreeMap, vec};
 use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 use brush::traits::{InkStorage, AccountId, Balance};
 use brush::declare_storage_trait;
-use ink_storage::{
-    traits::{SpreadLayout},
-};
+use ink_storage::traits::SpreadLayout;
 pub use psp1155_derive::{PSP1155Storage, PSP1155MetadataStorage};
 
 #[cfg(feature = "std")]
