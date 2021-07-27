@@ -28,16 +28,22 @@ std = [
 #[brush::contract]
 pub mod my_psp20 {
    use psp20::traits::*;
+   use ink_storage::Lazy;
+   use ink_prelude::{string::String, vec::Vec};
 ```
-3. Declare storage struct and derive `PSP22Storage` and `PSP22MetadataStorage` traits. Deriving these traits
-   will add required fields to your structure for implementation of according trait. 
-   Your structure must implement `PSP22Storage` and `PSP22MetadataStorage` if you want to use the
-   default implementation of `PSP22` and `PSP22Metadata`.
-
+3. Declare storage struct and declare the fields related to `PSP22Storage` and `PSP22MetadataStorage`
+   traits. Then you need to derive `PSP22Storage` and `PSP22MetadataStorage` traits and
+   mark according fields with `#[PSP22StorageField]` and `#[PSP22MetadataStorageField]` attributes.
+   Deriving these traits allow you to reuse the default implementation of `PSP22` and `PSP22Metadata`.
 ```rust
 #[ink(storage)]
 #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
-pub struct MyPSP22 {}
+pub struct MyPSP22 {
+   #[PSP22StorageField]
+   psp20: PSP22Data,
+   #[PSP22MetadataStorageField]
+   metadata: PSP22MetadataData,
+}
 ```
 4. After that you can inherit implementation of `PSP22` and `PSP22Metadata` traits.
    You can customize(override) some methods there.
@@ -51,9 +57,9 @@ impl MyPSP22 {
    #[ink(constructor)]
    pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
       let mut instance = Self::default();
-      *instance._name_mut() = Lazy::new(name);
-      *instance._symbol_mut() = Lazy::new(symbol);
-      *instance._decimals_mut() = Lazy::new(decimal);
+      instance.metadata.name = Lazy::new(name);
+      instance.metadata.symbol = Lazy::new(symbol);
+      instance.metadata.decimals = Lazy::new(decimal);
       instance._mint(instance.env().caller(), _total_supply);
       instance
    }
@@ -66,24 +72,30 @@ impl MyPSP22 {
 #[ink(storage)]
 #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
 pub struct MyPSP22 {
+   #[PSP22StorageField]
+   psp20: PSP22Data,
+   #[PSP22MetadataStorageField]
+   metadata: PSP22MetadataData,
    // fields for hater logic
    hated_account: AccountId,
 }
+
 impl PSP22 for MyPSP22 {
    // Let's override method to reject transactions to bad account
    fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
-      assert!(_to != self.hated_account, "{}", PSP22Error::Unknown("I hate this account!").as_ref());
+      assert!(_to != self.hated_account, "{}", PSP22Error::Custom(String::from("I hate this account!")).as_ref());
    }
 }
+
 impl PSP22Metadata for MyPSP22 {}
 
 impl MyPSP22 {
    #[ink(constructor)]
    pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
       let mut instance = Self::default();
-      *instance._name_mut() = Lazy::new(name);
-      *instance._symbol_mut() = Lazy::new(symbol);
-      *instance._decimals_mut() = Lazy::new(decimal);
+      instance.metadata.name = Lazy::new(name);
+      instance.metadata.symbol = Lazy::new(symbol);
+      instance.metadata.decimals = Lazy::new(decimal);
       instance._mint(instance.env().caller(), _total_supply);
       instance
    }

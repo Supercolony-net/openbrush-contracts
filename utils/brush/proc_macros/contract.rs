@@ -89,22 +89,33 @@ fn add_additional_impls(mut items: Vec<syn::Item>) -> Vec<syn::Item> {
 }
 
 fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {
+    let mut result: Vec<syn::Item> = vec![];
     items
         .into_iter()
-        .filter_map(|mut item| {
+        .for_each(|mut item| {
             if let Item::Trait(item_trait) = &mut item {
                 if is_attr(&item_trait.attrs, "trait_definition") {
                     item_trait.attrs = remove_attr(&item_trait.attrs, "trait_definition");
 
-                    let stream = trait_definition::generate(
-                        TokenStream::new(), item_trait.to_token_stream().into());
-                    let new_trait_item = syn::parse::<syn::Item>(stream)
-                        .expect("Can't parse generated trait definition");
-                    return Some(new_trait_item)
+                    let stream: TokenStream2 = trait_definition::generate(
+                        TokenStream::new(), item_trait.to_token_stream().into()).into();
+                    let mod_item = syn::parse2::<syn::ItemMod>(quote! {
+                        mod jora {
+                            #stream
+                        }
+                    }).expect("Can't parse generated trait definitions");
+
+                    let (_, mut generated_items) = mod_item.content.unwrap();
+                    result.append(&mut generated_items);
+                } else {
+                    result.push(item);
                 }
+            } else {
+                result.push(item);
             }
-            Some(item)
-        }).collect()
+        });
+
+    result
 }
 
 // This function will generate "ink-as-dependency" and not("ink-as-dependency") items.

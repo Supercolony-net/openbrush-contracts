@@ -3,9 +3,7 @@
 #[brush::contract]
 pub mod my_psp20 {
     use psp20::traits::*;
-    use ink_storage::{
-        Lazy,
-    };
+    use ink_storage::Lazy;
     use ink_prelude::{string::String, vec::Vec};
 
     #[ink(storage)]
