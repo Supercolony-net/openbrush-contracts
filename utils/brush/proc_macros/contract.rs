@@ -149,26 +149,6 @@ fn split_impls(mut items: Vec<syn::Item>, metadata: &metadata::Metadata) -> (Vec
                 }
                 ink_items.push(syn::Item::from(item_impl.clone()));
                 not_ink_items.push(syn::Item::from(item_impl.clone()));
-            } else if let Item::Struct(item_struct) = &mut item {
-                if let Some(_) = item_struct.attrs.iter().find(|attr|
-                    attr.to_token_stream().to_string() == "#[ink(storage)]"
-                ) {
-                    let mut empty_struct = item_struct.clone();
-                    let mut attrs = empty_struct.attrs.clone();
-                    empty_struct.attrs = extract_attr(&mut attrs, "ink");
-                    empty_struct.attrs.append(&mut extract_attr(&mut attrs, "doc"));
-
-                    empty_struct.fields = syn::Fields::Named(syn::FieldsNamed{
-                        brace_token: Default::default(),
-                        named: Default::default()
-                    });
-
-                    ink_items.push(syn::Item::from(empty_struct));
-                    not_ink_items.push(item.clone());
-                } else {
-                    ink_items.push(item.clone());
-                    not_ink_items.push(item.clone());
-                }
             } else {
                 ink_items.push(item.clone());
                 not_ink_items.push(item.clone());

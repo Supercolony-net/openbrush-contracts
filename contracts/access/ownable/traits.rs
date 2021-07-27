@@ -3,14 +3,14 @@ use brush::traits::{AccountIdExt, ZERO_ADDRESS};
 use brush::traits::{InkStorage, AccountId};
 use brush::declare_storage_trait;
 use ink_storage::{
-    traits::{PackedLayout, SpreadLayout},
+    traits::{SpreadLayout},
 };
 pub use ownable_derive::OwnableStorage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, scale::Decode, scale::Encode, PackedLayout, SpreadLayout)]
+#[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
 pub struct OwnableData {
     pub owner: AccountId,
