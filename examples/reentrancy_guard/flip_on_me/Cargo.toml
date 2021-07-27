@@ -15,6 +15,9 @@ ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
+# We will do a cross contract call via `MyFlipper` wrapper imported here
+my_flipper_guard = { path = "../flipper", default-features = false, features = ["ink-as-dependency"] }
+
 [lib]
 name = "flip_on_me"
 path = "lib.rs"
@@ -36,5 +39,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
+
+    "my_flipper_guard/std",
 ]
 ink-as-dependency = []
