@@ -141,11 +141,13 @@ fn recursive_replace_self(token_stream: TokenStream2) -> TokenStream2 {
                         token
                     },
                 TokenTree::Group(group) => {
+                    let mut new_group = proc_macro2::Group::new(
+                        group.delimiter(),
+                        recursive_replace_self(group.stream())
+                    );
+                    new_group.set_span(group.span());
                     TokenTree::Group(
-                        proc_macro2::Group::new(
-                            group.delimiter(),
-                            recursive_replace_self(group.stream())
-                        )
+                        new_group
                     )
                 }
                 _ => token,
