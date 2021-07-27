@@ -14,7 +14,8 @@ use cargo_metadata::{MetadataCommand};
 use std::path::PathBuf;
 use unwrap::unwrap;
 
-const TEMP_FILE: &str = "__brush_metadata";
+const TEMP_FILE: &'static str = "__brush_metadata";
+
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub(crate) struct TraitDefinitions(HashMap<String, String>);
 

@@ -8,7 +8,7 @@ use syn::{
     parse_macro_input,
 };
 use proc_macro::{TokenStream};
-use crate::internal::{remove_attr, is_attr};
+use crate::internal::{remove_attr, is_attr, BRUSH_PREFIX};
 use crate::metadata;
 
 pub(crate) const WRAPPER_TRAIT_SUFFIX: &'static str = "Wrapper";
@@ -28,15 +28,15 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
     let trait_without_ink_attrs = remove_ink_attrs(trait_item.clone());
     let ink_trait = transform_to_ink_trait(trait_item.clone());
     let mut ink_wrapper = ink_trait.clone();
-    ink_wrapper.ident = format_ident!("{}{}", ink_wrapper.ident, WRAPPER_TRAIT_SUFFIX);
+    ink_wrapper.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, ink_wrapper.ident, WRAPPER_TRAIT_SUFFIX);
 
     // Create external trait with external method. This trait will call implementation of internal trait.
     // During implementation of this trait we will
     let mut ink_external = ink_trait;
-    ink_external.ident = format_ident!("{}{}", ink_external.ident, EXTERNAL_TRAIT_SUFFIX);
+    ink_external.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, ink_external.ident, EXTERNAL_TRAIT_SUFFIX);
     ink_external.items.iter_mut().for_each(|item|
         if let syn::TraitItem::Method(method) = item {
-            method.sig.ident = format_ident!("{}{}", method.sig.ident, EXTERNAL_METHOD_SUFFIX)
+            method.sig.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, method.sig.ident, EXTERNAL_METHOD_SUFFIX)
         }
     );
 
@@ -49,12 +49,14 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
         // This trait will use metadata_name and selector attributes
         // to generate the same ABI like original trait.
         #[ink_lang::trait_definition]
+        #[allow(non_camel_case_types)]
         #ink_external
 
         // This trait contains only ink! methods with original naming.
         // We will use them to cover "ink-as-dependency" case.
         // We will implement this trait only for this case.
         #[ink_lang::trait_definition]
+        #[allow(non_camel_case_types)]
         #ink_wrapper
     };
     code.into()

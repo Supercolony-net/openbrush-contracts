@@ -16,41 +16,25 @@ use proc_macro::TokenStream;
 /// The macro consumes brush's macros to simplify the usage of the library.
 /// After consumption, it pastes ink! code and then ink!'s macros will be processed.
 ///
-/// First of all, the macro will process:
-/// [`#[brush::storage_trait]`](`macro@crate::storage_trait`),
-/// [`#[brush::trait_definition]`](`macro@crate::trait_definition`),
-/// [`#[brush::modifier_definition]`](`macro@crate::modifier_definition`).
+/// This macro consumes impl section for traits defined with [`#[brush::trait_definition]`](`macro@crate::trait_definition`).
 ///
-/// After that it will consume every usage of:
-/// - Derive of storage trait([`#[brush::storage_trait]`](`macro@crate::storage_trait`)).
-/// - Impl of external trait([`#[brush::trait_definition]`](`macro@crate::trait_definition`)).
+/// Also, this macro marks each non-ink! implementation section with `#[cfg(not(feature = "ink-as-dependency"))]`.
 #[proc_macro_attribute]
 pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
     contract::generate(_attrs, ink_module)
 }
 
 /// Defines extensible trait in the scope of brush::contract.
-/// It is the same ink trait definition, but with additional features:
-/// - Allows using super traits.
-/// - Allows defining default implementations of methods.
-/// - Allows having internal functions(without `#[ink(message)]`).
-/// - Allows calling implementation from trait when overriding (via `#[super] self.transfer( ... )`).
+/// It is a common rust trait, so you can use any features of rust inside of this trait.
+/// If this trait contains some methods marked with `#[ink(message)]` or `#[ink(constructor)]` attributes,
+/// this macro will extract these attributes and will put them into a separate trait
+/// (the separate trait only is used to call methods from the original trait), but the macro will not touch methods.
 ///
 /// This macro stores definition of the trait in a temporary file during build process.
 /// Based on this definition [`#[brush::contract]`](`macro@crate::contract`)
-/// will generate implementation of this trait. If you defined a default implementation,
-/// [`#[brush::contract]`](`macro@crate::contract`) will copy the default implementation from the trait
-/// and will paste it in impl section. It means that your default implementation must be public
-/// and exported as a part of crate.
+/// will generate implementation of additional traits.
 ///
-///  ** Note ** You don't need to copy/paste attributes from trait definition, it will be done automatically.
-///  ** Note ** Super trait is not used during build process, it is only syntactic sugar for your IDE.
-///  ** Note ** Internal methods are not stored in trait, they will be extracted to separate impl section.
-/// of your struct, so their implementation also must be public.
-///  ** Note ** This macro must be processed before [`#[brush::contract]`](`macro@crate::contract`),
-/// otherwise it will fail: It means that [`#[brush::trait_definition]`] must be defined in scope of
-/// [`#[brush::contract]`](`macro@crate::contract`)
-/// or it must be defined in another crate(macros in dependencies will be processed early).
+///  ** Note ** The name of the trait defined via this macro must be unique for the whole project.
 ///
 /// # Example: Definition
 ///

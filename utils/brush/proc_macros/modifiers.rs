@@ -14,6 +14,7 @@ use proc_macro2::{
     TokenStream as TokenStream2,
     TokenTree,
 };
+use crate::internal::BRUSH_PREFIX;
 
 const INSTANCE: &'static str = "__brush_instance_modifier";
 
@@ -89,7 +90,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
             let mut cloned_variables_idents = vec![];
             let cloned_variables_definitions = meta_list.nested.iter()
                 .map(|nested_meta| {
-                    let cloned_ident = format_ident!("__brush_cloned_{}", cloned_variables_idents.len());
+                    let cloned_ident = format_ident!("{}_cloned_{}", BRUSH_PREFIX, cloned_variables_idents.len());
                     cloned_variables_idents.push(cloned_ident.clone());
                     quote! {
                         let #cloned_ident = #nested_meta.clone();
@@ -153,7 +154,7 @@ fn recursive_replace_self(token_stream: TokenStream2) -> TokenStream2 {
 }
 
 fn put_into_closure(receiver: &syn::Receiver, block: syn::Block, index: u8) -> (syn::Block, syn::Ident) {
-    let body_ident = format_ident!("__brush_body_{}", index);
+    let body_ident = format_ident!("{}_body_{}", BRUSH_PREFIX, index);
     let instance_ident = format_ident!("{}", INSTANCE);
 
     let reference = match receiver.mutability.is_some() {
