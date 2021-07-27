@@ -136,7 +136,7 @@ fn recursive_replace_self(token_stream: TokenStream2) -> TokenStream2 {
             match &token {
                 TokenTree::Ident(ident) =>
                     if ident.to_string() == "self" {
-                        TokenTree::Ident(format_ident!("{}", INSTANCE))
+                        TokenTree::Ident(syn::Ident::new(INSTANCE, ident.span()))
                     } else {
                         token
                     },
@@ -155,7 +155,7 @@ fn recursive_replace_self(token_stream: TokenStream2) -> TokenStream2 {
 
 fn put_into_closure(receiver: &syn::Receiver, block: syn::Block, index: u8) -> (syn::Block, syn::Ident) {
     let body_ident = format_ident!("{}_body_{}", BRUSH_PREFIX, index);
-    let instance_ident = format_ident!("{}", INSTANCE);
+    let instance_ident = syn::Ident::new(INSTANCE, receiver.span());
 
     let reference = match receiver.mutability.is_some() {
         true => quote! { &mut },
