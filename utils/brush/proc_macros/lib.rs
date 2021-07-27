@@ -44,12 +44,16 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///         HashMap as StorageHashMap,
 ///     },
 /// };
-/// use brush::traits::{AccountId, Balance};
+/// use brush::traits::{AccountId, Balance, InkStorage};
 ///
-/// #[brush::storage_trait]
-/// pub trait PSP22Storage {
-///     fn _balances(&self) -> & StorageHashMap<AccountId, Balance>;
-///     fn _balances_mut(&mut self) -> &mut StorageHashMap<AccountId, Balance>;
+/// #[derive(Default, Debug)]
+/// pub struct Data {
+///     pub balances: StorageHashMap<AccountId, Balance>,
+/// }
+///
+/// pub trait PSP22Storage: InkStorage {
+///     fn get(&self) -> &Data;
+///     fn get_mut(&mut self) -> &mut Data;
 /// }
 ///
 /// #[brush::trait_definition]
@@ -57,7 +61,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     /// Returns the account Balance for the specified `owner`.
 ///     #[ink(message)]
 ///     fn balance_of(&self, owner: AccountId) -> Balance {
-///         self._balances().get(&owner).copied().unwrap_or(0)
+///         self.get().balances.get(&owner).copied().unwrap_or(0)
 ///     }
 ///
 ///     /// Transfers `value` amount of tokens from the caller's account to account `to`.
@@ -69,9 +73,9 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
 ///         let from_balance = self.balance_of(from);
 ///         assert!(from_balance >= amount, "InsufficientBalance");
-///         self._balances_mut().insert(from, from_balance - amount);
+///         self.get_mut().balances.insert(from, from_balance - amount);
 ///         let to_balance = self.balance_of(to);
-///         self._balances_mut().insert(to, to_balance + amount);
+///         self.get_mut().balances.insert(to, to_balance + amount);
 ///     }
 /// }
 /// ```

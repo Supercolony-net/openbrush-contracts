@@ -20,13 +20,25 @@ macro_rules! declare_derive_storage_trait {
                         field_ident = field.ident.clone();
                         field_ty = field.ty.clone();
                     } else {
-                        panic!("Struct doesn't specify {} for trait {}", FIELD_SETTER, TRAIT_NAME);
+                        let err_message = format!("Struct doesn't specify {} for trait {}", FIELD_SETTER, TRAIT_NAME);
+                        return quote::quote! {
+                            #[cfg(not(feature = "ink-as-dependency"))]
+                            compile_error!(#err_message);
+                        }.into();
                     }
                 } else {
-                    panic!("{} only supports named fields in struct", FIELD_SETTER);
+                    let err_message = format!("{} only supports named fields in struct", FIELD_SETTER);
+                    return quote::quote! {
+                        #[cfg(not(feature = "ink-as-dependency"))]
+                        compile_error!(#err_message);
+                    }.into();
                 }
             } else {
-                panic!("{} only supports struct", FIELD_SETTER);
+                let err_message = format!("{} only supports struct", FIELD_SETTER);
+                return quote::quote! {
+                    #[cfg(not(feature = "ink-as-dependency"))]
+                    compile_error!(#err_message);
+                }.into();
             }
 
             let code = quote::quote! {
