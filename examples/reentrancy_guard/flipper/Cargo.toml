@@ -21,9 +21,11 @@ brush = { path = "../../../utils/brush", default-features = false }
 [lib]
 name = "my_flipper_guard"
 path = "lib.rs"
+
 crate-type = [
-	# Used for normal contract Wasm blobs.
 	"cdylib",
+    # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
+    "rlib",
 ]
 
 [features]
@@ -43,4 +45,7 @@ std = [
     "brush/std",
     "reentrancy_guard/std",
 ]
-ink-as-dependency = []
+
+ink-as-dependency = [
+    "reentrancy_guard/ink-as-dependency"
+]
