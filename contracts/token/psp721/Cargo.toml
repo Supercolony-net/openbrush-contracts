@@ -17,7 +17,7 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 
 strum_macros = "0.21.1"
 brush = { path = "../../../utils/brush", default-features = false }
-psp721_derive = { path = "./derive", default-features = false }
+psp721_derive = { path = "./derive" }
 
 [lib]
 name = "psp721"
