@@ -114,8 +114,7 @@ pub(crate) fn impl_external_trait(mut impl_item: syn::ItemImpl,
     }).unwrap();
 
     let trait_name = ink_impl.trait_path()
-        .map(|path| path.segments.last().map(|seg| seg.ident.to_string()))
-        .flatten();
+        .map(|path| path.segments.last().unwrap().ident.to_string());
 
     let mut metadata_name_attr = quote! {};
     if trait_name == ink_impl.trait_metadata_name() {

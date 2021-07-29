@@ -10,8 +10,8 @@ macro_rules! declare_storage_trait {
 
 #[macro_export]
 macro_rules! impl_storage_trait {
-    ($trait_name:ident,$field:ident,$data_ty:ty) => {
-        impl $trait_name for MyOwnable {
+    ($trait_name:ident,$struct_name:ident,$field:ident,$data_ty:ty) => {
+        impl $trait_name for $struct_name {
             fn get(&self) -> &$data_ty {
                 &self.$field
             }
