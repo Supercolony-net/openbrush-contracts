@@ -31,11 +31,16 @@ mod tests {
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, PSP20Storage, PSP20MetadataStorage)]
-    pub struct PSP20Struct {}
-    type Event = <PSP20Struct as ::ink_lang::BaseEvent>::Type;
+    #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+    pub struct PSP22Struct {
+        #[PSP22StorageField]
+        psp20: PSP22Data,
+        #[PSP22MetadataStorageField]
+        metadata: PSP22MetadataData,
+    }
+    type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
 
-    impl PSP20 for PSP20Struct {
+    impl PSP22 for PSP22Struct {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
@@ -56,7 +61,7 @@ mod tests {
         fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) { }
     }
 
-    impl PSP20Struct {
+    impl PSP22Struct {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
@@ -82,19 +87,19 @@ mod tests {
         }
         let expected_topics = vec![
             encoded_into_hash(&PrefixedValue {
-                value: b"PSP20Struct::Transfer",
+                value: b"PSP22Struct::Transfer",
                 prefix: b"",
             }),
             encoded_into_hash(&PrefixedValue {
-                prefix: b"PSP20Struct::Transfer::from",
+                prefix: b"PSP22Struct::Transfer::from",
                 value: &expected_from,
             }),
             encoded_into_hash(&PrefixedValue {
-                prefix: b"PSP20Struct::Transfer::to",
+                prefix: b"PSP22Struct::Transfer::to",
                 value: &expected_to,
             }),
             encoded_into_hash(&PrefixedValue {
-                prefix: b"PSP20Struct::Transfer::value",
+                prefix: b"PSP22Struct::Transfer::value",
                 value: &expected_value,
             }),
         ];
@@ -112,7 +117,7 @@ mod tests {
     #[ink::test]
     fn new_works() {
         // Constructor works.
-        let _psp20 = PSP20Struct::new(100);
+        let _psp20 = PSP22Struct::new(100);
 
         // Transfer event triggered during initial construction.
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
@@ -130,7 +135,7 @@ mod tests {
     #[ink::test]
     fn total_supply_works() {
         // Constructor works.
-        let psp20 = PSP20Struct::new(100);
+        let psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(
@@ -147,7 +152,7 @@ mod tests {
     #[ink::test]
     fn balance_of_works() {
         // Constructor works
-        let psp20 = PSP20Struct::new(100);
+        let psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(
@@ -168,7 +173,7 @@ mod tests {
     #[ink::test]
     fn transfer_works() {
         // Constructor works.
-        let mut psp20 = PSP20Struct::new(100);
+        let mut psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
@@ -202,7 +207,7 @@ mod tests {
     #[should_panic(expected = "InsufficientBalance")]
     fn invalid_transfer_should_fail() {
         // Constructor works.
-        let mut psp20 = PSP20Struct::new(100);
+        let mut psp20 = PSP22Struct::new(100);
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");
@@ -232,7 +237,7 @@ mod tests {
     #[should_panic(expected = "InsufficientAllowance")]
     fn transfer_from_fails() {
         // Constructor works.
-        let mut psp20 = PSP20Struct::new(100);
+        let mut psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
@@ -245,7 +250,7 @@ mod tests {
     #[ink::test]
     fn transfer_from_works() {
         // Constructor works.
-        let mut psp20 = PSP20Struct::new(100);
+        let mut psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
@@ -299,7 +304,7 @@ mod tests {
     #[ink::test]
     #[should_panic(expected = "InsufficientBalance")]
     fn allowance_must_not_change_on_failed_transfer() {
-        let mut psp20 = PSP20Struct::new(100);
+        let mut psp20 = PSP22Struct::new(100);
         let accounts =
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");

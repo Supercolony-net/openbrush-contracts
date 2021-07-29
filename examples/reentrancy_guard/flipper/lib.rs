@@ -36,9 +36,10 @@ pub mod my_flipper_guard {
     use crate::flip_on_me::CallerOfFlip;
 
     #[ink(storage)]
-    #[derive(Default)]
-    #[derive(ReentrancyGuardStorage)]
+    #[derive(Default, ReentrancyGuardStorage)]
     pub struct MyFlipper {
+        #[ReentrancyGuardStorageField]
+        guard: ReentrancyGuardData,
         value: bool,
     }
 

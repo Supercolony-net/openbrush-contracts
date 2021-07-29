@@ -6,7 +6,7 @@ mod tests {
     use ::ink_env::{DefaultEnvironment};
     use ink_lang as ink;
 
-    use ink::{EmitEvent};
+    use ink::{Env, EmitEvent};
 
     #[ink(event)]
     pub struct RoleAdminChanged {
@@ -45,7 +45,10 @@ mod tests {
 
     #[derive(Default, AccessControlStorage)]
     #[ink(storage)]
-    pub struct AccessControlStruct {}
+    pub struct AccessControlStruct {
+        #[AccessControlStorageField]
+        access: AccessControlData,
+    }
 
     type Event = <AccessControlStruct as ::ink_lang::BaseEvent>::Type;
 

@@ -7,6 +7,8 @@ mod tests {
     #[ink(storage)]
     #[derive(Default, ReentrancyGuardStorage)]
     pub struct MyFlipper {
+        #[ReentrancyGuardStorageField]
+        guard: ReentrancyGuardData,
         flipped: bool,
     }
 

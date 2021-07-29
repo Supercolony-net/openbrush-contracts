@@ -5,15 +5,18 @@ authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
 [dependencies]
-ink_primitives = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
-ink_metadata = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false, features = ["derive"], optional = true }
-ink_env = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
-ink_storage = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
-ink_lang = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
-ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc4", default-features = false }
+ink_primitives = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_metadata = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false, features = ["derive"], optional = true }
+ink_env = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_storage = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_lang = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+
+# We will do a cross contract call via `MyFlipper` wrapper imported here
+my_flipper_guard = { path = "../flipper", default-features = false, features = ["ink-as-dependency"] }
 
 [lib]
 name = "flip_on_me"
@@ -36,5 +39,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
+
+    "my_flipper_guard/std",
 ]
 ink-as-dependency = []

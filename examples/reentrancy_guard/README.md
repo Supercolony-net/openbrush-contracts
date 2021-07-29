@@ -21,6 +21,12 @@ In this example we will create two contract:
 reentrancy_guard = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
+crate-type = [
+    "cdylib",
+    # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
+    "rlib",
+]
+
 [features]
 default = ["std"]
 std = [
@@ -39,12 +45,15 @@ pub mod my_flipper_guard {
     use ink_env::call::FromAccountId;
     use crate::flip_on_me::CallerOfFlip;
 ```
-3. Declare storage struct and derive `ReentrancyGuardStorage`trait. Deriving this trait 
-   will add required field to your structure for modifier.
+3. Declare storage struct and declare the field for `ReentrancyGuardStorage` trait. 
+   Then you need to derive `ReentrancyGuardStorage` trait and mark the field with `#[ReentrancyGuardStorageField]` attribute.
+   Deriving this trait allows you to use `non_reentrant` modifier.
 ```rust
 #[ink(storage)]
 #[derive(Default, ReentrancyGuardStorage)]
 pub struct MyFlipper {
+    #[ReentrancyGuardStorageField]
+    guard: ReentrancyGuardData,
     value: bool,
 }
 ```
@@ -72,8 +81,8 @@ impl MyFlipper {
     pub fn call_flip_on_me(&mut self, callee: AccountId) {
         // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
         // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
-        // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
-        // that calling `flip` after `call_flip_on_me` must fail.
+        // `call_flip_on_me` and `flip` is marked with `non_reentrant` modifier. It means,
+        // that call of `flip` after `call_flip_on_me` must fails.
         let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
         flipper.flip_on_me();
     }
@@ -122,7 +131,7 @@ It is a simple contract which doesn't use any logic from the brush, so you can u
 #[ink_lang::contract]
 pub mod flip_on_me {
     use ink_env::call::FromAccountId;
-    use crate::flipper::Flipper;
+    use my_flipper_guard::my_flipper_guard::MyFlipper;
 
     #[ink(storage)]
     #[derive(Default)]
@@ -138,43 +147,22 @@ pub mod flip_on_me {
         pub fn flip_on_me(&mut self) {
             let caller = self.env().caller();
             // This method will do a cross-contract call to caller account. It will try to call `flip`
-            let mut flipper: Flipper = FromAccountId::from_account_id(caller);
+            let mut flipper: MyFlipper = FromAccountId::from_account_id(caller);
             flipper.flip();
         }
     }
 }
 ```
-2. To simplify cross contract call to `Flipper` contract let's create wrapper for contract's account id.
-   For that we will define another contract in this crate with `#[ink_lang::contract(compile_as_dependency = true)]`
-   and empty methods but with the same signature as in original contract.
+2. To simplify cross contract call to `MyFlipper` you need to import the contract as dependency.
 ```rust
-/// It is stub implementation of contract with method `flip`.
-/// We need this implementation to create wrapper around account id of contract.
-/// With this wrapper we easy can call method of some contract.
-/// Example:
-/// ```
-/// let mut flipper: Flipper = FromAccountId::from_account_id(caller);
-/// flipper.flip();
-/// ```
-#[ink_lang::contract(compile_as_dependency = true)]
-pub mod flipper {
-    #[ink(storage)]
-    pub struct Flipper {}
+[dependencies]
+...
 
-    impl Flipper {
-        #[ink(constructor)]
-        pub fn new() -> Self {
-            unimplemented!()
-        }
-    }
+my_flipper_guard = { path = "../flipper", default-features = false, features = ["ink-as-dependency"] }
 
-    impl Flipper {
-        #[ink(message)]
-        pub fn flip(&mut self) {
-            unimplemented!()
-        }
-    }
-}
+...
+[features]
+...
 ```
 ## Testing
 For testing, you can run according [integration test](tests/reentrancy_guard.tests.ts).

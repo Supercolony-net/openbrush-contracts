@@ -1,20 +1,6 @@
-extern crate proc_macro;
-use proc_macro::{
-    TokenStream,
-};
-use quote::{
-    quote,
-};
-use syn::{
-    DeriveInput,
-    parse_macro_input,
-};
+#![cfg_attr(not(feature = "std"), no_std)]
 
-#[proc_macro_derive(AccessControlStorage)]
-pub fn derive_access_control(_item: TokenStream) -> TokenStream {
-    let DeriveInput { ident, .. } = parse_macro_input!(_item);
-    let code = quote! {
-        impl AccessControlStorage for #ident {}
-    };
-    code.into()
-}
+extern crate proc_macro;
+use brush_derive_macro::declare_derive_storage_trait;
+
+declare_derive_storage_trait!(derive_access_control_storage,AccessControlStorage, AccessControlStorageField);
