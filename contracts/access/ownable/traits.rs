@@ -1,10 +1,15 @@
-use brush::{modifiers, modifier_definition};
-use brush::traits::{AccountIdExt, ZERO_ADDRESS};
-use brush::traits::{InkStorage, AccountId};
-use brush::declare_storage_trait;
-use ink_storage::{
-    traits::{SpreadLayout},
+use brush::{
+    declare_storage_trait,
+    modifier_definition,
+    modifiers,
+    traits::{
+        AccountId,
+        AccountIdExt,
+        InkStorage,
+        ZERO_ADDRESS,
+    },
 };
+use ink_storage::traits::SpreadLayout;
 pub use ownable_derive::OwnableStorage;
 
 #[cfg(feature = "std")]
@@ -18,29 +23,55 @@ pub struct OwnableData {
 
 declare_storage_trait!(OwnableStorage, OwnableData);
 
+/// The Ownable error type. Contract will assert one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum OwnableError {
     CallerIsNotOwner,
     NewOwnerIsZero,
 }
 
+/// Throws if called by any account other than the owner.
 #[modifier_definition]
 pub fn only_owner<T, F, ReturnType>(instance: &mut T, mut body: F) -> ReturnType
-    where
-        T: OwnableStorage,
-        F: FnMut(&mut T) -> ReturnType,
+where
+    T: OwnableStorage,
+    F: FnMut(&mut T) -> ReturnType,
 {
-    assert_eq!(instance.get().owner, T::env().caller(), "{}", OwnableError::CallerIsNotOwner.as_ref());
+    assert_eq!(
+        instance.get().owner,
+        T::env().caller(),
+        "{}",
+        OwnableError::CallerIsNotOwner.as_ref()
+    );
     body(instance)
 }
 
+/// Contract module which provides a basic access control mechanism, where
+/// there is an account (an owner) that can be granted exclusive access to
+/// specific functions.
+///
+/// This module is used through embedding of `OwnableData` and implementation of `IOwnable` and
+/// `OwnableStorage` traits. It will make available the modifier `only_owner`, which can be applied
+/// to your functions to restrict their use to the owner.
 #[brush::trait_definition]
 pub trait IOwnable: OwnableStorage + Sized {
+    /// Returns the address of the current owner.
     #[ink(message)]
     fn owner(&self) -> AccountId {
         self.get().owner.clone()
     }
 
+    /// Leaves the contract without owner. It will not be possible to call
+    /// `onlyOwner` functions anymore. Can only be called by the current owner.
+    ///
+    /// NOTE: Renouncing ownership will leave the contract without an owner,
+    /// thereby removing any functionality that is only available to the owner.
+    ///
+    /// On success a `OwnershipTransferred` event is emitted.
+    ///
+    /// # Errors
+    ///
+    /// Panics with `CallerIsNotOwner` error if caller is not owner
     #[ink(message)]
     #[modifiers(only_owner)]
     fn renounce_ownership(&mut self) {
@@ -49,6 +80,16 @@ pub trait IOwnable: OwnableStorage + Sized {
         self._emit_ownership_transferred_event(Some(old_owner), None);
     }
 
+    /// Transfers ownership of the contract to a `new_owner`.
+    /// Can only be called by the current owner.
+    ///
+    /// On success a `OwnershipTransferred` event is emitted.
+    ///
+    /// # Errors
+    ///
+    /// Panics with `CallerIsNotOwner` error if caller is not owner.
+    ///
+    /// Panics with `NewOwnerIsZero` error if new owner's address is zero.
     #[ink(message)]
     #[modifiers(only_owner)]
     fn transfer_ownership(&mut self, new_owner: AccountId) {
@@ -57,7 +98,7 @@ pub trait IOwnable: OwnableStorage + Sized {
         self.get_mut().owner = new_owner.clone();
         self._emit_ownership_transferred_event(Some(old_owner), Some(new_owner));
     }
-    
+
     // Helper functions
 
     /// User must override this method in their contract.

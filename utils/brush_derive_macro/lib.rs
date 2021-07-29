@@ -13,8 +13,10 @@ macro_rules! declare_derive_storage_trait {
             let field_ty;
             if let syn::Data::Struct(data) = &derive.data {
                 if let syn::Fields::Named(named_fields) = &data.fields {
-                    let field = named_fields.named.iter().find(|f|
-                        f.attrs.iter().find(|a| a.path.is_ident(FIELD_SETTER)).is_some());
+                    let field = named_fields
+                        .named
+                        .iter()
+                        .find(|f| f.attrs.iter().find(|a| a.path.is_ident(FIELD_SETTER)).is_some());
 
                     if let Some(field) = field {
                         field_ident = field.ident.clone();
@@ -24,21 +26,24 @@ macro_rules! declare_derive_storage_trait {
                         return quote::quote! {
                             #[cfg(not(feature = "ink-as-dependency"))]
                             compile_error!(#err_message);
-                        }.into();
+                        }
+                        .into()
                     }
                 } else {
                     let err_message = format!("{} only supports named fields in struct", FIELD_SETTER);
                     return quote::quote! {
                         #[cfg(not(feature = "ink-as-dependency"))]
                         compile_error!(#err_message);
-                    }.into();
+                    }
+                    .into()
                 }
             } else {
                 let err_message = format!("{} only supports struct", FIELD_SETTER);
                 return quote::quote! {
                     #[cfg(not(feature = "ink-as-dependency"))]
                     compile_error!(#err_message);
-                }.into();
+                }
+                .into()
             }
 
             let code = quote::quote! {

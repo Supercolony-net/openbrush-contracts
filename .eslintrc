@@ -1,5 +1,5 @@
 {
-  "extends" : [
+  "extends": [
     "eslint:recommended",
     "plugin:promise/recommended",
     "plugin:@typescript-eslint/recommended"
@@ -13,14 +13,14 @@
   "env": {
     "node": true,
     "es2021": true,
-    "mocha"   : true
+    "mocha": true
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "globals" : {
+  "globals": {
     "artifacts": false,
     "contract": false,
     "assert": false,
@@ -29,10 +29,25 @@
   },
   "rules": {
     "space-before-function-paren": 0,
-    "comma-dangle": ["error", "never"],
-    "indent": ["error", 2],
-    "linebreak-style": ["error", "unix"],
-    "quotes": ["error", "single"],
-    "semi": ["error", "never"]
+    "comma-dangle": [
+      "error",
+      "never"
+    ],
+    "indent": [
+      "error",
+      2
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "never"
+    ]
   }
 }

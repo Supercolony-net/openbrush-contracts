@@ -1,11 +1,12 @@
 #![feature(drain_filter)]
 extern crate proc_macro;
-mod internal;
+
 mod contract;
-mod trait_definition;
+mod internal;
 mod metadata;
 mod modifier_definition;
 mod modifiers;
+mod trait_definition;
 
 use proc_macro::TokenStream;
 
@@ -247,7 +248,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// impl Contract {
 ///     #[brush::modifiers(A, B(_data), C)]
 ///     fn main_logic(&self, _data: u8) -> &'static str {
-///         return "Return value"
+///         return "Return value";
 ///     }
 /// }
 /// ```
@@ -286,7 +287,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///         let mut __brush_body_2 = |__brush_instance_modifier: &Self| {
 ///             let __brush_cloned_0 = _data.clone();
 ///             let mut __brush_body_1 = |__brush_instance_modifier: &Self| {
-///                 let mut __brush_body_0 = |__brush_instance_modifier: &Self| return "Return value";
+///                 let mut __brush_body_0 = |__brush_instance_modifier: &Self| return "Return value";;
 ///                 C(__brush_instance_modifier, __brush_body_0)
 ///             };
 ///             B(__brush_instance_modifier, __brush_body_1, __brush_cloned_0)
@@ -294,7 +295,6 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///         A(self, __brush_body_2)
 ///     }
 /// }
-///
 /// ```
 ///
 /// # Example: Usage

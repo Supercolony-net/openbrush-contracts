@@ -3,12 +3,12 @@
 #[brush::contract]
 pub mod erc1155_receiver {
     use psp1155::traits::*;
-    use ink_prelude::{ string::String, vec::Vec };
+    use ink_prelude::{string::String, vec::Vec};
 
     #[ink(storage)]
     pub struct PSP1155ReceiverStruct {
         call_counter: u64,
-        revert_next_transfer: bool
+        revert_next_transfer: bool,
     }
 
     impl PSP1155ReceiverStruct {
@@ -31,10 +31,10 @@ pub mod erc1155_receiver {
     impl IPSP1155Receiver for PSP1155ReceiverStruct {
         #[ink(message)]
         fn on_psp1155_received(&mut self, _operator: AccountId, _from: AccountId,
-                                   _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
+                               _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP1155ReceiverError::TransferRejected(String::from("Transfer Rejected")))
+                return Err(PSP1155ReceiverError::TransferRejected(String::from("Transfer Rejected")));
             }
             self.call_counter += 1;
             Ok(())
@@ -42,10 +42,10 @@ pub mod erc1155_receiver {
 
         #[ink(message)]
         fn on_psp1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
-                                         _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
+                                     _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP1155ReceiverError::TransferRejected(String::from("Transfer Rejected")))
+                return Err(PSP1155ReceiverError::TransferRejected(String::from("Transfer Rejected")));
             }
             self.call_counter += 1;
             Ok(())

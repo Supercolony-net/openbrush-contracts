@@ -2,11 +2,14 @@
 #[brush::contract]
 mod tests {
     use crate::traits::*;
+    use ::ink_env::DefaultEnvironment;
     use ink_env::test::DefaultAccounts;
-    use ::ink_env::{DefaultEnvironment};
     use ink_lang as ink;
 
-    use ink::{Env, EmitEvent};
+    use ink::{
+        EmitEvent,
+        Env,
+    };
 
     #[ink(event)]
     pub struct RoleAdminChanged {
@@ -15,7 +18,7 @@ mod tests {
         #[ink(topic)]
         previous_admin_role: RoleType,
         #[ink(topic)]
-        new_admin_role: RoleType
+        new_admin_role: RoleType,
     }
 
     #[ink(event)]
@@ -25,7 +28,7 @@ mod tests {
         #[ink(topic)]
         grantee: AccountId,
         #[ink(topic)]
-        grantor: Option<AccountId>
+        grantor: Option<AccountId>,
     }
 
     #[ink(event)]
@@ -35,7 +38,7 @@ mod tests {
         #[ink(topic)]
         account: AccountId,
         #[ink(topic)]
-        admin: AccountId
+        admin: AccountId,
     }
 
     // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
@@ -57,23 +60,19 @@ mod tests {
             self.env().emit_event(RoleAdminChanged {
                 role,
                 previous_admin_role,
-                new_admin_role
+                new_admin_role,
             })
         }
 
         fn _emit_role_granted(&mut self, role: u32, grantee: AccountId, grantor: Option<AccountId>) {
-            self.env().emit_event(RoleGranted {
-                role,
-                grantee,
-                grantor
-            })
+            self.env().emit_event(RoleGranted { role, grantee, grantor })
         }
 
         fn _emit_role_revoked(&mut self, role: u32, account: AccountId, sender: AccountId) {
             self.env().emit_event(RoleRevoked {
                 role,
                 account,
-                admin: sender
+                admin: sender,
             })
         }
     }
@@ -87,48 +86,95 @@ mod tests {
         }
     }
 
-    fn assert_role_admin_change_event(event: &ink_env::test::EmittedEvent,
-                                      expected_role: RoleType, expected_prev_admin: RoleType, expected_new_admin: RoleType) {
-        if let Event::RoleAdminChanged(RoleAdminChanged {role, previous_admin_role, new_admin_role}) =
-        <Event as scale::Decode>::decode(&mut &event.data[..])
-            .expect("encountered invalid contract event data buffer") {
-            assert_eq!(role, expected_role, "Roles were not equal: encountered role {:?}, expected role {:?}", role, expected_role);
-            assert_eq!(previous_admin_role, expected_prev_admin,
-                       "Previous admins were not equal: encountered previous admin {:?}, expected {:?}", previous_admin_role, expected_prev_admin);
-            assert_eq!(new_admin_role, expected_new_admin,
-                       "New admins were not equal: encountered new admin {:?}, expected {:?}", new_admin_role, expected_new_admin);
+    fn assert_role_admin_change_event(
+        event: &ink_env::test::EmittedEvent,
+        expected_role: RoleType,
+        expected_prev_admin: RoleType,
+        expected_new_admin: RoleType,
+    ) {
+        if let Event::RoleAdminChanged(RoleAdminChanged {
+            role,
+            previous_admin_role,
+            new_admin_role,
+        }) = <Event as scale::Decode>::decode(&mut &event.data[..])
+            .expect("encountered invalid contract event data buffer")
+        {
+            assert_eq!(
+                role, expected_role,
+                "Roles were not equal: encountered role {:?}, expected role {:?}",
+                role, expected_role
+            );
+            assert_eq!(
+                previous_admin_role, expected_prev_admin,
+                "Previous admins were not equal: encountered previous admin {:?}, expected {:?}",
+                previous_admin_role, expected_prev_admin
+            );
+            assert_eq!(
+                new_admin_role, expected_new_admin,
+                "New admins were not equal: encountered new admin {:?}, expected {:?}",
+                new_admin_role, expected_new_admin
+            );
         }
     }
 
-    fn assert_role_granted_event(event: &ink_env::test::EmittedEvent,
-                                 expected_role: RoleType, expected_grantee: AccountId, expected_grantor: Option<AccountId>) {
-        if let Event::RoleGranted(RoleGranted {role, grantee, grantor}) =
-        <Event as scale::Decode>::decode(&mut &event.data[..])
-            .expect("encountered invalid contract event data buffer") {
-            assert_eq!(role, expected_role, "Roles were not equal: encountered role {:?}, expected role {:?}", role, expected_role);
-            assert_eq!(grantee, expected_grantee,
-                       "Grantees were not equal: encountered grantee {:?}, expected {:?}", grantee, expected_grantee);
-            assert_eq!(grantor, expected_grantor,
-                       "Grantors were not equal: encountered grantor {:?}, expected {:?}", grantor, expected_grantor);
+    fn assert_role_granted_event(
+        event: &ink_env::test::EmittedEvent,
+        expected_role: RoleType,
+        expected_grantee: AccountId,
+        expected_grantor: Option<AccountId>,
+    ) {
+        if let Event::RoleGranted(RoleGranted { role, grantee, grantor }) =
+            <Event as scale::Decode>::decode(&mut &event.data[..])
+                .expect("encountered invalid contract event data buffer")
+        {
+            assert_eq!(
+                role, expected_role,
+                "Roles were not equal: encountered role {:?}, expected role {:?}",
+                role, expected_role
+            );
+            assert_eq!(
+                grantee, expected_grantee,
+                "Grantees were not equal: encountered grantee {:?}, expected {:?}",
+                grantee, expected_grantee
+            );
+            assert_eq!(
+                grantor, expected_grantor,
+                "Grantors were not equal: encountered grantor {:?}, expected {:?}",
+                grantor, expected_grantor
+            );
         }
     }
 
-    fn assert_role_revoked_event(event: &ink_env::test::EmittedEvent,
-                                 expected_role: RoleType, expected_account: AccountId, expected_admin: AccountId) {
-        if let Event::RoleRevoked(RoleRevoked {role, account, admin}) =
-        <Event as scale::Decode>::decode(&mut &event.data[..])
-            .expect("encountered invalid contract event data buffer") {
-            assert_eq!(role, expected_role, "Roles were not equal: encountered role {:?}, expected role {:?}", role, expected_role);
-            assert_eq!(account, expected_account,
-                       "Accounts were not equal: encountered account {:?}, expected {:?}", account, expected_account);
-            assert_eq!(admin, expected_admin,
-                       "Admins were not equal: encountered admin {:?}, expected {:?}", admin, expected_admin);
+    fn assert_role_revoked_event(
+        event: &ink_env::test::EmittedEvent,
+        expected_role: RoleType,
+        expected_account: AccountId,
+        expected_admin: AccountId,
+    ) {
+        if let Event::RoleRevoked(RoleRevoked { role, account, admin }) =
+            <Event as scale::Decode>::decode(&mut &event.data[..])
+                .expect("encountered invalid contract event data buffer")
+        {
+            assert_eq!(
+                role, expected_role,
+                "Roles were not equal: encountered role {:?}, expected role {:?}",
+                role, expected_role
+            );
+            assert_eq!(
+                account, expected_account,
+                "Accounts were not equal: encountered account {:?}, expected {:?}",
+                account, expected_account
+            );
+            assert_eq!(
+                admin, expected_admin,
+                "Admins were not equal: encountered admin {:?}, expected {:?}",
+                admin, expected_admin
+            );
         }
     }
 
     fn setup() -> DefaultAccounts<DefaultEnvironment> {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         accounts
     }
@@ -138,10 +184,7 @@ mod tests {
         let accounts = setup();
         let access_control = AccessControlStruct::new(accounts.alice);
         assert!(access_control.has_role(DEFAULT_ADMIN_ROLE, accounts.alice));
-        assert_eq!(
-            access_control.get_role_admin(DEFAULT_ADMIN_ROLE),
-            DEFAULT_ADMIN_ROLE
-        );
+        assert_eq!(access_control.get_role_admin(DEFAULT_ADMIN_ROLE), DEFAULT_ADMIN_ROLE);
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_role_granted_event(&emitted_events[0], DEFAULT_ADMIN_ROLE, accounts.alice, None);
     }
@@ -262,18 +305,13 @@ mod tests {
     fn change_caller(new_caller: AccountId) {
         // CHANGE CALLEE MANUALLY
         // Get contract address.
-        let callee =
-            ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
         // Create call.
         let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&new_caller);
         // Push the new execution context to set Bob as caller.
         ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-            new_caller,
-            callee,
-            1000000,
-            1000000,
-            data,
+            new_caller, callee, 1000000, 1000000, data,
         );
     }
 }

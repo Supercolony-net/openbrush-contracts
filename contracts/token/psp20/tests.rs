@@ -3,9 +3,12 @@
 mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
     use crate::traits::*;
-    use ink_lang as ink;
-    use ink::{Env, EmitEvent};
     use brush::test_utils::*;
+    use ink::{
+        EmitEvent,
+        Env,
+    };
+    use ink_lang as ink;
     use std::panic;
 
     /// Event emitted when a token transfer occurs.
@@ -38,6 +41,7 @@ mod tests {
         #[PSP22MetadataStorageField]
         metadata: PSP22MetadataData,
     }
+
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
 
     impl PSP22 for PSP22Struct {
@@ -58,7 +62,7 @@ mod tests {
         }
 
         // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
-        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) { }
+        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) {}
     }
 
     impl PSP22Struct {
@@ -103,9 +107,7 @@ mod tests {
                 value: &expected_value,
             }),
         ];
-        for (n, (actual_topic, expected_topic)) in
-        event.topics.iter().zip(expected_topics).enumerate()
-        {
+        for (n, (actual_topic, expected_topic)) in event.topics.iter().zip(expected_topics).enumerate() {
             let topic = actual_topic
                 .decode::<Hash>()
                 .expect("encountered invalid topic encoding");
@@ -123,12 +125,7 @@ mod tests {
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(1, emitted_events.len());
 
-        assert_transfer_event(
-            &emitted_events[0],
-            None,
-            Some(AccountId::from([0x01; 32])),
-            100,
-        );
+        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
     }
 
     /// The total supply was applied.
@@ -138,12 +135,7 @@ mod tests {
         let psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_transfer_event(
-            &emitted_events[0],
-            None,
-            Some(AccountId::from([0x01; 32])),
-            100,
-        );
+        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
         // Get the token total supply.
         assert_eq!(psp20.total_supply(), 100);
     }
@@ -155,15 +147,8 @@ mod tests {
         let psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_transfer_event(
-            &emitted_events[0],
-            None,
-            Some(AccountId::from([0x01; 32])),
-            100,
-        );
-        let accounts =
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Alice owns all the tokens on deployment
         assert_eq!(psp20.balance_of(accounts.alice), 100);
         // Bob does not owns tokens
@@ -175,9 +160,7 @@ mod tests {
         // Constructor works.
         let mut psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
-        let accounts =
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         assert_eq!(psp20.balance_of(accounts.bob), 0);
         // Alice transfers 10 tokens to Bob.
@@ -188,12 +171,7 @@ mod tests {
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
         // Check first transfer event related to PSP-20 instantiation.
-        assert_transfer_event(
-            &emitted_events[0],
-            None,
-            Some(AccountId::from([0x01; 32])),
-            100,
-        );
+        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
         // Check the second transfer event relating to the actual trasfer.
         assert_transfer_event(
             &emitted_events[1],
@@ -208,17 +186,13 @@ mod tests {
     fn invalid_transfer_should_fail() {
         // Constructor works.
         let mut psp20 = PSP22Struct::new(100);
-        let accounts =
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         assert_eq!(psp20.balance_of(accounts.bob), 0);
         // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-            .unwrap_or([0x0; 32].into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
         // Create call
-        let mut data =
-            ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&accounts.bob);
         // Push the new execution context to set Bob as caller
         ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
@@ -239,9 +213,7 @@ mod tests {
         // Constructor works.
         let mut psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
-        let accounts =
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Bob fails to transfer tokens owned by Alice.
         psp20.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
@@ -252,9 +224,7 @@ mod tests {
         // Constructor works.
         let mut psp20 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
-        let accounts =
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Alice approves Bob for token transfers on her behalf.
         psp20.approve(accounts.bob, 10);
@@ -263,11 +233,9 @@ mod tests {
         assert_eq!(ink_env::test::recorded_events().count(), 2);
 
         // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-            .unwrap_or([0x0; 32].into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
         // Create call.
-        let mut data =
-            ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&accounts.bob);
         // Push the new execution context to set Bob as caller.
         ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
@@ -286,12 +254,7 @@ mod tests {
         // Check all transfer events that happened during the previous calls:
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 4);
-        assert_transfer_event(
-            &emitted_events[0],
-            None,
-            Some(AccountId::from([0x01; 32])),
-            100,
-        );
+        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
         // The second event `emitted_events[1]` is an Approve event that we skip checking.
         assert_transfer_event(
             &emitted_events[2],
@@ -305,9 +268,7 @@ mod tests {
     #[should_panic(expected = "InsufficientBalance")]
     fn allowance_must_not_change_on_failed_transfer() {
         let mut psp20 = PSP22Struct::new(100);
-        let accounts =
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Alice approves Bob for token transfers on her behalf.
         let alice_balance = psp20.balance_of(accounts.alice);
@@ -315,11 +276,9 @@ mod tests {
         psp20.approve(accounts.bob, initial_allowance);
 
         // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-            .unwrap_or([0x0; 32].into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
         // Create call.
-        let mut data =
-            ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&accounts.bob);
         // Push the new execution context to set Bob as caller.
         ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
@@ -332,5 +291,4 @@ mod tests {
 
         psp20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new());
     }
-
 }

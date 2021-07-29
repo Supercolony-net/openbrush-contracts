@@ -1,17 +1,29 @@
 use crate::stub::PSP22Receiver as PSP22ReceiverStub;
+use brush::{
+    declare_storage_trait,
+    traits::{
+        AccountId,
+        AccountIdExt,
+        Balance,
+        InkStorage,
+    },
+};
+use ink_env::Error as EnvError;
+use ink_lang::ForwardCallMut;
+use ink_prelude::{
+    collections::BTreeMap,
+    format,
+    string::String,
+    vec::Vec,
+};
 use ink_storage::{
+    traits::SpreadLayout,
     Lazy,
 };
-use ink_lang::ForwardCallMut;
-use ink_prelude::{collections::BTreeMap, string::String, vec::Vec, format};
-use ink_env::Error as EnvError;
-use brush::traits::{AccountIdExt};
-use brush::traits::{InkStorage, AccountId, Balance};
-use brush::declare_storage_trait;
-use ink_storage::{
-    traits::{SpreadLayout},
+pub use psp20_derive::{
+    PSP22MetadataStorage,
+    PSP22Storage,
 };
-pub use psp20_derive::{PSP22Storage, PSP22MetadataStorage};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -36,7 +48,7 @@ pub struct PSP22MetadataData {
 
 declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);
 
-/// The PSP-20 error type. Contract will assert one of this errors.
+/// The PSP22 error type. Contract will assert one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP22Error {
     /// Custom error type for cases if writer of traits added own restrictions
@@ -71,7 +83,7 @@ pub trait PSP22: PSP22Storage {
     }
 
     /// Transfers `value` amount of tokens from the caller's account to account `to`
-    /// with additional `data` in unspecified format..
+    /// with additional `data` in unspecified format.
     ///
     /// On success a `Transfer` event is emitted.
     ///
@@ -174,7 +186,11 @@ pub trait PSP22: PSP22Storage {
     fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) {
         let owner = Self::env().caller();
         let allowance = self.allowance(owner, spender);
-        assert!(allowance >= delta_value, "{}", PSP22Error::InsufficientAllowance.as_ref());
+        assert!(
+            allowance >= delta_value,
+            "{}",
+            PSP22Error::InsufficientAllowance.as_ref()
+        );
 
         self._approve_from_to(owner, spender, allowance - delta_value)
     }
@@ -189,21 +205,41 @@ pub trait PSP22: PSP22Storage {
 
     fn _do_safe_transfer_check(&self, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) {
         let mut to_receiver: PSP22ReceiverStub = ink_env::call::FromAccountId::from_account_id(to);
-        match to_receiver.call_mut().before_received(Self::env().caller(), from, value, data)
+        match to_receiver
+            .call_mut()
+            .before_received(Self::env().caller(), from, value, data)
             .fire()
         {
-            Ok(result) => match result {
-                Ok(_) => (),
-                e => panic!("{}", PSP22Error::SafeTransferCheckFailed(
-                    String::from(format!("The contract with `to` address does not accept tokens: {:?}", e))
-                ).as_ref())
+            Ok(result) => {
+                match result {
+                    Ok(_) => (),
+                    e => {
+                        panic!(
+                            "{}",
+                            PSP22Error::SafeTransferCheckFailed(String::from(format!(
+                                "The contract with `to` address does not accept tokens: {:?}",
+                                e
+                            )))
+                            .as_ref()
+                        )
+                    }
+                }
             }
-            Err(e) => match e {
-                EnvError::NotCallable => (),
-                e => panic!("{}", PSP22Error::SafeTransferCheckFailed(
-                    String::from(format!("Unknown error: call failed with {:?}", e))
-                ).as_ref())
-            },
+            Err(e) => {
+                match e {
+                    EnvError::NotCallable => (),
+                    e => {
+                        panic!(
+                            "{}",
+                            PSP22Error::SafeTransferCheckFailed(String::from(format!(
+                                "Unknown error: call failed with {:?}",
+                                e
+                            )))
+                            .as_ref()
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -304,5 +340,11 @@ pub enum PSP22ReceiverError {
 #[brush::trait_definition]
 pub trait PSP22Receiver {
     #[ink(message)]
-    fn before_received(&mut self, operator: AccountId, from: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22ReceiverError>;
+    fn before_received(
+        &mut self,
+        operator: AccountId,
+        from: AccountId,
+        value: Balance,
+        data: Vec<u8>,
+    ) -> Result<(), PSP22ReceiverError>;
 }

@@ -8,7 +8,7 @@ edition = "2018"
 name = "brush_derive_macro"
 path = "lib.rs"
 crate-type = [
-	"rlib",
+    "rlib",
 ]
 
 [features]

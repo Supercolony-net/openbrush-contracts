@@ -1,9 +1,12 @@
-use brush::modifier_definition;
-use brush::traits::{InkStorage, Flush};
-use brush::declare_storage_trait;
-use ink_storage::{
-    traits::{SpreadLayout},
+use brush::{
+    declare_storage_trait,
+    modifier_definition,
+    traits::{
+        Flush,
+        InkStorage,
+    },
 };
+use ink_storage::traits::SpreadLayout;
 pub use reentrancy_guard_derive::ReentrancyGuardStorage;
 
 #[cfg(feature = "std")]
@@ -25,13 +28,26 @@ pub enum ReentrancyGuardError {
     ReentrantCall,
 }
 
+/// Prevents a contract from calling itself, directly or indirectly.
+/// Calling a `non_reentrant` function from another `non_reentrant`
+/// function is not supported. It is possible to prevent this from happening
+/// by making the `non_reentrant` function external, and make it call a
+/// `private` function that does the actual work.
+///
+/// This modifier flushes the struct into storage with `ENTERED`
+/// status before calling the original method.
 #[modifier_definition]
 pub fn non_reentrant<T, F, ReturnType>(instance: &mut T, mut body: F) -> ReturnType
-    where
-        T: ReentrancyGuardStorage + Flush,
-        F: FnMut(&mut T) -> ReturnType,
+where
+    T: ReentrancyGuardStorage + Flush,
+    F: FnMut(&mut T) -> ReturnType,
 {
-    assert_eq!(instance.get().status, NOT_ENTERED, "{}", ReentrancyGuardError::ReentrantCall.as_ref());
+    assert_eq!(
+        instance.get().status,
+        NOT_ENTERED,
+        "{}",
+        ReentrancyGuardError::ReentrantCall.as_ref()
+    );
     // Any calls to nonReentrant after this point will fail
     instance.get_mut().status = ENTERED;
 
@@ -42,5 +58,5 @@ pub fn non_reentrant<T, F, ReturnType>(instance: &mut T, mut body: F) -> ReturnT
     let result = body(instance);
     instance.get_mut().status = NOT_ENTERED;
 
-    return result;
+    return result
 }

@@ -1,26 +1,27 @@
+use proc_macro::TokenStream;
 use quote::{
     quote,
     quote_spanned,
     ToTokens,
 };
 use syn::{
-    ItemFn,
     parse_macro_input,
     spanned::Spanned,
+    ItemFn,
 };
-use proc_macro::{TokenStream};
 
 pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
     let fn_item = parse_macro_input!(_input as ItemFn);
 
     if fn_item.sig.inputs.len() < 2 {
         return (quote_spanned! {
-                fn_item.sig.inputs.span() =>
-                    compile_error!(
-                        "Modifier must take at least two arguments, \
-                        where first is a reference to instance `instance: \
-                        & Trait/Struct` and second is Fn or FnMut");
-            }).into();
+            fn_item.sig.inputs.span() =>
+                compile_error!(
+                    "Modifier must take at least two arguments, \
+                    where first is a reference to instance `instance: \
+                    & Trait/Struct` and second is Fn or FnMut");
+        })
+        .into()
     }
 
     let instance_ty: syn::TypeReference;
@@ -32,27 +33,34 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
             return (quote_spanned! {
                 pat.ty.as_ref().span() =>
                     compile_error!("First argument of modifier must be a reference to instance `&T` or `&mut T`");
-            }).into()
+            })
+            .into()
         }
     } else {
         return (quote_spanned! {
             first.span() =>
                 compile_error!("First argument of modifier can't be `self`");
-        }).into()
+        })
+        .into()
     }
 
     let return_ty = fn_item.sig.output.clone();
-    let mut fn_string = format!("Fn({}) {}",
+    let mut fn_string = format!(
+        "Fn({}) {}",
         instance_ty.to_token_stream().to_string(),
         return_ty.to_token_stream().to_string()
     );
 
-    let mut fn_mut_string = format!("FnMut({}) {}",
+    let mut fn_mut_string = format!(
+        "FnMut({}) {}",
         instance_ty.to_token_stream().to_string(),
         return_ty.to_token_stream().to_string()
     );
     let err_message = format!(
-        "Second argument of modifier must be body `{}` or `{}`", fn_string.as_str(), fn_mut_string.as_str());
+        "Second argument of modifier must be body `{}` or `{}`",
+        fn_string.as_str(),
+        fn_mut_string.as_str()
+    );
 
     fn_string.retain(|c| !c.is_whitespace());
     fn_mut_string.retain(|c| !c.is_whitespace());
@@ -70,14 +78,18 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
             found = true;
         }
 
-        let generic = fn_item.sig.generics.params
+        let generic = fn_item
+            .sig
+            .generics
+            .params
             .iter()
-            .filter_map(|param|
+            .filter_map(|param| {
                 if let syn::GenericParam::Type(type_param) = &param {
                     Some(type_param)
                 } else {
                     None
-                })
+                }
+            })
             .find(|type_param| type_param.ident.to_string() == t);
 
         if let Some(generic) = generic {
@@ -93,14 +105,16 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
         }
 
         if let Some(where_clause) = &fn_item.sig.generics.where_clause {
-            let predicate = where_clause.predicates
+            let predicate = where_clause
+                .predicates
                 .iter()
-                .filter_map(|pred|
+                .filter_map(|pred| {
                     if let syn::WherePredicate::Type(type_pred) = &pred {
                         Some(type_pred)
                     } else {
                         None
-                    })
+                    }
+                })
                 .find(|type_pred| type_pred.bounded_ty.to_token_stream().to_string() == t);
 
             if let Some(pred) = predicate {
@@ -120,7 +134,8 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
             return (quote_spanned! {
                 pat.ty.span() =>
                     compile_error!(#err_message);
-            }).into();
+            })
+            .into()
         } else {
             let mut modifier_ty_str = fn_item.sig.output.to_token_stream().to_string();
             modifier_ty_str.retain(|c| !c.is_whitespace());
@@ -133,14 +148,16 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
                 return (quote_spanned! {
                     found_span.unwrap().span() =>
                         compile_error!("Return type of body mismatched with return type of modifier");
-                }).into();
+                })
+                .into()
             }
         }
     } else if let syn::FnArg::Receiver(rec) = first {
         return (quote_spanned! {
             rec.span() =>
                 compile_error!("Second argument of modifier can't be `self`");
-        }).into()
+        })
+        .into()
     }
 
     for arg in fn_item.sig.inputs.iter().skip(2) {
@@ -150,13 +167,15 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
                     refer.span() =>
                         compile_error!("The argument is a reference. \
                         Modifier only accepts arguments which implement `Clone` trait and only by value.");
-                }).into();
+                })
+                .into()
             }
         } else {
             return (quote_spanned! {
                 arg.span() =>
                     compile_error!("`self` is not allowed.");
-            }).into();
+            })
+            .into()
         }
     }
 

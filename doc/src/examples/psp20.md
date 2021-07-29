@@ -1,11 +1,14 @@
 ## Overview
+
 This example shows how you can reuse the implementation of
 [psp20](contracts/token/psp20) token(by the same way you can reuse
-[psp721](contracts/token/psp721) and [psp1155](contracts/token/psp1155)).
-Also, this example shows how you can customize the logic, for example, to not allow transfer tokens to `hated_account`.
+[psp721](contracts/token/psp721) and [psp1155](contracts/token/psp1155)). Also, this example shows how you can customize
+the logic, for example, to not allow transfer tokens to `hated_account`.
 
 ## Steps
+
 1. You need to include `psp20` and `brush` in cargo file.
+
 ```markdown
 [dependencies]
 ...
@@ -22,8 +25,10 @@ std = [
    "brush/std",
 ]
 ```
-2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`.
-Import traits, errors, macros and structs which you want to use.
+
+2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import traits, errors,
+   macros and structs which you want to use.
+
 ```rust
 #[brush::contract]
 pub mod my_psp20 {
@@ -35,34 +40,38 @@ pub mod my_psp20 {
       traits::{InkStorage},
    };
 ```
-3. Declare storage struct and derive `PSP22Storage`trait. Deriving this trait 
-   will add required fields to your structure for implementation of according trait. 
-   Your structure must implement `PSP22Storage` if you want to use the
-   default implementation of `PSP22`.
+
+3. Declare storage struct and derive `PSP22Storage`trait. Deriving this trait will add required fields to your structure
+   for implementation of according trait. Your structure must implement `PSP22Storage` if you want to use the default
+   implementation of `PSP22`.
 
 ```rust
 #[ink(storage)]
 #[derive(Default, PSP22Storage)]
 pub struct MyPSP22 {}
 ```
-4. After that you can inherit implementation of `PSP22` trait.
-   You can customize(override) some methods there.
+
+4. After that you can inherit implementation of `PSP22` trait. You can customize(override) some methods there.
+
 ```rust
 // InkStorage is a utils trait required by any Storage trait
 impl InkStorage for MyPSP22 {}
 impl PSP22 for MyPSP22 {}
 ```
-5. Now you have all basic logic of `PSP22` on rust level.
-   But all methods are internal now(it means that anyone can't call these methods from outside of contract).
-   If you want to make them external you MUST derive `PSP22` trait.
-   Deriving of this trait will generate external implementation of all methods from `PSP22`.
-   Macro will call the methods with the same name from `PSP22` trait.
+
+5. Now you have all basic logic of `PSP22` on rust level. But all methods are internal now(it means that anyone can't
+   call these methods from outside of contract). If you want to make them external you MUST derive `PSP22` trait.
+   Deriving of this trait will generate external implementation of all methods from `PSP22`. Macro will call the methods
+   with the same name from `PSP22` trait.
+
 ```rust
 #[ink(storage)]
 #[derive(Default, PSP22Storage, PSP22)]
 pub struct MyPSP22 {}
 ```
+
 6. Now you only need to define constructor and your basic version of `PSP22` contract is ready.
+
 ```rust
 impl MyPSP22 {
    #[ink(constructor)]
@@ -76,9 +85,11 @@ impl MyPSP22 {
    }
 }
 ```
-7. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. 
-   Also we will override `_before_token_transfer` method in `PSP22` implementation.
-   And we will add a new field to structure - `hated_account: AccountId`
+
+7. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
+   override `_before_token_transfer` method in `PSP22` implementation. And we will add a new field to structure
+   - `hated_account: AccountId`
+
 ```rust
 #[ink(storage)]
 #[derive(Default, PSP22Storage, PSP22)]

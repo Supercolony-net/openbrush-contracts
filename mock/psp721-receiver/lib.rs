@@ -3,12 +3,12 @@
 #[brush::contract]
 pub mod erc721_receiver {
     use psp721::traits::*;
-    use ink_prelude::{ string::String, vec::Vec };
+    use ink_prelude::{string::String, vec::Vec};
 
     #[ink(storage)]
     pub struct PSP721ReceiverStruct {
         call_counter: u64,
-        revert_next_transfer: bool
+        revert_next_transfer: bool,
     }
 
     impl PSP721ReceiverStruct {
@@ -39,7 +39,7 @@ pub mod erc721_receiver {
         ) -> Result<(), PSP721ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP721ReceiverError::TransferRejected(String::from("Transfer Rejected")))
+                return Err(PSP721ReceiverError::TransferRejected(String::from("Transfer Rejected")));
             }
             self.call_counter += 1;
             Ok(())
