@@ -1,24 +1,31 @@
-use crate::stub::{PSP721Receiver};
+use crate::stub::PSP721Receiver;
+use brush::{
+    declare_storage_trait,
+    traits::{
+        AccountId,
+        AccountIdExt,
+        InkStorage,
+        ZERO_ADDRESS,
+    },
+};
 use ink_env::{
-    call::{FromAccountId},
+    call::FromAccountId,
     Error as Env_error,
 };
 use ink_lang::ForwardCallMut;
-use brush::traits::{AccountIdExt, ZERO_ADDRESS};
-use brush::traits::{InkStorage, AccountId};
-use brush::declare_storage_trait;
 use ink_prelude::{
+    collections::{
+        btree_map::Entry,
+        BTreeMap,
+    },
     string::String,
     vec::Vec,
-    collections::{
-        BTreeMap,
-        btree_map::Entry,
-    },
 };
-use ink_storage::{
-    traits::{SpreadLayout},
+use ink_storage::traits::SpreadLayout;
+pub use psp721_derive::{
+    PSP721MetadataStorage,
+    PSP721Storage,
 };
-pub use psp721_derive::{PSP721Storage, PSP721MetadataStorage};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -45,6 +52,7 @@ pub struct PSP721MetadataData {
 
 declare_storage_trait!(PSP721MetadataStorage, PSP721MetadataData);
 
+/// The PSP721 error type. Contract will assert one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP721Error {
     Unknown(String),
@@ -58,6 +66,10 @@ pub enum PSP721Error {
     NotAllowed,
 }
 
+/// Contract module which provides a basic implementation of non fungible token.
+///
+/// This module is used through embedding of `PSP721Data` and implementation of `IPSP721` and
+/// `PSP721Storage` traits.
 #[brush::trait_definition]
 pub trait IPSP721: PSP721Storage {
     /// Returns the balance of the owner.
@@ -87,18 +99,38 @@ pub trait IPSP721: PSP721Storage {
     }
 
     /// Approves or disapproves the operator for all tokens of the caller.
+    ///
+    /// On success a `ApprovalForAll` event is emitted.
+    ///
+    /// # Errors
+    ///
+    /// Panics with `NotAllowed` error if it is self approve.
     #[ink(message)]
     fn set_approval_for_all(&mut self, to: AccountId, approved: bool) {
         self._approve_for_all(to, approved);
     }
 
     /// Approves the account to transfer the specified token on behalf of the caller.
+    ///
+    /// On success a `Approval` event is emitted.
+    ///
+    /// # Errors
+    ///
+    /// Panics with `NotAllowed` error if caller is not owner of `id`.
     #[ink(message)]
     fn approve(&mut self, to: AccountId, id: Id) {
         self._approve_for(to, id);
     }
 
     /// Transfer approved or owned token.
+    ///
+    /// On success a `Transfer` event is emitted.
+    ///
+    /// # Errors
+    ///
+    /// Panics with `TokenNotFound` error if `id` is not exist.
+    ///
+    /// Panics with `NotApproved` error if `from` doesn't have allowance for transferring.
     #[ink(message)]
     fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Id) {
         self._transfer_token_from(&from, to.clone(), id);
@@ -106,6 +138,16 @@ pub trait IPSP721: PSP721Storage {
     }
 
     /// Transfers token with `id` from `from` to `to`. Also some `data` can be passed.
+    ///
+    /// On success a `Transfer` event is emitted.
+    ///
+    /// # Errors
+    ///
+    /// Panics with `TokenNotFound` error if `id` is not exist.
+    ///
+    /// Panics with `NotApproved` error if `from` doesn't have allowance for transferring.
+    ///
+    /// Panics with `CallFailed` error if `to` doesn't accept transfer.
     #[ink(message)]
     fn safe_transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) {
         self._transfer_token_from(&from, to.clone(), id);
@@ -116,19 +158,13 @@ pub trait IPSP721: PSP721Storage {
     // Helper functions
 
     /// Emits transfer event. This method must be implemented in derived implementation
-    fn _emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
-        // TODO: Emit events
-    }
+    fn _emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {}
 
     /// Emits approval event. This method must be implemented in derived implementation
-    fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
-        // TODO: Emit events
-    }
+    fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {}
 
     /// Emits approval for all event. This method must be implemented in derived implementation
-    fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {
-        // TODO: Emit events
-    }
+    fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {}
 
     /// Approves or disapproves the operator to transfer all tokens of the caller.
     fn _approve_for_all(&mut self, to: AccountId, approved: bool) {
@@ -136,9 +172,7 @@ pub trait IPSP721: PSP721Storage {
         assert_ne!(to, caller, "{}", PSP721Error::NotAllowed.as_ref());
         self._emit_approval_for_all_event(caller, to, approved);
         if self._approved_for_all(caller, to) {
-            let status = self
-                .get_mut().operator_approvals
-                .get_mut(&(caller, to)).unwrap();
+            let status = self.get_mut().operator_approvals.get_mut(&(caller, to)).unwrap();
             *status = approved;
         } else {
             self.get_mut().operator_approvals.insert((caller, to), approved);
@@ -149,14 +183,16 @@ pub trait IPSP721: PSP721Storage {
     fn _approve_for(&mut self, to: AccountId, id: Id) {
         let caller = Self::env().caller();
         let owner = self._owner_of(&id);
-        if !(owner == Some(caller)
-            || self._approved_for_all(owner.expect("PSP721Error with AccountId"), caller))
-        {
+        if !(owner == Some(caller) || self._approved_for_all(owner.expect("PSP721Error with AccountId"), caller)) {
             panic!("{}", PSP721Error::NotAllowed.as_ref());
         };
 
         assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
-        assert!(self.get_mut().token_approvals.insert(id, to).is_none(), "{}", PSP721Error::CannotInsert.as_ref());
+        assert!(
+            self.get_mut().token_approvals.insert(id, to).is_none(),
+            "{}",
+            PSP721Error::CannotInsert.as_ref()
+        );
         self._emit_approval_event(caller, to, id);
     }
 
@@ -167,10 +203,11 @@ pub trait IPSP721: PSP721Storage {
 
     /// Gets an operator on other Account's behalf.
     fn _approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-        self
-            .get().operator_approvals
+        self.get()
+            .operator_approvals
             .get(&(owner, operator))
-            .unwrap_or(&false).clone()
+            .unwrap_or(&false)
+            .clone()
     }
 
     /// Returns true if the AccountId `from` is the owner of token `id`
@@ -179,18 +216,26 @@ pub trait IPSP721: PSP721Storage {
         let owner = self._owner_of(id);
         !from.unwrap_or_default().is_zero()
             && (from == owner
-            || from == self.get().token_approvals.get(id).cloned()
-            || self._approved_for_all(
-            owner.expect("PSP721Error with AccountId"),
-            from.expect("PSP721Error with AccountId"),
-        ))
+                || from == self.get().token_approvals.get(id).cloned()
+                || self._approved_for_all(
+                    owner.expect("PSP721Error with AccountId"),
+                    from.expect("PSP721Error with AccountId"),
+                ))
     }
 
     /// Transfers token `id` `from` the sender to the `to` AccountId.
     fn _transfer_token_from(&mut self, from: &AccountId, to: AccountId, id: Id) {
         let caller = Self::env().caller();
-        assert!(self.get().token_owner.get(&id).is_some(), "{}", PSP721Error::TokenNotFound.as_ref());
-        assert!(self._approved_or_owner(Some(caller), &id), "{}", PSP721Error::NotApproved.as_ref());
+        assert!(
+            self.get().token_owner.get(&id).is_some(),
+            "{}",
+            PSP721Error::TokenNotFound.as_ref()
+        );
+        assert!(
+            self._approved_or_owner(Some(caller), &id),
+            "{}",
+            PSP721Error::NotApproved.as_ref()
+        );
         if self.get().token_approvals.contains_key(&id) {
             self.get_mut().token_approvals.remove(&id);
         };
@@ -216,30 +261,29 @@ pub trait IPSP721: PSP721Storage {
         };
         assert_eq!(occupied.get(), &caller, "{}", PSP721Error::NotOwner.as_ref());
         occupied.remove_entry();
-        let count = self.get_mut().owned_tokens_count.get_mut(&caller).expect(PSP721Error::CannotFetchValue.as_ref());
+        let count = self
+            .get_mut()
+            .owned_tokens_count
+            .get_mut(&caller)
+            .expect(PSP721Error::CannotFetchValue.as_ref());
         *count -= 1;
     }
 
-    fn _call_contract_transfer(
-        &self,
-        operator: AccountId,
-        from: AccountId,
-        to: AccountId,
-        id: Id,
-        data: Vec<u8>,
-    ) {
-        let mut receiver : PSP721Receiver = FromAccountId::from_account_id(to);
-        match receiver.call_mut().on_psp721_received(operator, from, id, data)
-            .fire()
-        {
-            Ok(result) => match result {
-                Ok(_) => (),
-                _ => panic!("{}", PSP721Error::CallFailed.as_ref()),
-            },
-            Err(e) => match e {
-                Env_error::NotCallable => (),
-                _ => panic!("{}", PSP721Error::CallFailed.as_ref()),
-            },
+    fn _call_contract_transfer(&self, operator: AccountId, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) {
+        let mut receiver: PSP721Receiver = FromAccountId::from_account_id(to);
+        match receiver.call_mut().on_psp721_received(operator, from, id, data).fire() {
+            Ok(result) => {
+                match result {
+                    Ok(_) => (),
+                    _ => panic!("{}", PSP721Error::CallFailed.as_ref()),
+                }
+            }
+            Err(e) => {
+                match e {
+                    Env_error::NotCallable => (),
+                    _ => panic!("{}", PSP721Error::CallFailed.as_ref()),
+                }
+            }
         };
     }
 

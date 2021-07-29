@@ -1,7 +1,8 @@
 "use strict";
 
 // Fix back button cache problem
-window.onunload = function () { };
+window.onunload = function () {
+};
 
 // Global variable, shared between modules
 function playground_text(playground) {
@@ -32,12 +33,12 @@ function playground_text(playground) {
             method: 'POST',
             mode: 'cors',
         })
-        .then(response => response.json())
-        .then(response => {
-            // get list of crates available in the rust playground
-            let playground_crates = response.crates.map(item => item["id"]);
-            playgrounds.forEach(block => handle_crate_list_update(block, playground_crates));
-        });
+            .then(response => response.json())
+            .then(response => {
+                // get list of crates available in the rust playground
+                let playground_crates = response.crates.map(item => item["id"]);
+                playgrounds.forEach(block => handle_crate_list_update(block, playground_crates));
+            });
     }
 
     function handle_crate_list_update(playground_block, playground_crates) {
@@ -132,9 +133,9 @@ function playground_text(playground) {
             mode: 'cors',
             body: JSON.stringify(params)
         })
-        .then(response => response.json())
-        .then(response => result_block.innerText = response.result)
-        .catch(error => result_block.innerText = "Playground Communication: " + error.message);
+            .then(response => response.json())
+            .then(response => result_block.innerText = response.result)
+            .catch(error => result_block.innerText = "Playground Communication: " + error.message);
     }
 
     // Syntax highlighting Configuration
@@ -146,31 +147,43 @@ function playground_text(playground) {
     let code_nodes = Array
         .from(document.querySelectorAll('code'))
         // Don't highlight `inline code` blocks in headers.
-        .filter(function (node) {return !node.parentElement.classList.contains("header"); });
+        .filter(function (node) {
+            return !node.parentElement.classList.contains("header");
+        });
 
     if (window.ace) {
         // language-rust class needs to be removed for editable
         // blocks or highlightjs will capture events
         Array
             .from(document.querySelectorAll('code.editable'))
-            .forEach(function (block) { block.classList.remove('language-rust'); });
+            .forEach(function (block) {
+                block.classList.remove('language-rust');
+            });
 
         Array
             .from(document.querySelectorAll('code:not(.editable)'))
-            .forEach(function (block) { hljs.highlightBlock(block); });
+            .forEach(function (block) {
+                hljs.highlightBlock(block);
+            });
     } else {
-        code_nodes.forEach(function (block) { hljs.highlightBlock(block); });
+        code_nodes.forEach(function (block) {
+            hljs.highlightBlock(block);
+        });
     }
 
     // Adding the hljs class gives code blocks the color css
     // even if highlighting doesn't apply
-    code_nodes.forEach(function (block) { block.classList.add('hljs'); });
+    code_nodes.forEach(function (block) {
+        block.classList.add('hljs');
+    });
 
     Array.from(document.querySelectorAll("code.language-rust")).forEach(function (block) {
 
         var lines = Array.from(block.querySelectorAll('.boring'));
         // If no lines were hidden, return
-        if (!lines.length) { return; }
+        if (!lines.length) {
+            return;
+        }
         block.classList.add("hide-boring");
 
         var buttons = document.createElement('div');
@@ -296,7 +309,10 @@ function playground_text(playground) {
 
     function get_theme() {
         var theme;
-        try { theme = localStorage.getItem('mdbook-theme'); } catch (e) { }
+        try {
+            theme = localStorage.getItem('mdbook-theme');
+        } catch (e) {
+        }
         if (theme === null || theme === undefined) {
             return default_theme;
         } else {
@@ -338,7 +354,10 @@ function playground_text(playground) {
         var previousTheme = get_theme();
 
         if (store) {
-            try { localStorage.setItem('mdbook-theme', theme); } catch (e) { }
+            try {
+                localStorage.setItem('mdbook-theme', theme);
+            } catch (e) {
+            }
         }
 
         html.classList.remove(previousTheme);
@@ -363,7 +382,7 @@ function playground_text(playground) {
         set_theme(theme);
     });
 
-    themePopup.addEventListener('focusout', function(e) {
+    themePopup.addEventListener('focusout', function (e) {
         // e.relatedTarget is null in Safari and Firefox on macOS (see workaround below)
         if (!!e.relatedTarget && !themeToggleButton.contains(e.relatedTarget) && !themePopup.contains(e.relatedTarget)) {
             hideThemes();
@@ -371,15 +390,19 @@ function playground_text(playground) {
     });
 
     // Should not be needed, but it works around an issue on macOS & iOS: https://github.com/rust-lang/mdBook/issues/628
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (themePopup.style.display === 'block' && !themeToggleButton.contains(e.target) && !themePopup.contains(e.target)) {
             hideThemes();
         }
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) { return; }
-        if (!themePopup.contains(e.target)) { return; }
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+            return;
+        }
+        if (!themePopup.contains(e.target)) {
+            return;
+        }
 
         switch (e.key) {
             case 'Escape':
@@ -428,7 +451,10 @@ function playground_text(playground) {
         });
         sidebarToggleButton.setAttribute('aria-expanded', true);
         sidebar.setAttribute('aria-hidden', false);
-        try { localStorage.setItem('mdbook-sidebar', 'visible'); } catch (e) { }
+        try {
+            localStorage.setItem('mdbook-sidebar', 'visible');
+        } catch (e) {
+        }
     }
 
 
@@ -450,7 +476,10 @@ function playground_text(playground) {
         });
         sidebarToggleButton.setAttribute('aria-expanded', false);
         sidebar.setAttribute('aria-hidden', true);
-        try { localStorage.setItem('mdbook-sidebar', 'hidden'); } catch (e) { }
+        try {
+            localStorage.setItem('mdbook-sidebar', 'hidden');
+        } catch (e) {
+        }
     }
 
     // Toggle sidebar
@@ -480,6 +509,7 @@ function playground_text(playground) {
         window.addEventListener('mouseup', stopResize, false);
         html.classList.add('sidebar-resizing');
     }
+
     function resize(e) {
         var pos = (e.clientX - sidebar.offsetLeft);
         if (pos < 20) {
@@ -492,6 +522,7 @@ function playground_text(playground) {
             document.documentElement.style.setProperty('--sidebar-width', pos + 'px');
         }
     }
+
     //on mouseup remove windows functions mousemove & mouseup
     function stopResize(e) {
         html.classList.remove('sidebar-resizing');
@@ -504,7 +535,7 @@ function playground_text(playground) {
             x: e.touches[0].clientX,
             time: Date.now()
         };
-    }, { passive: true });
+    }, {passive: true});
 
     document.addEventListener('touchmove', function (e) {
         if (!firstContact)
@@ -522,20 +553,24 @@ function playground_text(playground) {
 
             firstContact = null;
         }
-    }, { passive: true });
+    }, {passive: true});
 
     // Scroll sidebar to current active section
     var activeSection = document.getElementById("sidebar").querySelector(".active");
     if (activeSection) {
         // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-        activeSection.scrollIntoView({ block: 'center' });
+        activeSection.scrollIntoView({block: 'center'});
     }
 })();
 
 (function chapterNavigation() {
     document.addEventListener('keydown', function (e) {
-        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) { return; }
-        if (window.search && window.search.hasFocus()) { return; }
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+            return;
+        }
+        if (window.search && window.search.hasFocus()) {
+            return;
+        }
 
         switch (e.key) {
             case 'ArrowRight':
@@ -593,11 +628,11 @@ function playground_text(playground) {
     });
 })();
 
-(function scrollToTop () {
+(function scrollToTop() {
     var menuTitle = document.querySelector('.menu-title');
 
     menuTitle.addEventListener('click', function () {
-        document.scrollingElement.scrollTo({ top: 0, behavior: 'smooth' });
+        document.scrollingElement.scrollTo({top: 0, behavior: 'smooth'});
     });
 })();
 
@@ -645,7 +680,7 @@ function playground_text(playground) {
                 topCache = nextTop;
             }
             prevScrollTop = scrollTop;
-        }, { passive: true });
+        }, {passive: true});
     })();
     (function controllBorder() {
         menu.classList.remove('bordered');
@@ -655,6 +690,6 @@ function playground_text(playground) {
             } else {
                 menu.classList.add('bordered');
             }
-        }, { passive: true });
+        }, {passive: true});
     })();
 })();

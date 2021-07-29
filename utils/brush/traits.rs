@@ -1,6 +1,6 @@
 use ::ink_env::{
-    Environment,
     DefaultEnvironment,
+    Environment,
 };
 
 pub type AccountId = <DefaultEnvironment as Environment>::AccountId;

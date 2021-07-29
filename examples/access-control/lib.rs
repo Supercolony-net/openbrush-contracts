@@ -38,6 +38,7 @@ pub mod my_access_control {
     }
 
     impl IPSP721 for PSP721Struct {}
+
     impl IAccessControl for PSP721Struct {}
 
     impl IPSP721Mint for PSP721Struct {

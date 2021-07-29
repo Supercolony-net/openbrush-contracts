@@ -1,13 +1,16 @@
 // It exports the stub implementation of all PSP22 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-pub use self::psp20::{PSP22};
+pub use self::psp20::PSP22;
 
 pub use self::psp22receiver::PSP22Receiver;
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp20 {
-    use ink_prelude::{string::String, vec::Vec};
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
 
     #[derive(Default)]
     #[ink(storage)]
@@ -78,11 +81,10 @@ mod psp20 {
 }
 
 /// The user has to define their own Receiver contract with custom funds acceptance logic.
-///
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp22receiver {
-    use ink_prelude::{ vec::Vec };
-    use crate::traits::{PSP22ReceiverError};
+    use crate::traits::PSP22ReceiverError;
+    use ink_prelude::vec::Vec;
 
     #[derive(Default)]
     #[ink(storage)]

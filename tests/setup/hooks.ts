@@ -1,9 +1,9 @@
-import { network } from 'redspot'
+import {network} from 'redspot'
 
-const { api } = network
+const {api} = network
 
 export const mochaHooks = {
-  afterAll: () => {
-    api.disconnect()
-  }
+    afterAll: () => {
+        api.disconnect()
+    }
 }

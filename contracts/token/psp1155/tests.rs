@@ -2,9 +2,12 @@
 #[brush::contract]
 mod tests {
     use crate::traits::*;
-    use ink_lang as ink;
-    use ink::{Env, EmitEvent};
     use brush::traits::ZERO_ADDRESS;
+    use ink::{
+        EmitEvent,
+        Env,
+    };
+    use ink_lang as ink;
 
     #[ink(event)]
     pub struct TransferSingle {
@@ -45,8 +48,14 @@ mod tests {
     }
 
     impl IPSP1155 for PSP1155Struct {
-        fn _emit_transfer_single_event(&self,
-                                      _operator: AccountId, _from: AccountId, _to: AccountId, _id: Id, _amount: Balance) {
+        fn _emit_transfer_single_event(
+            &self,
+            _operator: AccountId,
+            _from: AccountId,
+            _to: AccountId,
+            _id: Id,
+            _amount: Balance,
+        ) {
             self.env().emit_event(TransferSingle {
                 operator: _operator,
                 from: _from,
@@ -64,8 +73,14 @@ mod tests {
             });
         }
 
-        fn _emit_transfer_batch_event(&self,
-                                     _operator: AccountId, _from: AccountId, _to: AccountId, _ids: Vec<Id>, _amounts: Vec<Balance>) {
+        fn _emit_transfer_batch_event(
+            &self,
+            _operator: AccountId,
+            _from: AccountId,
+            _to: AccountId,
+            _ids: Vec<Id>,
+            _amounts: Vec<Balance>,
+        ) {
             self.env().emit_event(TransferBatch {
                 operator: _operator,
                 from: _from,
@@ -74,7 +89,6 @@ mod tests {
                 values: _amounts,
             });
         }
-
 
         // Don't do cross call in test
         fn _do_safe_transfer_acceptance_check(
@@ -85,7 +99,8 @@ mod tests {
             _id: Id,
             _amount: Balance,
             _data: Vec<u8>,
-        ) {}
+        ) {
+        }
 
         // Don't do cross call in test
         fn _do_batch_safe_transfer_acceptance_check(
@@ -96,7 +111,8 @@ mod tests {
             _ids: Vec<Id>,
             _amounts: Vec<Balance>,
             _data: Vec<u8>,
-        ) {}
+        ) {
+        }
     }
 
     impl PSP1155Struct {
@@ -112,8 +128,7 @@ mod tests {
     fn balance_of() {
         let token_id = [1; 32];
         let mint_amount = 1;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         // Token 1 does not exists.
@@ -141,38 +156,25 @@ mod tests {
         let token_id_2 = [2; 32];
         let token_1_amount = 1;
         let token_2_amount = 20;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         // Token 1 does not exists.
         assert_eq!(
-            nft
-                .balance_of_batch(
-                    vec![accounts.alice, accounts.alice],
-                    vec![token_id_1, token_id_2]
-                ),
+            nft.balance_of_batch(vec![accounts.alice, accounts.alice], vec![token_id_1, token_id_2],),
             vec![0, 0]
         );
         // mint some token 1
         nft._mint(accounts.alice, token_id_1, token_1_amount);
         assert_eq!(
-            nft
-                .balance_of_batch(
-                    vec![accounts.alice, accounts.alice],
-                    vec![token_id_1, token_id_2]
-                ),
+            nft.balance_of_batch(vec![accounts.alice, accounts.alice], vec![token_id_1, token_id_2],),
             vec![token_1_amount, 0]
         );
 
         // mint some token 2
         nft._mint(accounts.bob, token_id_2, token_2_amount);
         assert_eq!(
-            nft
-                .balance_of_batch(
-                    vec![accounts.alice, accounts.bob],
-                    vec![token_id_1, token_id_2]
-                ),
+            nft.balance_of_batch(vec![accounts.alice, accounts.bob], vec![token_id_1, token_id_2],),
             vec![token_1_amount, token_2_amount]
         );
 
@@ -202,8 +204,7 @@ mod tests {
 
     #[ink::test]
     fn set_approval_for_all() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         // no approvall exists yet
@@ -233,18 +234,11 @@ mod tests {
     fn transfer_from_single() {
         let token_id = [1; 32];
         let transfer_amount = 1;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         nft._mint(accounts.alice, token_id, transfer_amount);
-        nft.safe_transfer_from(
-            accounts.alice,
-            accounts.bob,
-            token_id,
-            transfer_amount,
-            [].to_vec()
-        );
+        nft.safe_transfer_from(accounts.alice, accounts.bob, token_id, transfer_amount, [].to_vec());
         assert_eq!(nft.balance_of(accounts.alice, token_id), 0);
         assert_eq!(nft.balance_of(accounts.bob, token_id), transfer_amount);
 
@@ -281,28 +275,19 @@ mod tests {
         let token_2_amount = 20;
         let ids = vec![token_id_1, token_id_2];
         let amounts = vec![token_1_amount, token_2_amount];
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         nft._mint(accounts.alice, token_id_1, token_1_amount);
         nft._mint(accounts.alice, token_id_2, token_2_amount);
-        nft.safe_batch_transfer_from(
-            accounts.alice,
-            accounts.bob,
-            ids.clone(),
-            amounts.clone(),
-            [].to_vec()
-        );
+        nft.safe_batch_transfer_from(accounts.alice, accounts.bob, ids.clone(), amounts.clone(), [].to_vec());
 
         assert_eq!(
-            nft
-                .balance_of_batch(vec![accounts.bob, accounts.bob], ids.clone()),
+            nft.balance_of_batch(vec![accounts.bob, accounts.bob], ids.clone()),
             amounts.clone()
         );
         assert_eq!(
-            nft
-                .balance_of_batch(vec![accounts.alice, accounts.alice], ids.clone()),
+            nft.balance_of_batch(vec![accounts.alice, accounts.alice], ids.clone()),
             vec![0, 0]
         );
 
@@ -346,18 +331,11 @@ mod tests {
         let token_id = [1; 32];
         let mint_amount = 1;
         let transfer_amount = 2;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         nft._mint(accounts.alice, token_id, mint_amount);
-        nft.safe_transfer_from(
-            accounts.alice,
-            accounts.bob,
-            token_id,
-            transfer_amount,
-            [].to_vec()
-        );
+        nft.safe_transfer_from(accounts.alice, accounts.bob, token_id, transfer_amount, [].to_vec());
     }
 
     #[ink::test]
@@ -365,26 +343,18 @@ mod tests {
     fn transfer_from_single_no_approve() {
         let token_id = [1; 32];
         let mint_amount = 1;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         nft._mint(accounts.bob, token_id, mint_amount);
-        nft.safe_transfer_from(
-            accounts.bob,
-            accounts.alice,
-            token_id,
-            mint_amount,
-            [].to_vec(),
-        );
+        nft.safe_transfer_from(accounts.bob, accounts.alice, token_id, mint_amount, [].to_vec());
     }
 
     #[ink::test]
     fn transfer_from_single_with_approve() {
         let token_id = [1; 32];
         let mint_amount = 1;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         nft._mint(accounts.alice, token_id, mint_amount);
@@ -392,8 +362,7 @@ mod tests {
 
         // CHANGE CALLEE MANUALLY
         // Get contract address.
-        let callee =
-            ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
         // Create call.
         let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&accounts.bob);
@@ -405,13 +374,7 @@ mod tests {
             1000000,
             data,
         );
-        nft.safe_transfer_from(
-            accounts.alice,
-            accounts.bob,
-            token_id,
-            mint_amount,
-            [].to_vec()
-        );
+        nft.safe_transfer_from(accounts.alice, accounts.bob, token_id, mint_amount, [].to_vec());
 
         assert_eq!(nft.balance_of(accounts.bob, token_id), mint_amount);
         assert_eq!(nft.balance_of(accounts.alice, token_id), 0);
@@ -452,9 +415,8 @@ mod tests {
         let token_1_amount = 1;
         let token_2_amount = 20;
         let ids = vec![token_id_1, token_id_2];
-        let wrong_amounts = vec![2, 21]; //TODO currently transaction is not reverted on error. Fix test case in future, when 1st amount is correct
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let wrong_amounts = vec![2, 21];
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         nft._mint(accounts.alice, token_id_1, token_1_amount);
@@ -464,7 +426,7 @@ mod tests {
             accounts.bob,
             ids.clone(),
             wrong_amounts.clone(),
-            [].to_vec()
+            [].to_vec(),
         );
     }
 
@@ -477,20 +439,13 @@ mod tests {
         let token_2_amount = 20;
         let ids = vec![token_id_1, token_id_2];
         let amounts = vec![token_1_amount, token_2_amount];
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         nft._mint(accounts.bob, token_id_1, token_1_amount);
         nft._mint(accounts.bob, token_id_2, token_2_amount);
 
-        nft.safe_batch_transfer_from(
-            accounts.bob,
-            accounts.alice,
-            ids.clone(),
-            amounts.clone(),
-            [].to_vec()
-        );
+        nft.safe_batch_transfer_from(accounts.bob, accounts.alice, ids.clone(), amounts.clone(), [].to_vec());
     }
 
     #[ink::test]
@@ -501,8 +456,7 @@ mod tests {
         let token_2_amount = 20;
         let ids = vec![token_id_1, token_id_2];
         let amounts = vec![token_1_amount, token_2_amount];
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
         nft._mint(accounts.alice, token_id_1, token_1_amount);
@@ -511,8 +465,7 @@ mod tests {
 
         // CHANGE CALLEE MANUALLY
         // Get contract address.
-        let callee =
-            ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
         // Create call.
         let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&accounts.bob);
@@ -524,23 +477,15 @@ mod tests {
             1000000,
             data,
         );
-        nft.safe_batch_transfer_from(
-            accounts.alice,
-            accounts.bob,
-            ids.clone(),
-            amounts.clone(),
-            [].to_vec()
-        );
+        nft.safe_batch_transfer_from(accounts.alice, accounts.bob, ids.clone(), amounts.clone(), [].to_vec());
 
         assert_eq!(
-            nft
-                .balance_of_batch(vec![accounts.bob, accounts.bob], ids.clone()),
+            nft.balance_of_batch(vec![accounts.bob, accounts.bob], ids.clone()),
             amounts.clone()
         );
 
         assert_eq!(
-            nft
-                .balance_of_batch(vec![accounts.alice, accounts.alice], ids.clone()),
+            nft.balance_of_batch(vec![accounts.alice, accounts.alice], ids.clone()),
             vec![0, 0]
         );
 
@@ -593,30 +538,21 @@ mod tests {
         let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer");
         if let Event::TransferSingle(TransferSingle {
-                                         operator,
-                                         from,
-                                         to,
-                                         id,
-                                         value,
-                                     }) = decoded_event
+            operator,
+            from,
+            to,
+            id,
+            value,
+        }) = decoded_event
         {
             assert_eq!(
                 operator, expected_operator,
                 "encountered invalid TransferSingle.operator"
             );
-            assert_eq!(
-                from, expected_from,
-                "encountered invalid TransferSingle.from"
-            );
+            assert_eq!(from, expected_from, "encountered invalid TransferSingle.from");
             assert_eq!(to, expected_to, "encountered invalid TransferSingle.to");
-            assert_eq!(
-                id, expected_token_id,
-                "encountered invalid TransferSingle.id"
-            );
-            assert_eq!(
-                value, expected_value,
-                "encountered invalid TransferSingle.value"
-            );
+            assert_eq!(id, expected_token_id, "encountered invalid TransferSingle.id");
+            assert_eq!(value, expected_value, "encountered invalid TransferSingle.value");
         } else {
             panic!("encountered unexpected event kind: expected a TransferSingle event")
         }
@@ -633,30 +569,21 @@ mod tests {
         let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer");
         if let Event::TransferBatch(TransferBatch {
-                                        operator,
-                                        from,
-                                        to,
-                                        ids,
-                                        values,
-                                    }) = decoded_event
+            operator,
+            from,
+            to,
+            ids,
+            values,
+        }) = decoded_event
         {
             assert_eq!(
                 operator, expected_operator,
                 "encountered invalid TransferBatch.operator"
             );
-            assert_eq!(
-                from, expected_from,
-                "encountered invalid TransferBatch.from"
-            );
+            assert_eq!(from, expected_from, "encountered invalid TransferBatch.from");
             assert_eq!(to, expected_to, "encountered invalid TransferBatch.to");
-            assert_eq!(
-                ids, expected_token_ids,
-                "encountered invalid TransferBatch.ids"
-            );
-            assert_eq!(
-                values, expected_values,
-                "encountered invalid TransferBatch.values"
-            );
+            assert_eq!(ids, expected_token_ids, "encountered invalid TransferBatch.ids");
+            assert_eq!(values, expected_values, "encountered invalid TransferBatch.values");
         } else {
             panic!("encountered unexpected event kind: expected a TransferBatch event")
         }
@@ -671,19 +598,13 @@ mod tests {
         let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer");
         if let Event::ApprovalForAll(ApprovalForAll {
-                                         owner,
-                                         operator,
-                                         approved,
-                                     }) = decoded_event
+            owner,
+            operator,
+            approved,
+        }) = decoded_event
         {
-            assert_eq!(
-                owner, expected_owner,
-                "encountered invalid ApprovalForAll.owner"
-            );
-            assert_eq!(
-                operator, expected_operator,
-                "encountered invalid ApprovalForAll.to"
-            );
+            assert_eq!(owner, expected_owner, "encountered invalid ApprovalForAll.owner");
+            assert_eq!(operator, expected_operator, "encountered invalid ApprovalForAll.to");
             assert_eq!(
                 approved, expected_approved,
                 "encountered invalid ApprovalForAll.approved"
