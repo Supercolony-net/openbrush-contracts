@@ -31,7 +31,7 @@ mod psp20 {
         }
 
         #[ink(message)]
-        pub fn token_decimals(&self) -> Option<u8> {
+        pub fn token_decimals(&self) -> u8 {
             unimplemented!()
         }
 
