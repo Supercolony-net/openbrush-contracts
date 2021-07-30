@@ -1,7 +1,7 @@
 ## Overview
 
 This example shows how you can use the [non_reentrant](contracts/security/reentrancy_guard)
-modifier to prevent reentrancy into certain functions. In this example we will create two contract:
+modifier to prevent reentrancy into certain functions. In this example we will create two contracts:
 
 - `my_flipper_guard` - is contract of simple [flipper](https://github.com/paritytech/ink/tree/master/examples/flipper)
   but method `flip` will be marked with `non_reentrant` modifier + we will add additional method, also marked

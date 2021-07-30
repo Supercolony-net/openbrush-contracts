@@ -48,7 +48,7 @@ pub struct PSP22MetadataData {
 
 declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);
 
-/// The PSP22 error type. Contract will assert one of this errors.
+/// The PSP22 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP22Error {
     /// Custom error type for cases if writer of traits added own restrictions

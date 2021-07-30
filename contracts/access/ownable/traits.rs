@@ -23,7 +23,7 @@ pub struct OwnableData {
 
 declare_storage_trait!(OwnableStorage, OwnableData);
 
-/// The Ownable error type. Contract will assert one of this errors.
+/// The Ownable error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum OwnableError {
     CallerIsNotOwner,
