@@ -72,7 +72,7 @@ mod psp20metadata {
     #[derive(Default)]
     #[ink(storage)]
     pub struct PSP22Metadata {}
-
+  
     impl PSP22Metadata {
         #[ink(constructor)]
         pub fn new() -> Self {
