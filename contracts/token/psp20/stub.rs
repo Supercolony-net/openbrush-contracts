@@ -1,7 +1,8 @@
 // It exports the stub implementation of all PSP22 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-pub use self::psp20::{PSP22};
+pub use self::psp20::PSP22;
+pub use self::psp20metadata::PSP22Metadata;
 
 pub use self::psp22receiver::PSP22Receiver;
 
@@ -13,28 +14,15 @@ mod psp20 {
     #[ink(storage)]
     pub struct PSP22 {}
 
-    #[ink(namespace = "PSP22")]
     impl PSP22 {
         #[ink(constructor)]
         pub fn new() -> Self {
             unimplemented!()
         }
+    }
 
-        #[ink(message)]
-        pub fn token_name(&self) -> Option<String> {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn token_symbol(&self) -> Option<String> {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn token_decimals(&self) -> u8 {
-            unimplemented!()
-        }
-
+    #[ink(namespace = "PSP22")]
+    impl PSP22 {
         #[ink(message)]
         pub fn total_supply(&self) -> Balance {
             unimplemented!()
@@ -72,6 +60,43 @@ mod psp20 {
 
         #[ink(message)]
         pub fn decrease_allowance(&mut self, _spender: AccountId, _delta_value: Balance) {
+            unimplemented!()
+        }
+    }
+}
+
+#[ink_lang::contract(compile_as_dependency = true)]
+mod psp20metadata {
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
+
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct PSP22Metadata {}
+
+    impl PSP22Metadata {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+    }
+
+    #[ink(namespace = "PSP22Metadata")]
+    impl PSP22Metadata {
+        #[ink(message)]
+        pub fn token_name(&self) -> Option<String> {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn token_symbol(&self) -> Option<String> {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn token_decimals(&self) -> u8 {
             unimplemented!()
         }
     }
