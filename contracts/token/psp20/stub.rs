@@ -8,7 +8,7 @@ pub use self::psp22receiver::PSP22Receiver;
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp20 {
-    use ink_prelude::{string::String, vec::Vec};
+    use ink_prelude::vec::Vec;
 
     #[derive(Default)]
     #[ink(storage)]
@@ -67,10 +67,7 @@ mod psp20 {
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp20metadata {
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
+    use ink_prelude::string::String;
 
     #[derive(Default)]
     #[ink(storage)]
