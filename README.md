@@ -118,6 +118,16 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 - [ ] Add support of upgradable contracts to ink!/contract-pallet level.
 - [ ] Create upgradable contracts.
 
+## Testing
+You can run unit tests by `cargo test` command from the root of the directory.
+
+To run integration test you need to install ink! toolchain, NodeJS's dependencies and start the node with contract-pallet.
+- [ink! toolchain](https://docs.patract.io/en/redspot/tutorial.html#ink-toolchain-for-contract-compilation)
+- [Start the node with contract-pallet](https://docs.patract.io/en/redspot/tutorial.html#prepare-blockchain-nodes-that-can-run-the-contract)
+- NodeJS deps you can install via `npm run install` command
+
+After you can run tests by `npm run test` command. It will build all contracts required for integration tests and run them.
+
 ## History behind
 
 - [OpenZeppelin in ink!](https://medium.com/supercolony/ink-has-most-of-the-features-required-for-usage-however-the-usability-of-ink-is-low-95f4bc974e22)
