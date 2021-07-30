@@ -1,4 +1,5 @@
-# <img src="https://user-images.githubusercontent.com/18346821/126191912-2b5932c6-3d64-4fd0-a74b-326df11e1d07.png" alt="Openbrush" height="120px">
+# ![logo-2](https://user-images.githubusercontent.com/18346821/127667990-a85453d6-8ded-470e-80c7-e2b6153a5eaf.png)
+
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](doc)
 
