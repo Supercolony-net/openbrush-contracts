@@ -54,7 +54,7 @@ impl Default for RoleData {
 
 pub type RoleType = u32;
 
-/// The AccessControl error type. Contract will assert one of this errors.
+/// The AccessControl error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum AccessControlError {
     InvalidCaller,

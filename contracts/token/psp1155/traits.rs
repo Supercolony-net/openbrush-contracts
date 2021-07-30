@@ -49,7 +49,7 @@ pub struct PSP1155MetadataData {
 
 declare_storage_trait!(PSP1155MetadataStorage, PSP1155MetadataData);
 
-/// The PSP1155 error type. Contract will assert one of this errors.
+/// The PSP1155 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP1155Error {
     Unknown(String),

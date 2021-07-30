@@ -52,7 +52,7 @@ pub struct PSP721MetadataData {
 
 declare_storage_trait!(PSP721MetadataStorage, PSP721MetadataData);
 
-/// The PSP721 error type. Contract will assert one of this errors.
+/// The PSP721 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
 pub enum PSP721Error {
     Unknown(String),
