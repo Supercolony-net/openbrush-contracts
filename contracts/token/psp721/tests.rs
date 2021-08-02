@@ -1,12 +1,18 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use ink_prelude::{string::String};
-    use ink_env::{call, test};
-    use ink_lang as ink;
-    use ink::{Env, EmitEvent};
-    use brush::traits::ZERO_ADDRESS;
     use crate::traits::*;
+    use brush::traits::ZERO_ADDRESS;
+    use ink::{
+        EmitEvent,
+        Env,
+    };
+    use ink_env::{
+        call,
+        test,
+    };
+    use ink_lang as ink;
+    use ink_prelude::string::String;
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
@@ -75,7 +81,9 @@ mod tests {
             });
         }
     }
+
     impl IPSP721Mint for PSP721Struct {}
+
     impl IPSP721Metadata for PSP721Struct {}
 
     impl PSP721Struct {
@@ -97,8 +105,7 @@ mod tests {
 
     #[ink::test]
     fn mint_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP721Struct::new(None, None);
         // Token 1 does not _exists.
@@ -114,8 +121,7 @@ mod tests {
     #[ink::test]
     #[should_panic(expected = "TokenExists")]
     fn mint_existing_should_fail() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1.
@@ -133,8 +139,7 @@ mod tests {
 
     #[ink::test]
     fn approved_transfer_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1.
@@ -144,8 +149,7 @@ mod tests {
         // Approve token Id 1 transfer for Bob on behalf of Alice.
         nft.approve(accounts.bob, [1; 32]);
         // Get contract address.
-        let callee =
-            ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or(ZERO_ADDRESS.into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or(ZERO_ADDRESS.into());
         // Create call
         let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&accounts.bob);
@@ -171,8 +175,7 @@ mod tests {
 
     #[ink::test]
     fn approved_for_all_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1.
@@ -184,13 +187,9 @@ mod tests {
         // Approve token Id 1 transfer for Bob on behalf of Alice.
         nft.set_approval_for_all(accounts.bob, true);
         // Bob is an approved operator for Alice
-        assert_eq!(
-            nft.is_approved_for_all(accounts.alice, accounts.bob),
-            true
-        );
+        assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), true);
         // Get contract address.
-        let callee =
-            ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or(ZERO_ADDRESS.into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or(ZERO_ADDRESS.into());
         // Create call
         let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&accounts.bob);
@@ -219,17 +218,13 @@ mod tests {
         // Remove operator approval for Bob on behalf of Alice.
         nft.set_approval_for_all(accounts.bob, false);
         // Bob is not an approved operator for Alice.
-        assert_eq!(
-            nft.is_approved_for_all(accounts.alice, accounts.bob),
-            false
-        );
+        assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), false);
     }
 
     #[ink::test]
     #[should_panic(expected = "NotApproved")]
     fn not_approved_transfer_should_fail() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1.
@@ -241,8 +236,7 @@ mod tests {
         // Eve does not owns tokens.
         assert_eq!(nft.balance_of(accounts.eve), 0);
         // Get contract address.
-        let callee =
-            ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or(ZERO_ADDRESS.into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or(ZERO_ADDRESS.into());
         // Create call
         let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
         data.push_arg(&accounts.bob);
@@ -260,8 +254,7 @@ mod tests {
 
     #[ink::test]
     fn burn_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1 for Alice
@@ -290,8 +283,7 @@ mod tests {
     #[ink::test]
     #[should_panic(expected = "NotOwner")]
     fn burn_fails_not_owner() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-            .expect("Cannot get accounts");
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP721Struct::new(None, None);
         // Create token Id 1 for Alice
@@ -302,8 +294,7 @@ mod tests {
     }
 
     fn set_sender(sender: AccountId) {
-        let callee =
-            ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or(ZERO_ADDRESS.into());
+        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or(ZERO_ADDRESS.into());
         test::push_execution_context::<Environment>(
             sender,
             callee,

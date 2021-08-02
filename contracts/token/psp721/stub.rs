@@ -1,13 +1,18 @@
 // It exports the stub implementation of all PSP721 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-pub use self::psp721::{PSP721};
-pub use self::psp721receiver::{PSP721Receiver};
+pub use self::{
+    psp721::PSP721,
+    psp721receiver::PSP721Receiver,
+};
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp721 {
-    use ink_prelude::{ string::String, vec::Vec };
-    use crate::traits::{ Id };
+    use crate::traits::Id;
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
 
     #[derive(Default)]
     #[ink(storage)]
@@ -53,23 +58,12 @@ mod psp721 {
         }
 
         #[ink(message)]
-        pub fn transfer_from(
-            &mut self,
-            from: AccountId,
-            to: AccountId,
-            id: Id,
-        ) {
+        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Id) {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn safe_transfer_from(
-            &mut self,
-            from: AccountId,
-            to: AccountId,
-            id: Id,
-            data: Vec<u8>,
-        ) {
+        pub fn safe_transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) {
             unimplemented!()
         }
     }
@@ -103,8 +97,11 @@ mod psp721 {
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp721receiver {
-    use ink_prelude::{ vec::Vec };
-    use crate::traits::{ Id, PSP721ReceiverError };
+    use crate::traits::{
+        Id,
+        PSP721ReceiverError,
+    };
+    use ink_prelude::vec::Vec;
 
     #[derive(Default)]
     #[ink(storage)]

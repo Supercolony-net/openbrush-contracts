@@ -23,7 +23,7 @@ name = "my_flipper_guard"
 path = "lib.rs"
 
 crate-type = [
-	"cdylib",
+    "cdylib",
     # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
     "rlib",
 ]
@@ -37,11 +37,9 @@ std = [
     "ink_env/std",
     "ink_storage/std",
     "ink_lang/std",
-
     "scale/std",
     "scale-info",
     "scale-info/std",
-
     "brush/std",
     "reentrancy_guard/std",
 ]

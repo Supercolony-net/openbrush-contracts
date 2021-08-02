@@ -1,15 +1,21 @@
+use crate::{
+    internal::{
+        is_attr,
+        remove_attr,
+        BRUSH_PREFIX,
+    },
+    metadata,
+};
+use proc_macro::TokenStream;
 use quote::{
+    format_ident,
     quote,
     ToTokens,
-    format_ident
 };
 use syn::{
-    ItemTrait,
     parse_macro_input,
+    ItemTrait,
 };
-use proc_macro::{TokenStream};
-use crate::internal::{remove_attr, is_attr, BRUSH_PREFIX};
-use crate::metadata;
 
 pub(crate) const WRAPPER_TRAIT_SUFFIX: &'static str = "Wrapper";
 pub(crate) const EXTERNAL_TRAIT_SUFFIX: &'static str = "External";
@@ -22,7 +28,9 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
     let locked_file = metadata::get_locked_file();
     let mut metadata = metadata::Metadata::load(&locked_file);
     metadata.external_traits.insert(
-        trait_item.ident.to_string(), trait_item.clone().into_token_stream().to_string());
+        trait_item.ident.to_string(),
+        trait_item.clone().into_token_stream().to_string(),
+    );
     metadata.save_and_unlock(locked_file);
 
     let trait_without_ink_attrs = remove_ink_attrs(trait_item.clone());
@@ -34,11 +42,11 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
     // During implementation of this trait we will
     let mut ink_external = ink_trait;
     ink_external.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, ink_external.ident, EXTERNAL_TRAIT_SUFFIX);
-    ink_external.items.iter_mut().for_each(|item|
+    ink_external.items.iter_mut().for_each(|item| {
         if let syn::TraitItem::Method(method) = item {
             method.sig.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, method.sig.ident, EXTERNAL_METHOD_SUFFIX)
         }
-    );
+    });
 
     let code = quote! {
         // It is original trait defined by user with all features of rust.
@@ -72,19 +80,19 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
     trait_item.generics.where_clause = None;
     trait_item.supertraits.clear();
     // Remove each default block and add semi colon at the end
-    trait_item.items
-        .iter_mut()
-        .for_each(|item| {
-            if let syn::TraitItem::Method(method) = item {
-                method.default = None;
-                method.semi_token = Some(syn::token::Semi::default());
-            }
-        });
+    trait_item.items.iter_mut().for_each(|item| {
+        if let syn::TraitItem::Method(method) = item {
+            method.default = None;
+            method.semi_token = Some(syn::token::Semi::default());
+        }
+    });
 
     // Remove all non-ink functions
-    trait_item.items = trait_item.items.clone()
+    trait_item.items = trait_item
+        .items
+        .clone()
         .into_iter()
-        .filter_map(|item|
+        .filter_map(|item| {
             if let syn::TraitItem::Method(method) = &item {
                 if is_attr(&method.attrs, "ink") {
                     Some(item)
@@ -93,7 +101,8 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
                 }
             } else {
                 Some(item)
-            })
+            }
+        })
         .collect();
 
     trait_item
@@ -101,10 +110,10 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
 
 fn remove_ink_attrs(mut trait_item: ItemTrait) -> ItemTrait {
     // Remove all non-ink functions
-    trait_item.items.iter_mut()
-        .for_each(|mut item|
-            if let syn::TraitItem::Method(method) = &mut item {
-                method.attrs = remove_attr(&method.attrs, "ink")
-            });
+    trait_item.items.iter_mut().for_each(|mut item| {
+        if let syn::TraitItem::Method(method) = &mut item {
+            method.attrs = remove_attr(&method.attrs, "ink")
+        }
+    });
     trait_item
 }

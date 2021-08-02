@@ -1,17 +1,30 @@
-use syn::{TraitItem, ItemTrait};
-use proc_macro2::{
-    TokenStream as TokenStream2,
-};
-use std::collections::HashMap;
-use std::env;
-use std::fs::{OpenOptions, File};
-use std::io::{BufReader, Seek, SeekFrom};
-use std::str::FromStr;
-use serde::{Serialize, Deserialize};
-use serde_json;
+use cargo_metadata::MetadataCommand;
 use fs2::FileExt;
-use cargo_metadata::{MetadataCommand};
-use std::path::PathBuf;
+use proc_macro2::TokenStream as TokenStream2;
+use serde::{
+    Deserialize,
+    Serialize,
+};
+use serde_json;
+use std::{
+    collections::HashMap,
+    env,
+    fs::{
+        File,
+        OpenOptions,
+    },
+    io::{
+        BufReader,
+        Seek,
+        SeekFrom,
+    },
+    path::PathBuf,
+    str::FromStr,
+};
+use syn::{
+    ItemTrait,
+    TraitItem,
+};
 use unwrap::unwrap;
 
 const TEMP_FILE: &'static str = "__brush_metadata";
@@ -75,7 +88,8 @@ pub(crate) struct TraitDefinition(ItemTrait);
 
 impl TraitDefinition {
     pub(crate) fn methods(&self) -> Vec<syn::TraitItemMethod> {
-        self.0.items
+        self.0
+            .items
             .clone()
             .into_iter()
             .filter_map(|item| {
@@ -84,21 +98,21 @@ impl TraitDefinition {
                 } else {
                     None
                 }
-            }).collect()
+            })
+            .collect()
     }
 }
 
 impl TraitDefinitions {
     pub(crate) fn get(&self, ident: &String) -> TraitDefinition {
-        let stream = unwrap!(TokenStream2::from_str(
-            unwrap!(self.0.get(ident), "Can't find definition of trait {}", ident)
-        ), "Trait definition({}) is not TokenStream", ident);
-        let trait_item =
-            unwrap!(syn::parse2::<ItemTrait>(stream), "Can't parse ItemTrait of {}", ident);
+        let stream = unwrap!(
+            TokenStream2::from_str(unwrap!(self.0.get(ident), "Can't find definition of trait {}", ident)),
+            "Trait definition({}) is not TokenStream",
+            ident
+        );
+        let trait_item = unwrap!(syn::parse2::<ItemTrait>(stream), "Can't parse ItemTrait of {}", ident);
 
-        TraitDefinition {
-            0: trait_item,
-        }
+        TraitDefinition { 0: trait_item }
     }
 }
 
@@ -108,8 +122,7 @@ impl TraitDefinitions {
 /// If the directory doesn't contain `Cargo.toml` file,
 /// it will try to find `Cargo.toml` in the upper directories.
 pub(crate) fn get_locked_file() -> File {
-    let mut manifest_path =
-        PathBuf::from(env::var("PWD").expect("Can't get PWD")).join("Cargo.toml");
+    let mut manifest_path = PathBuf::from(env::var("PWD").expect("Can't get PWD")).join("Cargo.toml");
 
     // if the current directory does not contain a Cargo.toml file, go up until you find it.
     while !manifest_path.exists() {
@@ -132,9 +145,7 @@ pub(crate) fn get_locked_file() -> File {
 
     let dir = metadata.target_directory.join(TEMP_FILE);
 
-    let file = match OpenOptions::new().read(true).write(true)
-        .create(true)
-        .open(&dir) {
+    let file = match OpenOptions::new().read(true).write(true).create(true).open(&dir) {
         Err(why) => panic!("Couldn't open temporary storage: {}", why),
         Ok(file) => file,
     };

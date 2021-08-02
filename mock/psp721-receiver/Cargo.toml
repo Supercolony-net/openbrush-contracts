@@ -34,11 +34,9 @@ std = [
     "ink_env/std",
     "ink_storage/std",
     "ink_lang/std",
-
     "scale/std",
     "scale-info",
     "scale-info/std",
-
     "psp721/std",
     "brush/std",
 ]

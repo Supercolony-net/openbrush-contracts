@@ -1,14 +1,16 @@
 // It exports the stub implementation of all PSP1155 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-pub use self::psp1155::{PSP1155};
-pub use self::psp1155receiver::{PSP1155Receiver};
+pub use self::{
+    psp1155::PSP1155,
+    psp1155receiver::PSP1155Receiver,
+};
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp1155 {
-    use crate::traits::{Id};
+    use crate::traits::Id;
     use ink_prelude::{
-        string::{String},
+        string::String,
         vec::Vec,
     };
 
@@ -80,10 +82,11 @@ pub mod psp1155 {
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp1155receiver {
-    use crate::traits::{PSP1155ReceiverError, Id};
-    use ink_prelude::{
-        vec::Vec,
+    use crate::traits::{
+        Id,
+        PSP1155ReceiverError,
     };
+    use ink_prelude::vec::Vec;
 
     #[ink(storage)]
     pub struct PSP1155Receiver {}
@@ -98,14 +101,26 @@ pub mod psp1155receiver {
     #[ink(namespace = "IPSP1155Receiver")]
     impl PSP1155Receiver {
         #[ink(message)]
-        pub fn on_psp1155_received(&mut self, _operator: AccountId, _from: AccountId,
-                                   _id: Id, _value: Balance, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
+        pub fn on_psp1155_received(
+            &mut self,
+            _operator: AccountId,
+            _from: AccountId,
+            _id: Id,
+            _value: Balance,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP1155ReceiverError> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn on_psp1155_batch_received(&mut self, _operator: AccountId, _from: AccountId,
-                                         _ids: Vec<Id>, _values: Vec<Balance>, _data: Vec<u8>) -> Result<(), PSP1155ReceiverError> {
+        pub fn on_psp1155_batch_received(
+            &mut self,
+            _operator: AccountId,
+            _from: AccountId,
+            _ids: Vec<Id>,
+            _values: Vec<Balance>,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP1155ReceiverError> {
             unimplemented!()
         }
     }

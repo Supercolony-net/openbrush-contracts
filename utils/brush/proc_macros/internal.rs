@@ -1,17 +1,25 @@
 extern crate proc_macro;
 
+use ink_lang_ir::Callable;
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{
-    quote,
     format_ident,
+    quote,
+};
+use std::{
+    collections::HashMap,
+    convert::TryFrom,
 };
 use syn::ItemImpl;
-use proc_macro2::TokenStream as TokenStream2;
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use ink_lang_ir::Callable;
 
-use crate::metadata::Metadata;
-use crate::trait_definition::{WRAPPER_TRAIT_SUFFIX, EXTERNAL_METHOD_SUFFIX, EXTERNAL_TRAIT_SUFFIX};
+use crate::{
+    metadata::Metadata,
+    trait_definition::{
+        EXTERNAL_METHOD_SUFFIX,
+        EXTERNAL_TRAIT_SUFFIX,
+        WRAPPER_TRAIT_SUFFIX,
+    },
+};
 
 pub(crate) const BRUSH_PREFIX: &'static str = "__brush";
 
@@ -30,21 +38,29 @@ impl Attributes {
 }
 
 // Returns "ink-as-dependency" and not("ink-as-dependency") impls
-pub(crate) fn impl_external_trait(mut impl_item: syn::ItemImpl,
-                                  trait_ident: &syn::Ident, metadata: &Metadata) -> (Vec<syn::Item>, Vec<syn::Item>) {
+pub(crate) fn impl_external_trait(
+    mut impl_item: syn::ItemImpl,
+    trait_ident: &syn::Ident,
+    metadata: &Metadata,
+) -> (Vec<syn::Item>, Vec<syn::Item>) {
     let impl_ink_attrs = extract_attr(&mut impl_item.attrs, "ink");
     let mut ink_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
-    metadata.external_traits.get(&trait_ident.to_string())
+    metadata
+        .external_traits
+        .get(&trait_ident.to_string())
         .methods()
         .iter()
         .for_each(|method| {
             if is_attr(&method.attrs, "ink") {
                 let mut empty_method = method.clone();
-                empty_method.default = Some(syn::parse2(quote! {
-                    {
-                        unimplemented!()
-                    }
-                }).unwrap());
+                empty_method.default = Some(
+                    syn::parse2(quote! {
+                        {
+                            unimplemented!()
+                        }
+                    })
+                    .unwrap(),
+                );
                 let mut attrs = empty_method.attrs.clone();
                 empty_method.attrs = extract_attr(&mut attrs, "doc");
                 empty_method.attrs.append(&mut extract_attr(&mut attrs, "ink"));
@@ -53,18 +69,21 @@ pub(crate) fn impl_external_trait(mut impl_item: syn::ItemImpl,
         });
 
     // Move ink! attrs from internal trait to external
-    impl_item.items
-        .iter_mut()
-        .for_each(|mut item|
-            if let syn::ImplItem::Method(method) = &mut item {
-                let method_key = method.sig.ident.to_string();
+    impl_item.items.iter_mut().for_each(|mut item| {
+        if let syn::ImplItem::Method(method) = &mut item {
+            let method_key = method.sig.ident.to_string();
 
-                if ink_methods.contains_key(&method_key) {
-                    // Internal attrs will override external, so user must include full declaration with ink(message) and etc.
-                    ink_methods.get_mut(&method_key).unwrap().attrs = extract_attr(&mut method.attrs, "doc");
-                    ink_methods.get_mut(&method_key).unwrap().attrs.append(&mut extract_attr(&mut method.attrs, "ink"));
-                }
-            });
+            if ink_methods.contains_key(&method_key) {
+                // Internal attrs will override external, so user must include full declaration with ink(message) and etc.
+                ink_methods.get_mut(&method_key).unwrap().attrs = extract_attr(&mut method.attrs, "doc");
+                ink_methods
+                    .get_mut(&method_key)
+                    .unwrap()
+                    .attrs
+                    .append(&mut extract_attr(&mut method.attrs, "ink"));
+            }
+        }
+    });
 
     let ink_methods_iter = ink_methods.iter().map(|(_, value)| value);
 
@@ -74,7 +93,8 @@ pub(crate) fn impl_external_trait(mut impl_item: syn::ItemImpl,
         impl #trait_ident for #self_ty {
             #(#ink_methods_iter)*
         }
-    }).unwrap();
+    })
+    .unwrap();
 
     // Evaluate selector and metadata_name for each method based on rules in ink!
     let ink_impl = ::ink_lang_ir::ItemImpl::try_from(draft_impl).unwrap();
@@ -89,17 +109,22 @@ pub(crate) fn impl_external_trait(mut impl_item: syn::ItemImpl,
         if message.metadata_name() == message.ident().to_string() {
             let selector = format!("{}", message.metadata_name());
 
-            method.attrs.push(new_attribute(quote! {#[ink(metadata_name = #selector)]}));
+            method
+                .attrs
+                .push(new_attribute(quote! {#[ink(metadata_name = #selector)]}));
         }
 
         let original_name = message.ident();
         let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);
 
-        method.default = Some(syn::parse2(quote! {
-            {
-                #trait_ident::#original_name(self #(, #inputs_params )* )
-            }
-        }).unwrap());
+        method.default = Some(
+            syn::parse2(quote! {
+                {
+                    #trait_ident::#original_name(self #(, #inputs_params )* )
+                }
+            })
+            .unwrap(),
+        );
     });
 
     let ink_methods_iter = ink_methods.iter().map(|(_, value)| value);
@@ -111,9 +136,11 @@ pub(crate) fn impl_external_trait(mut impl_item: syn::ItemImpl,
         impl #wrapper_trait_ident for #self_ty {
             #(#ink_methods_iter)*
         }
-    }).unwrap();
+    })
+    .unwrap();
 
-    let trait_name = ink_impl.trait_path()
+    let trait_name = ink_impl
+        .trait_path()
         .map(|path| path.segments.last().unwrap().ident.to_string());
 
     let mut metadata_name_attr = quote! {};
@@ -135,24 +162,24 @@ pub(crate) fn impl_external_trait(mut impl_item: syn::ItemImpl,
         impl #external_trait_ident for #self_ty {
             #(#external_ink_methods_iter)*
         }
-    }).unwrap();
+    })
+    .unwrap();
 
     // Internal implementation must be disable during "ink-as-dependency"
     let internal_impl = impl_item;
 
     (
         vec![syn::Item::from(wrapper_impl)],
-        vec![
-            syn::Item::from(internal_impl),
-            syn::Item::from(external_impl),
-        ]
+        vec![syn::Item::from(internal_impl), syn::Item::from(external_impl)],
     )
 }
 
 #[inline]
 pub(crate) fn is_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> bool {
-    if let None = attrs.iter().find(|attr|
-        attr.path.segments.last().expect("No segments in path").ident == ident) {
+    if let None = attrs
+        .iter()
+        .find(|attr| attr.path.segments.last().expect("No segments in path").ident == ident)
+    {
         false
     } else {
         true
@@ -171,21 +198,22 @@ pub(crate) fn get_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> Option<syn::
 
 #[inline]
 pub(crate) fn remove_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> Vec<syn::Attribute> {
-    attrs.clone()
+    attrs
+        .clone()
         .into_iter()
-        .filter_map(|attr|
+        .filter_map(|attr| {
             if is_attr(&vec![attr.clone()], ident) {
                 None
             } else {
                 Some(attr)
-            })
+            }
+        })
         .collect()
 }
 
 #[inline]
 pub(crate) fn extract_attr(attrs: &mut Vec<syn::Attribute>, ident: &str) -> Vec<syn::Attribute> {
-    attrs.drain_filter(|attr| is_attr(&vec![attr.clone()], ident))
-        .collect()
+    attrs.drain_filter(|attr| is_attr(&vec![attr.clone()], ident)).collect()
 }
 
 #[inline]

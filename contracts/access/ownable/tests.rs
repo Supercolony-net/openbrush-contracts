@@ -2,16 +2,19 @@
 #[brush::contract]
 mod tests {
     use crate::traits::*;
-    use ink_lang as ink;
-    use ink::{Env, EmitEvent};
     use brush::traits::AccountIdExt;
+    use ink::{
+        EmitEvent,
+        Env,
+    };
+    use ink_lang as ink;
 
     #[ink(event)]
     pub struct OwnershipTransferred {
         #[ink(topic)]
         previous_owner: Option<AccountId>,
         #[ink(topic)]
-        new_owner: Option<AccountId>
+        new_owner: Option<AccountId>,
     }
 
     #[ink(storage)]
@@ -32,27 +35,37 @@ mod tests {
         }
 
         #[ink(message)]
-        pub fn temp(&self){}
+        pub fn temp(&self) {}
     }
 
     impl IOwnable for MyOwnable {
         fn _emit_ownership_transferred_event(&self, previous_owner: Option<AccountId>, new_owner: Option<AccountId>) {
             self.env().emit_event(OwnershipTransferred {
                 previous_owner,
-                new_owner
+                new_owner,
             })
         }
     }
 
-    fn assert_ownership_transferred_event(event: &ink_env::test::EmittedEvent,
-                                          expected_previous_owner: Option<AccountId>,
-                                          expected_new_owner: Option<AccountId>) {
-        let Event::OwnershipTransferred(OwnershipTransferred {previous_owner, new_owner}) = <Event as scale::Decode>::decode(&mut &event.data[..])
+    fn assert_ownership_transferred_event(
+        event: &ink_env::test::EmittedEvent,
+        expected_previous_owner: Option<AccountId>,
+        expected_new_owner: Option<AccountId>,
+    ) {
+        let Event::OwnershipTransferred(OwnershipTransferred {
+            previous_owner,
+            new_owner,
+        }) = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer");
 
-        assert_eq!(previous_owner, expected_previous_owner, "Previous owner was not equal to expected previous owner.");
-        assert_eq!(new_owner, expected_new_owner, "New owner was not equal to expected new owner.");
-
+        assert_eq!(
+            previous_owner, expected_previous_owner,
+            "Previous owner was not equal to expected previous owner."
+        );
+        assert_eq!(
+            new_owner, expected_new_owner,
+            "New owner was not equal to expected new owner."
+        );
     }
 
     #[ink::test]
@@ -100,5 +113,4 @@ mod tests {
         assert_ownership_transferred_event(&emitted_events[0], None, Some(creator));
         assert_ownership_transferred_event(&emitted_events[1], Some(creator), Some(new_owner));
     }
-
 }

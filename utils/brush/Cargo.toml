@@ -14,13 +14,13 @@ test_utils = { path = "test_utils", default-features = false }
 name = "brush"
 path = "lib.rs"
 crate-type = [
-	"rlib",
+    "rlib",
 ]
 
 [features]
 default = ["std"]
 std = [
-	"ink_env/std",
-	"ink_lang/std",
-	"test_utils/std",
+    "ink_env/std",
+    "ink_lang/std",
+    "test_utils/std",
 ]

@@ -72,7 +72,7 @@ mod psp20metadata {
     #[derive(Default)]
     #[ink(storage)]
     pub struct PSP22Metadata {}
-
+  
     impl PSP22Metadata {
         #[ink(constructor)]
         pub fn new() -> Self {
@@ -100,11 +100,10 @@ mod psp20metadata {
 }
 
 /// The user has to define their own Receiver contract with custom funds acceptance logic.
-///
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp22receiver {
-    use ink_prelude::{ vec::Vec };
-    use crate::traits::{PSP22ReceiverError};
+    use crate::traits::PSP22ReceiverError;
+    use ink_prelude::vec::Vec;
 
     #[derive(Default)]
     #[ink(storage)]

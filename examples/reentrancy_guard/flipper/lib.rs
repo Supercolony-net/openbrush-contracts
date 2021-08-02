@@ -32,7 +32,11 @@ pub mod flip_on_me {
 pub mod my_flipper_guard {
     use reentrancy_guard::traits::*;
     use brush::modifiers;
+
+    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_env::call::FromAccountId;
+
+    #[cfg(not(feature = "ink-as-dependency"))]
     use crate::flip_on_me::CallerOfFlip;
 
     #[ink(storage)]
