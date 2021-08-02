@@ -37,10 +37,10 @@ pub enum ReentrancyGuardError {
 /// This modifier flushes the struct into storage with `ENTERED`
 /// status before calling the original method.
 #[modifier_definition]
-pub fn non_reentrant<T, F, ReturnType>(instance: &mut T, mut body: F) -> ReturnType
+pub fn non_reentrant<T, F, ReturnType>(instance: &mut T, body: F) -> ReturnType
 where
     T: ReentrancyGuardStorage + Flush,
-    F: FnMut(&mut T) -> ReturnType,
+    F: FnOnce(&mut T) -> ReturnType,
 {
     assert_eq!(
         instance.get().status,

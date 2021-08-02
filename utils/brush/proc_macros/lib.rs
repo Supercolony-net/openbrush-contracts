@@ -178,7 +178,7 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
 /// - First argument should not be `self`.
 /// - First argument must be a reference to a type `instance: &T`. In most cases it's the instance of contract.
 /// - Second argument is function's body(this function contains the main code of method attached to the modifier).
-/// The type must be `Fn(&T)` or `FnMut(&T)`.
+/// The type must be `Fn(&T)`, `FnMut(&T)` or `FnOnce(&T)`.
 /// - Every next argument should not be references to object.
 /// Because modifier allows only to pass arguments by value(Modifier will pass the clone of argument).
 /// - The return type of body function(second argument) must be the same as the return type of modifier.
@@ -192,7 +192,7 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn once<BodyFn: Fn(&mut Contract)>(instance: &mut Contract, body: BodyFn, _example_data: u8) {
+/// fn once<BodyFn: FnOnce(&mut Contract)>(instance: &mut Contract, body: BodyFn, _example_data: u8) {
 ///     assert!(!instance.initialized, "Contract is already initialized");
 ///     body(instance);
 ///     instance.initialized = true;
@@ -218,7 +218,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// Let's define next modifiers.
 /// ```
 /// #[brush::modifier_definition]
-/// fn A<T>(instance: &T, body: impl Fn(&T) -> &'static str) -> &'static str {
+/// fn A<T>(instance: &T, body: impl FnOnce(&T) -> &'static str) -> &'static str {
 ///     println!("A before");
 ///     let result = body(instance);
 ///     println!("A after");
@@ -226,7 +226,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn B<T, F: Fn(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
+/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
 ///     println!("B before {}", data);
 ///     let result = body(instance);
 ///     println!("B after {}", data);
@@ -235,7 +235,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///
 /// #[brush::modifier_definition]
 /// fn C<T, F>(instance: &T, body: F) -> &'static str
-///     where F: Fn(&T) -> &'static str
+///     where F: FnOnce(&T) -> &'static str
 /// {
 ///     println!("C before");
 ///     let result = body(instance);
@@ -255,7 +255,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// The code above will be expanded into:
 /// ```
 /// #[brush::modifier_definition]
-/// fn A<T>(instance: &T, body: impl Fn(&T) -> &'static str) -> &'static str {
+/// fn A<T>(instance: &T, body: impl FnOnce(&T) -> &'static str) -> &'static str {
 ///     println!("A before");
 ///     let result = body(instance);
 ///     println!("A after");
@@ -263,7 +263,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn B<T, F: Fn(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
+/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
 ///     println!("B before {}", data);
 ///     let result = body(instance);
 ///     println!("B after {}", data);
@@ -272,7 +272,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///
 /// #[brush::modifier_definition]
 /// fn C<T, F>(instance: &T, body: F) -> &'static str
-///     where F: Fn(&T) -> &'static str
+///     where F: FnOnce(&T) -> &'static str
 /// {
 ///     println!("C before");
 ///     let result = body(instance);
@@ -310,7 +310,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///     }
 ///
 ///     #[brush::modifier_definition]
-///     fn once(instance: &mut Contract, body: impl Fn(&mut Contract)) {
+///     fn once(instance: &mut Contract, body: impl FnOnce(&mut Contract)) {
 ///         assert!(!instance.initialized, "Contract is already initialized");
 ///         body(instance);
 ///         instance.initialized = true;

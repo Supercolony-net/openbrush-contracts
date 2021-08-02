@@ -32,10 +32,10 @@ pub enum OwnableError {
 
 /// Throws if called by any account other than the owner.
 #[modifier_definition]
-pub fn only_owner<T, F, ReturnType>(instance: &mut T, mut body: F) -> ReturnType
+pub fn only_owner<T, F, ReturnType>(instance: &mut T, body: F) -> ReturnType
 where
     T: OwnableStorage,
-    F: FnMut(&mut T) -> ReturnType,
+    F: FnOnce(&mut T) -> ReturnType,
 {
     assert_eq!(
         instance.get().owner,

@@ -19,7 +19,7 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
                 compile_error!(
                     "Modifier must take at least two arguments, \
                     where first is a reference to instance `instance: \
-                    & Trait/Struct` and second is Fn or FnMut");
+                    & Trait/Struct` and second is Fn, FnMut or FnOnce");
         })
         .into()
     }
@@ -56,14 +56,22 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
         instance_ty.to_token_stream().to_string(),
         return_ty.to_token_stream().to_string()
     );
+
+    let mut fn_once_string = format!(
+        "FnOnce({}) {}",
+        instance_ty.to_token_stream().to_string(),
+        return_ty.to_token_stream().to_string()
+    );
     let err_message = format!(
-        "Second argument of modifier must be body `{}` or `{}`",
+        "Second argument of modifier must be body `{}`, `{}` or `{}`",
         fn_string.as_str(),
-        fn_mut_string.as_str()
+        fn_mut_string.as_str(),
+        fn_once_string.as_str()
     );
 
     fn_string.retain(|c| !c.is_whitespace());
     fn_mut_string.retain(|c| !c.is_whitespace());
+    fn_once_string.retain(|c| !c.is_whitespace());
 
     let second = fn_item.sig.inputs.iter().skip(1).next().unwrap();
     if let syn::FnArg::Typed(pat) = second {
@@ -72,7 +80,7 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
         let mut found_span = None;
         let mut t = pat.ty.to_token_stream().to_string();
         t.retain(|c| !c.is_whitespace());
-        if t.contains(&fn_string) || t.contains(&fn_mut_string) {
+        if t.contains(&fn_string) || t.contains(&fn_mut_string) || t.contains(&fn_once_string) {
             found_ty = Some(t.clone());
             found_span = Some(pat.ty.span().clone());
             found = true;
@@ -96,7 +104,7 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
             if let Some(generic_bound) = &generic.bounds.first() {
                 let mut t = generic_bound.to_token_stream().to_string();
                 t.retain(|c| !c.is_whitespace());
-                if t.contains(&fn_string) || t.contains(&fn_mut_string) {
+                if t.contains(&fn_string) || t.contains(&fn_mut_string) || t.contains(&fn_once_string) {
                     found_ty = Some(t);
                     found_span = Some(generic_bound.span().clone());
                     found = true;
@@ -121,7 +129,7 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
                 if let Some(pred_bound) = pred.bounds.first() {
                     let mut t = pred_bound.to_token_stream().to_string();
                     t.retain(|c| !c.is_whitespace());
-                    if t.contains(&fn_string) || t.contains(&fn_mut_string) {
+                    if t.contains(&fn_string) || t.contains(&fn_mut_string) || t.contains(&fn_once_string) {
                         found_ty = Some(t);
                         found_span = Some(pred_bound.span().clone());
                         found = true;
