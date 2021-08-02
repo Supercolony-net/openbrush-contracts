@@ -81,7 +81,7 @@ impl PSP721Struct {
 const MINTER: RoleType = 0xfd9ab216;
 
 #[brush::modifier_definition]
-pub fn only_minter<T: IAccessControl>(instance: &mut T, body: impl Fn(&mut T)) {
+pub fn only_minter<T: IAccessControl>(instance: &mut T, body: impl FnOnce(&mut T)) {
     instance._check_role(&MINTER, &T::env().caller());
     body(instance)
 }
