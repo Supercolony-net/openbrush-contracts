@@ -11,7 +11,6 @@ use brush::{
 use ink_env::Error as EnvError;
 use ink_lang::ForwardCallMut;
 use ink_prelude::{
-    collections::BTreeMap,
     format,
     string::String,
     vec::Vec,
@@ -19,6 +18,7 @@ use ink_prelude::{
 use ink_storage::{
     traits::SpreadLayout,
     Lazy,
+    collections::HashMap as StorageHashMap,
 };
 pub use psp20_derive::{
     PSP22MetadataStorage,
@@ -32,8 +32,8 @@ use ink_storage::traits::StorageLayout;
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22Data {
     pub supply: Lazy<Balance>,
-    pub balances: BTreeMap<AccountId, Balance>,
-    pub allowances: BTreeMap<(AccountId, AccountId), Balance>,
+    pub balances: StorageHashMap<AccountId, Balance>,
+    pub allowances: StorageHashMap<(AccountId, AccountId), Balance>,
 }
 
 declare_storage_trait!(PSP22Storage, PSP22Data);
@@ -82,6 +82,14 @@ pub trait PSP22: PSP22Storage {
         self.get().balances.get(&owner).copied().unwrap_or(0)
     }
 
+    /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
+    ///
+    /// Returns `0` if no allowance has been set `0`.
+    #[ink(message)]
+    fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+        self.get().allowances.get(&(owner, spender)).copied().unwrap_or(0)
+    }
+
     /// Transfers `value` amount of tokens from the caller's account to account `to`
     /// with additional `data` in unspecified format.
     ///
@@ -99,14 +107,6 @@ pub trait PSP22: PSP22Storage {
     fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) {
         let from = Self::env().caller();
         self._transfer_from_to(from, to, value, data)
-    }
-
-    /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
-    ///
-    /// Returns `0` if no allowance has been set `0`.
-    #[ink(message)]
-    fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        self.get().allowances.get(&(owner, spender)).copied().unwrap_or(0)
     }
 
     /// Transfers `value` tokens on the behalf of `from` to the account `to`
@@ -281,7 +281,8 @@ pub trait PSP22: PSP22Storage {
         let mut new_balance = self.balance_of(account);
         new_balance += amount;
         self.get_mut().balances.insert(account, new_balance);
-        self.get_mut().supply = Lazy::new(self.total_supply() + amount);
+        let new_supply = self.total_supply() + amount;
+        Lazy::set(&mut self.get_mut().supply, new_supply);
         self._emit_transfer_event(None, Some(account), amount);
     }
 
@@ -303,7 +304,8 @@ pub trait PSP22: PSP22Storage {
 
         from_balance -= amount;
         self.get_mut().balances.insert(account, from_balance);
-        self.get_mut().supply = Lazy::new(self.total_supply() - amount);
+        let new_supply = self.total_supply() - amount;
+        Lazy::set(&mut self.get_mut().supply, new_supply);
         self._emit_transfer_event(Some(account), None, amount);
     }
 }

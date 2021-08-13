@@ -38,7 +38,7 @@ pub mod my_access_control {
       impls::{ PSP721Storage, PSP721, PSP721Mint, StorageHashMap }
    };
    use access_control::{
-      traits::{ IAccessControl, RoleType },
+      traits::{ AccessControl, RoleType },
       impls::{ AccessControlStorage, AccessControl, RoleData }
    };
    use ink_prelude::{ vec::Vec };
@@ -67,13 +67,13 @@ impl AccessControl for PSP721Struct {}
 
 5. Now you have all basic logic of `PSP721` and `AccessControl` on rust level. But all methods are internal now(it means
    that anyone can't call these methods from outside of contract). If you want to make them external you MUST
-   derive `IPSP721` and `IAccessControl` traits. Deriving of these traits will generate external implementation of all
-   methods from `IPSP721` and `IAccessControl`. Macro will call the methods with the same name from `PSP721`
+   derive `IPSP721` and `AccessControl` traits. Deriving of these traits will generate external implementation of all
+   methods from `IPSP721` and `AccessControl`. Macro will call the methods with the same name from `PSP721`
    and `AccessControl` traits.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP721Storage, AccessControlStorage, IPSP721, IAccessControl)]
+#[derive(Default, PSP721Storage, AccessControlStorage, IPSP721, AccessControl)]
 pub struct PSP721Struct {}
 ```
 

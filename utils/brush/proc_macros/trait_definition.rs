@@ -3,6 +3,7 @@ use crate::{
         is_attr,
         remove_attr,
         BRUSH_PREFIX,
+        new_attribute,
     },
     metadata,
 };
@@ -92,15 +93,33 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
         .items
         .clone()
         .into_iter()
-        .filter_map(|item| {
-            if let syn::TraitItem::Method(method) = &item {
+        .filter_map(|mut item| {
+            if let syn::TraitItem::Method(method) = &mut item {
                 if is_attr(&method.attrs, "ink") {
+                    // Remove every attribute except `#[ink(message)]` and `#[ink(constructor)]`
+                    // Because ink! doesn't allow another attributes in the trait
+                    // We will paste that attributes back in impl section
+                    method.attrs = method.attrs.clone().into_iter().filter_map(|attr| {
+                        let str_attr = attr.to_token_stream().to_string();
+
+                        if str_attr.contains("#[ink") {
+                            if str_attr.contains("message") {
+                                Some(new_attribute(quote! { #[ink(message)] }))
+                            } else if str_attr.contains("constructor") {
+                                Some(new_attribute(quote! { #[ink(constructor)] }))
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
+                    }).collect();
                     Some(item)
                 } else {
                     None
                 }
             } else {
-                Some(item)
+                None
             }
         })
         .collect();

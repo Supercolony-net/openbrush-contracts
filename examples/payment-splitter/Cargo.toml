@@ -1,5 +1,5 @@
 [package]
-name = "my_flipper_guard"
+name = "my_payment_splitter"
 version = "0.3.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -15,17 +15,20 @@ ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
-reentrancy_guard = { path = "../../../contracts/security/reentrancy_guard", default-features = false }
-brush = { path = "../../../utils/brush", default-features = false }
+payment-splitter = { path = "../../contracts/finance/payment-splitter", default-features = false }
+brush = { path = "../../utils/brush", default-features = false }
+
+[profile.dev]
+overflow-checks = false
+
+[profile.release]
+overflow-checks = false
 
 [lib]
-name = "my_flipper_guard"
+name = "my_payment_splitter"
 path = "lib.rs"
-
 crate-type = [
     "cdylib",
-    # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
-    "rlib",
 ]
 
 [features]
@@ -41,9 +44,7 @@ std = [
     "scale-info",
     "scale-info/std",
     "brush/std",
-    "reentrancy_guard/std",
-]
 
-ink-as-dependency = [
-    "reentrancy_guard/ink-as-dependency"
+    "payment-splitter/std",
 ]
+ink-as-dependency = []

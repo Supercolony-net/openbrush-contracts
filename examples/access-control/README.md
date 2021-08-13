@@ -33,14 +33,16 @@ std = [
 ```rust
 #[brush::contract]
 pub mod my_access_control {
-    use psp721::traits::*;
-    use access_control::traits::*;
+   use psp721::traits::*;
+   use access_control::traits::*;
+   use brush::modifiers;
+   use ink_prelude::vec::Vec;
 ```
 
 3. Declare storage struct and declare the fields related to `PSP721Storage` and `AccessControlStorage`
    traits. Then you need to derive `PSP721Storage` and `AccessControlStorage` traits and mark according fields
    with `#[PSP721StorageField]` and `#[AccessControlStorageField]` attributes. Deriving these traits allow you to reuse
-   the default implementation of `IPSP721` and `IAccessControl`.
+   the default implementation of `IPSP721` and `AccessControl`.
 
 ```rust
 #[ink(storage)]
@@ -53,13 +55,13 @@ pub struct PSP721Struct {
 }
 ```
 
-4. After that you can inherit implementation of `IPSP721` and `IAccessControl` traits. You can customize(override) some
+4. After that you can inherit implementation of `IPSP721` and `AccessControl` traits. You can customize(override) some
    methods there.
 
 ```rust
 impl IPSP721 for PSP721Struct {}
 
-impl IAccessControl for PSP721Struct {}
+impl AccessControl for PSP721Struct {}
 ```
 
 5. Now you only need to define constructor and your basic version of `IPSP721` contract is ready.
@@ -77,42 +79,35 @@ impl PSP721Struct {
    has minter role). Also, we need to update constructor to grant minter role to caller by default.
 
 ```rust
-// ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
-const MINTER: RoleType = 0xfd9ab216;
-
-#[brush::modifier_definition]
-pub fn only_minter<T: IAccessControl>(instance: &mut T, body: impl FnOnce(&mut T)) {
-    instance._check_role(&MINTER, &T::env().caller());
-    body(instance)
-}
+const MINTER: RoleType = brush::blake2b_256_as_u32!("MINTER");
 
 impl PSP721Struct {
-    #[ink(constructor)]
-    pub fn new() -> Self {
-        let mut instance = Self::default();
-        let caller = instance.env().caller();
-        instance._init_with_admin(caller);
-        // We grant minter role to caller in constructor, so he can mint/burn tokens
-        instance.grant_role(MINTER, caller);
-        instance
-    }
+   #[ink(constructor)]
+   pub fn new() -> Self {
+      let mut instance = Self::default();
+      let caller = instance.env().caller();
+      instance._init_with_admin(caller);
+      // We grant minter role to caller in constructor, so he can mint/burn tokens
+      instance.grant_role(MINTER, caller);
+      instance
+   }
 }
 
 impl IPSP721 for PSP721Struct {}
 
-impl IAccessControl for PSP721Struct {}
+impl AccessControl for PSP721Struct {}
 
 impl IPSP721Mint for PSP721Struct {
-    #[ink(message)]
-    #[modifiers(only_minter)]
-    fn mint(&mut self, id: Id) {
-        self._mint(id);
-    }
+   #[ink(message)]
+   #[modifiers(only_role(MINTER))]
+   fn mint(&mut self, id: Id) {
+      self._mint(id);
+   }
 
-    #[ink(message)]
-    #[modifiers(only_minter)]
-    fn burn(&mut self, id: Id) {
-        self._burn(id);
-    }
+   #[ink(message)]
+   #[modifiers(only_role(MINTER))]
+   fn burn(&mut self, id: Id) {
+      self._burn(id);
+   }
 }
 ```

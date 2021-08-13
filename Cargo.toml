@@ -5,7 +5,9 @@ members = [
     "contracts/token/psp1155",
     "contracts/access/ownable",
     "contracts/access/access-control",
-    "contracts/security/reentrancy_guard",
+    "contracts/security/reentrancy-guard",
+    "contracts/governance/timelock-controller",
+    "contracts/finance/payment-splitter",
     "utils/brush",
     "utils/brush_derive_macro",
 ]

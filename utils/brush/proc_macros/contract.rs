@@ -37,9 +37,7 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
         .unlock()
         .expect("Can't remove exclusive lock in extract_fields_and_methods");
 
-    let (ink_items, mut not_ink_items) = split_impls(items, &metadata);
-
-    not_ink_items = add_additional_impls(not_ink_items);
+    let (ink_items, not_ink_items) = split_impls(items, &metadata);
 
     module.content = Some((braces.clone(), not_ink_items));
 
@@ -58,38 +56,6 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
         #ink_module
     };
     result.into()
-}
-
-fn add_additional_impls(mut items: Vec<syn::Item>) -> Vec<syn::Item> {
-    let storage = items.iter().find(|item| {
-        match item {
-            syn::Item::Struct(def) => {
-                if is_attr(&def.attrs, "ink") {
-                    let attr = get_attr(&def.attrs, "ink").unwrap();
-                    attr.tokens.to_string() == "(storage)"
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    });
-
-    if let Some(syn::Item::Struct(def)) = storage {
-        let storage_ident = def.ident.clone();
-
-        let item = syn::parse2::<syn::Item>(quote! {
-            impl ::brush::traits::Flush for #storage_ident {
-                fn flush(&self) {
-                    let root_key = ink_primitives::Key::from([0x00; 32]);
-                    ink_storage::traits::push_spread_root::<Self>(self, &root_key);
-                }
-            }
-        })
-        .unwrap();
-        items.push(item);
-    }
-    items
 }
 
 fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {
