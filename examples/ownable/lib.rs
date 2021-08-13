@@ -26,7 +26,7 @@ pub mod ownable {
         }
     }
 
-    impl IOwnable for PSP1155Struct {}
+    impl Ownable for PSP1155Struct {}
 
     impl IPSP1155 for PSP1155Struct {}
 

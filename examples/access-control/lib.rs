@@ -16,14 +16,7 @@ pub mod my_access_control {
         access: AccessControlData,
     }
 
-    // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
-    const MINTER: RoleType = 0xfd9ab216;
-
-    #[brush::modifier_definition]
-    pub fn only_minter<T: IAccessControl>(instance: &mut T, body: impl FnOnce(&mut T)) {
-        instance._check_role(&MINTER, &T::env().caller());
-        body(instance)
-    }
+    const MINTER: RoleType = brush::blake2b_256_as_u32!("MINTER");
 
     impl PSP721Struct {
         #[ink(constructor)]
@@ -39,17 +32,17 @@ pub mod my_access_control {
 
     impl IPSP721 for PSP721Struct {}
 
-    impl IAccessControl for PSP721Struct {}
+    impl AccessControl for PSP721Struct {}
 
     impl IPSP721Mint for PSP721Struct {
         #[ink(message)]
-        #[modifiers(only_minter)]
+        #[modifiers(only_role(MINTER))]
         fn mint(&mut self, id: Id) {
             self._mint(id);
         }
 
         #[ink(message)]
-        #[modifiers(only_minter)]
+        #[modifiers(only_role(MINTER))]
         fn burn(&mut self, id: Id) {
             self._burn(id);
         }

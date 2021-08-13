@@ -11,6 +11,12 @@ This folder contains example of how the library can be reuse/customize the base 
 * [Ownable](ownable) shows how you can use the implementation of
   [ownable](contracts/access/ownable) and
   [psp1155](contracts/token/psp1155) together to provide rights to mint and burn tokens.
-* [ReentrancyGuard](reentrancy_guard) shows how you can use the implementation of
-  [non_reentrant](contracts/security/reentrancy_guard)
+* [ReentrancyGuard](reentrancy-guard) shows how you can use the implementation of
+  [non_reentrant](contracts/security/reentrancy-guard)
   modifier to prevent reentrancy during certain functions.
+* [TimelockController](timelock-controller) shows how you can use the implementation of
+  [timelock-controller](contracts/governance/timelock-controller)
+  to execute some transaction with some delay via governance.
+* [PaymentSplitter](payment-splitter) shows how you can use the implementation of
+  [payment-splitter](contracts/finance/payment-splitter)
+  to split received native tokens between participants of the contract.

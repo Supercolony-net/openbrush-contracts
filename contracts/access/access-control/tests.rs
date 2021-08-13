@@ -41,10 +41,8 @@ mod tests {
         admin: AccountId,
     }
 
-    // ::ink_lang_ir::Selector::new("MINTER".as_ref()).as_bytes()
-    const MINTER: RoleType = 0xfd9ab216;
-    // ::ink_lang_ir::Selector::new("PAUSER".as_ref()).as_bytes()
-    const PAUSER: RoleType = 0x4ce9afe6;
+    const MINTER: RoleType = brush::blake2b_256_as_u32!("MINTER");
+    const PAUSER: RoleType = brush::blake2b_256_as_u32!("PAUSER");
 
     #[derive(Default, AccessControlStorage)]
     #[ink(storage)]
@@ -55,7 +53,7 @@ mod tests {
 
     type Event = <AccessControlStruct as ::ink_lang::BaseEvent>::Type;
 
-    impl IAccessControl for AccessControlStruct {
+    impl AccessControl for AccessControlStruct {
         fn _emit_role_admin_changed(&mut self, role: u32, previous_admin_role: u32, new_admin_role: u32) {
             self.env().emit_event(RoleAdminChanged {
                 role,
@@ -183,10 +181,18 @@ mod tests {
     fn should_init_with_default_admin() {
         let accounts = setup();
         let access_control = AccessControlStruct::new(accounts.alice);
-        assert!(access_control.has_role(DEFAULT_ADMIN_ROLE, accounts.alice));
-        assert_eq!(access_control.get_role_admin(DEFAULT_ADMIN_ROLE), DEFAULT_ADMIN_ROLE);
+        assert!(access_control.has_role(AccessControlStruct::DEFAULT_ADMIN_ROLE, accounts.alice));
+        assert_eq!(
+            access_control.get_role_admin(AccessControlStruct::DEFAULT_ADMIN_ROLE),
+            AccessControlStruct::DEFAULT_ADMIN_ROLE
+        );
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_role_granted_event(&emitted_events[0], DEFAULT_ADMIN_ROLE, accounts.alice, None);
+        assert_role_granted_event(
+            &emitted_events[0],
+            AccessControlStruct::DEFAULT_ADMIN_ROLE,
+            accounts.alice,
+            None,
+        );
     }
 
     #[ink::test]
@@ -198,12 +204,12 @@ mod tests {
         access_control.grant_role(PAUSER, alice);
         access_control.grant_role(MINTER, alice);
 
-        assert!(access_control.has_role(DEFAULT_ADMIN_ROLE, alice));
+        assert!(access_control.has_role(AccessControlStruct::DEFAULT_ADMIN_ROLE, alice));
         assert!(access_control.has_role(PAUSER, alice));
         assert!(access_control.has_role(MINTER, alice));
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_role_granted_event(&emitted_events[0], DEFAULT_ADMIN_ROLE, alice, None);
+        assert_role_granted_event(&emitted_events[0], AccessControlStruct::DEFAULT_ADMIN_ROLE, alice, None);
         assert_role_granted_event(&emitted_events[1], PAUSER, alice, Some(alice));
         assert_role_granted_event(&emitted_events[2], MINTER, alice, Some(alice));
     }
@@ -220,7 +226,12 @@ mod tests {
         assert!(!access_control.has_role(PAUSER, accounts.bob));
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_role_granted_event(&emitted_events[0], DEFAULT_ADMIN_ROLE, accounts.alice, None);
+        assert_role_granted_event(
+            &emitted_events[0],
+            AccessControlStruct::DEFAULT_ADMIN_ROLE,
+            accounts.alice,
+            None,
+        );
         assert_role_granted_event(&emitted_events[1], PAUSER, accounts.bob, Some(accounts.alice));
         assert_role_revoked_event(&emitted_events[2], PAUSER, accounts.bob, accounts.alice);
     }
@@ -239,7 +250,12 @@ mod tests {
         assert!(!access_control.has_role(PAUSER, accounts.eve));
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_role_granted_event(&emitted_events[0], DEFAULT_ADMIN_ROLE, accounts.alice, None);
+        assert_role_granted_event(
+            &emitted_events[0],
+            AccessControlStruct::DEFAULT_ADMIN_ROLE,
+            accounts.alice,
+            None,
+        );
         assert_role_granted_event(&emitted_events[1], PAUSER, accounts.eve, Some(accounts.alice));
         assert_role_revoked_event(&emitted_events[2], PAUSER, accounts.eve, accounts.eve);
     }
@@ -254,13 +270,26 @@ mod tests {
         change_caller(accounts.eve);
         access_control.grant_role(PAUSER, accounts.bob);
 
-        assert_eq!(access_control.get_role_admin(MINTER), DEFAULT_ADMIN_ROLE);
+        assert_eq!(
+            access_control.get_role_admin(MINTER),
+            AccessControlStruct::DEFAULT_ADMIN_ROLE
+        );
         assert_eq!(access_control.get_role_admin(PAUSER), MINTER);
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_role_granted_event(&emitted_events[0], DEFAULT_ADMIN_ROLE, accounts.alice, None);
+        assert_role_granted_event(
+            &emitted_events[0],
+            AccessControlStruct::DEFAULT_ADMIN_ROLE,
+            accounts.alice,
+            None,
+        );
         assert_role_granted_event(&emitted_events[1], MINTER, accounts.eve, Some(accounts.alice));
-        assert_role_admin_change_event(&emitted_events[2], PAUSER, DEFAULT_ADMIN_ROLE, MINTER);
+        assert_role_admin_change_event(
+            &emitted_events[2],
+            PAUSER,
+            AccessControlStruct::DEFAULT_ADMIN_ROLE,
+            MINTER,
+        );
         assert_role_granted_event(&emitted_events[3], PAUSER, accounts.bob, Some(accounts.eve));
     }
 

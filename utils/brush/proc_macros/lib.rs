@@ -9,6 +9,8 @@ mod modifiers;
 mod trait_definition;
 
 use proc_macro::TokenStream;
+use quote::quote;
+use syn::punctuated::Punctuated;
 
 /// Entry point for use brush's macros in ink! smart contracts.
 ///
@@ -333,4 +335,45 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 #[proc_macro_attribute]
 pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
     modifiers::generate(_attrs, method)
+}
+
+/// Macro computes the blake2b256 hash from the string and returns an array of `[u8; 32]`
+///
+/// # Example:
+/// ```
+/// const hash : [u8; 32] = brush::blake2b_256!("Hello world");
+/// const expected_hash : [u8; 32] = [162, 28, 244, 179, 96, 76, 244, 178, 188, 83, 230, 248, 143, 106, 77, 117, 239, 95, 244, 171, 65, 95, 62, 153, 174, 166, 182, 28, 130, 73, 196, 208];
+/// assert_eq!(hash, expected_hash);
+/// ```
+#[proc_macro]
+pub fn blake2b_256(input: TokenStream) -> TokenStream {
+    let output = internal::blake2b_256_str(internal::sanitize_to_str(input));
+
+    let mut bytes: Punctuated<proc_macro2::TokenStream, syn::Token![,]> = Punctuated::new();
+    output.iter().for_each(|byte| {
+        bytes.push(quote! { #byte });
+    });
+
+    let code = quote! { [#bytes] };
+    code.into()
+}
+
+/// Macro computes the blake2b256 hash from the string and returns a first 4 bytes of this hash as `u32`.
+/// The same mechanism is used to evaluate the selector id of methods.
+///
+/// # Example:
+/// ```
+/// const hash : u32 = brush::blake2b_256_as_u32!("Hello world");
+/// const expected_hash : u32 = 0xa21cf4b3;
+/// assert_eq!(hash, expected_hash);
+/// ```
+#[proc_macro]
+pub fn blake2b_256_as_u32(input: TokenStream) -> TokenStream {
+    let output = internal::blake2b_256_str(internal::sanitize_to_str(input));
+
+    let selector_id = [output[0], output[1], output[2], output[3]];
+    let selector_u32 = u32::from_be_bytes(selector_id) as u32;
+
+    let code = quote! { #selector_u32 };
+    code.into()
 }

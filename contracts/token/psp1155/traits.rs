@@ -16,12 +16,14 @@ use ink_env::{
 };
 use ink_lang::ForwardCallMut;
 use ink_prelude::{
-    collections::BTreeMap,
     string::String,
     vec,
     vec::Vec,
 };
-use ink_storage::traits::SpreadLayout;
+use ink_storage::{
+    traits::SpreadLayout,
+    collections::HashMap as StorageHashMap,
+};
 pub use psp1155_derive::{
     PSP1155MetadataStorage,
     PSP1155Storage,
@@ -35,8 +37,8 @@ pub type Id = [u8; 32];
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP1155Data {
-    pub balances: BTreeMap<(Id, AccountId), Balance>,
-    pub operator_approval: BTreeMap<(AccountId, AccountId), bool>,
+    pub balances: StorageHashMap<(Id, AccountId), Balance>,
+    pub operator_approval: StorageHashMap<(AccountId, AccountId), bool>,
 }
 
 declare_storage_trait!(PSP1155Storage, PSP1155Data);

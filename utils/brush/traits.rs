@@ -2,9 +2,14 @@ use ::ink_env::{
     DefaultEnvironment,
     Environment,
 };
+use core::mem::ManuallyDrop;
 
 pub type AccountId = <DefaultEnvironment as Environment>::AccountId;
 pub type Balance = <DefaultEnvironment as Environment>::Balance;
+pub type Hash = <DefaultEnvironment as Environment>::Hash;
+pub type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
+pub type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
+pub type RentFraction = <DefaultEnvironment as Environment>::RentFraction;
 pub type EnvAccess = ::ink_lang::EnvAccess<'static, DefaultEnvironment>;
 
 pub trait InkStorage {
@@ -27,13 +32,27 @@ impl AccountIdExt for AccountId {
     }
 }
 
-pub trait Flush {
+/// This trait is automatically implemented for storage.
+pub trait Flush: ::ink_storage::traits::SpreadLayout + Sized {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate the key of each field.
     /// So if you want to flush the correct state of the contract,
     /// you must call this method on storage struct.
-    ///
-    /// ** Note ** `#[brush::contract]` macro provides implementation of `Flush` trait
-    /// by default for storage.
-    fn flush(&self);
+    fn flush(&self) {
+        let root_key = ::ink_primitives::Key::from([0x00; 32]);
+        ::ink_storage::traits::push_spread_root::<Self>(self, &root_key);
+    }
+
+    /// Method loads the current state of `Self` from storage.
+    /// ink! recursively calculate the key of each field.
+    /// So if you want to load the correct state of the contract,
+    /// you must call this method on storage struct.
+    fn load(&mut self) {
+        let root_key = ::ink_primitives::Key::from([0x00; 32]);
+        let mut state = ::ink_storage::traits::pull_spread_root::<Self>(&root_key);
+        core::mem::swap(self, &mut state);
+        let _ = ManuallyDrop::new(state);
+    }
 }
+
+impl<T: InkStorage + ::ink_storage::traits::SpreadLayout> Flush for T {}

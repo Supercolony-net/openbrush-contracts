@@ -14,14 +14,14 @@ use ink_env::{
 };
 use ink_lang::ForwardCallMut;
 use ink_prelude::{
-    collections::{
-        btree_map::Entry,
-        BTreeMap,
-    },
     string::String,
     vec::Vec,
 };
-use ink_storage::traits::SpreadLayout;
+use ink_storage::{
+    traits::SpreadLayout,
+    collections::HashMap as StorageHashMap,
+    collections::hashmap::Entry,
+};
 pub use psp721_derive::{
     PSP721MetadataStorage,
     PSP721Storage,
@@ -35,10 +35,10 @@ pub type Id = [u8; 32];
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP721Data {
-    pub token_owner: BTreeMap<Id, AccountId>,
-    pub token_approvals: BTreeMap<Id, AccountId>,
-    pub owned_tokens_count: BTreeMap<AccountId, u32>,
-    pub operator_approvals: BTreeMap<(AccountId, AccountId), bool>,
+    pub token_owner: StorageHashMap<Id, AccountId>,
+    pub token_approvals: StorageHashMap<Id, AccountId>,
+    pub owned_tokens_count: StorageHashMap<AccountId, u32>,
+    pub operator_approvals: StorageHashMap<(AccountId, AccountId), bool>,
 }
 
 declare_storage_trait!(PSP721Storage, PSP721Data);
@@ -237,7 +237,7 @@ pub trait IPSP721: PSP721Storage {
             PSP721Error::NotApproved.as_ref()
         );
         if self.get().token_approvals.contains_key(&id) {
-            self.get_mut().token_approvals.remove(&id);
+            self.get_mut().token_approvals.take(&id);
         };
         self._remove_from(from.clone(), id);
         self._add_to(to, id);

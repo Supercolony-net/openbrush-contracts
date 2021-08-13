@@ -1,4 +1,8 @@
-use crate::internal::BRUSH_PREFIX;
+use crate::internal::{
+    AttributeArgs,
+    NestedMeta,
+    BRUSH_PREFIX,
+};
 use proc_macro::TokenStream;
 use proc_macro2::{
     TokenStream as TokenStream2,
@@ -21,7 +25,7 @@ const INSTANCE: &'static str = "__brush_instance_modifier";
 pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
     let input: TokenStream2 = _input.clone().into();
 
-    let modifiers = parse_macro_input!(_attrs as syn::AttributeArgs);
+    let modifiers = parse_macro_input!(_attrs as AttributeArgs);
     let mut impl_item =
         syn::parse2::<ImplItemMethod>(_input.into()).expect("Can't parse input of `modifiers` macro like a method.");
 
@@ -55,16 +59,6 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     let mut block = impl_item.block.clone();
     let mut body_index = 0;
 
-    let modifiers: Vec<_> = modifiers
-        .into_iter()
-        .filter_map(|nested_meta| {
-            match nested_meta {
-                syn::NestedMeta::Meta(meta) => Some(meta),
-                _ => None,
-            }
-        })
-        .collect();
-
     // Code of each modifier must be added in reverse order
     // Code of first modifier {
     //      Code of second modifier {
@@ -73,7 +67,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     //          }
     //      }
     // }
-    for modifier_meta in modifiers.into_iter().rev() {
+    for modifier_meta in modifiers.iter().rev() {
         // Replace every `self` with instance variable
         block = replace_self(block);
 
@@ -82,41 +76,38 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
         body_index += 1;
 
         // It means modifiers without arguments, we can call path method directly.
-        if let syn::Meta::Path(method) = modifier_meta {
-            let stmts = final_block.stmts;
-            block = syn::parse2::<syn::Block>(quote! {
-                {
-                    #(#stmts)*
-                    #method(self, #body_ident)
-                }
-            })
-            .unwrap();
-        } else if let syn::Meta::List(meta_list) = modifier_meta {
-            let method = meta_list.path;
-            let mut cloned_variables_idents = vec![];
-            let cloned_variables_definitions = meta_list.nested.iter().map(|nested_meta| {
-                let cloned_ident = format_ident!("{}_cloned_{}", BRUSH_PREFIX, cloned_variables_idents.len());
-                cloned_variables_idents.push(cloned_ident.clone());
-                quote! {
-                    let #cloned_ident = #nested_meta.clone();
-                }
-            });
+        match modifier_meta {
+            NestedMeta::Path(method) => {
+                let stmts = final_block.stmts;
+                block = syn::parse2::<syn::Block>(quote! {
+                    {
+                        #(#stmts)*
+                        #method(self, #body_ident)
+                    }
+                })
+                .unwrap();
+            }
+            NestedMeta::List(meta_list) => {
+                let method = meta_list.path.clone();
+                let mut cloned_variables_idents = vec![];
+                let cloned_variables_definitions = meta_list.nested.iter().map(|nested_meta| {
+                    let cloned_ident = format_ident!("{}_cloned_{}", BRUSH_PREFIX, cloned_variables_idents.len());
+                    cloned_variables_idents.push(cloned_ident.clone());
+                    quote! {
+                        let #cloned_ident = #nested_meta.clone();
+                    }
+                });
 
-            let stmts = final_block.stmts;
-            block = syn::parse2::<syn::Block>(quote! {
-                {
-                    #(#cloned_variables_definitions)*
-                    #(#stmts)*
-                    #method(self, #body_ident #(, #cloned_variables_idents )*)
-                }
-            })
-            .unwrap();
-        } else {
-            return (quote_spanned! {
-                modifier_meta.span() =>
-                    compile_error!("Modifiers don't support MetaNameValue in arguments");
-            })
-            .into()
+                let stmts = final_block.stmts;
+                block = syn::parse2::<syn::Block>(quote! {
+                    {
+                        #(#cloned_variables_definitions)*
+                        #(#stmts)*
+                        #method(self, #body_ident #(, #cloned_variables_idents )*)
+                    }
+                })
+                .unwrap();
+            }
         }
     }
 
