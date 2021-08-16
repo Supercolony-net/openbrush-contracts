@@ -43,7 +43,7 @@ describe('MY_PAYMENT_SPLITTER', () => {
         await expect(contract.contract.tx.release(kayne.address)).to.eventually.be.fulfilled
         await expect(contract.contract.tx.release(ian.address)).to.eventually.be.fulfilled
 
-        // Assert - Ian must got more tokens than kayne
+        // Assert - Ian must hold more tokens than kayne
         // @ts-ignore
         let totalReleased = Number.parseInt((await contract.contract.query.totalReleased()).output);
         // @ts-ignore
