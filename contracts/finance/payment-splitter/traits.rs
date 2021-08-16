@@ -137,7 +137,7 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
             payment = current_balance;
         }
 
-        *self.get_mut().released.get_mut(&account).unwrap() = released + payment;
+  self.get_mut().released.entry(account).and_modify(|r| *r = released + payment)
         self.get_mut().total_released += payment;
 
         let transfer_result = Self::env().transfer(account.clone(), payment);

@@ -39,7 +39,7 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
         // @ts-ignore
         await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
 
-        // Assert - Operation must be scheduled, it is in Pending state an in Ready state(because min delay si zero)
+        // Assert - Operation must be scheduled, it should be in Pending state and in Ready state(because min delay is zero)
         await expect(contract.query.isOperationPending(id)).to.have.output(true)
         await expect(contract.query.isOperationReady(id)).to.have.output(true)
         await expect(contract.query.isOperationDone(id)).to.have.output(false)
