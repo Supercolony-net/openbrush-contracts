@@ -66,9 +66,14 @@ mod tests {
         accounts
     }
 
-    fn assert_payee_added_event(event: &ink_env::test::EmittedEvent, expected_account: AccountId, expected_shares: Balance) {
-        if let Event::PayeeAdded(PayeeAdded { account, shares }) = <Event as scale::Decode>::decode(&mut &event.data[..])
-            .expect("encountered invalid contract event data buffer")
+    fn assert_payee_added_event(
+        event: &ink_env::test::EmittedEvent,
+        expected_account: AccountId,
+        expected_shares: Balance,
+    ) {
+        if let Event::PayeeAdded(PayeeAdded { account, shares }) =
+            <Event as scale::Decode>::decode(&mut &event.data[..])
+                .expect("encountered invalid contract event data buffer")
         {
             assert_eq!(
                 account, expected_account,
@@ -83,9 +88,14 @@ mod tests {
         }
     }
 
-    fn assert_payment_released_event(event: &ink_env::test::EmittedEvent, expected_to: AccountId, expected_amount: Balance) {
-        if let Event::PaymentReleased(PaymentReleased { to, amount }) = <Event as scale::Decode>::decode(&mut &event.data[..])
-            .expect("encountered invalid contract event data buffer")
+    fn assert_payment_released_event(
+        event: &ink_env::test::EmittedEvent,
+        expected_to: AccountId,
+        expected_amount: Balance,
+    ) {
+        if let Event::PaymentReleased(PaymentReleased { to, amount }) =
+            <Event as scale::Decode>::decode(&mut &event.data[..])
+                .expect("encountered invalid contract event data buffer")
         {
             assert_eq!(
                 to, expected_to,
@@ -137,9 +147,15 @@ mod tests {
         instance.release(accounts.bob);
         assert_eq!(999942, instance.total_released());
         assert_eq!(333314, instance.released(accounts.alice));
-        assert_eq!(333314, ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.alice).unwrap());
+        assert_eq!(
+            333314,
+            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.alice).unwrap()
+        );
         assert_eq!(2 * 333314, instance.released(accounts.bob));
-        assert_eq!(2 * 333314, ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.bob).unwrap());
+        assert_eq!(
+            2 * 333314,
+            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.bob).unwrap()
+        );
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_payment_released_event(&emitted_events[2], accounts.alice, 333314);
@@ -163,9 +179,15 @@ mod tests {
         instance.release(accounts.bob);
         assert_eq!(1999884, instance.total_released());
         assert_eq!(666628, instance.released(accounts.alice));
-        assert_eq!(333314, ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.alice).unwrap());
+        assert_eq!(
+            333314,
+            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.alice).unwrap()
+        );
         assert_eq!(1333256, instance.released(accounts.bob));
-        assert_eq!(666628, ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.bob).unwrap());
+        assert_eq!(
+            666628,
+            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.bob).unwrap()
+        );
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_payment_released_event(&emitted_events[2], accounts.alice, 333314);
@@ -193,8 +215,6 @@ mod tests {
     }
 
     fn add_funds(account: AccountId, amount: Balance) {
-        assert!(ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
-            account, amount,
-        ).is_ok());
+        assert!(ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(account, amount,).is_ok());
     }
 }

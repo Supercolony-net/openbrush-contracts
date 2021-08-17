@@ -27,9 +27,9 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
+    collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
     Lazy,
-    collections::HashMap as StorageHashMap,
 };
 use scale::Encode;
 pub use timelock_controller_derive::TimelockControllerStorage;
@@ -163,12 +163,7 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     /// Returns the identifier of an operation containing a single
     /// transaction.
     #[ink(message)]
-    fn hash_operation(
-        &self,
-        transaction: Transaction,
-        predecessor: Option<OperationId>,
-        salt: [u8; 32],
-    ) -> Hash {
+    fn hash_operation(&self, transaction: Transaction, predecessor: Option<OperationId>, salt: [u8; 32]) -> Hash {
         self._hash_operation(&transaction, &predecessor, &salt)
     }
 
@@ -223,17 +218,8 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
 
         self._schedule(id, &delay);
 
-        for (i, transaction) in transactions
-            .into_iter()
-            .enumerate()
-        {
-            self._emit_call_scheduled_event(
-                id.clone(),
-                i as u8,
-                transaction,
-                predecessor.clone(),
-                delay.clone(),
-            );
+        for (i, transaction) in transactions.into_iter().enumerate() {
+            self._emit_call_scheduled_event(id.clone(), i as u8, transaction, predecessor.clone(), delay.clone());
         }
     }
 
@@ -261,12 +247,7 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     #[ink(message)]
     #[ink(payable)]
     #[modifiers(only_role_or_open_role(Self::EXECUTOR_ROLE))]
-    fn execute(
-        &mut self,
-        transaction: Transaction,
-        predecessor: Option<OperationId>,
-        salt: [u8; 32],
-    ) {
+    fn execute(&mut self, transaction: Transaction, predecessor: Option<OperationId>, salt: [u8; 32]) {
         let id = self._hash_operation(&transaction, &predecessor, &salt);
 
         self._before_call(predecessor);
@@ -282,20 +263,12 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     #[ink(message)]
     #[ink(payable)]
     #[modifiers(only_role_or_open_role(Self::EXECUTOR_ROLE))]
-    fn execute_batch(
-        &mut self,
-        transactions: Vec<Transaction>,
-        predecessor: Option<OperationId>,
-        salt: [u8; 32],
-    ) {
+    fn execute_batch(&mut self, transactions: Vec<Transaction>, predecessor: Option<OperationId>, salt: [u8; 32]) {
         let id = self._hash_operation_batch(&transactions, &predecessor, &salt);
 
         self._before_call(predecessor);
 
-        for (i, transaction) in transactions
-            .into_iter()
-            .enumerate()
-        {
+        for (i, transaction) in transactions.into_iter().enumerate() {
             self._call(id, i as u8, transaction);
         }
         self._after_call(id);
@@ -344,13 +317,7 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     fn _emit_cancelled_event(&self, _id: OperationId) {}
 
     /// User must override this method in their contract.
-    fn _emit_call_executed_event(
-        &self,
-        _id: OperationId,
-        _index: u8,
-        _transaction: Transaction,
-    ) {
-    }
+    fn _emit_call_executed_event(&self, _id: OperationId, _index: u8, _transaction: Transaction) {}
 
     fn _init_with_caller(&mut self, min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) {
         let caller = Self::env().caller();

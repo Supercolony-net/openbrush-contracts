@@ -7,12 +7,10 @@ use brush::{
         InkStorage,
     },
 };
-use ink_prelude::{
-    vec::Vec,
-};
+use ink_prelude::vec::Vec;
 use ink_storage::{
-    traits::SpreadLayout,
     collections::HashMap as StorageHashMap,
+    traits::SpreadLayout,
     Vec as StorageVec,
 };
 pub use payment_splitter_derive::PaymentSplitterStorage;
@@ -137,11 +135,18 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
             payment = current_balance;
         }
 
-  self.get_mut().released.entry(account).and_modify(|r| *r = released + payment)
+        self.get_mut()
+            .released
+            .entry(account)
+            .and_modify(|r| *r = released + payment);
         self.get_mut().total_released += payment;
 
         let transfer_result = Self::env().transfer(account.clone(), payment);
-        assert!(transfer_result.is_ok(), "{}", PaymentSplitterError::TransferFailed.as_ref());
+        assert!(
+            transfer_result.is_ok(),
+            "{}",
+            PaymentSplitterError::TransferFailed.as_ref()
+        );
         self._emit_payment_released_event(account, payment);
     }
 

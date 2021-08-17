@@ -19,12 +19,15 @@ pub mod my_timelock_controller {
         pub fn new(min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
             let mut instance = Self::default();
             let caller = instance.env().caller();
+            // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
+            // You need to call it for each trait separately, to initialize everything for these traits.
             AccessControl::_init_with_admin(&mut instance, caller);
             TimelockController::_init_with_admin(&mut instance, caller, min_delay, proposers, executors);
             instance
         }
     }
 
+    // `TimelockController` is an extension for `AccessControl`, so you need to impl stuff related to both modules.
     impl AccessControl for TimelockStruct {}
     impl TimelockController for TimelockStruct {}
 }

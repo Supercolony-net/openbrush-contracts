@@ -16,9 +16,9 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
+    collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
     Lazy,
-    collections::HashMap as StorageHashMap,
 };
 pub use psp20_derive::{
     PSP22MetadataStorage,

@@ -12,7 +12,7 @@ pub type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 pub type RentFraction = <DefaultEnvironment as Environment>::RentFraction;
 pub type EnvAccess = ::ink_lang::EnvAccess<'static, DefaultEnvironment>;
 
-pub trait InkStorage {
+pub trait InkStorage: Sized {
     fn env() -> EnvAccess {
         Default::default()
     }
@@ -33,7 +33,7 @@ impl AccountIdExt for AccountId {
 }
 
 /// This trait is automatically implemented for storage.
-pub trait Flush: ::ink_storage::traits::SpreadLayout + Sized {
+pub trait Flush: ::ink_storage::traits::SpreadLayout + InkStorage {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate the key of each field.
     /// So if you want to flush the correct state of the contract,
@@ -55,4 +55,4 @@ pub trait Flush: ::ink_storage::traits::SpreadLayout + Sized {
     }
 }
 
-impl<T: InkStorage + ::ink_storage::traits::SpreadLayout> Flush for T {}
+impl<T: ::ink_storage::traits::SpreadLayout + InkStorage> Flush for T {}

@@ -107,9 +107,9 @@ impl Parse for AttributeArgs {
         while input.peek(syn::Ident::peek_any) {
             attrs.push(input.parse()?);
             if input.is_empty() {
-                break;
+                break
             }
-            let _ : syn::token::Comma = input.parse()?;
+            let _: syn::token::Comma = input.parse()?;
         }
         Ok(AttributeArgs { 0: attrs })
     }

@@ -21,8 +21,8 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
-    traits::SpreadLayout,
     collections::HashMap as StorageHashMap,
+    traits::SpreadLayout,
 };
 pub use psp1155_derive::{
     PSP1155MetadataStorage,

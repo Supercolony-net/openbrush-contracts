@@ -1,9 +1,9 @@
 use crate::{
     internal::{
         is_attr,
+        new_attribute,
         remove_attr,
         BRUSH_PREFIX,
-        new_attribute,
     },
     metadata,
 };
@@ -99,21 +99,26 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
                     // Remove every attribute except `#[ink(message)]` and `#[ink(constructor)]`
                     // Because ink! doesn't allow another attributes in the trait
                     // We will paste that attributes back in impl section
-                    method.attrs = method.attrs.clone().into_iter().filter_map(|attr| {
-                        let str_attr = attr.to_token_stream().to_string();
+                    method.attrs = method
+                        .attrs
+                        .clone()
+                        .into_iter()
+                        .filter_map(|attr| {
+                            let str_attr = attr.to_token_stream().to_string();
 
-                        if str_attr.contains("#[ink") {
-                            if str_attr.contains("message") {
-                                Some(new_attribute(quote! { #[ink(message)] }))
-                            } else if str_attr.contains("constructor") {
-                                Some(new_attribute(quote! { #[ink(constructor)] }))
+                            if str_attr.contains("#[ink") {
+                                if str_attr.contains("message") {
+                                    Some(new_attribute(quote! { #[ink(message)] }))
+                                } else if str_attr.contains("constructor") {
+                                    Some(new_attribute(quote! { #[ink(constructor)] }))
+                                } else {
+                                    None
+                                }
                             } else {
                                 None
                             }
-                        } else {
-                            None
-                        }
-                    }).collect();
+                        })
+                        .collect();
                     Some(item)
                 } else {
                     None
