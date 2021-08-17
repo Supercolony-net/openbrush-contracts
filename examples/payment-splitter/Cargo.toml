@@ -18,6 +18,7 @@ scale-info = { version = "0.6.0", default-features = false, features = ["derive"
 payment-splitter = { path = "../../contracts/finance/payment-splitter", default-features = false }
 brush = { path = "../../utils/brush", default-features = false }
 
+# payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
 overflow-checks = false
 

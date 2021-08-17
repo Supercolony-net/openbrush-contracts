@@ -6,6 +6,7 @@ members = [
     "contracts/access/ownable",
     "contracts/access/access-control",
     "contracts/security/reentrancy-guard",
+    "contracts/security/pausable",
     "contracts/governance/timelock-controller",
     "contracts/finance/payment-splitter",
     "utils/brush",

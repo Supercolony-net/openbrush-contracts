@@ -62,7 +62,7 @@ pub trait Ownable: OwnableStorage {
     }
 
     /// Leaves the contract without owner. It will not be possible to call
-    /// `onlyOwner` functions anymore. Can only be called by the current owner.
+    /// `only_owner` functions anymore. Can only be called by the current owner.
     ///
     /// NOTE: Renouncing ownership will leave the contract without an owner,
     /// thereby removing any functionality that is only available to the owner.

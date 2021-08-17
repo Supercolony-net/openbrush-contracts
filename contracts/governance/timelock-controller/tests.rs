@@ -85,17 +85,8 @@ mod tests {
             self.env().emit_event(Cancelled { id })
         }
 
-        fn _emit_call_executed_event(
-            &self,
-            id: OperationId,
-            index: u8,
-            transaction: Transaction,
-        ) {
-            self.env().emit_event(CallExecuted {
-                id,
-                index,
-                transaction,
-            })
+        fn _emit_call_executed_event(&self, id: OperationId, index: u8, transaction: Transaction) {
+            self.env().emit_event(CallExecuted { id, index, transaction })
         }
     }
 
@@ -246,14 +237,7 @@ mod tests {
         assert_eq!(timelock.get_timestamp(id), min_delay + 1);
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_call_scheduled_event(
-            &emitted_events[1],
-            id,
-            0,
-            Transaction::default(),
-            None,
-            min_delay + 1,
-        );
+        assert_call_scheduled_event(&emitted_events[1], id, 0, Transaction::default(), None, min_delay + 1);
     }
 
     #[ink::test]
@@ -297,12 +281,7 @@ mod tests {
         let id = timelock.hash_operation_batch(transactions.clone(), None, [0; 32]);
 
         assert!(!timelock.is_operation(id));
-        timelock.schedule_batch(
-            transactions.clone(),
-            None,
-            [0; 32],
-            min_delay + 1,
-        );
+        timelock.schedule_batch(transactions.clone(), None, [0; 32], min_delay + 1);
         assert!(timelock.is_operation(id));
         assert!(timelock.is_operation_pending(id));
         assert_eq!(timelock.get_timestamp(id), min_delay + 1);
@@ -310,18 +289,8 @@ mod tests {
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
 
         assert_eq!(emitted_events.len(), 3);
-        for (i, transaction) in transactions
-            .into_iter()
-            .enumerate()
-        {
-            assert_call_scheduled_event(
-                &emitted_events[i + 1],
-                id,
-                i as u8,
-                transaction,
-                None,
-                min_delay + 1,
-            );
+        for (i, transaction) in transactions.into_iter().enumerate() {
+            assert_call_scheduled_event(&emitted_events[i + 1], id, i as u8, transaction, None, min_delay + 1);
         }
     }
 
@@ -333,12 +302,7 @@ mod tests {
         let mut timelock = TimelockControllerStruct::new(accounts.alice, min_delay, vec![], vec![]);
         let transactions = vec![Transaction::default(), Transaction::default()];
 
-        timelock.schedule_batch(
-            transactions.clone(),
-            None,
-            [0; 32],
-            min_delay + 1,
-        );
+        timelock.schedule_batch(transactions.clone(), None, [0; 32], min_delay + 1);
     }
 
     #[ink::test]
@@ -352,14 +316,7 @@ mod tests {
         timelock.cancel(id);
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_call_scheduled_event(
-            &emitted_events[1],
-            id,
-            0,
-            Transaction::default(),
-            None,
-            min_delay + 1,
-        );
+        assert_call_scheduled_event(&emitted_events[1], id, 0, Transaction::default(), None, min_delay + 1);
         assert_cancelled_event(&emitted_events[2], id);
     }
 
@@ -374,14 +331,7 @@ mod tests {
         timelock.schedule(Transaction::default(), None, [0; 32], min_delay + 1);
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_call_scheduled_event(
-            &emitted_events[1],
-            id,
-            0,
-            Transaction::default(),
-            None,
-            min_delay + 1,
-        );
+        assert_call_scheduled_event(&emitted_events[1], id, 0, Transaction::default(), None, min_delay + 1);
 
         timelock.revoke_role(TimelockControllerStruct::PROPOSER_ROLE, accounts.alice);
         timelock.cancel(id);

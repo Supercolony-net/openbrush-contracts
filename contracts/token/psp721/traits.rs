@@ -18,9 +18,11 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
+    collections::{
+        hashmap::Entry,
+        HashMap as StorageHashMap,
+    },
     traits::SpreadLayout,
-    collections::HashMap as StorageHashMap,
-    collections::hashmap::Entry,
 };
 pub use psp721_derive::{
     PSP721MetadataStorage,

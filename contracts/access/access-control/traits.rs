@@ -8,9 +8,9 @@ use brush::{
         InkStorage,
     },
 };
-use ink_storage::collections::HashMap as StorageHashMap;
-use ink_storage::traits::{
-    SpreadLayout,
+use ink_storage::{
+    collections::HashMap as StorageHashMap,
+    traits::SpreadLayout,
 };
 
 #[cfg(feature = "std")]
@@ -155,7 +155,11 @@ pub trait AccessControl: AccessControlStorage {
     }
 
     fn _get_role_admin(&self, role: &RoleType) -> RoleType {
-        self.get().admin_roles.get(role).cloned().unwrap_or(Self::DEFAULT_ADMIN_ROLE)
+        self.get()
+            .admin_roles
+            .get(role)
+            .cloned()
+            .unwrap_or(Self::DEFAULT_ADMIN_ROLE)
     }
 
     fn _do_revoke_role(&mut self, role: RoleType, address: AccountId) {
@@ -174,7 +178,11 @@ pub trait AccessControl: AccessControlStorage {
     }
 
     fn _set_role_admin(&mut self, role: RoleType, new_admin: RoleType) {
-        let entry = self.get_mut().admin_roles.entry(role).or_insert(Self::DEFAULT_ADMIN_ROLE);
+        let entry = self
+            .get_mut()
+            .admin_roles
+            .entry(role)
+            .or_insert(Self::DEFAULT_ADMIN_ROLE);
         let old_admin = entry.clone();
         *entry = new_admin;
         self._emit_role_admin_changed(role, old_admin, new_admin);
