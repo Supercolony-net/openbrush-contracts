@@ -1,12 +1,12 @@
 ## Overview
 
 This example shows how you can use the implementation of
-[access-control](contracts/access/ownable) and
-[psp1155](contracts/token/psp1155) together to provide `only owner` rights to mint and burn tokens.
+[access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
+[psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155) together to provide `only owner` rights to mint and burn tokens.
 
 ## Steps
 
-1. You need to include `psp1155`, `ownable` and `brush` in cargo file.
+1. Include dependencies `psp1155`, `ownable` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
@@ -27,8 +27,8 @@ std = [
 ]
 ```
 
-2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from according trait modules.
+2. Replace `ink::contract` macro by `brush::contract`.
+   Import **everything** from according trait modules.
 
 ```rust
 #[brush::contract]
@@ -55,15 +55,14 @@ pub struct PSP1155Struct {
 }
 ```
 
-4. After that you can inherit implementation of `IPSP1155` and `Ownable` traits. You can customize(override) some
-   methods there.
+4. Inherit implementation of `IPSP1155` and `Ownable` traits. You can customize(override) methods in this `impl` block.
 
 ```rust
 impl Ownable for PSP1155Struct {}
 impl IPSP1155 for PSP1155Struct {}
 ```
 
-5. Now you only need to define constructor to define owner as the contract initiator and your basic version
+5. Define constructor to define owner as the contract initiator and your basic version
    of `IPSP1155` contract is ready.
 
 ```rust
@@ -78,7 +77,7 @@ impl PSP1155Struct {
 }
 ```
 
-6. Let's customize it. We will implement `IPSP1155Mint` trait. It will call `only_owner` function inside to verify that
+6. Customize it by adding ownable logic. We will implement `IPSP1155Mint` trait. It will call `only_owner` function inside to verify that
    caller is the owner.
 
 ```rust

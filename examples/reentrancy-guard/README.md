@@ -1,19 +1,19 @@
 ## Overview
 
-This example shows how you can use the [non_reentrant](contracts/security/reentrancy-guard)
+This example shows how you can use the [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy-guard)
 modifier to prevent reentrancy into certain functions. In this example we will create two contracts:
 
-- `my_flipper_guard` - is contract of simple [flipper](https://github.com/paritytech/ink/tree/master/examples/flipper)
+- `my_flipper_guard` - this contract is the simple version of [flipper](https://github.com/paritytech/ink/tree/master/examples/flipper)
   but method `flip` will be marked with `non_reentrant` modifier + we will add additional method, also marked
   with `non_reentrant`, which will ask another contract to call `flip` of our `flipper`.
-- `flip_on_me` - is contract which has only one method `flip_on_me`. This method will try to call `flip` on caller
+- `flip_on_me` - is a contract which has only one method `flip_on_me`. This method will try to call `flip` on caller
   (it means that caller must be a contract with method `flip`).
 
 ## MyFlipper
 
 ### Steps
 
-1. You need to include `reentrancy-guard` and `brush` in cargo file.
+1. Include dependencies `reentrancy-guard` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
@@ -96,9 +96,9 @@ impl MyFlipper {
 }
 ```
 
-5. To simplify cross contract call to `FlipOnMe` contract let's create wrapper around account id of contract. For that
-   we will define another contract in this crate with `#[ink_lang::contract(compile_as_dependency = true)]`
-   and empty methods but with the same signature as in original contract.
+5. To simplify cross contract call to `FlipOnMe` contract let's create a wrapper around contract's account id.
+   For that we will define another contract in this crate with `#[ink_lang::contract(compile_as_dependency = true)]`
+   with empty methods but with the same signature as in original contract.
 
 ```rust
 /// It is stub implementation of contract with method `flip_on_me`.
@@ -132,7 +132,7 @@ pub mod flip_on_me {
 
 ## FlipOnMe
 
-It is a simple contract which doesn't use any logic from the brush, so you can use simple ink! here.
+It's a simple contract which doesn't use any logic from the brush, so you can use simple ink! here.
 
 ### Steps
 
