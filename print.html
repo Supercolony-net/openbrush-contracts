@@ -1,0 +1,1119 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>OpenBrush</title>
+                <meta name="robots" content="noindex" />
+                
+
+        <!-- Custom HTML head -->
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+                <link rel="icon" href="favicon.svg">
+                        <link rel="shortcut icon" href="favicon.png">
+                <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+                <link rel="stylesheet" href="css/print.css" media="print">
+        
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+                <link rel="stylesheet" href="fonts/fonts.css">
+        
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+            </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Openbrush</a></li><li class="chapter-item expanded "><a href="examples/index.html"><strong aria-hidden="true">1.</strong> Examples</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="examples/psp22.html"><strong aria-hidden="true">1.1.</strong> PSP22</a></li><li class="chapter-item expanded "><a href="examples/access-control.html"><strong aria-hidden="true">1.2.</strong> Access Control &amp; PSP721</a></li><li class="chapter-item expanded "><a href="examples/ownable.html"><strong aria-hidden="true">1.3.</strong> Ownable &amp; PSP1155</a></li><li class="chapter-item expanded "><a href="examples/reentrancy-guard.html"><strong aria-hidden="true">1.4.</strong> Reentrancy Guard</a></li><li class="chapter-item expanded "><a href="examples/pausable.html"><strong aria-hidden="true">1.5.</strong> Pausable</a></li><li class="chapter-item expanded "><a href="examples/timelock-controller.html"><strong aria-hidden="true">1.6.</strong> Timelock Controller</a></li><li class="chapter-item expanded "><a href="examples/payment-splitter.html"><strong aria-hidden="true">1.7.</strong> Payment Splitter</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="links.html">Useful links</a></li><li class="chapter-item expanded affix "><a href="EVM-WASM-Smart-Contracts.html">EVM &amp; WASM Smart Contracts</a></li></ol>            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                                                <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                                            </div>
+
+                    <h1 class="menu-title">OpenBrush</h1>
+
+                    <div class="right-buttons">
+                                                <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                                                                        
+                    </div>
+                </div>
+
+                                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
+<p>Welcome to OpenBrush documentation !
+This documentation aim to guide you through the usage of OpenBrush library.</p>
+<h2 id="what-is-openbrush"><a class="header" href="#what-is-openbrush">What is OpenBrush</a></h2>
+<p>OpenBrush is a library for smart contract development on ink!
+It provides standard contracts (<a href="https://github.com/w3f/PSPs">based on PSP</a>), as well as useful contracts and macros to help you build ink! smart contracts.</p>
+<h2 id="why-openbrush"><a class="header" href="#why-openbrush">Why OpenBrush</a></h2>
+<p>OpenBrush attempt to analogize OpenZeppelin perfectly with Rust’s paradigm, enabling users to import contracts implemented by another user without problems and reuse the code.
+There was a need to have a library that can provide base implementations of ERCs and to import/reuse them by customizing their own logic.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>This doc contains example of how the library can be use &amp; how to customize the base implementation.</p>
+<ul>
+<li><a href="examples/psp22.html">PSP22</a> shows an example of how you can reuse the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp20">psp20</a> token(by the same way you can reuse
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721">psp721</a> and <a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155">psp1155</a>).</li>
+<li><a href="examples/access-control.html">Access Control</a> shows how you can use the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control">access-control</a> and
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721">psp721</a> together to provide rights to mint and burn NFT tokens.</li>
+<li><a href="examples/ownable.html">Ownable</a> shows how you can use the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable">ownable</a> and
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155">psp1155</a> together to provide rights to mint and burn tokens.</li>
+<li><a href="examples/reentrancy-guard.html">ReentrancyGuard</a> shows how you can use the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy-guard">non_reentrant</a>
+modifier to prevent reentrancy during certain functions.</li>
+<li><a href="examples/pausable.html">Pausable</a> shows how you can use the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/pausable">pausable</a>
+contract and modifiers.</li>
+<li><a href="examples/timelock-controller.html">TimelockController</a> shows how you can use the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock-controller">timelock-controller</a>
+to execute some transaction with some delay via governance.</li>
+<li><a href="examples/payment-splitter.html">PaymentSplitter</a> shows how you can use the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment-splitter">payment-splitter</a>
+to split received native tokens between participants of the contract.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="overview-1"><a class="header" href="#overview-1">Overview</a></h2>
+<p>This example shows how you can reuse the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp20">psp20</a> token(by the same way you can reuse
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721">psp721</a> and <a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155">psp1155</a>). Also, this example shows how you can customize
+the logic, for example, to not allow transfer tokens to <code>hated_account</code>.</p>
+<h2 id="steps"><a class="header" href="#steps">Steps</a></h2>
+<ol>
+<li>Include dependencies <code>psp20</code> and <code>brush</code> in cargo file.</li>
+</ol>
+<pre><code class="language-markdown">[dependencies]
+...
+
+psp20 = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+brush = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+
+[features]
+default = [&quot;std&quot;]
+std = [
+ ...
+   
+   &quot;psp20/std&quot;,
+   &quot;brush/std&quot;,
+]
+</code></pre>
+<ol start="2">
+<li>Replace <code>ink::contract</code> macro by <code>brush::contract</code>.
+Import <strong>everything</strong> from according trait modules.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[brush::contract]
+pub mod my_psp20 {
+   use psp20::traits::*;
+   use ink_storage::Lazy;
+   use ink_prelude::{string::String, vec::Vec};
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="3">
+<li>Declare storage struct and declare the fields related to <code>PSP22Storage</code> and <code>PSP22MetadataStorage</code>
+traits. Then you need to derive <code>PSP22Storage</code> and <code>PSP22MetadataStorage</code> traits and mark according fields
+with <code>#[PSP22StorageField]</code> and <code>#[PSP22MetadataStorageField]</code> attributes. Deriving these traits allow you to reuse
+the default implementation of <code>PSP22</code> and <code>PSP22Metadata</code>.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+pub struct MyPSP22 {
+    #[PSP22StorageField]
+    psp20: PSP22Data,
+    #[PSP22MetadataStorageField]
+    metadata: PSP22MetadataData,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="4">
+<li>Inherit implementation of <code>PSP22</code> and <code>PSP22Metadata</code> traits. You can customize(override) methods in this <code>impl</code> block.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl PSP22 for MyPSP22 {}
+
+impl PSP22Metadata for MyPSP22 {}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="5">
+<li>Define constructor and your basic version of <code>PSP22</code> contract is ready.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl MyPSP22 {
+   #[ink(constructor)]
+   pub fn new(_total_supply: Balance, name: Option&lt;String&gt;, symbol: Option&lt;String&gt;, decimal: u8) -&gt; Self {
+      let mut instance = Self::default();
+      Lazy::set(&amp;mut instance.metadata.name, name);
+      Lazy::set(&amp;mut instance.metadata.symbol,symbol);
+      Lazy::set(&amp;mut instance.metadata.decimals,decimal);
+      instance._mint(instance.env().caller(), _total_supply);
+      instance
+   }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="6">
+<li>Customize it by adding hated account logic. It will contain two public methods <code>set_hated_account</code> and <code>get_hated_account</code>. Also we will
+override <code>_before_token_transfer</code> method in <code>PSP22</code> implementation. And we will add a new field to structure
+<ul>
+<li><code>hated_account: AccountId</code></li>
+</ul>
+</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+pub struct MyPSP22 {
+   #[PSP22StorageField]
+   psp20: PSP22Data,
+   #[PSP22MetadataStorageField]
+   metadata: PSP22MetadataData,
+   // fields for hater logic
+   hated_account: AccountId,
+}
+
+impl PSP22 for MyPSP22 {
+   // Let's override method to reject transactions to bad account
+   fn _before_token_transfer(&amp;mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
+      assert!(_to != self.hated_account, &quot;{}&quot;, PSP22Error::Custom(String::from(&quot;I hate this account!&quot;)).as_ref());
+   }
+}
+
+impl PSP22Metadata for MyPSP22 {}
+
+impl MyPSP22 {
+   #[ink(constructor)]
+   pub fn new(_total_supply: Balance, name: Option&lt;String&gt;, symbol: Option&lt;String&gt;, decimal: u8) -&gt; Self {
+      let mut instance = Self::default();
+      Lazy::set(&amp;mut instance.metadata.name, name);
+      Lazy::set(&amp;mut instance.metadata.symbol,symbol);
+      Lazy::set(&amp;mut instance.metadata.decimals,decimal);
+      instance._mint(instance.env().caller(), _total_supply);
+      instance
+   }
+
+   #[ink(message)]
+   pub fn set_hated_account(&amp;mut self, hated: AccountId) {
+      self.hated_account = hated;
+   }
+
+   #[ink(message)]
+   pub fn get_hated_account(&amp;self) -&gt; AccountId {
+      self.hated_account.clone()
+   }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="overview-2"><a class="header" href="#overview-2">Overview</a></h2>
+<p>This example shows how you can use the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control">access-control</a> and
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721">psp721</a> together to provide rights to mint and burn NFT tokens.</p>
+<h2 id="steps-1"><a class="header" href="#steps-1">Steps</a></h2>
+<ol>
+<li>Include dependencies <code>psp721</code>, <code>access-control</code> and <code>brush</code> in cargo file.</li>
+</ol>
+<pre><code class="language-markdown">[dependencies]
+...
+
+psp721 = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+access-control = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+brush = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+
+[features]
+default = [&quot;std&quot;]
+std = [
+...
+
+   &quot;psp721/std&quot;,
+   &quot;access-control/std&quot;,
+   &quot;brush/std&quot;,
+]
+</code></pre>
+<ol start="2">
+<li>Replace <code>ink::contract</code> macro by <code>brush::contract</code>.
+Import <strong>everything</strong> from according trait modules.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[brush::contract]
+pub mod my_access_control {
+   use psp721::traits::*;
+   use access_control::traits::*;
+   use brush::modifiers;
+   use ink_prelude::vec::Vec;
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="3">
+<li>Declare storage struct and declare the fields related to <code>PSP721Storage</code> and <code>AccessControlStorage</code>
+traits. Then you need to derive <code>PSP721Storage</code> and <code>AccessControlStorage</code> traits and mark according fields
+with <code>#[PSP721StorageField]</code> and <code>#[AccessControlStorageField]</code> attributes. Deriving these traits allow you to reuse
+the default implementation of <code>IPSP721</code> and <code>AccessControl</code>.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, PSP721Storage, AccessControlStorage)]
+pub struct PSP721Struct {
+    #[PSP721StorageField]
+    psp721: PSP721Data,
+    #[AccessControlStorageField]
+    access: AccessControlData,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="4">
+<li>Inherit implementation of <code>IPSP721</code> and <code>AccessControl</code> traits. You can customize(override) methods in this <code>impl</code> block.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl IPSP721 for PSP721Struct {}
+
+impl AccessControl for PSP721Struct {}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="5">
+<li>Define constructor and your basic version of <code>IPSP721</code> contract is ready.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl PSP721Struct {
+    #[ink(constructor)]
+    pub fn new() -&gt; Self {
+        Self::default()
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="6">
+<li>Customize it by adding access control logic. We will implement <code>IPSP721Mint</code> trait. It will use modifier <code>only_minter</code>(it verifies that caller
+has minter role). Also, we need to update constructor to grant minter role to caller by default.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>const MINTER: RoleType = brush::blake2b_256_as_u32!(&quot;MINTER&quot;);
+
+impl PSP721Struct {
+   #[ink(constructor)]
+   pub fn new() -&gt; Self {
+      let mut instance = Self::default();
+      let caller = instance.env().caller();
+      instance._init_with_admin(caller);
+      // We grant minter role to caller in constructor, so he can mint/burn tokens
+      instance.grant_role(MINTER, caller);
+      instance
+   }
+}
+
+impl IPSP721 for PSP721Struct {}
+
+impl AccessControl for PSP721Struct {}
+
+impl IPSP721Mint for PSP721Struct {
+   #[ink(message)]
+   #[modifiers(only_role(MINTER))]
+   fn mint(&amp;mut self, id: Id) {
+      self._mint(id);
+   }
+
+   #[ink(message)]
+   #[modifiers(only_role(MINTER))]
+   fn burn(&amp;mut self, id: Id) {
+      self._burn(id);
+   }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="overview-3"><a class="header" href="#overview-3">Overview</a></h2>
+<p>This example shows how you can use the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable">access-control</a> and
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155">psp1155</a> together to provide <code>only owner</code> rights to mint and burn tokens.</p>
+<h2 id="steps-2"><a class="header" href="#steps-2">Steps</a></h2>
+<ol>
+<li>Include dependencies <code>psp1155</code>, <code>ownable</code> and <code>brush</code> in cargo file.</li>
+</ol>
+<pre><code class="language-markdown">[dependencies]
+...
+
+psp1155 = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+ownable = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+brush = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+
+[features]
+default = [&quot;std&quot;]
+std = [
+ ...
+   
+   &quot;psp1155/std&quot;,
+   &quot;ownable/std&quot;,
+   &quot;brush/std&quot;,
+]
+</code></pre>
+<ol start="2">
+<li>Replace <code>ink::contract</code> macro by <code>brush::contract</code>.
+Import <strong>everything</strong> from according trait modules.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[brush::contract]
+pub mod ownable {
+   use psp1155::traits::*;
+   use ownable::traits::*;
+   use brush::modifiers;
+   use ink_prelude::vec::Vec;
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="3">
+<li>Declare storage struct and declare the fields related to <code>PSP1155Storage</code> and <code>OwnableStorage</code>
+traits. Then you need to derive <code>PSP1155Storage</code> and <code>OwnableStorage</code> traits and mark according fields
+with <code>#[PSP1155StorageField]</code> and <code>#[OwnableStorageField]</code> attributes. Deriving these traits allow you to reuse the
+default implementation of <code>IPSP1155</code> and <code>Ownable</code>.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, PSP1155Storage, OwnableStorage)]
+pub struct PSP1155Struct {
+    #[PSP1155StorageField]
+    psp1155: PSP1155Data,
+    #[OwnableStorageField]
+    ownale: OwnableData,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="4">
+<li>Inherit implementation of <code>IPSP1155</code> and <code>Ownable</code> traits. You can customize(override) methods in this <code>impl</code> block.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Ownable for PSP1155Struct {}
+impl IPSP1155 for PSP1155Struct {}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="5">
+<li>Define constructor to define owner as the contract initiator and your basic version
+of <code>IPSP1155</code> contract is ready.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl PSP1155Struct {
+    #[ink(constructor)]
+    pub fn new() -&gt; Self {
+        let mut instance = Self::default();
+        let caller = instance.env().caller();
+        instance._init_with_owner(caller);
+        instance
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="6">
+<li>Customize it by adding ownable logic. We will implement <code>IPSP1155Mint</code> trait. It will call <code>only_owner</code> function inside to verify that
+caller is the owner.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl IPSP1155Mint for PSP1155Struct {
+   #[ink(message)]
+   #[modifiers(only_owner)]
+   fn mint(&amp;mut self, to: AccountId, id: Id, amount: Balance) {
+      self._mint(to, id, amount);
+   }
+
+   #[ink(message)]
+   #[modifiers(only_owner)]
+   fn burn(&amp;mut self, from: AccountId, id: Id, amount: Balance) {
+      self._burn(from, id, amount);
+   }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="overview-4"><a class="header" href="#overview-4">Overview</a></h2>
+<p>This example shows how you can use the <a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy-guard">non_reentrant</a>
+modifier to prevent reentrancy into certain functions. In this example we will create two contracts:</p>
+<ul>
+<li><code>my_flipper_guard</code> - this contract is the simple version of <a href="https://github.com/paritytech/ink/tree/master/examples/flipper">flipper</a>
+but method <code>flip</code> will be marked with <code>non_reentrant</code> modifier + we will add additional method, also marked
+with <code>non_reentrant</code>, which will ask another contract to call <code>flip</code> of our <code>flipper</code>.</li>
+<li><code>flip_on_me</code> - is a contract which has only one method <code>flip_on_me</code>. This method will try to call <code>flip</code> on caller
+(it means that caller must be a contract with method <code>flip</code>).</li>
+</ul>
+<h2 id="myflipper"><a class="header" href="#myflipper">MyFlipper</a></h2>
+<h3 id="steps-3"><a class="header" href="#steps-3">Steps</a></h3>
+<ol>
+<li>Include dependencies <code>reentrancy-guard</code> and <code>brush</code> in cargo file.</li>
+</ol>
+<pre><code class="language-markdown">[dependencies]
+...
+
+reentrancy-guard = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+brush = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+
+crate-type = [
+    &quot;cdylib&quot;,
+    # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
+    &quot;rlib&quot;,
+]
+
+[features]
+default = [&quot;std&quot;]
+std = [
+ ...
+   
+   &quot;brush/std&quot;,
+]
+</code></pre>
+<ol start="2">
+<li>To declare the contract, you need to use <code>brush::contract</code> macro instead of <code>ink::contract</code>. Import <strong>everything</strong>
+from <code>reentrancy-guard</code> trait module.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[brush::contract]
+pub mod my_flipper_guard {
+    use reentrancy_guard::traits::*;
+    use brush::modifiers;
+    use ink_env::call::FromAccountId;
+    use crate::flip_on_me::CallerOfFlip;
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="3">
+<li>Declare storage struct and declare the field for <code>ReentrancyGuardStorage</code> trait. Then you need to
+derive <code>ReentrancyGuardStorage</code> trait and mark the field with <code>#[ReentrancyGuardStorageField]</code> attribute. Deriving
+this trait allows you to use <code>non_reentrant</code> modifier.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, ReentrancyGuardStorage)]
+pub struct MyFlipper {
+    #[ReentrancyGuardStorageField]
+    guard: ReentrancyGuardData,
+    value: bool,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="4">
+<li>After that you can add <code>non_reentrant</code> modifier to <code>flip</code> and <code>call_flip_on_me</code> methods.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl MyFlipper {
+    #[ink(constructor)]
+    pub fn new() -&gt; Self {
+        Self::default()
+    }
+
+    #[ink(message)]
+    pub fn get_value(&amp;self) -&gt; bool {
+        self.value
+    }
+
+    #[ink(message)]
+    #[brush::modifiers(non_reentrant)]
+    pub fn flip(&amp;mut self) {
+        self.value = !self.value;
+    }
+
+    #[ink(message)]
+    #[modifiers(non_reentrant)]
+    pub fn call_flip_on_me(&amp;mut self, callee: AccountId) {
+        // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
+        // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
+        // `call_flip_on_me` and `flip` is marked with `non_reentrant` modifier. It means,
+        // that call of `flip` after `call_flip_on_me` must fails.
+        let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
+        flipper.flip_on_me();
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="5">
+<li>To simplify cross contract call to <code>FlipOnMe</code> contract let's create a wrapper around contract's account id.
+For that we will define another contract in this crate with <code>#[ink_lang::contract(compile_as_dependency = true)]</code>
+with empty methods but with the same signature as in original contract.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// It is stub implementation of contract with method `flip_on_me`.
+/// We need this implementation to create a wrapper around account id of contract.
+/// With this wrapper we easy can call method of some contract.
+/// Example:
+/// ```
+/// let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
+/// flipper.flip_on_me();
+/// ```
+#[ink_lang::contract(compile_as_dependency = true)]
+pub mod flip_on_me {
+    #[ink(storage)]
+    pub struct CallerOfFlip {}
+
+    impl CallerOfFlip {
+        #[ink(constructor)]
+        pub fn new() -&gt; Self {
+            unimplemented!()
+        }
+    }
+
+    impl CallerOfFlip {
+        #[ink(message)]
+        pub fn flip_on_me(&amp;mut self) {
+            unimplemented!()
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2 id="fliponme"><a class="header" href="#fliponme">FlipOnMe</a></h2>
+<p>It's a simple contract which doesn't use any logic from the brush, so you can use simple ink! here.</p>
+<h3 id="steps-4"><a class="header" href="#steps-4">Steps</a></h3>
+<ol>
+<li>Define <code>FlipOnMe</code> contract. It has the only method <code>flip_on_me</code>, which will call <code>flip</code> on caller.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink_lang::contract]
+pub mod flip_on_me {
+    use ink_env::call::FromAccountId;
+    use my_flipper_guard::my_flipper_guard::MyFlipper;
+
+    #[ink(storage)]
+    #[derive(Default)]
+    pub struct FlipOnMe {}
+
+    impl FlipOnMe {
+        #[ink(constructor)]
+        pub fn new() -&gt; Self {
+            Self::default()
+        }
+
+        #[ink(message)]
+        pub fn flip_on_me(&amp;mut self) {
+            let caller = self.env().caller();
+            // This method will do a cross-contract call to caller account. It will try to call `flip`
+            let mut flipper: MyFlipper = FromAccountId::from_account_id(caller);
+            flipper.flip();
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="2">
+<li>To simplify cross contract call to <code>MyFlipper</code> you need to import the contract as dependency.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>[dependencies]
+...
+
+my_flipper_guard = { path = &quot;../flipper&quot;, default - features = false, features = [&quot;ink-as-dependency&quot;] }
+
+...
+[features]
+...
+<span class="boring">}
+</span></code></pre></pre>
+<h2 id="testing"><a class="header" href="#testing">Testing</a></h2>
+<p>For testing, you can run according <a href="examples/tests/reentrancy-guard.tests.ts">integration test</a>. Or you need to deploy both
+contracts and call <code>call_flip_on_me</code> on <code>MyFlipper</code>
+account and pass the account id of <code>FlipOnMe</code> contract.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="overview-5"><a class="header" href="#overview-5">Overview</a></h2>
+<p>This example shows how you can reuse the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/pausable">pausable</a> in <code>Flipper</code> contract to <code>flip</code> only if the contract is paused.</p>
+<h2 id="steps-5"><a class="header" href="#steps-5">Steps</a></h2>
+<ol>
+<li>Include dependencies <code>pausable</code> and <code>brush</code> in cargo file.</li>
+</ol>
+<pre><code class="language-markdown">[dependencies]
+...
+
+pausable = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+brush = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+
+[features]
+default = [&quot;std&quot;]
+std = [
+ ...
+   
+   &quot;pausable/std&quot;,
+   &quot;brush/std&quot;,
+]
+</code></pre>
+<ol start="2">
+<li>Replace <code>ink::contract</code> macro by <code>brush::contract</code>.
+Import <strong>everything</strong> from according trait modules.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[brush::contract]
+pub mod my_pausable {
+   use pausable::traits::*;
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="3">
+<li>Declare storage struct and declare the field related to <code>PausableStorage</code>
+Then you need to derive <code>PausableStorage</code> trait and mark according field
+with <code>#[PausableStorageField]</code> attribute. Deriving this trait allows you to reuse
+the default implementation of <code>Pausable</code>.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, PausableStorage)]
+pub struct MyFlipper {
+   #[PausableStorageField]
+   pause: PausableData,
+   flipped: bool,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="4">
+<li>Inherit implementation of <code>Pausable</code>. You can customize(override) methods in this <code>impl</code> block.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Pausable for MyFlipper {}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="5">
+<li>Define constructor and your basic version of <code>Pausable</code> contract is ready.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl MyFlipper {
+   #[ink(constructor)]
+   pub fn new() -&gt; Self {
+      Self::default()
+   }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="6">
+<li>Customize it by adding flipper logic. We will implement <code>flip</code> method marked with <code>when_paused</code> modifier.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl MyFlipper {
+   #[ink(constructor)]
+   pub fn new() -&gt; Self {
+      Self::default()
+   }
+
+   #[ink(message)]
+   #[brush::modifiers(when_paused)]
+   pub fn flip(&amp;mut self) {
+      self.flipped = !self.flipped;
+   }
+}
+
+impl Pausable for MyFlipper {}
+<span class="boring">}
+</span></code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="overview-6"><a class="header" href="#overview-6">Overview</a></h2>
+<p>This example shows how you can reuse the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock-controller">timelock-controller</a>.</p>
+<h2 id="steps-6"><a class="header" href="#steps-6">Steps</a></h2>
+<ol>
+<li>Include dependencies <code>timelock-controller</code> and <code>brush</code> in cargo file.</li>
+</ol>
+<pre><code class="language-markdown">[dependencies]
+...
+
+timelock-controller = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+brush = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+
+[features]
+default = [&quot;std&quot;]
+std = [
+ ...
+   
+   &quot;timelock-controller/std&quot;,
+   &quot;brush/std&quot;,
+]
+</code></pre>
+<ol start="2">
+<li>Replace <code>ink::contract</code> macro by <code>brush::contract</code>.
+Import <strong>everything</strong> from according trait modules.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[brush::contract]
+pub mod my_timelock_controller {
+   use timelock_controller::traits::*;
+   use ink_prelude::vec::Vec;
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="3">
+<li><code>TimelockController</code> is an extension for <code>AccessControl</code>, so you need to impl stuff related to both modules.
+Declare storage struct and declare the fields related to <code>TimelockControllerStorage</code> and <code>AccessControlStorage</code>.
+Then you need to derive <code>TimelockControllerStorage</code> and <code>AccessControlStorage</code> traits and mark according fields
+with <code>#[TimelockControllerStorageField]</code> and <code>#[AccessControlStorageField]</code> attributes. 
+Deriving these traits allows you to reuse the default implementation of <code>TimelockController</code>(and <code>AccessControl</code>).</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, AccessControlStorage, TimelockControllerStorage)]
+pub struct TimelockStruct {
+   #[AccessControlStorageField]
+   access: AccessControlData,
+   #[TimelockControllerStorageField]
+   timelock: TimelockControllerData,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="4">
+<li>Inherit implementation of <code>TimelockController</code> and <code>AccessControl</code> traits. You can customize(override) methods in this <code>impl</code> block.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// `TimelockController` is an extension for `AccessControl`, so you need to impl stuff related to both modules.
+impl AccessControl for TimelockStruct {}
+impl TimelockController for TimelockStruct {}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="5">
+<li>Define constructor and your basic version of <code>TimelockController</code> contract is ready.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl TimelockStruct {
+   #[ink(constructor)]
+   pub fn new(min_delay: Timestamp, proposers: Vec&lt;AccountId&gt;, executors: Vec&lt;AccountId&gt;) -&gt; Self {
+      let mut instance = Self::default();
+      let caller = instance.env().caller();
+      // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
+      // You need to call it for each trait separately, to initialize everything for these traits.
+      AccessControl::_init_with_admin(&amp;mut instance, caller);
+      TimelockController::_init_with_admin(&amp;mut instance, caller, min_delay, proposers, executors);
+      instance
+   }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="overview-7"><a class="header" href="#overview-7">Overview</a></h2>
+<p>This example shows how you can reuse the implementation of
+<a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment-splitter">payment-splitter</a>.</p>
+<h2 id="steps-7"><a class="header" href="#steps-7">Steps</a></h2>
+<ol>
+<li>Include dependencies <code>payment-splitter</code> and <code>brush</code> in cargo file.</li>
+</ol>
+<pre><code class="language-markdown">[dependencies]
+...
+
+payment-splitter = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+brush = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+
+
+# payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
+[profile.dev]
+overflow-checks = false
+
+[profile.release]
+overflow-checks = false
+
+[features]
+default = [&quot;std&quot;]
+std = [
+ ...
+   
+   &quot;payment-splitter/std&quot;,
+   &quot;brush/std&quot;,
+]
+</code></pre>
+<ol start="2">
+<li>Replace <code>ink::contract</code> macro by <code>brush::contract</code>.
+Import <strong>everything</strong> from according trait modules.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[brush::contract]
+pub mod my_payment_splitter {
+   use payment_splitter::traits::*;
+   use ink_prelude::vec::Vec;
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="3">
+<li>Declare storage struct and declare the field related to <code>PaymentSplitterStorage</code>
+Then you need to derive <code>PaymentSplitterStorage</code> trait and mark according field
+with <code>#[PaymentSplitterStorageField]</code> attribute. Deriving this trait allows you to reuse
+the default implementation of <code>PaymentSplitter</code>.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, PaymentSplitterStorage)]
+pub struct SplitterStruct {
+   #[PaymentSplitterStorageField]
+   splitter: PaymentSplitterData,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="4">
+<li>Inherit implementation of <code>PaymentSplitter</code>. You can customize(override) methods in this <code>impl</code> block.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl PaymentSplitter for SplitterStruct {}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="5">
+<li>Define constructor and your basic version of <code>PaymentSplitter</code> contract is ready.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl SplitterStruct {
+   #[ink(constructor)]
+   pub fn new(payees: Vec&lt;AccountId&gt;, shares: Vec&lt;Balance&gt;) -&gt; Self {
+      let mut instance = Self::default();
+      instance._init(payees, shares);
+      instance
+   }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="useful-links"><a class="header" href="#useful-links">Useful links</a></h2>
+<ul>
+<li><a href="https://www.rust-lang.org/">Rust language</a> is used</li>
+<li><a href="https://polkadot.network/">Polkadot</a> network info</li>
+<li><a href="https://patractlabs.github.io/substrate-contracts-book/en/">Patract labs</a> knowledge base about ink! smart contract
+lang, Redspot utils for tests and deploymnt, ect</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="comparison-of-evm-smart-contracts--substrate-wasm-smart-contracts"><a class="header" href="#comparison-of-evm-smart-contracts--substrate-wasm-smart-contracts">Comparison of EVM Smart Contracts &amp; Substrate WASM Smart contracts</a></h2>
+<h3 id="evm"><a class="header" href="#evm">EVM</a></h3>
+<h5 id="background"><a class="header" href="#background">Background</a></h5>
+<p>Ethereum was the first Turing complete blockchain and was mainly developed because of limitations of Bitcoin's script. In order to execute Smart Contracts a sandbox environment is needed. The sandbox environment where Smart contracts are executed in Ethereum is the  <strong>Ethereum virtual machine</strong> (<em>EVM</em>)</p>
+<h5 id="bytecode"><a class="header" href="#bytecode">Bytecode</a></h5>
+<p>EVM uses a stack-based bytecode language called EVM bytecode. EVM bytecode is a series of OP_CODE (instructions) that are executed by the EVM. These <code>OP_CODE</code>s offers rather limited instructions compare to a full extend language (Java, WASM, ..)</p>
+<p>The primitive of bytecode is <em>256bit</em> integer which can be a big limitation as it is needed to use <em>256bit</em> integer to do calculations on even low numbers and also it will take <em>256bit</em> storage for any value stored on persistence.</p>
+<p>The main OP_CODEs are <strong>SLOAD</strong> to load data, <strong>SSTORE</strong> to write a <em>256bit</em> integer to storage and <strong>CALL</strong> to call another contract <a href="https://github.com/crytic/evm-opcodes">full list of OP_CODES</a>. It's via these instructions that EVM interact with the chain.</p>
+<p><img src="pictures/eth-1.png" alt="image info" /></p>
+<h5 id="gas-model"><a class="header" href="#gas-model">Gas model</a></h5>
+<p>The incentive model of interacting with EVM is gas. It acts like a fee that is calculated for each instruction you are executing. Every instruction has a certain pre-calculated fee amount, and your total gas is the sum of all the instruction you will execute.</p>
+<p>Please check the entire table of <a href="https://blockgeeks.com/wp-content/uploads/2018/03/image2-2.png">fees</a>
+A gas fee is only due when interacting with EVM. There is no charge for the space on storage you are using, and it is resulting by having a ton of deadcode (or non-used contracts) staying on ethereum chain forever.</p>
+<h5 id="evm-process"><a class="header" href="#evm-process">Evm process</a></h5>
+<p><img src="pictures/eth2.png" alt="image info" /></p>
+<h3 id="substrate-contract-pallet"><a class="header" href="#substrate-contract-pallet">Substrate Contract-Pallet</a></h3>
+<h5 id="intro"><a class="header" href="#intro">Intro</a></h5>
+<p><code>pallet-contract</code> is a module in Substrate (the framework to build blockchain on <code>Polkadot</code>). Its purpose is a sandbox environment providing WASM interpreter to execute smart contracts in WASM.</p>
+<p><img src="pictures/WASM1.png" alt="image info" /></p>
+<h5 id="wasm-interpreter"><a class="header" href="#wasm-interpreter">WASM interpreter</a></h5>
+<p>At the moment contract-pallet use <a href="https://github.com/paritytech/wasmi">wasmi</a> as interpreter. Wasmi is a pure interpreter-type WASM virtual machine as execution of smart contract needs a high degree of correctness.</p>
+<h5 id="storage-rent--gas"><a class="header" href="#storage-rent--gas">Storage rent &amp; Gas</a></h5>
+<p>In order to incentives the deletion of unused code on chain, pallet-contract implemented a storage-rent principle.</p>
+<p>Data that persist on chain (the contract code + all of its storage) will be charged. So every smart contract will have a rent to pay (small amount at every block). When the smart contract will not have enough fund to pay the rent the smart contract will become a Tombstone (storage will be deleted).</p>
+<p>The gas system of ethereum (price depending on the complexity of the computation) is still present, but it is charged after the call is executed as it is basically a fee on the time of execution (the more time it takes for the node to execute your call the more you will pay). The <code>pallet-contract</code> will define the <a href="https://substrate.dev/docs/en/knowledgebase/smart-contracts/contracts-pallet">amount of gas</a></p>
+<h5 id="contract-code--instance-are-decoupled"><a class="header" href="#contract-code--instance-are-decoupled">Contract code &amp; instance are decoupled</a></h5>
+<p>Even though pallet-contract use an account model for their contracts alike ethereum does as well, there is still a big difference:</p>
+<p>When you deploy a WASM smart contract on chain it will only create a hash of the WASM code, that's mean this contract will not have an address, nor an associated storage (so no interaction possible). As opposed to ethereum where every contract code deployed on chain will have a unique address (instance), and an associated storage.</p>
+<p>When the WASM hash is on chain you can create as mush as instance of this contract code. Each instance will have a unique address to interact with as well as its own associated storage.</p>
+<p>It is practical for:</p>
+<ul>
+<li>Different contract instance with different <strong>constructors</strong> can be instantiated to reduce the space needed on chain to store WASM code</li>
+<li>Storage and balance are decoupled from contract code logic, it can enable to <strong>patch or upgrade</strong> the underlying contract code</li>
+</ul>
+<h3 id="evm-vs-contract-pallet"><a class="header" href="#evm-vs-contract-pallet">EVM vs contract-pallet</a></h3>
+<ul>
+<li>Common point: they both are a sandbox to execute smart contracts</li>
+<li>The engine to execute contract is different. In ethereum, as it was the first blockchain to implement n sandbox environment, it is rather limited and slow compare to a wasm interpreter</li>
+<li>Storage-rent has been introduced in contract-pallet to incentives the deletion of unused code</li>
+<li>Contract pallet integrated a <a href="https://substrate.dev/docs/en/knowledgebase/smart-contracts/contracts-pallet#two-step-deployment">two-step-deployment</a> to decouple contract code and contract instances</li>
+</ul>
+<h3 id="comparing-wasm-smart-contracts-to-evm-smart-contracts"><a class="header" href="#comparing-wasm-smart-contracts-to-evm-smart-contracts">Comparing WASM Smart contracts to EVM smart contracts</a></h3>
+<ul>
+<li>WASM is broadly adopted as EVM usage is only for EVM -&gt; There is way more tools available for WASM development</li>
+<li>EVM bytecode can only be compiled from Solidity or Vyper while WASM can be compiled from a lot of Popular languages (Rust, C/C++, C#, Java, Typescript, Haxe, Kotlin and even from Solidity)</li>
+<li>Excellent integration of Rust to compile in WASM</li>
+<li>Lightweight: it produces lightweight binaries that can ship easily</li>
+<li>performance near native code (2x faster than Javascipt)</li>
+<li>Continually developed by major companies such as Google, Apple, Microsoft, Mozilla, and Facebook.</li>
+</ul>
+<p><a href="https://paritytech.github.io/ink-docs/why-webassembly-for-smart-contracts">more info here</a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                        
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                            </nav>
+
+        </div>
+
+        
+        
+        
+                <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+        
+                <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+                        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+                
+    </body>
+</html>

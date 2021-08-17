@@ -1,0 +1,391 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Reentrancy Guard - OpenBrush</title>
+                
+
+        <!-- Custom HTML head -->
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+                <link rel="icon" href="../favicon.svg">
+                        <link rel="shortcut icon" href="../favicon.png">
+                <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+                <link rel="stylesheet" href="../css/print.css" media="print">
+        
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+                <link rel="stylesheet" href="../fonts/fonts.css">
+        
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+            </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Openbrush</a></li><li class="chapter-item expanded "><a href="../examples/index.html"><strong aria-hidden="true">1.</strong> Examples</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../examples/psp22.html"><strong aria-hidden="true">1.1.</strong> PSP22</a></li><li class="chapter-item expanded "><a href="../examples/access-control.html"><strong aria-hidden="true">1.2.</strong> Access Control &amp; PSP721</a></li><li class="chapter-item expanded "><a href="../examples/ownable.html"><strong aria-hidden="true">1.3.</strong> Ownable &amp; PSP1155</a></li><li class="chapter-item expanded "><a href="../examples/reentrancy-guard.html" class="active"><strong aria-hidden="true">1.4.</strong> Reentrancy Guard</a></li><li class="chapter-item expanded "><a href="../examples/pausable.html"><strong aria-hidden="true">1.5.</strong> Pausable</a></li><li class="chapter-item expanded "><a href="../examples/timelock-controller.html"><strong aria-hidden="true">1.6.</strong> Timelock Controller</a></li><li class="chapter-item expanded "><a href="../examples/payment-splitter.html"><strong aria-hidden="true">1.7.</strong> Payment Splitter</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="../links.html">Useful links</a></li><li class="chapter-item expanded affix "><a href="../EVM-WASM-Smart-Contracts.html">EVM &amp; WASM Smart Contracts</a></li></ol>            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                                                <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                                            </div>
+
+                    <h1 class="menu-title">OpenBrush</h1>
+
+                    <div class="right-buttons">
+                                                <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                                                                        
+                    </div>
+                </div>
+
+                                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>This example shows how you can use the <a href="https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy-guard">non_reentrant</a>
+modifier to prevent reentrancy into certain functions. In this example we will create two contracts:</p>
+<ul>
+<li><code>my_flipper_guard</code> - this contract is the simple version of <a href="https://github.com/paritytech/ink/tree/master/examples/flipper">flipper</a>
+but method <code>flip</code> will be marked with <code>non_reentrant</code> modifier + we will add additional method, also marked
+with <code>non_reentrant</code>, which will ask another contract to call <code>flip</code> of our <code>flipper</code>.</li>
+<li><code>flip_on_me</code> - is a contract which has only one method <code>flip_on_me</code>. This method will try to call <code>flip</code> on caller
+(it means that caller must be a contract with method <code>flip</code>).</li>
+</ul>
+<h2 id="myflipper"><a class="header" href="#myflipper">MyFlipper</a></h2>
+<h3 id="steps"><a class="header" href="#steps">Steps</a></h3>
+<ol>
+<li>Include dependencies <code>reentrancy-guard</code> and <code>brush</code> in cargo file.</li>
+</ol>
+<pre><code class="language-markdown">[dependencies]
+...
+
+reentrancy-guard = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+brush = { version = &quot;0.3.0-rc1&quot;, git = &quot;https://github.com/Supercolony-net/openbrush-contracts&quot;, default-features = false }
+
+crate-type = [
+    &quot;cdylib&quot;,
+    # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
+    &quot;rlib&quot;,
+]
+
+[features]
+default = [&quot;std&quot;]
+std = [
+ ...
+   
+   &quot;brush/std&quot;,
+]
+</code></pre>
+<ol start="2">
+<li>To declare the contract, you need to use <code>brush::contract</code> macro instead of <code>ink::contract</code>. Import <strong>everything</strong>
+from <code>reentrancy-guard</code> trait module.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[brush::contract]
+pub mod my_flipper_guard {
+    use reentrancy_guard::traits::*;
+    use brush::modifiers;
+    use ink_env::call::FromAccountId;
+    use crate::flip_on_me::CallerOfFlip;
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="3">
+<li>Declare storage struct and declare the field for <code>ReentrancyGuardStorage</code> trait. Then you need to
+derive <code>ReentrancyGuardStorage</code> trait and mark the field with <code>#[ReentrancyGuardStorageField]</code> attribute. Deriving
+this trait allows you to use <code>non_reentrant</code> modifier.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink(storage)]
+#[derive(Default, ReentrancyGuardStorage)]
+pub struct MyFlipper {
+    #[ReentrancyGuardStorageField]
+    guard: ReentrancyGuardData,
+    value: bool,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="4">
+<li>After that you can add <code>non_reentrant</code> modifier to <code>flip</code> and <code>call_flip_on_me</code> methods.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl MyFlipper {
+    #[ink(constructor)]
+    pub fn new() -&gt; Self {
+        Self::default()
+    }
+
+    #[ink(message)]
+    pub fn get_value(&amp;self) -&gt; bool {
+        self.value
+    }
+
+    #[ink(message)]
+    #[brush::modifiers(non_reentrant)]
+    pub fn flip(&amp;mut self) {
+        self.value = !self.value;
+    }
+
+    #[ink(message)]
+    #[modifiers(non_reentrant)]
+    pub fn call_flip_on_me(&amp;mut self, callee: AccountId) {
+        // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
+        // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
+        // `call_flip_on_me` and `flip` is marked with `non_reentrant` modifier. It means,
+        // that call of `flip` after `call_flip_on_me` must fails.
+        let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
+        flipper.flip_on_me();
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="5">
+<li>To simplify cross contract call to <code>FlipOnMe</code> contract let's create a wrapper around contract's account id.
+For that we will define another contract in this crate with <code>#[ink_lang::contract(compile_as_dependency = true)]</code>
+with empty methods but with the same signature as in original contract.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// It is stub implementation of contract with method `flip_on_me`.
+/// We need this implementation to create a wrapper around account id of contract.
+/// With this wrapper we easy can call method of some contract.
+/// Example:
+/// ```
+/// let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
+/// flipper.flip_on_me();
+/// ```
+#[ink_lang::contract(compile_as_dependency = true)]
+pub mod flip_on_me {
+    #[ink(storage)]
+    pub struct CallerOfFlip {}
+
+    impl CallerOfFlip {
+        #[ink(constructor)]
+        pub fn new() -&gt; Self {
+            unimplemented!()
+        }
+    }
+
+    impl CallerOfFlip {
+        #[ink(message)]
+        pub fn flip_on_me(&amp;mut self) {
+            unimplemented!()
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2 id="fliponme"><a class="header" href="#fliponme">FlipOnMe</a></h2>
+<p>It's a simple contract which doesn't use any logic from the brush, so you can use simple ink! here.</p>
+<h3 id="steps-1"><a class="header" href="#steps-1">Steps</a></h3>
+<ol>
+<li>Define <code>FlipOnMe</code> contract. It has the only method <code>flip_on_me</code>, which will call <code>flip</code> on caller.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[ink_lang::contract]
+pub mod flip_on_me {
+    use ink_env::call::FromAccountId;
+    use my_flipper_guard::my_flipper_guard::MyFlipper;
+
+    #[ink(storage)]
+    #[derive(Default)]
+    pub struct FlipOnMe {}
+
+    impl FlipOnMe {
+        #[ink(constructor)]
+        pub fn new() -&gt; Self {
+            Self::default()
+        }
+
+        #[ink(message)]
+        pub fn flip_on_me(&amp;mut self) {
+            let caller = self.env().caller();
+            // This method will do a cross-contract call to caller account. It will try to call `flip`
+            let mut flipper: MyFlipper = FromAccountId::from_account_id(caller);
+            flipper.flip();
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<ol start="2">
+<li>To simplify cross contract call to <code>MyFlipper</code> you need to import the contract as dependency.</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>[dependencies]
+...
+
+my_flipper_guard = { path = &quot;../flipper&quot;, default - features = false, features = [&quot;ink-as-dependency&quot;] }
+
+...
+[features]
+...
+<span class="boring">}
+</span></code></pre></pre>
+<h2 id="testing"><a class="header" href="#testing">Testing</a></h2>
+<p>For testing, you can run according <a href="tests/reentrancy-guard.tests.ts">integration test</a>. Or you need to deploy both
+contracts and call <code>call_flip_on_me</code> on <code>MyFlipper</code>
+account and pass the account id of <code>FlipOnMe</code> contract.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                                                    <a rel="prev" href="../examples/ownable.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+                                                    <a rel="next" href="../examples/pausable.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                                    <a rel="prev" href="../examples/ownable.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+                                    <a rel="next" href="../examples/pausable.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                            </nav>
+
+        </div>
+
+        
+        
+        
+                <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+        
+                <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+        
+    </body>
+</html>
