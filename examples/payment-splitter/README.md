@@ -1,11 +1,11 @@
 ## Overview
 
 This example shows how you can reuse the implementation of
-[payment-splitter](contracts/finance/payment-splitter).
+[payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment-splitter).
 
 ## Steps
 
-1. You need to include `payment-splitter` and `brush` in cargo file.
+1. Include dependencies `payment-splitter` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
@@ -32,8 +32,8 @@ std = [
 ]
 ```
 
-2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from corresponding trait modules.
+2. Replace `ink::contract` macro by `brush::contract`.
+   Import **everything** from corresponding trait modules.
 
 ```rust
 #[brush::contract]
@@ -56,13 +56,13 @@ pub struct SplitterStruct {
 }
 ```
 
-4. After that you can inherit the implementation of `PaymentSplitter`You can customize (override) some methods there.
+4. Inherit the implementation of `PaymentSplitter`. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl PaymentSplitter for SplitterStruct {}
 ```
 
-5. Now you only need to define constructor and your basic version of `PaymentSplitter` contract is ready.
+5. Define constructor and your basic version of `PaymentSplitter` contract is ready.
 
 ```rust
 impl SplitterStruct {

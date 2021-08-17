@@ -1,6 +1,6 @@
 # ![logo-2](https://user-images.githubusercontent.com/18346821/127667990-a85453d6-8ded-470e-80c7-e2b6153a5eaf.png)
 
-[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](doc)
 
 Our mission with this project is to make ink! development faster, safer and easier
 
@@ -39,8 +39,7 @@ fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
 ```
 
 ### How to use it ?
-Read our **documentation** in [doc](https://supercolony-net.github.io/openbrush-contracts).
-
+Read our **documentation** in [doc](doc) folders
 Go through our **examples** in [examples](examples)
 
 ## Ink version
@@ -103,14 +102,13 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/tree/main/is
 
 ------- Release 1.0.0
 
-- [x] Add Pausable, TimelockController and PaymentSplitter contracts.
+- [ ] Finalize PSP for fungible tokens. Refactor of implementation.
 - [x] Support code injection in modifiers.
 - [x] Implement a reentrancy guard and example of usage.
 - [x] Add more examples and documentation on how to use the library.
 
 ------- Pre-release 2.0.0
 
-- [ ] Finalize PSP for fungible tokens. Refactor of implementation.
 - [ ] PSPs for NFT and multi-token.
 - [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
 - [ ] Refactor NFT and multi-token according to final decisions in PSPs.
@@ -125,6 +123,7 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/tree/main/is
 
 ------- Release 3.0.0
 
+- [x] Add Pausable, TimelockController and PaymentSplitter contracts.
 - [ ] All extensions for tokens.
 - [ ] Improve ink! to allow code injection to have default implementation on ink! level instead Rust level.
 - [ ] Refactor the library according to new changes.

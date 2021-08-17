@@ -1,11 +1,11 @@
 ## Overview
 
 This example shows how you can reuse the implementation of
-[timelock-controller](contracts/governance/timelock-controller).
+[timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock-controller).
 
 ## Steps
 
-1. You need to include `timelock-controller` and `brush` in cargo file.
+1. Include dependencies `timelock-controller` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
@@ -24,8 +24,8 @@ std = [
 ]
 ```
 
-2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from corresponding trait modules.
+2. Replace `ink::contract` macro by `brush::contract`.
+   Import **everything** from corresponding trait modules.
 
 ```rust
 #[brush::contract]
@@ -51,8 +51,7 @@ pub struct TimelockStruct {
 }
 ```
 
-4. After that you can inherit the implementation of `TimelockController` and `AccessControl` traits. You can customize (override) some
-   methods there.
+4. Inherit the implementation of `TimelockController` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 // `TimelockController` is an extension for `AccessControl`, so you have to implement logic related to both modules.
@@ -60,7 +59,7 @@ impl AccessControl for TimelockStruct {}
 impl TimelockController for TimelockStruct {}
 ```
 
-5. Now you only need to define constructor and your basic version of `TimelockController` contract is ready.
+5. Define constructor and your basic version of `TimelockController` contract is ready.
 
 ```rust
 impl TimelockStruct {

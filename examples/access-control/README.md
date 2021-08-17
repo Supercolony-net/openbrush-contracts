@@ -1,12 +1,12 @@
 ## Overview
 
 This example shows how you can use the implementation of
-[access-control](contracts/access/access-control) and
-[psp721](contracts/token/psp721) together to provide rights to mint and burn NFT tokens.
+[access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control) and
+[psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) together to provide rights to mint and burn NFT tokens.
 
 ## Steps
 
-1. You need to include `psp721`, `access-control` and `brush` in cargo file.
+1. Include dependencies `psp721`, `access-control` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
@@ -27,8 +27,8 @@ std = [
 ]
 ```
 
-2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from corresponding trait modules.
+2. Replace `ink::contract` macro by `brush::contract`.
+   Import **everything** from corresponding trait modules.
 
 ```rust
 #[brush::contract]
@@ -55,8 +55,7 @@ pub struct PSP721Struct {
 }
 ```
 
-4. After that you can inherit the implementation of `IPSP721` and `AccessControl` traits. You can customize (override) some
-   methods there.
+4. Inherit the implementation of `IPSP721` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl IPSP721 for PSP721Struct {}
@@ -64,7 +63,7 @@ impl IPSP721 for PSP721Struct {}
 impl AccessControl for PSP721Struct {}
 ```
 
-5. Now you only need to define constructor and your basic version of `IPSP721` contract is ready.
+5. Define constructor and your basic version of `IPSP721` contract is ready.
 
 ```rust
 impl PSP721Struct {
@@ -75,7 +74,7 @@ impl PSP721Struct {
 }
 ```
 
-6. Let's customize it. We will implement `IPSP721Mint` trait. It will use modifier `only_minter`(it verifies that caller
+6. Customize it by adding access control logic. We will implement `IPSP721Mint` trait. It will use modifier `only_minter`(it verifies that caller
    has minter role). Also, we need to update constructor to grant minter role to caller by default.
 
 ```rust

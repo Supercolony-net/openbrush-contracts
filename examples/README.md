@@ -2,8 +2,8 @@
 
 This folder contains example of how the library can be use & how to customize the base implementation.
 
-* [PSP22](psp22) shows an example of how you can reuse the implementation of
-  [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token(by the same way you can reuse
+* [PSP22](psp20) shows an example of how you can reuse the implementation of
+  [psp20](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp20) token(by the same way you can reuse
   [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)).
 * [Access Control](access-control) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control) and

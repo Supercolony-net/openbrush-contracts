@@ -1,13 +1,13 @@
 ## Overview
 
 This example shows how you can reuse the implementation of
-[psp20](contracts/token/psp20) token(by the same way you can reuse
-[psp721](contracts/token/psp721) and [psp1155](contracts/token/psp1155)). Also, this example shows how you can customize
+[psp20](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp20) token(by the same way you can reuse
+[psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)). Also, this example shows how you can customize
 the logic, for example, to not allow transfer tokens to `hated_account`.
 
 ## Steps
 
-1. You need to include `psp20` and `brush` in cargo file.
+1. Include dependencies `psp20` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
@@ -26,8 +26,8 @@ std = [
 ]
 ```
 
-2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from `psp20` trait module.
+2. Replace `ink::contract` macro by `brush::contract`.
+   Import **everything** from according trait modules.
 
 ```rust
 #[brush::contract]
@@ -53,8 +53,7 @@ pub struct MyPSP22 {
 }
 ```
 
-4. After that you can inherit the implementation of `PSP22` and `PSP22Metadata` traits. You can customize (override) some
-   methods there.
+4. Inherit the implementation of `PSP22` and `PSP22Metadata` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl PSP22 for MyPSP22 {}
@@ -62,7 +61,7 @@ impl PSP22 for MyPSP22 {}
 impl PSP22Metadata for MyPSP22 {}
 ```
 
-5. Now you only need to define constructor and your basic version of `PSP22` contract is ready.
+5. Define constructor and your basic version of `PSP22` contract is ready.
 
 ```rust
 impl MyPSP22 {
@@ -78,7 +77,7 @@ impl MyPSP22 {
 }
 ```
 
-6. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
+6. Customize it by adding hated account logic. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
    override `_before_token_transfer` method in `PSP22` implementation. And we will add a new field to structure
    - `hated_account: AccountId`
 
