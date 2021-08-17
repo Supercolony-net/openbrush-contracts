@@ -14,6 +14,9 @@ This doc contains example of how the library can be use & how to customize the b
 * [ReentrancyGuard](reentrancy-guard.md) shows how you can use the implementation of
   [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy-guard)
   modifier to prevent reentrancy during certain functions.
+* [Pausable](pausable.md) shows how you can use the implementation of
+  [pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/pausable)
+  contract and modifiers.
 * [TimelockController](timelock-controller.md) shows how you can use the implementation of
   [timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock-controller)
   to execute some transaction with some delay via governance.
