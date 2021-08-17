@@ -1,10 +1,11 @@
-## Overview
+# Getting Started
+Welcome to OpenBrush documentation !
+This documentation aim to guide you through the usage of OpenBrush library.
 
-This folder contains example of how the library can be reuse/customize the base implementation.
+## What is OpenBrush
+OpenBrush is a library for smart contract development on ink!
+It provides standard contracts ([based on PSP](https://github.com/w3f/PSPs)), as well as useful contracts and macros to help you build ink! smart contracts.
 
-* [PSP22](psp20) shows an example of how you can reuse the implementation of
-  [psp20](contracts/token/psp20) token(by the same way you can reuse
-  [psp721](contracts/token/psp721) and [psp1155](contracts/token/psp1155)).
-* [Access Control](access-control) shows how you can use the implementation of
-  [access-control](contracts/access/access-control) and
-  [psp721](contracts/token/psp721) together to provide rights to mint and burn NFT tokens.
+## Why OpenBrush
+OpenBrush attempt to analogize OpenZeppelin perfectly with Rust’s paradigm, enabling users to import contracts implemented by another user without problems and reuse the code.
+There was a need to have a library that can provide base implementations of ERCs and to import/reuse them by customizing their own logic.

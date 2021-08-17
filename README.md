@@ -1,29 +1,50 @@
 # ![logo-2](https://user-images.githubusercontent.com/18346821/127667990-a85453d6-8ded-470e-80c7-e2b6153a5eaf.png)
 
-
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](doc)
 
-**A Rust library for secure smart contract development on ink!.**
+Our mission with this project is to make ink! development faster, safer and easier
 
-This library contains traits definition of standard tokens. Everyone who implements these traits will have the same API
-during cross contract calls. Also the library provides default implementation on Rust level
-([issue](https://github.com/Supercolony-net/openbrush-contracts/issues/5) describes why)
-which can be reused or customized by everyone.
+## Summary
+**OpenBrush is a library for smart contract development on ink!.**
 
-To understand how to use the library better to check [examples](examples) and [doc](doc) folders.
+Why using this library?
+- To make contracts **interoperable** to do **safe** cross-contracts calls (by having the same functions signature among every contracts)
+- To ensure the usage of [Polkadot Standards Proposals](https://github.com/w3f/PSPs) *[WIP]*
+- To ensure the usage of the **latest & most secure** implementation
+- Useful contracts that provides custom logic to be implemented in contracts
+- To **save time** from writing boiler-plate code
+- Useful features which can simplify development
 
-🚀 Our mission with this project is to make ink! really usable.
+Which Standard tokens & useful contracts does it provide ?
+- **Fungible Token** *ERC20 equivalent*
+- **Non-Fongible Token** *ERC721 equivalent*
+- **Multi-Token** *ERC1155 equivalent*
+- **Ownable** Restrict access to action to non-owner
+- **Roles** Define set of roles and restrict access to action by roles
+- **Reentrancy guard** Prevent reentrant calls to a function
+- **Pausable** Pause/Unpause the contract to disable/enable some operations
+- **Timelock Controller** Execute transactions with some delay
+- **Payment Splitter** Split amount of native tokens between participants
 
-## Overview
+### Modifiers
 
-### Installation
+Solidity smart contracts provides modifiers to restrain function call to certain pre-defined parameters. OpenBrush provides attribute macros to use standardised modifiers.
+You can use our useful contracts to use as modifiers, or define your own modifiers.
 
-### Usage
+```rust
+#[modifiers(only_owner)]
+fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
+    self._mint(to, id, amount);
+}
+```
 
-### ink! version
+### How to use it ?
+Read our **documentation** in [doc](doc) folders
+Go through our **examples** in [examples](examples)
 
-At the moment library is using own version of ink!, but it is the same
-as [ink!-3.0-rc4](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc4)
+## Ink version
+
+At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc4](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc4)
 with additional fixes:
 
 - [A new `metadata_name` attribute](https://github.com/paritytech/ink/pull/859)
@@ -31,27 +52,25 @@ with additional fixes:
 So if you want to use this library in the project, you must use custom version of ink! in the whole project.
 
 ### Events
-
 ‼️ Important ‼️
 
 Events are not supported currently due to how ink! currently handles them.  
-The identifiers of events must be based on the name of the trait. At the moment, ink! doesn't support it, but it must be
-fixed with this [issue](https://github.com/paritytech/ink/issues/809).
+The identifiers of events must be based on the name of the trait. At the moment, ink! doesn't support it,
+but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/809).
 
-### The library is not production-ready, these issues must be resolved first:
+### Issues to be resolved before Production ready:
+* [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/1)
+* [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/2)
 
-* [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/issues/1)
-* [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/issues/2)
+### Other Issues open:
 
-### Usage of the library looks not pretty, but it will be simplified with resolving issues:
-
-* [Returning of error doesn't mean revert of transaction](https://github.com/Supercolony-net/openbrush-contracts/issues/3)
-* [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
-* [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
-* [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
+* [Returning of error doesn't mean revert of transaction](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/3)
+* [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/4)
+* [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/5)
+* [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/8)
 
 The upgradable contract will be available after resolving of
-this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
+this [issue](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/7)
 
 ## Roadmap 🚗
 
@@ -66,15 +85,11 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 ------- Release 0.2.0
 
 - [x] Remove the boilerplate to make the internal implementation external.
--
-    - [x] Implement `brush::contract` macro to consume all brush's stuff before ink!.
--
-    - [x] Implement `brush::trait_definition` which stores definition of trait and allow to use it in `brush::contract`
-      macro.
--
-    - [x] Implement `impl_trait!` macro which reuse internal implementation in external impl section.
+- - [x] Implement `brush::contract` macro to consume all brush's stuff before ink!.
+- - [x] Implement `brush::trait_definition` which stores definition of trait and allow to use it in `brush::contract` macro.
+- - [x] Implement `impl_trait!` macro which reuse internal implementation in external impl section.
 - [x] Refactor examples and tests with new macros.
-- [x] Decide how to handle errors and implement it in library(Decided to use `panic!` and `assert!`).
+- [x] Decide how to handle errors and implement it in library (Decided to use `panic!` and `assert!`).
 
 ------- Release 0.3.0
 
@@ -82,17 +97,15 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 - [x] Cover all contracts with unit tests and integration tests.
 - [x] Create documentation based on readme. Add comments to macros with example of usage.
 - [x] Add `Ownable` + `ERC1155` example.
-- [x] Support simple modifiers(which can only call functions without code injection).
-- [x] Instead of `impl_trait!` macro add support of default implementation in external trait definition. Users can
-  define default implementation in traits and macro will copy/paste this implementation during the generation of the
-  contract.
+- [x] Support simple modifiers (which can only call functions without code injection).
+- [x] Instead of `impl_trait!` macro add support of default implementation in external trait definition.
 
 ------- Release 1.0.0
 
 - [ ] Finalize PSP for fungible tokens. Refactor of implementation.
 - [x] Support code injection in modifiers.
 - [x] Implement a reentrancy guard and example of usage.
-- [ ] Add more examples and documentation on how to use the library.
+- [x] Add more examples and documentation on how to use the library.
 
 ------- Pre-release 2.0.0
 
@@ -110,7 +123,8 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 ------- Release 3.0.0
 
-- [ ] All extensions for tokens(Pausable, TimeLockController and etc).
+- [x] Add Pausable, TimelockController and PaymentSplitter contracts.
+- [ ] All extensions for tokens.
 - [ ] Improve ink! to allow code injection to have default implementation on ink! level instead Rust level.
 - [ ] Refactor the library according to new changes.
 
