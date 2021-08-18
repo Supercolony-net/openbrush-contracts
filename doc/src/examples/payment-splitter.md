@@ -11,8 +11,8 @@ This example shows how you can reuse the implementation of
 [dependencies]
 ...
 
-payment-splitter = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+payment-splitter = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
