@@ -1,27 +1,27 @@
 ## Overview
 
 This example shows how you can reuse the implementation of
-[psp20](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp20) token(by the same way you can reuse
+[psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token(by the same way you can reuse
 [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)). Also, this example shows how you can customize
 the logic, for example, to not allow transfer tokens to `hated_account`.
 
 ## Steps
 
-1. Include dependencies `psp20` and `brush` in cargo file.
+1. Include dependencies `psp22` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
 ...
 
-psp20 = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+psp22 = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
 std = [
  ...
    
-   "psp20/std",
+   "psp22/std",
    "brush/std",
 ]
 ```
@@ -31,8 +31,8 @@ std = [
 
 ```rust
 #[brush::contract]
-pub mod my_psp20 {
-   use psp20::traits::*;
+pub mod my_psp22 {
+   use psp22::traits::*;
    use ink_storage::Lazy;
    use ink_prelude::{string::String, vec::Vec};
 ```
@@ -47,7 +47,7 @@ pub mod my_psp20 {
 #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
-    psp20: PSP22Data,
+    psp22: PSP22Data,
     #[PSP22MetadataStorageField]
     metadata: PSP22MetadataData,
 }
@@ -86,7 +86,7 @@ impl MyPSP22 {
 #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
 pub struct MyPSP22 {
    #[PSP22StorageField]
-   psp20: PSP22Data,
+   psp22: PSP22Data,
    #[PSP22MetadataStorageField]
    metadata: PSP22MetadataData,
    // fields for hater logic

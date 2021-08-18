@@ -86,7 +86,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///
 /// ```
 /// #[brush::contract]
-/// mod base_psp20 {
+/// mod base_psp22 {
 ///     use ink_prelude::collections::BTreeMap;
 ///     use brush::traits::InkStorage;
 ///     use ink_storage::traits::StorageLayout;

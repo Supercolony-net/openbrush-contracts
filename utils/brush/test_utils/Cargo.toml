@@ -5,7 +5,7 @@ edition = "2018"
 
 [dependencies]
 
-ink_env = { git = "https://github.com/Supercolony-net/ink", branch = "3.0-rc5", default-features = false }
+ink_env = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }

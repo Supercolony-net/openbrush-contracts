@@ -19,8 +19,8 @@ modifier to prevent reentrancy into certain functions. In this example we will c
 [dependencies]
 ...
 
-reentrancy-guard = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+reentrancy-guard = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 crate-type = [
     "cdylib",

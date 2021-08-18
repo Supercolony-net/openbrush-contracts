@@ -1,5 +1,5 @@
 [package]
-name = "my_access_control"
+name = "my_psp22"
 version = "0.3.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -15,14 +15,14 @@ ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/in
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
-psp721 = { path = "../../contracts/token/psp721", default-features = false }
-access-control = { path = "../../contracts/access/access-control", default-features = false }
+psp22 = { path = "../../contracts/token/psp22", default-features = false }
 brush = { path = "../../utils/brush", default-features = false }
 
 [lib]
-name = "my_access_control"
+name = "my_psp22"
 path = "lib.rs"
 crate-type = [
+    # Used for normal contract Wasm blobs.
     "cdylib",
 ]
 
@@ -38,8 +38,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-    "psp721/std",
-    "access-control/std",
+    "psp22/std",
     "brush/std",
 ]
 ink-as-dependency = []

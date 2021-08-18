@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "contracts/token/psp20",
+    "contracts/token/psp22",
     "contracts/token/psp721",
     "contracts/token/psp1155",
     "contracts/access/ownable",

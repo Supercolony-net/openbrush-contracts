@@ -37,7 +37,7 @@ mod tests {
     #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
     pub struct PSP22Struct {
         #[PSP22StorageField]
-        psp20: PSP22Data,
+        psp22: PSP22Data,
         #[PSP22MetadataStorageField]
         metadata: PSP22MetadataData,
     }
@@ -119,7 +119,7 @@ mod tests {
     #[ink::test]
     fn new_works() {
         // Constructor works.
-        let _psp20 = PSP22Struct::new(100);
+        let _psp22 = PSP22Struct::new(100);
 
         // Transfer event triggered during initial construction.
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
@@ -132,41 +132,41 @@ mod tests {
     #[ink::test]
     fn total_supply_works() {
         // Constructor works.
-        let psp20 = PSP22Struct::new(100);
+        let psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
         // Get the token total supply.
-        assert_eq!(psp20.total_supply(), 100);
+        assert_eq!(psp22.total_supply(), 100);
     }
 
     /// Get the actual balance of an account.
     #[ink::test]
     fn balance_of_works() {
         // Constructor works
-        let psp20 = PSP22Struct::new(100);
+        let psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Alice owns all the tokens on deployment
-        assert_eq!(psp20.balance_of(accounts.alice), 100);
+        assert_eq!(psp22.balance_of(accounts.alice), 100);
         // Bob does not owns tokens
-        assert_eq!(psp20.balance_of(accounts.bob), 0);
+        assert_eq!(psp22.balance_of(accounts.bob), 0);
     }
 
     #[ink::test]
     fn transfer_works() {
         // Constructor works.
-        let mut psp20 = PSP22Struct::new(100);
+        let mut psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
-        assert_eq!(psp20.balance_of(accounts.bob), 0);
+        assert_eq!(psp22.balance_of(accounts.bob), 0);
         // Alice transfers 10 tokens to Bob.
-        psp20.transfer(accounts.bob, 10, Vec::<u8>::new());
+        psp22.transfer(accounts.bob, 10, Vec::<u8>::new());
         // Bob owns 10 tokens.
-        assert_eq!(psp20.balance_of(accounts.bob), 10);
+        assert_eq!(psp22.balance_of(accounts.bob), 10);
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
@@ -185,10 +185,10 @@ mod tests {
     #[should_panic(expected = "InsufficientBalance")]
     fn invalid_transfer_should_fail() {
         // Constructor works.
-        let mut psp20 = PSP22Struct::new(100);
+        let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
-        assert_eq!(psp20.balance_of(accounts.bob), 0);
+        assert_eq!(psp22.balance_of(accounts.bob), 0);
         // Get contract address.
         let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
         // Create call
@@ -204,30 +204,30 @@ mod tests {
         );
 
         // Bob fails to transfers 10 tokens to Eve.
-        psp20.transfer(accounts.eve, 10, Vec::<u8>::new());
+        psp22.transfer(accounts.eve, 10, Vec::<u8>::new());
     }
 
     #[ink::test]
     #[should_panic(expected = "InsufficientAllowance")]
     fn transfer_from_fails() {
         // Constructor works.
-        let mut psp20 = PSP22Struct::new(100);
+        let mut psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Bob fails to transfer tokens owned by Alice.
-        psp20.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
+        psp22.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
     }
 
     #[ink::test]
     fn transfer_from_works() {
         // Constructor works.
-        let mut psp20 = PSP22Struct::new(100);
+        let mut psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Alice approves Bob for token transfers on her behalf.
-        psp20.approve(accounts.bob, 10);
+        psp22.approve(accounts.bob, 10);
 
         // The approve event takes place.
         assert_eq!(ink_env::test::recorded_events().count(), 2);
@@ -247,9 +247,9 @@ mod tests {
         );
 
         // Bob transfers tokens from Alice to Eve.
-        psp20.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
+        psp22.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
         // Eve owns tokens.
-        assert_eq!(psp20.balance_of(accounts.eve), 10);
+        assert_eq!(psp22.balance_of(accounts.eve), 10);
 
         // Check all transfer events that happened during the previous calls:
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
@@ -267,13 +267,13 @@ mod tests {
     #[ink::test]
     #[should_panic(expected = "InsufficientBalance")]
     fn allowance_must_not_change_on_failed_transfer() {
-        let mut psp20 = PSP22Struct::new(100);
+        let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Alice approves Bob for token transfers on her behalf.
-        let alice_balance = psp20.balance_of(accounts.alice);
+        let alice_balance = psp22.balance_of(accounts.alice);
         let initial_allowance = alice_balance + 2;
-        psp20.approve(accounts.bob, initial_allowance);
+        psp22.approve(accounts.bob, initial_allowance);
 
         // Get contract address.
         let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
@@ -289,6 +289,6 @@ mod tests {
             data,
         );
 
-        psp20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new());
+        psp22.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new());
     }
 }

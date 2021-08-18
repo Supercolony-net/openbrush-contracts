@@ -23,6 +23,16 @@ pub mod my_pausable {
         pub fn flip(&mut self) {
             self.flipped = !self.flipped;
         }
+
+        #[ink(message)]
+        pub fn pause(&mut self) {
+            self._pause()
+        }
+
+        #[ink(message)]
+        pub fn unpause(&mut self) {
+            self._unpause()
+        }
     }
 
     impl Pausable for MyFlipper {}

@@ -11,8 +11,8 @@ This example shows how you can reuse the implementation of
 [dependencies]
 ...
 
-pausable = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+pausable = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
@@ -78,6 +78,16 @@ impl MyFlipper {
    #[brush::modifiers(when_paused)]
    pub fn flip(&mut self) {
       self.flipped = !self.flipped;
+   }
+
+   #[ink(message)]
+   pub fn pause(&mut self) {
+      self._pause()
+   }
+
+   #[ink(message)]
+   pub fn unpause(&mut self) {
+      self._unpause()
    }
 }
 
