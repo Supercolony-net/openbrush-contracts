@@ -77,7 +77,7 @@ pub enum TimelockControllerError {
 }
 
 /// Modifier to make a function callable only by a certain role. In
-/// addition to checking the sender's role, Zero account's role is also
+/// addition to checking the sender's role, zero account's role is also
 /// considered. Granting a role to zero account is equivalent to enabling
 /// this role for everyone.
 #[modifier_definition]
@@ -92,13 +92,13 @@ where
     body(instance)
 }
 
-/// Contract module which acts as a timelocked controller. When set as the
+/// Contract module which acts as a time-locked controller. When set as the
 /// owner of an `Ownable` smart contract, it enforces a timelock on all
 /// `onlyOwner` maintenance operations. This gives time for users of the
 /// controlled contract to exit before a potentially dangerous maintenance
 /// operation is applied.
 ///
-/// By default, this contract is self administered, meaning administration tasks
+/// By default, this contract is self-administered, meaning administration tasks
 /// have to go through the timelock process. The proposer (resp executor) role
 /// is in charge of proposing (resp executing) operations. A common use case is
 /// to position this `TimelockController` as the owner of a smart contract, with
