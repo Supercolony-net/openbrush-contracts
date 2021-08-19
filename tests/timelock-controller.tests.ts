@@ -5,6 +5,10 @@ import BN from "bn.js";
 const {getRandomSigner} = patract
 const {api, getSigners} = network
 
+function getMessageAbi(contract, ident) {
+    return contract.contract.abi.messages.find(message => message.identifier === ident)!;
+}
+
 describe('MY_TIMELOCK_CONTROLLER', () => {
     async function setup() {
         const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
@@ -33,11 +37,9 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
 
 
         // Act - Bob scheduled the transaction
-        // @ts-ignore
-        let id = (await contract.query.hashOperation(transaction, null, salt)).output!;
+        let id = (await contract.query.hashOperation(transaction, undefined, salt)).output!;
         await expect(contract.query.isOperationPending(id)).to.have.output(false)
-        // @ts-ignore
-        await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
+        await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, undefined, salt, 0)).to.eventually.be.fulfilled
 
         // Assert - Operation must be scheduled, it should be in Pending state and in Ready state(because min delay is zero)
         await expect(contract.query.isOperationPending(id)).to.have.output(true)
@@ -52,7 +54,7 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
         } = await setup()
 
         // Arrange - Prepare data for execute `get_min_delay`
-        const message = contract.contract.abi.messages.find(message => message.identifier === "TimelockController,get_min_delay")!;
+        const message = getMessageAbi(contract, "TimelockController,get_min_delay");
         let transaction = {
             callee: contract.contract.address,
             selector: message.selector,
@@ -63,15 +65,12 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
         let salt = bnArg(0);
 
         // Act - Bob scheduled the transaction
-        // @ts-ignore
-        let id = (await contract.query.hashOperation(transaction, null, salt)).output!;
-        // @ts-ignore
-        await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
+        let id = (await contract.query.hashOperation(transaction, undefined, salt)).output!;
+        await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, undefined, salt, 0)).to.eventually.be.fulfilled
 
         // Assert - Transaction must be updated and now the state is Done
         await expect(contract.query.isOperationDone(id)).to.have.output(false)
-        // @ts-ignore
-        await expect(fromSigner(contract.contract, bob.address).tx.execute(transaction, null, salt)).to.eventually.be.fulfilled
+        await expect(fromSigner(contract.contract, bob.address).tx.execute(transaction, undefined, salt)).to.eventually.be.fulfilled
         await expect(contract.query.isOperationDone(id)).to.have.output(true)
     })
 
@@ -82,7 +81,7 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
         } = await setup()
 
         // Arrange - Prepare data for execute `update_delay` with a new `min_delay`
-        const message = contract.contract.abi.messages.find(message => message.identifier === "TimelockController,update_delay")!;
+        const message = getMessageAbi(contract, "TimelockController,update_delay");
         const new_min_delay = 15;
         let dataWithSelector = message.toU8a([new_min_delay]);
 
@@ -105,13 +104,11 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
         let salt = bnArg(0);
 
         // Act - Bob scheduled the transaction
-        // @ts-ignore
-        await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
+        await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, undefined, salt, 0)).to.eventually.be.fulfilled
 
         // Assert - Min delay must be updated via `execute` method
         await expect(contract.query.getMinDelay()).to.have.output(0)
-        // @ts-ignore
-        await expect(fromSigner(contract.contract, bob.address).tx.execute(transaction, null, salt)).to.eventually.be.fulfilled
+        await expect(fromSigner(contract.contract, bob.address).tx.execute(transaction, undefined, salt)).to.eventually.be.fulfilled
         await expect(contract.query.getMinDelay()).to.have.output(new_min_delay)
     })
 
@@ -131,8 +128,7 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
         let salt = bnArg(0);
 
         // Assert - Alice can't schedule the transaction
-        // @ts-ignore
-        await expect(fromSigner(contract.contract, contract.alice.address).tx.schedule(transaction, null, salt, 0)).to.eventually.be.rejected
+        await expect(fromSigner(contract.contract, contract.alice.address).tx.schedule(transaction, undefined, salt, 0)).to.eventually.be.rejected
     })
 
     it('TIMELOCK CONTROLLER - fails execute because signer is not executor', async () => {
@@ -152,12 +148,10 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
         let salt = bnArg(0);
 
         // Act - Bob scheduled the transaction
-        // @ts-ignore
-        await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
+        await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, undefined, salt, 0)).to.eventually.be.fulfilled
 
         // Assert - Alice can't execute the transaction
-        // @ts-ignore
-        await expect(fromSigner(contract.contract, contract.alice.address).tx.execute(transaction, null, salt)).to.eventually.be.rejected
+        await expect(fromSigner(contract.contract, contract.alice.address).tx.execute(transaction, undefined, salt)).to.eventually.be.rejected
     })
 
     it('TIMELOCK CONTROLLER - fails update_delay', async () => {

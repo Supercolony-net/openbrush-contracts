@@ -91,9 +91,12 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
         self.get().payees.get(index).cloned().unwrap_or(ZERO_ADDRESS.into())
     }
 
-    /// The native token received will be logged with `PaymentReceived` events. Note that these events are not fully
-    /// reliable: it's possible for a contract to receive native token without triggering this function. This only affects the
-    /// reliability of the events, and not the actual splitting of native token.
+    /// The native token received will be logged with `PaymentReceived` events.
+    /// Note that these events are not fully reliable: a contract can receive a native token
+    /// without triggering this function. This only affects the reliability of the events
+    /// and not the actual splitting of the native token.
+    ///
+    /// On success a `PayeeAdded` event is emitted.
     #[ink(message, payable)]
     fn receive(&self) {
         self._emit_payee_added_event(Self::env().caller(), Self::env().transferred_balance())
@@ -101,6 +104,8 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
 
     /// Triggers a transfer to `account` of the amount of native token they are owed, according to their percentage of the
     /// total shares and their previous withdrawals.
+    ///
+    /// On success a `PaymentReleased` event is emitted.
     #[ink(message)]
     fn release(&mut self, account: AccountId) {
         assert!(
@@ -166,6 +171,8 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
     ///
     /// All addresses in `payees` must be non-zero. Both arrays must have the same non-zero length, and there must be no
     /// duplicates in `payees`.
+    ///
+    /// Emits `PayeeAdded` on each account.
     fn _init(&mut self, payees: Vec<AccountId>, shares: Vec<Balance>) {
         assert_eq!(
             payees.len(),
