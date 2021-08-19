@@ -11,6 +11,7 @@ ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net
 ink_storage = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 proc_macros = { path = "proc_macros" }
 test_utils = { path = "test_utils", default-features = false }
+crypto = { path = "crypto", default-features = false }
 
 [lib]
 name = "brush"
@@ -27,4 +28,5 @@ std = [
     "ink_primitives/std",
     "ink_storage/std",
     "test_utils/std",
+    "crypto/std",
 ]
