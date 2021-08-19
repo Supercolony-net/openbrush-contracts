@@ -225,6 +225,8 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
 
     /// Cancel an operation.
     ///
+    /// On success a `Cancelled` event is emitted.
+    ///
     /// Note: the caller must have the 'PROPOSER_ROLE' role.
     #[ink(message)]
     #[modifiers(only_role(Self::PROPOSER_ROLE))]

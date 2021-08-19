@@ -73,6 +73,8 @@ pub trait Pausable: PausableStorage {
     fn _emit_unpaused_event(&self, _account: AccountId) {}
 
     /// Triggers stopped state.
+    ///
+    /// On success a `Paused` event is emitted.
     #[modifiers(when_not_paused)]
     fn _pause(&mut self) {
         self.get_mut().paused = true;
@@ -80,6 +82,8 @@ pub trait Pausable: PausableStorage {
     }
 
     /// Returns to normal state.
+    ///
+    /// On success a `Unpaused` event is emitted.
     #[modifiers(when_paused)]
     fn _unpause(&mut self) {
         self.get_mut().paused = false;
