@@ -1,7 +1,7 @@
 ## Overview
 
 This example shows how you can reuse the implementation of
-[psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token(by the same way you can reuse
+[psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token (in the same way you can reuse
 [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)). Also, this example shows how you can customize
 the logic, for example, to reject transfering tokens to `hated_account`.
 
