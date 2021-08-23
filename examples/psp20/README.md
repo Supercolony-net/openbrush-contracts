@@ -38,7 +38,7 @@ pub mod my_psp20 {
 ```
 
 3. Declare storage struct and declare the fields related to `PSP22Storage` and `PSP22MetadataStorage`
-   traits. Then you need to derive `PSP22Storage` and `PSP22MetadataStorage` traits and mark according fields
+   traits. Then you need to derive `PSP22Storage` and `PSP22MetadataStorage` traits and mark corresponsing fields
    with `#[PSP22StorageField]` and `#[PSP22MetadataStorageField]` attributes. Deriving these traits allow you to reuse
    the default implementation of `PSP22` and `PSP22Metadata`.
 
@@ -53,7 +53,7 @@ pub struct MyPSP22 {
 }
 ```
 
-4. After that you can inherit implementation of `PSP22` and `PSP22Metadata` traits. You can customize(override) some
+4. After that you can inherit the implementation of `PSP22` and `PSP22Metadata` traits. You can customize (override) some
    methods there.
 
 ```rust

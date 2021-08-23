@@ -28,7 +28,7 @@ std = [
 ```
 
 2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from according trait modules.
+   from corresponding trait modules.
 
 ```rust
 #[brush::contract]
@@ -40,7 +40,7 @@ pub mod my_access_control {
 ```
 
 3. Declare storage struct and declare the fields related to `PSP721Storage` and `AccessControlStorage`
-   traits. Then you need to derive `PSP721Storage` and `AccessControlStorage` traits and mark according fields
+   traits. Then you need to derive `PSP721Storage` and `AccessControlStorage` traits and mark corresponsing fields
    with `#[PSP721StorageField]` and `#[AccessControlStorageField]` attributes. Deriving these traits allow you to reuse
    the default implementation of `IPSP721` and `AccessControl`.
 
@@ -55,7 +55,7 @@ pub struct PSP721Struct {
 }
 ```
 
-4. After that you can inherit implementation of `IPSP721` and `AccessControl` traits. You can customize(override) some
+4. After that you can inherit the implementation of `IPSP721` and `AccessControl` traits. You can customize (override) some
    methods there.
 
 ```rust

@@ -27,7 +27,7 @@ pub mod my_timelock_controller {
         }
     }
 
-    // `TimelockController` is an extension for `AccessControl`, so you need to impl stuff related to both modules.
+    // `TimelockController` is an extension for `AccessControl`, so you have to implement logic related to both modules.
     impl AccessControl for TimelockStruct {}
     impl TimelockController for TimelockStruct {}
 }

@@ -43,7 +43,7 @@ pub enum PaymentSplitterError {
     TransferFailed,
 }
 
-/// This contract allows to split native token payments among a group of accounts. The sender does not need to be aware
+/// This contract allows splitting native token payments among a group of accounts. The sender does not need to be aware
 /// that the native token will be split in this way, since it is handled transparently by the contract.
 ///
 /// The split can be in equal parts or in any other arbitrary proportion. The way this is specified is by assigning each

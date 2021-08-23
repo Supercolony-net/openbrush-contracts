@@ -56,7 +56,7 @@ pub mod my_access_control {
 pub struct PSP721Struct {}
 ```
 
-4. After that you can inherit implementation of `PSP721` and `AccessControl` traits. You can customize(override) some
+4. After that you can inherit the implementation of `PSP721` and `AccessControl` traits. You can customize (override) some
    methods there.
 
 ```rust

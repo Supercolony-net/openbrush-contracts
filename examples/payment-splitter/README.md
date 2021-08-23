@@ -33,7 +33,7 @@ std = [
 ```
 
 2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from according trait modules.
+   from corresponding trait modules.
 
 ```rust
 #[brush::contract]
@@ -43,7 +43,7 @@ pub mod my_payment_splitter {
 ```
 
 3. Declare storage struct and declare the field related to `PaymentSplitterStorage`
-   Then you need to derive `PaymentSplitterStorage` trait and mark according field
+   Then you need to derive `PaymentSplitterStorage` trait and mark corresponsing field
    with `#[PaymentSplitterStorageField]` attribute. Deriving this trait allows you to reuse
    the default implementation of `PaymentSplitter`.
 
@@ -56,7 +56,7 @@ pub struct SplitterStruct {
 }
 ```
 
-4. After that you can inherit implementation of `PaymentSplitter`You can customize(override) some methods there.
+4. After that you can inherit the implementation of `PaymentSplitter`You can customize (override) some methods there.
 
 ```rust
 impl PaymentSplitter for SplitterStruct {}
