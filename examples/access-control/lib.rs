@@ -16,6 +16,10 @@ pub mod my_access_control {
         access: AccessControlData,
     }
 
+    // You can manually set the number for the role.
+    // But better to use a hash of the variable name.
+    // It will generate a unique identifier of this role.
+    // And will reduce the chance to have overlapping roles.
     const MINTER: RoleType = brush::blake2b_256_as_u32!("MINTER");
 
     impl PSP721Struct {

@@ -5,27 +5,45 @@ This example shows how you can reuse the implementation of
 
 ## Steps
 
-1. Include dependencies `timelock-controller` and `brush` in cargo file.
+1. Include dependencies to `timelock-controller` and `brush` in the cargo file.
 
 ```markdown
 [dependencies]
-...
+ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_storage = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_lang = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 
+scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+
+# These dependencies
 timelock-controller = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
 std = [
- ...
-   
+   "ink_primitives/std",
+   "ink_metadata",
+   "ink_metadata/std",
+   "ink_env/std",
+   "ink_storage/std",
+   "ink_lang/std",
+   "scale/std",
+   "scale-info",
+   "scale-info/std",
+
+   # These dependencies   
    "timelock-controller/std",
    "brush/std",
 ]
 ```
 
 2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from corresponding trait modules.
+   Import **everything** from `timelock_controller::traits`.
 
 ```rust
 #[brush::contract]
@@ -51,7 +69,7 @@ pub struct TimelockStruct {
 }
 ```
 
-4. Inherit the implementation of `TimelockController` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
+4. Inherit implementations of `TimelockController` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 // `TimelockController` is an extension for `AccessControl`, so you have to implement logic related to both modules.
@@ -59,7 +77,7 @@ impl AccessControl for TimelockStruct {}
 impl TimelockController for TimelockStruct {}
 ```
 
-5. Define constructor and your basic version of `TimelockController` contract is ready.
+5. Define constructor. Your basic version of `TimelockController` contract is ready!
 
 ```rust
 impl TimelockStruct {

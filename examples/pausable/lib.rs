@@ -19,7 +19,7 @@ pub mod my_pausable {
         }
 
         #[ink(message)]
-        #[brush::modifiers(when_paused)]
+        #[brush::modifiers(when_not_paused)]
         pub fn flip(&mut self) {
             self.flipped = !self.flipped;
         }

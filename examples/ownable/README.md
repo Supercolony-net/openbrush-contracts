@@ -6,12 +6,21 @@ This example shows how you can use the implementation of
 
 ## Steps
 
-1. Include dependencies `psp1155`, `ownable` and `brush` in cargo file.
+1. Include dependencies to `psp1155`, `ownable` and `brush` in the cargo file.
 
 ```markdown
 [dependencies]
-...
+ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_storage = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_lang = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 
+scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+
+# These dependencies
 psp1155 = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 ownable = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
@@ -19,8 +28,17 @@ brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrus
 [features]
 default = ["std"]
 std = [
- ...
-   
+   "ink_primitives/std",
+   "ink_metadata",
+   "ink_metadata/std",
+   "ink_env/std",
+   "ink_storage/std",
+   "ink_lang/std",
+   "scale/std",
+   "scale-info",
+   "scale-info/std",
+
+   # These dependencies   
    "psp1155/std",
    "ownable/std",
    "brush/std",
@@ -28,7 +46,7 @@ std = [
 ```
 
 2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from corresponding trait modules.
+   Import **everything** from `psp1155::traits` and `ownable::traits`.
 
 ```rust
 #[brush::contract]
@@ -41,7 +59,7 @@ pub mod ownable {
 
 3. Declare storage struct and declare the fields related to `PSP1155Storage` and `OwnableStorage`
    traits. Then you need to derive `PSP1155Storage` and `OwnableStorage` traits and mark corresponsing fields
-   with `#[PSP1155StorageField]` and `#[OwnableStorageField]` attributes. Deriving these traits allow you to reuse the
+   with `#[PSP1155StorageField]` and `#[OwnableStorageField]` attributes. Deriving these traits allows you to reuse the
    default implementation of `IPSP1155` and `Ownable`.
 
 ```rust
@@ -55,15 +73,15 @@ pub struct PSP1155Struct {
 }
 ```
 
-4. Inherit the implementation of `IPSP1155` and `Ownable` traits. You can customize (override) methods in this `impl` block.
+4. Inherit implementations of `IPSP1155` and `Ownable` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl Ownable for PSP1155Struct {}
 impl IPSP1155 for PSP1155Struct {}
 ```
 
-5. Define constructor to define owner as the contract initiator and your basic version
-   of `IPSP1155` contract is ready.
+5. Define constructor and initialize the owner with the contract initiator. Your basic version
+   of `IPSP1155` contract is ready!
 
 ```rust
 impl PSP1155Struct {
@@ -77,7 +95,7 @@ impl PSP1155Struct {
 }
 ```
 
-6. Customize it by adding ownable logic. We will implement `IPSP1155Mint` trait. It will call `only_owner` function inside to verify that
+6. Customize it by adding ownable logic. We will implement `IPSP1155Mint` trait. Modifier `only_owner` will call the function for us which verifies that
    caller is the owner.
 
 ```rust

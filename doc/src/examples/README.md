@@ -1,9 +1,9 @@
 ## Overview
 
-This doc contains example of how the library can be use & how to customize the base implementation.
+This doc contains examples of how the library can be used & how to customize the base implementation.
 
 * [PSP22](psp22.md) shows an example of how you can reuse the implementation of
-  [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token(by the same way you can reuse
+  [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token (in the same way you can reuse
   [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)).
 * [Access Control](access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control) and
@@ -19,7 +19,7 @@ This doc contains example of how the library can be use & how to customize the b
   contract and modifiers.
 * [TimelockController](timelock-controller.md) shows how you can use the implementation of
   [timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock-controller)
-  to execute some transaction with some delay via governance.
+  to execute a transaction with some delay via governance.
 * [PaymentSplitter](payment-splitter.md) shows how you can use the implementation of
   [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment-splitter)
   to split received native tokens between participants of the contract.

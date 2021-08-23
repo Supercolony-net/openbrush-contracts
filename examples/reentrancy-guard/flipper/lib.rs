@@ -1,8 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-/// It is stub implementation of contract with method `flip_on_me`.
+/// This is a stub implementation of contract with method `flip_on_me`.
 /// We need this implementation to create wrapper for contract's account id.
-/// With this wrapper we easy can call method of some contract.
+/// With this wrapper, we can easily call methods of some contract.
 /// Example:
 /// ```
 /// let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
@@ -69,8 +69,8 @@ pub mod my_flipper_guard {
         pub fn call_flip_on_me(&mut self, callee: AccountId) {
             // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
             // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
-            // `call_flip_on_me` and `flip` is marked with `non_reentrant` modifier. It means,
-            // that call of `flip` after `call_flip_on_me` must fails.
+            // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
+            // that call of `flip` after `call_flip_on_me` must fail.
             let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
             flipper.flip_on_me();
         }

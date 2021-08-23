@@ -2,24 +2,24 @@
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 
-Our mission with this project is to make ink! development faster, safer and easier
+Our mission with this project is to make ink! development faster, safer and easier.
 
 ## Summary
 **OpenBrush is a library for smart contract development on ink!.**
 
-Why using this library?
+Why use this library?
 - To make contracts **interoperable** to do **safe** cross-contracts calls (by having the same functions signature among every contracts)
 - To ensure the usage of [Polkadot Standards Proposals](https://github.com/w3f/PSPs) *[WIP]*
 - To ensure the usage of the **latest & most secure** implementation
-- Useful contracts that provides custom logic to be implemented in contracts
-- To **save time** from writing boiler-plate code
+- Useful contracts that provide custom logic to be implemented in contracts
+- To **save time** by not writing boilerplate code
 - Useful features which can simplify development
 
-Which Standard tokens & useful contracts does it provide ?
+Which Standard tokens & useful contracts does it provide?
 - **Fungible Token** *ERC20 equivalent*
-- **Non-Fongible Token** *ERC721 equivalent*
+- **Non-Fungible Token** *ERC721 equivalent*
 - **Multi-Token** *ERC1155 equivalent*
-- **Ownable** Restrict access to action to non-owner
+- **Ownable** Restrict access to action for non-owners
 - **Roles** Define set of roles and restrict access to action by roles
 - **Reentrancy guard** Prevent reentrant calls to a function
 - **Pausable** Pause/Unpause the contract to disable/enable some operations
@@ -38,7 +38,7 @@ fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
 }
 ```
 
-### How to use it ?
+### How to use it?
 Read our **documentation** in [doc](https://supercolony-net.github.io/openbrush-contracts).
 
 Go through our **examples** in [examples](examples)
@@ -59,7 +59,7 @@ Events are not supported currently due to how ink! currently handles them.
 The identifiers of events must be based on the name of the trait. At the moment, ink! doesn't support it,
 but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/809).
 
-### Issues to be resolved before Production ready:
+### Issues to be resolved before the library becomes production-ready:
 * [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/1)
 * [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/2)
 

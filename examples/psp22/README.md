@@ -3,31 +3,49 @@
 This example shows how you can reuse the implementation of
 [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token(by the same way you can reuse
 [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)). Also, this example shows how you can customize
-the logic, for example, to not allow transfer tokens to `hated_account`.
+the logic, for example, to reject transfering tokens to `hated_account`.
 
 ## Steps
 
-1. Include dependencies `psp22` and `brush` in cargo file.
+1. Include dependencies to `psp22` and `brush` in the cargo file.
 
 ```markdown
 [dependencies]
-...
+ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_storage = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_lang = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 
+scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+
+# These dependencies
 psp22 = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
 std = [
- ...
-   
+   "ink_primitives/std",
+   "ink_metadata",
+   "ink_metadata/std",
+   "ink_env/std",
+   "ink_storage/std",
+   "ink_lang/std",
+   "scale/std",
+   "scale-info",
+   "scale-info/std",
+
+   # These dependencies   
    "psp22/std",
    "brush/std",
 ]
 ```
 
 2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from according trait modules.
+   Import **everything** from `psp22::traits`.
 
 ```rust
 #[brush::contract]
@@ -39,7 +57,7 @@ pub mod my_psp22 {
 
 3. Declare storage struct and declare the fields related to `PSP22Storage` and `PSP22MetadataStorage`
    traits. Then you need to derive `PSP22Storage` and `PSP22MetadataStorage` traits and mark corresponsing fields
-   with `#[PSP22StorageField]` and `#[PSP22MetadataStorageField]` attributes. Deriving these traits allow you to reuse
+   with `#[PSP22StorageField]` and `#[PSP22MetadataStorageField]` attributes. Deriving these traits allows you to reuse
    the default implementation of `PSP22` and `PSP22Metadata`.
 
 ```rust
@@ -53,7 +71,7 @@ pub struct MyPSP22 {
 }
 ```
 
-4. Inherit the implementation of `PSP22` and `PSP22Metadata` traits. You can customize (override) methods in this `impl` block.
+4. Inherit implementations of `PSP22` and `PSP22Metadata` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl PSP22 for MyPSP22 {}
@@ -61,7 +79,7 @@ impl PSP22 for MyPSP22 {}
 impl PSP22Metadata for MyPSP22 {}
 ```
 
-5. Define constructor and your basic version of `PSP22` contract is ready.
+5. Define constructor. Your basic version of `PSP22` contract is ready!
 
 ```rust
 impl MyPSP22 {
@@ -78,8 +96,7 @@ impl MyPSP22 {
 ```
 
 6. Customize it by adding hated account logic. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
-   override `_before_token_transfer` method in `PSP22` implementation. And we will add a new field to structure
-   - `hated_account: AccountId`
+   override `_before_token_transfer` method in `PSP22` implementation. And we will add the `hated_account: AccountId` field to the structure.
 
 ```rust
 #[ink(storage)]

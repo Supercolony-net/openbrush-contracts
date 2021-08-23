@@ -15,6 +15,7 @@ ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/in
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
+# These dependencies
 psp1155 = { path = "../../contracts/token/psp1155", default-features = false }
 brush = { path = "../../utils/brush", default-features = false }
 

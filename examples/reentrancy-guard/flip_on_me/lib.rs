@@ -18,7 +18,7 @@ pub mod flip_on_me {
         #[ink(message)]
         pub fn flip_on_me(&mut self) {
             let caller = self.env().caller();
-            // This method will do a cross-contract call to caller account. It will try to call `flip`
+            // This method does a cross-contract call to caller contract and calls the `flip` method.
             let mut flipper: MyFlipper = FromAccountId::from_account_id(caller);
             flipper.flip();
         }

@@ -15,6 +15,7 @@ ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/in
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
+# These dependencies
 pausable = { path = "../../contracts/security/pausable", default-features = false }
 brush = { path = "../../utils/brush", default-features = false }
 
@@ -37,8 +38,9 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-    "brush/std",
 
+    # These dependencies
+    "brush/std",
     "pausable/std",
 ]
 ink-as-dependency = []
