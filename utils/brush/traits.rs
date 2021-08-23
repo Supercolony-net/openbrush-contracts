@@ -35,18 +35,18 @@ impl AccountIdExt for AccountId {
 /// This trait is automatically implemented for storage.
 pub trait Flush: ::ink_storage::traits::SpreadLayout + InkStorage {
     /// Method flushes the current state of `Self` into storage.
-    /// ink! recursively calculate the key of each field.
+    /// ink! recursively calculate a key of each field.
     /// So if you want to flush the correct state of the contract,
-    /// you must call this method on storage struct.
+    /// you have to this method on storage struct.
     fn flush(&self) {
         let root_key = ::ink_primitives::Key::from([0x00; 32]);
         ::ink_storage::traits::push_spread_root::<Self>(self, &root_key);
     }
 
     /// Method loads the current state of `Self` from storage.
-    /// ink! recursively calculate the key of each field.
+    /// ink! recursively calculate a key of each field.
     /// So if you want to load the correct state of the contract,
-    /// you must call this method on storage struct.
+    /// you have to this method on storage struct.
     fn load(&mut self) {
         let root_key = ::ink_primitives::Key::from([0x00; 32]);
         let mut state = ::ink_storage::traits::pull_spread_root::<Self>(&root_key);

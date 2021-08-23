@@ -1,44 +1,44 @@
 ## Overview
 
 This example shows how you can reuse the implementation of
-[psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token(by the same way you can reuse
-[psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)). Also, this example shows how you can customize
+[psp20](contracts/token/psp20) token(by the same way you can reuse
+[psp721](contracts/token/psp721) and [psp1155](contracts/token/psp1155)). Also, this example shows how you can customize
 the logic, for example, to not allow transfer tokens to `hated_account`.
 
 ## Steps
 
-1. Include dependencies `psp22` and `brush` in cargo file.
+1. You need to include `psp20` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
 ...
 
-psp22 = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { tag = "v0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+psp20 = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
 std = [
  ...
    
-   "psp22/std",
+   "psp20/std",
    "brush/std",
 ]
 ```
 
-2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from according trait modules.
+2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
+   from `psp20` trait module.
 
 ```rust
 #[brush::contract]
-pub mod my_psp22 {
-   use psp22::traits::*;
+pub mod my_psp20 {
+   use psp20::traits::*;
    use ink_storage::Lazy;
    use ink_prelude::{string::String, vec::Vec};
 ```
 
 3. Declare storage struct and declare the fields related to `PSP22Storage` and `PSP22MetadataStorage`
-   traits. Then you need to derive `PSP22Storage` and `PSP22MetadataStorage` traits and mark according fields
+   traits. Then you need to derive `PSP22Storage` and `PSP22MetadataStorage` traits and mark corresponsing fields
    with `#[PSP22StorageField]` and `#[PSP22MetadataStorageField]` attributes. Deriving these traits allow you to reuse
    the default implementation of `PSP22` and `PSP22Metadata`.
 
@@ -47,13 +47,14 @@ pub mod my_psp22 {
 #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
-    psp22: PSP22Data,
+    psp20: PSP22Data,
     #[PSP22MetadataStorageField]
     metadata: PSP22MetadataData,
 }
 ```
 
-4. Inherit implementation of `PSP22` and `PSP22Metadata` traits. You can customize(override) methods in this `impl` block.
+4. After that you can inherit the implementation of `PSP22` and `PSP22Metadata` traits. You can customize (override) some
+   methods there.
 
 ```rust
 impl PSP22 for MyPSP22 {}
@@ -61,7 +62,7 @@ impl PSP22 for MyPSP22 {}
 impl PSP22Metadata for MyPSP22 {}
 ```
 
-5. Define constructor and your basic version of `PSP22` contract is ready.
+5. Now you only need to define constructor and your basic version of `PSP22` contract is ready.
 
 ```rust
 impl MyPSP22 {
@@ -77,7 +78,7 @@ impl MyPSP22 {
 }
 ```
 
-6. Customize it by adding hated account logic. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
+6. Let's customize it. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
    override `_before_token_transfer` method in `PSP22` implementation. And we will add a new field to structure
    - `hated_account: AccountId`
 
@@ -86,7 +87,7 @@ impl MyPSP22 {
 #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
 pub struct MyPSP22 {
    #[PSP22StorageField]
-   psp22: PSP22Data,
+   psp20: PSP22Data,
    #[PSP22MetadataStorageField]
    metadata: PSP22MetadataData,
    // fields for hater logic
