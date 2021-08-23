@@ -61,7 +61,7 @@ pub mod my_payment_splitter {
 ```
 
 3. Declare storage struct and declare the field related to `PaymentSplitterStorage`
-   Then you need to derive `PaymentSplitterStorage` trait and mark corresponsing field
+   Then you need to derive `PaymentSplitterStorage` trait and mark corresponding field
    with `#[PaymentSplitterStorageField]` attribute. Deriving this trait allows you to reuse
    the default implementation of `PaymentSplitter`.
 

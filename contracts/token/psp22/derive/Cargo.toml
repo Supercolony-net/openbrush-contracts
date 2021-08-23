@@ -1,5 +1,5 @@
 [package]
-name = "psp20_derive"
+name = "psp22_derive"
 version = "0.3.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -11,7 +11,7 @@ proc-macro2 = "1"
 brush_derive_macro = { path = "../../../../utils/brush_derive_macro" }
 
 [lib]
-name = "psp20_derive"
+name = "psp22_derive"
 path = "lib.rs"
 proc-macro = true
 

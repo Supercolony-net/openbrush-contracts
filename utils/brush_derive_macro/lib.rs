@@ -1,3 +1,12 @@
+/// This `macro_rule` generates a procedural derive macro for storage trait.
+///
+/// The first argument is the name of the procedural function.
+/// The second argument is the name of the trait for which derive will be generated.
+/// The third argument is the name of the marker for the derive macro. This marker specifies
+/// for derive macro which field will be returned by the implementation for the storage trait.
+///
+/// An example of the usage of this macro can be found in `derive` folder of any contract
+/// implemented by this library. For example [OwnableStorage](ownable_derive::OwnableStorage).
 #[macro_export]
 macro_rules! declare_derive_storage_trait {
     ($derive_name:ident,$trait_name:ident,$trait_field_specifier:ident) => {

@@ -2,14 +2,14 @@
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
 pub use self::{
-    psp20::PSP22,
-    psp20metadata::PSP22Metadata,
+    psp22::PSP22,
+    psp22metadata::PSP22Metadata,
 };
 
 pub use self::psp22receiver::PSP22Receiver;
 
 #[ink_lang::contract(compile_as_dependency = true)]
-mod psp20 {
+mod psp22 {
     use ink_prelude::vec::Vec;
 
     #[derive(Default)]
@@ -68,7 +68,7 @@ mod psp20 {
 }
 
 #[ink_lang::contract(compile_as_dependency = true)]
-mod psp20metadata {
+mod psp22metadata {
     use ink_prelude::string::String;
 
     #[derive(Default)]

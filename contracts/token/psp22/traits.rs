@@ -20,7 +20,7 @@ use ink_storage::{
     traits::SpreadLayout,
     Lazy,
 };
-pub use psp20_derive::{
+pub use psp22_derive::{
     PSP22MetadataStorage,
     PSP22Storage,
 };
@@ -253,10 +253,13 @@ pub trait PSP22: PSP22Storage {
 
         let from_balance = self.balance_of(from);
         assert!(from_balance >= amount, "{}", PSP22Error::InsufficientBalance.as_ref());
+
+        self._do_safe_transfer_check(from, to, amount, data);
+
         self.get_mut().balances.insert(from, from_balance - amount);
         let to_balance = self.balance_of(to);
         self.get_mut().balances.insert(to, to_balance + amount);
-        self._do_safe_transfer_check(from, to, amount, data);
+
         self._emit_transfer_event(Some(from), Some(to), amount);
     }
 

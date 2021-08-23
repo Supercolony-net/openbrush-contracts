@@ -1,8 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[brush::contract]
-pub mod my_psp20 {
-    use psp20::traits::*;
+pub mod my_psp22 {
+    use psp22::traits::*;
     use ink_storage::Lazy;
     use ink_prelude::{string::String, vec::Vec};
 
@@ -10,7 +10,7 @@ pub mod my_psp20 {
     #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
     pub struct MyPSP22 {
         #[PSP22StorageField]
-        psp20: PSP22Data,
+        psp22: PSP22Data,
         #[PSP22MetadataStorageField]
         metadata: PSP22MetadataData,
         // fields for hater logic

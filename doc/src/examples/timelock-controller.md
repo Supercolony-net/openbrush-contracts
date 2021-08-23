@@ -52,9 +52,9 @@ pub mod my_timelock_controller {
    use ink_prelude::vec::Vec;
 ```
 
-3. `TimelockController` is an extension for `AccessControl`, so you have to implement logic related to both modules.
+3. `TimelockController` is an extension for `AccessControl`, so you need to impl stuff related to both modules.
    Declare storage struct and declare the fields related to `TimelockControllerStorage` and `AccessControlStorage`.
-   Then you need to derive `TimelockControllerStorage` and `AccessControlStorage` traits and mark corresponsing fields
+   Then you need to derive `TimelockControllerStorage` and `AccessControlStorage` traits and mark corresponding fields
    with `#[TimelockControllerStorageField]` and `#[AccessControlStorageField]` attributes. 
    Deriving these traits allows you to reuse the default implementation of `TimelockController`(and `AccessControl`).
 
@@ -72,7 +72,7 @@ pub struct TimelockStruct {
 4. Inherit implementations of `TimelockController` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
-// `TimelockController` is an extension for `AccessControl`, so you have to implement logic related to both modules.
+// `TimelockController` is an extension for `AccessControl`, so you need to impl stuff related to both modules.
 impl AccessControl for TimelockStruct {}
 impl TimelockController for TimelockStruct {}
 ```

@@ -2,7 +2,7 @@
 
 #[brush::contract]
 pub mod erc20_receiver {
-    use psp20::traits::*;
+    use psp22::traits::*;
     use ink_prelude::{string::String, vec::Vec};
 
     #[ink(storage)]

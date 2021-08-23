@@ -1,5 +1,5 @@
 [package]
-name = "my_ownable"
+name = "psp22_receiver"
 version = "0.3.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -16,12 +16,11 @@ scale = { package = "parity-scale-codec", version = "2.1", default-features = fa
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-psp1155 = { path = "../../contracts/token/psp1155", default-features = false }
-ownable = { path = "../../contracts/access/ownable", default-features = false }
+psp22 = { path = "../../contracts/token/psp22", default-features = false }
 brush = { path = "../../utils/brush", default-features = false }
 
 [lib]
-name = "my_ownable"
+name = "psp22_receiver"
 path = "lib.rs"
 crate-type = [
     "cdylib",
@@ -39,10 +38,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-
-    # These dependencies
-    "psp1155/std",
-    "ownable/std",
+    "psp22/std",
     "brush/std",
 ]
 ink-as-dependency = []

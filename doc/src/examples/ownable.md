@@ -58,7 +58,7 @@ pub mod ownable {
 ```
 
 3. Declare storage struct and declare the fields related to `PSP1155Storage` and `OwnableStorage`
-   traits. Then you need to derive `PSP1155Storage` and `OwnableStorage` traits and mark corresponsing fields
+   traits. Then you need to derive `PSP1155Storage` and `OwnableStorage` traits and mark corresponding fields
    with `#[PSP1155StorageField]` and `#[OwnableStorageField]` attributes. Deriving these traits allows you to reuse the
    default implementation of `IPSP1155` and `Ownable`.
 
