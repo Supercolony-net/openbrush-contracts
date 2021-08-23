@@ -30,9 +30,9 @@ pub mod my_psp20 {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
             let mut instance = Self::default();
-            instance.metadata.name = Lazy::new(name);
-            instance.metadata.symbol = Lazy::new(symbol);
-            instance.metadata.decimals = Lazy::new(decimal);
+            Lazy::set(&mut instance.metadata.name, name);
+            Lazy::set(&mut instance.metadata.symbol,symbol);
+            Lazy::set(&mut instance.metadata.decimals,decimal);
             instance._mint(instance.env().caller(), _total_supply);
             instance
         }

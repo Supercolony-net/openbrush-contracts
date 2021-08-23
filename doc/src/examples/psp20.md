@@ -51,7 +51,7 @@ pub mod my_psp20 {
 pub struct MyPSP22 {}
 ```
 
-4. After that you can inherit implementation of `PSP22` trait. You can customize(override) some methods there.
+4. After that you can inherit the implementation of `PSP22` trait. You can customize (override) some methods there.
 
 ```rust
 // InkStorage is a utils trait required by any Storage trait

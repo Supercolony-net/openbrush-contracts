@@ -1,6 +1,7 @@
 extern crate proc_macro;
 
 use ink_lang_ir::Callable;
+use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -10,7 +11,15 @@ use std::{
     collections::HashMap,
     convert::TryFrom,
 };
-use syn::ItemImpl;
+use syn::{
+    ext::IdentExt,
+    parenthesized,
+    parse::{
+        Parse,
+        ParseStream,
+    },
+    ItemImpl,
+};
 
 use crate::{
     metadata::Metadata,
@@ -23,10 +32,107 @@ use crate::{
 
 pub(crate) const BRUSH_PREFIX: &'static str = "__brush";
 
+pub(crate) struct MetaList {
+    pub path: syn::Path,
+    pub _paren_token: syn::token::Paren,
+    pub nested: syn::punctuated::Punctuated<TokenStream2, syn::Token![,]>,
+}
+
+// Like Path::parse_mod_style but accepts keywords in the path.
+fn parse_meta_path(input: ParseStream) -> syn::Result<syn::Path> {
+    Ok(syn::Path {
+        leading_colon: input.parse()?,
+        segments: {
+            let mut segments = syn::punctuated::Punctuated::new();
+            while input.peek(syn::Ident::peek_any) {
+                let ident = syn::Ident::parse_any(input)?;
+                segments.push_value(syn::PathSegment::from(ident));
+                if !input.peek(syn::Token![::]) {
+                    break
+                }
+                let punct = input.parse()?;
+                segments.push_punct(punct);
+            }
+            if segments.is_empty() {
+                return Err(input.error("expected path"))
+            } else if segments.trailing_punct() {
+                return Err(input.error("expected path segment"))
+            }
+            segments
+        },
+    })
+}
+
+fn parse_meta_list_after_path(path: syn::Path, input: ParseStream) -> syn::Result<MetaList> {
+    let content;
+    Ok(MetaList {
+        path,
+        _paren_token: parenthesized!(content in input),
+        nested: content.parse_terminated(TokenStream2::parse)?,
+    })
+}
+
+fn parse_meta_after_path(path: syn::Path, input: ParseStream) -> syn::Result<NestedMeta> {
+    if input.peek(syn::token::Paren) {
+        parse_meta_list_after_path(path, input).map(NestedMeta::List)
+    } else {
+        Ok(NestedMeta::Path(path))
+    }
+}
+
+impl Parse for MetaList {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let path = input.call(parse_meta_path)?;
+        parse_meta_list_after_path(path, input)
+    }
+}
+
+pub(crate) enum NestedMeta {
+    Path(syn::Path),
+    List(MetaList),
+}
+
+impl Parse for NestedMeta {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let path = input.call(parse_meta_path)?;
+        parse_meta_after_path(path, input)
+    }
+}
+
+pub(crate) struct AttributeArgs(Vec<NestedMeta>);
+
+impl Parse for AttributeArgs {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let mut attrs = Vec::new();
+        while input.peek(syn::Ident::peek_any) {
+            attrs.push(input.parse()?);
+            if input.is_empty() {
+                break
+            }
+            let _: syn::token::Comma = input.parse()?;
+        }
+        Ok(AttributeArgs { 0: attrs })
+    }
+}
+
+impl std::ops::Deref for AttributeArgs {
+    type Target = Vec<NestedMeta>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for AttributeArgs {
+    fn deref_mut(&mut self) -> &mut Vec<NestedMeta> {
+        &mut self.0
+    }
+}
+
 pub(crate) struct Attributes(Vec<syn::Attribute>);
 
-impl syn::parse::Parse for Attributes {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+impl Parse for Attributes {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
         Ok(Self(syn::Attribute::parse_outer(input)?))
     }
 }
@@ -187,6 +293,7 @@ pub(crate) fn is_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> bool {
 }
 
 #[inline]
+#[allow(dead_code)]
 pub(crate) fn get_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> Option<syn::Attribute> {
     for attr in attrs.iter() {
         if is_attr(&vec![attr.clone()], ident) {
@@ -219,4 +326,30 @@ pub(crate) fn extract_attr(attrs: &mut Vec<syn::Attribute>, ident: &str) -> Vec<
 #[inline]
 pub(crate) fn new_attribute(attr_stream: TokenStream2) -> syn::Attribute {
     syn::parse2::<Attributes>(attr_stream).unwrap().attr()[0].clone()
+}
+
+/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.
+#[inline]
+pub fn blake2b_256(input: &[u8], output: &mut [u8]) {
+    use ::blake2::digest::{
+        Update as _,
+        VariableOutput as _,
+    };
+    let mut blake2 = blake2::VarBlake2b::new_keyed(&[], 32);
+    blake2.update(input);
+    blake2.finalize_variable(|result| output.copy_from_slice(result));
+}
+
+#[inline]
+pub(crate) fn blake2b_256_str(input: String) -> [u8; 32] {
+    let mut output: [u8; 32] = [0; 32];
+    blake2b_256(&input.into_bytes(), &mut output);
+    output
+}
+
+#[inline]
+pub(crate) fn sanitize_to_str(input: TokenStream) -> String {
+    let mut str = input.to_string();
+    // Remove quotes rom the string
+    str.drain(1..str.len() - 1).collect()
 }

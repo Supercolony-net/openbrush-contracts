@@ -38,7 +38,7 @@ mod tests {
         pub fn temp(&self) {}
     }
 
-    impl IOwnable for MyOwnable {
+    impl Ownable for MyOwnable {
         fn _emit_ownership_transferred_event(&self, previous_owner: Option<AccountId>, new_owner: Option<AccountId>) {
             self.env().emit_event(OwnershipTransferred {
                 previous_owner,

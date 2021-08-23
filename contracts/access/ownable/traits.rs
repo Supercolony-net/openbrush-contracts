@@ -50,11 +50,11 @@ where
 /// there is an account (an owner) that can be granted exclusive access to
 /// specific functions.
 ///
-/// This module is used through embedding of `OwnableData` and implementation of `IOwnable` and
+/// This module is used through embedding of `OwnableData` and implementation of `Ownable` and
 /// `OwnableStorage` traits. It will make available the modifier `only_owner`, which can be applied
 /// to your functions to restrict their use to the owner.
 #[brush::trait_definition]
-pub trait IOwnable: OwnableStorage + Sized {
+pub trait Ownable: OwnableStorage {
     /// Returns the address of the current owner.
     #[ink(message)]
     fn owner(&self) -> AccountId {
@@ -62,7 +62,7 @@ pub trait IOwnable: OwnableStorage + Sized {
     }
 
     /// Leaves the contract without owner. It will not be possible to call
-    /// `onlyOwner` functions anymore. Can only be called by the current owner.
+    /// `only_owner` functions anymore. Can only be called by the current owner.
     ///
     /// NOTE: Renouncing ownership will leave the contract without an owner,
     /// thereby removing any functionality that is only available to the owner.

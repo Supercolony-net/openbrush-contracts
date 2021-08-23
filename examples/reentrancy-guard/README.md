@@ -1,6 +1,6 @@
 ## Overview
 
-This example shows how you can use the [non_reentrant](contracts/security/reentrancy_guard)
+This example shows how you can use the [non_reentrant](contracts/security/reentrancy-guard)
 modifier to prevent reentrancy into certain functions. In this example we will create two contracts:
 
 - `my_flipper_guard` - is contract of simple [flipper](https://github.com/paritytech/ink/tree/master/examples/flipper)
@@ -13,13 +13,13 @@ modifier to prevent reentrancy into certain functions. In this example we will c
 
 ### Steps
 
-1. You need to include `reentrancy_guard` and `brush` in cargo file.
+1. You need to include `reentrancy-guard` and `brush` in cargo file.
 
 ```markdown
 [dependencies]
 ...
 
-reentrancy_guard = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+reentrancy-guard = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 brush = { version = "0.3.0-rc1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 crate-type = [
@@ -38,7 +38,7 @@ std = [
 ```
 
 2. To declare the contract, you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from `reentrancy_guard` trait module.
+   from `reentrancy-guard` trait module.
 
 ```rust
 #[brush::contract]
@@ -63,7 +63,7 @@ pub struct MyFlipper {
 }
 ```
 
-4. After that you can add `reentrancy_guard` modifier to `flip` and `call_flip_on_me` methods.
+4. After that you can add `non_reentrant` modifier to `flip` and `call_flip_on_me` methods.
 
 ```rust
 impl MyFlipper {
@@ -180,6 +180,6 @@ my_flipper_guard = { path = "../flipper", default - features = false, features =
 
 ## Testing
 
-For testing, you can run according [integration test](tests/reentrancy_guard.tests.ts). Or you need to deploy both
+For testing, you can run according [integration test](tests/reentrancy-guard.tests.ts). Or you need to deploy both
 contracts and call `call_flip_on_me` on `MyFlipper`
 account and pass the account id of `FlipOnMe` contract.

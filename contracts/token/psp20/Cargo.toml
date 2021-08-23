@@ -40,4 +40,3 @@ std = [
     "brush/std",
     "psp20_derive/std",
 ]
-ink-as-dependency = []

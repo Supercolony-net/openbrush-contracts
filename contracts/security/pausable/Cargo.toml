@@ -1,5 +1,5 @@
 [package]
-name = "reentrancy_guard"
+name = "pausable"
 version = "0.3.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -17,10 +17,10 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 
 strum_macros = "0.21.1"
 brush = { path = "../../../utils/brush", default-features = false }
-reentrancy_guard_derive = { path = "./derive" }
+pausable_derive = { path = "./derive" }
 
 [lib]
-name = "reentrancy_guard"
+name = "pausable"
 path = "lib.rs"
 crate-type = [
     "rlib",
@@ -37,5 +37,3 @@ std = [
     "scale-info/std",
     "brush/std",
 ]
-
-ink-as-dependency = []

@@ -28,7 +28,7 @@ std = [
 ```
 
 2. To declare the contract you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from according trait modules.
+   from corresponding trait modules.
 
 ```rust
 #[brush::contract]
@@ -40,9 +40,9 @@ pub mod ownable {
 ```
 
 3. Declare storage struct and declare the fields related to `PSP1155Storage` and `OwnableStorage`
-   traits. Then you need to derive `PSP1155Storage` and `OwnableStorage` traits and mark according fields
+   traits. Then you need to derive `PSP1155Storage` and `OwnableStorage` traits and mark corresponsing fields
    with `#[PSP1155StorageField]` and `#[OwnableStorageField]` attributes. Deriving these traits allow you to reuse the
-   default implementation of `IPSP1155` and `IOwnable`.
+   default implementation of `IPSP1155` and `Ownable`.
 
 ```rust
 #[ink(storage)]
@@ -55,11 +55,11 @@ pub struct PSP1155Struct {
 }
 ```
 
-4. After that you can inherit implementation of `IPSP1155` and `IOwnable` traits. You can customize(override) some
+4. After that you can inherit the implementation of `IPSP1155` and `Ownable` traits. You can customize (override) some
    methods there.
 
 ```rust
-impl IOwnable for PSP1155Struct {}
+impl Ownable for PSP1155Struct {}
 impl IPSP1155 for PSP1155Struct {}
 ```
 
