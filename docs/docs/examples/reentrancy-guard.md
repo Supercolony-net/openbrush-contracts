@@ -1,4 +1,7 @@
-## Overview
+---
+sidebar_position: 4
+title: Reentrancy Guard
+---
 
 This example shows how you can use the [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy-guard)
 modifier to prevent reentrancy into certain functions. In this example we will create two contracts:
@@ -11,11 +14,11 @@ modifier to prevent reentrancy into certain functions. In this example we will c
 
 ## MyFlipper
 
-### Steps
+### Step 1: Include dependencies
 
-1. Include dependencies to `reentrancy-guard` and `brush` in the cargo file.
+Include dependencies to `reentrancy-guard` and `brush` in the cargo file.
 
-```markdown
+```toml
 [dependencies]
 ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
@@ -58,8 +61,10 @@ std = [
 ink-as-dependency = []
 ```
 
-2. To declare the contract, you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-   from `reentrancy-guard` trait module.
+### Step 2: Add imports
+
+To declare the contract, you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
+from `reentrancy-guard` trait module.
 
 ```rust
 #[brush::contract]
@@ -70,9 +75,12 @@ pub mod my_flipper_guard {
     use crate::flip_on_me::CallerOfFlip;
 ```
 
-3. Declare storage struct and declare the field for `ReentrancyGuardStorage` trait. Then you need to
-   derive `ReentrancyGuardStorage` trait and mark the field with `#[ReentrancyGuardStorageField]` attribute. Deriving
-   this trait allows you to use `non_reentrant` modifier.
+
+### Step 3: Define storage
+
+Declare storage struct and declare the field for `ReentrancyGuardStorage` trait. Then you need to
+derive `ReentrancyGuardStorage` trait and mark the field with `#[ReentrancyGuardStorageField]` attribute. Deriving
+this trait allows you to use `non_reentrant` modifier.
 
 ```rust
 #[ink(storage)]
@@ -84,7 +92,9 @@ pub struct MyFlipper {
 }
 ```
 
-4. After that you can add `non_reentrant` modifier to `flip` and `call_flip_on_me` methods.
+### Step 4: Add modifiers
+
+After that you can add `non_reentrant` modifier to `flip` and `call_flip_on_me` methods.
 
 ```rust
 impl MyFlipper {
@@ -117,9 +127,11 @@ impl MyFlipper {
 }
 ```
 
-5. To simplify cross contract call to `FlipOnMe` contract let's create a wrapper around the contract's account id.
-   For that, we will define another contract in this crate with `#[ink_lang::contract(compile_as_dependency = true)]`
-   and empty methods but with the same signature as in the original contract.
+### Step 5: Add stub contract
+
+To simplify cross contract call to `FlipOnMe` contract let's create a wrapper around the contract's account id.
+For that, we will define another contract in this crate with `#[ink_lang::contract(compile_as_dependency = true)]`
+and empty methods but with the same signature as in the original contract.
 
 ```rust
 /// This is a stub implementation of contract with method `flip_on_me`.
@@ -155,9 +167,9 @@ pub mod flip_on_me {
 
 It's a simple contract that doesn't use any logic from the OpenBrush, so you can use simple ink! here.
 
-### Steps
+### Step 1: Define `FlipOnMe` contract
 
-1. Define `FlipOnMe` contract. It has the only method `flip_on_me`, which will call `flip` on caller.
+It has the only method `flip_on_me`, which will call `flip` on caller.
 
 ```rust
 #[ink_lang::contract]
@@ -186,9 +198,11 @@ pub mod flip_on_me {
 }
 ```
 
-2. To simplify cross-contract call to `MyFlipper` you need to import the contract with `ink-as-dependency` feature.
+### Step 2: Include dependencies
 
-```rust
+To simplify cross-contract call to `MyFlipper` you need to import the contract with `ink-as-dependency` feature.
+
+```toml
 [dependencies]
 ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }

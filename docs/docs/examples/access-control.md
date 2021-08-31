@@ -1,14 +1,17 @@
-## Overview
+---
+sidebar_position: 2
+title: Access Control & PSP721
+---
 
 This example shows how you can use the implementation of
 [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control) and
 [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) together to provide rights to mint and burn NFT tokens.
 
-## Steps
+## Step 1: Include dependencies
 
-1. Include dependencies to `psp721`, `access-control` and `brush` in the cargo file.
+Include dependencies to `psp721`, `access-control` and `brush` in the cargo file.
 
-```markdown
+```toml
 [dependencies]
 ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
@@ -28,16 +31,17 @@ brush = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-co
 [features]
 default = ["std"]
 std = [
-...
-
+   # Other features ...
+   
    "psp721/std",
    "access-control/std",
    "brush/std",
 ]
 ```
 
-2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from `psp721::traits` and `access_control::traits`.
+## Step 2: Add imports
+
+Replace `ink::contract` macro by `brush::contract`. Import **everything** from `psp721::traits` and `access_control::traits`.
 
 ```rust
 #[brush::contract]
@@ -48,10 +52,12 @@ pub mod my_access_control {
    use ink_prelude::vec::Vec;
 ```
 
-3. Declare storage struct and declare the fields related to `PSP721Storage` and `AccessControlStorage`
-   traits. Then you need to derive `PSP721Storage` and `AccessControlStorage` traits and mark corresponding fields
-   with `#[PSP721StorageField]` and `#[AccessControlStorageField]` attributes. Deriving these traits allows you to reuse
-   the default implementation of `IPSP721` and `AccessControl`.
+## Step 3: Define storage
+
+Declare storage struct and declare the fields related to `PSP721Storage` and `AccessControlStorage`
+traits. Then you need to derive `PSP721Storage` and `AccessControlStorage` traits and mark corresponding fields 
+with `#[PSP721StorageField]` and `#[AccessControlStorageField]` attributes. Deriving these traits allows you to reuse
+the default implementation of `IPSP721` and `AccessControl`.
 
 ```rust
 #[ink(storage)]
@@ -64,7 +70,9 @@ pub struct PSP721Struct {
 }
 ```
 
-4. Inherit implementations of `IPSP721` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
+## Step 4: Inherit logic
+
+Inherit implementations of `IPSP721` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl IPSP721 for PSP721Struct {}
@@ -72,7 +80,9 @@ impl IPSP721 for PSP721Struct {}
 impl AccessControl for PSP721Struct {}
 ```
 
-5. Define constructor. Your basic version of `IPSP721` contract is ready!
+## Step 5: Define constructor
+
+Define constructor. Your basic version of `IPSP721` contract is ready!
 
 ```rust
 impl PSP721Struct {
@@ -83,8 +93,10 @@ impl PSP721Struct {
 }
 ```
 
-6. Customize it by adding access control logic. We will implement `IPSP721Mint` trait. It will use modifier `only_minter`(it verifies that caller
-   has the minter role). Also, we need to update the constructor to grant the minter role to the caller by default.
+## Step 6: Customize your contract
+
+Customize it by adding access control logic. We will implement `IPSP721Mint` trait. It will use modifier `only_minter`(it verifies that caller
+has the minter role). Also, we need to update the constructor to grant the minter role to the caller by default.
 
 ```rust
 // You can manually set the number for the role. 

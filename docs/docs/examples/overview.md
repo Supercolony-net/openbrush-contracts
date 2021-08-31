@@ -1,4 +1,7 @@
-## Overview
+---
+sidebar_position: 1
+title: Overview
+---
 
 This doc contains examples of how the library can be used & how to customize the base implementation.
 

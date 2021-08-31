@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+title: Deploy
+---
+
 ## Deployment of ink! based smart contracts
 
 This document contains description of how to deploy and test smart contracts locally and in testnet.

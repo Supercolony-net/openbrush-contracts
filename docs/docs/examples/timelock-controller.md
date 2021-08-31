@@ -1,13 +1,16 @@
-## Overview
+---
+sidebar_position: 7
+title: Timelock Controller
+---
 
 This example shows how you can reuse the implementation of
 [timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock-controller).
 
-## Steps
+## Step 1: Include dependencies
 
-1. Include dependencies to `timelock-controller` and `brush` in the cargo file.
+Include dependencies to `timelock-controller` and `brush` in the cargo file.
 
-```markdown
+```toml
 [dependencies]
 ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
@@ -42,8 +45,10 @@ std = [
 ]
 ```
 
-2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from `timelock_controller::traits`.
+## Step 2: Add imports
+
+Replace `ink::contract` macro by `brush::contract`.
+Import **everything** from `timelock_controller::traits`.
 
 ```rust
 #[brush::contract]
@@ -52,11 +57,13 @@ pub mod my_timelock_controller {
    use ink_prelude::vec::Vec;
 ```
 
-3. `TimelockController` is an extension for `AccessControl`, so you need to impl stuff related to both modules.
-   Declare storage struct and declare the fields related to `TimelockControllerStorage` and `AccessControlStorage`.
-   Then you need to derive `TimelockControllerStorage` and `AccessControlStorage` traits and mark corresponding fields
-   with `#[TimelockControllerStorageField]` and `#[AccessControlStorageField]` attributes. 
-   Deriving these traits allows you to reuse the default implementation of `TimelockController`(and `AccessControl`).
+## Step 3: Define storage
+
+`TimelockController` is an extension for `AccessControl`, so you need to impl stuff related to both modules.
+Declare storage struct and declare the fields related to `TimelockControllerStorage` and `AccessControlStorage`.
+Then you need to derive `TimelockControllerStorage` and `AccessControlStorage` traits and mark corresponding fields
+with `#[TimelockControllerStorageField]` and `#[AccessControlStorageField]` attributes. 
+Deriving these traits allows you to reuse the default implementation of `TimelockController`(and `AccessControl`).
 
 ```rust
 #[ink(storage)]
@@ -69,7 +76,9 @@ pub struct TimelockStruct {
 }
 ```
 
-4. Inherit implementations of `TimelockController` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
+## Step 4: Inherit logic
+
+Inherit implementations of `TimelockController` and `AccessControl` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 // `TimelockController` is an extension for `AccessControl`, so you need to impl stuff related to both modules.
@@ -77,7 +86,9 @@ impl AccessControl for TimelockStruct {}
 impl TimelockController for TimelockStruct {}
 ```
 
-5. Define constructor. Your basic version of `TimelockController` contract is ready!
+## Step 5: Define constructor
+
+Define constructor. Your basic version of `TimelockController` contract is ready!
 
 ```rust
 impl TimelockStruct {

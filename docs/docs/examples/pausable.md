@@ -1,13 +1,16 @@
-## Overview
+---
+sidebar_position: 5
+title: Pausable
+---
 
 This example shows how you can reuse the implementation of
 [pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/pausable) in `Flipper` contract to `flip` only if the contract is not paused.
 
-## Steps
+## Step 1: Include dependencies
 
-1. Include dependencies to `pausable` and `brush` in the cargo file.
+Include dependencies to `pausable` and `brush` in the cargo file.
 
-```markdown
+```toml
 [dependencies]
 ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
@@ -42,8 +45,10 @@ std = [
 ]
 ```
 
-2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from `pausable::traits`.
+## Step 2: Add imports
+
+Replace `ink::contract` macro by `brush::contract`.
+Import **everything** from `pausable::traits`.
 
 ```rust
 #[brush::contract]
@@ -51,10 +56,12 @@ pub mod my_pausable {
    use pausable::traits::*;
 ```
 
-3. Declare storage struct and declare the field related to `PausableStorage`
-   Then you need to derive `PausableStorage` trait and mark corresponding field
-   with `#[PausableStorageField]` attribute. Deriving this trait allows you to reuse
-   the default implementation of `Pausable`.
+## Step 3: Define storage
+
+Declare storage struct and declare the field related to `PausableStorage`.
+Then you need to derive `PausableStorage` trait and mark corresponding field
+with `#[PausableStorageField]` attribute. Deriving this trait allows you to reuse
+the default implementation of `Pausable`.
 
 ```rust
 #[ink(storage)]
@@ -66,13 +73,17 @@ pub struct MyFlipper {
 }
 ```
 
-4. Inherit the implementation of `Pausable`. You can customize (override) methods in this `impl` block.
+## Step 4: Inherit logic
+
+Inherit the implementation of `Pausable`. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl Pausable for MyFlipper {}
 ```
 
-5. Define constructor. Your basic version of `Pausable` contract is ready!
+## Step 5: Define constructor
+
+Define constructor. Your basic version of `Pausable` contract is ready!
 
 ```rust
 impl MyFlipper {
@@ -83,7 +94,9 @@ impl MyFlipper {
 }
 ```
 
-6. Customize it by adding flipper logic. We will implement `flip` method marked with `when_not_paused` modifier.
+## Step 6: Customize your contract
+
+Customize it by adding flipper logic. We will implement `flip` method marked with `when_not_paused` modifier.
 
 ```rust
 impl MyFlipper {

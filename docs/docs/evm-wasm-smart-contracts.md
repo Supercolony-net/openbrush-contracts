@@ -1,11 +1,16 @@
-## Comparison of EVM Smart Contracts & Substrate WASM Smart contracts
+---
+sidebar_position: 5
+title: EVM vs WASM Smart Contracts
+---
 
-### EVM
+This short article describes differences between EVM Smart Contracts & Substrate WASM Smart contracts.
 
-##### Background
+## EVM
+
+### Background
 Ethereum was the first Turing-complete blockchain and was mainly developed because of limitations of Bitcoin's script. In order to execute smart contracts, a sandbox environment is needed. The sandbox environment where Smart contracts are executed in Ethereum is the  **Ethereum virtual machine** (*EVM*)
 
-##### Bytecode
+### Bytecode
 EVM uses a stack-based bytecode language called EVM bytecode. EVM bytecode is a series of OP_CODEs (instructions) that are executed by the EVM. These OP_CODEs offer rather limited instructions compared to a full-blown language (Java, WASM, ..)
 
 The primitive of the bytecode is *256-bit* integer, which can be a big limitation, as it is needed to use *256-bit* integers to do calculations on even small numbers. Moreover, it will take 256 bits of memory for any value that is stored in persistent storage.
@@ -14,28 +19,28 @@ The main OP_CODEs are **SLOAD** to load data, **SSTORE** to write a *256-bit* in
 
 ![image info](pictures/eth-1.png)
 
-##### Gas model
+### Gas model
 The incentive model of interacting with EVM is gas. It acts like a fee that is calculated for each instruction someone executes. Every instruction has a certain pre-calculated fee amount, and the total gas spent is the sum of all the instructions that were executed.
 
 Please check the entire table of [fees](https://blockgeeks.com/wp-content/uploads/2018/03/image2-2.png)
 A gas fee is only due when interacting with EVM. There is no charge for the space you are using for storage, and it results in having a ton of dead code (or non-used contracts) stay on Ethereum chain forever.
 
-##### Evm process
+### Evm process
 
 ![image info](pictures/eth2.png)
 
-### Substrate Contract-Pallet
+## Substrate Contract-Pallet
 
-##### Intro
+### Intro
 `pallet-contract` is a module in Substrate (the framework to build blockchain on `Polkadot`). Its purpose is a sandbox environment, which provides WASM interpreter and allows executing WASM smart contracts.
 
 ![image info](pictures/WASM1.png)
 
-##### WASM interpreter
+### WASM interpreter
 
 At the moment, contract pallet uses [wasmi](https://github.com/paritytech/wasmi) as the interpreter. Wasmi is a pure interpreter-type WASM virtual machine. It is used because execution of smart contract needs a high degree of correctness.
 
-##### Storage rent & Gas
+### Storage rent & Gas
 
 In order to incentive the deletion of unused code on chain, pallet-contract implemented a storage-rent principle.  
 
@@ -43,7 +48,7 @@ Every smart contract will have a rent to pay for its code and on-chain storage (
 
 The gas system of ethereum (price depending on the complexity of the computation) is still present in Substrate, but the gas is charged after the call is executed, as it is basically a fee on the time of execution (the more time it takes for the node to execute a call, the more caller will pay). The `pallet-contract` defines the [amount of gas](https://substrate.dev/docs/en/knowledgebase/smart-contracts/contracts-pallet)
 
-##### Contract code & instance are decoupled
+### Contract code & instance are decoupled
 
 Even though `pallet-contract` uses an account model for its contracts (like ethereum does), there is still one big difference:
 
@@ -55,7 +60,7 @@ Why is it useful:
 - Different contract instances with different **constructor parameters** can be instantiated using the same uploaded code, which reduces the space needed on chain to store WASM code
 - Storage and balance are decoupled from contract code logic, which provides ability **patch or upgrade** the underlying contract code
 
-### EVM vs contract-pallet
+## EVM vs contract-pallet
 
 - Common point: they both are a sandbox to execute smart contracts
 - The engine which executes contracts is different. In Ethereum, as it was the first blockchain to implement a sandbox environment, it is rather limited and slow, compared to a wasm interpreter
@@ -63,7 +68,7 @@ Why is it useful:
 - Contract pallet integrates a [two-step-deployment](https://substrate.dev/docs/en/knowledgebase/smart-contracts/contracts-pallet#two-step-deployment) to decouple contract code and contract instances
 
 
-### Comparing WASM Smart contracts to EVM smart contracts
+## Comparing WASM Smart contracts to EVM smart contracts
 
 - WASM is broadly adopted, while EVM bytecode is only used in EVMs -> There is way more tools available for WASM development
 - EVM bytecode can only be compiled from Solidity or Vyper, while WASM can be compiled from a lot of Popular languages (Rust, C/C++, C#, Java, Typescript, Haxe, Kotlin and even from Solidity)

@@ -1,14 +1,17 @@
-## Overview
+---
+sidebar_position: 3
+title: Ownable & PSP1155
+---
 
 This example shows how you can use the implementation of
 [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
 [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155) together to provide `only owner` rights to mint and burn tokens.
 
-## Steps
+## Step 1: Include dependencies
 
-1. Include dependencies to `psp1155`, `ownable` and `brush` in the cargo file.
+Include dependencies to `psp1155`, `ownable` and `brush` in the cargo file.
 
-```markdown
+```toml
 [dependencies]
 ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
@@ -45,8 +48,10 @@ std = [
 ]
 ```
 
-2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from `psp1155::traits` and `ownable::traits`.
+## Step 2: Add imports
+
+Replace `ink::contract` macro by `brush::contract`.
+Import **everything** from `psp1155::traits` and `ownable::traits`.
 
 ```rust
 #[brush::contract]
@@ -57,10 +62,12 @@ pub mod ownable {
    use ink_prelude::vec::Vec;
 ```
 
-3. Declare storage struct and declare the fields related to `PSP1155Storage` and `OwnableStorage`
-   traits. Then you need to derive `PSP1155Storage` and `OwnableStorage` traits and mark corresponding fields
-   with `#[PSP1155StorageField]` and `#[OwnableStorageField]` attributes. Deriving these traits allows you to reuse the
-   default implementation of `IPSP1155` and `Ownable`.
+## Step 3: Define storage
+
+Declare storage struct and declare the fields related to `PSP1155Storage` and `OwnableStorage`
+traits. Then you need to derive `PSP1155Storage` and `OwnableStorage` traits and mark corresponding fields
+with `#[PSP1155StorageField]` and `#[OwnableStorageField]` attributes. Deriving these traits allows you to reuse the
+default implementation of `IPSP1155` and `Ownable`.
 
 ```rust
 #[ink(storage)]
@@ -73,15 +80,18 @@ pub struct PSP1155Struct {
 }
 ```
 
-4. Inherit implementations of `IPSP1155` and `Ownable` traits. You can customize (override) methods in this `impl` block.
+## Step 4: Inherit logic
+
+Inherit implementations of `IPSP1155` and `Ownable` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl Ownable for PSP1155Struct {}
 impl IPSP1155 for PSP1155Struct {}
 ```
 
-5. Define constructor and initialize the owner with the contract initiator. Your basic version
-   of `IPSP1155` contract is ready!
+## Step 5: Define constructor
+
+Define constructor and initialize the owner with the contract initiator. Your basic version of `IPSP1155` contract is ready!
 
 ```rust
 impl PSP1155Struct {
@@ -95,8 +105,10 @@ impl PSP1155Struct {
 }
 ```
 
-6. Customize it by adding ownable logic. We will implement `IPSP1155Mint` trait. Modifier `only_owner` will call the function for us which verifies that
-   caller is the owner.
+## Step 6: Customize your contract
+
+Customize it by adding ownable logic. We will implement `IPSP1155Mint` trait. Modifier `only_owner` will call the function for us which verifies that
+caller is the owner.
 
 ```rust
 impl IPSP1155Mint for PSP1155Struct {

@@ -1,13 +1,16 @@
-## Overview
+---
+sidebar_position: 7
+title: Payment Splitter
+---
 
 This example shows how you can reuse the implementation of
 [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment-splitter).
 
-## Steps
+## Step 1: Include dependencies
 
-1. Include dependencies to `payment-splitter` and `brush` in the cargo file.
+Include dependencies to `payment-splitter` and `brush` in the cargo file.
 
-```markdown
+```toml
 [dependencies]
 ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
 ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
@@ -50,8 +53,10 @@ std = [
 ]
 ```
 
-2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from `payment_splitter::traits`.
+## Step 2: Add imports
+
+Replace `ink::contract` macro by `brush::contract`. 
+Import **everything** from `payment_splitter::traits`.
 
 ```rust
 #[brush::contract]
@@ -60,10 +65,12 @@ pub mod my_payment_splitter {
    use ink_prelude::vec::Vec;
 ```
 
-3. Declare storage struct and declare the field related to `PaymentSplitterStorage`
-   Then you need to derive `PaymentSplitterStorage` trait and mark corresponding field
-   with `#[PaymentSplitterStorageField]` attribute. Deriving this trait allows you to reuse
-   the default implementation of `PaymentSplitter`.
+## Step 3: Define storage
+
+Declare storage struct and declare the field related to `PaymentSplitterStorage`
+Then you need to derive `PaymentSplitterStorage` trait and mark corresponding field
+with `#[PaymentSplitterStorageField]` attribute. Deriving this trait allows you to reuse
+the default implementation of `PaymentSplitter`.
 
 ```rust
 #[ink(storage)]
@@ -74,13 +81,17 @@ pub struct SplitterStruct {
 }
 ```
 
-4. Inherit the implementation of `PaymentSplitter`. You can customize (override) methods in this `impl` block.
+## Step 4: Inherit logic
+
+Inherit the implementation of `PaymentSplitter`. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl PaymentSplitter for SplitterStruct {}
 ```
 
-5. Define constructor. Your basic version of `PaymentSplitter` contract is ready!
+## Step 5: Define constructor
+
+Define constructor. Your basic version of `PaymentSplitter` contract is ready!
 
 ```rust
 impl SplitterStruct {
