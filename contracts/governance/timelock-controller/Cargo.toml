@@ -18,11 +18,11 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 strum_macros = "0.21.1"
 brush = { path = "../../../utils/brush", default-features = false }
 access-control = { path = "../../access/access-control", default-features = false }
-timelock_controller_derive = { path = "./derive" }
+timelock_controller_derive = { path = "src/derive" }
 
 [lib]
 name = "timelock_controller"
-path = "lib.rs"
+path = "src/lib.rs"
 crate-type = [
     "rlib",
 ]
