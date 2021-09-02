@@ -60,18 +60,18 @@ The identifiers of events must be based on the name of the trait. At the moment,
 but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/809).
 
 ### Issues to be resolved before the library becomes production-ready:
-* [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/1)
-* [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/2)
+* [Standard token naming convention](https://github.com/Supercolony-net/openbrush-contracts/issues/1)
+* [Event's identifiers are based on the naming of the storage structure](https://github.com/Supercolony-net/openbrush-contracts/issues/2)
 
 ### Other Issues open:
 
-* [Returning of error doesn't mean revert of transaction](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/3)
-* [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/4)
-* [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/5)
-* [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/8)
+* [Returning of error doesn't mean revert of transaction](https://github.com/Supercolony-net/openbrush-contracts/issues/3)
+* [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
+* [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
+* [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
 
 The upgradable contract will be available after resolving of
-this [issue](https://github.com/Supercolony-net/openbrush-contracts/tree/main/issues/7)
+this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 ## Roadmap 🚗
 
