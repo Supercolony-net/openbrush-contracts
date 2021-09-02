@@ -138,8 +138,8 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/tree/main/is
 You can run unit tests by `cargo test` command from the root of the directory.
 
 To run integration test you need to install ink! toolchain, NodeJS's dependencies and start the node with contract-pallet.
-- [ink! toolchain](https://docs.patract.io/en/redspot/tutorial.html#ink-toolchain-for-contract-compilation)
-- [Start the node with contract-pallet](https://docs.patract.io/en/redspot/tutorial.html#prepare-blockchain-nodes-that-can-run-the-contract)
+- [ink! toolchain](https://substrate.dev/substrate-contracts-workshop/#/0/setup?id=substrate-prerequisites)
+- [Setup and start the node with contract-pallet](https://docs.patract.io/en/redspot/intro/installation#setup-local-test-node)
 - NodeJS deps you can install via `npm run install` command
 
 After you can run tests by `npm run test` command. It will build all contracts required for integration tests and run them.
