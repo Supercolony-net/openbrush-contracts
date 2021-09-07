@@ -3,7 +3,7 @@ sidebar_position: 1
 title: Overview
 ---
 
-This doc contains examples of how the library can be used & how to customize the base implementation.
+This doc contains examples of how the library can be used and how to customize the base implementation.
 
 * [PSP22](psp22.md) shows an example of how you can reuse the implementation of
   [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token (in the same way you can reuse

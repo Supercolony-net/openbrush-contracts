@@ -1,0 +1,47 @@
+html[data-theme='light'] {
+  .pagination-nav__link {
+    background: white;
+  }
+
+  .main-wrapper {
+    background: #fafafa;
+  }
+  [class^='codeBlockContainer'] {
+    box-shadow: none;
+    border: 1px solid #ebeef1;
+  }
+
+  .footer {
+    border: 2px solid var(--ifm-toc-border-color);
+  }
+
+  .navbar__items {
+    &:first-child {
+      background: #fafafa;
+
+      &:before {
+        content: '';
+        width: 0;
+        position: absolute;
+        right: -76px;
+        height: 0;
+        border-bottom: 56px solid #fafafa;
+        border-right: 76px solid transparent;
+      }
+    }
+  }
+}
+
+html[data-theme='dark'] {
+  .docusaurus-highlight-code-line {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  [class^='codeBlockContainer'] {
+    box-shadow: none;
+  }
+
+  .footer {
+    border: 2px solid var(--ifm-toc-border-color);
+  }
+}

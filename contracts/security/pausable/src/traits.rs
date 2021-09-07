@@ -50,10 +50,10 @@ where
     body(instance)
 }
 
-/// Contract module which allows children to implement an emergency stop
-/// mechanism that can be triggered by an authorized account.
+/// Contract module, which allows children to implement an emergency stop
+/// mechanism that an authorized account can trigger.
 ///
-/// This module is used through embedding of `PausableData` and implementation of `Pausable` and
+/// This module is used through the embedding of `PausableData` and implementation of `Pausable` and
 /// `PausableStorage` traits. It will make available the modifier `when_not_paused` and `when_paused`,
 /// which can be applied to your functions to restrict their usage.
 #[brush::trait_definition]

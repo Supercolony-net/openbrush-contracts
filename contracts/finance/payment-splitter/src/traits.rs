@@ -50,7 +50,7 @@ pub enum PaymentSplitterError {
 /// account to a number of shares. Of all the native tokens that this contract receives, each account will then be able to claim
 /// an amount proportional to the percentage of total shares they were assigned.
 ///
-/// PaymentSplitter `follows a _pull payment_ model. This means that payments are not automatically forwarded to the
+/// `PaymentSplitter` follows a _pull payment_ model. This means that payments are not automatically forwarded to the
 /// accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the `release`
 /// function.
 ///

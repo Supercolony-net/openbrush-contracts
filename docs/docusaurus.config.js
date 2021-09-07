@@ -1,4 +1,4 @@
-const lightCodeTheme = require('prism-react-renderer/themes/vsDark')
+const lightCodeTheme = require('prism-react-renderer/themes/vsLight')
 const darkCodeTheme = require('prism-react-renderer/themes/vsDark')
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
@@ -21,47 +21,29 @@ module.exports = {
       },
       items: [
         {
-          type: 'doc',
-          docId: 'getting-started',
+          to: 'smart-contracts/overview',
           position: 'right',
-          label: 'Learn'
+          label: 'Examples',
+          activeBasePath: 'smart-contracts'
+        },
+        {
+          to: 'deployment',
+          position: 'right',
+          label: 'Deploy'
+        },
+        {
+          href: 'https://twitter.com/supercolony_net',
+          className: 'header-twitter-link',
+          position: 'right'
         },
         {
           href: 'https://github.com/Supercolony-net/openbrush-contracts',
-          label: 'GitHub',
+          className: 'header-github-link',
           position: 'right'
         }
       ]
     },
     footer: {
-      // links: [
-      //   {
-      //     title: 'Docs',
-      //     items: [
-      //       {
-      //         label: 'Tutorial',
-      //         to: '/docs/getting-started'
-      //       }
-      //     ]
-      //   },
-      //   {
-      //     title: 'Community',
-      //     items: [
-      //       {
-      //         label: 'Stack Overflow',
-      //         href: 'https://stackoverflow.com/questions/tagged/docusaurus'
-      //       },
-      //       {
-      //         label: 'Discord',
-      //         href: 'https://discordapp.com/invite/docusaurus'
-      //       },
-      //       {
-      //         label: 'Twitter',
-      //         href: 'https://twitter.com/docusaurus'
-      //       }
-      //     ]
-      //   }
-      // ],
       copyright: `Copyright © ${new Date().getFullYear()} OpenBrush, Supercolony.net.`
     },
     prism: {
@@ -70,6 +52,7 @@ module.exports = {
       additionalLanguages: ['toml', 'rust']
     }
   },
+  plugins: ['docusaurus-plugin-sass'],
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -80,7 +63,7 @@ module.exports = {
           editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/'
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css')
+          customCss: [require.resolve('./src/css/custom.scss')]
         }
       }
     ]

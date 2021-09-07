@@ -1,94 +1,20 @@
-## Overview
+## PaymentSplitter contract
 
-This example shows how you can reuse the implementation of
-[payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment-splitter).
+This contract allows splitting native token payments among a group of accounts. The sender does not need to be aware
+that the native token will be split in this way, since it is handled transparently by the contract.
 
-## Steps
+The split can be in equal parts or in any other arbitrary proportion. The way this is specified is by assigning each
+account to a number of shares. Of all the native tokens that this contract receives, each account will then be able to claim
+an amount proportional to the percentage of total shares they were assigned.
 
-1. Include dependencies to `payment-splitter` and `brush` in the cargo file.
+`PaymentSplitter` follows a _pull payment_ model. This means that payments are not automatically forwarded to the
+accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the `release`
+function.
 
-```markdown
-[dependencies]
-ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+** Note **: In the substrate balance of contract decreases each block. Because it pays rent for the storage.
+So during `release`, each next user will get fewer native tokens.
 
-scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+This module is used through embedding of `PaymentSplitterData` and implementation of `PaymentSplitter` and
+`PaymentSplitterStorage` traits.
 
-# These dependencies
-payment-splitter = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-
-
-# payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
-[profile.dev]
-overflow-checks = false
-
-[profile.release]
-overflow-checks = false
-
-[features]
-default = ["std"]
-std = [
-   "ink_primitives/std",
-   "ink_metadata",
-   "ink_metadata/std",
-   "ink_env/std",
-   "ink_storage/std",
-   "ink_lang/std",
-   "scale/std",
-   "scale-info",
-   "scale-info/std",
-
-   # These dependencies   
-   "payment-splitter/std",
-   "brush/std",
-]
-```
-
-2. Replace `ink::contract` macro by `brush::contract`.
-   Import **everything** from `payment_splitter::traits`.
-
-```rust
-#[brush::contract]
-pub mod my_payment_splitter {
-   use payment_splitter::traits::*;
-   use ink_prelude::vec::Vec;
-```
-
-3. Declare storage struct and declare the field related to `PaymentSplitterStorage`
-   Then you need to derive `PaymentSplitterStorage` trait and mark corresponsing field
-   with `#[PaymentSplitterStorageField]` attribute. Deriving this trait allows you to reuse
-   the default implementation of `PaymentSplitter`.
-
-```rust
-#[ink(storage)]
-#[derive(Default, PaymentSplitterStorage)]
-pub struct SplitterStruct {
-   #[PaymentSplitterStorageField]
-   splitter: PaymentSplitterData,
-}
-```
-
-4. Inherit the implementation of `PaymentSplitter`. You can customize (override) methods in this `impl` block.
-
-```rust
-impl PaymentSplitter for SplitterStruct {}
-```
-
-5. Define constructor. Your basic version of `PaymentSplitter` contract is ready!
-
-```rust
-impl SplitterStruct {
-   #[ink(constructor)]
-   pub fn new(payees: Vec<AccountId>, shares: Vec<Balance>) -> Self {
-      let mut instance = Self::default();
-      instance._init(payees, shares);
-      instance
-   }
-}
-```
+[See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/payment-splitter)
