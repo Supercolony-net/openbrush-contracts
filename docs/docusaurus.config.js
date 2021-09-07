@@ -60,7 +60,7 @@ module.exports = {
         docs: {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/'
+          editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/docs'
         },
         theme: {
           customCss: [require.resolve('./src/css/custom.scss')]
