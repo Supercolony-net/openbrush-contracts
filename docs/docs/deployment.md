@@ -15,6 +15,6 @@ about how it works you can find on [official wiki](https://wiki.polkadot.network
 The list of standalone blockchain/parachains that support ink! smart contracts:
 
 * [Edgeware](https://edgewa.re)
-* [PlasmNetwork](https://www.plasmnet.io)
+* [Astar](https://astar.network/)
 
 ### Deployment
