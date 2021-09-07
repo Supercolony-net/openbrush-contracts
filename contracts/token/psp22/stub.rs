@@ -1,7 +1,10 @@
 // It exports the stub implementation of all PSP22 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-pub use self::{psp22::PSP22, psp22metadata::PSP22Metadata};
+pub use self::{
+    psp22::PSP22,
+    psp22metadata::PSP22Metadata,
+};
 
 pub use self::psp22receiver::PSP22Receiver;
 
