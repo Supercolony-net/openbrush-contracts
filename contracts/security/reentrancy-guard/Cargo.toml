@@ -17,11 +17,11 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 
 strum_macros = "0.21.1"
 brush = { path = "../../../utils/brush", default-features = false }
-reentrancy_guard_derive = { path = "./derive" }
+reentrancy_guard_derive = { path = "src/derive" }
 
 [lib]
 name = "reentrancy_guard"
-path = "lib.rs"
+path = "src/lib.rs"
 crate-type = [
     "rlib",
 ]
