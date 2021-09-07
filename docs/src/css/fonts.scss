@@ -1,0 +1,47 @@
+@font-face {
+  font-family: 'Sometype Mono';
+  src: url('/static/fonts/sometype-mono.regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sometype Mono';
+  src: url('/static/fonts/sometype-mono.regular-italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sometype Mono';
+  src: url('/static/fonts/sometype-mono.medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sometype Mono';
+  src: url('/static/fonts/sometype-mono.medium-italic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sometype Mono';
+  src: url('/static/fonts/sometype-mono.bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sometype Mono';
+  src: url('/static/fonts/sometype-mono.bold-italic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}

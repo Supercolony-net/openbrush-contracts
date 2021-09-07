@@ -50,8 +50,8 @@ where
 /// there is an account (an owner) that can be granted exclusive access to
 /// specific functions.
 ///
-/// This module is used through embedding of `OwnableData` and implementation of `Ownable` and
-/// `OwnableStorage` traits. It will make available the modifier `only_owner`, which can be applied
+/// This module is used through the embedding of `OwnableData` and implementation of `Ownable` and
+/// `OwnableStorage` traits. It will make the modifier `only_owner` available, which can be applied
 /// to your functions to restrict their use to the owner.
 #[brush::trait_definition]
 pub trait Ownable: OwnableStorage {
