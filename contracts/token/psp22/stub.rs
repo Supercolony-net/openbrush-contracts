@@ -1,10 +1,7 @@
 // It exports the stub implementation of all PSP22 traits.
 // ink! will generate a wrapper around all methods of each trait and it will allow creating wrapped
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
-pub use self::{
-    psp22::PSP22,
-    psp22metadata::PSP22Metadata,
-};
+pub use self::{psp22::PSP22, psp22metadata::PSP22Metadata};
 
 pub use self::psp22receiver::PSP22Receiver;
 
@@ -114,7 +111,7 @@ mod psp22wrapped {
         }
     }
 
-    #[ink(namespace = "psp22wrapped")]
+    #[ink(namespace = "PSP22Wrapped")]
     impl PSP22Wrapped {
         #[ink(message)]
         pub fn underlying_token(&self) -> AccountId {
@@ -205,10 +202,10 @@ pub mod psp22wrapper {
 
     #[derive(Default)]
     #[ink(storage)]
-    pub struct PSP22Burnable {}
+    pub struct PSP22Wrapper {}
 
     #[ink(namespace = "PSP22Burnable")]
-    impl PSP22Burnable {
+    impl PSP22Wrapper {
         #[ink(constructor)]
         pub fn new() -> Self {
             unimplemented!()
@@ -221,6 +218,10 @@ pub mod psp22wrapper {
 
         #[ink(message)]
         pub fn withdraw_to(&mut self, account: AccountId, amount: Balance) {
+            unimplemented!()
+        }
+
+        pub fn _recover(&mut self, account: AccountId) {
             unimplemented!()
         }
     }

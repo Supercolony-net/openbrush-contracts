@@ -4,10 +4,7 @@ mod tests {
     /// Imports all the definitions from the outer scope so we can use them here.
     use crate::traits::*;
     use brush::test_utils::*;
-    use ink::{
-        EmitEvent,
-        Env,
-    };
+    use ink::{EmitEvent, Env};
     use ink_lang as ink;
     use std::panic;
 
@@ -316,15 +313,5 @@ mod tests {
         psp22.burn(old_supply);
         let new_supply = psp22.total_supply();
         assert_eq!(old_supply - old_supply, new_supply);
-    }
-
-    /// The deposit_for was applied.
-    #[ink::test]
-    fn deposit_works() {
-        let mut psp22 = PSP22Struct::new(100);
-        let old_supply = psp22.total_supply();
-        psp22.deposit_for();
-        let new_supply = psp22.total_supply();
-        assert_eq!(2 * old_supply, new_supply);
     }
 }

@@ -10,3 +10,8 @@ declare_derive_storage_trait!(
     PSP22MetadataStorage,
     PSP22MetadataStorageField
 );
+declare_derive_storage_trait!(
+    derive_psp22_wrapped_storage,
+    PSP22WrappedStorage,
+    PSP22WrappedStorageField
+);

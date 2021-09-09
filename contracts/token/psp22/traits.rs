@@ -1,29 +1,13 @@
 use crate::stub::PSP22Receiver as PSP22ReceiverStub;
 use brush::{
     declare_storage_trait,
-    traits::{
-        AccountId,
-        AccountIdExt,
-        Balance,
-        InkStorage,
-    },
+    traits::{AccountId, AccountIdExt, Balance, InkStorage},
 };
 use ink_env::Error as EnvError;
 use ink_lang::ForwardCallMut;
-use ink_prelude::{
-    format,
-    string::String,
-    vec::Vec,
-};
-use ink_storage::{
-    collections::HashMap as StorageHashMap,
-    traits::SpreadLayout,
-    Lazy,
-};
-pub use psp22_derive::{
-    PSP22MetadataStorage,
-    PSP22Storage,
-};
+use ink_prelude::{format, string::String, vec::Vec};
+use ink_storage::{collections::HashMap as StorageHashMap, traits::SpreadLayout, Lazy};
+pub use psp22_derive::{PSP22MetadataStorage, PSP22Storage};
 
 use ink_env::call::FromAccountId;
 #[cfg(feature = "std")]
@@ -219,36 +203,32 @@ pub trait PSP22: PSP22Storage {
             .before_received(Self::env().caller(), from, value, data)
             .fire()
         {
-            Ok(result) => {
-                match result {
-                    Ok(_) => (),
-                    e => {
-                        panic!(
-                            "{}",
-                            PSP22Error::SafeTransferCheckFailed(String::from(format!(
-                                "The contract with `to` address does not accept tokens: {:?}",
-                                e
-                            )))
-                            .as_ref()
-                        )
-                    }
+            Ok(result) => match result {
+                Ok(_) => (),
+                e => {
+                    panic!(
+                        "{}",
+                        PSP22Error::SafeTransferCheckFailed(String::from(format!(
+                            "The contract with `to` address does not accept tokens: {:?}",
+                            e
+                        )))
+                        .as_ref()
+                    )
                 }
-            }
-            Err(e) => {
-                match e {
-                    EnvError::NotCallable => (),
-                    e => {
-                        panic!(
-                            "{}",
-                            PSP22Error::SafeTransferCheckFailed(String::from(format!(
-                                "Unknown error: call failed with {:?}",
-                                e
-                            )))
-                            .as_ref()
-                        )
-                    }
+            },
+            Err(e) => match e {
+                EnvError::NotCallable => (),
+                e => {
+                    panic!(
+                        "{}",
+                        PSP22Error::SafeTransferCheckFailed(String::from(format!(
+                            "Unknown error: call failed with {:?}",
+                            e
+                        )))
+                        .as_ref()
+                    )
                 }
-            }
+            },
         }
     }
 
@@ -422,7 +402,7 @@ pub trait PSP22Wrapper: PSP22 + PSP22Wrapped {
     #[ink(message)]
     fn deposit_for(&mut self, account: AccountId, amount: Balance) {
         let mut underlying_token: crate::stub::PSP22 = FromAccountId::from_account_id(self.underlying_token());
-        underlying_token.transfer_from(self.underlying_token(), Self::env().caller(), amount, vec![]);
+        underlying_token.transfer_from(Self::env().caller(), self.underlying_token(), amount, vec![]);
         self._mint(account, amount);
     }
 
