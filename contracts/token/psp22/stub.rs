@@ -101,6 +101,28 @@ mod psp22metadata {
     }
 }
 
+#[ink_lang::contract(compile_as_dependency = true)]
+mod psp22wrapped {
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct PSP22Wrapped {}
+
+    impl PSP22Wrapped {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+    }
+
+    #[ink(namespace = "psp22wrapped")]
+    impl PSP22Wrapped {
+        #[ink(message)]
+        pub fn underlying_token(&self) -> AccountId {
+            unimplemented!()
+        }
+    }
+}
+
 /// The user has to define their own Receiver contract with custom funds acceptance logic.
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp22receiver {
@@ -132,6 +154,27 @@ pub mod psp22receiver {
 }
 
 #[ink_lang::contract(compile_as_dependency = true)]
+pub mod psp22mintable {
+
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct PSP22Mintable {}
+
+    #[ink(namespace = "PSP22Mintable")]
+    impl PSP22Mintable {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn mint(&mut self, amount: Balance) {
+            unimplemented!()
+        }
+    }
+}
+
+#[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp22burnable {
 
     #[derive(Default)]
@@ -152,6 +195,32 @@ pub mod psp22burnable {
 
         #[ink(message)]
         pub fn burn_from(&mut self, account: AccountId, amount: Balance) {
+            unimplemented!()
+        }
+    }
+}
+
+#[ink_lang::contract(compile_as_dependency = true)]
+pub mod psp22wrapper {
+
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct PSP22Burnable {}
+
+    #[ink(namespace = "PSP22Burnable")]
+    impl PSP22Burnable {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn deposit_for(&mut self, account: AccountId, amount: Balance) {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn withdraw_to(&mut self, account: AccountId, amount: Balance) {
             unimplemented!()
         }
     }

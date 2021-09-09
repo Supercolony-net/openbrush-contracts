@@ -25,6 +25,7 @@ pub use psp22_derive::{
     PSP22Storage,
 };
 
+use ink_env::call::FromAccountId;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
@@ -47,6 +48,14 @@ pub struct PSP22MetadataData {
 }
 
 declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);
+
+#[derive(Default, Debug, SpreadLayout)]
+#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub struct PSP22WrappedData {
+    pub underlying: Lazy<AccountId>,
+}
+
+declare_storage_trait!(PSP22WrappedStorage, PSP22WrappedData);
 
 /// The PSP22 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
@@ -335,6 +344,16 @@ pub trait PSP22Metadata: PSP22MetadataStorage {
     }
 }
 
+/// Trait that contains wrapped token
+#[brush::trait_definition]
+pub trait PSP22Wrapped: PSP22WrappedStorage {
+    /// Returns the underlying token.
+    #[ink(message)]
+    fn underlying_token(&self) -> AccountId {
+        Lazy::get(&self.get().underlying).clone()
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 #[derive(strum_macros::AsRefStr)]
@@ -355,17 +374,72 @@ pub trait PSP22Receiver {
 }
 
 #[brush::trait_definition]
+pub trait PSP22Mintable: PSP22 {
+    #[ink(message)]
+    fn mint(&mut self, amount: Balance) {
+        self._mint(Self::env().caller(), amount);
+    }
+}
+
+/// Extension of [`PSP22`] that allows token holders to destroy both their own
+/// tokens and those that they have an allowance for, in a way that can be
+/// recognized off-chain (via event analysis).
+#[brush::trait_definition]
 pub trait PSP22Burnable: PSP22 {
+    /// Destroys `amount` tokens from the caller.
+    ///
+    /// See [`PSP22::_burn`].
     #[ink(message)]
     fn burn(&mut self, amount: Balance) {
         self._burn(Self::env().caller(), amount);
     }
 
+    /// Destroys `amount` tokens from `account`, deducting from the caller's
+    /// allowance.
+    ///
+    /// See [`PSP22::_burn`] and [`PSP22::allowance`].
+    ///
+    /// Requirements:
+    ///
+    /// - the caller must have allowance for ``accounts``'s tokens of at least
+    /// `amount`.
+    /// # Errors
+    ///
+    /// Panics with `InsufficientAllowance` error if there are not enough tokens allowed
+    /// by owner for `spender`.
     #[ink(message)]
     fn burn_from(&mut self, account: AccountId, amount: Balance) {
         let current_allowance = self.allowance(account, Self::env().caller());
         assert!(current_allowance < amount, "PSP22: burn amount exceeds allowance");
         self.approve(account, current_allowance - amount);
         self._burn(account, amount);
+    }
+}
+
+#[brush::trait_definition]
+pub trait PSP22Wrapper: PSP22 + PSP22Wrapped {
+    /// Allow a user to deposit underlying tokens and mint the corresponding number of wrapped tokens.
+    #[ink(message)]
+    fn deposit_for(&mut self, account: AccountId, amount: Balance) {
+        let mut underlying_token: crate::stub::PSP22 = FromAccountId::from_account_id(self.underlying_token());
+        underlying_token.transfer_from(self.underlying_token(), Self::env().caller(), amount, vec![]);
+        self._mint(account, amount);
+    }
+
+    /// Allow a user to burn a number of wrapped tokens and withdraw the corresponding number of underlying tokens.
+    #[ink(message)]
+    fn withdraw_to(&mut self, account: AccountId, amount: Balance) {
+        self._burn(Self::env().caller(), amount);
+        let mut underlying_token: crate::stub::PSP22 = FromAccountId::from_account_id(self.underlying_token());
+        underlying_token.transfer(account, amount, vec![]);
+    }
+
+    /// Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake.
+    /// Internal * function that can be exposed with access control if desired.
+    #[ink(message)]
+    fn _recover(&mut self, account: AccountId) {
+        let underlying_token: crate::stub::PSP22 = FromAccountId::from_account_id(self.underlying_token());
+        let value = underlying_token.balance_of(Self::env().account_id()) - self.total_supply();
+        self._mint(account, value);
     }
 }

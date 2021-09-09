@@ -74,6 +74,12 @@ mod tests {
         }
     }
 
+    impl PSP22Mintable for PSP22Struct {}
+
+    impl PSP22Burnable for PSP22Struct {}
+
+    impl PSP22Wrapper for PSP22Struct {}
+
     fn assert_transfer_event(
         event: &ink_env::test::EmittedEvent,
         expected_from: Option<AccountId>,
@@ -290,5 +296,35 @@ mod tests {
         );
 
         psp22.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new());
+    }
+
+    /// The mint was applied.
+    #[ink::test]
+    fn mint_extension_works() {
+        let mut psp22 = PSP22Struct::new(100);
+        let old_supply = psp22.total_supply();
+        psp22.mint(old_supply);
+        let new_supply = psp22.total_supply();
+        assert_eq!(2 * old_supply, new_supply);
+    }
+
+    /// The burn supply was applied.
+    #[ink::test]
+    fn burn_extension_works() {
+        let mut psp22 = PSP22Struct::new(100);
+        let old_supply = psp22.total_supply();
+        psp22.burn(old_supply);
+        let new_supply = psp22.total_supply();
+        assert_eq!(old_supply - old_supply, new_supply);
+    }
+
+    /// The deposit_for was applied.
+    #[ink::test]
+    fn deposit_works() {
+        let mut psp22 = PSP22Struct::new(100);
+        let old_supply = psp22.total_supply();
+        psp22.deposit_for();
+        let new_supply = psp22.total_supply();
+        assert_eq!(2 * old_supply, new_supply);
     }
 }
