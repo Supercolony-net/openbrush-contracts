@@ -21,7 +21,7 @@ pub mod my_crypto {
                 162, 118, 192,  67, 239, 16,  71, 216, 125,  86, 167, 139,  70,   7,  86, 241,
                  33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,
                 211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,  13,  86, 175,
-                 28,
+                 33,
             ];
             let message_hash: [u8; 32] = [
                 162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
@@ -32,7 +32,10 @@ pub mod my_crypto {
                   7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
                 152,
             ];
-            let pub_key = self.env().ecdsa_recovery(&signature, &message_hash);
+            let pub_key = self.env().ecdsa_recover(&signature, &message_hash);
+            ink_env::debug_print!("{:?}", pub_key);
+            assert!(pub_key.is_ok());
+            let pub_key = pub_key.unwrap();
             assert_eq!(*pub_key, EXPECTED_COMPRESSED_PUBLIC_KEY);
 
             const EXPECTED_ETH_ADDRESS: EthereumAddress = [
