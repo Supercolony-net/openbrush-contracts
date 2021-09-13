@@ -11,7 +11,7 @@ module.exports = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
   organizationName: 'supercolony-net',
-  projectName: 'docs.openbrush.io',
+  projectName: 'openbrush-contracts',
   themeConfig: {
     navbar: {
       logo: {
