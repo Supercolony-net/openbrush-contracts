@@ -5,13 +5,13 @@ const darkCodeTheme = require('prism-react-renderer/themes/vsDark')
 module.exports = {
   title: 'OpenBrush',
   tagline: 'OpenBrush contracts documentation',
-  url: 'https://supercolony-net.github.io',
-  baseUrl: '/openbrush-contracts/',
+  url: 'https://docs.openbrush.io',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
   organizationName: 'supercolony-net',
-  projectName: 'openbrush-contracts',
+  projectName: 'docs.openbrush.io',
   themeConfig: {
     navbar: {
       logo: {
