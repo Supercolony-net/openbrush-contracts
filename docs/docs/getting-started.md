@@ -1,9 +1,9 @@
 ---
 sidebar_position: 1
 slug: /
+title: OpenBrush documentation
 ---
 
-# Getting Started
 Welcome to OpenBrush documentation! This documentation aims to guide you through the usage of OpenBrush library.
 
 ## What is OpenBrush
