@@ -61,7 +61,7 @@ mod tests {
         }
 
         // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
-        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) {}
+        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) -> Result<(), psp22::traits::PSP22Error> { Ok(()) }
     }
 
     impl PSP22Struct {
