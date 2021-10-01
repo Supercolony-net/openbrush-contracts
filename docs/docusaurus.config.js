@@ -13,6 +13,9 @@ module.exports = {
   organizationName: 'supercolony-net',
   projectName: 'openbrush-contracts',
   themeConfig: {
+    colorMode: {
+      defaultMode: 'dark'
+    },
     navbar: {
       logo: {
         alt: 'OpenBrush',
