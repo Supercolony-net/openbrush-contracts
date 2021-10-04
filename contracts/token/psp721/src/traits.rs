@@ -56,6 +56,8 @@ declare_storage_trait!(PSP721MetadataStorage, PSP721MetadataData);
 
 /// The PSP721 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP721Error {
     Unknown(String),
     CallFailed,
@@ -108,8 +110,9 @@ pub trait IPSP721: PSP721Storage {
     ///
     /// Panics with `NotAllowed` error if it is self approve.
     #[ink(message)]
-    fn set_approval_for_all(&mut self, to: AccountId, approved: bool) {
-        self._approve_for_all(to, approved);
+    fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), PSP721Error> {
+        self._approve_for_all(to, approved)?;
+        Ok(())
     }
 
     /// Approves the account to transfer the specified token on behalf of the caller.
@@ -120,8 +123,9 @@ pub trait IPSP721: PSP721Storage {
     ///
     /// Panics with `NotAllowed` error if caller is not owner of `id`.
     #[ink(message)]
-    fn approve(&mut self, to: AccountId, id: Id) {
-        self._approve_for(to, id);
+    fn approve(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
+        self._approve_for(to, id)?;
+        Ok(())
     }
 
     /// Transfer approved or owned token.
@@ -134,9 +138,10 @@ pub trait IPSP721: PSP721Storage {
     ///
     /// Panics with `NotApproved` error if `from` doesn't have allowance for transferring.
     #[ink(message)]
-    fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Id) {
-        self._transfer_token_from(&from, to.clone(), id);
+    fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Id) -> Result<(), PSP721Error> {
+        self._transfer_token_from(&from, to.clone(), id)?;
         self._emit_transfer_event(from, to, id);
+        Ok(())
     }
 
     /// Transfers token with `id` from `from` to `to`. Also some `data` can be passed.
@@ -151,10 +156,11 @@ pub trait IPSP721: PSP721Storage {
     ///
     /// Panics with `CallFailed` error if `to` doesn't accept transfer.
     #[ink(message)]
-    fn safe_transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) {
-        self._transfer_token_from(&from, to.clone(), id);
-        self._call_contract_transfer(Self::env().caller(), from, to, id, data);
+    fn safe_transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP721Error> {
+        self._transfer_token_from(&from, to.clone(), id)?;
+        self._call_contract_transfer(Self::env().caller(), from, to, id, data)?;
         self._emit_transfer_event(from, to, id);
+        Ok(())
     }
 
     // Helper functions
@@ -169,33 +175,37 @@ pub trait IPSP721: PSP721Storage {
     fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {}
 
     /// Approves or disapproves the operator to transfer all tokens of the caller.
-    fn _approve_for_all(&mut self, to: AccountId, approved: bool) {
+    fn _approve_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
-        assert_ne!(to, caller, "{}", PSP721Error::NotAllowed.as_ref());
+        if caller == to {
+            return Err(PSP721Error::NotAllowed)
+        }
         self._emit_approval_for_all_event(caller, to, approved);
         if self._approved_for_all(caller, to) {
-            let status = self.get_mut().operator_approvals.get_mut(&(caller, to)).unwrap();
+            let status = self.get_mut().operator_approvals.get_mut(&(caller, to)).ok_or(PSP721Error::CannotFetchValue)?;
             *status = approved;
+            Ok(())
         } else {
-            self.get_mut().operator_approvals.insert((caller, to), approved);
+            self.get_mut().operator_approvals.insert((caller, to), approved).ok_or(PSP721Error::CannotInsert)?;
+            Ok(())
         }
     }
 
     /// Approve the passed AccountId to transfer the specified token on behalf of the message's sender.
-    fn _approve_for(&mut self, to: AccountId, id: Id) {
+    fn _approve_for(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
         let owner = self._owner_of(&id);
         if !(owner == Some(caller) || self._approved_for_all(owner.expect("PSP721Error with AccountId"), caller)) {
-            panic!("{}", PSP721Error::NotAllowed.as_ref());
+            return Err(PSP721Error::NotAllowed)
         };
-
-        assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
-        assert!(
-            self.get_mut().token_approvals.insert(id, to).is_none(),
-            "{}",
-            PSP721Error::CannotInsert.as_ref()
-        );
+        if to.is_zero() {
+            return Err(PSP721Error::NotAllowed)
+        }
+        if self.get_mut().token_approvals.insert(id, to).is_some() {
+            return  Err(PSP721Error::CannotInsert)
+        }
         self._emit_approval_event(caller, to, id);
+        Ok(())
     }
 
     /// Returns the owner of the token.
@@ -226,67 +236,70 @@ pub trait IPSP721: PSP721Storage {
     }
 
     /// Transfers token `id` `from` the sender to the `to` AccountId.
-    fn _transfer_token_from(&mut self, from: &AccountId, to: AccountId, id: Id) {
+    fn _transfer_token_from(&mut self, from: &AccountId, to: AccountId, id: Id) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
-        assert!(
-            self.get().token_owner.get(&id).is_some(),
-            "{}",
-            PSP721Error::TokenNotFound.as_ref()
-        );
-        assert!(
-            self._approved_or_owner(Some(caller), &id),
-            "{}",
-            PSP721Error::NotApproved.as_ref()
-        );
+        if self.get().token_owner.get(&id).is_none() {
+            return Err(PSP721Error::TokenNotFound)
+        }
+        if !self._approved_or_owner(Some(caller), &id) {
+            return Err(PSP721Error::NotApproved)
+        }
         if self.get().token_approvals.contains_key(&id) {
             self.get_mut().token_approvals.take(&id);
         };
-        self._remove_from(from.clone(), id);
-        self._add_to(to, id);
+        self._remove_from(from.clone(), id)?;
+        self._add_to(to, id)?;
+        Ok(())
     }
 
-    fn _add_to(&mut self, to: AccountId, id: Id) {
+    fn _add_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
         let vacant_token_owner = match self.get_mut().token_owner.entry(id) {
             Entry::Vacant(vacant) => vacant,
-            Entry::Occupied(_) => panic!("{}", PSP721Error::TokenExists.as_ref()),
+            Entry::Occupied(_) => return Err(PSP721Error::TokenExists),
         };
-        assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
+        if to.is_zero() {
+            return Err(PSP721Error::NotAllowed)
+        }
         vacant_token_owner.insert(to.clone());
         let entry = self.get_mut().owned_tokens_count.entry(to);
         entry.and_modify(|v| *v += 1).or_insert(1);
+        Ok(())
     }
 
-    fn _remove_from(&mut self, caller: AccountId, id: Id) {
+    fn _remove_from(&mut self, caller: AccountId, id: Id) -> Result<(), PSP721Error> {
         let occupied = match self.get_mut().token_owner.entry(id) {
-            Entry::Vacant(_) => panic!("{}", PSP721Error::TokenNotFound.as_ref()),
+            Entry::Vacant(_) =>return Err(PSP721Error::TokenNotFound),
             Entry::Occupied(occupied) => occupied,
         };
-        assert_eq!(occupied.get(), &caller, "{}", PSP721Error::NotOwner.as_ref());
+        if occupied.get() != &caller {
+            return Err(PSP721Error::NotOwner)
+        }
         occupied.remove_entry();
         let count = self
             .get_mut()
             .owned_tokens_count
             .get_mut(&caller)
-            .expect(PSP721Error::CannotFetchValue.as_ref());
+            .ok_or(PSP721Error::CannotFetchValue)?;
         *count -= 1;
+        Ok(())
     }
 
-    fn _call_contract_transfer(&self, operator: AccountId, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) {
+    fn _call_contract_transfer(&self, operator: AccountId, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP721Error> {
         let mut receiver: PSP721Receiver = FromAccountId::from_account_id(to);
         match receiver.call_mut().on_psp721_received(operator, from, id, data).fire() {
             Ok(result) => {
                 match result {
-                    Ok(_) => (),
-                    _ => panic!("{}", PSP721Error::CallFailed.as_ref()),
+                    Ok(_) => Ok(()),
+                    _ => return Err(PSP721Error::CallFailed),
                 }
             }
             Err(e) => {
                 match e {
-                    Env_error::NotCallable => (),
-                    _ => panic!("{}", PSP721Error::CallFailed.as_ref()),
+                    Env_error::NotCallable => Ok(()),
+                    _ => return Err(PSP721Error::CallFailed),
                 }
             }
-        };
+        }
     }
 
     fn _mint(&mut self, id: Id) {

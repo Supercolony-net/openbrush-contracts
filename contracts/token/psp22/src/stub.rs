@@ -122,10 +122,10 @@ pub mod psp22receiver {
         #[ink(message)]
         pub fn before_received(
             &mut self,
-            operator: AccountId,
-            from: AccountId,
-            value: Balance,
-            data: Vec<u8>,
+            _operator: AccountId,
+            _from: AccountId,
+            _value: Balance,
+            _data: Vec<u8>,
         ) -> Result<(), PSP22ReceiverError> {
             unimplemented!()
         }

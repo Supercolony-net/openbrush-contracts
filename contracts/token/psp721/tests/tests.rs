@@ -222,7 +222,6 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "NotApproved")]
     fn not_approved_transfer_should_fail() {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
@@ -249,7 +248,10 @@ mod tests {
             data,
         );
         // Eve is not an approved operator by Alice.
-        nft.transfer_from(accounts.alice, accounts.frank, [1; 32]);
+        assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.frank, [1; 32]),
+            Err(PSP721Error::NotApproved)
+        );
     }
 
     #[ink::test]
