@@ -36,19 +36,21 @@ describe('MY_PSP22', () => {
 
   it('Can not transfer above the amount', async () => {
     const {
+      query,
       contract,
       accounts: [receiver]
     } = await setup()
 
-    await expect(contract.tx.transfer(receiver.address, 1007, [])).to.eventually.be.rejected
+    const balanceBefore = await query.balanceOf(receiver.address)
+    await contract.tx.transfer(receiver.address, 1007, [])
+    const balanceAfter = await query.balanceOf(receiver.address)
+    expect(balanceBefore.output).to.equal(balanceAfter.output)
   })
 
   it('Can not transfer to hated account', async () => {
     const {
       query,
       tx,
-      contract,
-      defaultSigner: sender,
       accounts: [hated_account]
     } = await setup()
 

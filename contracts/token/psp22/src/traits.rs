@@ -135,7 +135,9 @@ pub trait PSP22: PSP22Storage {
     fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
         let caller = Self::env().caller();
         let allowance = self.allowance(from, caller);
-        assert!(allowance >= value, "{}", PSP22Error::InsufficientAllowance.as_ref());
+        if allowance < value {
+            return Err(PSP22Error::InsufficientAllowance)
+        }
         self._transfer_from_to(from, to, value, data)?;
         self._approve_from_to(from, caller, allowance - value)?;
         Ok(())
@@ -192,11 +194,9 @@ pub trait PSP22: PSP22Storage {
     fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
         let owner = Self::env().caller();
         let allowance = self.allowance(owner, spender);
-        assert!(
-            allowance >= delta_value,
-            "{}",
-            PSP22Error::InsufficientAllowance.as_ref()
-        );
+        if allowance < delta_value {
+            return Err(PSP22Error::InsufficientAllowance)
+        }
 
         self._approve_from_to(owner, spender, allowance - delta_value)?;
         Ok(())
@@ -238,13 +238,19 @@ pub trait PSP22: PSP22Storage {
     fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {}
 
     fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
-        assert!(!from.is_zero(), "{}", PSP22Error::ZeroSenderAddress.as_ref());
-        assert!(!to.is_zero(), "{}", PSP22Error::ZeroRecipientAddress.as_ref());
+        if from.is_zero() {
+            return Err( PSP22Error::ZeroSenderAddress)
+        }
+        if to.is_zero() {
+            return Err(PSP22Error::ZeroRecipientAddress)
+        }
 
         self._before_token_transfer(from, to, amount);
 
         let from_balance = self.balance_of(from);
-        assert!(from_balance >= amount, "{}", PSP22Error::InsufficientBalance.as_ref());
+        if from_balance < amount {
+            return Err(PSP22Error::InsufficientBalance)
+        }
 
         self._do_safe_transfer_check(from, to, amount, data)?;
 
@@ -257,8 +263,12 @@ pub trait PSP22: PSP22Storage {
     }
 
     fn _approve_from_to(&mut self, owner: AccountId, spender: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        assert!(!owner.is_zero(), "{}", PSP22Error::ZeroSenderAddress.as_ref());
-        assert!(!spender.is_zero(), "{}", PSP22Error::ZeroRecipientAddress.as_ref());
+        if owner.is_zero() {
+            return Err(PSP22Error::ZeroSenderAddress)
+        }
+        if spender.is_zero() {
+            return Err(PSP22Error::ZeroRecipientAddress)
+        }
 
         self.get_mut().allowances.insert((owner, spender), amount);
         self._emit_approval_event(owner, spender, amount);
@@ -273,7 +283,9 @@ pub trait PSP22: PSP22Storage {
     ///
     /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
     fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        assert!(!account.is_zero(), "{}", PSP22Error::ZeroRecipientAddress.as_ref());
+        if account.is_zero() {
+            return Err(PSP22Error::ZeroRecipientAddress)
+        }
 
         let mut new_balance = self.balance_of(account);
         new_balance += amount;
@@ -295,10 +307,14 @@ pub trait PSP22: PSP22Storage {
     /// Returns `InsufficientBalance` error if there are not enough tokens on
     /// the account balance of `account`.
     fn _burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        assert!(!account.is_zero(), "{}", PSP22Error::ZeroSenderAddress.as_ref());
+        if account.is_zero() {
+            return Err(PSP22Error::ZeroRecipientAddress)
+        }
 
         let mut from_balance = self.balance_of(account);
-        assert!(from_balance >= amount, "{}", PSP22Error::InsufficientBalance.as_ref());
+        if from_balance < amount {
+            return Err(PSP22Error::InsufficientBalance)
+        }
 
         from_balance -= amount;
         self.get_mut().balances.insert(account, from_balance);

@@ -181,7 +181,6 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
     fn invalid_transfer_should_fail() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
@@ -203,11 +202,13 @@ mod tests {
         );
 
         // Bob fails to transfers 10 tokens to Eve.
-        psp22.transfer(accounts.eve, 10, Vec::<u8>::new());
+        assert_eq!(
+            psp22.transfer(accounts.eve, 10, Vec::<u8>::new()),
+            Err(PSP22Error::InsufficientBalance)
+        );
     }
 
     #[ink::test]
-    #[should_panic(expected = "InsufficientAllowance")]
     fn transfer_from_fails() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
@@ -215,7 +216,10 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Bob fails to transfer tokens owned by Alice.
-        psp22.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
+        assert_eq!(
+            psp22.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new()),
+            Err(PSP22Error::InsufficientAllowance)
+        );
     }
 
     #[ink::test]
@@ -264,7 +268,6 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
     fn allowance_must_not_change_on_failed_transfer() {
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
@@ -288,6 +291,9 @@ mod tests {
             data,
         );
 
-        psp22.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new());
+        assert_eq!(
+            psp22.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new()),
+            Err(PSP22Error::InsufficientBalance)
+        );
     }
 }
