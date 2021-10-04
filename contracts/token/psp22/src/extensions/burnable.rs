@@ -32,7 +32,7 @@ pub trait PSP22Burnable: PSP22 {
     /// by owner for `spender`.
     #[ink(message)]
     fn burn_from(&mut self, account: AccountId, amount: Balance) {
-        let current_allowance = *self.get().allowances.get(&(account, Self::env().caller()));
+        let current_allowance = self.get().allowances.get(&(account, Self::env().caller()));
 
         assert!(
             current_allowance
