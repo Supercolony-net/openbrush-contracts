@@ -24,6 +24,7 @@ name = "psp22"
 path = "src/lib.rs"
 crate-type = [
     "rlib",
+    "cdylib"
 ]
 
 [features]

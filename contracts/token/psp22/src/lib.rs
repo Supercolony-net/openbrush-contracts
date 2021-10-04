@@ -2,3 +2,5 @@
 
 pub mod stub;
 pub mod traits;
+
+pub mod extensions;
