@@ -70,23 +70,23 @@ pub enum PSP22Error {
 /// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
 pub trait PSP22: PSP22Storage {
-    /// Panics the total token supply.
+    /// Returns the total token supply.
     #[ink(message)]
     fn total_supply(&self) -> Balance {
         Lazy::get(&self.get().supply).clone()
     }
 
-    /// Panics the account Balance for the specified `owner`.
+    /// Returns the account Balance for the specified `owner`.
     ///
-    /// Panics `0` if the account is non-existent.
+    /// Returns `0` if the account is non-existent.
     #[ink(message)]
     fn balance_of(&self, owner: AccountId) -> Balance {
         self.get().balances.get(&owner).copied().unwrap_or(0)
     }
 
-    /// Panics the amount which `spender` is still allowed to withdraw from `owner`.
+    /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
     ///
-    /// Panics `0` if no allowance has been set `0`.
+    /// Returns `0` if no allowance has been set `0`.
     #[ink(message)]
     fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
         self.get().allowances.get(&(owner, spender)).copied().unwrap_or(0)
@@ -326,19 +326,19 @@ pub trait PSP22: PSP22Storage {
 /// Trait that contains metadata
 #[brush::trait_definition]
 pub trait PSP22Metadata: PSP22MetadataStorage {
-    /// Panics the token name.
+    /// Returns the token name.
     #[ink(message)]
     fn token_name(&self) -> Option<String> {
         Lazy::get(&self.get().name).clone()
     }
 
-    /// Panics the token symbol.
+    /// Returns the token symbol.
     #[ink(message)]
     fn token_symbol(&self) -> Option<String> {
         Lazy::get(&self.get().symbol).clone()
     }
 
-    /// Panics the token decimals.
+    /// Returns the token decimals.
     #[ink(message)]
     fn token_decimals(&self) -> u8 {
         Lazy::get(&self.get().decimals).clone()
