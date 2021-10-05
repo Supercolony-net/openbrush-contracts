@@ -179,20 +179,16 @@ pub trait IPSP721: PSP721Storage {
         assert_ne!(to, caller, "{}", PSP721Error::NotAllowed.as_ref());
         self._emit_approval_for_all_event(caller, to, approved);
         if self._approved_for_all(caller, to) {
-            let status = self
-                .get_mut()
-                .operator_approvals
-                .get_mut(&(caller, to))
-                .ok_or(PSP721Error::CannotFetchValue)?;
-            *status = approved;
-            Ok(())
-        } else {
             self.get_mut()
                 .operator_approvals
-                .insert((caller, to), approved)
-                .ok_or(PSP721Error::CannotInsert)?;
-            Ok(())
+                .entry((caller, to))
+                .and_modify(|b| *b = approved)
+                .or_insert(approved);
+        } else {
+            self.get_mut().operator_approvals.insert((caller, to), approved);
         }
+        self._emit_approval_for_all_event(caller, to, approved);
+        Ok(())
     }
 
     /// Approve the passed AccountId to transfer the specified token on behalf of the message's sender.
@@ -202,16 +198,9 @@ pub trait IPSP721: PSP721Storage {
         if !(owner == Some(caller) || self._approved_for_all(owner.expect("PSP721Error with AccountId"), caller)) {
             panic!("{}", PSP721Error::NotAllowed.as_ref());
         };
-
         assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
-        assert!(
-            self.get_mut().token_approvals.insert(id, to).is_none(),
-            "{}",
-            PSP721Error::CannotInsert.as_ref()
-        );
-        if self.get_mut().token_approvals.insert(id, to).is_some() {
-            return Err(PSP721Error::CannotInsert)
-        }
+
+        self.get_mut().token_approvals.insert(id, to);
         self._emit_approval_event(caller, to, id);
         Ok(())
     }
@@ -256,23 +245,24 @@ pub trait IPSP721: PSP721Storage {
             "{}",
             PSP721Error::NotApproved.as_ref()
         );
-        if self.get().token_approvals.contains_key(&id) {
-            self.get_mut().token_approvals.take(&id);
-        };
+        self.get_mut().token_approvals.take(&id);
         self._remove_from(from.clone(), id)?;
         self._add_to(to, id)?;
         Ok(())
     }
 
     fn _add_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
-        let vacant_token_owner = match self.get_mut().token_owner.entry(id) {
-            Entry::Vacant(vacant) => vacant,
+        assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
+        match self.get_mut().token_owner.entry(id) {
+            Entry::Vacant(vacant) => vacant.insert(to),
             Entry::Occupied(_) => panic!("{}", PSP721Error::TokenExists.as_ref()),
         };
-        assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
-        vacant_token_owner.insert(to.clone());
-        let entry = self.get_mut().owned_tokens_count.entry(to);
-        entry.and_modify(|v| *v += 1).or_insert(1);
+
+        self.get_mut()
+            .owned_tokens_count
+            .entry(to)
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
         Ok(())
     }
 
@@ -283,12 +273,11 @@ pub trait IPSP721: PSP721Storage {
         };
         assert_eq!(occupied.get(), &caller, "{}", PSP721Error::NotOwner.as_ref());
         occupied.remove_entry();
-        let count = self
-            .get_mut()
+
+        self.get_mut()
             .owned_tokens_count
-            .get_mut(&caller)
-            .ok_or(PSP721Error::CannotFetchValue)?;
-        *count -= 1;
+            .entry(caller)
+            .and_modify(|v| *v -= 1);
         Ok(())
     }
 
