@@ -8,7 +8,10 @@ pub use self::{
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp721 {
-    use crate::traits::{Id, PSP721Error};
+    use crate::traits::{
+        Id,
+        PSP721Error,
+    };
     use ink_prelude::{
         string::String,
         vec::Vec,
@@ -63,7 +66,13 @@ mod psp721 {
         }
 
         #[ink(message)]
-        pub fn safe_transfer_from(&mut self, _from: AccountId, _to: AccountId, _id: Id, _data: Vec<u8>) -> Result<(), PSP721Error> {
+        pub fn safe_transfer_from(
+            &mut self,
+            _from: AccountId,
+            _to: AccountId,
+            _id: Id,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP721Error> {
             unimplemented!()
         }
     }

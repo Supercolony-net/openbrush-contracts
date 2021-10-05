@@ -74,7 +74,7 @@ pub enum PSP1155Error {
 /// `PSP1155Storage` traits.
 #[brush::trait_definition]
 pub trait IPSP1155: PSP1155Storage {
-    /// Returns the amount of tokens of token type `_id` owned by `_account`.
+    /// Panics the amount of tokens of token type `_id` owned by `_account`.
     #[ink(message)]
     fn balance_of(&self, account: AccountId, id: Id) -> Balance {
         self._balance_of_or_zero(account, id)
@@ -103,13 +103,12 @@ pub trait IPSP1155: PSP1155Storage {
     ///
     /// # Errors
     ///
-    /// Returns with `SelfApproval` error if it is self approve.
+    /// Panics with `SelfApproval` error if it is self approve.
     #[ink(message)]
     fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) -> Result<(), PSP1155Error> {
         let caller = Self::env().caller();
         assert_ne!(caller, operator, "{}", PSP1155Error::SelfApproval.as_ref());
-        *self
-            .get_mut()
+        self.get_mut()
             .operator_approval
             .entry((Self::env().caller(), operator))
             .and_modify(|b| *b = approved)
@@ -119,7 +118,7 @@ pub trait IPSP1155: PSP1155Storage {
         Ok(())
     }
 
-    /// Returns true if `_operator` is approved to transfer ``_account``'s tokens.
+    /// Panics true if `_operator` is approved to transfer ``_account``'s tokens.
     #[ink(message)]
     fn is_approved_for_all(&self, account: AccountId, operator: AccountId) -> bool {
         self._is_approved_for_all(account, operator)
@@ -131,13 +130,13 @@ pub trait IPSP1155: PSP1155Storage {
     ///
     /// # Errors
     ///
-    /// Returns with `TransferToZeroAddress` error if receipt is zero account.
+    /// Panics with `TransferToZeroAddress` error if receipt is zero account.
     ///
-    /// Returns with `ApproveRequired` error if transfer is not approved.
+    /// Panics with `ApproveRequired` error if transfer is not approved.
     ///
-    /// Returns with `InsufficientBalance` error if `_from` doesn't contain enough balance.
+    /// Panics with `InsufficientBalance` error if `_from` doesn't contain enough balance.
     ///
-    /// Returns with `CallFailed` error if `_to` doesn't accept transfer.
+    /// Panics with `CallFailed` error if `_to` doesn't accept transfer.
     #[ink(message)]
     fn safe_transfer_from(
         &mut self,
@@ -362,7 +361,7 @@ pub trait IPSP1155Mint: IPSP1155 {
 
 #[brush::trait_definition]
 pub trait IPSP1155Metadata: PSP1155MetadataStorage {
-    /// Returns the URI for token type `id`.
+    /// Panics the URI for token type `id`.
     #[ink(message)]
     fn uri(&self, _id: Id) -> Option<String> {
         self.get().uri.clone()

@@ -70,23 +70,23 @@ pub enum PSP22Error {
 /// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
 pub trait PSP22: PSP22Storage {
-    /// Returns the total token supply.
+    /// Panics the total token supply.
     #[ink(message)]
     fn total_supply(&self) -> Balance {
         Lazy::get(&self.get().supply).clone()
     }
 
-    /// Returns the account Balance for the specified `owner`.
+    /// Panics the account Balance for the specified `owner`.
     ///
-    /// Returns `0` if the account is non-existent.
+    /// Panics `0` if the account is non-existent.
     #[ink(message)]
     fn balance_of(&self, owner: AccountId) -> Balance {
         self.get().balances.get(&owner).copied().unwrap_or(0)
     }
 
-    /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
+    /// Panics the amount which `spender` is still allowed to withdraw from `owner`.
     ///
-    /// Returns `0` if no allowance has been set `0`.
+    /// Panics `0` if no allowance has been set `0`.
     #[ink(message)]
     fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
         self.get().allowances.get(&(owner, spender)).copied().unwrap_or(0)
@@ -99,12 +99,12 @@ pub trait PSP22: PSP22Storage {
     ///
     /// # Errors
     ///
-    /// Returns `InsufficientBalance` error if there are not enough tokens on
+    /// Panics `InsufficientBalance` error if there are not enough tokens on
     /// the caller's account Balance.
     ///
-    /// Returns `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
         let from = Self::env().caller();
@@ -122,22 +122,20 @@ pub trait PSP22: PSP22Storage {
     ///
     /// # Errors
     ///
-    /// Returns `InsufficientAllowance` error if there are not enough tokens allowed
+    /// Panics `InsufficientAllowance` error if there are not enough tokens allowed
     /// for the caller to withdraw from `from`.
     ///
-    /// Returns `InsufficientBalance` error if there are not enough tokens on
+    /// Panics `InsufficientBalance` error if there are not enough tokens on
     /// the the account Balance of `from`.
     ///
-    /// Returns `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
         let caller = Self::env().caller();
         let allowance = self.allowance(from, caller);
-        if allowance < value {
-            return Err(PSP22Error::InsufficientAllowance)
-        }
+        assert!(allowance >= value, "{}", PSP22Error::InsufficientAllowance.as_ref());
         self._transfer_from_to(from, to, value, data)?;
         self._approve_from_to(from, caller, allowance - value)?;
         Ok(())
@@ -152,9 +150,9 @@ pub trait PSP22: PSP22Storage {
     ///
     /// # Errors
     ///
-    /// Returns `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
         let owner = Self::env().caller();
@@ -168,9 +166,9 @@ pub trait PSP22: PSP22Storage {
     ///
     /// # Errors
     ///
-    /// Returns `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
         let owner = Self::env().caller();
@@ -184,19 +182,21 @@ pub trait PSP22: PSP22Storage {
     ///
     /// # Errors
     ///
-    /// Returns `InsufficientAllowance` error if there are not enough tokens allowed
+    /// Panics `InsufficientAllowance` error if there are not enough tokens allowed
     /// by owner for `spender`.
     ///
-    /// Returns `ZeroSenderAddress` error if sender's address is zero.
+    /// Panics `ZeroSenderAddress` error if sender's address is zero.
     ///
-    /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
+    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
     fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
         let owner = Self::env().caller();
         let allowance = self.allowance(owner, spender);
-        if allowance < delta_value {
-            return Err(PSP22Error::InsufficientAllowance)
-        }
+        assert!(
+            allowance >= delta_value,
+            "{}",
+            PSP22Error::InsufficientAllowance.as_ref()
+        );
 
         self._approve_from_to(owner, spender, allowance - delta_value)?;
         Ok(())
@@ -220,14 +220,30 @@ pub trait PSP22: PSP22Storage {
             Ok(result) => {
                 match result {
                     Ok(_) => (),
-                    e => { return Err(PSP22Error::SafeTransferCheckFailed(String::from(format!("The contract with `to` address does not accept tokens: {:?}", e))));
+                    e => {
+                        panic!(
+                            "{}",
+                            PSP22Error::SafeTransferCheckFailed(String::from(format!(
+                                "The contract with `to` address does not accept tokens: {:?}",
+                                e
+                            )))
+                                .as_ref()
+                        )
                     }
                 }
             }
             Err(e) => {
                 match e {
                     EnvError::NotCallable => (),
-                    e => { return Err( PSP22Error::SafeTransferCheckFailed(String::from(format!("Unknown error: call failed with {:?}", e))));
+                    e => {
+                        panic!(
+                            "{}",
+                            PSP22Error::SafeTransferCheckFailed(String::from(format!(
+                                "Unknown error: call failed with {:?}",
+                                e
+                            )))
+                                .as_ref()
+                        )
                     }
                 }
             }
@@ -238,19 +254,13 @@ pub trait PSP22: PSP22Storage {
     fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {}
 
     fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
-        if from.is_zero() {
-            return Err( PSP22Error::ZeroSenderAddress)
-        }
-        if to.is_zero() {
-            return Err(PSP22Error::ZeroRecipientAddress)
-        }
+        assert!(!from.is_zero(), "{}", PSP22Error::ZeroSenderAddress.as_ref());
+        assert!(!to.is_zero(), "{}", PSP22Error::ZeroRecipientAddress.as_ref());
 
         self._before_token_transfer(from, to, amount);
 
         let from_balance = self.balance_of(from);
-        if from_balance < amount {
-            return Err(PSP22Error::InsufficientBalance)
-        }
+        assert!(from_balance >= amount, "{}", PSP22Error::InsufficientBalance.as_ref());
 
         self._do_safe_transfer_check(from, to, amount, data)?;
 
@@ -263,12 +273,8 @@ pub trait PSP22: PSP22Storage {
     }
 
     fn _approve_from_to(&mut self, owner: AccountId, spender: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        if owner.is_zero() {
-            return Err(PSP22Error::ZeroSenderAddress)
-        }
-        if spender.is_zero() {
-            return Err(PSP22Error::ZeroRecipientAddress)
-        }
+        assert!(!owner.is_zero(), "{}", PSP22Error::ZeroSenderAddress.as_ref());
+        assert!(!spender.is_zero(), "{}", PSP22Error::ZeroRecipientAddress.as_ref());
 
         self.get_mut().allowances.insert((owner, spender), amount);
         self._emit_approval_event(owner, spender, amount);
@@ -281,11 +287,9 @@ pub trait PSP22: PSP22Storage {
     ///
     /// # Errors
     ///
-    /// Returns `ZeroRecipientAddress` error if recipient's address is zero.
-    fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        if account.is_zero() {
-            return Err(PSP22Error::ZeroRecipientAddress)
-        }
+    /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
+    fn _mint(&mut self, account: AccountId, amount: Balance) {
+        assert!(!account.is_zero(), "{}", PSP22Error::ZeroRecipientAddress.as_ref());
 
         let mut new_balance = self.balance_of(account);
         new_balance += amount;
@@ -293,7 +297,6 @@ pub trait PSP22: PSP22Storage {
         let new_supply = self.total_supply() + amount;
         Lazy::set(&mut self.get_mut().supply, new_supply);
         self._emit_transfer_event(None, Some(account), amount);
-        Ok(())
     }
 
     /// Destroys `amount` tokens from `account`, reducing the total supply.
@@ -302,45 +305,40 @@ pub trait PSP22: PSP22Storage {
     ///
     /// # Errors
     ///
-    /// Returns `ZeroSenderAddress` error if recipient's address is zero.
+    /// Panics `ZeroSenderAddress` error if recipient's address is zero.
     ///
-    /// Returns `InsufficientBalance` error if there are not enough tokens on
+    /// Panics `InsufficientBalance` error if there are not enough tokens on
     /// the account balance of `account`.
-    fn _burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        if account.is_zero() {
-            return Err(PSP22Error::ZeroRecipientAddress)
-        }
+    fn _burn(&mut self, account: AccountId, amount: Balance) {
+        assert!(!account.is_zero(), "{}", PSP22Error::ZeroSenderAddress.as_ref());
 
         let mut from_balance = self.balance_of(account);
-        if from_balance < amount {
-            return Err(PSP22Error::InsufficientBalance)
-        }
+        assert!(from_balance >= amount, "{}", PSP22Error::InsufficientBalance.as_ref());
 
         from_balance -= amount;
         self.get_mut().balances.insert(account, from_balance);
         let new_supply = self.total_supply() - amount;
         Lazy::set(&mut self.get_mut().supply, new_supply);
         self._emit_transfer_event(Some(account), None, amount);
-        Ok(())
     }
 }
 
 /// Trait that contains metadata
 #[brush::trait_definition]
 pub trait PSP22Metadata: PSP22MetadataStorage {
-    /// Returns the token name.
+    /// Panics the token name.
     #[ink(message)]
     fn token_name(&self) -> Option<String> {
         Lazy::get(&self.get().name).clone()
     }
 
-    /// Returns the token symbol.
+    /// Panics the token symbol.
     #[ink(message)]
     fn token_symbol(&self) -> Option<String> {
         Lazy::get(&self.get().symbol).clone()
     }
 
-    /// Returns the token decimals.
+    /// Panics the token decimals.
     #[ink(message)]
     fn token_decimals(&self) -> u8 {
         Lazy::get(&self.get().decimals).clone()

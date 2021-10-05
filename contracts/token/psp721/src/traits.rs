@@ -55,8 +55,7 @@ pub struct PSP721MetadataData {
 declare_storage_trait!(PSP721MetadataStorage, PSP721MetadataData);
 
 /// The PSP721 error type. Contract will throw one of this errors.
-#[derive(strum_macros::AsRefStr)]
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[derive(strum_macros::AsRefStr, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP721Error {
     Unknown(String),
@@ -76,7 +75,7 @@ pub enum PSP721Error {
 /// `PSP721Storage` traits.
 #[brush::trait_definition]
 pub trait IPSP721: PSP721Storage {
-    /// Returns the balance of the owner.
+    /// Panics the balance of the owner.
     ///
     /// This represents the amount of unique tokens the owner has.
     #[ink(message)]
@@ -84,19 +83,19 @@ pub trait IPSP721: PSP721Storage {
         self.get().owned_tokens_count.get(&owner).cloned().unwrap_or(0)
     }
 
-    /// Returns the owner of the token.
+    /// Panics the owner of the token.
     #[ink(message)]
     fn owner_of(&self, id: Id) -> Option<AccountId> {
         self._owner_of(&id)
     }
 
-    /// Returns the approved account ID for this token if any.
+    /// Panics the approved account ID for this token if any.
     #[ink(message)]
     fn get_approved(&self, id: Id) -> Option<AccountId> {
         self.get().token_approvals.get(&id).cloned()
     }
 
-    /// Returns `true` if the operator is approved by the owner.
+    /// Panics `true` if the operator is approved by the owner.
     #[ink(message)]
     fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
         self._approved_for_all(owner, operator)
@@ -177,16 +176,21 @@ pub trait IPSP721: PSP721Storage {
     /// Approves or disapproves the operator to transfer all tokens of the caller.
     fn _approve_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
-        if caller == to {
-            return Err(PSP721Error::NotAllowed)
-        }
+        assert_ne!(to, caller, "{}", PSP721Error::NotAllowed.as_ref());
         self._emit_approval_for_all_event(caller, to, approved);
         if self._approved_for_all(caller, to) {
-            let status = self.get_mut().operator_approvals.get_mut(&(caller, to)).ok_or(PSP721Error::CannotFetchValue)?;
+            let status = self
+                .get_mut()
+                .operator_approvals
+                .get_mut(&(caller, to))
+                .ok_or(PSP721Error::CannotFetchValue)?;
             *status = approved;
             Ok(())
         } else {
-            self.get_mut().operator_approvals.insert((caller, to), approved).ok_or(PSP721Error::CannotInsert)?;
+            self.get_mut()
+                .operator_approvals
+                .insert((caller, to), approved)
+                .ok_or(PSP721Error::CannotInsert)?;
             Ok(())
         }
     }
@@ -196,19 +200,23 @@ pub trait IPSP721: PSP721Storage {
         let caller = Self::env().caller();
         let owner = self._owner_of(&id);
         if !(owner == Some(caller) || self._approved_for_all(owner.expect("PSP721Error with AccountId"), caller)) {
-            return Err(PSP721Error::NotAllowed)
+            panic!("{}", PSP721Error::NotAllowed.as_ref());
         };
-        if to.is_zero() {
-            return Err(PSP721Error::NotAllowed)
-        }
+
+        assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
+        assert!(
+            self.get_mut().token_approvals.insert(id, to).is_none(),
+            "{}",
+            PSP721Error::CannotInsert.as_ref()
+        );
         if self.get_mut().token_approvals.insert(id, to).is_some() {
-            return  Err(PSP721Error::CannotInsert)
+            return Err(PSP721Error::CannotInsert)
         }
         self._emit_approval_event(caller, to, id);
         Ok(())
     }
 
-    /// Returns the owner of the token.
+    /// Panics the owner of the token.
     fn _owner_of(&self, id: &Id) -> Option<AccountId> {
         self.get().token_owner.get(id).cloned()
     }
@@ -222,7 +230,7 @@ pub trait IPSP721: PSP721Storage {
             .clone()
     }
 
-    /// Returns true if the AccountId `from` is the owner of token `id`
+    /// Panics true if the AccountId `from` is the owner of token `id`
     /// or it has been approved on behalf of the token `id` owner.
     fn _approved_or_owner(&self, from: Option<AccountId>, id: &Id) -> bool {
         let owner = self._owner_of(id);
@@ -238,12 +246,16 @@ pub trait IPSP721: PSP721Storage {
     /// Transfers token `id` `from` the sender to the `to` AccountId.
     fn _transfer_token_from(&mut self, from: &AccountId, to: AccountId, id: Id) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
-        if self.get().token_owner.get(&id).is_none() {
-            return Err(PSP721Error::TokenNotFound)
-        }
-        if !self._approved_or_owner(Some(caller), &id) {
-            return Err(PSP721Error::NotApproved)
-        }
+        assert!(
+            self.get().token_owner.get(&id).is_some(),
+            "{}",
+            PSP721Error::TokenNotFound.as_ref()
+        );
+        assert!(
+            self._approved_or_owner(Some(caller), &id),
+            "{}",
+            PSP721Error::NotApproved.as_ref()
+        );
         if self.get().token_approvals.contains_key(&id) {
             self.get_mut().token_approvals.take(&id);
         };
@@ -255,11 +267,9 @@ pub trait IPSP721: PSP721Storage {
     fn _add_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
         let vacant_token_owner = match self.get_mut().token_owner.entry(id) {
             Entry::Vacant(vacant) => vacant,
-            Entry::Occupied(_) => return Err(PSP721Error::TokenExists),
+            Entry::Occupied(_) => panic!("{}", PSP721Error::TokenExists.as_ref()),
         };
-        if to.is_zero() {
-            return Err(PSP721Error::NotAllowed)
-        }
+        assert!(!to.is_zero(), "{}", PSP721Error::NotAllowed.as_ref());
         vacant_token_owner.insert(to.clone());
         let entry = self.get_mut().owned_tokens_count.entry(to);
         entry.and_modify(|v| *v += 1).or_insert(1);
@@ -268,12 +278,10 @@ pub trait IPSP721: PSP721Storage {
 
     fn _remove_from(&mut self, caller: AccountId, id: Id) -> Result<(), PSP721Error> {
         let occupied = match self.get_mut().token_owner.entry(id) {
-            Entry::Vacant(_) =>return Err(PSP721Error::TokenNotFound),
+            Entry::Vacant(_) => panic!("{}", PSP721Error::TokenNotFound.as_ref()),
             Entry::Occupied(occupied) => occupied,
         };
-        if occupied.get() != &caller {
-            return Err(PSP721Error::NotOwner)
-        }
+        assert_eq!(occupied.get(), &caller, "{}", PSP721Error::NotOwner.as_ref());
         occupied.remove_entry();
         let count = self
             .get_mut()
@@ -284,19 +292,26 @@ pub trait IPSP721: PSP721Storage {
         Ok(())
     }
 
-    fn _call_contract_transfer(&self, operator: AccountId, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP721Error> {
+    fn _call_contract_transfer(
+        &self,
+        operator: AccountId,
+        from: AccountId,
+        to: AccountId,
+        id: Id,
+        data: Vec<u8>,
+    ) -> Result<(), PSP721Error> {
         let mut receiver: PSP721Receiver = FromAccountId::from_account_id(to);
         match receiver.call_mut().on_psp721_received(operator, from, id, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
-                    _ => return Err(PSP721Error::CallFailed),
+                    _ => panic!("{}", PSP721Error::CallFailed.as_ref()),
                 }
             }
             Err(e) => {
                 match e {
                     Env_error::NotCallable => Ok(()),
-                    _ => return Err(PSP721Error::CallFailed),
+                    _ => panic!("{}", PSP721Error::CallFailed.as_ref()),
                 }
             }
         }
@@ -317,13 +332,13 @@ pub trait IPSP721: PSP721Storage {
 
 #[brush::trait_definition]
 pub trait IPSP721Metadata: PSP721MetadataStorage {
-    /// Returns the token name.
+    /// Panics the token name.
     #[ink(message)]
     fn name(&self) -> Option<String> {
         self.get().name.clone()
     }
 
-    /// Returns the token symbol.
+    /// Panics the token symbol.
     #[ink(message)]
     fn symbol(&self) -> Option<String> {
         self.get().symbol.clone()
