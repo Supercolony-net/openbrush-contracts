@@ -74,7 +74,7 @@ pub enum PSP1155Error {
 /// `PSP1155Storage` traits.
 #[brush::trait_definition]
 pub trait IPSP1155: PSP1155Storage {
-    /// Panics the amount of tokens of token type `_id` owned by `_account`.
+    /// Returns the amount of tokens of token type `_id` owned by `_account`.
     #[ink(message)]
     fn balance_of(&self, account: AccountId, id: Id) -> Balance {
         self._balance_of_or_zero(account, id)
@@ -118,7 +118,7 @@ pub trait IPSP1155: PSP1155Storage {
         Ok(())
     }
 
-    /// Panics true if `_operator` is approved to transfer ``_account``'s tokens.
+    /// Returns true if `_operator` is approved to transfer ``_account``'s tokens.
     #[ink(message)]
     fn is_approved_for_all(&self, account: AccountId, operator: AccountId) -> bool {
         self._is_approved_for_all(account, operator)
@@ -361,7 +361,7 @@ pub trait IPSP1155Mint: IPSP1155 {
 
 #[brush::trait_definition]
 pub trait IPSP1155Metadata: PSP1155MetadataStorage {
-    /// Panics the URI for token type `id`.
+    /// Returns the URI for token type `id`.
     #[ink(message)]
     fn uri(&self, _id: Id) -> Option<String> {
         self.get().uri.clone()

@@ -75,7 +75,7 @@ pub enum PSP721Error {
 /// `PSP721Storage` traits.
 #[brush::trait_definition]
 pub trait IPSP721: PSP721Storage {
-    /// Panics the balance of the owner.
+    /// Returns the balance of the owner.
     ///
     /// This represents the amount of unique tokens the owner has.
     #[ink(message)]
@@ -83,19 +83,19 @@ pub trait IPSP721: PSP721Storage {
         self.get().owned_tokens_count.get(&owner).cloned().unwrap_or(0)
     }
 
-    /// Panics the owner of the token.
+    /// Returns the owner of the token.
     #[ink(message)]
     fn owner_of(&self, id: Id) -> Option<AccountId> {
         self._owner_of(&id)
     }
 
-    /// Panics the approved account ID for this token if any.
+    /// Returns the approved account ID for this token if any.
     #[ink(message)]
     fn get_approved(&self, id: Id) -> Option<AccountId> {
         self.get().token_approvals.get(&id).cloned()
     }
 
-    /// Panics `true` if the operator is approved by the owner.
+    /// Returns `true` if the operator is approved by the owner.
     #[ink(message)]
     fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
         self._approved_for_all(owner, operator)
@@ -185,14 +185,13 @@ pub trait IPSP721: PSP721Storage {
                 .get_mut(&(caller, to))
                 .ok_or(PSP721Error::CannotFetchValue)?;
             *status = approved;
-            Ok(())
         } else {
             self.get_mut()
                 .operator_approvals
                 .insert((caller, to), approved)
                 .ok_or(PSP721Error::CannotInsert)?;
-            Ok(())
         }
+        Ok(())
     }
 
     /// Approve the passed AccountId to transfer the specified token on behalf of the message's sender.
@@ -209,14 +208,11 @@ pub trait IPSP721: PSP721Storage {
             "{}",
             PSP721Error::CannotInsert.as_ref()
         );
-        if self.get_mut().token_approvals.insert(id, to).is_some() {
-            return Err(PSP721Error::CannotInsert)
-        }
         self._emit_approval_event(caller, to, id);
         Ok(())
     }
 
-    /// Panics the owner of the token.
+    /// Returns the owner of the token.
     fn _owner_of(&self, id: &Id) -> Option<AccountId> {
         self.get().token_owner.get(id).cloned()
     }
@@ -230,7 +226,7 @@ pub trait IPSP721: PSP721Storage {
             .clone()
     }
 
-    /// Panics true if the AccountId `from` is the owner of token `id`
+    /// Returns true if the AccountId `from` is the owner of token `id`
     /// or it has been approved on behalf of the token `id` owner.
     fn _approved_or_owner(&self, from: Option<AccountId>, id: &Id) -> bool {
         let owner = self._owner_of(id);
@@ -332,13 +328,13 @@ pub trait IPSP721: PSP721Storage {
 
 #[brush::trait_definition]
 pub trait IPSP721Metadata: PSP721MetadataStorage {
-    /// Panics the token name.
+    /// Returns the token name.
     #[ink(message)]
     fn name(&self) -> Option<String> {
         self.get().name.clone()
     }
 
-    /// Panics the token symbol.
+    /// Returns the token symbol.
     #[ink(message)]
     fn symbol(&self) -> Option<String> {
         self.get().symbol.clone()
