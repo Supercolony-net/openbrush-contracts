@@ -177,7 +177,6 @@ pub trait IPSP721: PSP721Storage {
     fn _approve_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
         assert_ne!(to, caller, "{}", PSP721Error::NotAllowed.as_ref());
-        self._emit_approval_for_all_event(caller, to, approved);
         if self._approved_for_all(caller, to) {
             self.get_mut()
                 .operator_approvals
