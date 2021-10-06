@@ -57,12 +57,9 @@ declare_storage_trait!(PSP1155MetadataStorage, PSP1155MetadataData);
 pub enum PSP1155Error {
     Unknown(String),
     CallFailed,
-    ZeroAddress,
-    SelfApproval,
     InsufficientBalance,
-    MaxBalance,
     TransferToZeroAddress,
-    ApproveRequired,
+    NotAllowed,
     InputLengthMismatch,
 }
 
@@ -103,11 +100,11 @@ pub trait IPSP1155: PSP1155Storage {
     ///
     /// # Errors
     ///
-    /// Panics with `SelfApproval` error if it is self approve.
+    /// Panics with `NotAllowed` error if it is self approve.
     #[ink(message)]
     fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) -> Result<(), PSP1155Error> {
         let caller = Self::env().caller();
-        assert_ne!(caller, operator, "{}", PSP1155Error::SelfApproval.as_ref());
+        assert_ne!(caller, operator, "{}", PSP1155Error::NotAllowed.as_ref());
         self.get_mut()
             .operator_approval
             .entry((Self::env().caller(), operator))
@@ -132,7 +129,7 @@ pub trait IPSP1155: PSP1155Storage {
     ///
     /// Panics with `TransferToZeroAddress` error if receipt is zero account.
     ///
-    /// Panics with `ApproveRequired` error if transfer is not approved.
+    /// Panics with `NotAllowed` error if transfer is not approved.
     ///
     /// Panics with `InsufficientBalance` error if `_from` doesn't contain enough balance.
     ///
@@ -245,7 +242,7 @@ pub trait IPSP1155: PSP1155Storage {
 
         let operator = Self::env().caller();
         if (from != operator) && (!self._is_approved_for_all(from, operator)) {
-            panic!("{}", PSP1155Error::ApproveRequired.as_ref());
+            panic!("{}", PSP1155Error::NotAllowed.as_ref());
         }
     }
 

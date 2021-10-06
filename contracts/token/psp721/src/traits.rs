@@ -64,8 +64,6 @@ pub enum PSP721Error {
     NotApproved,
     TokenExists,
     TokenNotFound,
-    CannotInsert,
-    CannotFetchValue,
     NotAllowed,
 }
 
