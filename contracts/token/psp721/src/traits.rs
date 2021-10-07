@@ -58,12 +58,17 @@ declare_storage_trait!(PSP721MetadataStorage, PSP721MetadataData);
 #[derive(strum_macros::AsRefStr, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP721Error {
-    Unknown(String),
+    /// Returned if safe transfer check fails.
     CallFailed,
+    /// Returned if the caller is not the owner of the token.
     NotOwner,
+    /// Returned if the caller doesn't have allowance for transferring.
     NotApproved,
+    /// Returned if the owner already own the token.
     TokenExists,
+    /// Returned if  the token doesn't exist
     TokenNotFound,
+    /// Returned if the caller is not allowed.
     NotAllowed,
 }
 

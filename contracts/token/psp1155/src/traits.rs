@@ -55,11 +55,15 @@ declare_storage_trait!(PSP1155MetadataStorage, PSP1155MetadataData);
 #[derive(strum_macros::AsRefStr, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP1155Error {
-    Unknown(String),
+    /// Returned if safe transfer check fails.
     CallFailed,
+    /// Returned if the account doesn't contain enough funds.
     InsufficientBalance,
+    /// Returned if recipient is zero account.
     TransferToZeroAddress,
+    /// Returned if the caller is not allowed.
     NotAllowed,
+    /// Returned if their is a length mismatch
     InputLengthMismatch,
 }
 
@@ -127,7 +131,7 @@ pub trait IPSP1155: PSP1155Storage {
     ///
     /// # Errors
     ///
-    /// Panics with `TransferToZeroAddress` error if receipt is zero account.
+    /// Panics with `TransferToZeroAddress` error if recipient is zero account.
     ///
     /// Panics with `NotAllowed` error if transfer is not approved.
     ///
