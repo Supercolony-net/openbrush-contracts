@@ -1,13 +1,13 @@
 #[brush::contract]
 mod tests {
-    /// Imports all the definitions from the outer scope so we can use them here.
-    use psp22::traits::*;
     use brush::test_utils::*;
     use ink::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
+    /// Imports all the definitions from the outer scope so we can use them here.
+    use psp22::traits::*;
     use std::panic;
 
     /// Event emitted when a token transfer occurs.

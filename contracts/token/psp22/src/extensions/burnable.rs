@@ -1,3 +1,4 @@
+// use crate::traits::PSP22Error;
 /// Extension of [`PSP22`] that allows token holders to destroy both their own
 /// tokens and those that they have an allowance for, in a way that can be
 /// recognized off-chain (via event analysis).
@@ -32,20 +33,23 @@ pub trait PSP22Burnable: PSP22 {
     /// by owner for `spender`.
     #[ink(message)]
     fn burn_from(&mut self, account: AccountId, amount: Balance) {
-        let current_allowance = self.get().allowances.get(&(account, Self::env().caller()));
+        let current_allowance = self
+            .get()
+            .allowances
+            .get(&(account, Self::env().caller()))
+            .unwrap_or(&0);
 
         assert!(
-            current_allowance
-                .and_then(|allowance| Some(allowance >= &amount))
-                .unwrap_or(false),
-            "PSP22: burn amount exceeds allowance"
+            current_allowance >= &amount,
+            "{}",
+            PSP22Error::InsufficientAllowance.as_ref()
         );
-        self.approve(
-            account,
-            current_allowance
-                .and_then(|allowance| Some(allowance - &amount))
-                .unwrap(),
-        );
+
+        let new_amount = current_allowance - &amount;
+
+        self.get_mut()
+            .allowances
+            .insert((account, Self::env().caller()), new_amount);
 
         self._burn(account, amount);
     }
