@@ -21,7 +21,7 @@ mod psp22_mintable {
         value: Balance,
     }
 
-    /// A simple PSP-20 contract.
+    /// A simple PSP22 contract.
     #[ink(storage)]
     #[derive(Default, PSP22Storage)]
     pub struct PSP22Struct {
@@ -121,7 +121,7 @@ mod psp22_mintable {
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
-        // Check first transfer event related to PSP-20 instantiation.
+        // Check first transfer event related to PSP22 instantiation.
         assert_transfer_event(
             &emitted_events[0],
             None,
@@ -142,13 +142,13 @@ mod psp22_mintable {
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
-        // Account's total supply before minting
+        // Contract's total supply before minting
         let total_supply = psp22.total_supply();
         let amount_to_mint = 10;
 
         psp22.mint(accounts.alice, amount_to_mint);
 
-        // Account's total supply after minting
+        // Contract's total supply after minting
         let new_total_supply = psp22.total_supply();
 
         assert_eq!(new_total_supply, total_supply + amount_to_mint);
