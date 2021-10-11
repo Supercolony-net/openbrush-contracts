@@ -156,8 +156,6 @@ impl MyPSP22 {
 ```
 
 
-
-
 Also you can use extensions for psp22 token:
 
 [PSP22Burnable](/smart-contracts/psp22/extensions/PSP22Burnable): destruction of own tokens.
