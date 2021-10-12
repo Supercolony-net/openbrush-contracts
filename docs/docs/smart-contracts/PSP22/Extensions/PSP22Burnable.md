@@ -135,15 +135,12 @@ Customize it by adding functionality of burning from owner and burning from anot
             instance
         }
 
-        #[ink(message)]
-        pub fn burn(&mut self, amount: Balance) {
-            self.burn(amount);
+        fn burn_from_many(&mut self, accounts: Vec<(AccountId, Balance)>) {
+             for account in accounts.iter() {
+                 self.burn_from(account.0, account.1);
+             }
         }
 
-        #[ink(message)]
-        pub fn burn_from(&mut self, account: AccountId, amount: Balance) {
-            self.burn_from(account, amount);
-        }
     }
 
 
