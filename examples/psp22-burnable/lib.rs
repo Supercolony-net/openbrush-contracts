@@ -27,14 +27,10 @@ pub mod my_psp22 {
             instance
         }
 
-        #[ink(message)]
-        pub fn burn(&mut self, amount: Balance) {
-            self.burn(amount);
-        }
-
-        #[ink(message)]
-        pub fn burn_from(&mut self, account: AccountId, amount: Balance) {
-            self.burn_from(account, amount);
+        fn burn_from_many(&mut self, accounts: Vec<(AccountId, Balance)>) {
+            for account in accounts.iter() {
+                self.burn_from(account.0, account.1);
+            }
         }
     }
 }

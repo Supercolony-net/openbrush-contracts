@@ -99,19 +99,10 @@ mod psp22_burnable {
     }
 
     // Testing burnable extension
-    #[ink::test]
-    #[should_panic(expected = "ZeroRecipientAddress")]
-    fn should_not_burn_from_zero_address() {
-        let mut psp22 = PSP22Struct::new(100);
-        let amount_to_burn = 10;
-        psp22.approve(AccountId::from([0; 32]), amount_to_burn);
-
-        psp22.burn_from(AccountId::from([0; 32]), amount_to_burn);
-    }
 
     #[ink::test]
     #[should_panic(expected = "InsufficientBalance")]
-    fn should_not_burn_if_burn_amount_greater_then_account_balance() {
+    fn should_not_burn_if_burn_amount_greater_than_account_balance() {
         let initial_balance = 10;
         let mut psp22 = PSP22Struct::new(initial_balance);
         let amount_to_burn = 100;
@@ -151,13 +142,13 @@ mod psp22_burnable {
     fn total_supply_decreases_after_burning() {
         let mut psp22 = PSP22Struct::new(100);
 
-        // Account's total supply before burning
+        // Contract's total supply before burning
         let total_supply = psp22.total_supply();
         let amount_to_burn = 10;
 
         psp22.burn(amount_to_burn);
 
-        // Account's total supply after burning
+        // Contract's total supply after burning
         let new_total_supply = psp22.total_supply();
 
         assert_eq!(new_total_supply, total_supply - amount_to_burn);

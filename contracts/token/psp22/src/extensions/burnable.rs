@@ -1,7 +1,5 @@
-// use crate::traits::PSP22Error;
 /// Extension of [`PSP22`] that allows token holders to destroy both their own
-/// tokens and those that they have an allowance for, in a way that can be
-/// recognized off-chain (via event analysis).
+/// tokens and those that they have an allowance for.
 use crate::traits::*;
 use brush::traits::{
     AccountId,
@@ -25,7 +23,7 @@ pub trait PSP22Burnable: PSP22 {
     ///
     /// Requirements:
     ///
-    /// - the caller must have allowance for ``accounts``'s tokens of at least
+    /// - the caller must have allowance for `account`'s tokens of at least
     /// `amount`.
     /// # Errors
     ///
