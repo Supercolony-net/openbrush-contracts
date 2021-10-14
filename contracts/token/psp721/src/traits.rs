@@ -291,14 +291,22 @@ pub trait IPSP721: PSP721Storage {
 
     fn _mint(&mut self, id: Id) {
         let to = Self::env().caller();
+        self._mint_to(to);
+    }
+
+    fn _mint_to(&mut self, to: AccountId, id: Id) {
         self._add_to(to, id.clone());
         self._emit_transfer_event(ZERO_ADDRESS.into(), to, id);
     }
 
+    fn _burn_from(&mut self, from: AccountId, id: Id) {
+        self._remove_from(from, id.clone());
+        self._emit_transfer_event(caller, ZERO_ADDRESS.into(), id);
+    }
+
     fn _burn(&mut self, id: Id) {
         let caller = Self::env().caller();
-        self._remove_from(caller, id.clone());
-        self._emit_transfer_event(caller, ZERO_ADDRESS.into(), id);
+        self._burn_from(caller, id);
     }
 }
 
@@ -319,21 +327,6 @@ pub trait IPSP721Metadata: PSP721MetadataStorage {
     fn _init_with_metadata(&mut self, name: Option<String>, symbol: Option<String>) {
         self.get_mut().name = name;
         self.get_mut().symbol = symbol;
-    }
-}
-
-#[brush::trait_definition]
-pub trait IPSP721Mint: IPSP721 {
-    /// Mints a new token.
-    #[ink(message)]
-    fn mint(&mut self, id: Id) {
-        self._mint(id)
-    }
-
-    /// Burns an existing token.
-    #[ink(message)]
-    fn burn(&mut self, id: Id) {
-        self._burn(id)
     }
 }
 

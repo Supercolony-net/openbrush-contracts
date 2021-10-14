@@ -80,19 +80,6 @@ mod psp721 {
             unimplemented!()
         }
     }
-
-    #[ink(namespace = "IPSP721Mint")]
-    impl PSP721 {
-        #[ink(message)]
-        pub fn mint(&mut self, id: Id) {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn burn(&mut self, id: Id) {
-            unimplemented!()
-        }
-    }
 }
 
 #[ink_lang::contract(compile_as_dependency = true)]

@@ -1,7 +1,6 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use psp721::traits::*;
     use brush::traits::ZERO_ADDRESS;
     use ink::{
         EmitEvent,
@@ -13,6 +12,7 @@ mod tests {
     };
     use ink_lang as ink;
     use ink_prelude::string::String;
+    use psp721::traits::*;
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
@@ -81,8 +81,6 @@ mod tests {
             });
         }
     }
-
-    impl IPSP721Mint for PSP721Struct {}
 
     impl IPSP721Metadata for PSP721Struct {}
 

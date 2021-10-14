@@ -8,7 +8,7 @@ use brush::traits::{
 
 #[brush::trait_definition]
 pub trait PSP721Burnable: IPSP721 {
-    /// Destroys token with id equal to 'id'.
+    /// Destroys own token with id equal to 'id'.
     ///
     /// See [`PSP721::_burn`].
     #[ink(message)]
@@ -24,17 +24,13 @@ pub trait PSP721Burnable: IPSP721 {
     fn burn_from(&mut self, account: AccountId, id: Id) {
         let caller = Self::env().caller();
 
-        let is_approved = self.get_approved(id).unwrap_or(ZERO_ADDRESS.into()) == caller;
-        let is_approved_for_all = self.is_approved_for_all(account, caller);
-
         assert_eq!(
-            is_approved || is_approved_for_all,
+            self.get_approved(id).unwrap_or(ZERO_ADDRESS.into()) == caller || self.is_approved_for_all(account, caller),
             true,
             "{}",
             PSP721Error::NotApproved.as_ref()
         );
 
-        self._remove_from(account, id.clone());
-        self._emit_transfer_event(account, ZERO_ADDRESS.into(), id);
+        self._burn_from(account, id);
     }
 }
