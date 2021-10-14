@@ -25,7 +25,7 @@ mod psp721 {
         }
     }
 
-    #[ink(namespace = "IPSP721")]
+    #[ink(namespace = "PSP721")]
     impl PSP721 {
         #[ink(message)]
         pub fn balance_of(&self, owner: AccountId) -> u32 {
@@ -68,7 +68,7 @@ mod psp721 {
         }
     }
 
-    #[ink(namespace = "IPSP721Metadata")]
+    #[ink(namespace = "PSP721Metadata")]
     impl PSP721 {
         #[ink(message)]
         pub fn name(&self) -> Option<String> {

@@ -70,10 +70,10 @@ pub enum PSP721Error {
 
 /// Contract module which provides a basic implementation of non fungible token.
 ///
-/// This module is used through embedding of `PSP721Data` and implementation of `IPSP721` and
+/// This module is used through embedding of `PSP721Data` and implementation of `PSP721` and
 /// `PSP721Storage` traits.
 #[brush::trait_definition]
-pub trait IPSP721: PSP721Storage {
+pub trait PSP721: PSP721Storage {
     /// Returns the balance of the owner.
     ///
     /// This represents the amount of unique tokens the owner has.
@@ -291,7 +291,7 @@ pub trait IPSP721: PSP721Storage {
 
     fn _mint(&mut self, id: Id) {
         let to = Self::env().caller();
-        self._mint_to(to);
+        self._mint_to(to, id);
     }
 
     fn _mint_to(&mut self, to: AccountId, id: Id) {
@@ -301,7 +301,7 @@ pub trait IPSP721: PSP721Storage {
 
     fn _burn_from(&mut self, from: AccountId, id: Id) {
         self._remove_from(from, id.clone());
-        self._emit_transfer_event(caller, ZERO_ADDRESS.into(), id);
+        self._emit_transfer_event(from, ZERO_ADDRESS.into(), id);
     }
 
     fn _burn(&mut self, id: Id) {
@@ -311,7 +311,7 @@ pub trait IPSP721: PSP721Storage {
 }
 
 #[brush::trait_definition]
-pub trait IPSP721Metadata: PSP721MetadataStorage {
+pub trait PSP721Metadata: PSP721MetadataStorage {
     /// Returns the token name.
     #[ink(message)]
     fn name(&self) -> Option<String> {

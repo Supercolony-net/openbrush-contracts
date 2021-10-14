@@ -7,7 +7,7 @@ use brush::traits::{
 };
 
 #[brush::trait_definition]
-pub trait PSP721Burnable: IPSP721 {
+pub trait PSP721Burnable: PSP721 {
     /// Destroys own token with id equal to 'id'.
     ///
     /// See [`PSP721::_burn`].

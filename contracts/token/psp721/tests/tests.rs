@@ -13,6 +13,8 @@ mod tests {
     use ink_lang as ink;
     use ink_prelude::string::String;
     use psp721::traits::*;
+    use psp721::extensions::burnable::*;
+    use psp721::extensions::mintable::*;
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
@@ -56,7 +58,7 @@ mod tests {
         metadata: PSP721MetadataData,
     }
 
-    impl IPSP721 for PSP721Struct {
+    impl PSP721 for PSP721Struct {
         fn _emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
             self.env().emit_event(Transfer {
                 from: Some(_from),
@@ -82,7 +84,11 @@ mod tests {
         }
     }
 
-    impl IPSP721Metadata for PSP721Struct {}
+    impl PSP721Mintable for PSP721Struct {}
+
+    impl PSP721Burnable for PSP721Struct {}
+
+    impl PSP721Metadata for PSP721Struct {}
 
     impl PSP721Struct {
         #[ink(constructor)]
