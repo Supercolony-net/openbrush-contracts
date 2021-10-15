@@ -1,10 +1,14 @@
 import Contract from '@redspot/patract/contract'
 import BN from 'bn.js'
-import { artifacts, network, patract } from 'redspot'
-import { Signer } from 'redspot/types'
+import {artifacts, network, patract} from 'redspot'
+import {expect} from './setup/chai'
+import {KeyringPair} from '@polkadot/keyring/types'
+import {buildTx} from '@redspot/patract/buildTx'
+import {Keyring} from '@polkadot/keyring'
 
-const { getContractFactory, getRandomSigner } = patract
-const { api, getSigners } = network
+
+const {getContractFactory, getRandomSigner} = patract
+const {api, getSigners, getAddresses} = network
 
 export { expect } from './setup/chai'
 
@@ -50,6 +54,18 @@ export const setupContract = async (name, constructor, ...args) => {
     query: contract.query,
     tx: contract.tx
   }
+}
+
+export const addPairWithAmount = async (pair: KeyringPair): Promise<KeyringPair> => {
+  const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
+  const redspotPair = network.addPair(pair)
+  await buildTx(api.registry, api.tx.balances.transfer(redspotPair.address, one.muln(10000)), (await getAddresses())[0])
+  return redspotPair
+}
+
+export const getSigner = async (account : string) => {
+  const signer = await addPairWithAmount(new Keyring().addFromUri(`//${account}`))
+  return signer
 }
 
 export const fromSigner = (contract: Contract, address: string): Contract => {

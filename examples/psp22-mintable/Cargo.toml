@@ -20,7 +20,7 @@ psp22 = { path = "../../contracts/token/psp22", default-features = false }
 brush = { path = "../../utils/brush", default-features = false }
 
 [lib]
-name = "my_psp22"
+name = "my_psp22_mintable"
 path = "lib.rs"
 crate-type = [
     # Used for normal contract Wasm blobs.

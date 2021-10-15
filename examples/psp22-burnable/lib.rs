@@ -27,7 +27,8 @@ pub mod my_psp22 {
             instance
         }
 
-        fn burn_from_many(&mut self, accounts: Vec<(AccountId, Balance)>) {
+        #[ink(message)]
+        pub fn burn_from_many(&mut self, accounts: Vec<(AccountId, Balance)>) {
             for account in accounts.iter() {
                 self.burn_from(account.0, account.1);
             }
