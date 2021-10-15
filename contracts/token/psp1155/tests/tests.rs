@@ -47,7 +47,7 @@ mod tests {
         psp1155: PSP1155Data,
     }
 
-    impl IPSP1155 for PSP1155Struct {
+    impl PSP1155 for PSP1155Struct {
         fn _emit_transfer_single_event(
             &self,
             _operator: AccountId,

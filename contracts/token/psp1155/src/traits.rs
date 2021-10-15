@@ -69,10 +69,10 @@ pub enum PSP1155Error {
 /// A single deployed contract may include any combination of fungible tokens,
 /// non-fungible tokens or other configurations (e.g. semi-fungible tokens).
 ///
-/// This module is used through embedding of `PSP1155Data` and implementation of `IPSP1155` and
+/// This module is used through embedding of `PSP1155Data` and implementation of `PSP1155` and
 /// `PSP1155Storage` traits.
 #[brush::trait_definition]
-pub trait IPSP1155: PSP1155Storage {
+pub trait PSP1155: PSP1155Storage {
     /// Returns the amount of tokens of token type `_id` owned by `_account`.
     #[ink(message)]
     fn balance_of(&self, _account: AccountId, _id: Id) -> Balance {
@@ -341,7 +341,7 @@ pub trait IPSP1155: PSP1155Storage {
 }
 
 #[brush::trait_definition]
-pub trait IPSP1155Mint: IPSP1155 {
+pub trait PSP1155Mint: PSP1155 {
     /// Mints a new token.
     #[ink(message)]
     fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
@@ -356,7 +356,7 @@ pub trait IPSP1155Mint: IPSP1155 {
 }
 
 #[brush::trait_definition]
-pub trait IPSP1155Metadata: PSP1155MetadataStorage {
+pub trait PSP1155Metadata: PSP1155MetadataStorage {
     /// Returns the URI for token type `id`.
     #[ink(message)]
     fn uri(&self, _id: Id) -> Option<String> {

@@ -24,7 +24,7 @@ pub mod psp1155 {
         }
     }
 
-    #[ink(namespace = "IPSP1155")]
+    #[ink(namespace = "PSP1155")]
     impl PSP1155 {
         #[ink(message)]
         pub fn balance_of(&self, _account: AccountId, _id: Id) -> Balance {
@@ -71,7 +71,7 @@ pub mod psp1155 {
         }
     }
 
-    #[ink(namespace = "IPSP1155Metadata")]
+    #[ink(namespace = "PSP1155Metadata")]
     impl PSP1155 {
         #[ink(message)]
         pub fn uri(&self, _id: Id) -> Option<String> {
