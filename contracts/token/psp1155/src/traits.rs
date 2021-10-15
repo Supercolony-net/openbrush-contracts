@@ -221,6 +221,10 @@ pub trait PSP1155: PSP1155Storage {
         self._emit_transfer_single_event(operator, ZERO_ADDRESS.into(), to, id, amount);
     }
 
+    /// Destroys 'amount' tokens of token type 'id'
+    ///
+    /// 'from' can not be zero address
+    /// 'from' must have at least 'amount' balance of token type 'id'
     fn _burn(&mut self, from: AccountId, id: Id, amount: Balance) {
         assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
@@ -228,6 +232,23 @@ pub trait PSP1155: PSP1155Storage {
         self._decrease_sender_balance(from, id, amount);
 
         self._emit_transfer_single_event(Self::env().caller(), from, ZERO_ADDRESS.into(), id, amount);
+    }
+
+    /// Batch version of [`PSP1155::_burn`]
+    ///
+    /// 'ids' and 'amounts' must be the same length
+    fn _burn_batch(&mut self, from: AccountId, ids: Vec<Id>, amounts: Vec<Balance>) {
+        assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
+        assert!(ids.len() == amounts.len(), "{}", PSP1155Error::InputLengthMismatch.as_ref());
+
+        let caller = Self::env().caller();
+        self._before_token_transfer(&ids);
+
+        for i in 0..ids.len() {
+            self._decrease_sender_balance(from, ids[i], amounts[i]);
+        }
+
+        self._emit_transfer_batch_event(caller, from, ZERO_ADDRESS.into(), ids, amounts);
     }
 
     fn _transfer_guard(&self, from: AccountId, to: AccountId) {
