@@ -15,7 +15,6 @@ pub trait PSP721Mintable: PSP721 {
 
     /// Mints a new token with 'id' to 'account'
     ///
-    /// or to transfer token with 'id'
     /// See [`PSP721::_mint_to`].
     #[ink(message)]
     fn mint_to(&mut self, account: AccountId, id: Id) {

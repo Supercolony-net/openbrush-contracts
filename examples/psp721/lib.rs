@@ -38,7 +38,7 @@ pub mod my_psp721 {
         /// Mint method which mints a token and updates the id of next token
         fn mint_token(&mut self) {
             self.mint([self.next_id; 32]);
-            self.next_id = self.next_id + 1;
+            self.next_id += 1;
         }
     }
 }

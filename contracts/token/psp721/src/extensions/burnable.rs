@@ -24,9 +24,8 @@ pub trait PSP721Burnable: PSP721 {
     fn burn_from(&mut self, account: AccountId, id: Id) {
         let caller = Self::env().caller();
 
-        assert_eq!(
+        assert!(
             self.get_approved(id).unwrap_or(ZERO_ADDRESS.into()) == caller || self.is_approved_for_all(account, caller),
-            true,
             "{}",
             PSP721Error::NotApproved.as_ref()
         );
