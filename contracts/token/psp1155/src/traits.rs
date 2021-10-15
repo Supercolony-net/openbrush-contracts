@@ -362,21 +362,6 @@ pub trait PSP1155: PSP1155Storage {
 }
 
 #[brush::trait_definition]
-pub trait PSP1155Mint: PSP1155 {
-    /// Mints a new token.
-    #[ink(message)]
-    fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
-        self._mint(to, id, amount)
-    }
-
-    /// Burns an existing token.
-    #[ink(message)]
-    fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
-        self._burn(from, id, amount)
-    }
-}
-
-#[brush::trait_definition]
 pub trait PSP1155Metadata: PSP1155MetadataStorage {
     /// Returns the URI for token type `id`.
     #[ink(message)]
