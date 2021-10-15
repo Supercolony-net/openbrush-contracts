@@ -13,8 +13,7 @@ pub trait PSP1155Burnable: PSP1155 {
     /// See [`PSP1155::_burn`].
     #[ink(message)]
     fn burn(&mut self, id: Id, amount: Balance) {
-        let caller = Self::env().caller();
-        self._burn(caller, id, amount);
+        self._burn(Self::env().caller(), id, amount);
     }
 
     /// Destroys `amount` tokens of token type `id` from 'from'
@@ -22,10 +21,8 @@ pub trait PSP1155Burnable: PSP1155 {
     /// See [`PSP1155::_burn`].
     #[ink(message)]
     fn burn_from(&mut self, from: AccountId, id: Id, amount: Balance) {
-        let caller = Self::env().caller();
-
         assert!(
-            self.is_approved_for_all(from, caller),
+            self.is_approved_for_all(from, Self::env().caller()),
             "{}",
             PSP1155Error::ApproveRequired.as_ref()
         );
@@ -33,18 +30,25 @@ pub trait PSP1155Burnable: PSP1155 {
         self._burn(from, id, amount);
     }
 
+    /// Destroys `amounts[i]` from `amounts` of token type `ids[i]` from 'ids' from the user
+    ///
+    /// 'ids' and 'amounts' must be the same length
+    /// 
+    /// See [`PSP1155::_burn`].
     #[ink(message)]
     fn burn_batch(&mut self, ids: Vec<Id>, amounts: Vec<Balance>) {
-        let caller = Self::env().caller();
-        self._burn_batch(caller, ids, amounts);
+        self._burn_batch(Self::env().caller(), ids, amounts);
     }
 
+    /// Destroys `amounts[i]` from `amounts` of token type `ids[i]` from 'ids' from 'from'
+    ///
+    /// 'ids' and 'amounts' must be the same length
+    /// 
+    /// See [`PSP1155::_burn`].
     #[ink(message)]
     fn burn_batch_from(&mut self, from: AccountId, ids: Vec<Id>, amounts: Vec<Balance>) {
-        let caller = Self::env().caller();
-
         assert!(
-            self.is_approved_for_all(from, caller),
+            self.is_approved_for_all(from, Self::env().caller()),
             "{}",
             PSP1155Error::ApproveRequired.as_ref()
         );
