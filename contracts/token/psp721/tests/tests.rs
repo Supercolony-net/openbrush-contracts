@@ -12,9 +12,13 @@ mod tests {
     };
     use ink_lang as ink;
     use ink_prelude::string::String;
-    use psp721::traits::*;
-    use psp721::extensions::burnable::*;
-    use psp721::extensions::mintable::*;
+    use psp721::{
+        extensions::{
+            burnable::*,
+            mintable::*,
+        },
+        traits::*,
+    };
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
