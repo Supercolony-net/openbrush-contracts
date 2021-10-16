@@ -29,7 +29,7 @@ pub mod my_psp721 {
     impl MyPSP721 {
         /// A constructor which mints the first token to the owner
         #[ink(constructor)]
-        pub fn new(_total_supply: Balance) -> Self {
+        pub fn new() -> Self {
             let mut instance = Self::default();
             instance.mint_token();
             instance
