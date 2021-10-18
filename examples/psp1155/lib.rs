@@ -31,8 +31,11 @@ pub mod my_psp1155 {
     impl MyPSP1155 {
         /// contract constructor
         #[ink(constructor)]
-        pub fn new() -> Self {
-            Self::default()
+        pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
+            let mut instance = Self::default();
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance
         }
 
         // a method which registers new token type
