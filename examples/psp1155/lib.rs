@@ -42,9 +42,9 @@ pub mod my_psp1155 {
             self.unique_ids += 1;
         }
 
-        /// Mint method which mints 'amount' of token type 'id'
+        /// Mint method which mints `amount` of token type `id`
         ///
-        /// 'id' must be registered
+        /// `id` must be registered
         #[ink(message)]
         pub fn mint_tokens(&mut self, id: Id, amount: Balance) {
             assert!(*self.registered_ids.get(&id).unwrap_or(&false));

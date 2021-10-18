@@ -16,7 +16,7 @@ pub trait PSP1155Mintable: PSP1155 {
         self._mint(Self::env().caller(), id, amount);
     }
 
-    /// Mints `amount` tokens of token type `id` to 'to'
+    /// Mints `amount` tokens of token type `id` to `to`
     ///
     /// See [`PSP1155::_mint`].
     #[ink(message)]

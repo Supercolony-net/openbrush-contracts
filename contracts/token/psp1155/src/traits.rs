@@ -221,10 +221,10 @@ pub trait PSP1155: PSP1155Storage {
         self._emit_transfer_single_event(operator, ZERO_ADDRESS.into(), to, id, amount);
     }
 
-    /// Destroys 'amount' tokens of token type 'id'
+    /// Destroys `amount` tokens of token type `id`
     ///
-    /// 'from' can not be zero address
-    /// 'from' must have at least 'amount' balance of token type 'id'
+    /// `from` must not be zero address
+    /// `from` must have at least `amount` tokens of token type `id` on their balance
     fn _burn(&mut self, from: AccountId, id: Id, amount: Balance) {
         assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
@@ -236,7 +236,7 @@ pub trait PSP1155: PSP1155Storage {
 
     /// Batch version of [`PSP1155::_burn`]
     ///
-    /// 'ids' and 'amounts' must be the same length
+    /// `ids` and `amounts` must be the same length
     fn _burn_batch(&mut self, from: AccountId, ids: Vec<Id>, amounts: Vec<Balance>) {
         assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
         assert!(ids.len() == amounts.len(), "{}", PSP1155Error::InputLengthMismatch.as_ref());

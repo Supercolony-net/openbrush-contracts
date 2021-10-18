@@ -5,7 +5,7 @@ use brush::traits::AccountId;
 
 #[brush::trait_definition]
 pub trait PSP721Mintable: PSP721 {
-    /// Mints a new token with 'id'.
+    /// Mints a new token with `id`.
     ///
     /// See [`PSP721::_mint`].
     #[ink(message)]
@@ -13,7 +13,7 @@ pub trait PSP721Mintable: PSP721 {
         self._mint(id);
     }
 
-    /// Mints a new token with 'id' to 'account'
+    /// Mints a new token with `id` to `account`
     ///
     /// See [`PSP721::_mint_to`].
     #[ink(message)]

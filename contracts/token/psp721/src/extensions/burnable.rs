@@ -8,7 +8,7 @@ use brush::traits::{
 
 #[brush::trait_definition]
 pub trait PSP721Burnable: PSP721 {
-    /// Destroys token of type 'id'.
+    /// Destroys token of type `id`.
     ///
     /// See [`PSP721::_burn`].
     #[ink(message)]
@@ -16,10 +16,10 @@ pub trait PSP721Burnable: PSP721 {
         self._burn(id);
     }
 
-    /// Destroys token with id equal to 'id' from 'account'
+    /// Destroys token with id equal to `id` from `account`
     ///
-    /// caller must be approved to transfer tokens from 'account'
-    /// or to transfer token with 'id'
+    /// Caller must be approved to transfer tokens from `account`
+    /// or to transfer token with `id`
     #[ink(message)]
     fn burn_from(&mut self, account: AccountId, id: Id) {
         let caller = Self::env().caller();
