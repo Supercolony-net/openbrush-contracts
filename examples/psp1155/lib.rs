@@ -28,6 +28,8 @@ pub mod my_psp1155 {
 
     impl PSP1155Mintable for MyPSP1155 {}
 
+    impl PSP1155Metadata for MyPSP1155 {}
+
     impl MyPSP1155 {
         /// contract constructor
         #[ink(constructor)]

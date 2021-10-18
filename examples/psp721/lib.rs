@@ -26,6 +26,8 @@ pub mod my_psp721 {
 
     impl PSP721Mintable for MyPSP721 {}
 
+    impl PSP721Metadata for MyPSP721 {}
+
     impl MyPSP721 {
         /// A constructor which mints the first token to the owner
         #[ink(constructor)]

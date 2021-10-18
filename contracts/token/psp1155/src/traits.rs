@@ -46,6 +46,8 @@ declare_storage_trait!(PSP1155Storage, PSP1155Data);
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP1155MetadataData {
+    pub name: Option<String>,
+    pub symbol: Option<String>,
     pub uri: Option<String>,
 }
 
