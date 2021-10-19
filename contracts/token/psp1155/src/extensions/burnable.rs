@@ -36,8 +36,8 @@ pub trait PSP1155Burnable: PSP1155 {
     ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]
-    fn burn_batch(&mut self, ids: Vec<Id>, amounts: Vec<Balance>) {
-        self._burn_batch(Self::env().caller(), ids, amounts);
+    fn burn_batch(&mut self, ids_to_amounts: Vec<(Id, Balance)>) {
+        self._burn_batch(Self::env().caller(), ids_to_amounts);
     }
 
     /// Destroys `amounts[i]` from `amounts` of token type `ids[i]` from `ids` from `from`
@@ -46,13 +46,13 @@ pub trait PSP1155Burnable: PSP1155 {
     ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]
-    fn burn_batch_from(&mut self, from: AccountId, ids: Vec<Id>, amounts: Vec<Balance>) {
+    fn burn_batch_from(&mut self, from: AccountId, ids_to_amounts: Vec<(Id, Balance)>) {
         assert!(
             self.is_approved_for_all(from, Self::env().caller()),
             "{}",
             PSP1155Error::ApproveRequired.as_ref()
         );
 
-        self._burn_batch(from, ids, amounts);
+        self._burn_batch(from, ids_to_amounts);
     }
 }

@@ -32,7 +32,7 @@ pub mod psp1155 {
         }
 
         #[ink(message)]
-        pub fn balance_of_batch(&self, _owners: Vec<AccountId>, _ids: Vec<Id>) -> Vec<Balance> {
+        pub fn balance_of_batch(&self, _owners_to_ids: Vec<(AccountId, Id)>) -> Vec<Balance> {
             unimplemented!()
         }
 
@@ -63,8 +63,7 @@ pub mod psp1155 {
             &mut self,
             _from: AccountId,
             _to: AccountId,
-            _ids: Vec<Id>,
-            _amounts: Vec<Balance>,
+            _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
         ) {
             unimplemented!()
@@ -117,8 +116,7 @@ pub mod psp1155receiver {
             &mut self,
             _operator: AccountId,
             _from: AccountId,
-            _ids: Vec<Id>,
-            _values: Vec<Balance>,
+            _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
         ) -> Result<(), PSP1155ReceiverError> {
             unimplemented!()
