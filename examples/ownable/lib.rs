@@ -2,10 +2,16 @@
 
 #[brush::contract]
 pub mod ownable {
-    use psp1155::traits::*;
-    use ownable::traits::*;
     use brush::modifiers;
     use ink_prelude::vec::Vec;
+    use ownable::traits::*;
+    use psp1155::{
+        extensions::{
+            burnable::*,
+            mintable::*,
+        },
+        traits::*,
+    };
 
     #[ink(storage)]
     #[derive(Default, PSP1155Storage, OwnableStorage)]
@@ -28,18 +34,20 @@ pub mod ownable {
 
     impl Ownable for PSP1155Struct {}
 
-    impl IPSP1155 for PSP1155Struct {}
+    impl PSP1155 for PSP1155Struct {}
 
-    impl IPSP1155Mint for PSP1155Struct {
+    impl PSP1155Mintable for PSP1155Struct {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
+        fn mint_to(&mut self, to: AccountId, id: Id, amount: Balance) {
             self._mint(to, id, amount);
         }
+    }
 
+    impl PSP1155Burnable for PSP1155Struct {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
+        fn burn_from(&mut self, from: AccountId, id: Id, amount: Balance) {
             self._burn(from, id, amount);
         }
     }

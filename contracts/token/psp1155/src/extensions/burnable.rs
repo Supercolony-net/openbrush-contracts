@@ -1,10 +1,10 @@
 /// Extension of [`PSP1155`] that allows token holders to destroy their tokens
 use crate::traits::*;
-
 use brush::traits::{
     AccountId,
     Balance,
 };
+use ink_prelude::vec::Vec;
 
 #[brush::trait_definition]
 pub trait PSP1155Burnable: PSP1155 {
@@ -33,7 +33,7 @@ pub trait PSP1155Burnable: PSP1155 {
     /// Destroys `amounts[i]` from `amounts` of token type `ids[i]` from `ids` from the user
     ///
     /// `ids` and `amounts` must be the same length
-    /// 
+    ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]
     fn burn_batch(&mut self, ids: Vec<Id>, amounts: Vec<Balance>) {
@@ -43,7 +43,7 @@ pub trait PSP1155Burnable: PSP1155 {
     /// Destroys `amounts[i]` from `amounts` of token type `ids[i]` from `ids` from `from`
     ///
     /// `ids` and `amounts` must be the same length
-    /// 
+    ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]
     fn burn_batch_from(&mut self, from: AccountId, ids: Vec<Id>, amounts: Vec<Balance>) {

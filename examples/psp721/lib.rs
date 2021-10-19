@@ -2,6 +2,10 @@
 
 #[brush::contract]
 pub mod my_psp721 {
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
     use psp721::{
         extensions::{
             burnable::*,

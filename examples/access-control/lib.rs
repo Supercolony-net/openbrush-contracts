@@ -2,10 +2,16 @@
 
 #[brush::contract]
 pub mod my_access_control {
-    use psp721::traits::*;
     use access_control::traits::*;
     use brush::modifiers;
     use ink_prelude::vec::Vec;
+    use psp721::{
+        extensions::{
+            burnable::*,
+            mintable::*,
+        },
+        traits::*,
+    };
 
     #[ink(storage)]
     #[derive(Default, PSP721Storage, AccessControlStorage)]
@@ -34,17 +40,19 @@ pub mod my_access_control {
         }
     }
 
-    impl IPSP721 for PSP721Struct {}
+    impl PSP721 for PSP721Struct {}
 
     impl AccessControl for PSP721Struct {}
 
-    impl IPSP721Mint for PSP721Struct {
+    impl PSP721Mintable for PSP721Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
         fn mint(&mut self, id: Id) {
             self._mint(id);
         }
+    }
 
+    impl PSP721Burnable for PSP721Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
         fn burn(&mut self, id: Id) {
