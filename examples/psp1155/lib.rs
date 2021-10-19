@@ -22,7 +22,6 @@ pub mod my_psp1155 {
         psp1155: PSP1155Data,
         #[PSP1155MetadataStorageField]
         metadata: PSP1155MetadataData,
-        unique_ids: u8,
         registered_ids: StorageHashMap<Id, bool>,
     }
 
@@ -45,9 +44,8 @@ pub mod my_psp1155 {
 
         // a method which registers new token type
         #[ink(message)]
-        pub fn add_type(&mut self) {
-            self.registered_ids.insert([self.unique_ids; 32], true);
-            self.unique_ids += 1;
+        pub fn add_type(&mut self, id: Id) {
+            self.registered_ids.insert(id, true);
         }
 
         /// Mint method which mints `amount` of token type `id`

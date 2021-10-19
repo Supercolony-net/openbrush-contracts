@@ -95,7 +95,3 @@ impl MyPSP1155 {
     }
 }
 ```
-
-## Step 6: Customize your contract
-
-Customize it by adding `#[ink(message)]` annotated functions to your contract implementation, or to implementation of the extension, or override the original functions in the implementation.
