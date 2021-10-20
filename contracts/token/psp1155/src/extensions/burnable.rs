@@ -30,9 +30,7 @@ pub trait PSP1155Burnable: PSP1155 {
         self._burn(from, id, amount);
     }
 
-    /// Destroys `amounts[i]` from `amounts` of token type `ids[i]` from `ids` from the user
-    ///
-    /// `ids` and `amounts` must be the same length
+    /// Destroys `ids_to_amounts[i].1` of token type `ids_to_amounts[i].0` from the user
     ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]
@@ -40,9 +38,7 @@ pub trait PSP1155Burnable: PSP1155 {
         self._burn_batch(Self::env().caller(), ids_to_amounts);
     }
 
-    /// Destroys `amounts[i]` from `amounts` of token type `ids[i]` from `ids` from `from`
-    ///
-    /// `ids` and `amounts` must be the same length
+    /// Destroys `ids_to_amounts[i].1` of token type `ids_to_amounts[i].0` from `from` 
     ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]

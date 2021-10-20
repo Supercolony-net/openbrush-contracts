@@ -2,7 +2,10 @@
 
 #[brush::contract]
 pub mod ownable {
-    use brush::modifiers;
+    use brush::{
+        modifiers,
+        traits::InkStorage,
+    };
     use ink_prelude::vec::Vec;
     use ownable::traits::*;
     use psp1155::{
@@ -42,13 +45,19 @@ pub mod ownable {
         fn mint_to(&mut self, to: AccountId, id: Id, amount: Balance) {
             self._mint(to, id, amount);
         }
+
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn mint(&mut self, id: Id, amount: Balance) {
+            self._mint(Self::env().caller(), id, amount);
+        }
     }
 
     impl PSP1155Burnable for PSP1155Struct {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn burn_from(&mut self, from: AccountId, id: Id, amount: Balance) {
-            self._burn(from, id, amount);
+        fn burn(&mut self, id: Id, amount: Balance) {
+            self._burn(Self::env().caller(), id, amount);
         }
     }
 }
