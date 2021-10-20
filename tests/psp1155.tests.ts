@@ -29,7 +29,7 @@ describe('MY_PSP1155', () => {
     }
 
     it('Balance of works', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let tokenId = 1
         let mintAmount = 1
@@ -39,27 +39,27 @@ describe('MY_PSP1155', () => {
     })
 
     it('Balance of batch works', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let token1 = 1
         let token2 = 2
         let token1Amount = 1
         let token2Amount = 20
 
-        await expect(() => contract.tx.balance_of_batch([sender.address, sender.address], [token1, token2]))
+        await expect(() => contract.tx.balance_of_batch([[sender.address, sender.address], [token1, token2]]))
             .to.have.output([0, 0])
 
         await contract.tx.mint_to(sender.address, token1, token1Amount)
-        await expect(() => contract.tx.balance_of_batch([sender.address, sender.address], [token1, token2]))
+        await expect(() => contract.tx.balance_of_batch([[sender.address, sender.address], [token1, token2]]))
             .to.have.output([token1Amount, 0])
 
         await contract.tx.mint_to(sender.address, token2, token2Amount)
-        await expect(() => contract.tx.balance_of_batch([sender.address, sender.address], [token1, token2]))
+        await expect(() => contract.tx.balance_of_batch([[sender.address, sender.address], [token1, token2]]))
             .to.have.output([token1Amount, token2Amount])
     })
 
     it('Set approval works', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         const BOB = await getSigner('Bob')
         await expect(() => contract.tx.is_approved_for_all(sender.address, BOB.address))
@@ -75,7 +75,7 @@ describe('MY_PSP1155', () => {
     })
 
     it('Transfer from single works', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let tokenId = 1
         let transferAmount = 1
@@ -94,7 +94,7 @@ describe('MY_PSP1155', () => {
     })
 
     it('Transfer from batch works', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let token1 = 1
         let token2 = 2
@@ -106,21 +106,21 @@ describe('MY_PSP1155', () => {
         await contract.tx.mint_to(sender.address, token1, amount1)
         await contract.tx.mint_to(sender.address, token2, amount2)
         await contract.tx.safe_transfer_from(sender.address, BOB.address, [token1, token2], [amount1, amount2], []);
-        await expect(() => contract.tx.balance_of_batch([sender.address, sender.address], [token1, token2]))
+        await expect(() => contract.tx.balance_of_batch([[sender.address, sender.address], [token1, token2]]))
             .to.have.output([0, 0])
-        await expect(() => contract.tx.balance_of_batch([BOB.address, BOB.address], [token1, token2]))
+        await expect(() => contract.tx.balance_of_batch([[BOB.address, BOB.address], [token1, token2]]))
             .to.have.output([amount1, amount2])
 
         await fromSigner(contract, BOB.address).tx.set_approval_for_all(sender.address, true)
         await contract.tx.safe_transfer_from(BOB.address, sender.address, [token1, token2], [amount1, amount2], []);
-        await expect(() => contract.tx.balance_of_batch([BOB.address, BOB.address], [token1, token2]))
+        await expect(() => contract.tx.balance_of_batch([[BOB.address, BOB.address], [token1, token2]]))
             .to.have.output([0, 0])
-        await expect(() => contract.tx.balance_of_batch([sender.address, sender.address], [token1, token2]))
+        await expect(() => contract.tx.balance_of_batch([[sender.address, sender.address], [token1, token2]]))
             .to.have.output([amount1, amount2])
     })
 
     it('Transfer from single insufficient balance should fail', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let tokenId = 1
         let tokenAmount = 1
@@ -133,7 +133,7 @@ describe('MY_PSP1155', () => {
     })
 
     it('Transfer from single without allowance should fail', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let tokenId = 1
         let tokenAmount = 1
@@ -147,7 +147,7 @@ describe('MY_PSP1155', () => {
     })
 
     it('Transfer from batch insufficient balance should fail', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let token1 = 1
         let token2 = 2
@@ -165,9 +165,7 @@ describe('MY_PSP1155', () => {
     })
 
     it('Burn works', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
-
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
+        const { contract, defaultSigner: sender } = await setup()
 
         let tokenId = 1
         let mintAmount = 1
@@ -184,7 +182,7 @@ describe('MY_PSP1155', () => {
     })
 
     it('Burn batch works', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let token1 = 1
         let token2 = 2
@@ -198,18 +196,18 @@ describe('MY_PSP1155', () => {
         await contract.tx.mint_to(BOB.address, token1, amount1)
         await contract.tx.mint_to(BOB.address, token2, amount2)
 
-        await contract.tx.burn_batch([token1, token2], [amount1, amount2], []);
-        await expect(() => contract.tx.balance_of_batch([sender.address, sender.address], [token1, token2]))
+        await contract.tx.burn_batch([[token1, token2], [amount1, amount2]], []);
+        await expect(() => contract.tx.balance_of_batch([[sender.address, sender.address], [token1, token2]]))
             .to.have.output([0, 0])
 
         await fromSigner(contract, BOB.address).tx.set_approval_for_all(sender.address, true)
-        await contract.tx.burn_batch_from(BOB.address, [token1, token2], [amount1, amount2], []);
-        await expect(() => contract.tx.balance_of_batch([BOB.address, BOB.address], [token1, token2]))
+        await contract.tx.burn_batch_from(BOB.address, [[token1, token2], [amount1, amount2]], []);
+        await expect(() => contract.tx.balance_of_batch([[BOB.address, BOB.address], [token1, token2]]))
             .to.have.output([0, 0])
     })
 
     it('Burn from without allowance should fail', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let token1 = 1
         let token2 = 2
@@ -221,14 +219,14 @@ describe('MY_PSP1155', () => {
         await contract.tx.mint_to(BOB.address, token1, amount1)
         await contract.tx.mint_to(BOB.address, token2, amount2)
 
-        await expect(() => contract.tx.burn_batch_from(BOB.address, [token1, token2], [amount1, amount2], []))
+        await expect(() => contract.tx.burn_batch_from(BOB.address, [[token1, token2], [amount1, amount2]], []))
             .to.eventually.be.rejected
         await expect(() => contract.tx.burn_from(BOB.address, token1, amount1, []))
             .to.eventually.be.rejected
     })
 
     it('Burn from inssuficient balance should fail', async () => {
-        const { query, contract, defaultSigner: sender } = await setup()
+        const { contract, defaultSigner: sender } = await setup()
 
         let token1 = 1
         let token2 = 2
@@ -242,13 +240,13 @@ describe('MY_PSP1155', () => {
         await contract.tx.mint_to(BOB.address, token1, amount1)
         await contract.tx.mint_to(BOB.address, token2, amount2)
 
-        await expect(() => contract.tx.burn_batch([token1 + 1, token2], [amount1, amount2], []))
+        await expect(() => contract.tx.burn_batch([[token1 + 1, token2], [amount1, amount2]], []))
             .to.eventually.be.rejected
         await expect(() => contract.tx.burn(token1 + 1, amount1, []))
             .to.eventually.be.rejected
 
         await fromSigner(contract, BOB.address).tx.set_approval_for_all(sender.address, true)
-        await expect(() => contract.tx.burn_batch_from(BOB.address, [token1, token2], [amount1 + 1, amount2], []))
+        await expect(() => contract.tx.burn_batch_from(BOB.address, [[token1, token2], [amount1 + 1, amount2]], []))
             .to.eventually.be.rejected
         await expect(() => contract.tx.burn_from(BOB.address, token1, amount1 + 1, []))
             .to.eventually.be.rejected
