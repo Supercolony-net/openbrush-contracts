@@ -160,7 +160,7 @@ mod psp22_burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Alice's balance before burning
-        let alice_balance = psp22.balance_of(accounts.bob);
+        let alice_balance = psp22.balance_of(accounts.alice);
         let amount_to_burn = 10;
 
         psp22.burn(amount_to_burn);

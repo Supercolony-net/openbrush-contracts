@@ -19,36 +19,9 @@ pub trait PSP22Burnable: PSP22 {
     /// Destroys `amount` tokens from `account`, deducting from the caller's
     /// allowance.
     ///
-    /// See [`PSP22::_burn`] and [`PSP22::allowance`].
-    ///
-    /// Requirements:
-    ///
-    /// - the caller must have allowance for `account`'s tokens of at least
-    /// `amount`.
-    /// # Errors
-    ///
-    /// Panics with `InsufficientAllowance` error if there are not enough tokens allowed
-    /// by owner for `spender`.
+    /// See [`PSP22::_burn_from`].
     #[ink(message)]
     fn burn_from(&mut self, account: AccountId, amount: Balance) {
-        let current_allowance = self
-            .get()
-            .allowances
-            .get(&(account, Self::env().caller()))
-            .unwrap_or(&0);
-
-        assert!(
-            current_allowance >= &amount,
-            "{}",
-            PSP22Error::InsufficientAllowance.as_ref()
-        );
-
-        let new_amount = current_allowance - &amount;
-
-        self.get_mut()
-            .allowances
-            .insert((account, Self::env().caller()), new_amount);
-
-        self._burn(account, amount);
+        self._burn_from(account, amount);
     }
 }

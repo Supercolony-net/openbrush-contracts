@@ -311,6 +311,41 @@ pub trait PSP22: PSP22Storage {
         Lazy::set(&mut self.get_mut().supply, new_supply);
         self._emit_transfer_event(Some(account), None, amount);
     }
+
+    /// Destroys `amount` tokens from `account`, deducting from the caller's
+    /// allowance.
+    ///
+    /// See [`PSP22::_burn`] and [`PSP22::allowance`].
+    ///
+    /// Requirements:
+    ///
+    /// - the caller must have allowance for `account`'s tokens of at least
+    /// `amount`.
+    /// # Errors
+    ///
+    /// Panics with `InsufficientAllowance` error if there are not enough tokens allowed
+    /// by owner for `spender`.
+    fn _burn_from(&mut self, account: AccountId, amount: Balance) {
+        let current_allowance = self
+            .get()
+            .allowances
+            .get(&(account, Self::env().caller()))
+            .unwrap_or(&0);
+
+        assert!(
+            current_allowance >= &amount,
+            "{}",
+            PSP22Error::InsufficientAllowance.as_ref()
+        );
+
+        let new_amount = current_allowance - &amount;
+
+        self.get_mut()
+            .allowances
+            .insert((account, Self::env().caller()), new_amount);
+
+        self._burn(account, amount);
+    }
 }
 
 /// Trait that contains metadata
