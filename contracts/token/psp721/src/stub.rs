@@ -10,7 +10,6 @@ pub use self::{
 mod psp721 {
     use crate::traits::Id;
     use ink_prelude::{
-        string::String,
         vec::Vec,
     };
 
@@ -64,19 +63,6 @@ mod psp721 {
 
         #[ink(message)]
         pub fn safe_transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) {
-            unimplemented!()
-        }
-    }
-
-    #[ink(namespace = "PSP721Metadata")]
-    impl PSP721 {
-        #[ink(message)]
-        pub fn name(&self) -> Option<String> {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn symbol(&self) -> Option<String> {
             unimplemented!()
         }
     }

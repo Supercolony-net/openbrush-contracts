@@ -15,6 +15,7 @@ mod tests {
     use psp721::{
         extensions::{
             burnable::*,
+            metadata::*,
             mintable::*,
         },
         traits::*,
