@@ -53,12 +53,12 @@ mod psp1155_burnable {
         }
 
         #[ink(message)]
-        fn burn_batch(&mut self, ids_to_amounts: Vec<(Id, Balance)>) {
+        fn burn_batch(&mut self, ids_amounts: Vec<(Id, Balance)>) {
             unimplemented!()
         }
 
         #[ink(message)]
-        fn burn_batch_from(&mut self, from: AccountId, ids_to_amounts: Vec<(Id, Balance)>) {
+        fn burn_batch_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) {
             unimplemented!()
         }
     }

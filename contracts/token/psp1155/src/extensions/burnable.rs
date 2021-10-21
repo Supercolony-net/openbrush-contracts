@@ -30,25 +30,25 @@ pub trait PSP1155Burnable: PSP1155 {
         self._burn(from, id, amount);
     }
 
-    /// Destroys `ids_to_amounts[i].1` of token type `ids_to_amounts[i].0` from the user
+    /// Destroys `ids_amounts[i].1` of token type `ids_amounts[i].0` from the user
     ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]
-    fn burn_batch(&mut self, ids_to_amounts: Vec<(Id, Balance)>) {
-        self._burn_batch(Self::env().caller(), ids_to_amounts);
+    fn burn_batch(&mut self, ids_amounts: Vec<(Id, Balance)>) {
+        self._burn_batch(Self::env().caller(), ids_amounts);
     }
 
-    /// Destroys `ids_to_amounts[i].1` of token type `ids_to_amounts[i].0` from `from` 
+    /// Destroys `ids_amounts[i].1` of token type `ids_amounts[i].0` from `from` 
     ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]
-    fn burn_batch_from(&mut self, from: AccountId, ids_to_amounts: Vec<(Id, Balance)>) {
+    fn burn_batch_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) {
         assert!(
             self.is_approved_for_all(from, Self::env().caller()),
             "{}",
             PSP1155Error::ApproveRequired.as_ref()
         );
 
-        self._burn_batch(from, ids_to_amounts);
+        self._burn_batch(from, ids_amounts);
     }
 }

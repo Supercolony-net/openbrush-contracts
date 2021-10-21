@@ -68,8 +68,8 @@ pub trait PSP1155: PSP1155Storage {
 
     /// Batched version of {balance_of}.
     #[ink(message)]
-    fn balance_of_batch(&self, _accounts_to_ids: Vec<(AccountId, Id)>) -> Vec<Balance> {
-        let values: Vec<Balance> = _accounts_to_ids
+    fn balance_of_batch(&self, _accounts_ids: Vec<(AccountId, Id)>) -> Vec<Balance> {
+        let values: Vec<Balance> = _accounts_ids
             .iter()
             .map(|item| self._balance_of_or_zero(item.0.clone(), item.1.clone()))
             .collect();
@@ -134,19 +134,19 @@ pub trait PSP1155: PSP1155Storage {
         &mut self,
         _from: AccountId,
         _to: AccountId,
-        _ids_to_amounts: Vec<(Id, Balance)>,
+        _ids_amounts: Vec<(Id, Balance)>,
         _data: Vec<u8>,
     ) {
         self._transfer_guard(_from, _to);
-        self._before_token_transfer(&_ids_to_amounts.clone().iter().map(|item| item.0.clone()).collect());
+        self._before_token_transfer(&_ids_amounts.clone().iter().map(|item| item.0.clone()).collect());
 
-        for item in _ids_to_amounts.clone().iter() {
+        for item in _ids_amounts.clone().iter() {
             self._transfer_from(_from, _to, item.0.clone(), item.1.clone());
         }
 
-        self._do_batch_safe_transfer_acceptance_check(Self::env().caller(), _from, _to, _ids_to_amounts.clone(), _data);
+        self._do_batch_safe_transfer_acceptance_check(Self::env().caller(), _from, _to, _ids_amounts.clone(), _data);
 
-        self._emit_transfer_batch_event(Self::env().caller(), _from, _to, _ids_to_amounts);
+        self._emit_transfer_batch_event(Self::env().caller(), _from, _to, _ids_amounts);
     }
 
     // Helper functions
@@ -201,17 +201,17 @@ pub trait PSP1155: PSP1155Storage {
     /// Batch version of [`PSP1155::_burn`]
     ///
     /// `ids` and `amounts` must be the same length
-    fn _burn_batch(&mut self, from: AccountId, ids_to_amounts: Vec<(Id, Balance)>) {
+    fn _burn_batch(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) {
         assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         let caller = Self::env().caller();
-        self._before_token_transfer(&ids_to_amounts.clone().iter().map(|item| item.0.clone()).collect());
+        self._before_token_transfer(&ids_amounts.clone().iter().map(|item| item.0.clone()).collect());
 
-        for item in ids_to_amounts.clone().iter() {
+        for item in ids_amounts.clone().iter() {
             self._decrease_sender_balance(from, item.0, item.1);
         }
 
-        self._emit_transfer_batch_event(caller, from, ZERO_ADDRESS.into(), ids_to_amounts);
+        self._emit_transfer_batch_event(caller, from, ZERO_ADDRESS.into(), ids_amounts);
     }
 
     fn _transfer_guard(&self, from: AccountId, to: AccountId) {
@@ -298,13 +298,13 @@ pub trait PSP1155: PSP1155Storage {
         _operator: AccountId,
         _from: AccountId,
         _to: AccountId,
-        _ids_to_amounts: Vec<(Id, Balance)>,
+        _ids_amounts: Vec<(Id, Balance)>,
         _data: Vec<u8>,
     ) {
         let mut receiver: PSP1155Receiver = FromAccountId::from_account_id(_to);
         match receiver
             .call_mut()
-            .on_psp1155_batch_received(_operator, _from, _ids_to_amounts, _data)
+            .on_psp1155_batch_received(_operator, _from, _ids_amounts, _data)
             .fire()
         {
             Ok(result) => {
