@@ -3,76 +3,19 @@ sidebar_position: 1
 title: PSP1155 Burnable
 ---
 
-This example shows how you can reuse the implementation of
-[PSP1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155) token with [PSP1155Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155/src/extensions/burnable.rs) extension.
+This example shows how you can reuse the implementation of [PSP1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155) token with [PSP1155Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155/src/extensions/burnable.rs) extension.
 
 ## Step 1: Include dependencies
 
-Include dependencies on `psp1155` and `brush` in the cargo file.
-
-```toml
-[dependencies]
-ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-
-scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
-
-# These dependencies
-psp1155 = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-
-[features]
-default = ["std"]
-std = [
-   "ink_primitives/std",
-   "ink_metadata",
-   "ink_metadata/std",
-   "ink_env/std",
-   "ink_storage/std",
-   "ink_lang/std",
-   "scale/std",
-   "scale-info",
-   "scale-info/std",
-
-   # These dependencies   
-   "psp1155/std",
-   "brush/std",
-]
-```
+Include dependencies on `psp1155` and `brush` in the cargo file. We will include the same dependencies as in [PSP1155](/smart-contracts/PSP1155/psp1155).
 
 ## Step 2: Add imports
 
-Replace `ink::contract` macro by `brush::contract`.
-Import **everything** from `psp1155::traits` and also `psp1155::extensions::burnable`.
-
-```rust
-#[brush::contract]
-pub mod my_psp1155 {
-   use psp1155::{
-        extensions::{
-            burnable::*,
-        },
-        traits::*,
-    };
-```
+Similarly as in [PSP1155](/smart-contracts/PSP1155/psp1155) imports, replace `ink::contract` macro by `brush::contract`, and import **everything** from `psp1155::traits`. You will also need to import `psp1155::extensions::burnable`.
 
 ## Step 3: Define storage
 
-Declare storage struct and declare the field related to `PSP1155Storage`trait. Then you need to derive `PSP1155Storage` trait and mark corresponding field with `#[PSP1155StorageField]` attribute. Deriving this trait allows you to reuse the default implementation of `PSP1155` to which we will add an implementation of our `PSP1155Burnable` extension.
-
-```rust
-#[ink(storage)]
-#[derive(Default, PSP1155Storage)]
-pub struct MyPSP1155 {
-    #[PSP1155StorageField]
-    psp1155: PSP1155Data,
-}
-```
+Declare storage struct the same way as in [PSP1155](/smart-contracts/PSP1155/psp1155).
 
 ## Step 4: Inherit logic
 
@@ -86,13 +29,4 @@ impl PSP1155Burnable for MyPSP1155 {}
 
 ## Step 5: Define constructor
 
-Define constructor. Your basic version of `PSP1155Burnable` contract is ready!
-
-```rust
-impl MyPSP1155 {
-    #[ink(constructor)]
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-```
+Define constructor for your smart contract the same way as in [PSP1155](/smart-contracts/PSP1155/psp1155). Your basic version of `PSP1155Burnable` contract is ready!
