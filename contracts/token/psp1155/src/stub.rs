@@ -9,10 +9,7 @@ pub use self::{
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp1155 {
     use crate::traits::Id;
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
+    use ink_prelude::vec::Vec;
 
     #[ink(storage)]
     pub struct PSP1155 {}
@@ -66,14 +63,6 @@ pub mod psp1155 {
             _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
         ) {
-            unimplemented!()
-        }
-    }
-
-    #[ink(namespace = "PSP1155Metadata")]
-    impl PSP1155 {
-        #[ink(message)]
-        pub fn uri(&self, _id: Id) -> Option<String> {
             unimplemented!()
         }
     }

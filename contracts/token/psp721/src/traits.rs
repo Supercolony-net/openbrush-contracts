@@ -25,7 +25,6 @@ use ink_storage::{
     traits::SpreadLayout,
 };
 
-
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 

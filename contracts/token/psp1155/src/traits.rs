@@ -24,10 +24,6 @@ use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
 };
-pub use psp1155_derive::{
-    PSP1155MetadataStorage,
-    PSP1155Storage,
-};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -42,14 +38,6 @@ pub struct PSP1155Data {
 }
 
 declare_storage_trait!(PSP1155Storage, PSP1155Data);
-
-#[derive(Default, Debug, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
-pub struct PSP1155MetadataData {
-    pub uri: Option<String>,
-}
-
-declare_storage_trait!(PSP1155MetadataStorage, PSP1155MetadataData);
 
 /// The PSP1155 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
@@ -332,15 +320,6 @@ pub trait PSP1155: PSP1155Storage {
                 }
             }
         }
-    }
-}
-
-#[brush::trait_definition]
-pub trait PSP1155Metadata: PSP1155MetadataStorage {
-    /// Returns the URI for token type `id`.
-    #[ink(message)]
-    fn uri(&self, _id: Id) -> Option<String> {
-        self.get().uri.clone()
     }
 }
 
