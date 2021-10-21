@@ -1,10 +1,9 @@
 /// Metadata for PSP721
 use brush::{
     declare_storage_trait,
-    traits::{
-        InkStorage,
-    },
+    traits::InkStorage,
 };
+use ink_prelude::string::String;
 use ink_storage::traits::SpreadLayout;
 pub use psp721_derive::{
     PSP721MetadataStorage,

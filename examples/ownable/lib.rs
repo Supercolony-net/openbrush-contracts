@@ -11,6 +11,7 @@ pub mod ownable {
     use psp1155::{
         extensions::{
             burnable::*,
+            metadata::*,
             mintable::*,
         },
         traits::*,

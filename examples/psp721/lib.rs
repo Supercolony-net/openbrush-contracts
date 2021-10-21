@@ -9,6 +9,7 @@ pub mod my_psp721 {
     use psp721::{
         extensions::{
             burnable::*,
+            metadata::*,
             mintable::*,
         },
         traits::*,

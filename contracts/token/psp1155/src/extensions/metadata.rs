@@ -4,6 +4,7 @@ use brush::{
     declare_storage_trait,
     traits::InkStorage,
 };
+use ink_prelude::string::String;
 use ink_storage::traits::SpreadLayout;
 pub use psp1155_derive::{
     PSP1155MetadataStorage,

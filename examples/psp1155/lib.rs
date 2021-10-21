@@ -10,6 +10,7 @@ pub mod my_psp1155 {
     use psp1155::{
         extensions::{
             burnable::*,
+            metadata::*,
             mintable::*,
         },
         traits::*,
