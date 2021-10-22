@@ -138,9 +138,9 @@ pub trait PSP1155: PSP1155Storage {
         _data: Vec<u8>,
     ) {
         self._transfer_guard(_from, _to);
-        self._before_token_transfer(&_ids_amounts.clone().iter().map(|item| item.0.clone()).collect());
+        self._before_token_transfer(&_ids_amounts.iter().map(|item| item.0.clone()).collect());
 
-        for item in _ids_amounts.clone().iter() {
+        for item in _ids_amounts.iter() {
             self._transfer_from(_from, _to, item.0.clone(), item.1.clone());
         }
 
@@ -205,9 +205,9 @@ pub trait PSP1155: PSP1155Storage {
         assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         let caller = Self::env().caller();
-        self._before_token_transfer(&ids_amounts.clone().iter().map(|item| item.0.clone()).collect());
+        self._before_token_transfer(&ids_amounts.iter().map(|item| item.0.clone()).collect());
 
-        for item in ids_amounts.clone().iter() {
+        for item in ids_amounts.iter() {
             self._decrease_sender_balance(from, item.0, item.1);
         }
 

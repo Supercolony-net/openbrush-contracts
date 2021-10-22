@@ -1,25 +1,24 @@
 #[ink_lang::contract(compile_as_dependency = true)]
-mod psp1155_metadata {
-    use ink_prelude::string::String;
+mod extensions {
+    use brush::traits::{
+        AccountId,
+        Balance,
+    };
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
 
     #[ink(namespace = "PSP1155Metadata")]
-    impl PSP1155 {
+    impl PSP1155Metadata {
         #[ink(message)]
         fn uri(&self, _id: Id) -> Option<String> {
             unimplemented!()
         }
     }
-}
-
-#[ink_lang::contract(compile_as_dependency = true)]
-mod psp1155_mintable {
-    use brush::traits::{
-        AccountId,
-        Balance,
-    };
 
     #[ink(namespace = "PSP1155Mintable")]
-    impl PSP1155 {
+    impl PSP1155Mintable {
         #[ink(message)]
         fn mint(&mut self, id: Id, amount: Balance) {
             unimplemented!()
@@ -30,18 +29,9 @@ mod psp1155_mintable {
             unimplemented!()
         }
     }
-}
-
-#[ink_lang::contract(compile_as_dependency = true)]
-mod psp1155_burnable {
-    use brush::traits::{
-        AccountId,
-        Balance,
-    };
-    use ink_prelude::vec::Vec;
 
     #[ink(namespace = "PSP1155Burnable")]
-    impl PSP1155 {
+    impl PSP1155Burnable {
         #[ink(message)]
         fn burn(&mut self, id: Id, amount: Balance) {
             unimplemented!()
