@@ -1,5 +1,6 @@
 #[ink_lang::contract(compile_as_dependency = true)]
-mod psp22_wrapper {
+pub mod wrapper {
+    use crate::stub::PSP22;
 
     #[derive(Default)]
     #[ink(storage)]
@@ -14,18 +15,22 @@ mod psp22_wrapper {
 
     #[ink(namespace = "PSP22Wrapper")]
     impl PSP22Wrapper {
-        fn init(&mut self, underlying: u8) {
-            unimplemented!()
-        }
         #[ink(message)]
-        fn deposit_for(&mut self, account: AccountId, amount: Balance) -> bool {
+        pub fn init(&mut self, underlying: PSP22) {
             unimplemented!()
         }
+
         #[ink(message)]
-        fn withdraw_to(&mut self, account: AccountId, amount: Balance) -> bool {
+        pub fn deposit_for(&mut self, account: AccountId, amount: Balance) -> bool {
             unimplemented!()
         }
-        fn _recover(&mut self, account: AccountId) -> Balance {
+
+        #[ink(message)]
+        pub fn withdraw_to(&mut self, account: AccountId, amount: Balance) -> bool {
+            unimplemented!()
+        }
+
+        pub fn _recover(&mut self, account: AccountId) -> Balance {
             unimplemented!()
         }
     }
