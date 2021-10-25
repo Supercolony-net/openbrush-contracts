@@ -5,6 +5,12 @@ This folder contains examples of how the library can be used & how to customize 
 * [PSP22](psp22) shows an example of how you can reuse the implementation of
   [psp22](../contracts/token/psp22) token (in the same way you can reuse
   [psp721](../contracts/token/psp721) and [psp1155](../contracts/token/psp1155)).
+* [PSP22-burnable](psp22-burnable) shows how you can use the implementation of
+  [psp22burnable](../contracts/token/psp22/src/extensions) extension for PSP22 token which
+  allows token holders to destroy both their own tokens and those that they have an allowance for.
+* [PSP22-mintable](psp22-mintable) shows how you can use the implementation of
+  [psp22mintable](../contracts/token/psp22/src/extensions) extension for PSP22 token which
+  allows minting tokens to the account.
 * [Access Control](access-control) shows how you can use the implementation of
   [access-control](../contracts/access/access-control) and
   [psp721](../contracts/token/psp721) together to provide rights to mint and burn NFT tokens.
@@ -23,3 +29,7 @@ This folder contains examples of how the library can be used & how to customize 
 * [PaymentSplitter](payment-splitter) shows how you can use the implementation of
   [payment-splitter](../contracts/finance/payment-splitter)
   to split received native tokens between participants of the contract.
+* [PSP22Burnable](psp22-burnable) shows how you can use the implementation of
+  [psp22burnable](../contracts/token/psp22/src/extensions) extension for PSP22 token which
+  allows token holders to destroy both their own tokens and those that they have an allowance for.
+
