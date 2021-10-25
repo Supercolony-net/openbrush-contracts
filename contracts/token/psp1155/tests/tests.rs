@@ -1,13 +1,13 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use psp1155::traits::*;
     use brush::traits::ZERO_ADDRESS;
     use ink::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
+    use psp1155::traits::*;
 
     #[ink(event)]
     pub struct TransferSingle {
@@ -99,7 +99,8 @@ mod tests {
             _id: Id,
             _amount: Balance,
             _data: Vec<u8>,
-        ) {
+        ) -> Result<(), psp1155::traits::PSP1155Error> {
+            Ok(())
         }
 
         // Don't do cross call in test
@@ -111,7 +112,8 @@ mod tests {
             _ids: Vec<Id>,
             _amounts: Vec<Balance>,
             _data: Vec<u8>,
-        ) {
+        ) -> Result<(), psp1155::traits::PSP1155Error> {
+            Ok(())
         }
     }
 

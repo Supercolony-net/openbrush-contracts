@@ -11,6 +11,7 @@ pub use self::psp22receiver::PSP22Receiver;
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp22 {
     use ink_prelude::vec::Vec;
+    use crate::traits::PSP22Error;
 
     #[derive(Default)]
     #[ink(storage)]
@@ -36,7 +37,7 @@ mod psp22 {
         }
 
         #[ink(message)]
-        pub fn transfer(&mut self, _to: AccountId, _value: Balance, _data: Vec<u8>) {
+        pub fn transfer(&mut self, _to: AccountId, _value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
             unimplemented!()
         }
 
@@ -46,22 +47,22 @@ mod psp22 {
         }
 
         #[ink(message)]
-        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) {
+        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn approve(&mut self, _spender: AccountId, _value: Balance) {
+        pub fn approve(&mut self, _spender: AccountId, _value: Balance) -> Result<(), PSP22Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn increase_allowance(&mut self, _spender: AccountId, _delta_value: Balance) {
+        pub fn increase_allowance(&mut self, _spender: AccountId, _delta_value: Balance) -> Result<(), PSP22Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn decrease_allowance(&mut self, _spender: AccountId, _delta_value: Balance) {
+        pub fn decrease_allowance(&mut self, _spender: AccountId, _delta_value: Balance) -> Result<(), PSP22Error> {
             unimplemented!()
         }
     }
@@ -121,10 +122,10 @@ pub mod psp22receiver {
         #[ink(message)]
         pub fn before_received(
             &mut self,
-            operator: AccountId,
-            from: AccountId,
-            value: Balance,
-            data: Vec<u8>,
+            _operator: AccountId,
+            _from: AccountId,
+            _value: Balance,
+            _data: Vec<u8>,
         ) -> Result<(), PSP22ReceiverError> {
             unimplemented!()
         }
