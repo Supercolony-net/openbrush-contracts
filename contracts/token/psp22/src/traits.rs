@@ -1,4 +1,7 @@
-use crate::stub::PSP22Receiver as PSP22ReceiverStub;
+pub use crate::stub::{
+    PSP22Receiver as PSP22ReceiverStub,
+    PSP22 as PSP22Stub,
+};
 use brush::{
     declare_storage_trait,
     traits::{
