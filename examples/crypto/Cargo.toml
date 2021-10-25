@@ -1,6 +1,6 @@
 [package]
-name = "psp1155_receiver"
-version = "1.0.0"
+name = "my_crypto"
+version = "0.3.0-rc1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
@@ -15,16 +15,20 @@ ink_prelude = { git = "https://github.com/Supercolony-net/ink", branch = "featur
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
-# These dependencies
-psp1155 = { path = "../../contracts/token/psp1155", default-features = false }
 brush = { path = "../../utils/brush", default-features = false }
 
 [lib]
-name = "psp1155_receiver"
+name = "my_crypto"
 path = "lib.rs"
 crate-type = [
     "cdylib",
 ]
+
+[profile.release]
+opt-level = 3
+
+[profile.dev]
+opt-level = 3
 
 [features]
 default = ["std"]
@@ -38,7 +42,6 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-    "psp1155/std",
     "brush/std",
 ]
 ink-as-dependency = []
