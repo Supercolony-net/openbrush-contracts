@@ -2,7 +2,7 @@
 
 #[brush::contract]
 pub mod my_psp22_wrapper {
-    use ink_env::call::FromAccountId;
+    use ink_prelude::vec::Vec;
     use psp22::{
         extensions::wrapper::*,
         traits::*,
@@ -21,13 +21,35 @@ pub mod my_psp22_wrapper {
 
     impl PSP22Wrapper for MyPSP22Wrapper {}
 
+    impl PSP22Receiver for MyPSP22Wrapper {
+        #[ink(message)]
+        fn before_received(
+            &mut self,
+            _operator: AccountId,
+            _from: AccountId,
+            _value: Balance,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP22ReceiverError> {
+            Ok(())
+        }
+    }
+
     impl MyPSP22Wrapper {
         #[ink(constructor)]
         pub fn new(token_address: AccountId) -> Self {
             let mut instance = Self::default();
-            let token: PSP22Stub = FromAccountId::from_account_id(token_address);
-            instance.init(token);
+            instance.init(token_address);
             instance
+        }
+
+        #[ink(message)]
+        pub fn recover(&mut self) -> Balance {
+            self._recover(Self::env().caller())
+        }
+
+        #[ink(message)]
+        pub fn burn(&mut self, amount: Balance) {
+            self._burn(Self::env().caller(), amount);
         }
     }
 }

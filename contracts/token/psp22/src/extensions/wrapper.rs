@@ -9,6 +9,8 @@ use brush::{
         InkStorage,
     },
 };
+use ink_env::call::FromAccountId;
+use ink_prelude::vec::Vec;
 use ink_storage::traits::SpreadLayout;
 pub use psp22_derive::PSP22WrapperStorage;
 
@@ -18,30 +20,26 @@ use ink_storage::traits::StorageLayout;
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22WrapperData {
-    pub underlying: PSP22Stub,
+    pub underlying: AccountId,
 }
 
 declare_storage_trait!(PSP22WrapperStorage, PSP22WrapperData);
 
 #[brush::trait_definition]
-pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
+pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 + PSP22Receiver {
     /// Initalize the wrapper token with defining the underlying PSP22 token
     ///
     /// `underlying` is the token to be wrapped
     #[ink(message)]
-    fn init(&mut self, underlying: PSP22Stub) {
+    fn init(&mut self, underlying: AccountId) {
         PSP22WrapperStorage::get_mut(self).underlying = underlying;
     }
 
     /// Allow a user to deposit `amount` of underlying tokens and mint `amount` of the wrapped tokens to `account`
     #[ink(message)]
     fn deposit_for(&mut self, account: AccountId, amount: Balance) -> bool {
-        PSP22WrapperStorage::get_mut(self).underlying.transfer_from(
-            Self::env().caller(),
-            Self::env().account_id(),
-            amount,
-            Vec::new(),
-        );
+        let mut token: PSP22Stub = FromAccountId::from_account_id(PSP22WrapperStorage::get_mut(self).underlying);
+        token.transfer_from(Self::env().caller(), Self::env().account_id(), amount, Vec::<u8>::new());
         self._mint(account, amount);
         true
     }
@@ -50,19 +48,16 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
     #[ink(message)]
     fn withdraw_to(&mut self, account: AccountId, amount: Balance) -> bool {
         self._burn(Self::env().caller(), amount);
-        PSP22WrapperStorage::get_mut(self)
-            .underlying
-            .transfer(account, amount, Vec::new());
+        let mut token: PSP22Stub = FromAccountId::from_account_id(PSP22WrapperStorage::get_mut(self).underlying);
+        token.transfer(account, amount, Vec::<u8>::new());
         true
     }
 
     /// Mint wrapped token to cover any underlyingTokens that would have been transfered by mistake. Internal
     /// function that can be exposed with access control if desired.
     fn _recover(&mut self, account: AccountId) -> Balance {
-        let value = PSP22WrapperStorage::get_mut(self)
-            .underlying
-            .balance_of(Self::env().account_id())
-            - self.total_supply();
+        let token: PSP22Stub = FromAccountId::from_account_id(PSP22WrapperStorage::get_mut(self).underlying);
+        let value = token.balance_of(Self::env().account_id()) - self.total_supply();
         self._mint(account, value);
         value
     }
