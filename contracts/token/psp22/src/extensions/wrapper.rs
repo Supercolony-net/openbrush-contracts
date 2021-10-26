@@ -1,7 +1,6 @@
 /// Extension of [`PSP22`] which supports token wrapping
 use crate::traits::*;
 
-use crate::stub::PSP22 as PSP22Stub;
 use brush::{
     declare_storage_trait,
     traits::{
