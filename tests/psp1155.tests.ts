@@ -5,6 +5,26 @@ describe('MY_PSP1155', () => {
         return setupContract('my_psp1155', 'new', '')
     }
 
+    async function setup_receiver() {
+        return setupContract('psp1155_receiver', 'new')
+    }
+
+    it('PSP 1155 - receiver can reject the transfer', async () => {
+        const { tx, query, defaultSigner: sender } = await setup()
+
+        const { contract } = await setup_receiver()
+
+        // Arrange - Sender mint a token
+        await expect(tx.mint(bnArg(0), 1)).to.eventually.be.fulfilled
+
+        // Act - Receiver wants to reject the next transfer
+        await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
+
+        // Assert - Sender cannot send token to receiver
+        await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.rejected
+        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
+    })
+
     it('Balance of works', async () => {
         const { contract, query, defaultSigner: sender } = await setup()
 
