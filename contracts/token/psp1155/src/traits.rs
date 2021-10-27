@@ -24,6 +24,7 @@ use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
 };
+pub use psp1155_derive::PSP1155Storage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -118,7 +119,7 @@ pub trait PSP1155: PSP1155Storage {
     #[ink(message)]
     fn safe_transfer_from(&mut self, _from: AccountId, _to: AccountId, _id: Id, _amount: Balance, _data: Vec<u8>) {
         self._transfer_guard(_from, _to);
-        self._before_token_transfer(&vec![_id]);
+        self._before_token_transfer(&vec![_id], _from, _to);
         self._transfer_from(_from, _to, _id, _amount);
 
         self._do_safe_transfer_acceptance_check(Self::env().caller(), _from, _to, _id, _amount, _data);
@@ -138,13 +139,22 @@ pub trait PSP1155: PSP1155Storage {
         _data: Vec<u8>,
     ) {
         self._transfer_guard(_from, _to);
-        self._before_token_transfer(&_ids_amounts.iter().map(|item| item.0.clone()).collect());
+        self._before_token_transfer(&_ids_amounts.iter().map(|item| item.0.clone()).collect(), _from, _to);
 
         for item in _ids_amounts.iter() {
             self._transfer_from(_from, _to, item.0.clone(), item.1.clone());
         }
 
-        self._do_batch_safe_transfer_acceptance_check(Self::env().caller(), _from, _to, _ids_amounts.clone(), _data);
+        self._do_batch_safe_transfer_acceptance_check(
+            Self::env().caller(),
+            _from,
+            _to,
+            _ids_amounts
+                .iter()
+                .map(|item| (item.0.clone(), item.1.clone()))
+                .collect(),
+            _data,
+        );
 
         self._emit_transfer_batch_event(Self::env().caller(), _from, _to, _ids_amounts);
     }
@@ -177,7 +187,7 @@ pub trait PSP1155: PSP1155Storage {
 
         assert!(!to.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
-        self._before_token_transfer(&vec![id]);
+        self._before_token_transfer(&vec![id], ZERO_ADDRESS.into(), to);
         self._increase_receiver_balance(to, id, amount);
 
         self._do_safe_transfer_acceptance_check(operator, ZERO_ADDRESS.into(), to, id, amount, Vec::new());
@@ -192,7 +202,7 @@ pub trait PSP1155: PSP1155Storage {
     fn _burn(&mut self, from: AccountId, id: Id, amount: Balance) {
         assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
-        self._before_token_transfer(&vec![id]);
+        self._before_token_transfer(&vec![id], from, ZERO_ADDRESS.into());
         self._decrease_sender_balance(from, id, amount);
 
         self._emit_transfer_single_event(Self::env().caller(), from, ZERO_ADDRESS.into(), id, amount);
@@ -205,7 +215,11 @@ pub trait PSP1155: PSP1155Storage {
         assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         let caller = Self::env().caller();
-        self._before_token_transfer(&ids_amounts.iter().map(|item| item.0.clone()).collect());
+        self._before_token_transfer(
+            &ids_amounts.iter().map(|item| item.0.clone()).collect(),
+            from,
+            ZERO_ADDRESS.into(),
+        );
 
         for item in ids_amounts.iter() {
             self._decrease_sender_balance(from, item.0, item.1);
@@ -261,7 +275,7 @@ pub trait PSP1155: PSP1155Storage {
         };
     }
 
-    fn _before_token_transfer(&self, _ids: &Vec<Id>) {}
+    fn _before_token_transfer(&self, _ids: &Vec<Id>, _from: AccountId, _to: AccountId) {}
 
     fn _do_safe_transfer_acceptance_check(
         &mut self,
