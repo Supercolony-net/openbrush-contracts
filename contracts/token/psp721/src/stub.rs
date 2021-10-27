@@ -8,10 +8,11 @@ pub use self::{
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp721 {
-    use crate::traits::Id;
-    use ink_prelude::{
-        vec::Vec,
+    use crate::traits::{
+        Id,
+        PSP721Error,
     };
+    use ink_prelude::vec::Vec;
 
     #[derive(Default)]
     #[ink(storage)]
@@ -27,42 +28,48 @@ mod psp721 {
     #[ink(namespace = "PSP721")]
     impl PSP721 {
         #[ink(message)]
-        pub fn balance_of(&self, owner: AccountId) -> u32 {
+        pub fn balance_of(&self, _owner: AccountId) -> u32 {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn owner_of(&self, id: Id) -> Option<AccountId> {
+        pub fn owner_of(&self, _id: Id) -> Option<AccountId> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn get_approved(&self, id: Id) -> Option<AccountId> {
+        pub fn get_approved(&self, _id: Id) -> Option<AccountId> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
+        pub fn is_approved_for_all(&self, _owner: AccountId, _operator: AccountId) -> bool {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn set_approval_for_all(&mut self, to: AccountId, approved: bool) {
+        pub fn set_approval_for_all(&mut self, _to: AccountId, _approved: bool) -> Result<(), PSP721Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn approve(&mut self, to: AccountId, id: Id) {
+        pub fn approve(&mut self, _to: AccountId, _id: Id) -> Result<(), PSP721Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Id) {
+        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _id: Id) -> Result<(), PSP721Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn safe_transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) {
+        pub fn safe_transfer_from(
+            &mut self,
+            _from: AccountId,
+            _to: AccountId,
+            _id: Id,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP721Error> {
             unimplemented!()
         }
     }
@@ -92,10 +99,10 @@ mod psp721receiver {
         #[ink(message)]
         pub fn on_psp721_received(
             &mut self,
-            operator: AccountId,
-            from: AccountId,
-            id: Id,
-            data: Vec<u8>,
+            _operator: AccountId,
+            _from: AccountId,
+            _id: Id,
+            _data: Vec<u8>,
         ) -> Result<(), PSP721ReceiverError> {
             unimplemented!()
         }

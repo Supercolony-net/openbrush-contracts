@@ -4,6 +4,8 @@
 
 Our mission with this project is to make ink! development faster, safer and easier.
 
+Talk to us on Element in the [OpenBrush](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org) channel
+
 ## Summary
 **OpenBrush is a library for smart contract development on ink!.**
 
@@ -138,7 +140,7 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 You can run unit tests by `cargo test` command from the root of the directory.
 
 To run integration test you need to install ink! toolchain, NodeJS's dependencies and start the node with contract-pallet.
-- [ink! toolchain](https://substrate.dev/substrate-contracts-workshop/#/0/setup?id=substrate-prerequisites)
+- [ink! toolchain](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/#prerequisites)
 - [Setup and start the node with contract-pallet](https://docs.patract.io/en/redspot/intro/installation#setup-local-test-node)
 - NodeJS deps you can install via `npm run install` command
 

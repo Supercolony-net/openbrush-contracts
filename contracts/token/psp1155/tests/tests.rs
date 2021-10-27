@@ -102,7 +102,8 @@ mod tests {
             _id: Id,
             _amount: Balance,
             _data: Vec<u8>,
-        ) {
+        ) -> Result<(), psp1155::traits::PSP1155Error> {
+            Ok(())
         }
 
         // Don't do cross call in test
@@ -113,7 +114,8 @@ mod tests {
             _to: AccountId,
             _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
-        ) {
+        ) -> Result<(), psp1155::traits::PSP1155Error> {
+            Ok(())
         }
     }
 

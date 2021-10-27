@@ -41,16 +41,17 @@ pub struct PSP1155Data {
 declare_storage_trait!(PSP1155Storage, PSP1155Data);
 
 /// The PSP1155 error type. Contract will throw one of this errors.
-#[derive(strum_macros::AsRefStr)]
+#[derive(strum_macros::AsRefStr, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP1155Error {
-    Unknown(String),
+    /// Returned if safe transfer check fails.
     CallFailed,
-    ZeroAddress,
-    SelfApproval,
+    /// Returned if the account doesn't contain enough funds.
     InsufficientBalance,
-    MaxBalance,
+    /// Returned if recipient is zero account.
     TransferToZeroAddress,
-    ApproveRequired,
+    /// Returned if the caller is not allowed.
+    NotAllowed,
 }
 
 /// Contract module which provides a basic implementation of multiple token types.
@@ -63,8 +64,8 @@ pub enum PSP1155Error {
 pub trait PSP1155: PSP1155Storage {
     /// Returns the amount of tokens of token type `_id` owned by `_account`.
     #[ink(message)]
-    fn balance_of(&self, _account: AccountId, _id: Id) -> Balance {
-        self._balance_of_or_zero(_account, _id)
+    fn balance_of(&self, account: AccountId, id: Id) -> Balance {
+        self._balance_of_or_zero(account, id)
     }
 
     /// Batched version of {balance_of}.
@@ -83,24 +84,25 @@ pub trait PSP1155: PSP1155Storage {
     ///
     /// # Errors
     ///
-    /// Panics with `SelfApproval` error if it is self approve.
+    /// Panics with `NotAllowed` error if it is self approve.
     #[ink(message)]
-    fn set_approval_for_all(&mut self, _operator: AccountId, _approved: bool) {
+    fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) -> Result<(), PSP1155Error> {
         let caller = Self::env().caller();
-        assert_ne!(caller, _operator, "{}", PSP1155Error::SelfApproval.as_ref());
-        *self
-            .get_mut()
+        assert_ne!(caller, operator, "{}", PSP1155Error::NotAllowed.as_ref());
+        self.get_mut()
             .operator_approval
-            .entry((Self::env().caller(), _operator))
-            .or_insert(false) = _approved;
+            .entry((Self::env().caller(), operator))
+            .and_modify(|b| *b = approved)
+            .or_insert(approved);
 
-        self._emit_approval_for_all_event(caller, _operator, _approved);
+        self._emit_approval_for_all_event(caller, operator, approved);
+        Ok(())
     }
 
     /// Returns true if `_operator` is approved to transfer ``_account``'s tokens.
     #[ink(message)]
-    fn is_approved_for_all(&self, _account: AccountId, _operator: AccountId) -> bool {
-        self._is_approved_for_all(_account, _operator)
+    fn is_approved_for_all(&self, account: AccountId, operator: AccountId) -> bool {
+        self._is_approved_for_all(account, operator)
     }
 
     /// Transfers `_amount` tokens of token type `_id` from `_from` to `_to`. Also some `_data` can be passed.
@@ -109,22 +111,30 @@ pub trait PSP1155: PSP1155Storage {
     ///
     /// # Errors
     ///
-    /// Panics with `TransferToZeroAddress` error if receipt is zero account.
+    /// Panics with `TransferToZeroAddress` error if recipient is zero account.
     ///
-    /// Panics with `ApproveRequired` error if transfer is not approved.
+    /// Panics with `NotAllowed` error if transfer is not approved.
     ///
     /// Panics with `InsufficientBalance` error if `_from` doesn't contain enough balance.
     ///
     /// Panics with `CallFailed` error if `_to` doesn't accept transfer.
     #[ink(message)]
-    fn safe_transfer_from(&mut self, _from: AccountId, _to: AccountId, _id: Id, _amount: Balance, _data: Vec<u8>) {
+    fn safe_transfer_from(
+        &mut self,
+        _from: AccountId,
+        _to: AccountId,
+        _id: Id,
+        _amount: Balance,
+        _data: Vec<u8>,
+    ) -> Result<(), PSP1155Error> {
         self._transfer_guard(_from, _to);
         self._before_token_transfer(&vec![_id], _from, _to);
         self._transfer_from(_from, _to, _id, _amount);
 
-        self._do_safe_transfer_acceptance_check(Self::env().caller(), _from, _to, _id, _amount, _data);
+        self._do_safe_transfer_acceptance_check(Self::env().caller(), from, to, id, amount, data)?;
 
-        self._emit_transfer_single_event(Self::env().caller(), _from, _to, _id, _amount);
+        self._emit_transfer_single_event(Self::env().caller(), from, to, id, amount);
+        Ok(())
     }
 
     /// Batched version of {safe_transfer_from}.
@@ -137,7 +147,7 @@ pub trait PSP1155: PSP1155Storage {
         _to: AccountId,
         _ids_amounts: Vec<(Id, Balance)>,
         _data: Vec<u8>,
-    ) {
+    ) -> Result<(), PSP1155Error> {
         self._transfer_guard(_from, _to);
         self._before_token_transfer(&_ids_amounts.iter().map(|item| item.0.clone()).collect(), _from, _to);
 
@@ -157,6 +167,7 @@ pub trait PSP1155: PSP1155Storage {
         );
 
         self._emit_transfer_batch_event(Self::env().caller(), _from, _to, _ids_amounts);
+        Ok(())
     }
 
     // Helper functions
@@ -232,13 +243,15 @@ pub trait PSP1155: PSP1155Storage {
         assert!(!to.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
         let operator = Self::env().caller();
-
         if (from != operator) && (!self._is_approved_for_all(from, operator)) {
-            panic!("{}", PSP1155Error::ApproveRequired.as_ref());
+            panic!("{}", PSP1155Error::NotAllowed.as_ref());
         }
     }
 
     fn _transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, amount: Balance) {
+        let balance = self.balance_of(from, id);
+        assert!(balance >= amount, "{}", PSP1155Error::InsufficientBalance.as_ref());
+
         self._decrease_sender_balance(from, id, amount);
         self._increase_receiver_balance(to, id, amount);
     }
@@ -247,60 +260,52 @@ pub trait PSP1155: PSP1155Storage {
         self.get().balances.get(&(id, owner)).cloned().unwrap_or(0)
     }
 
-    fn _is_approved_for_all(&self, _account: AccountId, _operator: AccountId) -> bool {
+    fn _is_approved_for_all(&self, account: AccountId, operator: AccountId) -> bool {
         self.get()
             .operator_approval
-            .get(&(_account, _operator))
+            .get(&(account, operator))
             .cloned()
             .unwrap_or(false)
     }
 
     fn _increase_receiver_balance(&mut self, to: AccountId, id: Id, amount: Balance) {
-        let to_balance = self.get_mut().balances.entry((id, to)).or_insert(0);
-        match to_balance.checked_add(amount) {
-            Some(new_to_balance) => *to_balance = new_to_balance,
-            _ => panic!("{}", PSP1155Error::MaxBalance.as_ref()),
-        }
+        self.get_mut()
+            .balances
+            .entry((id, to))
+            .and_modify(|b| *b += amount)
+            .or_insert(amount);
     }
 
     fn _decrease_sender_balance(&mut self, from: AccountId, id: Id, amount: Balance) {
-        match self
-            .get()
-            .balances
-            .get(&(id, from))
-            .map(|old_from_balance| old_from_balance.checked_sub(amount))
-        {
-            Some(Some(new_from_balance)) => self.get_mut().balances.insert((id, from), new_from_balance),
-            _ => panic!("{}", PSP1155Error::InsufficientBalance.as_ref()),
-        };
+        self.get_mut().balances.entry((id, from)).and_modify(|b| *b -= amount);
     }
 
     fn _before_token_transfer(&self, _ids: &Vec<Id>, _from: AccountId, _to: AccountId) {}
 
     fn _do_safe_transfer_acceptance_check(
         &mut self,
-        _operator: AccountId,
-        _from: AccountId,
-        _to: AccountId,
-        _id: Id,
-        _amount: Balance,
-        _data: Vec<u8>,
-    ) {
-        let mut receiver: PSP1155Receiver = FromAccountId::from_account_id(_to);
+        operator: AccountId,
+        from: AccountId,
+        to: AccountId,
+        id: Id,
+        amount: Balance,
+        data: Vec<u8>,
+    ) -> Result<(), PSP1155Error> {
+        let mut receiver: PSP1155Receiver = FromAccountId::from_account_id(to);
         match receiver
             .call_mut()
-            .on_psp1155_received(_operator, _from, _id, _amount, _data)
+            .on_psp1155_received(operator, from, id, amount, data)
             .fire()
         {
             Ok(result) => {
                 match result {
-                    Ok(_) => (),
+                    Ok(_) => Ok(()),
                     _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
                 }
             }
             Err(e) => {
                 match e {
-                    Env_error::NotCallable => (),
+                    Env_error::NotCallable => Ok(()),
                     _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
                 }
             }
@@ -309,27 +314,27 @@ pub trait PSP1155: PSP1155Storage {
 
     fn _do_batch_safe_transfer_acceptance_check(
         &mut self,
-        _operator: AccountId,
-        _from: AccountId,
-        _to: AccountId,
-        _ids_amounts: Vec<(Id, Balance)>,
-        _data: Vec<u8>,
-    ) {
-        let mut receiver: PSP1155Receiver = FromAccountId::from_account_id(_to);
+        operator: AccountId,
+        from: AccountId,
+        to: AccountId,
+        ids_amounts: Vec<(Id, Balance)>,
+        data: Vec<u8>,
+    ) -> Result<(), PSP1155Error> {
+        let mut receiver: PSP1155Receiver = FromAccountId::from_account_id(to);
         match receiver
             .call_mut()
-            .on_psp1155_batch_received(_operator, _from, _ids_amounts, _data)
+            .on_psp1155_batch_received(operator, from, ids_amounts, data)
             .fire()
         {
             Ok(result) => {
                 match result {
-                    Ok(_) => (),
+                    Ok(_) => Ok(()),
                     _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
                 }
             }
             Err(e) => {
                 match e {
-                    Env_error::NotCallable => (),
+                    Env_error::NotCallable => Ok(()),
                     _ => panic!("{}", PSP1155Error::CallFailed.as_ref()),
                 }
             }
