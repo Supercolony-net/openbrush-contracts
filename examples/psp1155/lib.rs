@@ -53,9 +53,9 @@ pub mod my_psp1155 {
         ///
         /// `id` must be registered
         #[ink(message)]
-        pub fn mint_tokens(&mut self, id: Id, amount: Balance) {
+        pub fn mint_tokens(&mut self, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
             assert!(*self.registered_ids.get(&id).unwrap_or(&false));
-            self.mint(id, amount);
+            self.mint(id, amount)
         }
     }
 }

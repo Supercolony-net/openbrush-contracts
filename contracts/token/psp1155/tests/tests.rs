@@ -359,7 +359,7 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "ApproveRequired")]
+    #[should_panic(expected = "NotAllowed")]
     fn transfer_from_single_no_approve() {
         let token_id = [1; 32];
         let mint_amount = 1;
@@ -442,7 +442,7 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "ApproveRequired")]
+    #[should_panic(expected = "NotAllowed")]
     fn transfer_from_batch_no_approve() {
         let token_id_1 = [1; 32];
         let token_id_2 = [2; 32];
@@ -689,7 +689,7 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "ApproveRequired")]
+    #[should_panic(expected = "NotAllowed")]
     fn burn_from_without_allowance() {
         let token_id_1 = [1; 32];
         let token_1_amount = 20;
@@ -702,7 +702,7 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "ApproveRequired")]
+    #[should_panic(expected = "NotAllowed")]
     fn burn_batch_from_without_allowance() {
         let token_id_1 = [1; 32];
         let token_id_2 = [2; 32];

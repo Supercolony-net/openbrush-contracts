@@ -9,15 +9,15 @@ pub trait PSP721Mintable: PSP721 {
     ///
     /// See [`PSP721::_mint`].
     #[ink(message)]
-    fn mint(&mut self, id: Id) {
-        self._mint(id);
+    fn mint(&mut self, id: Id) -> Result<(), PSP721Error> {
+        self._mint(id)
     }
 
     /// Mints a new token with `id` to `account`
     ///
     /// See [`PSP721::_mint_to`].
     #[ink(message)]
-    fn mint_to(&mut self, account: AccountId, id: Id) {
-        self._mint_to(account, id);
+    fn mint_to(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+        self._mint_to(account, id)
     }
 }

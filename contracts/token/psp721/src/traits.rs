@@ -264,10 +264,7 @@ pub trait PSP721: PSP721Storage {
         assert_eq!(occupied.get(), &caller, "{}", PSP721Error::NotOwner.as_ref());
         occupied.remove_entry();
 
-        self.get_mut()
-            .owned_tokens_count
-            .entry(caller)
-            .and_modify(|v| *v -= 1);
+        self.get_mut().owned_tokens_count.entry(caller).and_modify(|v| *v -= 1);
         Ok(())
     }
 
@@ -296,24 +293,26 @@ pub trait PSP721: PSP721Storage {
         }
     }
 
-    fn _mint(&mut self, id: Id) {
+    fn _mint(&mut self, id: Id) -> Result<(), PSP721Error> {
         let to = Self::env().caller();
-        self._mint_to(to, id);
+        self._mint_to(to, id)
     }
 
-    fn _mint_to(&mut self, to: AccountId, id: Id) {
-        self._add_to(to, id);
+    fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
+        let result = self._add_to(to, id);
         self._emit_transfer_event(ZERO_ADDRESS.into(), to, id);
+        result
     }
 
-    fn _burn_from(&mut self, from: AccountId, id: Id) {
-        self._remove_from(from, id);
+    fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP721Error> {
+        let result = self._remove_from(from, id);
         self._emit_transfer_event(from, ZERO_ADDRESS.into(), id);
+        result
     }
 
-    fn _burn(&mut self, id: Id) {
+    fn _burn(&mut self, id: Id) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
-        self._burn_from(caller, id);
+        self._burn_from(caller, id)
     }
 }
 

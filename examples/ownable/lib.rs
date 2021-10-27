@@ -42,14 +42,14 @@ pub mod ownable {
     impl PSP1155Mintable for PSP1155Struct {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint_to(&mut self, to: AccountId, id: Id, amount: Balance) {
-            self._mint(to, id, amount);
+        fn mint_to(&mut self, to: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
+            self._mint(to, id, amount)
         }
 
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint(&mut self, id: Id, amount: Balance) {
-            self._mint(Self::env().caller(), id, amount);
+        fn mint(&mut self, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
+            self._mint(Self::env().caller(), id, amount)
         }
     }
 
@@ -57,7 +57,7 @@ pub mod ownable {
         #[ink(message)]
         #[modifiers(only_owner)]
         fn burn(&mut self, id: Id, amount: Balance) {
-            self._burn(Self::env().caller(), id, amount);
+            self._burn(Self::env().caller(), id, amount)
         }
     }
 }

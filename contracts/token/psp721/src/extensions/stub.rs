@@ -29,7 +29,10 @@ pub mod metadata {
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod mintable {
-    use crate::traits::Id;
+    use crate::traits::{
+        Id,
+        PSP721Error,
+    };
 
     #[derive(Default)]
     #[ink(storage)]
@@ -45,12 +48,12 @@ pub mod mintable {
     #[ink(namespace = "PSP721Mintable")]
     impl PSP721Mintable {
         #[ink(message)]
-        pub fn mint(&mut self, id: Id) {
+        pub fn mint(&mut self, id: Id) -> Result<(), PSP721Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn mint_to(&mut self, account: AccountId, id: Id) {
+        pub fn mint_to(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
             unimplemented!()
         }
     }
@@ -58,7 +61,10 @@ pub mod mintable {
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod burnable {
-    use crate::traits::Id;
+    use crate::traits::{
+        Id,
+        PSP721Error,
+    };
 
     #[derive(Default)]
     #[ink(storage)]
@@ -74,12 +80,12 @@ pub mod burnable {
     #[ink(namespace = "PSP721Burnable")]
     impl PSP721Burnable {
         #[ink(message)]
-        pub fn burn(&mut self, id: Id) {
+        pub fn burn(&mut self, id: Id) -> Result<(), PSP721Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn burn_from(&mut self, account: AccountId, id: Id) {
+        pub fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
             unimplemented!()
         }
     }

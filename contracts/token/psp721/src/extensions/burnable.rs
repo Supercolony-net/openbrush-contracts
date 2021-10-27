@@ -12,8 +12,8 @@ pub trait PSP721Burnable: PSP721 {
     ///
     /// See [`PSP721::_burn`].
     #[ink(message)]
-    fn burn(&mut self, id: Id) {
-        self._burn(id);
+    fn burn(&mut self, id: Id) -> Result<(), PSP721Error> {
+        self._burn(id)
     }
 
     /// Destroys token with id equal to `id` from `account`
@@ -21,7 +21,7 @@ pub trait PSP721Burnable: PSP721 {
     /// Caller must be approved to transfer tokens from `account`
     /// or to transfer token with `id`
     #[ink(message)]
-    fn burn_from(&mut self, account: AccountId, id: Id) {
+    fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
 
         assert!(
@@ -30,6 +30,6 @@ pub trait PSP721Burnable: PSP721 {
             PSP721Error::NotApproved.as_ref()
         );
 
-        self._burn_from(account, id);
+        self._burn_from(account, id)
     }
 }

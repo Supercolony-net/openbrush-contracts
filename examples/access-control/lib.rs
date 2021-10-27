@@ -47,16 +47,16 @@ pub mod my_access_control {
     impl PSP721Mintable for PSP721Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
-        fn mint(&mut self, id: Id) {
-            self._mint(id);
+        fn mint(&mut self, id: Id) -> Result<(), PSP721Error> {
+            self._mint(id)
         }
     }
 
     impl PSP721Burnable for PSP721Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
-        fn burn(&mut self, id: Id) {
-            self._burn(id);
+        fn burn(&mut self, id: Id) -> Result<(), PSP721Error> {
+            self._burn(id)
         }
     }
 }

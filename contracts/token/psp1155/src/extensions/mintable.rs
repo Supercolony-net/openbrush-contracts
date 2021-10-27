@@ -12,15 +12,15 @@ pub trait PSP1155Mintable: PSP1155 {
     ///
     /// See [`PSP1155::_mint`].
     #[ink(message)]
-    fn mint(&mut self, id: Id, amount: Balance) {
-        self._mint(Self::env().caller(), id, amount);
+    fn mint(&mut self, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
+        self._mint(Self::env().caller(), id, amount)
     }
 
     /// Mints `amount` tokens of token type `id` to `to`
     ///
     /// See [`PSP1155::_mint`].
     #[ink(message)]
-    fn mint_to(&mut self, to: AccountId, id: Id, amount: Balance) {
-        self._mint(to, id, amount);
+    fn mint_to(&mut self, to: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
+        self._mint(to, id, amount)
     }
 }

@@ -24,7 +24,7 @@ pub trait PSP1155Burnable: PSP1155 {
         assert!(
             self.is_approved_for_all(from, Self::env().caller()),
             "{}",
-            PSP1155Error::ApproveRequired.as_ref()
+            PSP1155Error::NotAllowed.as_ref()
         );
 
         self._burn(from, id, amount);
@@ -38,7 +38,7 @@ pub trait PSP1155Burnable: PSP1155 {
         self._burn_batch(Self::env().caller(), ids_amounts);
     }
 
-    /// Destroys `ids_amounts[i].1` of token type `ids_amounts[i].0` from `from` 
+    /// Destroys `ids_amounts[i].1` of token type `ids_amounts[i].0` from `from`
     ///
     /// See [`PSP1155::_burn`].
     #[ink(message)]
@@ -46,9 +46,8 @@ pub trait PSP1155Burnable: PSP1155 {
         assert!(
             self.is_approved_for_all(from, Self::env().caller()),
             "{}",
-            PSP1155Error::ApproveRequired.as_ref()
+            PSP1155Error::NotAllowed.as_ref()
         );
-
-        self._burn_batch(from, ids_amounts);
+        self._burn_batch(from, ids_amounts)
     }
 }

@@ -121,15 +121,15 @@ pub trait PSP1155: PSP1155Storage {
     #[ink(message)]
     fn safe_transfer_from(
         &mut self,
-        _from: AccountId,
-        _to: AccountId,
-        _id: Id,
-        _amount: Balance,
-        _data: Vec<u8>,
+        from: AccountId,
+        to: AccountId,
+        id: Id,
+        amount: Balance,
+        data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
-        self._transfer_guard(_from, _to);
-        self._before_token_transfer(&vec![_id], _from, _to);
-        self._transfer_from(_from, _to, _id, _amount);
+        self._transfer_guard(from, to);
+        self._before_token_transfer(&vec![id], from, to);
+        self._transfer_from(from, to, id, amount);
 
         self._do_safe_transfer_acceptance_check(Self::env().caller(), from, to, id, amount, data)?;
 
@@ -143,31 +143,31 @@ pub trait PSP1155: PSP1155Storage {
     #[ink(message)]
     fn safe_batch_transfer_from(
         &mut self,
-        _from: AccountId,
-        _to: AccountId,
-        _ids_amounts: Vec<(Id, Balance)>,
-        _data: Vec<u8>,
+        from: AccountId,
+        to: AccountId,
+        ids_amounts: Vec<(Id, Balance)>,
+        data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
-        self._transfer_guard(_from, _to);
-        self._before_token_transfer(&_ids_amounts.iter().map(|item| item.0.clone()).collect(), _from, _to);
+        self._transfer_guard(from, to);
+        self._before_token_transfer(&ids_amounts.iter().map(|item| item.0.clone()).collect(), from, to);
 
-        for item in _ids_amounts.iter() {
-            self._transfer_from(_from, _to, item.0.clone(), item.1.clone());
+        for item in ids_amounts.iter() {
+            self._transfer_from(from, to, item.0.clone(), item.1.clone());
         }
 
-        self._do_batch_safe_transfer_acceptance_check(
+        let result = self._do_batch_safe_transfer_acceptance_check(
             Self::env().caller(),
-            _from,
-            _to,
-            _ids_amounts
+            from,
+            to,
+            ids_amounts
                 .iter()
                 .map(|item| (item.0.clone(), item.1.clone()))
                 .collect(),
-            _data,
+            data,
         );
 
-        self._emit_transfer_batch_event(Self::env().caller(), _from, _to, _ids_amounts);
-        Ok(())
+        self._emit_transfer_batch_event(Self::env().caller(), from, to, ids_amounts);
+        result
     }
 
     // Helper functions
@@ -193,7 +193,7 @@ pub trait PSP1155: PSP1155Storage {
     ) {
     }
 
-    fn _mint(&mut self, to: AccountId, id: Id, amount: Balance) {
+    fn _mint(&mut self, to: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
         let operator = Self::env().caller();
 
         assert!(!to.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
@@ -201,9 +201,11 @@ pub trait PSP1155: PSP1155Storage {
         self._before_token_transfer(&vec![id], ZERO_ADDRESS.into(), to);
         self._increase_receiver_balance(to, id, amount);
 
-        self._do_safe_transfer_acceptance_check(operator, ZERO_ADDRESS.into(), to, id, amount, Vec::new());
+        let result = self._do_safe_transfer_acceptance_check(operator, ZERO_ADDRESS.into(), to, id, amount, Vec::new());
 
         self._emit_transfer_single_event(operator, ZERO_ADDRESS.into(), to, id, amount);
+
+        result
     }
 
     /// Destroys `amount` tokens of token type `id`
@@ -249,9 +251,6 @@ pub trait PSP1155: PSP1155Storage {
     }
 
     fn _transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, amount: Balance) {
-        let balance = self.balance_of(from, id);
-        assert!(balance >= amount, "{}", PSP1155Error::InsufficientBalance.as_ref());
-
         self._decrease_sender_balance(from, id, amount);
         self._increase_receiver_balance(to, id, amount);
     }
@@ -277,6 +276,8 @@ pub trait PSP1155: PSP1155Storage {
     }
 
     fn _decrease_sender_balance(&mut self, from: AccountId, id: Id, amount: Balance) {
+        let balance = self.balance_of(from, id);
+        assert!(balance >= amount, "{}", PSP1155Error::InsufficientBalance.as_ref());
         self.get_mut().balances.entry((id, from)).and_modify(|b| *b -= amount);
     }
 
