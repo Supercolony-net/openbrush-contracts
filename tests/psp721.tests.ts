@@ -15,6 +15,13 @@ describe('MY_PSP721', () => {
         await expect(query.balanceOf(sender.address)).to.have.output(1)
     })
 
+    it('Metadata works', async () => {
+        const { query } = await setup()
+
+        await expect(query.name()).to.have.output('Non Fungible Token')
+        await expect(query.symbol()).to.have.output('NFT')
+    })
+
     it('Transfer changes token balance', async () => {
         const {
             contract,

@@ -2,7 +2,7 @@ import { bnArg, expect, setupContract, fromSigner } from './helpers'
 
 describe('MY_PSP1155', () => {
     async function setup() {
-        return setupContract('my_psp1155', 'new', '')
+        return setupContract('my_psp1155', 'new', 'https://www.supercolony.net/')
     }
 
     async function setup_receiver() {
@@ -23,6 +23,12 @@ describe('MY_PSP1155', () => {
         // Assert - Sender cannot send token to receiver
         await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.rejected
         await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
+    })
+
+    it('Metadata works', async () => {
+        const { query } = await setup()
+
+        await expect(query.uri(bnArg(0))).to.have.output('https://www.supercolony.net/')
     })
 
     it('Balance of works', async () => {
