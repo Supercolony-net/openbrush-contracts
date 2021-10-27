@@ -10,7 +10,6 @@ mod tests {
     use psp1155::{
         extensions::{
             burnable::*,
-            metadata::*,
             mintable::*,
         },
         traits::*,

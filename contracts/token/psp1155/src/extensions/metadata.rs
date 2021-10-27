@@ -6,10 +6,7 @@ use brush::{
 };
 use ink_prelude::string::String;
 use ink_storage::traits::SpreadLayout;
-pub use psp1155_derive::{
-    PSP1155MetadataStorage,
-    PSP1155Storage,
-};
+pub use psp1155_derive::PSP1155MetadataStorage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;

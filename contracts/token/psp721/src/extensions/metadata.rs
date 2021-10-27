@@ -5,10 +5,7 @@ use brush::{
 };
 use ink_prelude::string::String;
 use ink_storage::traits::SpreadLayout;
-pub use psp721_derive::{
-    PSP721MetadataStorage,
-    PSP721Storage,
-};
+pub use psp721_derive::PSP721MetadataStorage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;

@@ -8,7 +8,6 @@ pub mod my_access_control {
     use psp721::{
         extensions::{
             burnable::*,
-            metadata::*,
             mintable::*,
         },
         traits::*,

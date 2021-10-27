@@ -24,6 +24,7 @@ use ink_storage::{
     },
     traits::SpreadLayout,
 };
+pub use psp721_derive::PSP721Storage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
