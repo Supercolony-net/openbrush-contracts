@@ -1,17 +1,7 @@
 #[cfg(test)]
 #[brush::contract]
 mod mintable {
-    use brush::traits::ZERO_ADDRESS;
-    use ink::{
-        EmitEvent,
-        Env,
-    };
-    use ink_env::{
-        call,
-        test,
-    };
     use ink_lang as ink;
-    use ink_prelude::string::String;
     use psp721::{
         extensions::mintable::*,
         traits::*,

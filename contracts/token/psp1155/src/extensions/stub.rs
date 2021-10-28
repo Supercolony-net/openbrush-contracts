@@ -28,6 +28,7 @@ pub mod mintable {
 
     #[ink(storage)]
     pub struct PSP1155Mintable {}
+
     impl PSP1155Mintable {
         #[ink(constructor)]
         pub fn new() -> Self {

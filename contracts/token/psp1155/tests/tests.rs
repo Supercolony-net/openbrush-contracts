@@ -7,13 +7,7 @@ mod tests {
         Env,
     };
     use ink_lang as ink;
-    use psp1155::{
-        extensions::{
-            burnable::*,
-            mintable::*,
-        },
-        traits::*,
-    };
+    use psp1155::traits::*;
 
     #[ink(event)]
     pub struct TransferSingle {
@@ -119,14 +113,17 @@ mod tests {
         }
     }
 
-    impl PSP1155Burnable for PSP1155Struct {}
-
-    impl PSP1155Mintable for PSP1155Struct {}
-
     impl PSP1155Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            let mut instance = Self::default();
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+            instance._mint(accounts.alice, [1; 32], 1);
+            instance._mint(accounts.alice, [2; 32], 20);
+            instance._mint(accounts.bob, [1; 32], 1);
+            instance._mint(accounts.bob, [2; 32], 20);
+            instance
         }
     }
 
@@ -138,11 +135,10 @@ mod tests {
         let mint_amount = 1;
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = PSP1155Struct::new();
+        let nft = PSP1155Struct::new();
         // Token 1 does not exists.
         assert_eq!(nft.balance_of(accounts.alice, token_id), 0);
         // mint some token 1
-        nft.mint_to(accounts.alice, token_id, 1);
         assert_eq!(nft.balance_of(accounts.alice, token_id), mint_amount);
 
         let mut events_iter = ink_env::test::recorded_events();
@@ -166,21 +162,19 @@ mod tests {
         let token_2_amount = 20;
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
-        let mut nft = PSP1155Struct::new();
+        let nft = PSP1155Struct::new();
         // Token 1 does not exists.
         assert_eq!(
             nft.balance_of_batch(vec![(accounts.alice, token_id_1), (accounts.alice, token_id_2)]),
             vec![0, 0]
         );
         // mint some token 1
-        nft.mint_to(accounts.alice, token_id_1, token_1_amount);
         assert_eq!(
             nft.balance_of_batch(vec![(accounts.alice, token_id_1), (accounts.alice, token_id_2)]),
             vec![token_1_amount, 0]
         );
 
         // mint some token 2
-        nft.mint_to(accounts.bob, token_id_2, token_2_amount);
         assert_eq!(
             nft.balance_of_batch(vec![(accounts.alice, token_id_1), (accounts.bob, token_id_2)]),
             vec![token_1_amount, token_2_amount]
@@ -245,7 +239,6 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.alice, token_id, transfer_amount);
         nft.safe_transfer_from(accounts.alice, accounts.bob, token_id, transfer_amount, [].to_vec());
         assert_eq!(nft.balance_of(accounts.alice, token_id), 0);
         assert_eq!(nft.balance_of(accounts.bob, token_id), transfer_amount);
@@ -286,8 +279,6 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.alice, token_id_1, token_1_amount);
-        nft.mint_to(accounts.alice, token_id_2, token_2_amount);
         nft.safe_batch_transfer_from(
             accounts.alice,
             accounts.bob,
@@ -349,24 +340,21 @@ mod tests {
     #[should_panic(expected = "InsufficientBalance")]
     fn transfer_from_single_insufficient_balance() {
         let token_id = [1; 32];
-        let mint_amount = 1;
         let transfer_amount = 2;
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.alice, token_id, mint_amount);
         nft.safe_transfer_from(accounts.alice, accounts.bob, token_id, transfer_amount, [].to_vec());
     }
 
     #[ink::test]
     #[should_panic(expected = "NotAllowed")]
     fn transfer_from_single_no_approve() {
-        let token_id = [1; 32];
-        let mint_amount = 1;
+        let token_id = [2; 32];
+        let mint_amount = 20;
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.bob, token_id, mint_amount);
         nft.safe_transfer_from(accounts.bob, accounts.alice, token_id, mint_amount, [].to_vec());
     }
 
@@ -388,7 +376,6 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.alice, token_id, mint_amount);
         nft.set_approval_for_all(accounts.bob, true);
 
         change_callee(accounts.bob);
@@ -430,14 +417,10 @@ mod tests {
     fn transfer_from_batch_insufficient_balance() {
         let token_id_1 = [1; 32];
         let token_id_2 = [2; 32];
-        let token_1_amount = 1;
-        let token_2_amount = 20;
         let ids_amounts = vec![(token_id_1, 2), (token_id_2, 21)];
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.alice, token_id_1, token_1_amount);
-        nft.mint_to(accounts.alice, token_id_2, token_2_amount);
         nft.safe_batch_transfer_from(accounts.alice, accounts.bob, ids_amounts.clone(), [].to_vec());
     }
 
@@ -453,8 +436,6 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.bob, token_id_1, token_1_amount);
-        nft.mint_to(accounts.bob, token_id_2, token_2_amount);
 
         nft.safe_batch_transfer_from(
             accounts.bob,
@@ -479,9 +460,6 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.alice, token_id_1, token_1_amount);
-        nft.mint_to(accounts.alice, token_id_2, token_2_amount);
-        nft.set_approval_for_all(accounts.bob, true);
 
         // CHANGE CALLEE MANUALLY
         // Get contract address.
@@ -558,256 +536,6 @@ mod tests {
 
         assert_eq!(ink_env::test::recorded_events().count(), 4);
     }
-
-    #[ink::test]
-    fn mint_works() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
-        let token_1_amount = 1;
-        let token_2_amount = 20;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint(token_id_1, token_1_amount);
-        nft.mint_to(accounts.bob, token_id_2, token_2_amount);
-
-        let balance_1 = nft.balance_of(accounts.alice, token_id_1);
-        let balance_2 = nft.balance_of(accounts.bob, token_id_2);
-
-        assert_eq!(balance_1, token_1_amount);
-        assert_eq!(balance_2, token_2_amount);
-    }
-
-    #[ink::test]
-    fn burn_works() {
-        let token_id_1 = [1; 32];
-        let token_1_amount = 20;
-        let first_burn = 1;
-        let second_burn = 19;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint(token_id_1, token_1_amount);
-        nft.mint_to(accounts.bob, token_id_1, token_1_amount);
-
-        nft.burn(token_id_1, first_burn);
-        let balance_1 = nft.balance_of(accounts.alice, token_id_1);
-
-        nft.burn(token_id_1, second_burn);
-        let balance_2 = nft.balance_of(accounts.alice, token_id_1);
-
-        // switch to bob, give allowance to alice so we can burn_from bob by alice
-        change_callee(accounts.bob);
-        nft.set_approval_for_all(accounts.alice, true);
-        change_callee(accounts.alice);
-
-        nft.burn_from(accounts.bob, token_id_1, first_burn);
-        let balance_3 = nft.balance_of(accounts.bob, token_id_1);
-
-        nft.burn_from(accounts.bob, token_id_1, second_burn);
-        let balance_4 = nft.balance_of(accounts.bob, token_id_1);
-
-        assert_eq!(balance_1, token_1_amount - first_burn);
-        assert_eq!(balance_2, 0);
-        assert_eq!(balance_3, token_1_amount - first_burn);
-        assert_eq!(balance_4, 0);
-    }
-
-    #[ink::test]
-    fn burn_batch_works() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
-        let token_amount = 2;
-        let burn_ids = vec![token_id_1, token_id_2];
-        let burn_amounts = vec![1, 1];
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint(token_id_1, token_amount);
-        nft.mint(token_id_2, token_amount);
-        nft.mint_to(accounts.bob, token_id_1, token_amount);
-        nft.mint_to(accounts.bob, token_id_2, token_amount);
-
-        nft.burn_batch(
-            burn_ids
-                .clone()
-                .iter()
-                .zip(burn_amounts.clone().iter())
-                .map(|(id, amount)| (id.clone(), amount.clone()))
-                .collect(),
-        );
-        let balance_1 = nft.balance_of(accounts.alice, token_id_1);
-        let balance_2 = nft.balance_of(accounts.alice, token_id_2);
-
-        nft.burn_batch(
-            burn_ids
-                .clone()
-                .iter()
-                .zip(burn_amounts.clone().iter())
-                .map(|(id, amount)| (id.clone(), amount.clone()))
-                .collect(),
-        );
-        let balance_3 = nft.balance_of(accounts.alice, token_id_1);
-        let balance_4 = nft.balance_of(accounts.alice, token_id_2);
-
-        // switch to bob, give allowance to alice so we can burn_from bob by alice
-        change_callee(accounts.bob);
-        nft.set_approval_for_all(accounts.alice, true);
-        change_callee(accounts.alice);
-
-        nft.burn_batch_from(
-            accounts.bob,
-            burn_ids
-                .clone()
-                .iter()
-                .zip(burn_amounts.clone().iter())
-                .map(|(id, amount)| (id.clone(), amount.clone()))
-                .collect(),
-        );
-        let balance_5 = nft.balance_of(accounts.bob, token_id_1);
-        let balance_6 = nft.balance_of(accounts.bob, token_id_2);
-
-        nft.burn_batch_from(
-            accounts.bob,
-            burn_ids
-                .iter()
-                .zip(burn_amounts.iter())
-                .map(|(id, amount)| (id.clone(), amount.clone()))
-                .collect(),
-        );
-        let balance_7 = nft.balance_of(accounts.bob, token_id_1);
-        let balance_8 = nft.balance_of(accounts.bob, token_id_2);
-
-        assert_eq!(balance_1, 1);
-        assert_eq!(balance_2, 1);
-        assert_eq!(balance_3, 0);
-        assert_eq!(balance_4, 0);
-        assert_eq!(balance_5, 1);
-        assert_eq!(balance_6, 1);
-        assert_eq!(balance_7, 0);
-        assert_eq!(balance_8, 0);
-    }
-
-    #[ink::test]
-    #[should_panic(expected = "NotAllowed")]
-    fn burn_from_without_allowance() {
-        let token_id_1 = [1; 32];
-        let token_1_amount = 20;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.bob, token_id_1, token_1_amount);
-
-        nft.burn_from(accounts.bob, token_id_1, token_1_amount);
-    }
-
-    #[ink::test]
-    #[should_panic(expected = "NotAllowed")]
-    fn burn_batch_from_without_allowance() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
-        let token_amount = 2;
-        let burn_ids = vec![token_id_1, token_id_2];
-        let burn_amounts = vec![token_amount, token_amount];
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.bob, token_id_1, token_amount);
-        nft.mint_to(accounts.bob, token_id_2, token_amount);
-
-        nft.burn_batch_from(
-            accounts.bob,
-            burn_ids
-                .iter()
-                .zip(burn_amounts.iter())
-                .map(|(id, amount)| (id.clone(), amount.clone()))
-                .collect(),
-        );
-    }
-
-    #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
-    fn burn_insufficient_balance() {
-        let token_id_1 = [1; 32];
-        let token_1_amount = 20;
-        let burn_amount = 21;
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint(token_id_1, token_1_amount);
-
-        nft.burn(token_id_1, burn_amount);
-    }
-
-    #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
-    fn burn_from_insufficient_balance() {
-        let token_id_1 = [1; 32];
-        let token_1_amount = 20;
-        let burn_amount = 21;
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.bob, token_id_1, token_1_amount);
-
-        // switch to bob, give allowance to alice so we can burn_from bob by alice
-        change_callee(accounts.bob);
-        nft.set_approval_for_all(accounts.alice, true);
-        change_callee(accounts.alice);
-
-        nft.burn_from(accounts.bob, token_id_1, burn_amount);
-    }
-
-    #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
-    fn burn_batch_insufficient_balance() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
-        let token_amount = 2;
-        let burn_ids = vec![token_id_1, token_id_2];
-        let burn_amounts = vec![token_amount, token_amount + 1];
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint(token_id_1, token_amount);
-        nft.mint(token_id_2, token_amount);
-
-        nft.burn_batch(
-            burn_ids
-                .iter()
-                .zip(burn_amounts.iter())
-                .map(|(id, amount)| (id.clone(), amount.clone()))
-                .collect(),
-        );
-    }
-
-    #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
-    fn burn_batch_from_insufficient_balance() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
-        let token_amount = 2;
-        let burn_ids = vec![token_id_1, token_id_2];
-        let burn_amounts = vec![token_amount, token_amount + 1];
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        let mut nft = PSP1155Struct::new();
-        nft.mint_to(accounts.bob, token_id_1, token_amount);
-        nft.mint_to(accounts.bob, token_id_2, token_amount);
-
-        // switch to bob, give allowance to alice so we can burn_from bob by alice
-        change_callee(accounts.bob);
-        nft.set_approval_for_all(accounts.alice, true);
-        change_callee(accounts.alice);
-
-        nft.burn_batch_from(
-            accounts.bob,
-            burn_ids
-                .iter()
-                .zip(burn_amounts.iter())
-                .map(|(id, amount)| (id.clone(), amount.clone()))
-                .collect(),
-        );
-    }
-
     fn assert_transfer_event(
         event: ink_env::test::EmittedEvent,
         expected_operator: AccountId,
