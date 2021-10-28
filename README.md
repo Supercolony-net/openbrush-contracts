@@ -4,6 +4,8 @@
 
 Our mission with this project is to make ink! development faster, safer and easier.
 
+Talk to us on Element in the [OpenBrush](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org) channel
+
 ## Summary
 **OpenBrush is a library for smart contract development on ink!.**
 
