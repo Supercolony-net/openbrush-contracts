@@ -116,14 +116,15 @@ mod tests {
     impl PSP1155Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-            instance._mint(accounts.alice, [1; 32], 1);
-            instance._mint(accounts.alice, [2; 32], 20);
-            instance._mint(accounts.bob, [1; 32], 1);
-            instance._mint(accounts.bob, [2; 32], 20);
-            instance
+            Self::default()
+        }
+
+        #[ink(message)]
+        pub fn init(&mut self, acc1: AccountId, acc2: AccountId) {
+            self._mint(acc1, [1; 32], 1);
+            self._mint(acc1, [2; 32], 20);
+            self._mint(acc2, [1; 32], 1);
+            self._mint(acc2, [2; 32], 20);
         }
     }
 

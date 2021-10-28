@@ -14,20 +14,46 @@ mod burnable {
         psp1155: PSP1155Data,
     }
 
-    impl PSP1155 for PSP1155Struct {}
-
     impl PSP1155Burnable for PSP1155Struct {}
+
+    impl PSP1155 for PSP1155Struct {
+        // Don't do cross call in test
+        fn _do_safe_transfer_acceptance_check(
+            &mut self,
+            _operator: AccountId,
+            _from: AccountId,
+            _to: AccountId,
+            _id: Id,
+            _amount: Balance,
+            _data: Vec<u8>,
+        ) -> Result<(), psp1155::traits::PSP1155Error> {
+            Ok(())
+        }
+
+        // Don't do cross call in test
+        fn _do_batch_safe_transfer_acceptance_check(
+            &mut self,
+            _operator: AccountId,
+            _from: AccountId,
+            _to: AccountId,
+            _ids_to_amounts: Vec<(Id, Balance)>,
+            _data: Vec<u8>,
+        ) -> Result<(), psp1155::traits::PSP1155Error> {
+            Ok(())
+        }
+    }
 
     impl PSP1155Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-            instance._mint(accounts.alice, [1; 32], 20);
-            instance._mint(accounts.bob, [1; 32], 20);
-            instance._mint(accounts.bob, [2; 32], 20);
-            instance
+            Self::default()
+        }
+
+        #[ink(message)]
+        pub fn init(&mut self, acc1: AccountId, acc2: AccountId) {
+            self._mint(acc1.clone(), [1; 32], 20);
+            self._mint(acc2.clone(), [1; 32], 20);
+            self._mint(acc2.clone(), [2; 32], 20);
         }
     }
 
@@ -38,6 +64,7 @@ mod burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        nft.init(accounts.alice, accounts.bob);
 
         assert_eq!(nft.balance_of(accounts.alice, token_id_1), token_1_amount);
         assert_eq!(nft.balance_of(accounts.bob, token_id_1), token_1_amount);
@@ -61,6 +88,7 @@ mod burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        nft.init(accounts.alice, accounts.bob);
 
         nft.burn_batch(
             burn_ids
@@ -130,6 +158,7 @@ mod burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        nft.init(accounts.alice, accounts.bob);
 
         nft.burn_from(accounts.bob, token_id_1, token_1_amount);
     }
@@ -145,6 +174,7 @@ mod burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        nft.init(accounts.alice, accounts.bob);
 
         nft.burn_batch_from(
             accounts.bob,
@@ -161,8 +191,10 @@ mod burnable {
     fn burn_insufficient_balance() {
         let token_id_1 = [1; 32];
         let burn_amount = 2;
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        nft.init(accounts.alice, accounts.bob);
 
         nft.burn(token_id_1, burn_amount);
     }
@@ -175,6 +207,7 @@ mod burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        nft.init(accounts.alice, accounts.bob);
 
         // switch to bob, give allowance to alice so we can burn_from bob by alice
         change_callee(accounts.bob);
@@ -192,8 +225,10 @@ mod burnable {
         let token_amount = 2;
         let burn_ids = vec![token_id_1, token_id_2];
         let burn_amounts = vec![token_amount, token_amount];
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        nft.init(accounts.alice, accounts.bob);
 
         nft.burn_batch(
             burn_ids
@@ -215,6 +250,7 @@ mod burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        nft.init(accounts.alice, accounts.bob);
 
         // switch to bob, give allowance to alice so we can burn_from bob by alice
         change_callee(accounts.bob);
