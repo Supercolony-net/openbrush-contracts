@@ -2,7 +2,7 @@ import { bnArg, expect, setupContract, fromSigner } from './helpers'
 
 describe('MY_PSP721', () => {
     async function setup() {
-        return setupContract('my_psp721', 'new', 'Non Fungible Token', 'NFT')
+        return setupContract('my_psp721', 'new')
     }
 
     async function setup_receiver() {
@@ -12,17 +12,10 @@ describe('MY_PSP721', () => {
     it('Assigns initial balance', async () => {
         const { query, defaultSigner: sender } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
+        await expect(query.balanceOf(sender.address)).to.have.output(3)
     })
 
-    it('Metadata works', async () => {
-        const { query } = await setup()
-
-        await expect(query.name()).to.have.output('Non Fungible Token')
-        await expect(query.symbol()).to.have.output('NFT')
-    })
-
-    it('Transfer changes token balance', async () => {
+    it('Transfer works', async () => {
         const {
             contract,
             defaultSigner: sender,
@@ -30,15 +23,30 @@ describe('MY_PSP721', () => {
             query
         } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
-        await contract.tx.mintTo(alice.address, bnArg(1))
-        await expect(query.balanceOf(alice.address)).to.have.output(1)
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
+        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(query.balanceOf(alice.address)).to.have.output(0)
 
         await contract.tx.transferFrom(sender.address, alice.address, bnArg(0))
-        await contract.tx.transferFrom(alice.address, sender.address, bnArg(1))
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
+        await expect(query.balanceOf(sender.address)).to.have.output(2)
+        await expect(query.balanceOf(alice.address)).to.have.output(1)
+    })
+
+    it('Transfer from works', async () => {
+        const {
+            contract,
+            defaultSigner: sender,
+            accounts: [alice],
+            query
+        } = await setup()
+
+        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(query.balanceOf(alice.address)).to.have.output(0)
+        await contract.tx.setApprovalForAll(alice.address, true)
+
+        await fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, bnArg(0))
+
+        await expect(query.balanceOf(sender.address)).to.have.output(2)
         await expect(query.balanceOf(alice.address)).to.have.output(1)
     })
 
@@ -54,7 +62,7 @@ describe('MY_PSP721', () => {
         // Arrange - Sender mint a Token and Approve Receiver as spender of this token
         await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
 
-        // Act - Alice transfer the token form sender to bob
+        // Act - Alice transfers the token form sender to bob
         await expect(contract.query.getCallCounter()).to.have.output(0)
         await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 'data')).to.eventually.be.fulfilled
         await expect(contract.query.getCallCounter()).to.have.output(1)
@@ -87,11 +95,11 @@ describe('MY_PSP721', () => {
             query
         } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
+        await expect(query.balanceOf(sender.address)).to.have.output(3)
 
-        await expect(contract.tx.transferFrom(sender.address, receiver.address, bnArg(1))).to.eventually.be.rejected
+        await expect(contract.tx.transferFrom(sender.address, receiver.address, bnArg(3))).to.eventually.be.rejected
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
+        await expect(query.balanceOf(sender.address)).to.have.output(3)
     })
 
     it('Can not transfer without allowance', async () => {
@@ -102,78 +110,12 @@ describe('MY_PSP721', () => {
             query,
         } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
+        await expect(query.balanceOf(sender.address)).to.have.output(3)
 
         await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, bnArg(0)))
             .to.eventually.be.rejected
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
-    })
-
-    it('Mint works', async () => {
-        const {
-            contract,
-            defaultSigner: sender,
-            accounts: [alice],
-            query
-        } = await setup()
-
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
-        await expect(query.balanceOf(alice.address)).to.have.output(0)
-
-        await contract.tx.mint(bnArg(1))
-        await contract.tx.mintTo(alice.address, bnArg(2))
-
-        await expect(query.balanceOf(sender.address)).to.have.output(2)
-        await expect(query.balanceOf(alice.address)).to.have.output(1)
-    })
-
-    it('Burn works', async () => {
-        const {
-            contract,
-            defaultSigner: sender,
-            query
-        } = await setup()
-
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
-
-        await contract.tx.burn(bnArg(0))
-
-        await expect(query.balanceOf(sender.address)).to.have.output(0)
-    })
-
-    it('Burn from works', async () => {
-        const {
-            contract,
-            defaultSigner: sender,
-            accounts: [alice],
-            query
-        } = await setup()
-
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
-        await contract.tx.setApprovalForAll(alice.address, true)
-
-        await fromSigner(contract, alice.address).tx.burnFrom(sender.address, bnArg(0))
-
-        await expect(query.balanceOf(alice.address)).to.have.output(0)
-    })
-
-    it('Mint existing should fail', async () => {
-        const {
-            contract,
-            accounts: [alice],
-            defaultSigner: sender,
-            query
-        } = await setup()
-
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
-        await expect(query.balanceOf(alice.address)).to.have.output(0)
-
-        await expect(contract.tx.mint(bnArg(0))).to.eventually.be.rejected
-        await expect(contract.tx.mintTo(alice.address, bnArg(0))).to.eventually.be.rejected
-
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
-        await expect(query.balanceOf(alice.address)).to.have.output(0)
+        await expect(query.balanceOf(sender.address)).to.have.output(3)
     })
 
 })
