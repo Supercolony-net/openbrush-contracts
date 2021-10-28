@@ -8,6 +8,10 @@ use brush::{
 };
 use ink_storage::traits::SpreadLayout;
 pub use reentrancy_guard_derive::ReentrancyGuardStorage;
+use scale::{
+    Decode,
+    Encode,
+};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -23,7 +27,8 @@ declare_storage_trait!(ReentrancyGuardStorage, ReentrancyGuardData);
 const NOT_ENTERED: u8 = 0;
 const ENTERED: u8 = 1;
 
-#[derive(strum_macros::AsRefStr)]
+#[derive(strum_macros::AsRefStr, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum ReentrancyGuardError {
     ReentrantCall,
 }

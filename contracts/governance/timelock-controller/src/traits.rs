@@ -31,7 +31,10 @@ use ink_storage::{
     traits::SpreadLayout,
     Lazy,
 };
-use scale::Encode;
+use scale::{
+    Decode,
+    Encode,
+};
 pub use timelock_controller_derive::TimelockControllerStorage;
 
 #[cfg(feature = "std")]
@@ -65,7 +68,8 @@ pub struct TimelockControllerData {
 declare_storage_trait!(TimelockControllerStorage, TimelockControllerData);
 
 /// The TimelockController error type. Contract will throw one of this errors.
-#[derive(strum_macros::AsRefStr)]
+#[derive(strum_macros::AsRefStr, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum TimelockControllerError {
     InsufficientDelay,
     OperationAlreadyScheduled,

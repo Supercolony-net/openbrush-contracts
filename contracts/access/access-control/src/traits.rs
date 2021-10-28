@@ -12,6 +12,10 @@ use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
 };
+use scale::{
+    Decode,
+    Encode,
+};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -28,7 +32,8 @@ declare_storage_trait!(AccessControlStorage, AccessControlData);
 pub type RoleType = u32;
 
 /// The AccessControl error type. Contract will throw one of this errors.
-#[derive(strum_macros::AsRefStr)]
+#[derive(strum_macros::AsRefStr, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum AccessControlError {
     InvalidCaller,
     MissingRole,

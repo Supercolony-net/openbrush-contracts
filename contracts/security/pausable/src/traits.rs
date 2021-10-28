@@ -9,6 +9,10 @@ use brush::{
 };
 use ink_storage::traits::SpreadLayout;
 pub use pausable_derive::PausableStorage;
+use scale::{
+    Decode,
+    Encode,
+};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -22,7 +26,8 @@ pub struct PausableData {
 declare_storage_trait!(PausableStorage, PausableData);
 
 /// The Pausable error type. Contract will throw one of this errors.
-#[derive(strum_macros::AsRefStr)]
+#[derive(strum_macros::AsRefStr, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PausableError {
     Paused,
     NoPaused,

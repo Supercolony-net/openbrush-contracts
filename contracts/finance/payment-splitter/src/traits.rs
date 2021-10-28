@@ -14,6 +14,10 @@ use ink_storage::{
     Vec as StorageVec,
 };
 pub use payment_splitter_derive::PaymentSplitterStorage;
+use scale::{
+    Decode,
+    Encode,
+};
 
 use brush::traits::ZERO_ADDRESS;
 #[cfg(feature = "std")]
@@ -31,7 +35,8 @@ pub struct PaymentSplitterData {
 
 declare_storage_trait!(PaymentSplitterStorage, PaymentSplitterData);
 
-#[derive(strum_macros::AsRefStr)]
+#[derive(strum_macros::AsRefStr, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PaymentSplitterError {
     LengthMismatch,
     NoPayees,
