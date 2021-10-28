@@ -27,7 +27,7 @@ declare_storage_trait!(ReentrancyGuardStorage, ReentrancyGuardData);
 const NOT_ENTERED: u8 = 0;
 const ENTERED: u8 = 1;
 
-#[derive(strum_macros::AsRefStr, Encode, Decode)]
+#[derive(Debug, strum_macros::AsRefStr, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum ReentrancyGuardError {
     ReentrantCall,

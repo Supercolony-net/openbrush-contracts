@@ -35,7 +35,7 @@ pub struct PaymentSplitterData {
 
 declare_storage_trait!(PaymentSplitterStorage, PaymentSplitterData);
 
-#[derive(strum_macros::AsRefStr, Encode, Decode)]
+#[derive(Debug, strum_macros::AsRefStr, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PaymentSplitterError {
     LengthMismatch,
