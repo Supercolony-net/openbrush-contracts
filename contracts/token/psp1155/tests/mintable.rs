@@ -59,13 +59,13 @@ mod mintable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         let mut nft = PSP1155Struct::new();
+        assert_eq!(nft.balance_of(accounts.alice, token_id_1), 0);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_2), 0);
+
         nft.mint(token_id_1, token_1_amount);
         nft.mint_to(accounts.bob, token_id_2, token_2_amount);
 
-        let balance_1 = nft.balance_of(accounts.alice, token_id_1);
-        let balance_2 = nft.balance_of(accounts.bob, token_id_2);
-
-        assert_eq!(balance_1, token_1_amount);
-        assert_eq!(balance_2, token_2_amount);
+        assert_eq!(nft.balance_of(accounts.alice, token_id_1), token_1_amount);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_2), token_2_amount);
     }
 }
