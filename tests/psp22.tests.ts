@@ -47,8 +47,6 @@ describe('MY_PSP22', () => {
     const {
       query,
       tx,
-      contract,
-      defaultSigner: sender,
       accounts: [hated_account]
     } = await setup()
 
