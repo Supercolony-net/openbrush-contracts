@@ -27,14 +27,6 @@ declare_storage_trait!(PSP22WrapperStorage, PSP22WrapperData);
 
 #[brush::trait_definition]
 pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 + PSP22Receiver {
-    /// Initalize the wrapper token with defining the underlying PSP22 token
-    ///
-    /// `underlying` is the token to be wrapped
-    #[ink(message)]
-    fn init(&mut self, underlying: AccountId) {
-        PSP22WrapperStorage::get_mut(self).underlying = underlying;
-    }
-
     /// Allow a user to deposit `amount` of underlying tokens and mint `amount` of the wrapped tokens to `account`
     #[ink(message)]
     fn deposit_for(&mut self, account: AccountId, amount: Balance) -> bool {
@@ -60,5 +52,12 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 + PSP22Receiver {
         let value = token.balance_of(Self::env().account_id()) - self.total_supply();
         self._mint(account, value);
         value
+    }
+
+    /// Initalize the wrapper token with defining the underlying PSP22 token
+    ///
+    /// `underlying` is the token to be wrapped
+    fn init(&mut self, underlying: AccountId) {
+        PSP22WrapperStorage::get_mut(self).underlying = underlying;
     }
 }
