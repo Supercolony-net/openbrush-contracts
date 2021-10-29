@@ -7,7 +7,7 @@ This example shows how you can reuse the implementation of [PSP1155](https://git
 
 ## How to use this extension
 
-In order for your smart contract to use this extension, you only need to implement the `PSP1155Mintable` trait in your `PSP1155` smart contract. Add import for  `psp1155::extensions::mintable::*`, inherit the implementation for `PSP1155Mintable` trait, where you can also customize (override) the original functions from `PSP1155Mintable`.
+For your smart contract to use this extension, you only need to implement the `PSP1155Mintable` trait in your `PSP1155` smart contract. Add import for  `psp1155::extensions::mintable::*`, inherit the implementation for `PSP1155Mintable` trait, where you can also customize (override) the original functions from `PSP1155Mintable`.
 
 ```rust
 use psp1155::extensions::mintable::*;

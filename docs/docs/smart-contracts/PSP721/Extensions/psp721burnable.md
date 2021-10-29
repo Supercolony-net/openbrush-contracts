@@ -7,7 +7,7 @@ This example shows how you can reuse the implementation of [PSP721](https://gith
 
 ## How to use this extension
 
-In order for your smart contract to use this extension, you only need to implement the `PSP721Burnable` trait in your `PSP721` smart contract. Add import for  `psp721::extensions::burnable::*`, inherit the implementation for `PSP721Burnable` trait, where you can also customize (override) the original functions from `PSP721Burnable`.
+For your smart contract to use this extension, you only need to implement the `PSP721Burnable` trait in your `PSP721` smart contract. Add import for  `psp721::extensions::burnable::*`, inherit the implementation for `PSP721Burnable` trait, where you can also customize (override) the original functions from `PSP721Burnable`.
 
 ```rust
 use psp721::extensions::burnable::*;

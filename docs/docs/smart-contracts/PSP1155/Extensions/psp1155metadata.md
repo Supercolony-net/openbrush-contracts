@@ -17,7 +17,7 @@ pub mod my_psp1155 {
 
 ## Step 2: Define storage
 
-Declare storage struct and declare the field related to `PSP1155MetadataStorage` trait in addition to your `PSP1155Storage` field. Then you need to derive `PSP1155MetadataStorage` trait and mark the corresponding field with `#[PSP1155MetadataStorageField]` attribute. Deriving this trait allows you to reuse the `PSP1155Metadata` extension in your `PSP1155` implementation.
+Declare storage struct and declare the field related to the `PSP1155MetadataStorage` trait in addition to your `PSP1155Storage` field. Then you need to derive the `PSP1155MetadataStorage` trait and mark the corresponding field with the `#[PSP1155MetadataStorageField]` attribute. Deriving this trait allows you to reuse the `PSP1155Metadata` extension in your `PSP1155` implementation.
 
 ```rust
 #[derive(Default, PSP1155Storage, PSP1155MetadataStorage)]
@@ -32,7 +32,7 @@ pub struct MyPSP1155 {
 
 ## Step 3: Inherit logic
 
-Inherit implementation of `PSP1155Metadata` trait. You can customize (override) methods in this `impl` block.
+Inherit implementation of the `PSP1155Metadata` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl PSP1155Metadata for MyPSP1155 {}
