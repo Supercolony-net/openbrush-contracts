@@ -32,7 +32,39 @@ describe('MY_PSP22_WRAPPER', () => {
         await expect(wQuery.balanceOf(sender.address)).to.have.output(100)
         // contract has 100 tokens
         await expect(uQuery.balanceOf(wrapper.address)).to.have.output(100)
+    })
 
+    it('Deposit without allowance should fail', async () => {
+        const contracts = await setup()
+        const { contract: wrapper, query: wQuery } = contracts['wrapper']
+        const { query: uQuery, defaultSigner: sender } = contracts['psp22']
+
+        await expect(uQuery.balanceOf(sender.address)).to.have.output(1000)
+        await expect(wQuery.balanceOf(sender.address)).to.have.output(0)
+        await expect(uQuery.balanceOf(wrapper.address)).to.have.output(0)
+
+        await expect(fromSigner(wrapper, sender.address).tx.depositFor(sender.address, 100)).to.eventually.be.rejected
+
+        await expect(uQuery.balanceOf(sender.address)).to.have.output(1000)
+        await expect(wQuery.balanceOf(sender.address)).to.have.output(0)
+        await expect(uQuery.balanceOf(wrapper.address)).to.have.output(0)
+    })
+
+    it('Deposit without underlying tokens should fail', async () => {
+        const contracts = await setup()
+        const { contract: wrapper, query: wQuery } = contracts['wrapper']
+        const { contract: underlying, query: uQuery, defaultSigner: sender } = contracts['psp22']
+
+        await expect(uQuery.balanceOf(sender.address)).to.have.output(1000)
+        await expect(wQuery.balanceOf(sender.address)).to.have.output(0)
+        await expect(uQuery.balanceOf(wrapper.address)).to.have.output(0)
+
+        await expect(underlying.tx.approve(wrapper.address, 100)).to.eventually.be.fulfilled
+        await expect(fromSigner(wrapper, sender.address).tx.depositFor(sender.address, 1001)).to.eventually.be.rejected
+
+        await expect(uQuery.balanceOf(sender.address)).to.have.output(1000)
+        await expect(wQuery.balanceOf(sender.address)).to.have.output(0)
+        await expect(uQuery.balanceOf(wrapper.address)).to.have.output(0)
     })
 
     it('Withdraw to works', async () => {
@@ -60,7 +92,22 @@ describe('MY_PSP22_WRAPPER', () => {
         await expect(wQuery.balanceOf(sender.address)).to.have.output(0)
         // contract has 0 tokens
         await expect(uQuery.balanceOf(wrapper.address)).to.have.output(0)
+    })
 
+    it('Withdraw without deposit should fail', async () => {
+        const contracts = await setup()
+        const { contract: wrapper, query: wQuery } = contracts['wrapper']
+        const { query: uQuery, defaultSigner: sender } = contracts['psp22']
+
+        await expect(uQuery.balanceOf(sender.address)).to.have.output(1000)
+        await expect(wQuery.balanceOf(sender.address)).to.have.output(0)
+        await expect(uQuery.balanceOf(wrapper.address)).to.have.output(0)
+
+        await expect(fromSigner(wrapper, sender.address).tx.withdrawTo(sender.address, 100)).to.eventually.be.rejected
+
+        await expect(uQuery.balanceOf(sender.address)).to.have.output(1000)
+        await expect(wQuery.balanceOf(sender.address)).to.have.output(0)
+        await expect(uQuery.balanceOf(wrapper.address)).to.have.output(0)
     })
 
     it('Recover works', async () => {
@@ -90,7 +137,6 @@ describe('MY_PSP22_WRAPPER', () => {
         await expect(wQuery.balanceOf(sender.address)).to.have.output(100)
         // contract has 100 tokens
         await expect(uQuery.balanceOf(wrapper.address)).to.have.output(100)
-
     })
 
 })
