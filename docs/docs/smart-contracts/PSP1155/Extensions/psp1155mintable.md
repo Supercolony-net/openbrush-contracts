@@ -15,4 +15,4 @@ use psp1155::extensions::mintable::*;
 impl PSP1155Mintable for MyPSP1155 {}
 ```
 
-And that's it! Your `PSP1155` is now extended by the `PSP1155Mintable` extension and ready to use it's functions!
+And that's it! Your `PSP1155` is now extended by the `PSP1155Mintable` extension and ready to use its functions!

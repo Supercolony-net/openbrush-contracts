@@ -15,4 +15,4 @@ use psp1155::extensions::burnable::*;
 impl PSP1155Burnable for MyPSP1155 {}
 ```
 
-And that's it! Your `PSP1155` is now extended by the `PSP1155Burnable` extension and ready to use it's functions!
+And that's it! Your `PSP1155` is now extended by the `PSP1155Burnable` extension and ready to use its functions!

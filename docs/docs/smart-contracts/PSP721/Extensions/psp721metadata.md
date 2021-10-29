@@ -17,7 +17,7 @@ pub mod my_psp721 {
 
 ## Step 2: Define storage
 
-Declare storage struct and declare the field related to `PSP721MetadataStorage` trait in addition to your `PSP721Storage` field. Then you need to derive `PSP721MetadataStorage` trait and mark the corresponding field with `#[PSP721MetadataStorageField]` attribute. Deriving this trait allows you to reuse the `PSP721Metadata` extension in your `PSP721` implementation.
+Declare storage struct and declare the field related to the `PSP721MetadataStorage` trait in addition to your `PSP721Storage` field. Then you need to derive the `PSP721MetadataStorage` trait and mark the corresponding field with the `#[PSP721MetadataStorageField]` attribute. Deriving this trait allows you to reuse the `PSP721Metadata` extension in your `PSP721` implementation.
 
 ```rust
 #[ink(storage)]
@@ -32,7 +32,7 @@ pub struct MyPSP721 {
 
 ## Step 3: Inherit logic
 
-Inherit implementation of `PSP721Metadata` trait. You can customize (override) methods in this `impl` block.
+Inherit implementation of the `PSP721Metadata` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl PSP721Metadata for MyPSP721 {}
