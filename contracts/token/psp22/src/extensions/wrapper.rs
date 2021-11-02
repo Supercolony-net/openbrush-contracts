@@ -31,7 +31,10 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 + PSP22Receiver {
     #[ink(message)]
     fn deposit_for(&mut self, account: AccountId, amount: Balance) -> bool {
         let mut token: PSP22Stub = FromAccountId::from_account_id(PSP22WrapperStorage::get_mut(self).underlying);
-        token.transfer_from(Self::env().caller(), Self::env().account_id(), amount, Vec::<u8>::new());
+        match token.transfer_from(Self::env().caller(), Self::env().account_id(), amount, Vec::<u8>::new()) {
+            Ok(result) => result,
+            Err(e) => panic!("{}", e.as_ref()),
+        }
         self._mint(account, amount);
         true
     }
@@ -41,7 +44,10 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 + PSP22Receiver {
     fn withdraw_to(&mut self, account: AccountId, amount: Balance) -> bool {
         self._burn(Self::env().caller(), amount);
         let mut token: PSP22Stub = FromAccountId::from_account_id(PSP22WrapperStorage::get_mut(self).underlying);
-        token.transfer(account, amount, Vec::<u8>::new());
+        match token.transfer(account, amount, Vec::<u8>::new()) {
+            Ok(result) => result,
+            Err(e) => panic!("{}", e.as_ref()),
+        }
         true
     }
 
