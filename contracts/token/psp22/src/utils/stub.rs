@@ -1,4 +1,3 @@
-
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod token_timelock {
     #[derive(Default)]

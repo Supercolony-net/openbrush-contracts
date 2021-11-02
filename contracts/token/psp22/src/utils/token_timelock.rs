@@ -27,7 +27,7 @@ pub struct PSP22TokenTimelockData {
 declare_storage_trait!(PSP22TokenTimelockStorage, PSP22TokenTimelockData);
 
 #[brush::trait_definition]
-pub trait PSP22Wrapper: PSP22TokenTimelockStorage + PSP22Receiver {
+pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage + PSP22Receiver {
     /// Returns the token address
     #[ink(message)]
     fn token(&self) -> AccountId {
