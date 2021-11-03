@@ -24,10 +24,7 @@ use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
 };
-pub use psp1155_derive::{
-    PSP1155MetadataStorage,
-    PSP1155Storage,
-};
+pub use psp1155_derive::PSP1155Storage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -43,14 +40,6 @@ pub struct PSP1155Data {
 
 declare_storage_trait!(PSP1155Storage, PSP1155Data);
 
-#[derive(Default, Debug, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
-pub struct PSP1155MetadataData {
-    pub uri: Option<String>,
-}
-
-declare_storage_trait!(PSP1155MetadataStorage, PSP1155MetadataData);
-
 /// The PSP1155 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -63,18 +52,16 @@ pub enum PSP1155Error {
     TransferToZeroAddress,
     /// Returned if the caller is not allowed.
     NotAllowed,
-    /// Returned if their is a length mismatch
-    InputLengthMismatch,
 }
 
 /// Contract module which provides a basic implementation of multiple token types.
 /// A single deployed contract may include any combination of fungible tokens,
 /// non-fungible tokens or other configurations (e.g. semi-fungible tokens).
 ///
-/// This module is used through embedding of `PSP1155Data` and implementation of `IPSP1155` and
+/// This module is used through embedding of `PSP1155Data` and implementation of `PSP1155` and
 /// `PSP1155Storage` traits.
 #[brush::trait_definition]
-pub trait IPSP1155: PSP1155Storage {
+pub trait PSP1155: PSP1155Storage {
     /// Returns the amount of tokens of token type `_id` owned by `_account`.
     #[ink(message)]
     fn balance_of(&self, account: AccountId, id: Id) -> Balance {
@@ -83,19 +70,12 @@ pub trait IPSP1155: PSP1155Storage {
 
     /// Batched version of {balance_of}.
     #[ink(message)]
-    fn balance_of_batch(&self, accounts: Vec<AccountId>, ids: Vec<Id>) -> Vec<Balance> {
-        assert_eq!(
-            accounts.len(),
-            ids.len(),
-            "{}",
-            PSP1155Error::InputLengthMismatch.as_ref()
-        );
-
-        accounts
+    fn balance_of_batch(&self, _accounts_ids: Vec<(AccountId, Id)>) -> Vec<Balance> {
+        let values: Vec<Balance> = _accounts_ids
             .iter()
-            .zip(ids.iter())
-            .map(|(account, id)| self._balance_of_or_zero(account.clone(), id.clone()))
-            .collect()
+            .map(|item| self._balance_of_or_zero(item.0.clone(), item.1.clone()))
+            .collect();
+        values
     }
 
     /// Grants or revokes permission to `_operator` to transfer the caller's tokens, according to `_approved`
@@ -148,7 +128,7 @@ pub trait IPSP1155: PSP1155Storage {
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
         self._transfer_guard(from, to);
-        self._before_token_transfer(&vec![id]);
+        self._before_token_transfer(&vec![id], from, to);
         self._transfer_from(from, to, id, amount);
 
         self._do_safe_transfer_acceptance_check(Self::env().caller(), from, to, id, amount, data)?;
@@ -165,34 +145,29 @@ pub trait IPSP1155: PSP1155Storage {
         &mut self,
         from: AccountId,
         to: AccountId,
-        ids: Vec<Id>,
-        amounts: Vec<Balance>,
+        ids_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
-        assert_eq!(
-            ids.len(),
-            amounts.len(),
-            "{}",
-            PSP1155Error::InputLengthMismatch.as_ref()
-        );
         self._transfer_guard(from, to);
-        self._before_token_transfer(&ids);
+        self._before_token_transfer(&ids_amounts.iter().map(|item| item.0.clone()).collect(), from, to);
 
-        for (id, value) in ids.iter().zip(amounts.iter()) {
-            self._transfer_from(from, to, id.clone(), value.clone());
+        for item in ids_amounts.iter() {
+            self._transfer_from(from, to, item.0.clone(), item.1.clone());
         }
 
-        self._do_batch_safe_transfer_acceptance_check(
+        let result = self._do_batch_safe_transfer_acceptance_check(
             Self::env().caller(),
             from,
             to,
-            ids.clone(),
-            amounts.clone(),
+            ids_amounts
+                .iter()
+                .map(|item| (item.0.clone(), item.1.clone()))
+                .collect(),
             data,
-        )?;
+        );
 
-        self._emit_transfer_batch_event(Self::env().caller(), from, to, ids, amounts);
-        Ok(())
+        self._emit_transfer_batch_event(Self::env().caller(), from, to, ids_amounts);
+        result
     }
 
     // Helper functions
@@ -214,31 +189,56 @@ pub trait IPSP1155: PSP1155Storage {
         _operator: AccountId,
         _from: AccountId,
         _to: AccountId,
-        _ids: Vec<Id>,
-        _amounts: Vec<Balance>,
+        _ids_to_amounts: Vec<(Id, Balance)>,
     ) {
     }
 
-    fn _mint(&mut self, to: AccountId, id: Id, amount: Balance) {
+    fn _mint(&mut self, to: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
         let operator = Self::env().caller();
 
         assert!(!to.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
-        self._before_token_transfer(&vec![id]);
+        self._before_token_transfer(&vec![id], ZERO_ADDRESS.into(), to);
         self._increase_receiver_balance(to, id, amount);
 
-        self._do_safe_transfer_acceptance_check(operator, ZERO_ADDRESS.into(), to, id, amount, Vec::new());
+        let result = self._do_safe_transfer_acceptance_check(operator, ZERO_ADDRESS.into(), to, id, amount, Vec::new());
 
         self._emit_transfer_single_event(operator, ZERO_ADDRESS.into(), to, id, amount);
+
+        result
     }
 
+    /// Destroys `amount` tokens of token type `id`
+    ///
+    /// `from` must not be zero address
+    /// `from` must have at least `amount` tokens of token type `id` on their balance
     fn _burn(&mut self, from: AccountId, id: Id, amount: Balance) {
         assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
 
-        self._before_token_transfer(&vec![id]);
+        self._before_token_transfer(&vec![id], from, ZERO_ADDRESS.into());
         self._decrease_sender_balance(from, id, amount);
 
         self._emit_transfer_single_event(Self::env().caller(), from, ZERO_ADDRESS.into(), id, amount);
+    }
+
+    /// Batch version of [`PSP1155::_burn`]
+    ///
+    /// `ids` and `amounts` must be the same length
+    fn _burn_batch(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) {
+        assert!(!from.is_zero(), "{}", PSP1155Error::TransferToZeroAddress.as_ref());
+
+        let caller = Self::env().caller();
+        self._before_token_transfer(
+            &ids_amounts.iter().map(|item| item.0.clone()).collect(),
+            from,
+            ZERO_ADDRESS.into(),
+        );
+
+        for item in ids_amounts.iter() {
+            self._decrease_sender_balance(from, item.0, item.1);
+        }
+
+        self._emit_transfer_batch_event(caller, from, ZERO_ADDRESS.into(), ids_amounts);
     }
 
     fn _transfer_guard(&self, from: AccountId, to: AccountId) {
@@ -251,9 +251,6 @@ pub trait IPSP1155: PSP1155Storage {
     }
 
     fn _transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, amount: Balance) {
-        let balance = self.balance_of(from, id);
-        assert!(balance >= amount, "{}", PSP1155Error::InsufficientBalance.as_ref());
-
         self._decrease_sender_balance(from, id, amount);
         self._increase_receiver_balance(to, id, amount);
     }
@@ -279,10 +276,12 @@ pub trait IPSP1155: PSP1155Storage {
     }
 
     fn _decrease_sender_balance(&mut self, from: AccountId, id: Id, amount: Balance) {
+        let balance = self.balance_of(from, id);
+        assert!(balance >= amount, "{}", PSP1155Error::InsufficientBalance.as_ref());
         self.get_mut().balances.entry((id, from)).and_modify(|b| *b -= amount);
     }
 
-    fn _before_token_transfer(&self, _ids: &Vec<Id>) {}
+    fn _before_token_transfer(&self, _ids: &Vec<Id>, _from: AccountId, _to: AccountId) {}
 
     fn _do_safe_transfer_acceptance_check(
         &mut self,
@@ -319,14 +318,13 @@ pub trait IPSP1155: PSP1155Storage {
         operator: AccountId,
         from: AccountId,
         to: AccountId,
-        ids: Vec<Id>,
-        amounts: Vec<Balance>,
+        ids_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
         let mut receiver: PSP1155Receiver = FromAccountId::from_account_id(to);
         match receiver
             .call_mut()
-            .on_psp1155_batch_received(operator, from, ids, amounts, data)
+            .on_psp1155_batch_received(operator, from, ids_amounts, data)
             .fire()
         {
             Ok(result) => {
@@ -342,30 +340,6 @@ pub trait IPSP1155: PSP1155Storage {
                 }
             }
         }
-    }
-}
-
-#[brush::trait_definition]
-pub trait IPSP1155Mint: IPSP1155 {
-    /// Mints a new token.
-    #[ink(message)]
-    fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
-        self._mint(to, id, amount)
-    }
-
-    /// Burns an existing token.
-    #[ink(message)]
-    fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
-        self._burn(from, id, amount)
-    }
-}
-
-#[brush::trait_definition]
-pub trait IPSP1155Metadata: PSP1155MetadataStorage {
-    /// Returns the URI for token type `id`.
-    #[ink(message)]
-    fn uri(&self, _id: Id) -> Option<String> {
-        self.get().uri.clone()
     }
 }
 
@@ -399,8 +373,7 @@ pub trait IPSP1155Receiver {
         &mut self,
         _operator: AccountId,
         _from: AccountId,
-        _ids: Vec<Id>,
-        _values: Vec<Balance>,
+        _ids_to_amounts: Vec<(Id, Balance)>,
         _data: Vec<u8>,
     ) -> Result<(), PSP1155ReceiverError>;
 }
