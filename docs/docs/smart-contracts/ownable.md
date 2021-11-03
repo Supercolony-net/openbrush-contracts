@@ -99,11 +99,46 @@ impl MyOwnable {
 Customize it by adding ownable logic. We will add a `owner_function` to `MyOwnable` implemenation and add the `only_owner` modifier, which will verify that the caller of the function is the owner.
 
 ```rust
-impl MyOwnable {
-   #[ink(message)]
-   #[modifiers(only_owner)]
-   fn owner_function(&mut self) {
-      // TODO
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[brush::contract]
+pub mod ownable {
+   use brush::{
+      modifiers,
+      traits::InkStorage,
+   };
+   use ink_prelude::vec::Vec;
+   use ownable::traits::*;
+
+   #[ink(storage)]
+   #[derive(Default, OwnableStorage)]
+   pub struct MyOwnable {
+      #[OwnableStorageField]
+      ownable: OwnableData,
    }
+
+   impl Ownable for MyOwnable {}
+    
+   impl MyOwnable {
+      
+      #[ink(constructor)]
+      pub fn new() -> Self {
+         let mut instance = Self::default();
+         let caller = instance.env().caller();
+         instance._init_with_owner(caller);
+         instance
+      }
+
+      #[ink(message)]
+      #[modifiers(only_owner)]
+      pub fn owner_function(&mut self) {
+         // TODO
+      }
+
+   }
+
 }
+
 ```
+
+You can check the example of usage of [Ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/ownable).

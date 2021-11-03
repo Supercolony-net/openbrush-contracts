@@ -53,3 +53,5 @@ impl MyPSP721 {
     }
 }
 ```
+
+You can also check the documentation for the basic implementation of [PSP721](/smart-contracts/PSP721/psp721).

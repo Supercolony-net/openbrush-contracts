@@ -86,29 +86,47 @@ impl MyAccessControl {
 Customize it by adding access control logic. We will add a `restricted_function` to `MyAccessControl` implemenation, which will use the `only_role` modifier with `CALLER` parameter, which verifies that the caller has the `CALLER` role. Also, we need to update the constructor to grant the `CALLER` role to the caller by default.
 
 ```rust
-// You can manually set the number for the role. 
-// But better to use a hash of the variable name.
-// It will generate a unique identifier for this role.
-// And will reduce the chance of overlapping roles.
-const CALLER: RoleType = brush::blake2b_256_as_u32!("CALLER");
+#![cfg_attr(not(feature = "std"), no_std)]
 
-impl AccessControl for MyAccessControl {}
+#[brush::contract]
+pub mod my_access_control {
+    use access_control::traits::*;
+    use brush::modifiers;
+    use ink_prelude::vec::Vec;
 
-impl MyAccessControl {
-   #[ink(constructor)]
-   pub fn new() -> Self {
-      let mut instance = Self::default();
-      let caller = instance.env().caller();
-      instance._init_with_admin(caller);
-      // We grant counter role to caller in constructor, so they can increase the count
-      instance.grant_role(CALLER, caller);
-      instance
-   }
+    #[ink(storage)]
+    #[derive(Default, AccessControlStorage)]
+    pub struct MyAccessControl {
+        #[AccessControlStorageField]
+        access: AccessControlData,
+    }
 
-   #[ink(message)]
-   #[modifiers(only_role(CALLER))]
-   fn restricted_function(&mut self) {
-      // TODO
-   }
+    // You can manually set the number for the role.
+    // But better to use a hash of the variable name.
+    // It will generate a unique identifier of this role.
+    // And will reduce the chance to have overlapping roles.
+    const CALLER: RoleType = brush::blake2b_256_as_u32!("CALLER");
+
+    impl AccessControl for MyAccessControl {}
+
+    impl MyAccessControl {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            let mut instance = Self::default();
+            let caller = instance.env().caller();
+            instance._init_with_admin(caller);
+            // We grant counter role to caller in constructor, so they can increase the count
+            instance.grant_role(CALLER, caller);
+            instance
+        }
+
+        #[ink(message)]
+        #[modifiers(only_role(CALLER))]
+        fn restricted_function(&mut self) {
+            // TODO
+        }
+    }
 }
 ```
+
+You can check the example of usage of [Access Control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/access-control).

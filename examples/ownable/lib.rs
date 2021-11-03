@@ -22,7 +22,7 @@ pub mod ownable {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
         #[OwnableStorageField]
-        ownale: OwnableData,
+        ownable: OwnableData,
     }
 
     impl PSP1155Struct {

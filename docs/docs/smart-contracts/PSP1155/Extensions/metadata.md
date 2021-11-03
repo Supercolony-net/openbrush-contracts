@@ -52,3 +52,5 @@ impl MyPSP1155 {
     }
 }
 ```
+
+You can also check the documentation for the basic implementation of [PSP1155](/smart-contracts/PSP1155/psp1155).

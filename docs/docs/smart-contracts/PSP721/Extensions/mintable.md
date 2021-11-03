@@ -16,3 +16,5 @@ impl PSP721Mintable for MyPSP721 {}
 ```
 
 And that's it! Your `PSP721` is now extended by the `PSP721Mintable` extension and ready to use its functions!
+
+You can also check the documentation for the basic implementation of [PSP721](/smart-contracts/PSP721/psp721).
