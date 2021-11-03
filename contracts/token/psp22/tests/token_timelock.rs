@@ -36,19 +36,6 @@ mod tests {
         }
     }
 
-    impl PSP22Receiver for PSP22TokenTimelockStruct {
-        #[ink(message)]
-        fn before_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _value: Balance,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP22ReceiverError> {
-            Ok(())
-        }
-    }
-
     impl PSP22TokenTimelockStruct {
         #[ink(constructor)]
         pub fn new(token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) -> Self {
@@ -75,6 +62,7 @@ mod tests {
     fn new_works() {
         let accounts = get_accounts();
         let timelock = PSP22TokenTimelockStruct::new(AccountId::from([0x1; 32]), accounts.alice, day());
+
         assert_eq!(timelock.token(), AccountId::from([0x1; 32]));
         assert_eq!(timelock.beneficiary(), accounts.alice);
         assert_eq!(timelock.release_time(), day());
@@ -92,6 +80,7 @@ mod tests {
             advance_block();
         }
         assert_eq!(timelock.balance(), deposited_tokens);
+
         // release the tokens
         timelock.release();
 

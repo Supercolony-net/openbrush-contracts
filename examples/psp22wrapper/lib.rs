@@ -21,19 +21,6 @@ pub mod my_psp22_wrapper {
 
     impl PSP22Wrapper for MyPSP22Wrapper {}
 
-    impl PSP22Receiver for MyPSP22Wrapper {
-        #[ink(message)]
-        fn before_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _value: Balance,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP22ReceiverError> {
-            Ok(())
-        }
-    }
-
     impl MyPSP22Wrapper {
         #[ink(constructor)]
         pub fn new(token_address: AccountId) -> Self {

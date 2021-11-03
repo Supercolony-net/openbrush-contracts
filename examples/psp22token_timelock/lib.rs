@@ -16,19 +16,6 @@ pub mod my_psp22_token_timelock {
 
     impl PSP22TokenTimelock for MyPSP22TokenTimelock {}
 
-    impl PSP22Receiver for MyPSP22TokenTimelock {
-        #[ink(message)]
-        fn before_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _value: Balance,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP22ReceiverError> {
-            Ok(())
-        }
-    }
-
     impl MyPSP22TokenTimelock {
         #[ink(constructor)]
         pub fn new(token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) -> Self {

@@ -52,8 +52,7 @@ pub struct PSP22MetadataData {
 declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);
 
 /// The PSP22 error type. Contract will throw one of this errors.
-#[derive(strum_macros::AsRefStr)]
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[derive(strum_macros::AsRefStr, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP22Error {
     /// Custom error type for cases if writer of traits added own restrictions
@@ -135,7 +134,13 @@ pub trait PSP22: PSP22Storage {
     ///
     /// Panics `ZeroRecipientAddress` error if recipient's address is zero.
     #[ink(message)]
-    fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
+    fn transfer_from(
+        &mut self,
+        from: AccountId,
+        to: AccountId,
+        value: Balance,
+        data: Vec<u8>,
+    ) -> Result<(), PSP22Error> {
         let caller = Self::env().caller();
         let allowance = self.allowance(from, caller);
         assert!(allowance >= value, "{}", PSP22Error::InsufficientAllowance.as_ref());
@@ -213,7 +218,13 @@ pub trait PSP22: PSP22Storage {
     /// Emit approval event. It must be implemented in inheriting struct
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
-    fn _do_safe_transfer_check(&self, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
+    fn _do_safe_transfer_check(
+        &self,
+        from: AccountId,
+        to: AccountId,
+        value: Balance,
+        data: Vec<u8>,
+    ) -> Result<(), PSP22Error> {
         let mut to_receiver: PSP22ReceiverStub = ink_env::call::FromAccountId::from_account_id(to);
         match to_receiver
             .call_mut()
@@ -230,23 +241,26 @@ pub trait PSP22: PSP22Storage {
                                 "The contract with `to` address does not accept tokens: {:?}",
                                 e
                             )))
-                                .as_ref()
+                            .as_ref()
                         )
                     }
                 }
             }
             Err(e) => {
                 match e {
+                    EnvError::CalleeTrapped => (),
                     EnvError::NotCallable => (),
                     e => {
-                        panic!(
-                            "{}",
-                            PSP22Error::SafeTransferCheckFailed(String::from(format!(
-                                "Unknown error: call failed with {:?}",
-                                e
-                            )))
-                                .as_ref()
-                        )
+                        ()
+                        // TODO solve Callee Trapped
+                        // panic!(
+                        //     "{}",
+                        //     PSP22Error::SafeTransferCheckFailed(String::from(format!(
+                        //         "Unknown error: call failed with {:?}",
+                        //         e
+                        //     )))
+                        //     .as_ref()
+                        // )
                     }
                 }
             }
@@ -256,7 +270,13 @@ pub trait PSP22: PSP22Storage {
 
     fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {}
 
-    fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
+    fn _transfer_from_to(
+        &mut self,
+        from: AccountId,
+        to: AccountId,
+        amount: Balance,
+        data: Vec<u8>,
+    ) -> Result<(), PSP22Error> {
         assert!(!from.is_zero(), "{}", PSP22Error::ZeroSenderAddress.as_ref());
         assert!(!to.is_zero(), "{}", PSP22Error::ZeroRecipientAddress.as_ref());
 

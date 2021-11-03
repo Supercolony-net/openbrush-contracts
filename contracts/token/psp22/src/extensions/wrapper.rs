@@ -26,7 +26,7 @@ pub struct PSP22WrapperData {
 declare_storage_trait!(PSP22WrapperStorage, PSP22WrapperData);
 
 #[brush::trait_definition]
-pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 + PSP22Receiver {
+pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
     /// Allow a user to deposit `amount` of underlying tokens and mint `amount` of the wrapped tokens to `account`
     #[ink(message)]
     fn deposit_for(&mut self, account: AccountId, amount: Balance) -> bool {

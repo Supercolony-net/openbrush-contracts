@@ -10,6 +10,10 @@ use brush::{
     },
 };
 use ink_env::call::FromAccountId;
+use ink_prelude::{
+    string::String,
+    vec::Vec,
+};
 use ink_storage::traits::SpreadLayout;
 pub use psp22_derive::PSP22TokenTimelockStorage;
 
@@ -27,7 +31,7 @@ pub struct PSP22TokenTimelockData {
 declare_storage_trait!(PSP22TokenTimelockStorage, PSP22TokenTimelockData);
 
 #[brush::trait_definition]
-pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage + PSP22Receiver {
+pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
     /// Returns the token address
     #[ink(message)]
     fn token(&self) -> AccountId {
@@ -52,14 +56,14 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage + PSP22Receiver {
         assert!(
             Self::env().block_timestamp() >= self.get_mut().release_time,
             "{}",
-            PSP22Error::Custom("Current time is before release time".to_string()).as_ref()
+            PSP22Error::Custom(String::from("Current time is before release time")).as_ref()
         );
         let mut psp22: PSP22Stub = FromAccountId::from_account_id(self.get_mut().token_address);
         let amount = psp22.balance_of(Self::env().account_id());
         assert!(
             amount > 0,
             "{}",
-            PSP22Error::Custom("No tokens to release".to_string()).as_ref()
+            PSP22Error::Custom(String::from("No tokens to release")).as_ref()
         );
         match psp22.transfer(self.beneficiary(), amount, Vec::<u8>::new()) {
             Ok(result) => result,
