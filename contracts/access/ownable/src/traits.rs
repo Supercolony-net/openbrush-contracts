@@ -24,7 +24,8 @@ pub struct OwnableData {
 declare_storage_trait!(OwnableStorage, OwnableData);
 
 /// The Ownable error type. Contract will throw one of this errors.
-#[derive(strum_macros::AsRefStr)]
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum OwnableError {
     CallerIsNotOwner,
     NewOwnerIsZero,
@@ -32,17 +33,15 @@ pub enum OwnableError {
 
 /// Throws if called by any account other than the owner.
 #[modifier_definition]
-pub fn only_owner<T, F, ReturnType>(instance: &mut T, body: F) -> ReturnType
+pub fn only_owner<T, F, K, E>(instance: &mut T, body: F) -> Result<K, E>
 where
     T: OwnableStorage,
-    F: FnOnce(&mut T) -> ReturnType,
+    F: FnOnce(&mut T) -> Result<K, E>,
+    E: From<OwnableError>,
 {
-    assert_eq!(
-        instance.get().owner,
-        T::env().caller(),
-        "{}",
-        OwnableError::CallerIsNotOwner.as_ref()
-    );
+    if instance.get().owner != T::env().caller() {
+        return Err(From::from(OwnableError::CallerIsNotOwner))
+    }
     body(instance)
 }
 
@@ -74,10 +73,11 @@ pub trait Ownable: OwnableStorage {
     /// Panics with `CallerIsNotOwner` error if caller is not owner
     #[ink(message)]
     #[modifiers(only_owner)]
-    fn renounce_ownership(&mut self) {
+    fn renounce_ownership(&mut self) -> Result<(), OwnableError> {
         let old_owner = self.get().owner.clone();
         self.get_mut().owner = ZERO_ADDRESS.into();
         self._emit_ownership_transferred_event(Some(old_owner), None);
+        Ok(())
     }
 
     /// Transfers ownership of the contract to a `new_owner`.
@@ -92,11 +92,14 @@ pub trait Ownable: OwnableStorage {
     /// Panics with `NewOwnerIsZero` error if new owner's address is zero.
     #[ink(message)]
     #[modifiers(only_owner)]
-    fn transfer_ownership(&mut self, new_owner: AccountId) {
-        assert!(!new_owner.is_zero(), "{}", OwnableError::NewOwnerIsZero.as_ref());
+    fn transfer_ownership(&mut self, new_owner: AccountId) -> Result<(), OwnableError> {
+        if new_owner.is_zero() {
+            return Err(OwnableError::NewOwnerIsZero);
+        }
         let old_owner = self.get().owner.clone();
         self.get_mut().owner = new_owner.clone();
         self._emit_ownership_transferred_event(Some(old_owner), Some(new_owner));
+        Ok(())
     }
 
     // Helper functions

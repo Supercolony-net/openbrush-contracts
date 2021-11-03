@@ -2,9 +2,11 @@
 
 #[brush::contract]
 pub mod my_psp22 {
-    use psp22::traits::*;
+    use ink_prelude::{
+        string::String,
+    };
     use ink_storage::Lazy;
-    use ink_prelude::{string::String, vec::Vec};
+    use psp22::traits::*;
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
@@ -19,20 +21,23 @@ pub mod my_psp22 {
 
     impl PSP22 for MyPSP22 {
         // Let's override method to reject transactions to bad account
-        fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) {
-            assert!(_to != self.hated_account, "{}", PSP22Error::Custom(String::from("I hate this account!")).as_ref());
+        fn _before_token_transfer(&mut self, _from: AccountId, _to: AccountId, _amount: Balance) -> Result<(), PSP22Error> {
+            if _to == self.hated_account {
+                return Err(PSP22Error::Custom("I hate this account!".into()));
+            }
+            Ok(())
         }
     }
 
-    impl PSP22Metadata for MyPSP22 {}
+    // impl PSP22Metadata for MyPSP22 {}
 
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
             let mut instance = Self::default();
             Lazy::set(&mut instance.metadata.name, name);
-            Lazy::set(&mut instance.metadata.symbol,symbol);
-            Lazy::set(&mut instance.metadata.decimals,decimal);
+            Lazy::set(&mut instance.metadata.symbol, symbol);
+            Lazy::set(&mut instance.metadata.decimals, decimal);
             instance._mint(instance.env().caller(), _total_supply);
             instance
         }

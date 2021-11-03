@@ -6,7 +6,7 @@ pub use self::{
     psp22metadata::PSP22Metadata,
 };
 
-pub use self::psp22receiver::PSP22Receiver;
+pub use self::psp22receiver::{PSP22Receiver, PSP22ReceiverRef};
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp22 {

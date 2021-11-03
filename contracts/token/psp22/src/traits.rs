@@ -1,4 +1,4 @@
-use crate::stub::PSP22Receiver as PSP22ReceiverStub;
+use crate::stub::PSP22ReceiverRef;
 use brush::{
     declare_storage_trait,
     traits::{
@@ -9,7 +9,7 @@ use brush::{
     },
 };
 use ink_env::Error as EnvError;
-use ink_lang::ForwardCallMut;
+use ink_lang::codegen::TraitCallBuilder;
 use ink_prelude::{
     format,
     string::String,
@@ -211,7 +211,7 @@ pub trait PSP22: PSP22Storage {
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
     fn _do_safe_transfer_check(&self, from: AccountId, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
-        let mut to_receiver: PSP22ReceiverStub = ink_env::call::FromAccountId::from_account_id(to);
+        let mut to_receiver: PSP22ReceiverRef = ink_env::call::FromAccountId::from_account_id(to);
         match to_receiver
             .call_mut()
             .before_received(Self::env().caller(), from, value, data)

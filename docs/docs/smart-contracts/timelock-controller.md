@@ -12,15 +12,15 @@ Include dependencies to `timelock-controller` and `brush` in the cargo file.
 
 ```toml
 [dependencies]
-ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_primitives = { git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { git = "https://github.com/paritytech/ink", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
+scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
 timelock-controller = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
