@@ -56,7 +56,7 @@ So if you want to use this library in the project, you must use custom version o
 You can install it with:
 
 ```
-cargo install cargo-contract --vers ^0.13 --force --locke
+cargo install cargo-contract --vers ^0.13 --force --locked
 ```
 
 ### Events
