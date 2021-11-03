@@ -52,7 +52,12 @@ with additional fixes:
 
 - [A new `metadata_name` attribute](https://github.com/paritytech/ink/pull/859)
 
-So if you want to use this library in the project, you must use custom version of ink! in the whole project.
+So if you want to use this library in the project, you must use custom version of ink! in the whole project. And `0.13` release of `cargo-contract`.
+You can install it with:
+
+```
+cargo install cargo-contract --vers ^0.13 --force --locke
+```
 
 ### Events
 ‼️ Important ‼️
@@ -112,7 +117,7 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 ------- Pre-release 2.0.0
 
-- [ ] Finalize PSP for fungible tokens. Refactor of implementation.
+- [x] Finalize PSP for fungible tokens. Refactor of implementation.
 - [ ] PSPs for NFT and multi-token.
 - [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
 - [ ] Refactor NFT and multi-token according to final decisions in PSPs.
