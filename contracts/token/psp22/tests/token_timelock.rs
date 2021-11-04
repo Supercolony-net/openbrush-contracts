@@ -19,20 +19,13 @@ mod tests {
     /// We will just remove calls to the locked token
     /// The cross-contract interaction will be tested in integration tests
     impl PSP22TokenTimelock for PSP22TokenTimelockStruct {
-        #[ink(message)]
-        fn release(&mut self) {
-            assert!(
-                Self::env().block_timestamp() >= self.release_time(),
-                "{}",
-                PSP22Error::Custom("Current time is before release time".to_string()).as_ref()
-            );
-            let amount = self.locked_tokens;
-            assert!(
-                amount > 0,
-                "{}",
-                PSP22Error::Custom("No tokens to release".to_string()).as_ref()
-            );
-            self.locked_tokens = 0;
+        fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22Error> {
+            self.locked_tokens -= amount;
+            Ok(())
+        }
+
+        fn contract_balance(&self) -> Balance {
+            self.locked_tokens
         }
     }
 

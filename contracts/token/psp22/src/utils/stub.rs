@@ -1,5 +1,7 @@
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod token_timelock {
+    use crate::traits::PSP22Error;
+
     #[derive(Default)]
     #[ink(storage)]
     pub struct PSP22TokenTimelock {}
@@ -29,7 +31,7 @@ pub mod token_timelock {
         }
 
         #[ink(message)]
-        pub fn release(&mut self) {
+        pub fn release(&mut self) -> Result<(), PSP22Error> {
             unimplemented!()
         }
     }

@@ -250,7 +250,7 @@ pub trait PSP22: PSP22Storage {
                 match e {
                     EnvError::CalleeTrapped => (),
                     EnvError::NotCallable => (),
-                    e => {
+                    _e => {
                         ()
                         // TODO solve Callee Trapped
                         // panic!(

@@ -5,6 +5,7 @@ use brush::{
     declare_storage_trait,
     traits::{
         AccountId,
+        Balance,
         InkStorage,
         Timestamp,
     },
@@ -52,23 +53,31 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
 
     /// Transfers the tokens held by timelock to the beneficairy
     #[ink(message)]
-    fn release(&mut self) {
+    fn release(&mut self) -> Result<(), PSP22Error> {
         assert!(
             Self::env().block_timestamp() >= self.get_mut().release_time,
             "{}",
             PSP22Error::Custom(String::from("Current time is before release time")).as_ref()
         );
-        let mut psp22: PSP22Stub = FromAccountId::from_account_id(self.get_mut().token_address);
-        let amount = psp22.balance_of(Self::env().account_id());
+        let amount = self.contract_balance();
         assert!(
             amount > 0,
             "{}",
             PSP22Error::Custom(String::from("No tokens to release")).as_ref()
         );
-        match psp22.transfer(self.beneficiary(), amount, Vec::<u8>::new()) {
-            Ok(result) => result,
-            Err(e) => panic!("{}", e.as_ref()),
-        }
+        self.withdraw(amount)
+    }
+
+    /// Helper function to withdraw tokens
+    fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22Error> {
+        let mut psp22: PSP22Stub = FromAccountId::from_account_id(self.get().token_address);
+        psp22.transfer(self.beneficiary(), amount, Vec::<u8>::new())
+    }
+
+    /// Helper function to return balance of the contract
+    fn contract_balance(&self) -> Balance {
+        let psp22: PSP22Stub = FromAccountId::from_account_id(self.get().token_address);
+        psp22.balance_of(Self::env().account_id())
     }
 
     /// Initializes the contract
