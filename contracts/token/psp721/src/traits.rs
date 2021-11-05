@@ -24,10 +24,7 @@ use ink_storage::{
     },
     traits::SpreadLayout,
 };
-pub use psp721_derive::{
-    PSP721MetadataStorage,
-    PSP721Storage,
-};
+pub use psp721_derive::PSP721Storage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -44,15 +41,6 @@ pub struct PSP721Data {
 }
 
 declare_storage_trait!(PSP721Storage, PSP721Data);
-
-#[derive(Default, Debug, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
-pub struct PSP721MetadataData {
-    pub name: Option<String>,
-    pub symbol: Option<String>,
-}
-
-declare_storage_trait!(PSP721MetadataStorage, PSP721MetadataData);
 
 /// The PSP721 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -74,10 +62,10 @@ pub enum PSP721Error {
 
 /// Contract module which provides a basic implementation of non fungible token.
 ///
-/// This module is used through embedding of `PSP721Data` and implementation of `IPSP721` and
+/// This module is used through embedding of `PSP721Data` and implementation of `PSP721` and
 /// `PSP721Storage` traits.
 #[brush::trait_definition]
-pub trait IPSP721: PSP721Storage {
+pub trait PSP721: PSP721Storage {
     /// Returns the balance of the owner.
     ///
     /// This represents the amount of unique tokens the owner has.
@@ -276,10 +264,7 @@ pub trait IPSP721: PSP721Storage {
         assert_eq!(occupied.get(), &caller, "{}", PSP721Error::NotOwner.as_ref());
         occupied.remove_entry();
 
-        self.get_mut()
-            .owned_tokens_count
-            .entry(caller)
-            .and_modify(|v| *v -= 1);
+        self.get_mut().owned_tokens_count.entry(caller).and_modify(|v| *v -= 1);
         Ok(())
     }
 
@@ -308,51 +293,26 @@ pub trait IPSP721: PSP721Storage {
         }
     }
 
-    fn _mint(&mut self, id: Id) {
+    fn _mint(&mut self, id: Id) -> Result<(), PSP721Error> {
         let to = Self::env().caller();
-        self._add_to(to, id.clone());
+        self._mint_to(to, id)
+    }
+
+    fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
+        let result = self._add_to(to, id);
         self._emit_transfer_event(ZERO_ADDRESS.into(), to, id);
+        result
     }
 
-    fn _burn(&mut self, id: Id) {
+    fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP721Error> {
+        let result = self._remove_from(from, id);
+        self._emit_transfer_event(from, ZERO_ADDRESS.into(), id);
+        result
+    }
+
+    fn _burn(&mut self, id: Id) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
-        self._remove_from(caller, id.clone());
-        self._emit_transfer_event(caller, ZERO_ADDRESS.into(), id);
-    }
-}
-
-#[brush::trait_definition]
-pub trait IPSP721Metadata: PSP721MetadataStorage {
-    /// Returns the token name.
-    #[ink(message)]
-    fn name(&self) -> Option<String> {
-        self.get().name.clone()
-    }
-
-    /// Returns the token symbol.
-    #[ink(message)]
-    fn symbol(&self) -> Option<String> {
-        self.get().symbol.clone()
-    }
-
-    fn _init_with_metadata(&mut self, name: Option<String>, symbol: Option<String>) {
-        self.get_mut().name = name;
-        self.get_mut().symbol = symbol;
-    }
-}
-
-#[brush::trait_definition]
-pub trait IPSP721Mint: IPSP721 {
-    /// Mints a new token.
-    #[ink(message)]
-    fn mint(&mut self, id: Id) {
-        self._mint(id)
-    }
-
-    /// Burns an existing token.
-    #[ink(message)]
-    fn burn(&mut self, id: Id) {
-        self._burn(id)
+        self._burn_from(caller, id)
     }
 }
 
