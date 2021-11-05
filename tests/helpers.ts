@@ -1,7 +1,8 @@
 import Contract from '@redspot/patract/contract'
 import BN from 'bn.js'
 import { artifacts, network, patract } from 'redspot'
-import { Signer } from 'redspot/types'
+import { expect } from './setup/chai'
+import { TransactionParams } from '@redspot/patract/types'
 
 const { getContractFactory, getRandomSigner } = patract
 const { api, getSigners } = network
@@ -11,6 +12,23 @@ export { expect } from './setup/chai'
 const patchContractMethods = (contract: Contract): Contract => {
   patchMethods(contract.query)
   patchMethods(contract.tx)
+
+  // @ts-ignore
+  contract['tx'] = new Proxy(contract.tx, {
+    get(target, prop: string) {
+      return async function (...args: TransactionParams) {
+        const result = await contract.query[prop](...args)
+        const output = result.output?.toJSON()
+
+        if (output && output['ok'] !== undefined) {
+          return await target[prop](...args)
+        } else {
+          throw Error(output ? output['err'] : 'Unknown Error')
+        }
+      }
+    }
+  })
+
   return contract
 }
 
@@ -58,3 +76,14 @@ export const fromSigner = (contract: Contract, address: string): Contract => {
 
 export const bnArg = (value: number | string | number[] | Uint8Array | Buffer | BN, length = 32) =>
   new BN(value, undefined, 'le').toArray('le', length)
+
+export const expectRevert = async <T>(promise: Promise<T>, errorMessage = '') => {
+  try {
+    await promise
+    expect.fail('Should be reverted.')
+  } catch (e) {
+    if (errorMessage) {
+      expect(e.message, errorMessage)
+    }
+  }
+}
