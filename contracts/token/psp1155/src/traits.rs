@@ -98,13 +98,13 @@ pub trait PSP1155: PSP1155Storage {
     ///
     /// # Errors
     ///
-    /// Returns with `TransferToZeroAddress` error if recipient is zero account.
+    /// Returns `TransferToZeroAddress` error if recipient is zero account.
     ///
-    /// Returns with `NotAllowed` error if transfer is not approved.
+    /// Returns `NotAllowed` error if transfer is not approved.
     ///
-    /// Returns with `InsufficientBalance` error if `from` doesn't contain enough balance.
+    /// Returns `InsufficientBalance` error if `from` doesn't contain enough balance.
     ///
-    /// Returns with `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
+    /// Returns `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
     #[ink(message)]
     fn transfer_from(
         &mut self,
@@ -335,7 +335,7 @@ pub trait PSP1155: PSP1155Storage {
     }
 }
 
-/// PSP1155Receiver is an trait for any contract that wants to support safe transfers from a PSP1155
+/// PSP1155Receiver is a trait for any contract that wants to support safe transfers from a PSP1155
 /// multi token smart contract to avoid unexpected tokens in the balance of contract.
 /// This method is called before a transfer to ensure the recipient of the tokens acknowledges the receipt.
 #[brush::trait_definition]

@@ -79,7 +79,7 @@ pub trait PSP721: PSP721Storage {
     ///
     /// # Errors
     ///
-    /// Returns with `SelfApprove` error if it is self approve.
+    /// Returns `SelfApprove` error if it is self approve.
     #[ink(message)]
     fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) -> Result<(), PSP721Error> {
         let caller = Self::env().caller();
@@ -93,9 +93,9 @@ pub trait PSP721: PSP721Storage {
     ///
     /// # Errors
     ///
-    /// Returns with `SelfApprove` error if it is self approve.
+    /// Returns `SelfApprove` error if it is self approve.
     ///
-    /// Returns with `NotApproved` error if caller is not owner of `id`.
+    /// Returns `NotApproved` error if caller is not owner of `id`.
     #[ink(message)]
     fn approve(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
         self._approve_for(to, id)?;
@@ -108,11 +108,11 @@ pub trait PSP721: PSP721Storage {
     ///
     /// # Errors
     ///
-    /// Returns with `TokenNotExists` error if `id` is not exist.
+    /// Returns `TokenNotExists` error if `id` is not exist.
     ///
-    /// Returns with `NotApproved` error if `from` doesn't have allowance for transferring.
+    /// Returns `NotApproved` error if `from` doesn't have allowance for transferring.
     ///
-    /// Returns with `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
+    /// Returns `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
     #[ink(message)]
     fn transfer(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP721Error> {
         self._transfer_token_from(Self::env().caller(), to, id, data)?;
@@ -125,11 +125,11 @@ pub trait PSP721: PSP721Storage {
     ///
     /// # Errors
     ///
-    /// Returns with `TokenNotExists` error if `id` is not exist.
+    /// Returns `TokenNotExists` error if `id` does not exist.
     ///
-    /// Returns with `NotApproved` error if `from` doesn't have allowance for transferring.
+    /// Returns `NotApproved` error if `from` doesn't have allowance for transferring.
     ///
-    /// Returns with `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
+    /// Returns `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
     #[ink(message)]
     fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP721Error> {
         self._transfer_token_from(from, to, id, data)?;
@@ -306,7 +306,7 @@ pub trait PSP721: PSP721Storage {
     }
 }
 
-/// PSP721Receiver is an trait for any contract that wants to support safe transfers from a PSP721
+/// PSP721Receiver is a trait for any contract that wants to support safe transfers from a PSP721
 /// token smart contract to avoid unexpected tokens in the balance of contract.
 /// This method is called before a transfer to ensure the recipient of the tokens acknowledges the receipt.
 #[brush::trait_definition]

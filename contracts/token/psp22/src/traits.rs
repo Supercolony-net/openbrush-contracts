@@ -366,7 +366,7 @@ pub trait PSP22Metadata: PSP22MetadataStorage {
     }
 }
 
-/// PSP22Receiver is an trait for any contract that wants to support safe transfers from a PSP22
+/// PSP22Receiver is a trait for any contract that wants to support safe transfers from a PSP22
 /// token smart contract to avoid unexpected tokens in the balance of contract.
 /// This method is called before a transfer to ensure the recipient of the tokens acknowledges the receipt.
 #[brush::trait_definition]
