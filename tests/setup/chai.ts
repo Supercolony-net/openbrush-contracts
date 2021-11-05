@@ -5,7 +5,7 @@ import type { AccountId } from '@polkadot/types/interfaces'
 declare global {
   export namespace Chai {
     interface Assertion {
-      output(value: AccountId | any | string | number | boolean | string[] | number[], msg?: string): void
+      output(value: AccountId | string | number | boolean | string[] | number[], msg?: string): void
     }
   }
 }
