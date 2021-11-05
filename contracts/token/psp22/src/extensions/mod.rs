@@ -1,3 +1,4 @@
+pub mod flashmint;
 pub mod stub;
 pub mod wrapper;
 
