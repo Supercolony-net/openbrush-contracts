@@ -2,8 +2,8 @@
 
 #[brush::contract]
 pub mod my_payment_splitter {
-    use payment_splitter::traits::*;
     use ink_prelude::vec::Vec;
+    use payment_splitter::traits::*;
 
     #[ink(storage)]
     #[derive(Default, PaymentSplitterStorage)]
@@ -14,9 +14,9 @@ pub mod my_payment_splitter {
 
     impl SplitterStruct {
         #[ink(constructor)]
-        pub fn new(payees: Vec<AccountId>, shares: Vec<Balance>) -> Self {
+        pub fn new(payees: Vec<(AccountId, Balance)>) -> Self {
             let mut instance = Self::default();
-            instance._init(payees, shares);
+            instance._init(payees).expect("Should init");
             instance
         }
     }

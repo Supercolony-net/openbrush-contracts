@@ -1,4 +1,4 @@
-import { bnArg, expect, setupContract } from '../helpers'
+import { bnArg, expect, setupContract } from '../../helpers'
 
 describe('MY_PSP1155_METADATA', () => {
     async function setup() {

@@ -10,6 +10,7 @@
 /// ```
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod flip_on_me {
+    use reentrancy_guard::traits::*;
     #[ink(storage)]
     pub struct CallerOfFlip {}
 
@@ -22,7 +23,7 @@ pub mod flip_on_me {
 
     impl CallerOfFlip {
         #[ink(message)]
-        pub fn flip_on_me(&mut self) {
+        pub fn flip_on_me(&mut self) -> Result<(), ReentrancyGuardError> {
             unimplemented!()
         }
     }
@@ -30,8 +31,8 @@ pub mod flip_on_me {
 
 #[brush::contract]
 pub mod my_flipper_guard {
-    use reentrancy_guard::traits::*;
     use brush::modifiers;
+    use reentrancy_guard::traits::*;
 
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_env::call::FromAccountId;
@@ -60,19 +61,20 @@ pub mod my_flipper_guard {
 
         #[ink(message)]
         #[brush::modifiers(non_reentrant)]
-        pub fn flip(&mut self) {
+        pub fn flip(&mut self) -> Result<(), ReentrancyGuardError> {
             self.value = !self.value;
+            Ok(())
         }
 
         #[ink(message)]
         #[modifiers(non_reentrant)]
-        pub fn call_flip_on_me(&mut self, callee: AccountId) {
+        pub fn call_flip_on_me(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError> {
             // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
             // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
             // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
             // that call of `flip` after `call_flip_on_me` must fail.
             let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
-            flipper.flip_on_me();
+            flipper.flip_on_me()
         }
     }
 }

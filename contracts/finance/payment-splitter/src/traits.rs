@@ -7,6 +7,7 @@ use brush::{
         InkStorage,
     },
 };
+pub use common::errors::PaymentSplitterError;
 use ink_prelude::vec::Vec;
 use ink_storage::{
     collections::HashMap as StorageHashMap,
@@ -31,18 +32,6 @@ pub struct PaymentSplitterData {
 
 declare_storage_trait!(PaymentSplitterStorage, PaymentSplitterData);
 
-#[derive(strum_macros::AsRefStr)]
-pub enum PaymentSplitterError {
-    LengthMismatch,
-    NoPayees,
-    AccountHasNoShares,
-    AccountIsNotDuePayment,
-    AccountZeroAddress,
-    SharesAreZero,
-    AlreadyHasShares,
-    TransferFailed,
-}
-
 /// This contract allows splitting native token payments among a group of accounts. The sender does not need to be aware
 /// that the native token will be split in this way, since it is handled transparently by the contract.
 ///
@@ -59,6 +48,7 @@ pub enum PaymentSplitterError {
 ///
 /// This module is used through embedding of `PaymentSplitterData` and implementation of `PaymentSplitter` and
 /// `PaymentSplitterStorage` traits.
+// TODO: Substrate removed rent, so we need simplify logic in this contract
 #[brush::trait_definition]
 pub trait PaymentSplitter: PaymentSplitterStorage {
     /// Getter for the total shares held by payees.
@@ -107,12 +97,10 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
     ///
     /// On success a `PaymentReleased` event is emitted.
     #[ink(message)]
-    fn release(&mut self, account: AccountId) {
-        assert!(
-            self.get().shares.contains_key(&account),
-            "{}",
-            PaymentSplitterError::AccountHasNoShares.as_ref()
-        );
+    fn release(&mut self, account: AccountId) -> Result<(), PaymentSplitterError> {
+        if !self.get().shares.contains_key(&account) {
+            return Err(PaymentSplitterError::AccountHasNoShares)
+        }
 
         let mut current_balance = Self::env().balance();
         let minimum_balance = Self::env().minimum_balance() + Self::env().tombstone_deposit();
@@ -134,7 +122,9 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
             payment -= released;
         }
 
-        assert_ne!(payment, 0, "{}", PaymentSplitterError::AccountIsNotDuePayment.as_ref());
+        if payment == 0 {
+            return Err(PaymentSplitterError::AccountIsNotDuePayment)
+        }
 
         if payment > current_balance {
             payment = current_balance;
@@ -147,12 +137,11 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
         self.get_mut().total_released += payment;
 
         let transfer_result = Self::env().transfer(account.clone(), payment);
-        assert!(
-            transfer_result.is_ok(),
-            "{}",
-            PaymentSplitterError::TransferFailed.as_ref()
-        );
+        if transfer_result.is_err() {
+            return Err(PaymentSplitterError::TransferFailed)
+        }
         self._emit_payment_released_event(account, payment);
+        Ok(())
     }
 
     // Helper functions
@@ -173,36 +162,32 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
     /// duplicates in `payees`.
     ///
     /// Emits `PayeeAdded` on each account.
-    fn _init(&mut self, payees: Vec<AccountId>, shares: Vec<Balance>) {
-        assert_eq!(
-            payees.len(),
-            shares.len(),
-            "{}",
-            PaymentSplitterError::LengthMismatch.as_ref()
-        );
-        assert!(payees.len() > 0, "{}", PaymentSplitterError::NoPayees.as_ref());
-
-        for (payee, share) in payees.into_iter().zip(shares.into_iter()) {
-            self._add_payee(payee, share);
+    fn _init(&mut self, payees: Vec<(AccountId, Balance)>) -> Result<(), PaymentSplitterError> {
+        if payees.is_empty() {
+            return Err(PaymentSplitterError::NoPayees)
         }
+
+        for (payee, share) in payees.into_iter() {
+            self._add_payee(payee, share)?;
+        }
+        Ok(())
     }
 
-    fn _add_payee(&mut self, payee: AccountId, share: Balance) {
-        assert!(
-            !payee.is_zero(),
-            "{}",
-            PaymentSplitterError::AccountZeroAddress.as_ref()
-        );
-        assert!(share > 0, "{}", PaymentSplitterError::SharesAreZero.as_ref());
-        assert!(
-            !self.get().shares.contains_key(&payee),
-            "{}",
-            PaymentSplitterError::AlreadyHasShares.as_ref()
-        );
+    fn _add_payee(&mut self, payee: AccountId, share: Balance) -> Result<(), PaymentSplitterError> {
+        if payee.is_zero() {
+            return Err(PaymentSplitterError::AccountZeroAddress)
+        }
+        if share == 0 {
+            return Err(PaymentSplitterError::SharesAreZero)
+        }
+        if self.get().shares.contains_key(&payee) {
+            return Err(PaymentSplitterError::AlreadyHasShares)
+        }
 
         self.get_mut().payees.push(payee.clone());
         self.get_mut().shares.insert(payee.clone(), share);
         self.get_mut().total_shares += share;
         self._emit_payee_added_event(payee, share);
+        Ok(())
     }
 }

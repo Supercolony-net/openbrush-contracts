@@ -1,8 +1,8 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use reentrancy_guard::traits::*;
     use ink_lang as ink;
+    use reentrancy_guard::traits::*;
 
     #[ink(storage)]
     #[derive(Default, ReentrancyGuardStorage)]
@@ -20,16 +20,16 @@ mod tests {
 
         #[ink(message)]
         #[brush::modifiers(non_reentrant)]
-        pub fn flip(&mut self) -> bool {
+        pub fn flip(&mut self) -> Result<bool, ReentrancyGuardError> {
             let previous = self.flipped;
             self.flipped = !previous;
 
-            previous
+            Ok(previous)
         }
 
         #[ink(message)]
         #[brush::modifiers(non_reentrant)]
-        pub fn call_flip_after_lock(&mut self) -> bool {
+        pub fn call_flip_after_lock(&mut self) -> Result<bool, ReentrancyGuardError> {
             self.flip()
         }
     }
@@ -38,16 +38,15 @@ mod tests {
     fn flip_works() {
         let mut _inst = MyFlipper::new();
 
-        assert_eq!(false, _inst.flip());
-        assert_eq!(true, _inst.flip());
-        assert_eq!(false, _inst.flip());
+        assert_eq!(Ok(false), _inst.flip());
+        assert_eq!(Ok(true), _inst.flip());
+        assert_eq!(Ok(false), _inst.flip());
     }
 
     #[ink::test]
-    #[should_panic(expected = "ReentrantCall")]
     fn call_flip_after_lock_fails() {
         let mut _inst = MyFlipper::new();
 
-        _inst.call_flip_after_lock();
+        assert_eq!(Err(ReentrancyGuardError::ReentrantCall), _inst.call_flip_after_lock());
     }
 }
