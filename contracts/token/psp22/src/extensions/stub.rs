@@ -1,5 +1,5 @@
 #[ink_lang::contract(compile_as_dependency = true)]
-pub mod psp22metadata {
+pub mod metadata {
     use ink_prelude::string::String;
 
     #[derive(Default)]
@@ -27,6 +27,55 @@ pub mod psp22metadata {
 
         #[ink(message)]
         pub fn token_decimals(&self) -> u8 {
+            unimplemented!()
+        }
+    }
+}
+
+#[ink_lang::contract(compile_as_dependency = true)]
+pub mod mintable {
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct PSP22Mintable {}
+
+    impl PSP22Mintable {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+    }
+
+    #[ink(namespace = "PSP22Mintable")]
+    impl PSP22Mintable {
+        #[ink(message)]
+        pub fn mint(&mut self, account: AccountId, amount: Balance) {
+            unimplemented!()
+        }
+    }
+}
+
+#[ink_lang::contract(compile_as_dependency = true)]
+pub mod burnable {
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct PSP22Burnable {}
+
+    impl PSP22Burnable {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+    }
+
+    #[ink(namespace = "PSP22Burnable")]
+    impl PSP22Burnable {
+        #[ink(message)]
+        pub fn burn(&mut self, amount: Balance) {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn burn_from(&mut self, account: AccountId, amount: Balance) {
             unimplemented!()
         }
     }

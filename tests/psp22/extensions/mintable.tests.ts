@@ -1,8 +1,7 @@
 /* eslint-disable */
-import { consts } from './constants'
-import { bnArg, expect, fromSigner, setupContract } from './helpers'
+import { bnArg, expect, setupContract } from '../../helpers';
 
-describe('PSP22Mintable', () => {
+describe('MY_PSP22_MINTABLE', () => {
     async function setup() {
         return setupContract('my_psp22_mintable', 'new', '1000')
     }

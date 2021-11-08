@@ -1,9 +1,7 @@
 /* eslint-disable */
-import { expect, fromSigner, setupContract, addPairWithAmount, getSigner } from './helpers';
-import {Keyring} from "@polkadot/keyring"
+import { expect, fromSigner, setupContract, getSigner } from '../../helpers';
 
-
-describe('PSP22Burnable', () => {
+describe('MY_PSP22_BURNABLE', () => {
     async function setup() {
         return setupContract('my_psp22_burnable', 'new', '1000')
     }
@@ -15,7 +13,7 @@ describe('PSP22Burnable', () => {
     })
 
     it('Can burn', async () => {
-        const { query, tx, contract  } = await setup();
+        const { query, tx, contract } = await setup();
 
         // Arrange - Create a signer and transfer tokens to him
         const ALICE = await getSigner('Alice')
@@ -25,24 +23,24 @@ describe('PSP22Burnable', () => {
         await fromSigner(contract, ALICE.address).tx.burn(10)
 
         // Assert - Ensure sender balance is now 999
-        await expect( query.balanceOf(ALICE.address)).to.have.output(0);
+        await expect(query.balanceOf(ALICE.address)).to.have.output(0);
     })
 
     it('Decreases total supply after burning', async () => {
-        const { contract, query} = await setup()
+        const { contract, query } = await setup()
 
         // Arrange - Ensure initial supply is correct
         await expect(query.totalSupply()).to.have.output(1000)
 
         // Act - Burn token from owner
-        await contract.tx.burn( 1)
+        await contract.tx.burn(1)
 
         // Assert - Ensure sender balance is now 999
         await expect(query.totalSupply()).to.have.output(999)
     })
 
     it('Can burn from', async () => {
-        const { query, tx, contract, defaultSigner, accounts: [alice, bob, eve]  } = await setup();
+        const { query, tx, contract, defaultSigner, accounts: [alice, bob, eve] } = await setup();
 
         // Arrange - Create a signer, transfer tokens to him and approve that contract can spend his tokens
         const ALICE = await getSigner('Alice')
@@ -53,7 +51,7 @@ describe('PSP22Burnable', () => {
         await fromSigner(contract, defaultSigner.address).tx.burnFrom(ALICE.address, 10)
 
         // Assert - ensure needed amount was burnt
-        await expect( query.balanceOf(ALICE.address)).to.have.output(0);
+        await expect(query.balanceOf(ALICE.address)).to.have.output(0);
     })
 
     it('Can burn from many', async () => {
@@ -71,8 +69,8 @@ describe('PSP22Burnable', () => {
         await fromSigner(contract, defaultSigner.address).tx.burnFromMany([[ALICE.address, 10], [BOB.address, 10]])
 
         // Assert - ensure needed amount was burnt
-        await expect( query.balanceOf(ALICE.address)).to.have.output(0);
-        await expect( query.balanceOf(BOB.address)).to.have.output(0);
+        await expect(query.balanceOf(ALICE.address)).to.have.output(0);
+        await expect(query.balanceOf(BOB.address)).to.have.output(0);
     })
 
     it('Fails if do not have an allowance to burn from one of the account', async () => {
@@ -89,8 +87,8 @@ describe('PSP22Burnable', () => {
         await expect(fromSigner(contract, defaultSigner.address).tx.burnFromMany([[ALICE.address, 10], [BOB.address, 10]])).to.eventually.be.rejected
 
         // Assert - ensure tokens was not burnt from the accounts
-        await expect( query.balanceOf(ALICE.address)).to.have.output(10);
-        await expect( query.balanceOf(BOB.address)).to.have.output(10);
+        await expect(query.balanceOf(ALICE.address)).to.have.output(10);
+        await expect(query.balanceOf(BOB.address)).to.have.output(10);
     })
 
     it(`Fails if one of the account's balance exceeds amount to burn`, async () => {
@@ -108,8 +106,8 @@ describe('PSP22Burnable', () => {
         await expect(fromSigner(contract, defaultSigner.address).tx.burnFromMany([[ALICE.address, 10], [BOB.address, 10]])).to.eventually.be.rejected
 
         // Assert - ensure tokens was not burnt from the accounts
-        await expect( query.balanceOf(ALICE.address)).to.have.output(10);
-        await expect( query.balanceOf(BOB.address)).to.have.output(5);
+        await expect(query.balanceOf(ALICE.address)).to.have.output(10);
+        await expect(query.balanceOf(BOB.address)).to.have.output(5);
     })
 
 })
