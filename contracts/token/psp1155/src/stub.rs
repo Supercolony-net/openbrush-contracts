@@ -9,10 +9,7 @@ pub use self::{
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp1155 {
     use crate::traits::Id;
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
+    use ink_prelude::vec::Vec;
 
     #[ink(storage)]
     pub struct PSP1155 {}
@@ -24,7 +21,7 @@ pub mod psp1155 {
         }
     }
 
-    #[ink(namespace = "IPSP1155")]
+    #[ink(namespace = "PSP1155")]
     impl PSP1155 {
         #[ink(message)]
         pub fn balance_of(&self, _account: AccountId, _id: Id) -> Balance {
@@ -32,7 +29,7 @@ pub mod psp1155 {
         }
 
         #[ink(message)]
-        pub fn balance_of_batch(&self, _owners: Vec<AccountId>, _ids: Vec<Id>) -> Vec<Balance> {
+        pub fn balance_of_batch(&self, _owners_ids: Vec<(AccountId, Id)>) -> Vec<Balance> {
             unimplemented!()
         }
 
@@ -63,18 +60,9 @@ pub mod psp1155 {
             &mut self,
             _from: AccountId,
             _to: AccountId,
-            _ids: Vec<Id>,
-            _amounts: Vec<Balance>,
+            _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
         ) {
-            unimplemented!()
-        }
-    }
-
-    #[ink(namespace = "IPSP1155Metadata")]
-    impl PSP1155 {
-        #[ink(message)]
-        pub fn uri(&self, _id: Id) -> Option<String> {
             unimplemented!()
         }
     }
@@ -117,8 +105,7 @@ pub mod psp1155receiver {
             &mut self,
             _operator: AccountId,
             _from: AccountId,
-            _ids: Vec<Id>,
-            _values: Vec<Balance>,
+            _ids_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
         ) -> Result<(), PSP1155ReceiverError> {
             unimplemented!()
