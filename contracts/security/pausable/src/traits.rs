@@ -31,7 +31,7 @@ where
     E: From<PausableError>,
 {
     if !instance.get().paused {
-        return Err(From::from(PausableError::NoPaused))
+        return Err(From::from(PausableError::NotPaused))
     }
     body(instance)
 }

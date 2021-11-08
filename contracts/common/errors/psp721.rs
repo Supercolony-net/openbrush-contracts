@@ -47,7 +47,7 @@ impl From<PausableError> for PSP721Error {
     fn from(pausable: PausableError) -> Self {
         match pausable {
             PausableError::Paused => PSP721Error::Custom(String::from("P::Paused")),
-            PausableError::NoPaused => PSP721Error::Custom(String::from("P::NoPaused")),
+            PausableError::NotPaused => PSP721Error::Custom(String::from("P::NotPaused")),
         }
     }
 }
@@ -68,10 +68,10 @@ pub enum PSP721ReceiverError {
     TransferRejected(String),
 }
 
-impl Into<PSP721Error> for PSP721ReceiverError {
-    fn into(self) -> PSP721Error {
-        match self {
-            PSP721ReceiverError::TransferRejected(message) => PSP721Error::Custom(message),
+impl From<PSP721ReceiverError> for PSP721Error {
+    fn from(error: PSP721ReceiverError) -> Self {
+        match error {
+            PSP721ReceiverError::TransferRejected(message) => PSP721Error::SafeTransferCheckFailed(message),
         }
     }
 }

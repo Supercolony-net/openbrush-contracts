@@ -122,14 +122,14 @@ mod tests {
     fn flip_fails() {
         let mut inst = MyFlipper::new();
 
-        assert_eq!(Err(PausableError::NoPaused), inst.flip());
+        assert_eq!(Err(PausableError::NotPaused), inst.flip());
     }
 
     #[ink::test]
     fn unpause_fails() {
         let mut inst = MyFlipper::new();
 
-        assert_eq!(Err(PausableError::NoPaused), inst._unpause());
+        assert_eq!(Err(PausableError::NotPaused), inst._unpause());
     }
 
     #[ink::test]

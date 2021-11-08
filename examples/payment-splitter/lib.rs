@@ -14,9 +14,9 @@ pub mod my_payment_splitter {
 
     impl SplitterStruct {
         #[ink(constructor)]
-        pub fn new(payees: Vec<(AccountId, Balance)>) -> Self {
+        pub fn new(payees_and_shares: Vec<(AccountId, Balance)>) -> Self {
             let mut instance = Self::default();
-            instance._init(payees).expect("Should init");
+            instance._init(payees_and_shares).expect("Should init");
             instance
         }
     }

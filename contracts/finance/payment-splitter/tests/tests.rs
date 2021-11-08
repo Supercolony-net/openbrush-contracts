@@ -39,9 +39,9 @@ mod tests {
 
     impl MySplitter {
         #[ink(constructor)]
-        pub fn new(payees: Vec<(AccountId, Balance)>) -> Self {
+        pub fn new(payees_and_shares: Vec<(AccountId, Balance)>) -> Self {
             let mut instance = Self::default();
-            instance._init(payees).unwrap();
+            instance._init(payees_and_shares).unwrap();
             instance
         }
     }

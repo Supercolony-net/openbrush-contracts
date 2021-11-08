@@ -45,7 +45,7 @@ impl From<PausableError> for PSP1155Error {
     fn from(pausable: PausableError) -> Self {
         match pausable {
             PausableError::Paused => PSP1155Error::Custom(String::from("P::Paused")),
-            PausableError::NoPaused => PSP1155Error::Custom(String::from("P::NoPaused")),
+            PausableError::NotPaused => PSP1155Error::Custom(String::from("P::NotPaused")),
         }
     }
 }
@@ -66,10 +66,10 @@ pub enum PSP1155ReceiverError {
     TransferRejected(String),
 }
 
-impl Into<PSP1155Error> for PSP1155ReceiverError {
-    fn into(self) -> PSP1155Error {
-        match self {
-            PSP1155ReceiverError::TransferRejected(message) => PSP1155Error::Custom(message),
+impl From<PSP1155ReceiverError> for PSP1155Error {
+    fn from(error: PSP1155ReceiverError) -> Self {
+        match error {
+            PSP1155ReceiverError::TransferRejected(message) => PSP1155Error::SafeTransferCheckFailed(message),
         }
     }
 }

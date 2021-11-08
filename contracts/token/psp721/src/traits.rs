@@ -233,10 +233,10 @@ pub trait PSP721: PSP721Storage {
             }
             Err(e) => {
                 match e {
-                    // `NotCallable` means that receiver is not a contract.
+                    // `NotCallable` means that the receiver is not a contract.
 
-                    // `CalleeTrapped` means that receiver hasn't method `before_received` or it failed inside.
-                    // First case is expected. Second - no. But we can't tell them apart so it is positive case for now.
+                    // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
+                    // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
                     // https://github.com/paritytech/ink/issues/1002
                     EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
                     _ => {

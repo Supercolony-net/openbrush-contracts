@@ -47,7 +47,7 @@ impl From<PausableError> for PSP22Error {
     fn from(pausable: PausableError) -> Self {
         match pausable {
             PausableError::Paused => PSP22Error::Custom(String::from("P::Paused")),
-            PausableError::NoPaused => PSP22Error::Custom(String::from("P::NoPaused")),
+            PausableError::NotPaused => PSP22Error::Custom(String::from("P::NotPaused")),
         }
     }
 }
@@ -66,10 +66,10 @@ pub enum PSP22ReceiverError {
     TransferRejected(String),
 }
 
-impl Into<PSP22Error> for PSP22ReceiverError {
-    fn into(self) -> PSP22Error {
-        match self {
-            PSP22ReceiverError::TransferRejected(message) => PSP22Error::Custom(message),
+impl From<PSP22ReceiverError> for PSP22Error {
+    fn from(error: PSP22ReceiverError) -> Self {
+        match error {
+            PSP22ReceiverError::TransferRejected(message) => PSP22Error::SafeTransferCheckFailed(message),
         }
     }
 }

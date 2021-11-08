@@ -3,5 +3,5 @@
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PausableError {
     Paused,
-    NoPaused,
+    NotPaused,
 }

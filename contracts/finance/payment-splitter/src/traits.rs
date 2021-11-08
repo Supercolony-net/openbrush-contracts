@@ -162,12 +162,12 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
     /// duplicates in `payees`.
     ///
     /// Emits `PayeeAdded` on each account.
-    fn _init(&mut self, payees: Vec<(AccountId, Balance)>) -> Result<(), PaymentSplitterError> {
-        if payees.is_empty() {
+    fn _init(&mut self, payees_and_shares: Vec<(AccountId, Balance)>) -> Result<(), PaymentSplitterError> {
+        if payees_and_shares.is_empty() {
             return Err(PaymentSplitterError::NoPayees)
         }
 
-        for (payee, share) in payees.into_iter() {
+        for (payee, share) in payees_and_shares.into_iter() {
             self._add_payee(payee, share)?;
         }
         Ok(())

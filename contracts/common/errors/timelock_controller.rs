@@ -50,7 +50,7 @@ impl From<PausableError> for TimelockControllerError {
     fn from(pausable: PausableError) -> Self {
         match pausable {
             PausableError::Paused => TimelockControllerError::Custom(String::from("P::Paused")),
-            PausableError::NoPaused => TimelockControllerError::Custom(String::from("P::NoPaused")),
+            PausableError::NotPaused => TimelockControllerError::Custom(String::from("P::NotPaused")),
         }
     }
 }

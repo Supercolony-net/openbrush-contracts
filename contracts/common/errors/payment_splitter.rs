@@ -43,7 +43,7 @@ impl From<PausableError> for PaymentSplitterError {
     fn from(pausable: PausableError) -> Self {
         match pausable {
             PausableError::Paused => PaymentSplitterError::Custom(String::from("P::Paused")),
-            PausableError::NoPaused => PaymentSplitterError::Custom(String::from("P::NoPaused")),
+            PausableError::NotPaused => PaymentSplitterError::Custom(String::from("P::NotPaused")),
         }
     }
 }
