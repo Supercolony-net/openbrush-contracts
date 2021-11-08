@@ -38,16 +38,6 @@ pub struct PSP22Data {
 
 declare_storage_trait!(PSP22Storage, PSP22Data);
 
-#[derive(Default, Debug, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
-pub struct PSP22MetadataData {
-    pub name: Lazy<Option<String>>,
-    pub symbol: Lazy<Option<String>>,
-    pub decimals: Lazy<u8>,
-}
-
-declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);
-
 /// The PSP22 error type. Contract will throw one of this errors.
 #[derive(strum_macros::AsRefStr)]
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -355,28 +345,6 @@ pub trait PSP22: PSP22Storage {
             .insert((account, Self::env().caller()), new_amount);
 
         self._burn(account, amount);
-    }
-}
-
-/// Trait that contains metadata
-#[brush::trait_definition]
-pub trait PSP22Metadata: PSP22MetadataStorage {
-    /// Returns the token name.
-    #[ink(message)]
-    fn token_name(&self) -> Option<String> {
-        Lazy::get(&self.get().name).clone()
-    }
-
-    /// Returns the token symbol.
-    #[ink(message)]
-    fn token_symbol(&self) -> Option<String> {
-        Lazy::get(&self.get().symbol).clone()
-    }
-
-    /// Returns the token decimals.
-    #[ink(message)]
-    fn token_decimals(&self) -> u8 {
-        Lazy::get(&self.get().decimals).clone()
     }
 }
 

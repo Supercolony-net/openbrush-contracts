@@ -33,12 +33,10 @@ mod tests {
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+    #[derive(Default, PSP22Storage)]
     pub struct PSP22Struct {
         #[PSP22StorageField]
         psp22: PSP22Data,
-        #[PSP22MetadataStorageField]
-        metadata: PSP22MetadataData,
     }
 
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
@@ -61,7 +59,15 @@ mod tests {
         }
 
         // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
-        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) -> Result<(), psp22::traits::PSP22Error> { Ok(()) }
+        fn _do_safe_transfer_check(
+            &self,
+            _from: AccountId,
+            _to: AccountId,
+            _value: Balance,
+            _data: Vec<u8>,
+        ) -> Result<(), psp22::traits::PSP22Error> {
+            Ok(())
+        }
     }
 
     impl PSP22Struct {
