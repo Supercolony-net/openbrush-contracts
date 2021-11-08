@@ -2,8 +2,11 @@
 
 #[brush::contract]
 pub mod erc721_receiver {
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
     use psp721::traits::*;
-    use ink_prelude::{string::String, vec::Vec};
 
     #[ink(storage)]
     pub struct PSP721ReceiverStruct {
@@ -14,7 +17,10 @@ pub mod erc721_receiver {
     impl PSP721ReceiverStruct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self { call_counter: 0, revert_next_transfer: false }
+            Self {
+                call_counter: 0,
+                revert_next_transfer: false,
+            }
         }
 
         #[ink(message)]
@@ -28,9 +34,9 @@ pub mod erc721_receiver {
         }
     }
 
-    impl IPSP721Receiver for PSP721ReceiverStruct {
+    impl PSP721Receiver for PSP721ReceiverStruct {
         #[ink(message)]
-        fn on_psp721_received(
+        fn before_received(
             &mut self,
             _operator: AccountId,
             _from: AccountId,
@@ -39,7 +45,9 @@ pub mod erc721_receiver {
         ) -> Result<(), PSP721ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP721ReceiverError::TransferRejected(String::from("Transfer Rejected")));
+                return Err(PSP721ReceiverError::TransferRejected(String::from(
+                    "I should reject next transfer",
+                )))
             }
             self.call_counter += 1;
             Ok(())

@@ -1,13 +1,13 @@
 #[brush::contract]
 mod tests {
-    /// Imports all the definitions from the outer scope so we can use them here.
-    use psp22::traits::*;
     use brush::test_utils::*;
     use ink::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
+    /// Imports all the definitions from the outer scope so we can use them here.
+    use psp22::traits::*;
     use std::panic;
 
     /// Event emitted when a token transfer occurs.
@@ -61,14 +61,22 @@ mod tests {
         }
 
         // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
-        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) -> Result<(), psp22::traits::PSP22Error> { Ok(()) }
+        fn _do_safe_transfer_check(
+            &self,
+            _from: AccountId,
+            _to: AccountId,
+            _value: Balance,
+            _data: Vec<u8>,
+        ) -> Result<(), psp22::traits::PSP22Error> {
+            Ok(())
+        }
     }
 
     impl PSP22Struct {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            instance._mint(instance.env().caller(), _total_supply);
+            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
             instance
         }
     }
@@ -158,12 +166,11 @@ mod tests {
     fn transfer_works() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        // Transfer event triggered during initial construction.
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         assert_eq!(psp22.balance_of(accounts.bob), 0);
         // Alice transfers 10 tokens to Bob.
-        psp22.transfer(accounts.bob, 10, Vec::<u8>::new());
+        assert!(psp22.transfer(accounts.bob, 10, Vec::<u8>::new()).is_ok());
         // Bob owns 10 tokens.
         assert_eq!(psp22.balance_of(accounts.bob), 10);
 
@@ -181,33 +188,22 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
     fn invalid_transfer_should_fail() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         assert_eq!(psp22.balance_of(accounts.bob), 0);
-        // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
-        // Create call
-        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-        data.push_arg(&accounts.bob);
-        // Push the new execution context to set Bob as caller
-        ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-            accounts.bob,
-            callee,
-            1000000,
-            1000000,
-            data,
-        );
+        change_caller(accounts.bob);
 
         // Bob fails to transfers 10 tokens to Eve.
-        psp22.transfer(accounts.eve, 10, Vec::<u8>::new());
+        assert_eq!(
+            psp22.transfer(accounts.eve, 10, Vec::<u8>::new()),
+            Err(PSP22Error::InsufficientBalance)
+        );
     }
 
     #[ink::test]
-    #[should_panic(expected = "InsufficientAllowance")]
     fn transfer_from_fails() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
@@ -215,38 +211,30 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Bob fails to transfer tokens owned by Alice.
-        psp22.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
+        assert_eq!(
+            psp22.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new()),
+            Err(PSP22Error::InsufficientAllowance)
+        );
     }
 
     #[ink::test]
     fn transfer_from_works() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        // Transfer event triggered during initial construction.
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Alice approves Bob for token transfers on her behalf.
-        psp22.approve(accounts.bob, 10);
+        assert!(psp22.approve(accounts.bob, 10).is_ok());
 
         // The approve event takes place.
         assert_eq!(ink_env::test::recorded_events().count(), 2);
 
-        // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
-        // Create call.
-        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-        data.push_arg(&accounts.bob);
-        // Push the new execution context to set Bob as caller.
-        ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-            accounts.bob,
-            callee,
-            1000000,
-            1000000,
-            data,
-        );
+        change_caller(accounts.bob);
 
         // Bob transfers tokens from Alice to Eve.
-        psp22.transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new());
+        assert!(psp22
+            .transfer_from(accounts.alice, accounts.eve, 10, Vec::<u8>::new())
+            .is_ok());
         // Eve owns tokens.
         assert_eq!(psp22.balance_of(accounts.eve), 10);
 
@@ -264,7 +252,6 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
     fn allowance_must_not_change_on_failed_transfer() {
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
@@ -272,22 +259,12 @@ mod tests {
         // Alice approves Bob for token transfers on her behalf.
         let alice_balance = psp22.balance_of(accounts.alice);
         let initial_allowance = alice_balance + 2;
-        psp22.approve(accounts.bob, initial_allowance);
+        assert!(psp22.approve(accounts.bob, initial_allowance).is_ok());
+        change_caller(accounts.bob);
 
-        // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
-        // Create call.
-        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-        data.push_arg(&accounts.bob);
-        // Push the new execution context to set Bob as caller.
-        ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-            accounts.bob,
-            callee,
-            1000000,
-            1000000,
-            data,
+        assert_eq!(
+            psp22.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new()),
+            Err(PSP22Error::InsufficientBalance)
         );
-
-        psp22.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new());
     }
 }

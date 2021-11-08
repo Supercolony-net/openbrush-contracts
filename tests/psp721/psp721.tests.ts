@@ -1,4 +1,4 @@
-import { bnArg, expect, setupContract, fromSigner } from './helpers'
+import { bnArg, expect, setupContract, fromSigner } from '../helpers'
 
 describe('MY_PSP721', () => {
     async function setup() {
@@ -9,26 +9,23 @@ describe('MY_PSP721', () => {
         return setupContract('psp721_receiver', 'new')
     }
 
-    it('Assigns initial balance', async () => {
-        const { query, defaultSigner: sender } = await setup()
-
-        await expect(query.balanceOf(sender.address)).to.have.output(3)
-    })
-
     it('Transfer works', async () => {
         const {
             contract,
             defaultSigner: sender,
             accounts: [alice],
-            query
+            query,
+            tx,
         } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(tx.mintToken()).to.be.fulfilled
+
+        await expect(query.balanceOf(sender.address)).to.have.output(1)
         await expect(query.balanceOf(alice.address)).to.have.output(0)
 
-        await contract.tx.transferFrom(sender.address, alice.address, bnArg(0))
+        await contract.tx.transferFrom(sender.address, alice.address, bnArg(0), [])
 
-        await expect(query.balanceOf(sender.address)).to.have.output(2)
+        await expect(query.balanceOf(sender.address)).to.have.output(0)
         await expect(query.balanceOf(alice.address)).to.have.output(1)
     })
 
@@ -37,16 +34,19 @@ describe('MY_PSP721', () => {
             contract,
             defaultSigner: sender,
             accounts: [alice],
-            query
+            query,
+            tx
         } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(tx.mintToken()).to.be.fulfilled
+
+        await expect(query.balanceOf(sender.address)).to.have.output(1)
         await expect(query.balanceOf(alice.address)).to.have.output(0)
         await contract.tx.setApprovalForAll(alice.address, true)
 
-        await fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, bnArg(0))
+        await fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, bnArg(0), [])
 
-        await expect(query.balanceOf(sender.address)).to.have.output(2)
+        await expect(query.balanceOf(sender.address)).to.have.output(0)
         await expect(query.balanceOf(alice.address)).to.have.output(1)
     })
 
@@ -60,11 +60,12 @@ describe('MY_PSP721', () => {
         const { contract } = await setup_receiver()
 
         // Arrange - Sender mint a Token and Approve Receiver as spender of this token
+        await expect(tx.mintToken()).to.be.fulfilled
         await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
 
         // Act - Alice transfers the token form sender to bob
         await expect(contract.query.getCallCounter()).to.have.output(0)
-        await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 'data')).to.eventually.be.fulfilled
+        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 'data')).to.eventually.be.fulfilled
         await expect(contract.query.getCallCounter()).to.have.output(1)
 
         // Assert - Bob is now owner of the token
@@ -77,13 +78,14 @@ describe('MY_PSP721', () => {
         const { contract } = await setup_receiver()
 
         // Arrange - Sender mint a token
+        await expect(tx.mintToken()).to.be.fulfilled
         await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
 
         // Act - Receiver wants to reject the next transfer
         await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
 
         // Assert - Sender cannot send token to receiver & Sender still own the token
-        await expect(tx.safeTransferFrom(sender.address, contract.address, bnArg(0), 'data')).to.eventually.be.rejected
+        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 'data')).to.eventually.be.rejected
         await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
     })
 
@@ -95,11 +97,11 @@ describe('MY_PSP721', () => {
             query
         } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(query.balanceOf(sender.address)).to.have.output(0)
 
-        await expect(contract.tx.transferFrom(sender.address, receiver.address, bnArg(3))).to.eventually.be.rejected
+        await expect(contract.tx.transferFrom(sender.address, receiver.address, bnArg(0))).to.eventually.be.rejected
 
-        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(query.balanceOf(sender.address)).to.have.output(0)
     })
 
     it('Can not transfer without allowance', async () => {
@@ -108,14 +110,16 @@ describe('MY_PSP721', () => {
             accounts: [alice],
             defaultSigner: sender,
             query,
+            tx,
         } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(tx.mintToken()).to.be.fulfilled
+        await expect(query.balanceOf(sender.address)).to.have.output(1)
 
-        await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, bnArg(0)))
+        await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, bnArg(0), []))
             .to.eventually.be.rejected
 
-        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(query.balanceOf(sender.address)).to.have.output(1)
     })
 
 })

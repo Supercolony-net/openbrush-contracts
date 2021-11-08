@@ -20,17 +20,18 @@ pub mod my_pausable {
 
         #[ink(message)]
         #[brush::modifiers(when_not_paused)]
-        pub fn flip(&mut self) {
+        pub fn flip(&mut self) -> Result<(), PausableError> {
             self.flipped = !self.flipped;
+            Ok(())
         }
 
         #[ink(message)]
-        pub fn pause(&mut self) {
+        pub fn pause(&mut self) -> Result<(), PausableError> {
             self._pause()
         }
 
         #[ink(message)]
-        pub fn unpause(&mut self) {
+        pub fn unpause(&mut self) -> Result<(), PausableError> {
             self._unpause()
         }
     }

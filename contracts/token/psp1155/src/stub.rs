@@ -8,7 +8,7 @@ pub use self::{
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp1155 {
-    use crate::traits::Id;
+    use crate::traits::*;
     use ink_prelude::vec::Vec;
 
     #[ink(storage)]
@@ -44,25 +44,25 @@ pub mod psp1155 {
         }
 
         #[ink(message)]
-        pub fn safe_transfer_from(
+        pub fn transfer_from(
             &mut self,
             _from: AccountId,
             _to: AccountId,
             _id: Id,
             _amount: Balance,
             _data: Vec<u8>,
-        ) {
+        ) -> Result<(), PSP1155Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn safe_batch_transfer_from(
+        pub fn batch_transfer_from(
             &mut self,
             _from: AccountId,
             _to: AccountId,
-            _ids_to_amounts: Vec<(Id, Balance)>,
+            _ids_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
-        ) {
+        ) -> Result<(), PSP1155Error> {
             unimplemented!()
         }
     }
@@ -70,10 +70,7 @@ pub mod psp1155 {
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp1155receiver {
-    use crate::traits::{
-        Id,
-        PSP1155ReceiverError,
-    };
+    use crate::traits::*;
     use ink_prelude::vec::Vec;
 
     #[ink(storage)]
@@ -86,26 +83,14 @@ pub mod psp1155receiver {
         }
     }
 
-    #[ink(namespace = "IPSP1155Receiver")]
+    #[ink(namespace = "PSP1155Receiver")]
     impl PSP1155Receiver {
         #[ink(message)]
-        pub fn on_psp1155_received(
+        pub fn before_received(
             &mut self,
             _operator: AccountId,
             _from: AccountId,
-            _id: Id,
-            _value: Balance,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP1155ReceiverError> {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn on_psp1155_batch_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _ids_amounts: Vec<(Id, Balance)>,
+            _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
         ) -> Result<(), PSP1155ReceiverError> {
             unimplemented!()

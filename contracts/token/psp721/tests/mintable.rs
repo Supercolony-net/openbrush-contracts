@@ -1,6 +1,7 @@
 #[cfg(test)]
 #[brush::contract]
 mod mintable {
+    use brush::test_utils::accounts;
     use ink_lang as ink;
     use psp721::{
         extensions::mintable::*,
@@ -27,7 +28,7 @@ mod mintable {
 
     #[ink::test]
     fn mint_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
         // Token 1 does not _exists.
@@ -35,24 +36,24 @@ mod mintable {
         // Alice does not owns tokens.
         assert_eq!(nft.balance_of(accounts.alice), 0);
         // Create token Id 1.
-        nft.mint([1; 32]);
+        assert!(nft.mint([1; 32]).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
     }
 
     #[ink::test]
-    #[should_panic(expected = "TokenExists")]
     fn mint_existing_should_fail() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
         // Create token Id 1.
-        nft.mint([1; 32]);
+        assert!(nft.mint([1; 32]).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Alice owns token Id 1.
         assert_eq!(nft.owner_of([1; 32]), Some(accounts.alice));
         // Cannot create  token Id if it _exists.
-        nft.mint([1; 32]);
+        assert_eq!(nft.mint([1; 32]), Err(PSP721Error::TokenExists));
+        assert_eq!(nft.mint_to(accounts.bob, [1; 32]), Err(PSP721Error::TokenExists));
     }
 }

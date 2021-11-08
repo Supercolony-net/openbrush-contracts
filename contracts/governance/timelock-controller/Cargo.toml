@@ -15,8 +15,8 @@ ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/in
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
-strum_macros = "0.21.1"
 brush = { path = "../../../utils/brush", default-features = false }
+common = { path = "../../common", default-features = false }
 access-control = { path = "../../access/access-control", default-features = false }
 timelock_controller_derive = { path = "src/derive" }
 
@@ -38,4 +38,5 @@ std = [
     "scale-info/std",
     "brush/std",
     "access-control/std",
+    "common/std",
 ]

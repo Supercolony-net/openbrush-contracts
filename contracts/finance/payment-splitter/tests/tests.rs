@@ -1,10 +1,11 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use payment_splitter::traits::*;
     use ::ink_env::DefaultEnvironment;
+    use brush::test_utils::accounts;
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
+    use payment_splitter::traits::*;
 
     use ink::{
         EmitEvent,
@@ -38,9 +39,9 @@ mod tests {
 
     impl MySplitter {
         #[ink(constructor)]
-        pub fn new(payees: Vec<AccountId>, shares: Vec<Balance>) -> Self {
+        pub fn new(payees_and_shares: Vec<(AccountId, Balance)>) -> Self {
             let mut instance = Self::default();
-            instance._init(payees, shares);
+            instance._init(payees_and_shares).unwrap();
             instance
         }
     }
@@ -62,7 +63,7 @@ mod tests {
     type Event = <MySplitter as ::ink_lang::BaseEvent>::Type;
 
     fn setup() -> DefaultAccounts<DefaultEnvironment> {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         accounts
     }
 
@@ -113,7 +114,7 @@ mod tests {
     #[ink::test]
     fn correct_init_values() {
         let accounts = setup();
-        let instance = MySplitter::new(vec![accounts.alice, accounts.bob], vec![100, 200]);
+        let instance = MySplitter::new(vec![(accounts.alice, 100), (accounts.bob, 200)]);
 
         assert_eq!(100 + 200, instance.total_shares());
         assert_eq!(0, instance.total_released());
@@ -126,25 +127,18 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "LengthMismatch")]
-    fn fails_init() {
-        let accounts = setup();
-        let _ = MySplitter::new(vec![accounts.alice, accounts.bob], vec![100]);
-    }
-
-    #[ink::test]
     fn correct_release() {
         let accounts = setup();
-        let mut instance = MySplitter::new(vec![accounts.alice, accounts.bob], vec![100, 200]);
+        let mut instance = MySplitter::new(vec![(accounts.alice, 100), (accounts.bob, 200)]);
         assert!(ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(accounts.alice, 0).is_ok());
         assert!(ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(accounts.bob, 0).is_ok());
         let amount = 1000000;
         add_funds(instance.env().account_id(), amount);
 
         assert_eq!(100 + 200, instance.total_shares());
-        instance.release(accounts.alice);
+        assert!(instance.release(accounts.alice).is_ok());
         assert_eq!(333314, instance.total_released());
-        instance.release(accounts.bob);
+        assert!(instance.release(accounts.bob).is_ok());
         assert_eq!(999942, instance.total_released());
         assert_eq!(333314, instance.released(accounts.alice));
         assert_eq!(
@@ -165,18 +159,18 @@ mod tests {
     #[ink::test]
     fn correct_second_release() {
         let accounts = setup();
-        let mut instance = MySplitter::new(vec![accounts.alice, accounts.bob], vec![100, 200]);
+        let mut instance = MySplitter::new(vec![(accounts.alice, 100), (accounts.bob, 200)]);
         let amount = 1000000;
         add_funds(instance.env().account_id(), amount);
-        instance.release(accounts.alice);
-        instance.release(accounts.bob);
+        assert!(instance.release(accounts.alice).is_ok());
+        assert!(instance.release(accounts.bob).is_ok());
 
         assert!(ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(accounts.alice, 0).is_ok());
         assert!(ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(accounts.bob, 0).is_ok());
 
         add_funds(instance.env().account_id(), amount);
-        instance.release(accounts.alice);
-        instance.release(accounts.bob);
+        assert!(instance.release(accounts.alice).is_ok());
+        assert!(instance.release(accounts.bob).is_ok());
         assert_eq!(1999884, instance.total_released());
         assert_eq!(666628, instance.released(accounts.alice));
         assert_eq!(
@@ -197,21 +191,25 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "AccountIsNotDuePayment")]
     fn correct_release_with_zero_payment() {
         let accounts = setup();
-        let mut instance = MySplitter::new(vec![accounts.alice, accounts.bob], vec![100, 200]);
+        let mut instance = MySplitter::new(vec![(accounts.alice, 100), (accounts.bob, 200)]);
 
-        instance.release(accounts.alice);
+        assert_eq!(
+            Err(PaymentSplitterError::AccountIsNotDuePayment),
+            instance.release(accounts.alice)
+        );
     }
 
     #[ink::test]
-    #[should_panic(expected = "AccountHasNoShares")]
     fn correct_release_unknown_account() {
         let accounts = setup();
-        let mut instance = MySplitter::new(vec![accounts.alice, accounts.bob], vec![100, 200]);
+        let mut instance = MySplitter::new(vec![(accounts.alice, 100), (accounts.bob, 200)]);
 
-        instance.release(accounts.eve);
+        assert_eq!(
+            Err(PaymentSplitterError::AccountHasNoShares),
+            instance.release(accounts.eve)
+        );
     }
 
     fn add_funds(account: AccountId, amount: Balance) {
