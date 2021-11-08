@@ -32,7 +32,7 @@ pub mod my_psp22 {
             Lazy::set(&mut instance.metadata.name, name);
             Lazy::set(&mut instance.metadata.symbol, symbol);
             Lazy::set(&mut instance.metadata.decimals, decimal);
-            instance._mint(instance.env().caller(), _total_supply);
+            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
             instance
         }
     }

@@ -58,7 +58,7 @@ mod psp22_burnable {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            instance._mint(instance.env().caller(), _total_supply);
+            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
             instance
         }
     }
@@ -109,13 +109,12 @@ mod psp22_burnable {
     // Testing burnable extension
 
     #[ink::test]
-    #[should_panic(expected = "InsufficientBalance")]
     fn should_not_burn_if_burn_amount_greater_than_account_balance() {
         let initial_balance = 10;
         let mut psp22 = PSP22Struct::new(initial_balance);
         let amount_to_burn = 100;
 
-        psp22.burn(amount_to_burn);
+        assert_eq!(psp22.burn(amount_to_burn), Err(PSP22Error::InsufficientBalance));
     }
 
     #[ink::test]
@@ -126,7 +125,7 @@ mod psp22_burnable {
         // Transfer event triggered during initial construction.
         let amount_to_burn = 10;
 
-        psp22.burn(amount_to_burn);
+        assert!(psp22.burn(amount_to_burn).is_ok());
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
@@ -154,7 +153,7 @@ mod psp22_burnable {
         let total_supply = psp22.total_supply();
         let amount_to_burn = 10;
 
-        psp22.burn(amount_to_burn);
+        assert!(psp22.burn(amount_to_burn).is_ok());
 
         // Contract's total supply after burning
         let new_total_supply = psp22.total_supply();
@@ -171,7 +170,7 @@ mod psp22_burnable {
         let alice_balance = psp22.balance_of(accounts.alice);
         let amount_to_burn = 10;
 
-        psp22.burn(amount_to_burn);
+        assert!(psp22.burn(amount_to_burn).is_ok());
 
         // Alice's balance after burning
         let new_alice_balance = psp22.balance_of(accounts.alice);
@@ -186,77 +185,35 @@ mod psp22_burnable {
         let amount_to_burn = 50;
 
         // Alice approves Bob for token transfers on her behalf.
-        psp22.approve(accounts.bob, amount_to_burn);
+        assert!(psp22.approve(accounts.bob, amount_to_burn).is_ok());
+        assert_eq!(psp22.allowance(accounts.alice, accounts.bob), amount_to_burn);
         let alice_balance = psp22.balance_of(accounts.alice);
 
-        // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
-        // Create call.
-        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-        data.push_arg(&accounts.bob);
-        // Push the new execution context to set Bob as caller.
-        ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-            accounts.bob,
-            callee,
-            1000000,
-            1000000,
-            data,
-        );
+        // switch to bob
+        change_caller(accounts.bob);
 
         // Burning some amount from Alice's account
-        psp22.burn_from(accounts.alice, amount_to_burn);
+        assert!(psp22.burn_from(accounts.alice, amount_to_burn).is_ok());
 
         // Expecting Alice's balance decrease
         assert_eq!(psp22.balance_of(accounts.alice), alice_balance - amount_to_burn);
+        assert_eq!(psp22.allowance(accounts.alice, accounts.bob), 0);
     }
 
     #[ink::test]
-    fn allowance_must_decrease_after_burning_from() {
-        let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-        let allowed_amount_to_burn = 50;
-        let amount_to_burn = 40;
-
-        // Alice approves Bob for token transfers on her behalf.
-        psp22.approve(accounts.bob, allowed_amount_to_burn);
-        assert_eq!(psp22.allowance(accounts.alice, accounts.bob), allowed_amount_to_burn);
-
-        // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
-        // Create call.
-        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-        data.push_arg(&accounts.bob);
-        // Push the new execution context to set Bob as caller.
-        ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-            accounts.bob,
-            callee,
-            1000000,
-            1000000,
-            data,
-        );
-
-        // Burning from Alice's account
-        psp22.burn_from(accounts.alice, amount_to_burn);
-
-        // Expecting Bob's allowance to spend Alice's tokens decrease
-        assert_eq!(
-            psp22.allowance(accounts.alice, accounts.bob),
-            allowed_amount_to_burn - amount_to_burn
-        );
-    }
-
-    #[ink::test]
-    #[should_panic(expected = "InsufficientAllowance")]
     fn burn_from_fails_if_amount_exceeds_allowance() {
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         let amount_to_burn = 50;
 
         // Transfer to Bob some amount so it can be burnt
-        psp22.transfer(accounts.bob, amount_to_burn, Vec::<u8>::new());
+        assert!(psp22.transfer(accounts.bob, amount_to_burn, Vec::<u8>::new()).is_ok());
         // Alice's allowance to spend Bob's tokens is 0
         assert_eq!(psp22.allowance(accounts.bob, accounts.alice), 0);
         // Try to burn some amount from Bob's account
-        psp22.burn_from(accounts.bob, amount_to_burn);
+        assert_eq!(
+            psp22.burn_from(accounts.bob, amount_to_burn),
+            Err(PSP22Error::InsufficientAllowance)
+        );
     }
 }

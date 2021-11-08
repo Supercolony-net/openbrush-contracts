@@ -23,13 +23,13 @@ pub mod my_psp22_mintable {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            instance._mint(instance.env().caller(), _total_supply);
+            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
             instance
         }
 
         #[ink(message)]
-        pub fn mint_to(&mut self, account: AccountId, amount: Balance) {
-            self.mint(account, amount);
+        pub fn mint_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            self.mint(account, amount)
         }
     }
 }

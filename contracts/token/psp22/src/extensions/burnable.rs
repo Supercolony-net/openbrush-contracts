@@ -12,8 +12,8 @@ pub trait PSP22Burnable: PSP22 {
     ///
     /// See [`PSP22::_burn`].
     #[ink(message)]
-    fn burn(&mut self, amount: Balance) {
-        self._burn(Self::env().caller(), amount);
+    fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
+        self._burn(Self::env().caller(), amount)
     }
 
     /// Destroys `amount` tokens from `account`, deducting from the caller's
@@ -21,7 +21,7 @@ pub trait PSP22Burnable: PSP22 {
     ///
     /// See [`PSP22::_burn_from`].
     #[ink(message)]
-    fn burn_from(&mut self, account: AccountId, amount: Balance) {
-        self._burn_from(account, amount);
+    fn burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        self._burn_from(account, amount)
     }
 }

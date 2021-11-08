@@ -12,7 +12,7 @@ pub trait PSP22Mintable: PSP22 {
     ///
     /// See [`PSP22::_mint`].
     #[ink(message)]
-    fn mint(&mut self, account: AccountId, amount: Balance) {
-        self._mint(account, amount);
+    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>  {
+        self._mint(account, amount)
     }
 }

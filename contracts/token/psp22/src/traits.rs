@@ -21,7 +21,6 @@ use ink_prelude::{
 use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
-    Lazy,
 };
 pub use psp22_derive::{
     PSP22MetadataStorage,
@@ -40,25 +39,6 @@ pub struct PSP22Data {
 }
 
 declare_storage_trait!(PSP22Storage, PSP22Data);
-
-/// The PSP22 error type. Contract will throw one of this errors.
-#[derive(strum_macros::AsRefStr)]
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum PSP22Error {
-    /// Custom error type for cases if writer of traits added own restrictions
-    Custom(String),
-    /// Returned if not enough balance to fulfill a request is available.
-    InsufficientBalance,
-    /// Returned if not enough allowance to fulfill a request is available.
-    InsufficientAllowance,
-    /// Returned if recipient's address is zero.
-    ZeroRecipientAddress,
-    /// Returned if sender's address is zero.
-    ZeroSenderAddress,
-    /// Returned if safe transfer check fails (see _do_safe_transfer_check() in crate::impls::PSP22)
-    SafeTransferCheckFailed(String),
-}
 
 /// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
@@ -363,28 +343,20 @@ pub trait PSP22: PSP22Storage {
     /// `amount`.
     /// # Errors
     ///
-    /// Panics with `InsufficientAllowance` error if there are not enough tokens allowed
+    /// Returns `InsufficientAllowance` error if there are not enough tokens allowed
     /// by owner for `spender`.
-    fn _burn_from(&mut self, account: AccountId, amount: Balance) {
-        let current_allowance = self
-            .get()
-            .allowances
-            .get(&(account, Self::env().caller()))
-            .unwrap_or(&0);
+    fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        let current_allowance = self.allowance(account, Self::env().caller());
 
-        assert!(
-            current_allowance >= &amount,
-            "{}",
-            PSP22Error::InsufficientAllowance.as_ref()
-        );
+        if current_allowance < amount {
+            return Err(PSP22Error::InsufficientAllowance)
+        }
 
-        let new_amount = current_allowance - &amount;
-
+        let new_amount = current_allowance - amount;
         self.get_mut()
             .allowances
             .insert((account, Self::env().caller()), new_amount);
-
-        self._burn(account, amount);
+        self._burn(account, amount)
     }
 }
 

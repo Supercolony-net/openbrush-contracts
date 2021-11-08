@@ -23,15 +23,16 @@ pub mod my_psp22_burnable {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            instance._mint(instance.env().caller(), _total_supply);
+            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
             instance
         }
 
         #[ink(message)]
-        pub fn burn_from_many(&mut self, accounts: Vec<(AccountId, Balance)>) {
+        pub fn burn_from_many(&mut self, accounts: Vec<(AccountId, Balance)>) -> Result<(), PSP22Error> {
             for account in accounts.iter() {
-                self.burn_from(account.0, account.1);
+                self.burn_from(account.0, account.1)?;
             }
+            Ok(())
         }
     }
 }

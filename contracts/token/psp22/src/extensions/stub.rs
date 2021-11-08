@@ -34,6 +34,7 @@ pub mod metadata {
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod mintable {
+    use common::errors::PSP22Error;
     #[derive(Default)]
     #[ink(storage)]
     pub struct PSP22Mintable {}
@@ -48,7 +49,7 @@ pub mod mintable {
     #[ink(namespace = "PSP22Mintable")]
     impl PSP22Mintable {
         #[ink(message)]
-        pub fn mint(&mut self, account: AccountId, amount: Balance) {
+        pub fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             unimplemented!()
         }
     }
@@ -56,6 +57,8 @@ pub mod mintable {
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod burnable {
+    use common::errors::PSP22Error;
+
     #[derive(Default)]
     #[ink(storage)]
     pub struct PSP22Burnable {}
@@ -70,12 +73,12 @@ pub mod burnable {
     #[ink(namespace = "PSP22Burnable")]
     impl PSP22Burnable {
         #[ink(message)]
-        pub fn burn(&mut self, amount: Balance) {
+        pub fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn burn_from(&mut self, account: AccountId, amount: Balance) {
+        pub fn burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             unimplemented!()
         }
     }

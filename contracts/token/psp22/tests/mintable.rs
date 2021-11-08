@@ -58,7 +58,7 @@ mod psp22_mintable {
         #[ink(constructor)]
         pub fn new(_total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            instance._mint(instance.env().caller(), _total_supply);
+            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
             instance
         }
     }
@@ -108,12 +108,14 @@ mod psp22_mintable {
 
     // Testing mintable extension
     #[ink::test]
-    #[should_panic(expected = "ZeroRecipientAddress")]
     fn should_not_mint_to_zero_address() {
         let mut psp22 = PSP22Struct::new(100);
         let amount_to_mint = 10;
 
-        psp22.mint(AccountId::from([0; 32]), amount_to_mint);
+        assert_eq!(
+            psp22.mint(AccountId::from([0; 32]), amount_to_mint),
+            Err(PSP22Error::ZeroRecipientAddress)
+        );
     }
 
     #[ink::test]
@@ -125,7 +127,7 @@ mod psp22_mintable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         let amount_to_mint = 10;
 
-        psp22.mint(accounts.bob, amount_to_mint);
+        assert!(psp22.mint(accounts.bob, amount_to_mint).is_ok());
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
@@ -154,7 +156,7 @@ mod psp22_mintable {
         let total_supply = psp22.total_supply();
         let amount_to_mint = 10;
 
-        psp22.mint(accounts.alice, amount_to_mint);
+        assert!(psp22.mint(accounts.alice, amount_to_mint).is_ok());
 
         // Contract's total supply after minting
         let new_total_supply = psp22.total_supply();
@@ -171,7 +173,7 @@ mod psp22_mintable {
         let account_balance = psp22.balance_of(accounts.alice);
         let amount_to_mint = 10;
 
-        psp22.mint(accounts.alice, amount_to_mint);
+        assert!(psp22.mint(accounts.alice, amount_to_mint).is_ok());
 
         // Owner account's balance after minting
         let new_account_balance = psp22.balance_of(accounts.alice);
