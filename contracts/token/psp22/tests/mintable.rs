@@ -43,7 +43,15 @@ mod psp22_mintable {
         // Override these functions with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
         fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
-        fn _do_safe_transfer_check(&self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) {}
+        fn _do_safe_transfer_check(
+            &self,
+            _from: AccountId,
+            _to: AccountId,
+            _value: Balance,
+            _data: Vec<u8>,
+        ) -> Result<(), psp22::traits::PSP22Error> {
+            Ok(())
+        }
     }
 
     impl PSP22Struct {
