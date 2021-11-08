@@ -1,10 +1,10 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 title: PSP22Mintable
 ---
 
 This example shows how you can reuse the implementation of
-[psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/extensions/mintable.rs) extension.
+[PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/extensions/mintable.rs) extension.
 
 ## Step 1: Add import
 
@@ -45,3 +45,5 @@ impl MyPSP22 {
 }
 
 ```
+
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).

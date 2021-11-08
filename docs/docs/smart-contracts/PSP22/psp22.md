@@ -3,10 +3,7 @@ sidebar_position: 1
 title: PSP22
 ---
 
-This example shows how you can reuse the implementation of
-[psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token (in the same way you can reuse
-[psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)). Also, this example shows how you can customize
-the logic, for example, to reject transferring tokens to `hated_account`.
+This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token. Also, this example shows how you can customize the logic, for example, to reject transferring tokens to `hated_account`.
 
 ## Step 1: Include dependencies
 
@@ -62,30 +59,23 @@ pub mod my_psp22 {
 
 ## Step 3: Define storage
 
-Declare storage struct and declare the fields related to `PSP22Storage` and `PSP22MetadataStorage`
-traits. Then you need to derive `PSP22Storage` and `PSP22MetadataStorage` traits and mark corresponding fields
-with `#[PSP22StorageField]` and `#[PSP22MetadataStorageField]` attributes. Deriving these traits allows you to reuse
-the default implementation of `PSP22` and `PSP22Metadata`.
+Declare the storage struct and declare the field related to the `PSP22Storage` trait. Then you need to derive the `PSP22Storage` trait and mark the corresponding field with the `#[PSP22StorageField]` attribute. Deriving this trait allows you to reuse the default implementation of `PSP22`.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+#[derive(Default, PSP22Storage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
     psp22: PSP22Data,
-    #[PSP22MetadataStorageField]
-    metadata: PSP22MetadataData,
 }
 ```
 
 ## Step 4: Inherit logic
 
-Inherit implementations of `PSP22` and `PSP22Metadata` traits. You can customize (override) methods in this `impl` block.
+Inherit the implementation of `PSP22` trait. You can customize (override) methods in the `impl` block.
 
 ```rust
 impl PSP22 for MyPSP22 {}
-
-impl PSP22Metadata for MyPSP22 {}
 ```
 
 ## Step 5: Define constructor
@@ -95,11 +85,8 @@ Define constructor. Your basic version of `PSP22` contract is ready!
 ```rust
 impl MyPSP22 {
    #[ink(constructor)]
-   pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
+   pub fn new(_total_supply: Balance) -> Self {
       let mut instance = Self::default();
-      Lazy::set(&mut instance.metadata.name, name);
-      Lazy::set(&mut instance.metadata.symbol,symbol);
-      Lazy::set(&mut instance.metadata.decimals,decimal);
       instance._mint(instance.env().caller(), _total_supply);
       instance
    }
@@ -109,16 +96,14 @@ impl MyPSP22 {
 ## Step 6: Customize your contract
 
 Customize it by adding hated account logic. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
-override `_before_token_transfer` method in `PSP22` implementation. And we will add the `hated_account: AccountId` field to the structure.
+override `_before_token_transfer` method in the `PSP22` implementation, and we will add the `hated_account: AccountId` field to the structure.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+#[derive(Default, PSP22Storage)]
 pub struct MyPSP22 {
    #[PSP22StorageField]
    psp22: PSP22Data,
-   #[PSP22MetadataStorageField]
-   metadata: PSP22MetadataData,
    // fields for hater logic
    hated_account: AccountId,
 }
@@ -130,15 +115,10 @@ impl PSP22 for MyPSP22 {
    }
 }
 
-impl PSP22Metadata for MyPSP22 {}
-
 impl MyPSP22 {
    #[ink(constructor)]
-   pub fn new(_total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
+   pub fn new(_total_supply: Balance) -> Self {
       let mut instance = Self::default();
-      Lazy::set(&mut instance.metadata.name, name);
-      Lazy::set(&mut instance.metadata.symbol,symbol);
-      Lazy::set(&mut instance.metadata.decimals,decimal);
       instance._mint(instance.env().caller(), _total_supply);
       instance
    }
@@ -158,7 +138,8 @@ impl MyPSP22 {
 
 Also you can use extensions for psp22 token:
 
-[PSP22Burnable](/smart-contracts/psp22/extensions/PSP22Burnable): destruction of own tokens.
+[PSP22Metadata](/smart-contracts/psp22/extensions/metadata): metadata for PSP22.
 
-[PSP22Mintable](/smart-contracts/psp22/extensions/PSP22Mintable): creation of new tokens.
+[PSP22Mintable](/smart-contracts/psp22/extensions/mintable): creation of new tokens.
 
+[PSP22Burnable](/smart-contracts/psp22/extensions/burnable): destruction of own tokens.

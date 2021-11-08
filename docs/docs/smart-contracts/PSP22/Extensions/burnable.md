@@ -1,10 +1,10 @@
 ---
-sidebar_position: 1
+sidebar_position: 3
 title: PSP22Burnable
 ---
 
 This example shows how you can reuse the implementation of
-[psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/extensions/burnable.rs) extension.
+[PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/extensions/burnable.rs) extension.
 
 ## Step 1: Add import
 
@@ -46,3 +46,5 @@ impl MyPSP22 {
     }
 }
 ```
+
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).
