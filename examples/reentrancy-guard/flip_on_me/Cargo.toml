@@ -17,6 +17,7 @@ scale-info = { version = "0.6.0", default-features = false, features = ["derive"
 
 # This dependencies
 # We will do a cross contract call via `MyFlipper` wrapper imported here
+reentrancy_guard = { path = "../../../contracts/security/reentrancy-guard", default-features = false }
 my_flipper_guard = { path = "../flipper", default-features = false, features = ["ink-as-dependency"] }
 
 [lib]
@@ -42,5 +43,6 @@ std = [
 
     # This dependencies
     "my_flipper_guard/std",
+    "reentrancy_guard/std",
 ]
 ink-as-dependency = []

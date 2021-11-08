@@ -8,7 +8,7 @@ describe('MY_PAYMENT_SPLITTER', () => {
   async function setup() {
     const ian = await getRandomSigner()
     const kayne = await getRandomSigner()
-    let contract = await setupContract('my_payment_splitter', 'new', [kayne.address, ian.address], [40, 60])
+    let contract = await setupContract('my_payment_splitter', 'new', [[kayne.address, 40], [ian.address, 60]])
 
     return { contract, kayne, ian }
   }

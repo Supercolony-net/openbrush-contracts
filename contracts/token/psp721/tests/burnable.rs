@@ -1,6 +1,10 @@
 #[cfg(test)]
 #[brush::contract]
 mod burnable {
+    use brush::test_utils::{
+        accounts,
+        change_caller,
+    };
     use ink_lang as ink;
     use psp721::{
         extensions::burnable::*,
@@ -21,23 +25,22 @@ mod burnable {
     impl PSP721Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            instance._mint([1; 32]);
-            instance
+            Self::default()
         }
     }
 
     #[ink::test]
     fn burn_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
+        assert!(nft._mint([1; 32]).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Alice owns token Id 1.
         assert_eq!(nft.owner_of([1; 32]), Some(accounts.alice));
         // Destroy token Id 1.
-        nft.burn([1; 32]);
+        assert!(nft.burn([1; 32]).is_ok());
         // Alice does not owns tokens.
         assert_eq!(nft.balance_of(accounts.alice), 0);
         // Token Id 1 does not _exists
@@ -45,33 +48,21 @@ mod burnable {
     }
 
     #[ink::test]
-    #[should_panic(expected = "TokenNotFound")]
     fn burn_fails_token_not_found() {
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
         // Try burning a non existent token
-        nft.burn([4; 32]);
+        assert_eq!(nft.burn([4; 32]), Err(PSP721Error::TokenNotExists));
     }
 
     #[ink::test]
-    #[should_panic(expected = "NotOwner")]
     fn burn_fails_not_owner() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
+        assert!(nft._mint([1; 32]).is_ok());
         // Try burning this token with a different account
-        change_callee(accounts.eve);
-        nft.burn([1; 32]);
-    }
-
-    fn change_callee(account: AccountId) {
-        // CHANGE CALLEE MANUALLY
-        // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
-        // Create call.
-        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-        data.push_arg(&account);
-        // Push the new execution context to set Bob as caller.
-        ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(account, callee, 1000000, 1000000, data);
+        change_caller(accounts.eve);
+        assert_eq!(nft.burn([1; 32]), Err(PSP721Error::NotApproved));
     }
 }

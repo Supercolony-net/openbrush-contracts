@@ -23,7 +23,7 @@ describe('MY_OWNABLE', () => {
 
     // Arrange - Alice is not the owner hence minting should fail
     await expect(query.owner()).to.have.output(sender.address)
-    await expect(contract.tx.mint(bnArg(0), 1)).to.eventually.be.fulfilled
+    await expect(contract.tx.mint([bnArg(0), 1])).to.eventually.be.fulfilled
 
     // Act & Assert - Alice can mint a token
     await expect(fromSigner(contract, alice.address).tx.mint(bnArg(0), 100)).to.eventually.be.rejected
@@ -38,17 +38,21 @@ describe('MY_OWNABLE', () => {
       accounts: [alice]
     } = await setup()
 
+    let ids_amounts = [[bnArg(1), 123]];
+
     // Arrange - Alice is not the owner hence minting should fail
     await expect(query.owner()).to.have.output(sender.address)
-    await expect(fromSigner(contract, alice.address).tx.mint(bnArg(0), 100)).to.eventually.be.rejected
+    await expect(fromSigner(contract, alice.address).tx.mint(ids_amounts)).to.eventually.be.rejected
+    await expect(query.balanceOf(alice.address, bnArg(1))).to.have.output(0)
 
     // Act - transfer ownership to Alice
-    await tx.transferOwnership(alice.address)
+    await expect(tx.transferOwnership(alice.address)).to.be.fulfilled
     await expect(query.owner()).to.have.output(alice.address)
 
     // Assert - Alice can mint a token
-    await expect(fromSigner(contract, alice.address).tx.mint(bnArg(0), 100)).to.eventually.be.fulfilled
-    await expect(query.balanceOf(alice.address, bnArg(0))).to.have.output(100)
+    await expect(fromSigner(contract, alice.address).tx.mint(ids_amounts)).to.eventually.be.fulfilled
+    await expect(query.owner()).to.have.output(alice.address)
+    await expect(query.balanceOf(alice.address, bnArg(1))).to.have.output(123)
   })
 
   it('OWNABLE - renounce ownership works', async () => {

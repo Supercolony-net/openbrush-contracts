@@ -1,4 +1,4 @@
-import { expect, setupContract } from '../helpers'
+import { expect, setupContract } from '../../helpers'
 
 describe('MY_PSP721_METADATA', () => {
     async function setup() {

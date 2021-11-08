@@ -1,6 +1,10 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
+    use brush::test_utils::{
+        accounts,
+        change_caller,
+    };
     use ink::{
         EmitEvent,
         Env,
@@ -49,12 +53,8 @@ mod tests {
     }
 
     impl PSP721 for PSP721Struct {
-        fn _emit_transfer_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
-            self.env().emit_event(Transfer {
-                from: Some(_from),
-                to: Some(_to),
-                id: _id,
-            });
+        fn _emit_transfer_event(&self, from: Option<AccountId>, to: Option<AccountId>, id: Id) {
+            self.env().emit_event(Transfer { from, to, id });
         }
 
         fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
@@ -72,31 +72,118 @@ mod tests {
                 approved: _approved,
             });
         }
+
+        fn _do_safe_transfer_check(
+            &self,
+            _operator: AccountId,
+            _from: AccountId,
+            _to: AccountId,
+            _id: Id,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP721Error> {
+            Ok(())
+        }
     }
 
     impl PSP721Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            instance._mint([1; 32]);
-            instance._mint([2; 32]);
-            instance
+            Self::default()
         }
     }
 
     #[ink::test]
-    fn approved_transfer_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+    fn transfer_works() {
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
+        // Create token Id 1 for Alice
+        assert!(nft._mint([1; 32]).is_ok());
+        // Alice owns token 1
+        assert_eq!(nft.balance_of(accounts.alice), 1);
+        // Bob does not owns any token
+        assert_eq!(nft.balance_of(accounts.bob), 0);
+        // The first Transfer event takes place
+        assert_eq!(1, ink_env::test::recorded_events().count());
+        // Alice transfers token 1 to Bob
+        assert!(nft.transfer(accounts.bob, [1; 32], vec![]).is_ok());
+        // The second Transfer event takes place
+        assert_eq!(2, ink_env::test::recorded_events().count());
+        // Bob owns token 1
+        assert_eq!(nft.balance_of(accounts.bob), 1);
+        // Alice doesn't own token 1
+        assert_eq!(nft.balance_of(accounts.alice), 0);
+    }
+
+    #[ink::test]
+    fn invalid_transfer_should_fail() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP721Struct::new();
+        // Transfer token fails if it does not exists.
+        assert_eq!(
+            nft.transfer(accounts.bob, [1; 32], vec![]),
+            Err(PSP721Error::TokenNotExists)
+        );
+        // Token Id 2 does not exists.
+        assert_eq!(nft.owner_of([1; 32]), None);
+        // Create token Id 2.
+        assert!(nft._mint([1; 32]).is_ok());
+        // Alice owns 1 token.
+        assert_eq!(nft.balance_of(accounts.alice), 1);
+        // Token Id 2 is owned by Alice.
+        assert_eq!(nft.owner_of([1; 32]), Some(accounts.alice));
+        change_caller(accounts.bob);
+        // Bob cannot transfer not owned tokens.
+        assert_eq!(
+            nft.transfer(accounts.eve, [1; 32], vec![]),
+            Err(PSP721Error::NotApproved)
+        );
+    }
+
+    #[ink::test]
+    fn approve_works() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP721Struct::new();
+        assert!(nft._mint([1; 32]).is_ok());
+
+        // Token 1 is not approved
+        assert_eq!(nft.get_approved([1; 32]), None);
+
+        assert!(nft.approve(accounts.bob, [1; 32]).is_ok());
+        assert_eq!(nft.get_approved([1; 32]), Some(accounts.bob));
+    }
+
+    #[ink::test]
+    fn approve_works_fails() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP721Struct::new();
+        assert_eq!(nft.approve(accounts.bob, [1; 32]), Err(PSP721Error::TokenNotExists));
+
+        assert!(nft._mint([1; 32]).is_ok());
+        assert_eq!(nft.approve(accounts.alice, [1; 32]), Err(PSP721Error::SelfApprove));
+
+        change_caller(accounts.bob);
+        assert_eq!(nft.approve(accounts.eve, [1; 32]), Err(PSP721Error::NotApproved));
+    }
+
+    #[ink::test]
+    fn approved_transfer_works() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP721Struct::new();
+        assert!(nft._mint([1; 32]).is_ok());
+        assert!(nft._mint([2; 32]).is_ok());
         // Token Id 1 is owned by Alice.
         assert_eq!(nft.owner_of([1; 32]), Some(accounts.alice));
         // Approve token Id 1 transfer for Bob on behalf of Alice.
-        nft.approve(accounts.bob, [1; 32]);
+        assert!(nft.approve(accounts.bob, [1; 32]).is_ok());
         // Get contract address.
-        change_callee(accounts.bob);
+        change_caller(accounts.bob);
         // Bob transfers token Id 1 from Alice to Eve.
-        nft.transfer_from(accounts.alice, accounts.eve, [1; 32]);
+        assert!(nft.transfer_from(accounts.alice, accounts.eve, [1; 32], vec![]).is_ok());
         // TokenId 3 is owned by Eve.
         assert_eq!(nft.owner_of([1; 32]), Some(accounts.eve));
         // Alice has one token left
@@ -109,43 +196,46 @@ mod tests {
 
     #[ink::test]
     fn approved_for_all_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
+        assert!(nft._mint([1; 32]).is_ok());
+        assert!(nft._mint([2; 32]).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Approve token Id 1 transfer for Bob on behalf of Alice.
-        nft.set_approval_for_all(accounts.bob, true);
+        assert!(nft.set_approval_for_all(accounts.bob, true).is_ok());
         // Bob is an approved operator for Alice
         assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), true);
-        // Get contract address.
-        change_callee(accounts.bob);
+
+        change_caller(accounts.bob);
         // Bob transfers token Id 1 from Alice to Eve.
-        nft.transfer_from(accounts.alice, accounts.eve, [1; 32]);
+        assert!(nft.transfer_from(accounts.alice, accounts.eve, [1; 32], vec![]).is_ok());
         // TokenId 1 is owned by Eve.
         assert_eq!(nft.owner_of([1; 32]), Some(accounts.eve));
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Bob transfers token Id 2 from Alice to Eve.
-        nft.transfer_from(accounts.alice, accounts.eve, [2; 32]);
+        assert!(nft.transfer_from(accounts.alice, accounts.eve, [2; 32], vec![]).is_ok());
         // Bob does not owns tokens.
         assert_eq!(nft.balance_of(accounts.bob), 0);
         // Eve owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.eve), 2);
-        // Get back to the parent execution context.
-        ink_env::test::pop_execution_context();
+
+        change_caller(accounts.alice);
         // Remove operator approval for Bob on behalf of Alice.
-        nft.set_approval_for_all(accounts.bob, false);
+        assert!(nft.set_approval_for_all(accounts.bob, false).is_ok());
         // Bob is not an approved operator for Alice.
         assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), false);
     }
 
     #[ink::test]
-    #[should_panic(expected = "NotApproved")]
     fn not_approved_transfer_should_fail() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
+        assert!(nft._mint([1; 32]).is_ok());
+        assert!(nft._mint([2; 32]).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Bob does not owns tokens.
@@ -153,19 +243,11 @@ mod tests {
         // Eve does not owns tokens.
         assert_eq!(nft.balance_of(accounts.eve), 0);
         // Get contract address.
-        change_callee(accounts.bob);
+        change_caller(accounts.bob);
         // Eve is not an approved operator by Alice.
-        nft.transfer_from(accounts.alice, accounts.frank, [1; 32]);
-    }
-
-    fn change_callee(account: AccountId) {
-        // CHANGE CALLEE MANUALLY
-        // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
-        // Create call.
-        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-        data.push_arg(&account);
-        // Push the new execution context to set Bob as caller.
-        ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(account, callee, 1000000, 1000000, data);
+        assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.frank, [1; 32], vec![]),
+            Err(PSP721Error::NotApproved)
+        );
     }
 }

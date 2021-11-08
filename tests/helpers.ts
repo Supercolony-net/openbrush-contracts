@@ -1,20 +1,35 @@
 import Contract from '@redspot/patract/contract'
 import BN from 'bn.js'
-import {artifacts, network, patract} from 'redspot'
-import {expect} from './setup/chai'
-import {KeyringPair} from '@polkadot/keyring/types'
-import {buildTx} from '@redspot/patract/buildTx'
-import {Keyring} from '@polkadot/keyring'
+import { artifacts, network, patract } from 'redspot'
+import { expect } from './setup/chai'
+import { KeyringPair } from '@polkadot/keyring/types'
+import { buildTx } from '@redspot/patract/buildTx'
+import { Keyring } from '@polkadot/keyring'
+import { Signer } from 'redspot/types'
+import { TransactionParams, TransactionResponse } from "@redspot/patract/types";
 
 
-const {getContractFactory, getRandomSigner} = patract
-const {api, getSigners, getAddresses} = network
+const { getContractFactory, getRandomSigner } = patract
+const { api, getSigners, getAddresses } = network
 
 export { expect } from './setup/chai'
 
 const patchContractMethods = (contract: Contract): Contract => {
   patchMethods(contract.query)
   patchMethods(contract.tx)
+
+  for (const prop in contract.tx) {
+    const original_tx = contract.tx[prop];
+    contract.tx[prop] = async function (...args: TransactionParams): Promise<TransactionResponse> {
+      return new Promise<TransactionResponse>(((resolve, reject) => {
+        contract.query[prop](...args).then((_ => {
+          // TODO: Check output of RPC call when Redspot will process it correct
+          resolve(original_tx(...args))
+        })).catch((reason => reject(reason)))
+      }))
+    };
+  }
+
   return contract
 }
 
@@ -63,7 +78,7 @@ export const addPairWithAmount = async (pair: KeyringPair): Promise<KeyringPair>
   return redspotPair
 }
 
-export const getSigner = async (account : string) => {
+export const getSigner = async (account: string) => {
   const signer = await addPairWithAmount(new Keyring().addFromUri(`//${account}`))
   return signer
 }

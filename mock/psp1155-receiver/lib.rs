@@ -34,38 +34,19 @@ pub mod erc1155_receiver {
         }
     }
 
-    impl IPSP1155Receiver for PSP1155ReceiverStruct {
+    impl PSP1155Receiver for PSP1155ReceiverStruct {
         #[ink(message)]
-        fn on_psp1155_received(
+        fn before_received(
             &mut self,
             _operator: AccountId,
             _from: AccountId,
-            _id: Id,
-            _value: Balance,
+            _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
         ) -> Result<(), PSP1155ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
                 return Err(PSP1155ReceiverError::TransferRejected(String::from(
-                    "Transfer Rejected",
-                )))
-            }
-            self.call_counter += 1;
-            Ok(())
-        }
-
-        #[ink(message)]
-        fn on_psp1155_batch_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _ids_amounts: Vec<(Id, Balance)>,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP1155ReceiverError> {
-            if self.revert_next_transfer {
-                self.revert_next_transfer = false;
-                return Err(PSP1155ReceiverError::TransferRejected(String::from(
-                    "Transfer Rejected",
+                    "I should reject next transfer",
                 )))
             }
             self.call_counter += 1;

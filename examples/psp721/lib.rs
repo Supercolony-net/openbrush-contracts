@@ -5,33 +5,27 @@ pub mod my_psp721 {
     use ink_prelude::vec::Vec;
     use psp721::traits::*;
 
-    #[derive(Default, PSP721Storage)]
     #[ink(storage)]
+    #[derive(Default, PSP721Storage)]
     pub struct MyPSP721 {
         #[PSP721StorageField]
         psp721: PSP721Data,
+        next_id: u8,
     }
 
     impl PSP721 for MyPSP721 {}
 
     impl MyPSP721 {
-        /// Constructor
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            match instance._mint([0; 32]) {
-                Ok(result) => result,
-                Err(e) => panic!("{}", e.as_ref()),
-            }
-            match instance._mint([1; 32]) {
-                Ok(result) => result,
-                Err(e) => panic!("{}", e.as_ref()),
-            }
-            match instance._mint([2; 32]) {
-                Ok(result) => result,
-                Err(e) => panic!("{}", e.as_ref()),
-            }
-            instance
+            Self::default()
+        }
+
+        #[ink(message)]
+        pub fn mint_token(&mut self) -> Result<(), PSP721Error> {
+            self._mint([self.next_id; 32])?;
+            self.next_id += 1;
+            Ok(())
         }
     }
 }

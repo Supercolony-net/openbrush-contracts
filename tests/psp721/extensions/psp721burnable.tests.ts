@@ -1,4 +1,4 @@
-import { bnArg, expect, setupContract, fromSigner } from '../helpers'
+import { bnArg, expect, setupContract, fromSigner } from '../../helpers'
 
 describe('MY_PSP721_BURNABLE', () => {
     async function setup() {

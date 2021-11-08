@@ -58,12 +58,12 @@ mod psp721 {
         }
 
         #[ink(message)]
-        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _id: Id) -> Result<(), PSP721Error> {
+        pub fn transfer(&mut self, _to: AccountId, _id: Id, _data: Vec<u8>) -> Result<(), PSP721Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn safe_transfer_from(
+        pub fn transfer_from(
             &mut self,
             _from: AccountId,
             _to: AccountId,
@@ -94,10 +94,10 @@ mod psp721receiver {
         }
     }
 
-    #[ink(namespace = "IPSP721Receiver")]
+    #[ink(namespace = "PSP721Receiver")]
     impl PSP721Receiver {
         #[ink(message)]
-        pub fn on_psp721_received(
+        pub fn before_received(
             &mut self,
             _operator: AccountId,
             _from: AccountId,

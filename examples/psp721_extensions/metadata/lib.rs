@@ -18,7 +18,6 @@ pub mod my_psp721_metadata {
         psp721: PSP721Data,
         #[PSP721MetadataStorageField]
         metadata: PSP721MetadataData,
-        next_id: u8,
     }
 
     impl PSP721 for MyPSP721 {}
