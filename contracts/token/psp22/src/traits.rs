@@ -353,9 +353,7 @@ pub trait PSP22: PSP22Storage {
         }
 
         let new_amount = current_allowance - amount;
-        self.get_mut()
-            .allowances
-            .insert((account, Self::env().caller()), new_amount);
+        self._approve_from_to(account, Self::env().caller(), new_amount)?;
         self._burn(account, amount)
     }
 }
