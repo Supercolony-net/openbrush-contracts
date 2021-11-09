@@ -16,32 +16,7 @@ mod metadata {
         metadata: PSP1155MetadataData,
     }
 
-    impl PSP1155 for PSP1155Struct {
-        // Don't do cross call in test
-        fn _do_safe_transfer_acceptance_check(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _to: AccountId,
-            _id: Id,
-            _amount: Balance,
-            _data: Vec<u8>,
-        ) -> Result<(), psp1155::traits::PSP1155Error> {
-            Ok(())
-        }
-
-        // Don't do cross call in test
-        fn _do_batch_safe_transfer_acceptance_check(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _to: AccountId,
-            _ids_to_amounts: Vec<(Id, Balance)>,
-            _data: Vec<u8>,
-        ) -> Result<(), psp1155::traits::PSP1155Error> {
-            Ok(())
-        }
-    }
+    impl PSP1155 for PSP1155Struct {}
 
     impl PSP1155Metadata for PSP1155Struct {}
 

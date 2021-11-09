@@ -2,6 +2,7 @@ import Contract from '@redspot/patract/contract'
 import BN from 'bn.js'
 import { artifacts, network, patract } from 'redspot'
 import { Signer } from 'redspot/types'
+import {TransactionParams, TransactionResponse} from "@redspot/patract/types";
 
 const { getContractFactory, getRandomSigner } = patract
 const { api, getSigners } = network
@@ -11,6 +12,19 @@ export { expect } from './setup/chai'
 const patchContractMethods = (contract: Contract): Contract => {
   patchMethods(contract.query)
   patchMethods(contract.tx)
+
+  for (const prop in contract.tx) {
+    const original_tx = contract.tx[prop];
+    contract.tx[prop] = async function (...args: TransactionParams): Promise<TransactionResponse> {
+      return new Promise<TransactionResponse>( ((resolve, reject) => {
+        contract.query[prop](...args).then((_ => {
+          // TODO: Check output of RPC call when Redspot will process it correct
+          resolve(original_tx(...args))
+        })).catch((reason => reject(reason)))
+      }))
+    };
+  }
+
   return contract
 }
 

@@ -1,10 +1,11 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use pausable::traits::*;
     use ::ink_env::DefaultEnvironment;
+    use brush::test_utils::accounts;
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
+    use pausable::traits::*;
 
     use ink::{
         EmitEvent,
@@ -39,11 +40,11 @@ mod tests {
 
         #[ink(message)]
         #[brush::modifiers(when_paused)]
-        pub fn flip(&mut self) -> bool {
+        pub fn flip(&mut self) -> Result<bool, PausableError> {
             let previous = self.flipped;
             self.flipped = !previous;
 
-            previous
+            Ok(previous)
         }
     }
 
@@ -84,7 +85,7 @@ mod tests {
     }
 
     fn setup() -> DefaultAccounts<DefaultEnvironment> {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         accounts
     }
@@ -93,7 +94,7 @@ mod tests {
     fn pause_works() {
         let accounts = setup();
         let mut inst = MyFlipper::new();
-        inst._pause();
+        assert!(inst._pause::<PausableError>().is_ok());
         assert!(inst.pause.paused);
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
@@ -101,44 +102,43 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "Paused")]
     fn double_pause_fails() {
         let mut inst = MyFlipper::new();
-        inst._pause();
-        inst._pause();
+        assert!(inst._pause::<PausableError>().is_ok());
+        assert_eq!(Err(PausableError::Paused), inst._pause());
     }
 
     #[ink::test]
     fn flip_works() {
         let mut inst = MyFlipper::new();
-        inst._pause();
+        assert!(inst._pause::<PausableError>().is_ok());
 
-        assert_eq!(false, inst.flip());
-        assert_eq!(true, inst.flip());
-        assert_eq!(false, inst.flip());
+        assert_eq!(Ok(false), inst.flip());
+        assert_eq!(Ok(true), inst.flip());
+        assert_eq!(Ok(false), inst.flip());
     }
 
     #[ink::test]
-    #[should_panic(expected = "NoPaused")]
     fn flip_fails() {
         let mut inst = MyFlipper::new();
 
-        inst.flip();
+        assert_eq!(Err(PausableError::NotPaused), inst.flip());
     }
 
     #[ink::test]
-    #[should_panic(expected = "Paused")]
     fn unpause_fails() {
         let mut inst = MyFlipper::new();
-        inst._unpause();
+
+        assert_eq!(Err(PausableError::NotPaused), inst._unpause());
     }
 
     #[ink::test]
     fn unpause_works() {
         let accounts = setup();
         let mut inst = MyFlipper::new();
-        inst._pause();
-        inst._unpause();
+
+        assert!(inst._pause::<PausableError>().is_ok());
+        assert!(inst._unpause::<PausableError>().is_ok());
         assert!(!inst.pause.paused);
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();

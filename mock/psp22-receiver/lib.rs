@@ -2,8 +2,11 @@
 
 #[brush::contract]
 pub mod erc20_receiver {
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
     use psp22::traits::*;
-    use ink_prelude::{string::String, vec::Vec};
 
     #[ink(storage)]
     pub struct PSP22ReceiverStruct {
@@ -14,7 +17,10 @@ pub mod erc20_receiver {
     impl PSP22ReceiverStruct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self { call_counter: 0, revert_next_transfer: false }
+            Self {
+                call_counter: 0,
+                revert_next_transfer: false,
+            }
         }
 
         #[ink(message)]
@@ -35,10 +41,13 @@ pub mod erc20_receiver {
             _operator: AccountId,
             _from: AccountId,
             _value: Balance,
-            _data: Vec<u8>) -> Result<(), PSP22ReceiverError> {
+            _data: Vec<u8>,
+        ) -> Result<(), PSP22ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP22ReceiverError::TransferRejected(String::from("Transfer Rejected")));
+                return Err(PSP22ReceiverError::TransferRejected(String::from(
+                    "I should reject next transfer",
+                )))
             }
             self.call_counter += 1;
             Ok(())

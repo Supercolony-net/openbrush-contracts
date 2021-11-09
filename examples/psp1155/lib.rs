@@ -2,7 +2,11 @@
 
 #[brush::contract]
 pub mod my_psp1155 {
-    use ink_prelude::vec::Vec;
+    use ink_prelude::{
+        string::String,
+        vec,
+        vec::Vec,
+    };
     use ink_storage::collections::HashMap as StorageHashMap;
     use psp1155::traits::*;
 
@@ -11,28 +15,28 @@ pub mod my_psp1155 {
     pub struct MyPSP1155 {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
-        registered_ids: StorageHashMap<Id, bool>,
+        denied_ids: StorageHashMap<Id, ()>,
     }
 
     impl PSP1155 for MyPSP1155 {}
 
     impl MyPSP1155 {
-        /// contract constructor
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            let caller = Self::env().caller();
-            match instance._mint(caller, [0; 32], 1) {
-                Ok(result) => result,
-                Err(e) => panic!("{}", e.as_ref()),
+            Self::default()
+        }
+
+        #[ink(message)]
+        pub fn deny(&mut self, id: Id) {
+            self.denied_ids.insert(id, ());
+        }
+
+        #[ink(message)]
+        pub fn mint_tokens(&mut self, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
+            if self.denied_ids.get(&id).is_some() {
+                return Err(PSP1155Error::Custom(String::from("Id is denied")))
             }
-            let mut id = [0; 32];
-            id[0] = 1;
-            match instance._mint(caller, id, 20) {
-                Ok(result) => result,
-                Err(e) => panic!("{}", e.as_ref()),
-            }
-            instance
+            self._mint_to(Self::env().caller(), vec![(id, amount)])
         }
     }
 }

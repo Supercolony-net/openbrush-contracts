@@ -35,7 +35,7 @@ pub mod my_access_control {
             let caller = instance.env().caller();
             instance._init_with_admin(caller);
             // We grant minter role to caller in constructor, so he can mint/burn tokens
-            instance.grant_role(MINTER, caller);
+            instance.grant_role(MINTER, caller).expect("Should grant MINTER role");
             instance
         }
     }
@@ -50,6 +50,12 @@ pub mod my_access_control {
         fn mint(&mut self, id: Id) -> Result<(), PSP721Error> {
             self._mint(id)
         }
+
+        #[ink(message)]
+        #[modifiers(only_role(MINTER))]
+        fn mint_to(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+            self._mint_to(account, id)
+        }
     }
 
     impl PSP721Burnable for PSP721Struct {
@@ -57,6 +63,12 @@ pub mod my_access_control {
         #[modifiers(only_role(MINTER))]
         fn burn(&mut self, id: Id) -> Result<(), PSP721Error> {
             self._burn(id)
+        }
+
+        #[ink(message)]
+        #[modifiers(only_role(MINTER))]
+        fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+            self._burn_from(account, id)
         }
     }
 }

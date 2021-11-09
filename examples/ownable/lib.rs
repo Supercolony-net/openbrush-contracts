@@ -42,22 +42,28 @@ pub mod ownable {
     impl PSP1155Mintable for PSP1155Struct {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint_to(&mut self, to: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
-            self._mint(to, id, amount)
+        fn mint(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+            self._mint_to(Self::env().caller(), ids_amounts)
         }
 
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint(&mut self, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
-            self._mint(Self::env().caller(), id, amount)
+        fn mint_to(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+            self._mint_to(to, ids_amounts)
         }
     }
 
     impl PSP1155Burnable for PSP1155Struct {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn burn(&mut self, id: Id, amount: Balance) {
-            self._burn(Self::env().caller(), id, amount)
+        fn burn(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+            self._burn_from(Self::env().caller(), ids_amounts)
+        }
+
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn burn_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+            self._burn_from(from, ids_amounts)
         }
     }
 }

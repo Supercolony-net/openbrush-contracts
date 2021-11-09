@@ -1,10 +1,7 @@
 /// Extension of [`PSP721`] that allows token holders to destroy their tokens
 use crate::traits::*;
 
-use brush::traits::{
-    AccountId,
-    ZERO_ADDRESS,
-};
+use brush::traits::AccountId;
 
 #[brush::trait_definition]
 pub trait PSP721Burnable: PSP721 {
@@ -22,14 +19,6 @@ pub trait PSP721Burnable: PSP721 {
     /// or to transfer token with `id`
     #[ink(message)]
     fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
-        let caller = Self::env().caller();
-
-        assert!(
-            self.get_approved(id).unwrap_or(ZERO_ADDRESS.into()) == caller || self.is_approved_for_all(account, caller),
-            "{}",
-            PSP721Error::NotApproved.as_ref()
-        );
-
         self._burn_from(account, id)
     }
 }
