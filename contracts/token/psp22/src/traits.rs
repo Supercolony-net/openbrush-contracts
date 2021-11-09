@@ -346,14 +346,15 @@ pub trait PSP22: PSP22Storage {
     /// Returns `InsufficientAllowance` error if there are not enough tokens allowed
     /// by owner for `spender`.
     fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        let current_allowance = self.allowance(account, Self::env().caller());
+        let caller = Self::env().caller();
+        let current_allowance = self.allowance(account, caller);
 
         if current_allowance < amount {
             return Err(PSP22Error::InsufficientAllowance)
         }
 
         let new_amount = current_allowance - amount;
-        self._approve_from_to(account, Self::env().caller(), new_amount)?;
+        self._approve_from_to(account, caller, new_amount)?;
         self._burn(account, amount)
     }
 }

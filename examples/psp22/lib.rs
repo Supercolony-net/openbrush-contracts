@@ -22,10 +22,10 @@ pub mod my_psp22 {
         fn _before_token_transfer(
             &mut self,
             _from: &AccountId,
-            _to: &AccountId,
+            to: &AccountId,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
-            if _to == &self.hated_account {
+            if to == &self.hated_account {
                 return Err(PSP22Error::Custom(String::from("I hate this account!")))
             }
             Ok(())
@@ -34,10 +34,10 @@ pub mod my_psp22 {
 
     impl MyPSP22 {
         #[ink(constructor)]
-        pub fn new(_total_supply: Balance) -> Self {
+        pub fn new(total_supply: Balance) -> Self {
             let mut instance = Self::default();
             instance
-                ._mint(instance.env().caller(), _total_supply)
+                ._mint(instance.env().caller(), total_supply)
                 .expect("Should mint");
             instance
         }

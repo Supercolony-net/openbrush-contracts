@@ -22,7 +22,7 @@ describe('MY_PSP22_BURNABLE', () => {
         // Act - Burn Alice's tokens
         await fromSigner(contract, ALICE.address).tx.burn(10)
 
-        // Assert - Ensure sender balance is now 999
+        // Assert - Ensure sender balance is now 0
         await expect(query.balanceOf(ALICE.address)).to.have.output(0);
     })
 

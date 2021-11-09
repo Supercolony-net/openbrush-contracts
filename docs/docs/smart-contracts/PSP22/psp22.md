@@ -85,9 +85,9 @@ Define constructor. Your basic version of `PSP22` contract is ready!
 ```rust
 impl MyPSP22 {
    #[ink(constructor)]
-   pub fn new(_total_supply: Balance) -> Self {
+   pub fn new(total_supply: Balance) -> Self {
       let mut instance = Self::default();
-      instance._mint(instance.env().caller(), _total_supply);
+      instance._mint(instance.env().caller(), total_supply);
       instance
    }
 }
@@ -117,9 +117,9 @@ impl PSP22 for MyPSP22 {
 
 impl MyPSP22 {
    #[ink(constructor)]
-   pub fn new(_total_supply: Balance) -> Self {
+   pub fn new(total_supply: Balance) -> Self {
       let mut instance = Self::default();
-      instance._mint(instance.env().caller(), _total_supply);
+      instance._mint(instance.env().caller(), total_supply);
       instance
    }
 

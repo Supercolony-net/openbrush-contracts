@@ -7,6 +7,7 @@ use ink_prelude::string::String;
 use ink_storage::traits::SpreadLayout;
 pub use psp721_derive::PSP721MetadataStorage;
 
+use crate::traits::Id;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
@@ -31,6 +32,12 @@ pub trait PSP721Metadata: PSP721MetadataStorage {
     #[ink(message)]
     fn symbol(&self) -> Option<String> {
         self.get().symbol.clone()
+    }
+
+    /// Returns the Uniform Resource Identifier (URI) for `id` token.
+    #[ink(message)]
+    fn uri(&self, _id: Id) -> Option<String> {
+        None
     }
 
     fn _init_with_metadata(&mut self, name: Option<String>, symbol: Option<String>) {

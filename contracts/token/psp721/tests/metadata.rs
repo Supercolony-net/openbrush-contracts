@@ -34,5 +34,6 @@ mod metadata {
 
         assert_eq!(nft.name(), Some(String::from("TOKEN")));
         assert_eq!(nft.symbol(), Some(String::from("TKN")));
+        assert_eq!(nft.uri([1; 32]), None);
     }
 }

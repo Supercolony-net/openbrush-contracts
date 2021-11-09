@@ -9,7 +9,6 @@ mod psp22_mintable {
     use psp22::extensions::mintable::*;
     /// Imports all the definitions from the outer scope so we can use them here.
     use psp22::traits::*;
-    use std::panic;
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
@@ -56,9 +55,9 @@ mod psp22_mintable {
 
     impl PSP22Struct {
         #[ink(constructor)]
-        pub fn new(_total_supply: Balance) -> Self {
+        pub fn new(total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
+            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
             instance
         }
     }
@@ -73,13 +72,11 @@ mod psp22_mintable {
     ) {
         let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer");
-        if let Event::Transfer(Transfer { from, to, value }) = decoded_event {
-            assert_eq!(from, expected_from, "encountered invalid Transfer.from");
-            assert_eq!(to, expected_to, "encountered invalid Transfer.to");
-            assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
-        } else {
-            panic!("encountered unexpected event kind: expected a Transfer event")
-        }
+        let Event::Transfer(Transfer { from, to, value }) = decoded_event;
+        assert_eq!(from, expected_from, "encountered invalid Transfer.from");
+        assert_eq!(to, expected_to, "encountered invalid Transfer.to");
+        assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
+
         let expected_topics = vec![
             encoded_into_hash(&PrefixedValue {
                 value: b"PSP22Struct::Transfer",
@@ -159,9 +156,9 @@ mod psp22_mintable {
         assert!(psp22.mint(accounts.alice, amount_to_mint).is_ok());
 
         // Contract's total supply after minting
-        let new_total_supply = psp22.total_supply();
+        let newtotal_supply = psp22.total_supply();
 
-        assert_eq!(new_total_supply, total_supply + amount_to_mint);
+        assert_eq!(newtotal_supply, total_supply + amount_to_mint);
     }
 
     #[ink::test]

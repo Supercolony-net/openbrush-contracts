@@ -36,17 +36,20 @@ mod tests {
 
     #[ink::test]
     fn flip_works() {
-        let mut _inst = MyFlipper::new();
+        let mut instance = MyFlipper::new();
 
-        assert_eq!(Ok(false), _inst.flip());
-        assert_eq!(Ok(true), _inst.flip());
-        assert_eq!(Ok(false), _inst.flip());
+        assert_eq!(Ok(false), instance.flip());
+        assert_eq!(Ok(true), instance.flip());
+        assert_eq!(Ok(false), instance.flip());
     }
 
     #[ink::test]
     fn call_flip_after_lock_fails() {
-        let mut _inst = MyFlipper::new();
+        let mut instance = MyFlipper::new();
 
-        assert_eq!(Err(ReentrancyGuardError::ReentrantCall), _inst.call_flip_after_lock());
+        assert_eq!(
+            Err(ReentrancyGuardError::ReentrantCall),
+            instance.call_flip_after_lock()
+        );
     }
 }

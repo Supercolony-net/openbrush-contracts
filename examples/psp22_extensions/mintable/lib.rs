@@ -21,9 +21,9 @@ pub mod my_psp22_mintable {
 
     impl MyPSP22 {
         #[ink(constructor)]
-        pub fn new(_total_supply: Balance) -> Self {
+        pub fn new(total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
+            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
             instance
         }
 
