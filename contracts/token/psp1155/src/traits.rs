@@ -351,9 +351,9 @@ pub trait PSP1155Receiver {
     #[ink(message)]
     fn before_received(
         &mut self,
-        _operator: AccountId,
-        _from: AccountId,
-        _ids_to_amounts: Vec<(Id, Balance)>,
-        _data: Vec<u8>,
+        operator: AccountId,
+        from: AccountId,
+        ids_to_amounts: Vec<(Id, Balance)>,
+        data: Vec<u8>,
     ) -> Result<(), PSP1155ReceiverError>;
 }

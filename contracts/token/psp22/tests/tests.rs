@@ -33,12 +33,10 @@ mod tests {
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+    #[derive(Default, PSP22Storage)]
     pub struct PSP22Struct {
         #[PSP22StorageField]
         psp22: PSP22Data,
-        #[PSP22MetadataStorageField]
-        metadata: PSP22MetadataData,
     }
 
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
@@ -74,9 +72,9 @@ mod tests {
 
     impl PSP22Struct {
         #[ink(constructor)]
-        pub fn new(_total_supply: Balance) -> Self {
+        pub fn new(total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            assert!(instance._mint(instance.env().caller(), _total_supply).is_ok());
+            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
             instance
         }
     }

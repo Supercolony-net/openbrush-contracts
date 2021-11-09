@@ -1,9 +1,9 @@
-import { consts } from './constants'
-import { bnArg, expect, setupContract } from './helpers'
+import { consts } from '../constants'
+import { expect, setupContract } from '../helpers'
 
 describe('MY_PSP22', () => {
   async function setup() {
-    return setupContract('my_psp22', 'new', '1000', 'TOKEN', 'TKN', 2)
+    return setupContract('my_psp22', 'new', '1000')
   }
 
   async function setup_receiver() {

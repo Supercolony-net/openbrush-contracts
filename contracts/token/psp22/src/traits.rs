@@ -24,7 +24,6 @@ use ink_prelude::{
 use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
-    Lazy,
 };
 pub use psp22_derive::{
     PSP22MetadataStorage,
@@ -43,16 +42,6 @@ pub struct PSP22Data {
 }
 
 declare_storage_trait!(PSP22Storage, PSP22Data);
-
-#[derive(Default, Debug, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
-pub struct PSP22MetadataData {
-    pub name: Lazy<Option<String>>,
-    pub symbol: Lazy<Option<String>>,
-    pub decimals: Lazy<u8>,
-}
-
-declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);
 
 /// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
@@ -345,27 +334,31 @@ pub trait PSP22: PSP22Storage {
         self._emit_transfer_event(Some(account), None, amount);
         Ok(())
     }
-}
 
-/// Trait that contains metadata
-#[brush::trait_definition]
-pub trait PSP22Metadata: PSP22MetadataStorage {
-    /// Returns the token name.
-    #[ink(message)]
-    fn token_name(&self) -> Option<String> {
-        Lazy::get(&self.get().name).clone()
-    }
+    /// Destroys `amount` tokens from `account`, deducting from the caller's
+    /// allowance.
+    ///
+    /// See [`PSP22::_burn`] and [`PSP22::allowance`].
+    ///
+    /// Requirements:
+    ///
+    /// - the caller must have allowance for `account`'s tokens of at least
+    /// `amount`.
+    /// # Errors
+    ///
+    /// Returns `InsufficientAllowance` error if there are not enough tokens allowed
+    /// by owner for `spender`.
+    fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        let caller = Self::env().caller();
+        let current_allowance = self.allowance(account, caller);
 
-    /// Returns the token symbol.
-    #[ink(message)]
-    fn token_symbol(&self) -> Option<String> {
-        Lazy::get(&self.get().symbol).clone()
-    }
+        if current_allowance < amount {
+            return Err(PSP22Error::InsufficientAllowance)
+        }
 
-    /// Returns the token decimals.
-    #[ink(message)]
-    fn token_decimals(&self) -> u8 {
-        Lazy::get(&self.get().decimals).clone()
+        let new_amount = current_allowance - amount;
+        self._approve_from_to(account, caller, new_amount)?;
+        self._burn(account, amount)
     }
 }
 
