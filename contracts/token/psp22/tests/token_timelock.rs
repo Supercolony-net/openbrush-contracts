@@ -1,6 +1,5 @@
 #[brush::contract]
 mod tests {
-    use brush::traits::InkStorage;
     use ink_lang as ink;
     use psp22::{
         traits::*,
@@ -75,14 +74,13 @@ mod tests {
         assert_eq!(timelock.balance(), deposited_tokens);
 
         // release the tokens
-        timelock.release();
+        assert!(timelock.release().is_ok());
 
         // timelock should be empty
         assert_eq!(timelock.balance(), 0);
     }
 
     #[ink::test]
-    #[should_panic(expected = "Custom")]
     fn release_soon_should_panic() {
         let deposited_tokens = 1000;
         let accounts = get_accounts();
@@ -91,11 +89,10 @@ mod tests {
         timelock.deposit(deposited_tokens);
 
         // release the tokens should panic
-        timelock.release();
+        assert!(timelock.release().is_err());
     }
 
     #[ink::test]
-    #[should_panic(expected = "Custom")]
     fn release_without_deposit_should_panic() {
         let accounts = get_accounts();
         let mut timelock = PSP22TokenTimelockStruct::new(AccountId::from([0x1; 32]), accounts.alice, day());
@@ -106,7 +103,7 @@ mod tests {
         assert_eq!(timelock.balance(), 0);
 
         // release the tokens
-        timelock.release();
+        assert!(timelock.release().is_err());
     }
 
     type DefEnv = ink_env::DefaultEnvironment;

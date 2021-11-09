@@ -32,6 +32,7 @@ pub mod psp22flashmint {
         extensions::stub::PSP3156FlashBorrower,
         traits::PSP22Error,
     };
+    use ink_prelude::vec::Vec;
 
     #[derive(Default)]
     #[ink(storage)]
@@ -71,6 +72,8 @@ pub use self::psp3156_flash_borrower::PSP3156FlashBorrower;
 
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod psp3156_flash_borrower {
+    use ink_prelude::vec::Vec;
+
     #[derive(Default)]
     #[ink(storage)]
     pub struct PSP3156FlashBorrower {}

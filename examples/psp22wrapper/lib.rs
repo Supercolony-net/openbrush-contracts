@@ -30,13 +30,13 @@ pub mod my_psp22_wrapper {
         }
 
         #[ink(message)]
-        pub fn recover(&mut self) -> Balance {
+        pub fn recover(&mut self) -> Result<Balance, PSP22Error> {
             self._recover(Self::env().caller())
         }
 
         #[ink(message)]
-        pub fn burn(&mut self, amount: Balance) {
-            self._burn(Self::env().caller(), amount);
+        pub fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
+            self._burn(Self::env().caller(), amount)
         }
     }
 }

@@ -30,27 +30,23 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
     /// Allow a user to deposit `amount` of underlying tokens and mint `amount` of the wrapped tokens to `account`
     #[ink(message)]
     fn deposit_for(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        match self.deposit(amount) {
-            Ok(_) => (),
-            Err(e) => return Err(e),
-        }
-        self._mint(account, amount);
-        Ok(())
+        self.deposit(amount)?;
+        self._mint(account, amount)
     }
 
     /// Allow a user to burn `amount` of wrapped tokens and withdraw the corresponding number of underlying tokens to `account`
     #[ink(message)]
     fn withdraw_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        self._burn(Self::env().caller(), amount);
+        self._burn(Self::env().caller(), amount)?;
         self.withdraw(account, amount)
     }
 
     /// Mint wrapped token to cover any underlyingTokens that would have been transfered by mistake. Internal
     /// function that can be exposed with access control if desired.
-    fn _recover(&mut self, account: AccountId) -> Balance {
+    fn _recover(&mut self, account: AccountId) -> Result<Balance, PSP22Error> {
         let value = self.underlying_balance() - self.total_supply();
-        self._mint(account, value);
-        value
+        self._mint(account, value)?;
+        Ok(value)
     }
 
     /// helper function to transfer the underlying token from caller to the contract
@@ -60,14 +56,16 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
             Self::env().account_id(),
             amount,
             Vec::<u8>::new(),
-        )
+        )?;
+        Ok(())
     }
 
     /// helper function to transfer the underlying token
     fn withdraw(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         PSP22WrapperStorage::get_mut(self)
             .underlying
-            .transfer(account, amount, Vec::<u8>::new())
+            .transfer(account, amount, Vec::<u8>::new())?;
+        Ok(())
     }
 
     /// helper function to get balance of underlying tokens in the contract

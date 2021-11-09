@@ -54,24 +54,21 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
     /// Transfers the tokens held by timelock to the beneficairy
     #[ink(message)]
     fn release(&mut self) -> Result<(), PSP22Error> {
-        assert!(
-            Self::env().block_timestamp() >= self.get_mut().release_time,
-            "{}",
-            PSP22Error::Custom(String::from("Current time is before release time")).as_ref()
-        );
+        if Self::env().block_timestamp() < self.get_mut().release_time {
+            return Err(PSP22Error::Custom(String::from("Current time is before release time")))
+        }
         let amount = self.contract_balance();
-        assert!(
-            amount > 0,
-            "{}",
-            PSP22Error::Custom(String::from("No tokens to release")).as_ref()
-        );
+        if amount == 0 {
+            return Err(PSP22Error::Custom(String::from("No tokens to release")))
+        }
         self.withdraw(amount)
     }
 
     /// Helper function to withdraw tokens
     fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22Error> {
         let mut psp22: PSP22Stub = FromAccountId::from_account_id(self.get().token_address);
-        psp22.transfer(self.beneficiary(), amount, Vec::<u8>::new())
+        psp22.transfer(self.beneficiary(), amount, Vec::<u8>::new())?;
+        Ok(())
     }
 
     /// Helper function to return balance of the contract

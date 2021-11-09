@@ -1,7 +1,6 @@
 #[brush::contract]
 mod tests {
     use brush::traits::InkStorage;
-    use ink_env::call::FromAccountId;
     use ink_lang as ink;
     use psp22::{
         extensions::wrapper::*,
@@ -27,7 +26,8 @@ mod tests {
             self.contract_balance += amount;
             Ok(())
         }
-        fn withdraw(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+
+        fn withdraw(&mut self, _account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             self.contract_balance -= amount;
             Ok(())
         }
@@ -46,13 +46,13 @@ mod tests {
         }
 
         #[ink(message)]
-        pub fn recover(&mut self) -> Balance {
+        pub fn recover(&mut self) -> Result<Balance, PSP22Error> {
             self._recover(<PSP22WrapperStruct as InkStorage>::env().caller())
         }
 
         #[ink(message)]
-        pub fn burn(&mut self, amount: Balance) {
-            self._burn(<PSP22WrapperStruct as InkStorage>::env().caller(), amount);
+        pub fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
+            self._burn(<PSP22WrapperStruct as InkStorage>::env().caller(), amount)
         }
     }
 
@@ -64,7 +64,7 @@ mod tests {
         assert_eq!(wrapper.balance_of(accounts.alice), 0);
         assert_eq!(wrapper.total_supply(), 0);
 
-        wrapper.deposit_for(accounts.alice, 100);
+        assert!(wrapper.deposit_for(accounts.alice, 100).is_ok());
 
         assert_eq!(wrapper.balance_of(accounts.alice), 100);
         assert_eq!(wrapper.total_supply(), 100);
@@ -75,10 +75,10 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         let mut wrapper = PSP22WrapperStruct::new(AccountId::from([0x1; 32]));
 
-        wrapper.deposit_for(accounts.alice, 100);
+        assert!(wrapper.deposit_for(accounts.alice, 100).is_ok());
         assert_eq!(wrapper.balance_of(accounts.alice), 100);
         assert_eq!(wrapper.total_supply(), 100);
-        wrapper.withdraw_to(accounts.alice, 100);
+        assert!(wrapper.withdraw_to(accounts.alice, 100).is_ok());
 
         assert_eq!(wrapper.balance_of(accounts.alice), 0);
         assert_eq!(wrapper.total_supply(), 0);
@@ -89,12 +89,12 @@ mod tests {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         let mut wrapper = PSP22WrapperStruct::new(AccountId::from([0x1; 32]));
 
-        wrapper.deposit_for(accounts.alice, 100);
-        wrapper.burn(100);
+        assert!(wrapper.deposit_for(accounts.alice, 100).is_ok());
+        assert!(wrapper.burn(100).is_ok());
         assert_eq!(wrapper.balance_of(accounts.alice), 0);
         assert_eq!(wrapper.total_supply(), 0);
 
-        wrapper.recover();
+        assert!(wrapper.recover().is_ok());
 
         assert_eq!(wrapper.balance_of(accounts.alice), 100);
         assert_eq!(wrapper.total_supply(), 100);
