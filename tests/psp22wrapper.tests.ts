@@ -2,7 +2,7 @@ import { expect, setupContract, fromSigner } from './helpers'
 
 describe('MY_PSP22_WRAPPER', () => {
     async function setup() {
-        let psp22 = await setupContract('my_psp22', 'new', '1000', 'TOKEN', 'TKN', 2)
+        let psp22 = await setupContract('my_psp22', 'new', '1000')
         let wrapper = await setupContract('my_psp22_wrapper', 'new', psp22.contract.address)
         return { psp22, wrapper }
     }

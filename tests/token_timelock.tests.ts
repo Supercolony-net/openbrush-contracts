@@ -5,7 +5,7 @@ const { api } = network
 
 describe('TOKEN_TIMELOCK', () => {
     async function setup() {
-        let psp22 = await setupContract('my_psp22', 'new', '1000', 'TOKEN', 'TKN', 2)
+        let psp22 = await setupContract('my_psp22', 'new', '1000')
         const beneficiary = psp22.defaultSigner
         let releaseTime = (Date.now() / 1000) + (24 * 60 * 60)
         let timelock = await setupContract('my_psp22_token_timelock', 'new', psp22.contract.address, beneficiary.address, releaseTime)
