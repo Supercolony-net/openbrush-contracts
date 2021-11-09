@@ -2,10 +2,19 @@
 
 #[brush::contract]
 pub mod ownable {
-    use psp1155::traits::*;
-    use ownable::traits::*;
-    use brush::modifiers;
+    use brush::{
+        modifiers,
+        traits::InkStorage,
+    };
     use ink_prelude::vec::Vec;
+    use ownable::traits::*;
+    use psp1155::{
+        extensions::{
+            burnable::*,
+            mintable::*,
+        },
+        traits::*,
+    };
 
     #[ink(storage)]
     #[derive(Default, PSP1155Storage, OwnableStorage)]
@@ -13,7 +22,7 @@ pub mod ownable {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
         #[OwnableStorageField]
-        ownale: OwnableData,
+        ownable: OwnableData,
     }
 
     impl PSP1155Struct {
@@ -28,19 +37,33 @@ pub mod ownable {
 
     impl Ownable for PSP1155Struct {}
 
-    impl IPSP1155 for PSP1155Struct {}
+    impl PSP1155 for PSP1155Struct {}
 
-    impl IPSP1155Mint for PSP1155Struct {
+    impl PSP1155Mintable for PSP1155Struct {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
-            self._mint(to, id, amount);
+        fn mint(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+            self._mint_to(Self::env().caller(), ids_amounts)
         }
 
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn burn(&mut self, from: AccountId, id: Id, amount: Balance) {
-            self._burn(from, id, amount);
+        fn mint_to(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+            self._mint_to(to, ids_amounts)
+        }
+    }
+
+    impl PSP1155Burnable for PSP1155Struct {
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn burn(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+            self._burn_from(Self::env().caller(), ids_amounts)
+        }
+
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn burn_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+            self._burn_from(from, ids_amounts)
         }
     }
 }

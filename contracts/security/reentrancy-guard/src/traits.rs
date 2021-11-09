@@ -6,12 +6,9 @@ use brush::{
         InkStorage,
     },
 };
+pub use common::errors::ReentrancyGuardError;
 use ink_storage::traits::SpreadLayout;
 pub use reentrancy_guard_derive::ReentrancyGuardStorage;
-use scale::{
-    Decode,
-    Encode,
-};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -27,12 +24,6 @@ declare_storage_trait!(ReentrancyGuardStorage, ReentrancyGuardData);
 const NOT_ENTERED: u8 = 0;
 const ENTERED: u8 = 1;
 
-#[derive(Debug, strum_macros::AsRefStr, Encode, Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum ReentrancyGuardError {
-    ReentrantCall,
-}
-
 /// Prevents a contract from calling itself, directly or indirectly.
 /// Calling a `non_reentrant` function from another `non_reentrant`
 /// function is not supported. It is possible to prevent this from happening
@@ -42,20 +33,19 @@ pub enum ReentrancyGuardError {
 /// This modifier flushes the struct into storage with `ENTERED`
 /// status before calling the original method.
 #[modifier_definition]
-pub fn non_reentrant<T, F, ReturnType>(instance: &mut T, body: F) -> ReturnType
+pub fn non_reentrant<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
     T: ReentrancyGuardStorage + Flush,
-    F: FnOnce(&mut T) -> ReturnType,
+    F: FnOnce(&mut T) -> Result<R, E>,
+    E: From<ReentrancyGuardError>,
 {
-    assert_eq!(
-        instance.get().status,
-        NOT_ENTERED,
-        "{}",
-        ReentrancyGuardError::ReentrantCall.as_ref()
-    );
+    if instance.get().status == ENTERED {
+        return Err(From::from(ReentrancyGuardError::ReentrantCall))
+    }
     // Any calls to nonReentrant after this point will fail
     instance.get_mut().status = ENTERED;
 
+    // TODO: Optimize to flush only `ReentrancyGuardStorage`
     // We want to flush storage before execution of inner function,
     // because ink! doesn't do it by default and `status` will not be updated in child calls
     instance.flush();

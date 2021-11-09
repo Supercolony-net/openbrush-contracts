@@ -11,7 +11,7 @@
     "@babel/runtime": "^7.14.0",
     "@redspot/chai": "^0.11.3",
     "@redspot/gas-reporter": "^0.11.3",
-    "@redspot/patract": "^0.11.3",
+    "@redspot/patract": "^0.11.5",
     "@types/chai": "^4.2.14",
     "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^8.0.3",

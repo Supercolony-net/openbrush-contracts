@@ -7,12 +7,9 @@ use brush::{
         InkStorage,
     },
 };
+pub use common::errors::PausableError;
 use ink_storage::traits::SpreadLayout;
 pub use pausable_derive::PausableStorage;
-use scale::{
-    Decode,
-    Encode,
-};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -25,33 +22,31 @@ pub struct PausableData {
 
 declare_storage_trait!(PausableStorage, PausableData);
 
-/// The Pausable error type. Contract will throw one of this errors.
-#[derive(Debug, strum_macros::AsRefStr, Encode, Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum PausableError {
-    Paused,
-    NoPaused,
-}
-
 /// Modifier to make a function callable only when the contract is paused.
 #[modifier_definition]
-pub fn when_paused<T, F, ReturnType>(instance: &mut T, body: F) -> ReturnType
+pub fn when_paused<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
     T: PausableStorage,
-    F: FnOnce(&mut T) -> ReturnType,
+    F: FnOnce(&mut T) -> Result<R, E>,
+    E: From<PausableError>,
 {
-    assert!(instance.get().paused, "{}", PausableError::NoPaused.as_ref());
+    if !instance.get().paused {
+        return Err(From::from(PausableError::NotPaused))
+    }
     body(instance)
 }
 
 /// Modifier to make a function callable only when the contract is not paused.
 #[modifier_definition]
-pub fn when_not_paused<T, F, ReturnType>(instance: &mut T, body: F) -> ReturnType
+pub fn when_not_paused<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
     T: PausableStorage,
-    F: FnOnce(&mut T) -> ReturnType,
+    F: FnOnce(&mut T) -> Result<R, E>,
+    E: From<PausableError>,
 {
-    assert!(!instance.get().paused, "{}", PausableError::Paused.as_ref());
+    if instance.get().paused {
+        return Err(From::from(PausableError::Paused))
+    }
     body(instance)
 }
 
@@ -81,17 +76,19 @@ pub trait Pausable: PausableStorage {
     ///
     /// On success a `Paused` event is emitted.
     #[modifiers(when_not_paused)]
-    fn _pause(&mut self) {
+    fn _pause<E: From<PausableError>>(&mut self) -> Result<(), E> {
         self.get_mut().paused = true;
-        self._emit_paused_event(Self::env().caller())
+        self._emit_paused_event(Self::env().caller());
+        Ok(())
     }
 
     /// Returns to normal state.
     ///
     /// On success a `Unpaused` event is emitted.
     #[modifiers(when_paused)]
-    fn _unpause(&mut self) {
+    fn _unpause<E: From<PausableError>>(&mut self) -> Result<(), E> {
         self.get_mut().paused = false;
-        self._emit_unpaused_event(Self::env().caller())
+        self._emit_unpaused_event(Self::env().caller());
+        Ok(())
     }
 }

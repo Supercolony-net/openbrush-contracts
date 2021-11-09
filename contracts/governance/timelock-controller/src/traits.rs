@@ -13,6 +13,7 @@ use brush::{
         ZERO_ADDRESS,
     },
 };
+pub use common::errors::TimelockControllerError;
 use core::convert::TryFrom;
 use ink_env::{
     call::{
@@ -29,12 +30,8 @@ use ink_prelude::{
 use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
-    Lazy,
 };
-use scale::{
-    Decode,
-    Encode,
-};
+use scale::Encode;
 pub use timelock_controller_derive::TimelockControllerStorage;
 
 #[cfg(feature = "std")]
@@ -61,37 +58,27 @@ pub struct Transaction {
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct TimelockControllerData {
-    pub min_delay: Lazy<Timestamp>,
+    pub min_delay: Timestamp,
     pub timestamps: StorageHashMap<OperationId, Timestamp>,
 }
 
 declare_storage_trait!(TimelockControllerStorage, TimelockControllerData);
-
-/// The TimelockController error type. Contract will throw one of this errors.
-#[derive(Debug, strum_macros::AsRefStr, Encode, Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum TimelockControllerError {
-    InsufficientDelay,
-    OperationAlreadyScheduled,
-    OperationCannonBeCanceled,
-    OperationIsNotReady,
-    MissingDependency,
-    UnderlyingTransactionReverted,
-    CallerMustBeTimeLock,
-}
 
 /// Modifier to make a function callable only by a certain role. In
 /// addition to checking the sender's role, zero account's role is also
 /// considered. Granting a role to zero account is equivalent to enabling
 /// this role for everyone.
 #[modifier_definition]
-pub fn only_role_or_open_role<T, F, ReturnType>(instance: &mut T, body: F, role: RoleType) -> ReturnType
+pub fn only_role_or_open_role<T, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
     T: AccessControl,
-    F: FnOnce(&mut T) -> ReturnType,
+    F: FnOnce(&mut T) -> Result<R, E>,
+    E: From<AccessControlError>,
 {
     if !instance.has_role(role, ZERO_ADDRESS.into()) {
-        instance._check_role(&role, &T::env().caller());
+        if let Err(err) = instance._check_role(&role, &T::env().caller()) {
+            return Err(From::from(err))
+        }
     }
     body(instance)
 }
@@ -196,12 +183,13 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
         predecessor: Option<OperationId>,
         salt: [u8; 32],
         delay: Timestamp,
-    ) {
+    ) -> Result<(), TimelockControllerError> {
         let id = self._hash_operation(&transaction, &predecessor, &salt);
 
-        self._schedule(id, &delay);
+        self._schedule(id, &delay)?;
 
         self._emit_call_scheduled_event(id, 0, transaction, predecessor, delay);
+        Ok(())
     }
 
     /// Schedule an operation containing a batch of transactions.
@@ -217,14 +205,15 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
         predecessor: Option<OperationId>,
         salt: [u8; 32],
         delay: Timestamp,
-    ) {
+    ) -> Result<(), TimelockControllerError> {
         let id = self._hash_operation_batch(&transactions, &predecessor, &salt);
 
-        self._schedule(id, &delay);
+        self._schedule(id, &delay)?;
 
         for (i, transaction) in transactions.into_iter().enumerate() {
             self._emit_call_scheduled_event(id.clone(), i as u8, transaction, predecessor.clone(), delay.clone());
         }
+        Ok(())
     }
 
     /// Cancel an operation.
@@ -234,15 +223,14 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     /// Note: the caller must have the 'PROPOSER_ROLE' role.
     #[ink(message)]
     #[modifiers(only_role(Self::PROPOSER_ROLE))]
-    fn cancel(&mut self, id: OperationId) {
-        assert!(
-            self.is_operation_pending(id),
-            "{}",
-            TimelockControllerError::OperationCannonBeCanceled.as_ref()
-        );
+    fn cancel(&mut self, id: OperationId) -> Result<(), TimelockControllerError> {
+        if !self.is_operation_pending(id) {
+            return Err(TimelockControllerError::OperationCannonBeCanceled)
+        }
         TimelockControllerStorage::get_mut(self).timestamps.take(&id);
 
         self._emit_cancelled_event(id);
+        Ok(())
     }
 
     /// Execute an (ready) operation containing a single transaction.
@@ -250,15 +238,19 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     /// Emits a `CallExecuted` event.
     ///
     /// Note: The caller must have the 'EXECUTOR_ROLE' role.
-    #[ink(message)]
-    #[ink(payable)]
+    #[ink(message, payable)]
     #[modifiers(only_role_or_open_role(Self::EXECUTOR_ROLE))]
-    fn execute(&mut self, transaction: Transaction, predecessor: Option<OperationId>, salt: [u8; 32]) {
+    fn execute(
+        &mut self,
+        transaction: Transaction,
+        predecessor: Option<OperationId>,
+        salt: [u8; 32],
+    ) -> Result<(), TimelockControllerError> {
         let id = self._hash_operation(&transaction, &predecessor, &salt);
 
-        self._before_call(predecessor);
-        self._call(id, 0, transaction);
-        self._after_call(id);
+        self._before_call(predecessor)?;
+        self._call(id, 0, transaction)?;
+        self._after_call(id)
     }
 
     /// Execute an (ready) operation containing a batch of transactions.
@@ -266,18 +258,22 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     /// Emits one `CallExecuted` event per transaction in the batch.
     ///
     /// Note: The caller must have the 'EXECUTOR_ROLE' role.
-    #[ink(message)]
-    #[ink(payable)]
+    #[ink(message, payable)]
     #[modifiers(only_role_or_open_role(Self::EXECUTOR_ROLE))]
-    fn execute_batch(&mut self, transactions: Vec<Transaction>, predecessor: Option<OperationId>, salt: [u8; 32]) {
+    fn execute_batch(
+        &mut self,
+        transactions: Vec<Transaction>,
+        predecessor: Option<OperationId>,
+        salt: [u8; 32],
+    ) -> Result<(), TimelockControllerError> {
         let id = self._hash_operation_batch(&transactions, &predecessor, &salt);
 
-        self._before_call(predecessor);
+        self._before_call(predecessor)?;
 
         for (i, transaction) in transactions.into_iter().enumerate() {
-            self._call(id, i as u8, transaction);
+            self._call(id, i as u8, transaction)?;
         }
-        self._after_call(id);
+        self._after_call(id)
     }
 
     /// Changes the minimum timelock duration for future operations.
@@ -289,18 +285,16 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     /// an operation where the timelock is the target and the data is the
     /// ABI-encoded call to this function.
     #[ink(message)]
-    fn update_delay(&mut self, new_delay: Timestamp) {
-        assert_eq!(
-            Self::env().account_id(),
-            Self::env().caller(),
-            "{}",
-            TimelockControllerError::CallerMustBeTimeLock.as_ref()
-        );
+    fn update_delay(&mut self, new_delay: Timestamp) -> Result<(), TimelockControllerError> {
+        if Self::env().account_id() != Self::env().caller() {
+            return Err(TimelockControllerError::CallerMustBeTimeLock)
+        }
 
-        let old_delay = Lazy::get(&TimelockControllerStorage::get(self).min_delay).clone();
+        let old_delay = TimelockControllerStorage::get(self).min_delay.clone();
         self._emit_min_delay_change_event(old_delay, new_delay);
 
-        Lazy::set(&mut TimelockControllerStorage::get_mut(self).min_delay, new_delay);
+        TimelockControllerStorage::get_mut(self).min_delay = new_delay;
+        Ok(())
     }
 
     // Helper functions
@@ -354,8 +348,8 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
             .into_iter()
             .for_each(|executor| self._setup_role(Self::EXECUTOR_ROLE, executor));
 
-        let old_delay = Lazy::get(&TimelockControllerStorage::get(self).min_delay).clone();
-        Lazy::set(&mut TimelockControllerStorage::get_mut(self).min_delay, min_delay);
+        let old_delay = TimelockControllerStorage::get(self).min_delay.clone();
+        TimelockControllerStorage::get_mut(self).min_delay = min_delay;
         self._emit_min_delay_change_event(old_delay, min_delay);
     }
 
@@ -394,66 +388,61 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
     }
 
     /// Schedule an operation that is to becomes valid after a given delay.
-    fn _schedule(&mut self, id: OperationId, delay: &Timestamp) {
-        assert!(
-            !self.is_operation(id),
-            "{}",
-            TimelockControllerError::OperationAlreadyScheduled.as_ref()
-        );
-        assert!(
-            delay >= &self.get_min_delay(),
-            "{}",
-            TimelockControllerError::InsufficientDelay.as_ref()
-        );
+    fn _schedule(&mut self, id: OperationId, delay: &Timestamp) -> Result<(), TimelockControllerError> {
+        if self.is_operation(id) {
+            return Err(TimelockControllerError::OperationAlreadyScheduled)
+        }
+        if delay < &TimelockControllerStorage::get(self).min_delay {
+            return Err(TimelockControllerError::InsufficientDelay)
+        }
 
         TimelockControllerStorage::get_mut(self)
             .timestamps
             .insert(id, Self::env().block_timestamp() + delay);
+        Ok(())
     }
 
     /// Checks before execution of an operation's calls.
-    fn _before_call(&self, predecessor: Option<OperationId>) {
-        assert!(
-            predecessor.is_none() || self.is_operation_done(predecessor.unwrap()),
-            "{}",
-            TimelockControllerError::MissingDependency.as_ref()
-        );
+    fn _before_call(&self, predecessor: Option<OperationId>) -> Result<(), TimelockControllerError> {
+        if predecessor.is_some() && !self.is_operation_done(predecessor.unwrap()) {
+            return Err(TimelockControllerError::MissingDependency)
+        }
+        Ok(())
     }
 
     /// Checks after execution of an operation's calls.
-    fn _after_call(&mut self, id: OperationId) {
-        assert!(
-            self.is_operation_ready(id),
-            "{}",
-            TimelockControllerError::OperationIsNotReady.as_ref()
-        );
+    fn _after_call(&mut self, id: OperationId) -> Result<(), TimelockControllerError> {
+        if !self.is_operation_ready(id) {
+            return Err(TimelockControllerError::OperationIsNotReady)
+        }
 
         TimelockControllerStorage::get_mut(self)
             .timestamps
             .insert(id, Self::DONE_TIMESTAMP);
+        Ok(())
     }
 
     /// Execute an operation's call.
     ///
     /// Emits a `CallExecuted` event.
-    fn _call(&mut self, id: OperationId, i: u8, transaction: Transaction) {
+    fn _call(&mut self, id: OperationId, i: u8, transaction: Transaction) -> Result<(), TimelockControllerError> {
         // Flush the state into storage before the cross call.
         // Because during cross call we cann call this contract(for example for `update_delay` method).
         self.flush();
-        let result: Result<(), TimelockControllerError> = build_call::<DefaultEnvironment>()
+        build_call::<DefaultEnvironment>()
             .callee(transaction.callee)
             .gas_limit(transaction.gas_limit)
             .transferred_value(transaction.transferred_value)
             .exec_input(ExecutionInput::new(transaction.selector.into()).push_arg(CallInput(&transaction.input)))
             .returns::<()>()
             .fire()
-            .map_err(|_| TimelockControllerError::UnderlyingTransactionReverted);
+            .map_err(|_| TimelockControllerError::UnderlyingTransactionReverted)?;
 
-        assert!(result.is_ok(), "{}", result.err().unwrap().as_ref());
         // Load the sate of the contract after the cross call.
         self.load();
 
         self._emit_call_executed_event(id, i, transaction);
+        Ok(())
     }
 }
 

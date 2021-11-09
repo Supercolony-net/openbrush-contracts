@@ -3,6 +3,7 @@
 mod tests {
     use ownable::traits::*;
     use brush::traits::AccountIdExt;
+    use brush::test_utils::change_caller;
     use ink::{
         EmitEvent,
         Env,
@@ -91,12 +92,22 @@ mod tests {
         let caller = my_ownable.env().caller();
         let creator = my_ownable.owner();
         assert_eq!(creator, caller);
-        my_ownable.renounce_ownership();
+        assert!(my_ownable.renounce_ownership().is_ok());
         assert!(my_ownable.owner().is_zero());
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(2, emitted_events.len());
         assert_ownership_transferred_event(&emitted_events[0], None, Some(creator));
         assert_ownership_transferred_event(&emitted_events[1], Some(creator), None);
+    }
+
+    #[ink::test]
+    fn renounce_ownership_fails() {
+        let mut my_ownable = MyOwnable::new();
+        // Change the caller of `renounce_ownership` method.
+        change_caller(AccountId::from([0x13; 32]));
+        let result = my_ownable.renounce_ownership();
+        assert!(result.is_err());
+        assert_eq!(result, Err(OwnableError::CallerIsNotOwner));
     }
 
     #[ink::test]
@@ -106,11 +117,27 @@ mod tests {
         let creator = my_ownable.owner();
         assert_eq!(creator, caller);
         let new_owner = AccountId::from([5u8; 32]);
-        my_ownable.transfer_ownership(new_owner);
+        assert!(my_ownable.transfer_ownership(new_owner).is_ok());
         assert_eq!(my_ownable.owner(), new_owner);
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(2, emitted_events.len());
         assert_ownership_transferred_event(&emitted_events[0], None, Some(creator));
         assert_ownership_transferred_event(&emitted_events[1], Some(creator), Some(new_owner));
+    }
+
+    #[ink::test]
+    fn transfer_ownership_fails() {
+        let mut my_ownable = MyOwnable::new();
+        // Change the caller of `transfer_ownership` method.
+        change_caller(AccountId::from([0x13; 32]));
+        let new_owner = AccountId::from([5u8; 32]);
+        assert_eq!(my_ownable.transfer_ownership(new_owner), Err(OwnableError::CallerIsNotOwner));
+    }
+
+    #[ink::test]
+    fn transfer_ownership_fails_zero_account() {
+        let mut my_ownable = MyOwnable::new();
+        let new_owner = AccountId::from([0u8; 32]);
+        assert_eq!(my_ownable.transfer_ownership(new_owner), Err(OwnableError::NewOwnerIsZero));
     }
 }

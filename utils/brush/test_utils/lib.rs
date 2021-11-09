@@ -10,6 +10,13 @@ use ink_env::{
     Hash,
 };
 
+#[cfg(feature = "std")]
+use ink_env::{
+    test::DefaultAccounts,
+    DefaultEnvironment,
+    Environment,
+};
+
 pub fn encoded_into_hash<T>(entity: &T) -> Hash
 where
     T: scale::Encode,
@@ -49,4 +56,17 @@ where
         self.prefix.encode_to(dest);
         self.value.encode_to(dest);
     }
+}
+
+#[cfg(feature = "std")]
+pub fn accounts() -> DefaultAccounts<DefaultEnvironment> {
+    ink_env::test::default_accounts::<DefaultEnvironment>().expect("Cannot get accounts")
+}
+
+#[cfg(feature = "std")]
+pub fn change_caller(new_caller: <DefaultEnvironment as Environment>::AccountId) {
+    let callee = ink_env::account_id::<DefaultEnvironment>().unwrap_or([0x0; 32].into());
+    let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4]));
+    data.push_arg(&new_caller);
+    ink_env::test::push_execution_context::<DefaultEnvironment>(new_caller, callee, 1000000, 1000000, data);
 }

@@ -2,10 +2,16 @@
 
 #[brush::contract]
 pub mod my_access_control {
-    use psp721::traits::*;
     use access_control::traits::*;
     use brush::modifiers;
     use ink_prelude::vec::Vec;
+    use psp721::{
+        extensions::{
+            burnable::*,
+            mintable::*,
+        },
+        traits::*,
+    };
 
     #[ink(storage)]
     #[derive(Default, PSP721Storage, AccessControlStorage)]
@@ -29,26 +35,40 @@ pub mod my_access_control {
             let caller = instance.env().caller();
             instance._init_with_admin(caller);
             // We grant minter role to caller in constructor, so he can mint/burn tokens
-            instance.grant_role(MINTER, caller);
+            instance.grant_role(MINTER, caller).expect("Should grant MINTER role");
             instance
         }
     }
 
-    impl IPSP721 for PSP721Struct {}
+    impl PSP721 for PSP721Struct {}
 
     impl AccessControl for PSP721Struct {}
 
-    impl IPSP721Mint for PSP721Struct {
+    impl PSP721Mintable for PSP721Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
-        fn mint(&mut self, id: Id) {
-            self._mint(id);
+        fn mint(&mut self, id: Id) -> Result<(), PSP721Error> {
+            self._mint(id)
         }
 
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
-        fn burn(&mut self, id: Id) {
-            self._burn(id);
+        fn mint_to(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+            self._mint_to(account, id)
+        }
+    }
+
+    impl PSP721Burnable for PSP721Struct {
+        #[ink(message)]
+        #[modifiers(only_role(MINTER))]
+        fn burn(&mut self, id: Id) -> Result<(), PSP721Error> {
+            self._burn(id)
+        }
+
+        #[ink(message)]
+        #[modifiers(only_role(MINTER))]
+        fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+            self._burn_from(account, id)
         }
     }
 }

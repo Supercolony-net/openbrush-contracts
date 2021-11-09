@@ -12,10 +12,7 @@ mod psp721 {
         Id,
         PSP721Error,
     };
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
+    use ink_prelude::vec::Vec;
 
     #[derive(Default)]
     #[ink(storage)]
@@ -28,7 +25,7 @@ mod psp721 {
         }
     }
 
-    #[ink(namespace = "IPSP721")]
+    #[ink(namespace = "PSP721")]
     impl PSP721 {
         #[ink(message)]
         pub fn balance_of(&self, _owner: AccountId) -> u32 {
@@ -61,44 +58,18 @@ mod psp721 {
         }
 
         #[ink(message)]
-        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _id: Id) -> Result<(), PSP721Error> {
+        pub fn transfer(&mut self, _to: AccountId, _id: Id, _data: Vec<u8>) -> Result<(), PSP721Error> {
             unimplemented!()
         }
 
         #[ink(message)]
-        pub fn safe_transfer_from(
+        pub fn transfer_from(
             &mut self,
             _from: AccountId,
             _to: AccountId,
             _id: Id,
             _data: Vec<u8>,
         ) -> Result<(), PSP721Error> {
-            unimplemented!()
-        }
-    }
-
-    #[ink(namespace = "IPSP721Metadata")]
-    impl PSP721 {
-        #[ink(message)]
-        pub fn name(&self) -> Option<String> {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn symbol(&self) -> Option<String> {
-            unimplemented!()
-        }
-    }
-
-    #[ink(namespace = "IPSP721Mint")]
-    impl PSP721 {
-        #[ink(message)]
-        pub fn mint(&mut self, _id: Id) -> Result<(), PSP721Error> {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn burn(&mut self, _id: Id) -> Result<(), PSP721Error> {
             unimplemented!()
         }
     }
@@ -123,10 +94,10 @@ mod psp721receiver {
         }
     }
 
-    #[ink(namespace = "IPSP721Receiver")]
+    #[ink(namespace = "PSP721Receiver")]
     impl PSP721Receiver {
         #[ink(message)]
-        pub fn on_psp721_received(
+        pub fn before_received(
             &mut self,
             _operator: AccountId,
             _from: AccountId,

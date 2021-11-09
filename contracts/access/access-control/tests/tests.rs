@@ -1,8 +1,12 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use access_control::traits::*;
     use ::ink_env::DefaultEnvironment;
+    use access_control::traits::*;
+    use brush::test_utils::{
+        accounts,
+        change_caller,
+    };
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
 
@@ -176,7 +180,7 @@ mod tests {
     }
 
     fn setup() -> DefaultAccounts<DefaultEnvironment> {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         accounts
     }
@@ -205,8 +209,8 @@ mod tests {
         let alice = accounts.alice;
         let mut access_control = AccessControlStruct::new(alice);
 
-        access_control.grant_role(PAUSER, alice);
-        access_control.grant_role(MINTER, alice);
+        assert!(access_control.grant_role(PAUSER, alice).is_ok());
+        assert!(access_control.grant_role(MINTER, alice).is_ok());
 
         assert!(access_control.has_role(AccessControlStruct::DEFAULT_ADMIN_ROLE, alice));
         assert!(access_control.has_role(PAUSER, alice));
@@ -219,13 +223,26 @@ mod tests {
     }
 
     #[ink::test]
+    fn should_grant_role_fail() {
+        let accounts = setup();
+        let alice = accounts.alice;
+        let mut access_control = AccessControlStruct::new(alice);
+
+        assert!(access_control.grant_role(PAUSER, alice).is_ok());
+        assert_eq!(
+            access_control.grant_role(PAUSER, alice),
+            Err(AccessControlError::RoleRedundant)
+        );
+    }
+
+    #[ink::test]
     fn should_revoke_role() {
         let accounts = setup();
         let mut access_control = AccessControlStruct::new(accounts.alice);
 
-        access_control.grant_role(PAUSER, accounts.bob);
+        assert!(access_control.grant_role(PAUSER, accounts.bob).is_ok());
         assert!(access_control.has_role(PAUSER, accounts.bob));
-        access_control.revoke_role(PAUSER, accounts.bob);
+        assert!(access_control.revoke_role(PAUSER, accounts.bob).is_ok());
 
         assert!(!access_control.has_role(PAUSER, accounts.bob));
 
@@ -246,10 +263,10 @@ mod tests {
         let mut access_control = AccessControlStruct::new(accounts.alice);
         change_caller(accounts.alice);
 
-        access_control.grant_role(PAUSER, accounts.eve);
+        assert!(access_control.grant_role(PAUSER, accounts.eve).is_ok());
         assert!(access_control.has_role(PAUSER, accounts.eve));
         change_caller(accounts.eve);
-        access_control.renounce_role(PAUSER, accounts.eve);
+        assert!(access_control.renounce_role(PAUSER, accounts.eve).is_ok());
 
         assert!(!access_control.has_role(PAUSER, accounts.eve));
 
@@ -269,10 +286,10 @@ mod tests {
         let accounts = setup();
         let mut access_control = AccessControlStruct::new(accounts.alice);
 
-        access_control.grant_role(MINTER, accounts.eve);
+        assert!(access_control.grant_role(MINTER, accounts.eve).is_ok());
         access_control._set_role_admin(PAUSER, MINTER);
         change_caller(accounts.eve);
-        access_control.grant_role(PAUSER, accounts.bob);
+        assert!(access_control.grant_role(PAUSER, accounts.bob).is_ok());
 
         assert_eq!(
             access_control.get_role_admin(MINTER),
@@ -298,53 +315,58 @@ mod tests {
     }
 
     #[ink::test]
-    #[should_panic(expected = "MissingRole")]
     fn should_return_error_when_not_admin_grant_role() {
         let accounts = setup();
         let mut access_control = AccessControlStruct::new(accounts.alice);
 
-        access_control.grant_role(MINTER, accounts.eve);
-        access_control.grant_role(PAUSER, accounts.bob);
+        assert!(access_control.grant_role(MINTER, accounts.eve).is_ok());
+        assert!(access_control.grant_role(PAUSER, accounts.bob).is_ok());
         access_control._set_role_admin(PAUSER, MINTER);
 
-        access_control.grant_role(PAUSER, accounts.eve);
+        assert_eq!(
+            access_control.grant_role(PAUSER, accounts.eve),
+            Err(AccessControlError::MissingRole)
+        );
     }
 
     #[ink::test]
-    #[should_panic(expected = "MissingRole")]
     fn should_return_error_when_not_admin_revoke_role() {
         let accounts = setup();
         let mut access_control = AccessControlStruct::new(accounts.alice);
 
-        access_control.grant_role(MINTER, accounts.eve);
-        access_control.grant_role(PAUSER, accounts.bob);
+        assert!(access_control.grant_role(MINTER, accounts.eve).is_ok());
+        assert!(access_control.grant_role(PAUSER, accounts.bob).is_ok());
         access_control._set_role_admin(PAUSER, MINTER);
 
         change_caller(accounts.bob);
 
-        access_control.revoke_role(MINTER, accounts.bob);
+        assert_eq!(
+            access_control.revoke_role(MINTER, accounts.bob),
+            Err(AccessControlError::MissingRole)
+        );
     }
 
     #[ink::test]
-    #[should_panic(expected = "InvalidCaller")]
     fn should_return_error_when_not_self_renounce_role() {
         let accounts = setup();
         let mut access_control = AccessControlStruct::new(accounts.alice);
 
-        access_control.grant_role(PAUSER, accounts.bob);
-        access_control.renounce_role(PAUSER, accounts.bob);
+        assert!(access_control.grant_role(PAUSER, accounts.bob).is_ok());
+        assert_eq!(
+            access_control.renounce_role(PAUSER, accounts.bob),
+            Err(AccessControlError::InvalidCaller)
+        );
     }
 
-    fn change_caller(new_caller: AccountId) {
-        // CHANGE CALLEE MANUALLY
-        // Get contract address.
-        let callee = ink_env::account_id::<ink_env::DefaultEnvironment>().unwrap_or([0x0; 32].into());
-        // Create call.
-        let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-        data.push_arg(&new_caller);
-        // Push the new execution context to set Bob as caller.
-        ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-            new_caller, callee, 1000000, 1000000, data,
+    #[ink::test]
+    fn should_return_error_when_account_doesnt_have_role() {
+        let accounts = setup();
+        change_caller(accounts.alice);
+        let mut access_control = AccessControlStruct::new(accounts.alice);
+
+        assert_eq!(
+            access_control.renounce_role(PAUSER, accounts.alice),
+            Err(AccessControlError::MissingRole)
         );
     }
 }

@@ -1,4 +1,3 @@
-pub use access_control_derive::AccessControlStorage;
 use brush::{
     declare_storage_trait,
     modifier_definition,
@@ -12,10 +11,8 @@ use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
 };
-use scale::{
-    Decode,
-    Encode,
-};
+pub use access_control_derive::AccessControlStorage;
+pub use common::errors::AccessControlError;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -31,22 +28,17 @@ declare_storage_trait!(AccessControlStorage, AccessControlData);
 
 pub type RoleType = u32;
 
-/// The AccessControl error type. Contract will throw one of this errors.
-#[derive(Debug, strum_macros::AsRefStr, Encode, Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum AccessControlError {
-    InvalidCaller,
-    MissingRole,
-}
-
 /// Modifier that checks that `caller` has a specific role.
 #[modifier_definition]
-pub fn only_role<T, F, ReturnType>(instance: &mut T, body: F, role: RoleType) -> ReturnType
+pub fn only_role<T, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
     T: AccessControl,
-    F: FnOnce(&mut T) -> ReturnType,
+    F: FnOnce(&mut T) -> Result<R, E>,
+    E: From<AccessControlError>,
 {
-    instance._check_role(&role, &T::env().caller());
+    if let Err(err) = instance._check_role(&role, &T::env().caller()) {
+        return Err(From::from(err))
+    }
     body(instance)
 }
 
@@ -58,7 +50,7 @@ where
 /// `revoke_role`. functions. Each role has an associated admin role, and only
 /// accounts that have a role's admin role can call `grant_role` and `revoke_role`.
 ///
-/// This module is used through embedding of `PSP1155Data` and implementation of `AccessControl` and
+/// This module is used through embedding of `AccessControlData` and implementation of `AccessControl` and
 /// `AccessControlStorage` traits.
 #[brush::trait_definition]
 pub trait AccessControl: AccessControlStorage {
@@ -82,14 +74,17 @@ pub trait AccessControl: AccessControlStorage {
     ///
     /// # Errors
     ///
-    /// Panics with `MissingRole` error if caller can't grant the role.
+    /// Returns with `MissingRole` error if caller can't grant the role.
+    /// Returns with `RoleRedundant` error `account` has `role`.
     #[ink(message)]
     #[modifiers(only_role(self._get_role_admin(&role)))]
-    fn grant_role(&mut self, role: RoleType, account: AccountId) {
-        if !self._has_role(&role, &account) {
-            self.get_mut().members.insert((role.clone(), account.clone()), ());
-            self._emit_role_granted(role, account, Some(Self::env().caller()))
+    fn grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+        if self._has_role(&role, &account) {
+            return Err(AccessControlError::RoleRedundant)
         }
+        self.get_mut().members.insert((role.clone(), account.clone()), ());
+        self._emit_role_granted(role, account, Some(Self::env().caller()));
+        Ok(())
     }
 
     /// Revokes `role` from `account`.
@@ -98,11 +93,13 @@ pub trait AccessControl: AccessControlStorage {
     ///
     /// # Errors
     ///
-    /// Panics with `MissingRole` error if caller can't grant the role.
+    /// Returns with `MissingRole` error if caller can't grant the `role` or if `account` doesn't have `role`.
     #[ink(message)]
     #[modifiers(only_role(self._get_role_admin(&role)))]
-    fn revoke_role(&mut self, role: RoleType, account: AccountId) {
+    fn revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+        self._check_role(&role, &account)?;
         self._do_revoke_role(role, account);
+        Ok(())
     }
 
     /// Revokes `role` from the calling account.
@@ -114,23 +111,22 @@ pub trait AccessControl: AccessControlStorage {
     ///
     /// # Errors
     ///
-    /// Panics with `InvalidCaller` error if caller is not `address`.
+    /// Returns with `InvalidCaller` error if caller is not `account`.
+    /// Returns with `MissingRole` error if `account` doesn't have `role`.
     #[ink(message)]
-    fn renounce_role(&mut self, role: RoleType, address: AccountId) {
-        assert_eq!(
-            Self::env().caller(),
-            address,
-            "{}",
-            AccessControlError::InvalidCaller.as_ref()
-        );
-        self._do_revoke_role(role, address);
+    fn renounce_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+        if Self::env().caller() != account {
+            return Err(AccessControlError::InvalidCaller)
+        }
+        self._check_role(&role, &account)?;
+        self._do_revoke_role(role, account);
+        Ok(())
     }
 
     // Helper functions
 
     /// The user must override this function using their event definition.
-    fn _emit_role_admin_changed(&mut self, _role: RoleType, _previous_admin_role: RoleType, _new_admin_role: RoleType) {
-    }
+    fn _emit_role_admin_changed(&mut self, _role: RoleType, _previous_admin_role: RoleType, _new_admin_role: RoleType) {}
 
     /// The user must override this function using their event definition.
     fn _emit_role_granted(&mut self, _role: RoleType, _grantee: AccountId, _grantor: Option<AccountId>) {}
@@ -167,19 +163,16 @@ pub trait AccessControl: AccessControlStorage {
             .unwrap_or(Self::DEFAULT_ADMIN_ROLE)
     }
 
-    fn _do_revoke_role(&mut self, role: RoleType, address: AccountId) {
-        if self._has_role(&role, &address) {
-            self.get_mut().members.take(&(role, address));
-            self._emit_role_revoked(role, address, Self::env().caller());
-        }
+    fn _do_revoke_role(&mut self, role: RoleType, account: AccountId) {
+        self.get_mut().members.take(&(role, account));
+        self._emit_role_revoked(role, account, Self::env().caller());
     }
 
-    fn _check_role(&self, role: &RoleType, address: &AccountId) {
-        assert!(
-            self._has_role(role, address),
-            "{}",
-            AccessControlError::MissingRole.as_ref()
-        )
+    fn _check_role(&self, role: &RoleType, account: &AccountId) -> Result<(), AccessControlError> {
+        if !self._has_role(role, account) {
+            return Err(AccessControlError::MissingRole)
+        }
+        Ok(())
     }
 
     fn _set_role_admin(&mut self, role: RoleType, new_admin: RoleType) {
