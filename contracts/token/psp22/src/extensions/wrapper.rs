@@ -69,8 +69,8 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
     }
 
     /// helper function to get balance of underlying tokens in the contract
-    fn underlying_balance(&mut self) -> Balance {
-        PSP22WrapperStorage::get_mut(self)
+    fn underlying_balance(&self) -> Balance {
+        PSP22WrapperStorage::get(self)
             .underlying
             .balance_of(Self::env().account_id())
     }

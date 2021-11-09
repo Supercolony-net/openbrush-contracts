@@ -32,7 +32,7 @@ mod tests {
             Ok(())
         }
 
-        fn underlying_balance(&mut self) -> Balance {
+        fn underlying_balance(&self) -> Balance {
             self.contract_balance
         }
     }
