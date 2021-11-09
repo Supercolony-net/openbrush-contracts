@@ -1,14 +1,16 @@
 #[cfg(test)]
 #[brush::contract]
 mod tests {
-    use ownable::traits::*;
-    use brush::traits::AccountIdExt;
-    use brush::test_utils::change_caller;
+    use brush::{
+        test_utils::change_caller,
+        traits::AccountIdExt,
+    };
     use ink::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
+    use ownable::traits::*;
 
     #[ink(event)]
     pub struct OwnershipTransferred {
@@ -71,12 +73,12 @@ mod tests {
 
     #[ink::test]
     fn constructor_works() {
-        let _inst = MyOwnable::new();
+        let instance = MyOwnable::new();
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(1, emitted_events.len());
 
-        assert_ownership_transferred_event(&emitted_events[0], None, Some(_inst.owner()))
+        assert_ownership_transferred_event(&emitted_events[0], None, Some(instance.owner()))
     }
 
     #[ink::test]
@@ -131,13 +133,19 @@ mod tests {
         // Change the caller of `transfer_ownership` method.
         change_caller(AccountId::from([0x13; 32]));
         let new_owner = AccountId::from([5u8; 32]);
-        assert_eq!(my_ownable.transfer_ownership(new_owner), Err(OwnableError::CallerIsNotOwner));
+        assert_eq!(
+            my_ownable.transfer_ownership(new_owner),
+            Err(OwnableError::CallerIsNotOwner)
+        );
     }
 
     #[ink::test]
     fn transfer_ownership_fails_zero_account() {
         let mut my_ownable = MyOwnable::new();
         let new_owner = AccountId::from([0u8; 32]);
-        assert_eq!(my_ownable.transfer_ownership(new_owner), Err(OwnableError::NewOwnerIsZero));
+        assert_eq!(
+            my_ownable.transfer_ownership(new_owner),
+            Err(OwnableError::NewOwnerIsZero)
+        );
     }
 }

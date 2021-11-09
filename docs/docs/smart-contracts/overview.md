@@ -5,9 +5,12 @@ title: Overview
 
 This doc contains examples of how the library can be used and how to customize the base implementation.
 
-* [PSP22](psp22.md) shows an example of how you can reuse the implementation of
+* [PSP22](PSP22/psp22.md) shows an example of how you can reuse the implementation of
   [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token (in the same way you can reuse
   [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)).
+  * [PSP22Metadata](PSP22/Extensions/metadata.md): metadata for PSP22.
+  * [PSP22Mintable](PSP22/Extensions/mintable.md): creation of new tokens.
+  * [PSP22Burnable](PSP22/Extensions/burnable.md): destruction of own tokens.
 * [Access Control](access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control) and
   [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) together to provide rights to mint and burn NFT tokens.

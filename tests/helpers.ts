@@ -1,11 +1,16 @@
 import Contract from '@redspot/patract/contract'
 import BN from 'bn.js'
 import { artifacts, network, patract } from 'redspot'
+import { expect } from './setup/chai'
+import { KeyringPair } from '@polkadot/keyring/types'
+import { buildTx } from '@redspot/patract/buildTx'
+import { Keyring } from '@polkadot/keyring'
 import { Signer } from 'redspot/types'
-import {TransactionParams, TransactionResponse} from "@redspot/patract/types";
+import { TransactionParams, TransactionResponse } from "@redspot/patract/types";
+
 
 const { getContractFactory, getRandomSigner } = patract
-const { api, getSigners } = network
+const { api, getSigners, getAddresses } = network
 
 export { expect } from './setup/chai'
 
@@ -16,7 +21,7 @@ const patchContractMethods = (contract: Contract): Contract => {
   for (const prop in contract.tx) {
     const original_tx = contract.tx[prop];
     contract.tx[prop] = async function (...args: TransactionParams): Promise<TransactionResponse> {
-      return new Promise<TransactionResponse>( ((resolve, reject) => {
+      return new Promise<TransactionResponse>(((resolve, reject) => {
         contract.query[prop](...args).then((_ => {
           // TODO: Check output of RPC call when Redspot will process it correct
           resolve(original_tx(...args))
@@ -64,6 +69,18 @@ export const setupContract = async (name, constructor, ...args) => {
     query: contract.query,
     tx: contract.tx
   }
+}
+
+export const addPairWithAmount = async (pair: KeyringPair): Promise<KeyringPair> => {
+  const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
+  const redspotPair = network.addPair(pair)
+  await buildTx(api.registry, api.tx.balances.transfer(redspotPair.address, one.muln(10000)), (await getAddresses())[0])
+  return redspotPair
+}
+
+export const getSigner = async (account: string) => {
+  const signer = await addPairWithAmount(new Keyring().addFromUri(`//${account}`))
+  return signer
 }
 
 export const fromSigner = (contract: Contract, address: string): Contract => {

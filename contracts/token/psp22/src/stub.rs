@@ -3,15 +3,13 @@
 // struct around contracts address(::ink_env::call::FromAccountId::from_account_id).
 pub use self::{
     psp22::PSP22,
-    psp22metadata::PSP22Metadata,
+    psp22receiver::PSP22Receiver,
 };
-
-pub use self::psp22receiver::PSP22Receiver;
 
 #[ink_lang::contract(compile_as_dependency = true)]
 mod psp22 {
-    use ink_prelude::vec::Vec;
     use crate::traits::PSP22Error;
+    use ink_prelude::vec::Vec;
 
     #[derive(Default)]
     #[ink(storage)]
@@ -47,7 +45,13 @@ mod psp22 {
         }
 
         #[ink(message)]
-        pub fn transfer_from(&mut self, _from: AccountId, _to: AccountId, _value: Balance, _data: Vec<u8>) -> Result<(), PSP22Error> {
+        pub fn transfer_from(
+            &mut self,
+            _from: AccountId,
+            _to: AccountId,
+            _value: Balance,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP22Error> {
             unimplemented!()
         }
 
@@ -63,40 +67,6 @@ mod psp22 {
 
         #[ink(message)]
         pub fn decrease_allowance(&mut self, _spender: AccountId, _delta_value: Balance) -> Result<(), PSP22Error> {
-            unimplemented!()
-        }
-    }
-}
-
-#[ink_lang::contract(compile_as_dependency = true)]
-mod psp22metadata {
-    use ink_prelude::string::String;
-
-    #[derive(Default)]
-    #[ink(storage)]
-    pub struct PSP22Metadata {}
-
-    impl PSP22Metadata {
-        #[ink(constructor)]
-        pub fn new() -> Self {
-            unimplemented!()
-        }
-    }
-
-    #[ink(namespace = "PSP22Metadata")]
-    impl PSP22Metadata {
-        #[ink(message)]
-        pub fn token_name(&self) -> Option<String> {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn token_symbol(&self) -> Option<String> {
-            unimplemented!()
-        }
-
-        #[ink(message)]
-        pub fn token_decimals(&self) -> u8 {
             unimplemented!()
         }
     }
