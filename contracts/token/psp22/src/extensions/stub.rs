@@ -57,7 +57,7 @@ pub mod psp22flashmint {
         #[ink(message)]
         pub fn flashloan(
             &mut self,
-            reciever: PSP3156FlashBorrower,
+            receiver: &mut PSP3156FlashBorrower,
             token: AccountId,
             amount: Balance,
             data: Vec<u8>,
