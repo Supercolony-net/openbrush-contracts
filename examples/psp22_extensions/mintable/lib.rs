@@ -2,7 +2,6 @@
 
 #[brush::contract]
 pub mod my_psp22_mintable {
-    use ink_prelude::vec::Vec;
     use psp22::{
         extensions::mintable::*,
         traits::*,

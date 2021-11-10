@@ -11,15 +11,15 @@ Include dependencies to `ownable` and `brush` in the cargo file.
 
 ```toml
 [dependencies]
-ink_primitives = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc4", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_primitives = { version = "3.0.0-rc6", default-features = false }
+ink_metadata = { version = "3.0.0-rc6", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.0.0-rc6", default-features = false }
+ink_storage = { version = "3.0.0-rc6", default-features = false }
+ink_lang = { version = "3.0.0-rc6", default-features = false }
+ink_prelude = { version = "3.0.0-rc6", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
+scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
 ownable = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }

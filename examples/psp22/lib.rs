@@ -2,10 +2,7 @@
 
 #[brush::contract]
 pub mod my_psp22 {
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
+    use ink_prelude::string::String;
     use psp22::traits::*;
 
     #[ink(storage)]

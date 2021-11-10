@@ -2,10 +2,7 @@
 
 #[brush::contract]
 pub mod my_psp1155 {
-    use ink_prelude::{
-        vec,
-        vec::Vec,
-    };
+    use ink_prelude::vec;
     use psp1155::{
         extensions::burnable::*,
         traits::*,

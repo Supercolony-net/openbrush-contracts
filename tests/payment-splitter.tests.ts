@@ -31,7 +31,7 @@ describe('MY_PAYMENT_SPLITTER', () => {
 
     // Act - Send native token and release them
     await expect(contract.contract.query.totalReleased()).to.have.output(0)
-    await expect(fromSigner(contract.contract, contract.alice.address).tx.receive({ value: 20000000 })).to.eventually.be.fulfilled
+    await expect(contract.contract.tx.receive({ value: 20000000 })).to.eventually.be.fulfilled
     await expect(contract.contract.tx.release(kayne.address)).to.eventually.be.fulfilled
     await expect(contract.contract.tx.release(ian.address)).to.eventually.be.fulfilled
 
