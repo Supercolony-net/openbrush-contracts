@@ -26,7 +26,7 @@ describe('MY_PSP1155', () => {
         await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
         await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
 
-        // Assert - Sender cannot send token to receiver
+        // Assert - Sender can send token to receiver
         await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.fulfilled
         await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([1, 0])
     })
@@ -40,7 +40,7 @@ describe('MY_PSP1155', () => {
         await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
         await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
 
-        // Assert - Sender cannot send token to receiver
+        // Assert - Sender can send token to receiver
         await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.fulfilled
         await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([1, 0])
     })
