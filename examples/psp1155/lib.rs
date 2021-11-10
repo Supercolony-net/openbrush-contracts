@@ -5,7 +5,6 @@ pub mod my_psp1155 {
     use ink_prelude::{
         string::String,
         vec,
-        vec::Vec,
     };
     use ink_storage::collections::HashMap as StorageHashMap;
     use psp1155::traits::*;

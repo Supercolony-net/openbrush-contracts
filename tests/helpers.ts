@@ -5,7 +5,6 @@ import { expect } from './setup/chai'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { buildTx } from '@redspot/patract/buildTx'
 import { Keyring } from '@polkadot/keyring'
-import { Signer } from 'redspot/types'
 import { TransactionParams, TransactionResponse } from "@redspot/patract/types";
 
 

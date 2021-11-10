@@ -45,20 +45,6 @@ Read our **documentation** in [doc](https://supercolony-net.github.io/openbrush-
 
 Go through our **examples** in [examples](examples)
 
-## Ink version
-
-At the moment library is using own version of ink!, but it is the same as [ink!-3.0-rc4](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc4)
-with additional fixes:
-
-- [A new `metadata_name` attribute](https://github.com/paritytech/ink/pull/859)
-
-So if you want to use this library in the project, you must use custom version of ink! in the whole project. And `0.13` release of `cargo-contract`.
-You can install it with:
-
-```
-cargo install cargo-contract --vers ^0.13 --force --locked
-```
-
 ### Events
 ‼️ Important ‼️
 
@@ -72,7 +58,6 @@ but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/
 
 ### Other Issues open:
 
-* [Returning of error doesn't mean revert of transaction](https://github.com/Supercolony-net/openbrush-contracts/issues/3)
 * [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
 * [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
 * [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)

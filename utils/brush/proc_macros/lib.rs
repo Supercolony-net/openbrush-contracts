@@ -43,6 +43,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// # Example: Definition
 ///
 /// ```
+/// mod doc {
 /// use ink_prelude::collections::BTreeMap;
 /// use brush::traits::{AccountId, Balance, InkStorage};
 ///
@@ -77,6 +78,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///         let to_balance = self.balance_of(to);
 ///         self.get_mut().balances.insert(to, to_balance + amount);
 ///     }
+/// }
 /// }
 /// ```
 ///

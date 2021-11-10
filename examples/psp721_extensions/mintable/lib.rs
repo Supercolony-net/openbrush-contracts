@@ -2,7 +2,6 @@
 
 #[brush::contract]
 pub mod my_psp721_mintable {
-    use ink_prelude::vec::Vec;
     use psp721::{
         extensions::mintable::*,
         traits::*,

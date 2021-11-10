@@ -1,16 +1,13 @@
 extern crate proc_macro;
 
-use ink_lang_ir::Callable;
+use heck::CamelCase as _;
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
     quote,
 };
-use std::{
-    collections::HashMap,
-    convert::TryFrom,
-};
+use std::collections::HashMap;
 use syn::{
     ext::IdentExt,
     parenthesized,
@@ -21,14 +18,7 @@ use syn::{
     ItemImpl,
 };
 
-use crate::{
-    metadata::Metadata,
-    trait_definition::{
-        EXTERNAL_METHOD_SUFFIX,
-        EXTERNAL_TRAIT_SUFFIX,
-        WRAPPER_TRAIT_SUFFIX,
-    },
-};
+use crate::metadata::Metadata;
 
 pub(crate) const BRUSH_PREFIX: &'static str = "__brush";
 
@@ -146,9 +136,16 @@ impl Attributes {
 // Returns "ink-as-dependency" and not("ink-as-dependency") impls
 pub(crate) fn impl_external_trait(
     mut impl_item: syn::ItemImpl,
-    trait_ident: &syn::Ident,
+    trait_path: &syn::Path,
     metadata: &Metadata,
 ) -> (Vec<syn::Item>, Vec<syn::Item>) {
+    let trait_ident = trait_path.segments.last().expect("Trait path is empty").ident.clone();
+    let namespace_ident = format_ident!("{}_{}_{}", BRUSH_PREFIX, "external", trait_ident.to_string());
+    let original_trait_path = trait_path.segments.clone();
+    let mut trait_path = trait_path.clone();
+    trait_path
+        .segments
+        .insert(trait_path.segments.len() - 1, syn::PathSegment::from(namespace_ident));
     let impl_ink_attrs = extract_attr(&mut impl_item.attrs, "ink");
     let mut ink_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
     metadata
@@ -158,19 +155,53 @@ pub(crate) fn impl_external_trait(
         .iter()
         .for_each(|method| {
             if is_attr(&method.attrs, "ink") {
-                let mut empty_method = method.clone();
-                empty_method.default = Some(
+                let mut method = method.clone();
+
+                for (i, fn_arg) in method.sig.inputs.iter_mut().enumerate() {
+                    if let syn::FnArg::Typed(pat) = fn_arg {
+                        let type_ident = format_ident!("{}Input{}", method.sig.ident.to_string().to_camel_case(), i);
+                        let mut type_path = trait_path.clone();
+                        type_path.segments.pop();
+                        type_path.segments.push(syn::PathSegment::from(type_ident));
+                        *pat.ty.as_mut() = syn::parse2(quote! {
+                            #type_path
+                        })
+                        .unwrap();
+                    }
+                }
+
+                if let syn::ReturnType::Type(_, t) = &mut method.sig.output {
+                    let type_ident = format_ident!("{}Output", method.sig.ident.to_string().to_camel_case());
+                    let mut type_path = trait_path.clone();
+                    type_path.segments.pop();
+                    type_path.segments.push(syn::PathSegment::from(type_ident));
+                    *t = syn::parse2(quote! {
+                        #type_path
+                    })
+                    .unwrap();
+                }
+
+                let original_name = method.sig.ident.clone();
+                let inputs_params = method.sig.inputs.iter().filter_map(|fn_arg| {
+                    if let syn::FnArg::Typed(pat_type) = fn_arg {
+                        Some(pat_type.pat.clone())
+                    } else {
+                        None
+                    }
+                });
+
+                method.default = Some(
                     syn::parse2(quote! {
                         {
-                            unimplemented!()
+                            #original_trait_path::#original_name(self #(, #inputs_params )* )
                         }
                     })
                     .unwrap(),
                 );
-                let mut attrs = empty_method.attrs.clone();
-                empty_method.attrs = extract_attr(&mut attrs, "doc");
-                empty_method.attrs.append(&mut extract_attr(&mut attrs, "ink"));
-                ink_methods.insert(method.sig.ident.to_string(), empty_method);
+                let mut attrs = method.attrs.clone();
+                method.attrs = extract_attr(&mut attrs, "doc");
+                method.attrs.append(&mut extract_attr(&mut attrs, "ink"));
+                ink_methods.insert(method.sig.ident.to_string(), method);
             }
         });
 
@@ -194,79 +225,10 @@ pub(crate) fn impl_external_trait(
     let ink_methods_iter = ink_methods.iter().map(|(_, value)| value);
 
     let self_ty = impl_item.self_ty.clone().as_ref().clone();
-    let draft_impl: ItemImpl = syn::parse2(quote! {
-        #(#impl_ink_attrs)*
-        impl #trait_ident for #self_ty {
-            #(#ink_methods_iter)*
-        }
-    })
-    .unwrap();
-
-    // Evaluate selector and metadata_name for each method based on rules in ink!
-    let ink_impl = ::ink_lang_ir::ItemImpl::try_from(draft_impl).unwrap();
-    ink_impl.iter_messages().for_each(|message| {
-        let method = ink_methods.get_mut(&message.ident().to_string()).unwrap();
-        if message.user_provided_selector().is_none() {
-            let selector_u32 = u32::from_be_bytes(message.composed_selector().as_bytes().clone()) as usize;
-            let selector = format!("{:#010x}", selector_u32);
-
-            method.attrs.push(new_attribute(quote! {#[ink(selector = #selector)]}));
-        }
-        if message.metadata_name() == message.ident().to_string() {
-            let selector = format!("{}", message.metadata_name());
-
-            method
-                .attrs
-                .push(new_attribute(quote! {#[ink(metadata_name = #selector)]}));
-        }
-
-        let original_name = message.ident();
-        let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);
-
-        method.default = Some(
-            syn::parse2(quote! {
-                {
-                    #trait_ident::#original_name(self #(, #inputs_params )* )
-                }
-            })
-            .unwrap(),
-        );
-    });
-
-    let ink_methods_iter = ink_methods.iter().map(|(_, value)| value);
-    let wrapper_trait_ident = format_ident!("{}_{}{}", BRUSH_PREFIX, trait_ident, WRAPPER_TRAIT_SUFFIX);
-    // We only want to use this implementation in case when ink-as-dependency for wrapper.
-    // It will provide methods with the same name like in initial trait.
-    let wrapper_impl: ItemImpl = syn::parse2(quote! {
-        #(#impl_ink_attrs)*
-        impl #wrapper_trait_ident for #self_ty {
-            #(#ink_methods_iter)*
-        }
-    })
-    .unwrap();
-
-    let trait_name = ink_impl
-        .trait_path()
-        .map(|path| path.segments.last().unwrap().ident.to_string());
-
-    let mut metadata_name_attr = quote! {};
-    if trait_name == ink_impl.trait_metadata_name() {
-        let name = format!("{}", trait_name.unwrap());
-        metadata_name_attr = quote! { #[ink(metadata_name = #name)] }
-    }
-    let external_ink_methods_iter = ink_methods.iter_mut().map(|(_, value)| {
-        value.sig.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, value.sig.ident, EXTERNAL_METHOD_SUFFIX);
-        value
-    });
-    let external_trait_ident = format_ident!("{}_{}{}", BRUSH_PREFIX, trait_ident, EXTERNAL_TRAIT_SUFFIX);
-    // It is implementation of "external" trait(trait where all method marked with ink!)
-    // This trait has another name with external suffix. And all methods have external signature.
-    // But ABI generated by this impl section is the same as ABI generated by original trait.
     let external_impl: ItemImpl = syn::parse2(quote! {
-        #metadata_name_attr
         #(#impl_ink_attrs)*
-        impl #external_trait_ident for #self_ty {
-            #(#external_ink_methods_iter)*
+        impl #trait_path for #self_ty {
+            #(#ink_methods_iter)*
         }
     })
     .unwrap();
@@ -275,7 +237,7 @@ pub(crate) fn impl_external_trait(
     let internal_impl = impl_item;
 
     (
-        vec![syn::Item::from(wrapper_impl)],
+        vec![syn::Item::from(external_impl.clone())],
         vec![syn::Item::from(internal_impl), syn::Item::from(external_impl)],
     )
 }

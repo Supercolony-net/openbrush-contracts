@@ -34,6 +34,14 @@ describe('MY_PSP22', () => {
     await expect(tx.transfer(contract.address, 7, [])).to.eventually.be.fulfilled
   })
 
+  it('Transfers funds successfully if destination account is a receiver a contract but not PSP22Receiver', async () => {
+    const { tx } = await setup()
+
+    const { contract } = await setup()
+
+    await expect(tx.transfer(contract.address, 7, [])).to.eventually.be.fulfilled
+  })
+
   it('Can not transfer above the amount', async () => {
     const {
       contract,

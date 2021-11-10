@@ -45,14 +45,12 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
     ink_module.content = Some((braces.clone(), ink_items));
 
     let result = quote! {
-        #attrs
         #[cfg(not(feature = "ink-as-dependency"))]
-        #[ink_lang::contract]
+        #[ink_lang::contract(#attrs)]
         #module
 
-        #attrs
         #[cfg(feature = "ink-as-dependency")]
-        #[ink_lang::contract]
+        #[ink_lang::contract(#attrs)]
         #ink_module
     };
     result.into()
@@ -97,7 +95,7 @@ fn split_impls(mut items: Vec<syn::Item>, metadata: &metadata::Metadata) -> (Vec
                 let trait_ident = trait_path.segments.last().expect("Trait path is empty").ident.clone();
                 if metadata.external_traits.contains_key(&trait_ident.to_string()) {
                     let (mut _ink_impls, mut _not_ink_impls) =
-                        internal::impl_external_trait(item_impl.clone(), &trait_ident, &metadata);
+                        internal::impl_external_trait(item_impl.clone(), &trait_path, &metadata);
                     ink_items.append(&mut _ink_impls);
                     not_ink_items.append(&mut _not_ink_impls);
                     return

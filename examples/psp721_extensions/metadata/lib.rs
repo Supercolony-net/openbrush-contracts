@@ -2,10 +2,7 @@
 
 #[brush::contract]
 pub mod my_psp721_metadata {
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
+    use ink_prelude::string::String;
     use psp721::{
         extensions::metadata::*,
         traits::*,
