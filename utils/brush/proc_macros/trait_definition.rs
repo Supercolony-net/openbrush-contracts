@@ -7,22 +7,21 @@ use crate::{
     },
     metadata,
 };
+use heck::CamelCase as _;
 use proc_macro::TokenStream;
 use quote::{
     format_ident,
     quote,
     ToTokens,
 };
+use std::collections::HashMap;
 use syn::{
     parse_macro_input,
     ItemTrait,
 };
 
-pub(crate) const WRAPPER_TRAIT_SUFFIX: &'static str = "Wrapper";
-pub(crate) const EXTERNAL_TRAIT_SUFFIX: &'static str = "External";
-pub(crate) const EXTERNAL_METHOD_SUFFIX: &'static str = "_external";
-
-pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
+pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
+    let attrs: proc_macro2::TokenStream = _attrs.into();
     let trait_item = parse_macro_input!(_input as ItemTrait);
 
     // Save trait definition with generics and default methods to metadata.
@@ -36,16 +35,29 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
 
     let trait_without_ink_attrs = remove_ink_attrs(trait_item.clone());
     let ink_trait = transform_to_ink_trait(trait_item.clone());
-    let mut ink_wrapper = ink_trait.clone();
-    ink_wrapper.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, ink_wrapper.ident, WRAPPER_TRAIT_SUFFIX);
+    let namespace_ident = format_ident!("{}_{}_{}", BRUSH_PREFIX, "external", trait_item.ident.to_string());
 
-    // Create external trait with external method. This trait will call implementation of internal trait.
-    // During implementation of this trait we will
-    let mut ink_external = ink_trait;
-    ink_external.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, ink_external.ident, EXTERNAL_TRAIT_SUFFIX);
-    ink_external.items.iter_mut().for_each(|item| {
+    let mut types: HashMap<syn::Ident, proc_macro2::TokenStream> = HashMap::new();
+
+    ink_trait.items.iter().for_each(|item| {
         if let syn::TraitItem::Method(method) = item {
-            method.sig.ident = format_ident!("{}_{}{}", BRUSH_PREFIX, method.sig.ident, EXTERNAL_METHOD_SUFFIX)
+            if let syn::ReturnType::Type(_, t) = &method.sig.output {
+                let type_ident = format_ident!("{}Output", method.sig.ident.to_string().to_camel_case());
+                types.insert(type_ident, t.to_token_stream());
+            }
+
+            for (i, fn_arg) in method.sig.inputs.iter().enumerate() {
+                if let syn::FnArg::Typed(pat) = fn_arg {
+                    let type_ident = format_ident!("{}Input{}", method.sig.ident.to_string().to_camel_case(), i);
+                    types.insert(type_ident, pat.ty.to_token_stream());
+                }
+            }
+        }
+    });
+
+    let aliases = types.iter().map(|(ident, ty)| {
+        quote! {
+            pub type #ident = #ty;
         }
     });
 
@@ -54,19 +66,16 @@ pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
         // We removed ink! attributes from methods.
         #trait_without_ink_attrs
 
-        // This trait contains only ink! methods with modified name.
-        // This trait will use metadata_name and selector attributes
-        // to generate the same ABI like original trait.
-        #[ink_lang::trait_definition]
         #[allow(non_camel_case_types)]
-        #ink_external
+        pub mod #namespace_ident {
+            use super::*;
 
-        // This trait contains only ink! methods with original naming.
-        // We will use them to cover "ink-as-dependency" case.
-        // We will implement this trait only for this case.
-        #[ink_lang::trait_definition]
-        #[allow(non_camel_case_types)]
-        #ink_wrapper
+            #(#aliases)*
+
+            // This trait contains only ink! methods without other attributes.
+            #[ink_lang::trait_definition(#attrs)]
+            #ink_trait
+        }
     };
     code.into()
 }
@@ -133,7 +142,7 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
 }
 
 fn remove_ink_attrs(mut trait_item: ItemTrait) -> ItemTrait {
-    // Remove all non-ink functions
+    // Remove all ink attributes form methods
     trait_item.items.iter_mut().for_each(|mut item| {
         if let syn::TraitItem::Method(method) = &mut item {
             method.attrs = remove_attr(&method.attrs, "ink")

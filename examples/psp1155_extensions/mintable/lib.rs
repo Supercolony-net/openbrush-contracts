@@ -2,7 +2,6 @@
 
 #[brush::contract]
 pub mod my_psp1155 {
-    use ink_prelude::vec::Vec;
     use psp1155::{
         extensions::mintable::*,
         traits::*,

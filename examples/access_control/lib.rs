@@ -4,7 +4,6 @@
 pub mod my_access_control {
     use access_control::traits::*;
     use brush::modifiers;
-    use ink_prelude::vec::Vec;
     use psp721::{
         extensions::{
             burnable::*,

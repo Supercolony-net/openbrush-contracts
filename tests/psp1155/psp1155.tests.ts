@@ -17,20 +17,49 @@ describe('MY_PSP1155', () => {
         await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
     })
 
+    it('PSP 1155 - contract(not receiver) can accept the transfer', async () => {
+        const { tx, query, defaultSigner: sender } = await setup()
+
+        const { contract } = await setup()
+
+        // Arrange
+        await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
+
+        // Assert - Sender can send token to receiver
+        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.fulfilled
+        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([1, 0])
+    })
+
+    it('PSP 1155 - receiver can accept the transfer', async () => {
+        const { tx, query, defaultSigner: sender } = await setup()
+
+        const { contract } = await setup_receiver()
+
+        // Arrange
+        await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
+
+        // Assert - Sender can send token to receiver
+        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.fulfilled
+        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([1, 0])
+    })
+
     it('PSP 1155 - receiver can reject the transfer', async () => {
         const { tx, query, defaultSigner: sender } = await setup()
 
         const { contract } = await setup_receiver()
 
         // Arrange
-        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 0])
+        await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
 
         // Act - Receiver wants to reject the next transfer
         await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
 
         // Assert - Sender cannot send token to receiver
         await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.rejected
-        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 0])
+        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
     })
 
     it('Balance of batch works', async () => {

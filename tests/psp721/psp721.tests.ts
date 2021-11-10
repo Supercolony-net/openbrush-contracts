@@ -72,6 +72,40 @@ describe('MY_PSP721', () => {
         await expect(query.ownerOf(bnArg(0))).to.have.output(contract.address.toString())
     })
 
+    it('PSP 721 - safe transfer works to contract but not PSP721Receiver', async () => {
+        const {
+            tx,
+            query,
+            defaultSigner: sender,
+        } = await setup()
+
+        const { contract } = await setup()
+
+        // Arrange - Sender mint a Token and Approve Receiver as spender of this token
+        await expect(tx.mintToken()).to.be.fulfilled
+        await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
+
+        // Act - Alice transfers the token form sender to bob
+        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 'data')).to.eventually.be.fulfilled
+
+        // Assert - Bob is now owner of the token
+        await expect(query.ownerOf(bnArg(0))).to.have.output(contract.address.toString())
+    })
+
+    it('PSP 721 - safe transfer works to contract that implements PSP721Receiver', async () => {
+        const { tx, query, defaultSigner: sender } = await setup()
+
+        const { contract } = await setup_receiver()
+
+        // Arrange - Sender mint a token
+        await expect(tx.mintToken()).to.be.fulfilled
+        await expect(query.ownerOf(bnArg(0))).to.have.output(sender.address)
+
+        // Assert - Sender cannot send token to receiver & Sender still own the token
+        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 'data')).to.eventually.be.fulfilled
+        await expect(query.ownerOf(bnArg(0))).to.have.output(contract.address)
+    })
+
     it('PSP 721 - receiver can reject the transfer', async () => {
         const { tx, query, defaultSigner: sender } = await setup()
 
