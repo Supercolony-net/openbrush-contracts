@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 1
 title: PSP22 Token Timelock
 ---
 
@@ -53,3 +53,5 @@ impl MyPSP22TokenTimelock {
     }
 }
 ```
+
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).

@@ -7,7 +7,7 @@ describe('TOKEN_TIMELOCK', () => {
     async function setup() {
         let psp22 = await setupContract('my_psp22', 'new', '1000')
         const beneficiary = psp22.defaultSigner
-        let releaseTime = (Date.now() / 1000) + (24 * 60 * 60)
+        let releaseTime = (await api.query.timestamp.now()).toNumber() + (24 * 60 * 60 * 1000)
         let timelock = await setupContract('my_psp22_token_timelock', 'new', psp22.contract.address, beneficiary.address, releaseTime)
         return { psp22, timelock, beneficiary, releaseTime }
     }
@@ -32,6 +32,7 @@ describe('TOKEN_TIMELOCK', () => {
         await expect(fromSigner(psp22, beneficiary.address).tx.transfer(timelock.address, depositedTokens, [])).to.eventually.be.fulfilled
         await expect(psp22Query.balanceOf(timelock.address)).to.have.output(depositedTokens)
         await expect(psp22Query.balanceOf(beneficiary.address)).to.have.output(0)
+        // TODO this does not work, so the test will fail
         await api.tx.timestamp.set(releaseTime).signAndSend(beneficiary.pair)
 
         // release the tokens
@@ -54,7 +55,7 @@ describe('TOKEN_TIMELOCK', () => {
         await expect(psp22Query.balanceOf(beneficiary.address)).to.have.output(0)
 
         // release the tokens early
-        await expect(fromSigner(timelock, beneficiary.address).tx.release())
+        await expect(fromSigner(timelock, beneficiary.address).tx.release()).to.eventually.be.rejected
 
         await expect(psp22Query.balanceOf(timelock.address)).to.have.output(depositedTokens)
         await expect(psp22Query.balanceOf(beneficiary.address)).to.have.output(0)

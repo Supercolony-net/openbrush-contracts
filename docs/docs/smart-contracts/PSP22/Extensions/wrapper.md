@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 4
 title: PSP22 Wrapper
 ---
 
@@ -57,3 +57,5 @@ impl MyPSP22 {
     }
 }
 ```
+
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).
