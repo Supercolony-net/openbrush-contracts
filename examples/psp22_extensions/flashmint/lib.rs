@@ -23,25 +23,12 @@ pub mod my_psp22_flashmint {
         }
     }
 
-    impl PSP3156FlashBorrower for MyPSP22FlashMint {
-        #[ink(message)]
-        fn on_flashloan(
-            &mut self,
-            _initiator: AccountId,
-            _token: AccountId,
-            _amount: Balance,
-            _fee: Balance,
-            _data: Vec<u8>,
-        ) -> [u8; 32] {
-            // TODO do something with the tokens
-            brush::blake2b_256!("PSP3156FlashBorrower.onFlashLoan")
-        }
-    }
-
     impl MyPSP22FlashMint {
         #[ink(constructor)]
-        pub fn new() -> Self {
-            Self::default()
+        pub fn new(total_supply: Balance) -> Self {
+            let mut instance = Self::default();
+            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+            instance
         }
     }
 }
