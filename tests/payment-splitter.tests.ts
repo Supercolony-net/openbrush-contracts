@@ -3,12 +3,14 @@ import { network, patract } from 'redspot'
 const { api } = network
 
 const { getRandomSigner } = patract
+const KAYNE_SHARE = 40;
+const IAN_SHARE = 60;
 
 describe('MY_PAYMENT_SPLITTER', () => {
   async function setup() {
     const ian = await getRandomSigner()
     const kayne = await getRandomSigner()
-    let contract = await setupContract('my_payment_splitter', 'new', [[kayne.address, 40], [ian.address, 60]])
+    let contract = await setupContract('my_payment_splitter', 'new', [[kayne.address, KAYNE_SHARE], [ian.address, IAN_SHARE]])
 
     return { contract, kayne, ian }
   }
@@ -31,7 +33,7 @@ describe('MY_PAYMENT_SPLITTER', () => {
 
     // Act - Send native token and release them
     await expect(contract.contract.query.totalReleased()).to.have.output(0)
-    await expect(contract.contract.tx.receive({ value: 20000000 })).to.eventually.be.fulfilled
+    await expect(contract.contract.tx.receive({ value: 1000000000000 })).to.eventually.be.fulfilled
     await expect(contract.contract.tx.release(kayne.address)).to.eventually.be.fulfilled
     await expect(contract.contract.tx.release(ian.address)).to.eventually.be.fulfilled
 
@@ -43,6 +45,8 @@ describe('MY_PAYMENT_SPLITTER', () => {
     // @ts-ignore
     let ianReleased = Number.parseInt((await contract.contract.query.released(ian.address)).output)
     expect(ianReleased > kayneReleased).to.true
+    expect(kayneReleased).to.equal(totalReleased * KAYNE_SHARE / (KAYNE_SHARE + IAN_SHARE))
+    expect(ianReleased).to.equal(totalReleased * IAN_SHARE / (KAYNE_SHARE + IAN_SHARE))
     expect(ianReleased + kayneReleased).to.equal(totalReleased)
   })
 })
