@@ -46,11 +46,11 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
 
     let result = quote! {
         #[cfg(not(feature = "ink-as-dependency"))]
-        #[ink_lang::contract(#attrs)]
+        #[::ink_lang::contract(#attrs)]
         #module
 
         #[cfg(feature = "ink-as-dependency")]
-        #[ink_lang::contract(#attrs)]
+        #[::ink_lang::contract(#attrs)]
         #ink_module
     };
     result.into()

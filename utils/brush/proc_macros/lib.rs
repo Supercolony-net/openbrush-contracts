@@ -7,6 +7,7 @@ mod metadata;
 mod modifier_definition;
 mod modifiers;
 mod trait_definition;
+mod wrapper;
 
 use proc_macro::TokenStream;
 use quote::quote;
@@ -52,6 +53,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     pub balances: BTreeMap<AccountId, Balance>,
 /// }
 ///
+/// #[brush::trait_definition]
 /// pub trait PSP22Storage: InkStorage {
 ///     fn get(&self) -> &Data;
 ///     fn get_mut(&mut self) -> &mut Data;
@@ -102,6 +104,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///         pub allowances: BTreeMap<(AccountId, AccountId), Balance>,
 ///     }
 ///
+///     #[brush::trait_definition]
 ///     pub trait PSP22ExampleStorage: InkStorage {
 ///         fn get(&self) -> &Data;
 ///         fn get_mut(&mut self) -> &mut Data;
@@ -378,4 +381,9 @@ pub fn blake2b_256_as_u32(input: TokenStream) -> TokenStream {
 
     let code = quote! { #selector_u32 };
     code.into()
+}
+
+#[proc_macro_attribute]
+pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
+    wrapper::generate(attrs, input)
 }

@@ -1,4 +1,3 @@
-use crate::stub::PSP22Receiver as PSP22ReceiverStub;
 use brush::{
     declare_storage_trait,
     traits::{
@@ -13,7 +12,6 @@ pub use common::errors::{
     PSP22ReceiverError,
 };
 use ink_env::Error as EnvError;
-use ink_lang::ForwardCallMut;
 use ink_prelude::{
     string::String,
     vec::Vec,
@@ -39,6 +37,9 @@ pub struct PSP22Data {
 }
 
 declare_storage_trait!(PSP22Storage, PSP22Data);
+
+#[brush::wrapper]
+pub type PSP22Wrapper = dyn PSP22;
 
 /// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
@@ -196,16 +197,11 @@ pub trait PSP22: PSP22Storage {
     fn _do_safe_transfer_check(
         &self,
         from: AccountId,
-        to: AccountId,
+        mut to: AccountId,
         value: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
-        let mut to_receiver: PSP22ReceiverStub = ink_env::call::FromAccountId::from_account_id(to);
-        match to_receiver
-            .call_mut()
-            .before_received(Self::env().caller(), from, value, data)
-            .fire()
-        {
+        match PSP22ReceiverWrapper::before_received_builder(&mut to, Self::env().caller(), from, value, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -358,6 +354,9 @@ pub trait PSP22: PSP22Storage {
         self._burn(account, amount)
     }
 }
+
+#[brush::wrapper]
+pub type PSP22ReceiverWrapper = dyn PSP22Receiver;
 
 /// PSP22Receiver is a trait for any contract that wants to support safe transfers from a PSP22
 /// token smart contract to avoid unexpected tokens in the balance of contract.

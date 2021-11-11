@@ -6,13 +6,16 @@ use brush::traits::{
     Balance,
 };
 
+#[brush::wrapper]
+pub type PSP22MintableWrapper = dyn PSP22Mintable + PSP22;
+
 #[brush::trait_definition]
 pub trait PSP22Mintable: PSP22 {
     /// Minting `amount` tokens to the account.
     ///
     /// See [`PSP22::_mint`].
     #[ink(message)]
-    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>  {
+    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         self._mint(account, amount)
     }
 }

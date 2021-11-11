@@ -205,6 +205,10 @@ pub(crate) fn impl_external_trait(
             }
         });
 
+    if ink_methods.is_empty() {
+        return (vec![], vec![syn::Item::from(impl_item)])
+    }
+
     // Move ink! attrs from internal trait to external
     impl_item.items.iter_mut().for_each(|mut item| {
         if let syn::ImplItem::Method(method) = &mut item {

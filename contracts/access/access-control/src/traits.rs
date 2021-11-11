@@ -1,3 +1,4 @@
+pub use access_control_derive::AccessControlStorage;
 use brush::{
     declare_storage_trait,
     modifier_definition,
@@ -7,12 +8,11 @@ use brush::{
         InkStorage,
     },
 };
+pub use common::errors::AccessControlError;
 use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,
 };
-pub use access_control_derive::AccessControlStorage;
-pub use common::errors::AccessControlError;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -41,6 +41,9 @@ where
     }
     body(instance)
 }
+
+#[brush::wrapper]
+pub type AccessControlWrapper = dyn AccessControl;
 
 /// Contract module that allows children to implement role-based access
 /// control mechanisms. This is a lightweight version that doesn't allow enumerating role
@@ -126,7 +129,8 @@ pub trait AccessControl: AccessControlStorage {
     // Helper functions
 
     /// The user must override this function using their event definition.
-    fn _emit_role_admin_changed(&mut self, _role: RoleType, _previous_admin_role: RoleType, _new_admin_role: RoleType) {}
+    fn _emit_role_admin_changed(&mut self, _role: RoleType, _previous_admin_role: RoleType, _new_admin_role: RoleType) {
+    }
 
     /// The user must override this function using their event definition.
     fn _emit_role_granted(&mut self, _role: RoleType, _grantee: AccountId, _grantor: Option<AccountId>) {}

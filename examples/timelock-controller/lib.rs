@@ -2,8 +2,8 @@
 
 #[brush::contract]
 pub mod my_timelock_controller {
-    use timelock_controller::traits::*;
     use ink_prelude::vec::Vec;
+    use timelock_controller::traits::*;
 
     #[ink(storage)]
     #[derive(Default, AccessControlStorage, TimelockControllerStorage)]

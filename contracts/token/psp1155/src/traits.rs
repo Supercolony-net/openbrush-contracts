@@ -1,4 +1,3 @@
-use crate::stub::PSP1155Receiver as PSP1155ReceiverStub;
 use brush::{
     declare_storage_trait,
     traits::{
@@ -13,11 +12,7 @@ pub use common::errors::{
     PSP1155ReceiverError,
 };
 use core::result::Result;
-use ink_env::{
-    call::FromAccountId,
-    Error as EnvError,
-};
-use ink_lang::ForwardCallMut;
+use ink_env::Error as EnvError;
 use ink_prelude::{
     string::String,
     vec,
@@ -42,6 +37,9 @@ pub struct PSP1155Data {
 }
 
 declare_storage_trait!(PSP1155Storage, PSP1155Data);
+
+#[brush::wrapper]
+pub type PSP1155Wrapper = dyn PSP1155;
 
 /// Contract module which provides a basic implementation of multiple token types.
 /// A single deployed contract may include any combination of fungible tokens,
@@ -300,16 +298,11 @@ pub trait PSP1155: PSP1155Storage {
         &mut self,
         operator: AccountId,
         from: AccountId,
-        to: AccountId,
+        mut to: AccountId,
         ids_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
-        let mut receiver: PSP1155ReceiverStub = FromAccountId::from_account_id(to);
-        match receiver
-            .call_mut()
-            .before_received(operator, from, ids_amounts, data)
-            .fire()
-        {
+        match PSP1155ReceiverWrapper::before_received_builder(&mut to, operator, from, ids_amounts, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -334,6 +327,9 @@ pub trait PSP1155: PSP1155Storage {
         }
     }
 }
+
+#[brush::wrapper]
+pub type PSP1155ReceiverWrapper = dyn PSP1155Receiver;
 
 /// PSP1155Receiver is a trait for any contract that wants to support safe transfers from a PSP1155
 /// multi token smart contract to avoid unexpected tokens in the balance of contract.

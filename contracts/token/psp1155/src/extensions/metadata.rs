@@ -19,6 +19,9 @@ pub struct PSP1155MetadataData {
 
 declare_storage_trait!(PSP1155MetadataStorage, PSP1155MetadataData);
 
+#[brush::wrapper]
+pub type PSP1155MetadataWrapper = dyn PSP1155Metadata;
+
 #[brush::trait_definition]
 pub trait PSP1155Metadata: PSP1155MetadataStorage {
     /// Returns the uri for token type of id.

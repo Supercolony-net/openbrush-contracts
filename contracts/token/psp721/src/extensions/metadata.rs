@@ -20,6 +20,9 @@ pub struct PSP721MetadataData {
 
 declare_storage_trait!(PSP721MetadataStorage, PSP721MetadataData);
 
+#[brush::wrapper]
+pub type PSP721MetadataWrapper = dyn PSP721Metadata;
+
 #[brush::trait_definition]
 pub trait PSP721Metadata: PSP721MetadataStorage {
     /// Returns the token name.

@@ -11,5 +11,6 @@ pub use proc_macros::{
     modifier_definition,
     modifiers,
     trait_definition,
+    wrapper,
 };
 pub use test_utils;
