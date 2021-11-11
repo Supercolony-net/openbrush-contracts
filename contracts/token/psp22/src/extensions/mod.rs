@@ -11,5 +11,6 @@ pub use self::stub::{
     mintable::PSP22Mintable as PSP22MintableStub,
     psp22flashmint::PSP22FlashMint as PSP22FlashMintStub,
     psp3156_flash_borrower::PSP3156FlashBorrower as PSP3156FlashBorrowerStub,
+    psp3156_flash_lender::PSP3156FlashLender as PSP3156FlashLenderStub,
     wrapper::PSP22Wrapper as PSP22WrapperStub,
 };

@@ -172,7 +172,7 @@ pub mod psp3156_flash_borrower {
         }
 
         #[ink(message)]
-        pub fn on_flash_loan(
+        pub fn on_flashloan(
             &mut self,
             initiator: AccountId,
             token: AccountId,
@@ -180,6 +180,45 @@ pub mod psp3156_flash_borrower {
             fee: Balance,
             data: Vec<u8>,
         ) -> [u8; 32] {
+            unimplemented!()
+        }
+    }
+}
+
+#[ink_lang::contract(compile_as_dependency = true)]
+pub mod psp3156_flash_lender {
+    use crate::traits::PSP22Error;
+    use ink_prelude::vec::Vec;
+
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct PSP3156FlashLender {}
+
+    #[ink(namespace = "PSP3156FlashLender")]
+    impl PSP3156FlashLender {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn max_flashloan(&mut self, _token: AccountId) -> Balance {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn flash_fee(&mut self, _token: AccountId, _amount: Balance) -> Result<Balance, PSP22Error> {
+            unimplemented!()
+        }
+
+        #[ink(message)]
+        pub fn flashloan(
+            &mut self,
+            _receiver_account: AccountId,
+            _token: AccountId,
+            _amount: Balance,
+            _data: Vec<u8>,
+        ) -> Result<(), PSP22Error> {
             unimplemented!()
         }
     }
