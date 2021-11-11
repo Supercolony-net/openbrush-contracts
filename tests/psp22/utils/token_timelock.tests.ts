@@ -1,4 +1,4 @@
-import { expect, fromSigner, setupContract } from './helpers'
+import { expect, fromSigner, setupContract } from './../../helpers'
 import { network } from 'redspot'
 
 const { api } = network
