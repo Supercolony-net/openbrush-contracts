@@ -88,7 +88,7 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
     ///
     /// On success a `PayeeAdded` event is emitted.
     #[ink(message, payable)]
-    fn receive(&self) {
+    fn receive(&mut self) {
         self._emit_payee_added_event(Self::env().caller(), Self::env().transferred_balance())
     }
 
