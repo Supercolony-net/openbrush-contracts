@@ -9,7 +9,7 @@ use brush::traits::{
     AccountId,
     Balance,
 };
-use ink_lang::ToAccountId;
+use ink_env::call::FromAccountId;
 use ink_prelude::{
     string::String,
     vec::Vec,
@@ -39,14 +39,14 @@ pub trait PSP22FlashMint: PSP22 + PSP3156FlashBorrower {
     #[ink(message)]
     fn flashloan(
         &mut self,
-        receiver: &mut PSP3156FlashBorrowerStub,
+        receiver_account: AccountId,
         token: AccountId,
         amount: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
-        let receiver_account = receiver.to_account_id();
         let fee = self.flash_fee(token, amount)?;
         self._mint(receiver_account, amount)?;
+        let mut receiver: PSP3156FlashBorrowerStub = FromAccountId::from_account_id(receiver_account);
         if receiver.on_flash_loan(Self::env().caller(), token, amount, fee, data) != Self::RETURN_VALUE {
             return Err(PSP22Error::Custom(String::from("Invalid return value")))
         }
