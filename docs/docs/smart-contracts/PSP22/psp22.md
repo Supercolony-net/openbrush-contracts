@@ -146,6 +146,8 @@ Also you can use extensions for PSP22 token:
 
 [PSP22Wrapper](/smart-contracts/psp22/extensions/wrapper): token wrapper for PSP22.
 
+[PSP22FlashMint](/smart-contracts/psp22/extensions/flashmint): extension which allows the user to perform flashloans on the token by minting and burning the token.
+
 Check out the utilities for PSP22 token:
 
 [PSP22TokenTimelock](/smart-contracts/psp22/utils/token-timelock): utility for locking PSP22 tokens for a specified time.

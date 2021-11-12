@@ -11,6 +11,9 @@ This doc contains examples of how the library can be used and how to customize t
   * [PSP22Metadata](PSP22/Extensions/metadata.md): metadata for PSP22.
   * [PSP22Mintable](PSP22/Extensions/mintable.md): creation of new tokens.
   * [PSP22Burnable](PSP22/Extensions/burnable.md): destruction of own tokens.
+  * [PSP22Wrapper](PSP22/Extensions/wrapper.md): wrapper for PSP22 token (useful for governance tokens etc.).
+  * [PSP22FlashMint](PSP22/Extensions/flashmint.md): extension which allows performing flashloans of the token by minting and burning the token.
+  * [PSP22TokenTimelock](PSP22/Utils/token-timelock.md): Utility which allows token holders to lock their tokens for a specified amount of time.
 * [Access Control](access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control) and
   [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) together to provide rights to mint and burn NFT tokens.
