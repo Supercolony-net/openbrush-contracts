@@ -3,7 +3,6 @@
 #[brush::contract]
 pub mod my_psp22_token_timelock {
     use psp22::{
-        traits::*,
         utils::token_timelock::*,
     };
 

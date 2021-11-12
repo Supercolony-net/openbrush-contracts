@@ -2,8 +2,15 @@
 
 #[brush::contract]
 pub mod psp3156_flash_borrower {
+    use ink_env::call::FromAccountId;
     use ink_prelude::vec::Vec;
-    use psp22::extensions::flashmint::*;
+    use psp22::{
+        extensions::flashmint::*,
+        traits::{
+            PSP22Error,
+            PSP22Stub,
+        },
+    };
 
     #[ink(storage)]
     pub struct PSP3156FlashBorrowerStruct {}
@@ -12,6 +19,17 @@ pub mod psp3156_flash_borrower {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {}
+        }
+
+        #[ink(message)]
+        pub fn approve_token(
+            &mut self,
+            token_address: AccountId,
+            spender: AccountId,
+            amount: Balance,
+        ) -> Result<(), PSP22Error> {
+            let mut psp22: PSP22Stub = FromAccountId::from_account_id(token_address);
+            psp22.approve(spender, amount)
         }
     }
 
