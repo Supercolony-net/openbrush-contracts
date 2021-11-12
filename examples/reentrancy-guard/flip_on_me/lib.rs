@@ -3,7 +3,7 @@
 #[ink_lang::contract]
 pub mod flip_on_me {
     use ink_env::call::FromAccountId;
-    use my_flipper_guard::my_flipper_guard::MyFlipper;
+    use my_flipper_guard::my_flipper_guard::*;
     use reentrancy_guard::traits::*;
 
     #[ink(storage)]

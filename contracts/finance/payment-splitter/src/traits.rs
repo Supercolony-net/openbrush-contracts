@@ -42,16 +42,12 @@ pub type PaymentSplitterWrapper = dyn PaymentSplitter;
 /// account to a number of shares. Of all the native tokens that this contract receives, each account will then be able to claim
 /// an amount proportional to the percentage of total shares they were assigned.
 ///
-/// `PaymentSplitter` follows a _pull payment_ model. This means that payments are not automatically forwarded to the
+/// `PaymentSplitter` follows a pull payment model. This means that payments are not automatically forwarded to the
 /// accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the `release`
 /// function.
 ///
-/// ** Note **: In the substrate balance of contract decreases each block. Because it pays rent for the storage.
-/// So during `release`, each next user will get fewer native tokens.
-///
 /// This module is used through embedding of `PaymentSplitterData` and implementation of `PaymentSplitter` and
 /// `PaymentSplitterStorage` traits.
-// TODO: Substrate removed rent, so we need simplify logic in this contract
 #[brush::trait_definition]
 pub trait PaymentSplitter: PaymentSplitterStorage {
     /// Getter for the total shares held by payees.
@@ -105,38 +101,18 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
             return Err(PaymentSplitterError::AccountHasNoShares)
         }
 
-        let mut current_balance = Self::env().balance();
-        let minimum_balance = Self::env().minimum_balance() + Self::env().tombstone_deposit();
-
-        if current_balance < minimum_balance {
-            current_balance = 0;
-        } else {
-            current_balance -= minimum_balance;
-        }
+        let current_balance = Self::env().balance() - Self::env().minimum_balance() + Self::env().tombstone_deposit();
         let total_received = current_balance + self.get().total_released;
         let shares = self.get().shares.get(&account).unwrap().clone();
         let total_shares = self.get().total_shares;
-        let released = self.get_mut().released.entry(account.clone()).or_default().clone();
-        let mut payment = total_received * shares / total_shares;
-
-        if payment < released {
-            payment = 0;
-        } else {
-            payment -= released;
-        }
+        let released = self.get_mut().released.get(&account).cloned().unwrap_or_default();
+        let payment = total_received * shares / total_shares - released;
 
         if payment == 0 {
             return Err(PaymentSplitterError::AccountIsNotDuePayment)
         }
 
-        if payment > current_balance {
-            payment = current_balance;
-        }
-
-        self.get_mut()
-            .released
-            .entry(account)
-            .and_modify(|r| *r = released + payment);
+        self.get_mut().released.insert(account, released + payment);
         self.get_mut().total_released += payment;
 
         let transfer_result = Self::env().transfer(account.clone(), payment);

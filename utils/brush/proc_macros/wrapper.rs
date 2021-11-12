@@ -49,10 +49,8 @@ pub(crate) fn generate(_: TokenStream, input: TokenStream) -> TokenStream {
             };
             traits.bounds.push(syn::TypeParamBound::Trait(union_bound));
             union_trait = quote! {
-                #[allow(private_in_public)]
-                trait #union_ident : #bounds {}
+                pub trait #union_ident : #bounds {}
 
-                #[allow(private_in_public)]
                 impl #union_ident for ::brush::traits::AccountId {}
             }
         }
@@ -60,7 +58,6 @@ pub(crate) fn generate(_: TokenStream, input: TokenStream) -> TokenStream {
         (quote! {
             #union_trait
 
-            #[allow(private_in_public)]
             #type_item
         })
         .into()

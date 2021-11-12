@@ -73,8 +73,13 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
         });
 
         let wrapper_trait = generate_wrapper(ink_trait.clone());
+        let mut ink_as_dependency_trait = ink_trait.clone();
+        ink_as_dependency_trait.ident = format_ident!("{}AsDependency", ink_trait.ident);
 
         ink_code = quote! {
+            #[ink_lang::trait_definition(#attrs)]
+            #ink_as_dependency_trait
+
             #[allow(non_camel_case_types)]
             pub mod #namespace_ident {
                 use super::*;
@@ -230,14 +235,6 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     }
                 },
             );
-            let mut mut_tok = quote! {};
-            if let Some(fn_arg) = method.sig.inputs.first() {
-                if let syn::FnArg::Receiver(rec) = fn_arg {
-                    if rec.mutability.is_some() {
-                        mut_tok = quote! { mut }
-                    }
-                }
-            };
             let panic_str = format!(
                 "encountered error while calling <AccountId as {}>::{}",
                 trait_ident, message_ident,
@@ -245,13 +242,13 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
             def_messages.push(quote! {
                 #[inline]
                 fn #message_ident(
-                    & #mut_tok self
+                    & self
                     #( , #input_bindings : #input_types )*
                 ) -> #output_ty;
 
                 #[inline]
                 fn #message_builder_ident(
-                    & #mut_tok self
+                    & self
                     #( , #input_bindings : #input_types )*
                 ) -> ::ink_env::call::CallBuilder<
                     ::ink_env::DefaultEnvironment,
@@ -266,7 +263,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
             impl_messages.push(quote! {
                 #[inline]
                 fn #message_ident(
-                    & #mut_tok self
+                    & self
                     #( , #input_bindings : #input_types )*
                 ) -> #output_ty {
                     Self::#message_builder_ident(self #( , #input_bindings)*)
@@ -276,7 +273,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
 
                 #[inline]
                 fn #message_builder_ident(
-                    & #mut_tok self
+                    & self
                     #( , #input_bindings : #input_types )*
                 ) -> ::ink_env::call::CallBuilder<
                     ::ink_env::DefaultEnvironment,

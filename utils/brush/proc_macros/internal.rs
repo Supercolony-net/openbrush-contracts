@@ -237,11 +237,21 @@ pub(crate) fn impl_external_trait(
     })
     .unwrap();
 
+    let ink_methods_iter = ink_methods.iter().map(|(_, value)| value);
+    let as_dependency_ident = format_ident!("{}AsDependency", trait_ident);
+    let ink_as_dependency_impl: ItemImpl = syn::parse2(quote! {
+        #(#impl_ink_attrs)*
+        impl #as_dependency_ident for #self_ty {
+            #(#ink_methods_iter)*
+        }
+    })
+    .unwrap();
+
     // Internal implementation must be disable during "ink-as-dependency"
     let internal_impl = impl_item;
 
     (
-        vec![syn::Item::from(external_impl.clone())],
+        vec![syn::Item::from(ink_as_dependency_impl)],
         vec![syn::Item::from(internal_impl), syn::Item::from(external_impl)],
     )
 }
