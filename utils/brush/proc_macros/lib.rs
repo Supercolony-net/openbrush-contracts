@@ -355,6 +355,8 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 ///  ** Note ** The first argument of method should be a reference on `AccountId` of callee
 /// contract(even if the signature of the method requires a mutable reference).
 ///  ** Note ** Crated wrapper is only a type, so you can't create an instance of this object.
+///  ** Note ** The wrapper contains only ink's methods of the trait, it doesn't include a method of super traits.
+/// If you want to wrap them too, you need to explicitly specify them.
 ///
 /// # Example: Definition
 ///
