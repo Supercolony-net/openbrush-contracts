@@ -48,6 +48,7 @@ pub type PaymentSplitterWrapper = dyn PaymentSplitter;
 ///
 /// This module is used through embedding of `PaymentSplitterData` and implementation of `PaymentSplitter` and
 /// `PaymentSplitterStorage` traits.
+// TODO: Support payments in PSP22
 #[brush::trait_definition]
 pub trait PaymentSplitter: PaymentSplitterStorage {
     /// Getter for the total shares held by payees.
@@ -101,7 +102,10 @@ pub trait PaymentSplitter: PaymentSplitterStorage {
             return Err(PaymentSplitterError::AccountHasNoShares)
         }
 
-        let current_balance = Self::env().balance() - Self::env().minimum_balance() + Self::env().tombstone_deposit();
+        let current_balance = Self::env()
+            .balance()
+            .checked_sub(Self::env().minimum_balance() + Self::env().tombstone_deposit())
+            .unwrap_or_default();
         let total_received = current_balance + self.get().total_released;
         let shares = self.get().shares.get(&account).unwrap().clone();
         let total_shares = self.get().total_shares;

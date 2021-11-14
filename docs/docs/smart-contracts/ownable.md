@@ -132,7 +132,7 @@ pub mod ownable {
       #[ink(message)]
       #[modifiers(only_owner)]
       pub fn owner_function(&mut self) {
-         // TODO
+         todo!()
       }
 
    }

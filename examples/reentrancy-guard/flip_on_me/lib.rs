@@ -19,8 +19,13 @@ pub mod flip_on_me {
         #[ink(message)]
         pub fn flip_on_me(&mut self) -> Result<(), ReentrancyGuardError> {
             let caller = self.env().caller();
+            self.flip_on_target(caller)
+        }
+
+        #[ink(message)]
+        pub fn flip_on_target(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError> {
             // This method does a cross-contract call to caller contract and calls the `flip` method.
-            let mut flipper: MyFlipper = FromAccountId::from_account_id(caller);
+            let mut flipper: MyFlipper = FromAccountId::from_account_id(callee);
             flipper.flip()
         }
     }

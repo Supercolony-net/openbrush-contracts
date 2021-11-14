@@ -103,9 +103,9 @@ pub type TimelockControllerWrapper = dyn TimelockController + AccessControl;
 /// `AccessControlStorage` traits.
 #[brush::trait_definition]
 pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush {
-    const TIMELOCK_ADMIN_ROLE: RoleType = brush::blake2b_256_as_u32!("TIMELOCK_ADMIN_ROLE");
-    const PROPOSER_ROLE: RoleType = brush::blake2b_256_as_u32!("PROPOSER_ROLE");
-    const EXECUTOR_ROLE: RoleType = brush::blake2b_256_as_u32!("EXECUTOR_ROLE");
+    const TIMELOCK_ADMIN_ROLE: RoleType = ink_lang::selector_id!("TIMELOCK_ADMIN_ROLE");
+    const PROPOSER_ROLE: RoleType = ink_lang::selector_id!("PROPOSER_ROLE");
+    const EXECUTOR_ROLE: RoleType = ink_lang::selector_id!("EXECUTOR_ROLE");
 
     const DONE_TIMESTAMP: Timestamp = 1;
 

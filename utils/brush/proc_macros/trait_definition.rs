@@ -3,7 +3,6 @@ use crate::{
         is_attr,
         new_attribute,
         remove_attr,
-        BRUSH_PREFIX,
     },
     metadata,
 };
@@ -22,7 +21,7 @@ use syn::{
 
 pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
     let attrs: proc_macro2::TokenStream = _attrs.into();
-    let trait_item = parse_macro_input!(_input as ItemTrait);
+    let mut trait_item = parse_macro_input!(_input as ItemTrait);
     let trait_without_ink_attrs;
     let ink_code;
 
@@ -35,8 +34,9 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     });
 
     if contains_ink.is_some() {
+        add_selectors_attribute(&mut trait_item);
         // Save trait definition with generics and default methods to metadata.
-        let locked_file = metadata::get_locked_file();
+        let locked_file = metadata::get_locked_file(crate::metadata::LockType::Exclusive);
         let mut metadata = metadata::Metadata::load(&locked_file);
         metadata.external_traits.insert(
             trait_item.ident.to_string(),
@@ -46,7 +46,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
 
         trait_without_ink_attrs = remove_ink_attrs(trait_item.clone());
         let ink_trait = transform_to_ink_trait(trait_item.clone());
-        let namespace_ident = format_ident!("{}_{}_{}", BRUSH_PREFIX, "external", trait_item.ident.to_string());
+        let namespace_ident = format_ident!("{}_external", trait_item.ident.to_string().to_lowercase());
 
         let mut types: HashMap<syn::Ident, proc_macro2::TokenStream> = HashMap::new();
 
@@ -309,6 +309,28 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
             #( #impl_messages )*
         }
     }
+}
+
+fn add_selectors_attribute(trait_item: &mut ItemTrait) {
+    let trait_ident = trait_item.ident.clone();
+    trait_item.items.iter_mut().for_each(|mut item| {
+        if let syn::TraitItem::Method(method) = &mut item {
+            if is_attr(&method.attrs, "ink") {
+                let contains_selector = method.attrs.iter().find(|attr| {
+                    let str_attr = attr.to_token_stream().to_string();
+                    str_attr.contains("selector")
+                });
+
+                if contains_selector.is_none() {
+                    let selector_string = format!("{}::{}", trait_ident, method.sig.ident);
+                    let selector_id = ::ink_lang_ir::Selector::new(&selector_string.into_bytes()).into_be_u32();
+                    method.attrs.push(crate::internal::new_attribute(
+                        quote! { #[ink(selector = #selector_id)] },
+                    ));
+                }
+            }
+        }
+    });
 }
 
 fn remove_ink_attrs(mut trait_item: ItemTrait) -> ItemTrait {

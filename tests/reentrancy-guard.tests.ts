@@ -36,6 +36,21 @@ describe('REENTRANCY_GUARD', () => {
     await expect(query.getValue()).to.have.output(false)
   })
 
+  it('Flip on target works', async () => {
+    const { query, contract } = await setup()
+
+    const { tx } = await setup_flip_on_me()
+
+    // Arrange - Ensure flip value is false
+    await expect(query.getValue()).to.have.output(false)
+
+    // Assert
+    await expect(tx.flipOnTarget(contract.address)).to.eventually.be.fulfilled
+
+    // Assert - Value still must be true
+    await expect(query.getValue()).to.have.output(true)
+  })
+
   it('Call flip on me must fails', async () => {
     const { tx, query, defaultSigner: sender } = await setup()
 

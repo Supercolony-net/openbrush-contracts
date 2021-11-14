@@ -105,7 +105,7 @@ pub mod my_access_control {
     // But better to use a hash of the variable name.
     // It will generate a unique identifier of this role.
     // And will reduce the chance to have overlapping roles.
-    const CALLER: RoleType = brush::blake2b_256_as_u32!("CALLER");
+    const CALLER: RoleType = ink_lang::selector_id!("CALLER");
 
     impl AccessControl for MyAccessControl {}
 
@@ -123,7 +123,7 @@ pub mod my_access_control {
         #[ink(message)]
         #[modifiers(only_role(CALLER))]
         fn restricted_function(&mut self) {
-            // TODO
+            todo!()
         }
     }
 }

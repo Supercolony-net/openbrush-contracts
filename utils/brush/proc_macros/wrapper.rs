@@ -1,4 +1,3 @@
-use crate::internal::BRUSH_PREFIX;
 use proc_macro::TokenStream;
 use quote::{
     format_ident,
@@ -12,7 +11,7 @@ pub(crate) fn generate(_: TokenStream, input: TokenStream) -> TokenStream {
         traits.bounds.iter_mut().for_each(|ty| {
             if let syn::TypeParamBound::Trait(t) = ty {
                 let trait_ident = t.path.segments.last().expect("Trait path is empty").ident.clone();
-                let namespace_ident = format_ident!("{}_{}_{}", BRUSH_PREFIX, "external", trait_ident.to_string());
+                let namespace_ident = format_ident!("{}_external", trait_ident.to_string().to_lowercase());
                 t.path
                     .segments
                     .insert(t.path.segments.len() - 1, syn::PathSegment::from(namespace_ident));

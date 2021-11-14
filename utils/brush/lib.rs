@@ -5,8 +5,6 @@ pub mod traits;
 
 // Each proc macro here is doing some kind of dark magic, be careful, you can summon devil=)
 pub use proc_macros::{
-    blake2b_256,
-    blake2b_256_as_u32,
     contract,
     modifier_definition,
     modifiers,

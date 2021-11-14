@@ -25,7 +25,7 @@ pub mod my_access_control {
     // But better to use a hash of the variable name.
     // It will generate a unique identifier of this role.
     // And will reduce the chance to have overlapping roles.
-    const MINTER: RoleType = brush::blake2b_256_as_u32!("MINTER");
+    const MINTER: RoleType = ink_lang::selector_id!("MINTER");
 
     impl PSP721Struct {
         #[ink(constructor)]

@@ -49,8 +49,8 @@ mod tests {
     // But better to use a hash of the variable name.
     // It will generate a unique identifier of this role.
     // And will reduce the chance to have overlapping roles.
-    const MINTER: RoleType = brush::blake2b_256_as_u32!("MINTER");
-    const PAUSER: RoleType = brush::blake2b_256_as_u32!("PAUSER");
+    const MINTER: RoleType = ink_lang::selector_id!("MINTER");
+    const PAUSER: RoleType = ink_lang::selector_id!("PAUSER");
 
     #[derive(Default, AccessControlStorage)]
     #[ink(storage)]

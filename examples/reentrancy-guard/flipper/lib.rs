@@ -43,7 +43,7 @@ pub mod my_flipper_guard {
     }
 
     #[brush::trait_definition]
-    pub trait Flipper: FlipperStorage {
+    pub trait Flipper: FlipperStorage + ReentrancyGuardStorage {
         #[ink(message)]
         fn get_value(&self) -> bool {
             self.value().clone()

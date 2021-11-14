@@ -1,7 +1,6 @@
 extern crate proc_macro;
 
 use heck::CamelCase as _;
-use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -140,7 +139,7 @@ pub(crate) fn impl_external_trait(
     metadata: &Metadata,
 ) -> (Vec<syn::Item>, Vec<syn::Item>) {
     let trait_ident = trait_path.segments.last().expect("Trait path is empty").ident.clone();
-    let namespace_ident = format_ident!("{}_{}_{}", BRUSH_PREFIX, "external", trait_ident.to_string());
+    let namespace_ident = format_ident!("{}_external", trait_ident.to_string().to_lowercase());
     let original_trait_path = trait_path.segments.clone();
     let mut trait_path = trait_path.clone();
     trait_path
@@ -302,30 +301,4 @@ pub(crate) fn extract_attr(attrs: &mut Vec<syn::Attribute>, ident: &str) -> Vec<
 #[inline]
 pub(crate) fn new_attribute(attr_stream: TokenStream2) -> syn::Attribute {
     syn::parse2::<Attributes>(attr_stream).unwrap().attr()[0].clone()
-}
-
-/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.
-#[inline]
-pub fn blake2b_256(input: &[u8], output: &mut [u8]) {
-    use ::blake2::digest::{
-        Update as _,
-        VariableOutput as _,
-    };
-    let mut blake2 = blake2::VarBlake2b::new_keyed(&[], 32);
-    blake2.update(input);
-    blake2.finalize_variable(|result| output.copy_from_slice(result));
-}
-
-#[inline]
-pub(crate) fn blake2b_256_str(input: String) -> [u8; 32] {
-    let mut output: [u8; 32] = [0; 32];
-    blake2b_256(&input.into_bytes(), &mut output);
-    output
-}
-
-#[inline]
-pub(crate) fn sanitize_to_str(input: TokenStream) -> String {
-    let mut str = input.to_string();
-    // Remove quotes rom the string
-    str.drain(1..str.len() - 1).collect()
 }
