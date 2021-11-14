@@ -197,11 +197,11 @@ pub trait PSP22: PSP22Storage {
     fn _do_safe_transfer_check(
         &self,
         from: AccountId,
-        mut to: AccountId,
+        to: AccountId,
         value: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
-        match PSP22ReceiverWrapper::before_received_builder(&mut to, Self::env().caller(), from, value, data).fire() {
+        match PSP22ReceiverWrapper::before_received_builder(&to, Self::env().caller(), from, value, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),

@@ -298,11 +298,11 @@ pub trait PSP1155: PSP1155Storage {
         &mut self,
         operator: AccountId,
         from: AccountId,
-        mut to: AccountId,
+        to: AccountId,
         ids_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
-        match PSP1155ReceiverWrapper::before_received_builder(&mut to, operator, from, ids_amounts, data).fire() {
+        match PSP1155ReceiverWrapper::before_received_builder(&to, operator, from, ids_amounts, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),

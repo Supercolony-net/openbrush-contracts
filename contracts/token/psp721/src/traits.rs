@@ -217,11 +217,11 @@ pub trait PSP721: PSP721Storage {
         &self,
         operator: AccountId,
         from: AccountId,
-        mut to: AccountId,
+        to: AccountId,
         id: Id,
         data: Vec<u8>,
     ) -> Result<(), PSP721Error> {
-        match PSP721ReceiverWrapper::before_received_builder(&mut to, operator, from, id, data).fire() {
+        match PSP721ReceiverWrapper::before_received_builder(&to, operator, from, id, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
