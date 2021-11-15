@@ -89,7 +89,6 @@ mod tests {
         let receiver = AccountId::from([0x1; 32]);
         let token = instance.env().account_id();
         let loan_amount = 100;
-        let fee = instance.get_fee(loan_amount);
 
         assert!(instance
             .flashloan(receiver, token, loan_amount, Vec::<u8>::new())
