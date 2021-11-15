@@ -47,7 +47,7 @@ fn mint(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> 
 You are enough to have a trait definition
 (you don't need directly a contract that implements that trait) 
 to call methods of that trait from some contract in the network
-(do a cross contract call)..
+(do a cross contract call).
 
 ```rust
 #[brush::trait_definition]

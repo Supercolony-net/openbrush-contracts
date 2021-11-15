@@ -44,14 +44,14 @@ describe('REENTRANCY_GUARD', () => {
     // Arrange - Ensure flip value is false
     await expect(query.getValue()).to.have.output(false)
 
-    // Assert
+    // Act
     await expect(tx.flipOnTarget(contract.address)).to.eventually.be.fulfilled
 
     // Assert - Value still must be true
     await expect(query.getValue()).to.have.output(true)
   })
 
-  it('Call flip on me must fails', async () => {
+  it('Call flip on me must fail', async () => {
     const { tx, query, defaultSigner: sender } = await setup()
 
     const { contract } = await setup_flip_on_me()
