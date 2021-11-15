@@ -48,4 +48,35 @@ mod capped {
         assert_eq!(capped.total_supply(), mint_amount);
         assert_eq!(capped.cap(), cap);
     }
+
+    #[ink::test]
+    fn can_mint_when_cap_lower() {
+        let accounts = accounts();
+        let mint_amount = 1000;
+        let cap = 2000;
+        let mut capped = PSP22CappedStruct::new(mint_amount, cap);
+
+        assert_eq!(capped.balance_of(accounts.alice), mint_amount);
+        assert_eq!(capped.total_supply(), mint_amount);
+
+        // mint tokens to alice
+        assert!(capped._mint(accounts.alice, mint_amount).is_ok());
+
+        assert_eq!(capped.balance_of(accounts.alice), mint_amount + mint_amount);
+        assert_eq!(capped.total_supply(), mint_amount + mint_amount);
+    }
+
+    #[ink::test]
+    fn can_not_mint_when_cap_higher() {
+        let accounts = accounts();
+        let mint_amount = 2000;
+        let cap = 2000;
+        let mut capped = PSP22CappedStruct::new(mint_amount, cap);
+
+        assert_eq!(capped.balance_of(accounts.alice), mint_amount);
+        assert_eq!(capped.total_supply(), mint_amount);
+
+        // mint should not work
+        assert!(capped._mint(accounts.alice, mint_amount).is_err());
+    }
 }

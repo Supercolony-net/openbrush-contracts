@@ -30,10 +30,10 @@ pub trait PSP22Capped: PSP22CappedStorage + PSP22 {
     }
 
     fn init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
-        if cap > 0 {
-            PSP22CappedStorage::get_mut(self).cap = cap;
-            return Ok(())
+        if cap <= 0 {
+            return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
         }
-        Err(PSP22Error::Custom(String::from("Cap must be above 0")))
+        PSP22CappedStorage::get_mut(self).cap = cap;
+        Ok(())
     }
 }
