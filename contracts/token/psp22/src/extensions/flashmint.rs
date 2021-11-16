@@ -1,23 +1,19 @@
-use crate::{
-    extensions::PSP3156FlashBorrowerStub,
-    traits::{
-        PSP22Error,
-        PSP22,
-    },
-};
+use crate::traits::*;
 use brush::traits::{
     AccountId,
     Balance,
 };
-use ink_env::call::FromAccountId;
 use ink_prelude::{
     string::String,
     vec::Vec,
 };
 
+#[brush::wrapper]
+pub type PSP22FlashMintWrapper = dyn PSP22FlashMint + PSP22;
+
 #[brush::trait_definition]
 pub trait PSP22FlashMint: PSP22 {
-    const RETURN_VALUE: [u8; 32] = brush::blake2b_256!("PSP3156FlashBorrower.onFlashLoan");
+    const RETURN_VALUE: [u8; 32] = ink_lang::blake2x256!("PSP3156FlashBorrower.onFlashLoan");
 
     /// Maximum amount of `token` available to mint
     /// Bounded by the max value of Balance (u128)
@@ -31,7 +27,7 @@ pub trait PSP22FlashMint: PSP22 {
     }
 
     /// Fee for borrowing `amount` of the `token`
-    /// 
+    ///
     /// Returns `Wrong token` error if the `token` account id is not this token
     #[ink(message)]
     fn flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, PSP22Error> {
@@ -43,12 +39,12 @@ pub trait PSP22FlashMint: PSP22 {
 
     /// Mints `amount` of `token` to `receiver_account` and performs the flashloan
     /// `amount` is then burned along with the fee for the flashloan
-    /// 
+    ///
     /// `receiver_account` must implement `PSP3156FlashBorrower`
-    /// 
+    ///
     /// Returns `Invalid return value` error if the `receiver_account` returns incorrect bytes
-    /// Returns `Allowance does not allow refund` error if the contract does not have 
-    /// enough allowance to transfer borrowed amount and fees from `receiver_account` 
+    /// Returns `Allowance does not allow refund` error if the contract does not have
+    /// enough allowance to transfer borrowed amount and fees from `receiver_account`
     #[ink(message)]
     fn flashloan(
         &mut self,
@@ -86,13 +82,17 @@ pub trait PSP22FlashMint: PSP22 {
         amount: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
-        let mut receiver: PSP3156FlashBorrowerStub = FromAccountId::from_account_id(receiver_account);
-        if receiver.on_flashloan(Self::env().caller(), token, amount, fee, data) != Self::RETURN_VALUE {
+        if PSP3156FlashBorrowerWrapper::on_flashloan(&receiver_account, Self::env().caller(), token, amount, fee, data)
+            != Self::RETURN_VALUE
+        {
             return Err(PSP22Error::Custom(String::from("Invalid return value")))
         }
         Ok(())
     }
 }
+
+#[brush::wrapper]
+pub type PSP3156FlashBorrowerWrapper = dyn PSP3156FlashBorrower;
 
 #[brush::trait_definition]
 pub trait PSP3156FlashBorrower {

@@ -1,3 +1,4 @@
+use crate::traits::PSP22Wrapper as PSP22WrapperImpl;
 /// Extension of [`PSP22`] which supports token wrapping
 use crate::traits::*;
 
@@ -9,7 +10,6 @@ use brush::{
         InkStorage,
     },
 };
-use ink_env::call::FromAccountId;
 use ink_prelude::vec::Vec;
 use ink_storage::traits::SpreadLayout;
 pub use psp22_derive::PSP22WrapperStorage;
@@ -20,10 +20,13 @@ use ink_storage::traits::StorageLayout;
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22WrapperData {
-    pub underlying: PSP22Stub,
+    pub underlying: AccountId,
 }
 
 declare_storage_trait!(PSP22WrapperStorage, PSP22WrapperData);
+
+#[brush::wrapper]
+pub type PSP22WrapperWrapper = dyn PSP22Wrapper + PSP22;
 
 #[brush::trait_definition]
 pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
@@ -51,34 +54,32 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
 
     /// helper function to transfer the underlying token from caller to the contract
     fn deposit(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-        PSP22WrapperStorage::get_mut(self).underlying.transfer_from(
+        let account_id = PSP22WrapperStorage::get_mut(self).underlying;
+        PSP22WrapperImpl::transfer_from(
+            &account_id,
             Self::env().caller(),
             Self::env().account_id(),
             amount,
             Vec::<u8>::new(),
-        )?;
-        Ok(())
+        )
     }
 
     /// helper function to transfer the underlying token
     fn withdraw(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        PSP22WrapperStorage::get_mut(self)
-            .underlying
-            .transfer(account, amount, Vec::<u8>::new())?;
-        Ok(())
+        let account_id = PSP22WrapperStorage::get_mut(self).underlying;
+        PSP22WrapperImpl::transfer(&account_id, account, amount, Vec::<u8>::new())
     }
 
     /// helper function to get balance of underlying tokens in the contract
     fn underlying_balance(&self) -> Balance {
-        PSP22WrapperStorage::get(self)
-            .underlying
-            .balance_of(Self::env().account_id())
+        let account_id = PSP22WrapperStorage::get(self).underlying;
+        PSP22WrapperImpl::balance_of(&account_id, Self::env().account_id())
     }
 
     /// Initalize the wrapper token with defining the underlying PSP22 token
     ///
     /// `underlying` is the token to be wrapped
     fn init(&mut self, underlying: AccountId) {
-        PSP22WrapperStorage::get_mut(self).underlying = FromAccountId::from_account_id(underlying);
+        PSP22WrapperStorage::get_mut(self).underlying = underlying;
     }
 }

@@ -2,13 +2,12 @@
 
 #[brush::contract]
 pub mod psp3156_flash_borrower {
-    use ink_env::call::FromAccountId;
     use ink_prelude::vec::Vec;
     use psp22::{
         extensions::flashmint::*,
         traits::{
             PSP22Error,
-            PSP22Stub,
+            PSP22Wrapper,
         },
     };
 
@@ -28,8 +27,7 @@ pub mod psp3156_flash_borrower {
             spender: AccountId,
             amount: Balance,
         ) -> Result<(), PSP22Error> {
-            let mut psp22: PSP22Stub = FromAccountId::from_account_id(token_address);
-            psp22.approve(spender, amount)
+            PSP22Wrapper::approve(&token_address, spender, amount)
         }
     }
 
@@ -44,7 +42,7 @@ pub mod psp3156_flash_borrower {
             _data: Vec<u8>,
         ) -> [u8; 32] {
             // do something with the tokens
-            brush::blake2b_256!("PSP3156FlashBorrower.onFlashLoan")
+            ink_lang::blake2x256!("PSP3156FlashBorrower.onFlashLoan")
         }
     }
 }

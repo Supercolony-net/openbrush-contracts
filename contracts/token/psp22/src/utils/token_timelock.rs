@@ -10,7 +10,6 @@ use brush::{
         Timestamp,
     },
 };
-use ink_env::call::FromAccountId;
 use ink_prelude::{
     string::String,
     vec::Vec,
@@ -30,6 +29,9 @@ pub struct PSP22TokenTimelockData {
 }
 
 declare_storage_trait!(PSP22TokenTimelockStorage, PSP22TokenTimelockData);
+
+#[brush::wrapper]
+pub type PSP22TokenTimelockWrapper = dyn PSP22TokenTimelock;
 
 #[brush::trait_definition]
 pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
@@ -66,15 +68,12 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
 
     /// Helper function to withdraw tokens
     fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-        let mut psp22: PSP22Stub = FromAccountId::from_account_id(self.get().token_address);
-        psp22.transfer(self.beneficiary(), amount, Vec::<u8>::new())?;
-        Ok(())
+        PSP22Wrapper::transfer(&self.get().token_address, self.beneficiary(), amount, Vec::<u8>::new())
     }
 
     /// Helper function to return balance of the contract
     fn contract_balance(&self) -> Balance {
-        let psp22: PSP22Stub = FromAccountId::from_account_id(self.get().token_address);
-        psp22.balance_of(Self::env().account_id())
+        PSP22Wrapper::balance_of(&self.get().token_address, Self::env().account_id())
     }
 
     /// Initializes the contract

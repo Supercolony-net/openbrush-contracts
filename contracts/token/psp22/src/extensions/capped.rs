@@ -8,6 +8,7 @@ use brush::{
         InkStorage,
     },
 };
+use ink_prelude::string::String;
 use ink_storage::traits::SpreadLayout;
 pub use psp22_derive::PSP22CappedStorage;
 
@@ -21,6 +22,9 @@ pub struct PSP22CappedData {
 }
 
 declare_storage_trait!(PSP22CappedStorage, PSP22CappedData);
+
+#[brush::wrapper]
+pub type PSP22CappedWrapper = dyn PSP22Capped + PSP22;
 
 #[brush::trait_definition]
 pub trait PSP22Capped: PSP22CappedStorage + PSP22 {
