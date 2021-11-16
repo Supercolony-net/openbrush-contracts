@@ -4,7 +4,6 @@
 pub mod my_psp22_wrapper {
     use psp22::{
         extensions::wrapper::*,
-        extensions::wrapper::PSP22Wrapper as PSP22WrapperImpl,
         traits::*,
     };
 
@@ -19,7 +18,7 @@ pub mod my_psp22_wrapper {
 
     impl PSP22 for MyPSP22Wrapper {}
 
-    impl PSP22WrapperImpl for MyPSP22Wrapper {}
+    impl PSP22WrapperExt for MyPSP22Wrapper {}
 
     impl MyPSP22Wrapper {
         #[ink(constructor)]

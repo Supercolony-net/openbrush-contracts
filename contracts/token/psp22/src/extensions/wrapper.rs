@@ -1,4 +1,3 @@
-use crate::traits::PSP22Wrapper as PSP22WrapperImpl;
 /// Extension of [`PSP22`] which supports token wrapping
 use crate::traits::*;
 
@@ -26,10 +25,10 @@ pub struct PSP22WrapperData {
 declare_storage_trait!(PSP22WrapperStorage, PSP22WrapperData);
 
 #[brush::wrapper]
-pub type PSP22WrapperWrapper = dyn PSP22Wrapper + PSP22;
+pub type PSP22WrapperWrapper = dyn PSP22WrapperExt + PSP22;
 
 #[brush::trait_definition]
-pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
+pub trait PSP22WrapperExt: PSP22WrapperStorage + PSP22 {
     /// Allow a user to deposit `amount` of underlying tokens and mint `amount` of the wrapped tokens to `account`
     #[ink(message)]
     fn deposit_for(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
@@ -55,7 +54,7 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
     /// helper function to transfer the underlying token from caller to the contract
     fn deposit(&mut self, amount: Balance) -> Result<(), PSP22Error> {
         let account_id = PSP22WrapperStorage::get_mut(self).underlying;
-        PSP22WrapperImpl::transfer_from(
+        PSP22Wrapper::transfer_from(
             &account_id,
             Self::env().caller(),
             Self::env().account_id(),
@@ -67,13 +66,13 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
     /// helper function to transfer the underlying token
     fn withdraw(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         let account_id = PSP22WrapperStorage::get_mut(self).underlying;
-        PSP22WrapperImpl::transfer(&account_id, account, amount, Vec::<u8>::new())
+        PSP22Wrapper::transfer(&account_id, account, amount, Vec::<u8>::new())
     }
 
     /// helper function to get balance of underlying tokens in the contract
     fn underlying_balance(&self) -> Balance {
         let account_id = PSP22WrapperStorage::get(self).underlying;
-        PSP22WrapperImpl::balance_of(&account_id, Self::env().account_id())
+        PSP22Wrapper::balance_of(&account_id, Self::env().account_id())
     }
 
     /// Initalize the wrapper token with defining the underlying PSP22 token

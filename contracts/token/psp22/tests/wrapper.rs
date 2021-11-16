@@ -4,7 +4,6 @@ mod tests {
     use ink_lang as ink;
     use psp22::{
         extensions::wrapper::*,
-        extensions::wrapper::PSP22Wrapper as PSP22WrapperImpl,
         traits::*,
     };
 
@@ -22,7 +21,7 @@ mod tests {
 
     /// We will override cross-contract wrapper calls in tests
     /// The cross-contract interaction will be tested in integration tests
-    impl PSP22WrapperImpl for PSP22WrapperStruct {
+    impl PSP22WrapperExt for PSP22WrapperStruct {
         fn deposit(&mut self, amount: Balance) -> Result<(), PSP22Error> {
             self.contract_balance += amount;
             Ok(())

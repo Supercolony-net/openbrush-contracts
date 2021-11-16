@@ -3,7 +3,7 @@ sidebar_position: 4
 title: PSP22 Wrapper
 ---
 
-This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/extensions/wrapper) extension.
+This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/extensions/wrapper) extension. The trait is declared as `PSP22WrapperExt` to disambiguate between `PSP22Wrapper`, which is a type used to call `PSP22` functions in cross-contract calls.
 
 ## Step 1: Include dependencies and add imports
 
@@ -35,12 +35,12 @@ pub struct MyPSP22Wrapper {
 
 ## Step 3: Inherit logic
 
-Inherit implementations of `PSP22` and `PSP22Wrapper` traits. You can customize (override) methods in this `impl` block.
+Inherit implementations of `PSP22` and `PSP22WrapperExt` traits. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl PSP22 for MyPSP22Wrapper {}
 
-impl PSP22Wrapper for MyPSP22Wrapper {}
+impl PSP22WrapperExt for MyPSP22Wrapper {}
 ```
 
 ## Step 4: Define constructor
