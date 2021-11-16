@@ -59,7 +59,7 @@ describe('MY_PSP22_FLASHMINT', () => {
         await expect(flashmintQuery.balanceOf(receiverContract.address)).to.have.output(sendAmount)
         await expect(flashmintQuery.totalSupply()).to.have.output(minted)
 
-        // we will do the flashloan
+        // we perform the flash loan
         await expect(flashmintContract.tx.flashloan(receiverContract.address, flashmintContract.address, borrowAmount, []))
             .to.eventually.be.rejected
 

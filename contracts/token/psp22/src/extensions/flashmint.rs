@@ -28,11 +28,11 @@ pub trait PSP22FlashMint: PSP22 {
 
     /// Fee for borrowing `amount` of the `token`
     ///
-    /// Returns `Wrong token` error if the `token` account id is not this token
+    /// Returns `Wrong token address` error if the `token` account id is not this token
     #[ink(message)]
     fn flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, PSP22Error> {
         if token != Self::env().account_id() {
-            return Err(PSP22Error::Custom(String::from("Wrong token")))
+            return Err(PSP22Error::Custom(String::from("Wrong token address")))
         }
         Ok(self.get_fee(amount))
     }
