@@ -21,6 +21,7 @@ brush = { path = "../../utils/brush", default-features = false }
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
+codegen-units = 16
 overflow-checks = false
 
 [profile.release]

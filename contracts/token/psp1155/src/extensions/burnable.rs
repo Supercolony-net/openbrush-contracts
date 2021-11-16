@@ -6,6 +6,9 @@ use brush::traits::{
 };
 use ink_prelude::vec::Vec;
 
+#[brush::wrapper]
+pub type PSP1155BurnableWrapper = dyn PSP1155Burnable + PSP1155;
+
 #[brush::trait_definition]
 pub trait PSP1155Burnable: PSP1155 {
     /// Destroys `amount` tokens of token type `id` from the caller

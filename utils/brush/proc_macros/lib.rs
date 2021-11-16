@@ -7,10 +7,9 @@ mod metadata;
 mod modifier_definition;
 mod modifiers;
 mod trait_definition;
+mod wrapper;
 
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::punctuated::Punctuated;
 
 /// Entry point for use brush's macros in ink! smart contracts.
 ///
@@ -52,6 +51,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     pub balances: BTreeMap<AccountId, Balance>,
 /// }
 ///
+/// #[brush::trait_definition]
 /// pub trait PSP22Storage: InkStorage {
 ///     fn get(&self) -> &Data;
 ///     fn get_mut(&mut self) -> &mut Data;
@@ -102,6 +102,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///         pub allowances: BTreeMap<(AccountId, AccountId), Balance>,
 ///     }
 ///
+///     #[brush::trait_definition]
 ///     pub trait PSP22ExampleStorage: InkStorage {
 ///         fn get(&self) -> &Data;
 ///         fn get_mut(&mut self) -> &mut Data;
@@ -339,43 +340,66 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
     modifiers::generate(_attrs, method)
 }
 
-/// Macro computes the blake2b256 hash from the string and returns an array of `[u8; 32]`
+/// This macro allows you to define a wrapper type for traits defined via
+/// [`#[brush::trait_definition]`](`macro@crate::trait_definition`).
+/// It is a wrapper for `AccountId` that knows how to do cross-contract calls to another contract.
 ///
-/// # Example:
-/// ```
-/// const hash : [u8; 32] = brush::blake2b_256!("Hello world");
-/// const expected_hash : [u8; 32] = [162, 28, 244, 179, 96, 76, 244, 178, 188, 83, 230, 248, 143, 106, 77, 117, 239, 95, 244, 171, 65, 95, 62, 153, 174, 166, 182, 28, 130, 73, 196, 208];
-/// assert_eq!(hash, expected_hash);
-/// ```
-#[proc_macro]
-pub fn blake2b_256(input: TokenStream) -> TokenStream {
-    let output = internal::blake2b_256_str(internal::sanitize_to_str(input));
-
-    let mut bytes: Punctuated<proc_macro2::TokenStream, syn::Token![,]> = Punctuated::new();
-    output.iter().for_each(|byte| {
-        bytes.push(quote! { #byte });
-    });
-
-    let code = quote! { [#bytes] };
-    code.into()
-}
-
-/// Macro computes the blake2b256 hash from the string and returns a first 4 bytes of this hash as `u32`.
-/// The same mechanism is used to evaluate the selector id of methods.
+/// To define a wrapper you need to use the follow construction:
+/// `type Wrapper = dyn Trait_1 + Trait_2 ... + Trait_n`, where `Trait_i` contains ink! messages
+/// and defined via [`#[brush::trait_definition]`](`macro@crate::trait_definition`).
+/// If `Trait_i` doesn't contain ink! messages, then you don't need to create a wrapper for that trait,
+/// because the wrapped methods are created only for ink! messages. Otherwise, you will get an error like
 ///
-/// # Example:
+/// `use of undeclared crate or module `trait_i_external``
+///
+///  ** Note ** The first argument of method should be a reference on `AccountId` of callee
+/// contract(even if the signature of the method requires a mutable reference).
+///  ** Note ** Crated wrapper is only a type, so you can't create an instance of this object.
+///  ** Note ** The wrapper contains only ink's methods of the trait, it doesn't include a method of super traits.
+/// If you want to wrap them too, you need to explicitly specify them.
+///
+/// # Example: Definition
+///
+/// ```should_panic
+/// {
+/// use brush::traits::AccountId;
+///
+/// #[brush::trait_definition]
+/// pub trait Trait1 {
+///     #[ink(message)]
+///     fn foo(&mut self) -> bool;
+/// }
+///
+/// #[brush::wrapper]
+/// type Wrapper1 = dyn Trait1;
+///
+/// #[brush::trait_definition]
+/// pub trait Trait2 {
+///     #[ink(message)]
+///     fn bar(&mut self, callee: brush::traits::AccountId) {
+///         let foo_bool = Wrapper1::foo(&callee);
+///     }
+/// }
+///
+/// #[brush::wrapper]
+/// type Wrapper1and2 = dyn Trait1 + Trait2;
+///
+/// // Example of explicit call
+/// let to: AccountId = [0; 32].into();
+/// let callee: AccountId = [0; 32].into();
+/// Wrapper1and2::bar(&to, callee);
+///
+/// // Example of implicit call
+/// let to: &Wrapper1and2 = &to;
+/// to.bar(callee);
+///
+/// // Example how to get ink! call builder
+/// let to: AccountId = [0; 32].into();
+/// let builder_for_foo: ::ink_env::call::CallBuilder<_, _, _, _, _, _> = Wrapper1and2::foo_builder(&to);
+/// let ink_result: Result<bool, ink_env::Error> = builder_for_foo.fire();
+/// }
 /// ```
-/// const hash : u32 = brush::blake2b_256_as_u32!("Hello world");
-/// const expected_hash : u32 = 0xa21cf4b3;
-/// assert_eq!(hash, expected_hash);
-/// ```
-#[proc_macro]
-pub fn blake2b_256_as_u32(input: TokenStream) -> TokenStream {
-    let output = internal::blake2b_256_str(internal::sanitize_to_str(input));
-
-    let selector_id = [output[0], output[1], output[2], output[3]];
-    let selector_u32 = u32::from_be_bytes(selector_id) as u32;
-
-    let code = quote! { #selector_u32 };
-    code.into()
+#[proc_macro_attribute]
+pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
+    wrapper::generate(attrs, input)
 }

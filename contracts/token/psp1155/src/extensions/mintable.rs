@@ -6,6 +6,9 @@ use brush::traits::{
 };
 use ink_prelude::vec::Vec;
 
+#[brush::wrapper]
+pub type PSP1155MintableWrapper = dyn PSP1155Mintable + PSP1155;
+
 #[brush::trait_definition]
 pub trait PSP1155Mintable: PSP1155 {
     /// Mints `amount` tokens of token type `id` to the caller

@@ -31,11 +31,9 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
     // After, we can consume all other stuff.
     items = consume_traits(items);
 
-    let locked_file = metadata::get_locked_file();
+    let locked_file = metadata::get_locked_file(crate::metadata::LockType::Shared);
     let metadata = metadata::Metadata::load(&locked_file);
-    locked_file
-        .unlock()
-        .expect("Can't remove exclusive lock in extract_fields_and_methods");
+    locked_file.unlock().expect("Can't remove shared lock");
 
     let (ink_items, not_ink_items) = split_impls(items, &metadata);
 
@@ -46,11 +44,11 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
 
     let result = quote! {
         #[cfg(not(feature = "ink-as-dependency"))]
-        #[ink_lang::contract(#attrs)]
+        #[::ink_lang::contract(#attrs)]
         #module
 
         #[cfg(feature = "ink-as-dependency")]
-        #[ink_lang::contract(#attrs)]
+        #[::ink_lang::contract(#attrs)]
         #ink_module
     };
     result.into()

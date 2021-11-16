@@ -18,7 +18,7 @@ Why use this library?
 - Useful features which can simplify development
 
 Which Standard tokens & useful contracts does it provide?
-- **Fungible Token** *ERC20 equivalent*
+- **PSP22** - Fungible Token(*ERC20 equivalent*)
 - **Non-Fungible Token** *ERC721 equivalent*
 - **Multi-Token** *ERC1155 equivalent*
 - **Ownable** Restrict access to action for non-owners
@@ -34,16 +34,46 @@ Solidity smart contracts provides modifiers to restrain function call to certain
 You can use our useful contracts to use as modifiers, or define your own modifiers.
 
 ```rust
+// Before execution of `mint` method, `only_owner` should verify that caller is the owner.
+#[ink(message)]
 #[modifiers(only_owner)]
-fn mint(&mut self, to: AccountId, id: Id, amount: Balance) {
-    self._mint(to, id, amount);
+fn mint(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+  self._mint_to(Self::env().caller(), ids_amounts)
+}
+```
+
+### Wrapper around traits
+
+You are enough to have a trait definition
+(you don't need directly a contract that implements that trait) 
+to call methods of that trait from some contract in the network
+(do a cross contract call).
+
+```rust
+#[brush::trait_definition]
+pub trait Trait1 {
+    #[ink(message)]
+    fn foo(&mut self) -> bool;
+}
+
+#[brush::wrapper]
+type Wrapper1 = dyn Trait1;
+
+{
+    // It should be `AccountId` of some contract in the network
+    let callee: brush::traits::AccountId = [1; 32].into();
+    // This code will execute a cross contract call to `callee` contract
+    let result_of_foo: bool = Wrapper1::foo(&callee);
 }
 ```
 
 ### How to use it?
+
 Read our **documentation** in [doc](https://supercolony-net.github.io/openbrush-contracts).
 
 Go through our **examples** in [examples](examples)
+
+Not sure where to start? Use [the interactive generator](https://openbrush.io) to bootstrap your contract and learn about the components offered in OpenBrush.
 
 ### Events
 ‼️ Important ‼️
