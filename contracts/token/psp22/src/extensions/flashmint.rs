@@ -13,7 +13,7 @@ pub type PSP22FlashMintWrapper = dyn PSP22FlashMint + PSP22;
 
 #[brush::trait_definition]
 pub trait PSP22FlashMint: PSP22 {
-    const RETURN_VALUE: [u8; 32] = ink_lang::blake2x256!("PSP3156FlashBorrower.onFlashLoan");
+    const RETURN_VALUE: [u8; 32] = ink_lang::blake2x256!("FlashBorrower.onFlashLoan");
 
     /// Maximum amount of `token` available to mint
     /// Bounded by the max value of Balance (u128)
@@ -82,7 +82,7 @@ pub trait PSP22FlashMint: PSP22 {
         amount: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
-        if PSP3156FlashBorrowerWrapper::on_flashloan(&receiver_account, Self::env().caller(), token, amount, fee, data)
+        if FlashBorrowerWrapper::on_flashloan(&receiver_account, Self::env().caller(), token, amount, fee, data)
             != Self::RETURN_VALUE
         {
             return Err(PSP22Error::Custom(String::from("Invalid return value")))
@@ -92,10 +92,11 @@ pub trait PSP22FlashMint: PSP22 {
 }
 
 #[brush::wrapper]
-pub type PSP3156FlashBorrowerWrapper = dyn PSP3156FlashBorrower;
+pub type FlashBorrowerWrapper = dyn FlashBorrower;
 
+/// Flash Borrower implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[brush::trait_definition]
-pub trait PSP3156FlashBorrower {
+pub trait FlashBorrower {
     #[ink(message)]
     fn on_flashloan(
         &mut self,
@@ -105,4 +106,26 @@ pub trait PSP3156FlashBorrower {
         fee: Balance,
         data: Vec<u8>,
     ) -> [u8; 32];
+}
+
+#[brush::wrapper]
+pub type FlashLenderWrapper = dyn FlashLender;
+
+/// Flash Lender implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
+#[brush::trait_definition]
+pub trait FlashLender {
+    #[ink(message)]
+    fn max_flashloan(&mut self, _token: AccountId) -> Balance;
+
+    #[ink(message)]
+    fn flash_fee(&mut self, _token: AccountId, _amount: Balance) -> Result<Balance, PSP22Error>;
+
+    #[ink(message)]
+    fn flashloan(
+        &mut self,
+        _receiver_account: AccountId,
+        _token: AccountId,
+        _amount: Balance,
+        _data: Vec<u8>,
+    ) -> Result<(), PSP22Error>;
 }

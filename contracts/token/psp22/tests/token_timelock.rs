@@ -32,7 +32,7 @@ mod tests {
         #[ink(constructor)]
         pub fn new(token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) -> Self {
             let mut instance = Self::default();
-            instance.init(token_address, beneficiary, release_time);
+            assert!(instance.init(token_address, beneficiary, release_time).is_ok());
             instance
         }
 

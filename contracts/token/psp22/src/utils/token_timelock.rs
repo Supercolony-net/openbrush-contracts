@@ -77,9 +77,18 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
     }
 
     /// Initializes the contract
-    fn init(&mut self, token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) {
+    fn init(
+        &mut self,
+        token_address: AccountId,
+        beneficiary: AccountId,
+        release_time: Timestamp,
+    ) -> Result<(), PSP22Error> {
+        if release_time <= Self::env().block_timestamp() {
+            return Err(PSP22Error::Custom(String::from("Release time is before current time")))
+        }
         self.get_mut().token_address = token_address;
         self.get_mut().beneficiary = beneficiary;
         self.get_mut().release_time = release_time;
+        Ok(())
     }
 }

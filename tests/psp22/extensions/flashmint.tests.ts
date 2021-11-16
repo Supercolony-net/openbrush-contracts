@@ -1,9 +1,9 @@
-import { expect, setupContract, fromSigner } from './../../helpers'
+import { expect, setupContract } from './../../helpers'
 
 describe('MY_PSP22_FLASHMINT', () => {
     async function setup() {
         let flashmint = await setupContract('my_psp22_flashmint', 'new', '1000')
-        let receiver = await setupContract('psp3156_flash_borrower', 'new')
+        let receiver = await setupContract('flash_borrower', 'new')
         return { flashmint, receiver }
     }
 
@@ -44,7 +44,7 @@ describe('MY_PSP22_FLASHMINT', () => {
         await expect(flashmintQuery.totalSupply()).to.have.output(minted - fee)
     })
 
-    it('Flashloan without allowance does not happen', async () => {
+    it('Can not perform the flashloan without allowance for the contract', async () => {
         const { flashmint, receiver } = await setup()
         const { contract: flashmintContract, query: flashmintQuery } = flashmint
         const { contract: receiverContract } = receiver

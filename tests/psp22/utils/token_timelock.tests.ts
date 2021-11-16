@@ -1,4 +1,4 @@
-import { expect, fromSigner, setupContract } from './../../helpers'
+import { expect, fromSigner, setupContract, oneDay } from './../../helpers'
 import { network } from 'redspot'
 
 const { api } = network
@@ -7,7 +7,7 @@ describe('TOKEN_TIMELOCK', () => {
     async function setup() {
         let psp22 = await setupContract('my_psp22', 'new', '1000')
         const beneficiary = psp22.defaultSigner
-        let releaseTime = (await api.query.timestamp.now()).toNumber() + (24 * 60 * 60 * 1000)
+        let releaseTime = (await api.query.timestamp.now()).toNumber() + oneDay()
         let timelock = await setupContract('my_psp22_token_timelock', 'new', psp22.contract.address, beneficiary.address, releaseTime)
         return { psp22, timelock, beneficiary, releaseTime }
     }

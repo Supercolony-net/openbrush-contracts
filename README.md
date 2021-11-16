@@ -18,7 +18,7 @@ Why use this library?
 - Useful features which can simplify development
 
 Which Standard tokens & useful contracts does it provide?
-- **PSP22** - Fungible Token(*ERC20 equivalent*)
+- **PSP22** - Fungible Token (*ERC20 equivalent*) with extensions
 - **Non-Fungible Token** *ERC721 equivalent*
 - **Multi-Token** *ERC1155 equivalent*
 - **Ownable** Restrict access to action for non-owners

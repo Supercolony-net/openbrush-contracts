@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[brush::contract]
-pub mod psp3156_flash_borrower {
+pub mod flash_borrower {
     use ink_prelude::vec::Vec;
     use psp22::{
         extensions::flashmint::*,
@@ -12,9 +12,9 @@ pub mod psp3156_flash_borrower {
     };
 
     #[ink(storage)]
-    pub struct PSP3156FlashBorrowerStruct {}
+    pub struct FlashBorrowerStruct {}
 
-    impl PSP3156FlashBorrowerStruct {
+    impl FlashBorrowerStruct {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {}
@@ -31,7 +31,7 @@ pub mod psp3156_flash_borrower {
         }
     }
 
-    impl PSP3156FlashBorrower for PSP3156FlashBorrowerStruct {
+    impl FlashBorrower for FlashBorrowerStruct {
         #[ink(message)]
         fn on_flashloan(
             &mut self,
@@ -42,7 +42,7 @@ pub mod psp3156_flash_borrower {
             _data: Vec<u8>,
         ) -> [u8; 32] {
             // do something with the tokens
-            ink_lang::blake2x256!("PSP3156FlashBorrower.onFlashLoan")
+            ink_lang::blake2x256!("FlashBorrower.onFlashLoan")
         }
     }
 }
