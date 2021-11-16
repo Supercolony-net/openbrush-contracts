@@ -50,6 +50,9 @@ where
     body(instance)
 }
 
+#[brush::wrapper]
+pub type PausableWrapper = dyn Pausable;
+
 /// Contract module, which allows children to implement an emergency stop
 /// mechanism that an authorized account can trigger.
 ///

@@ -34,11 +34,39 @@ pub mod my_flipper_guard {
     use brush::modifiers;
     use reentrancy_guard::traits::*;
 
-    #[cfg(not(feature = "ink-as-dependency"))]
+    use crate::flip_on_me::CallerOfFlip;
     use ink_env::call::FromAccountId;
 
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use crate::flip_on_me::CallerOfFlip;
+    pub trait FlipperStorage {
+        fn value(&self) -> &bool;
+        fn value_mut(&mut self) -> &mut bool;
+    }
+
+    #[brush::trait_definition]
+    pub trait Flipper: FlipperStorage + ReentrancyGuardStorage {
+        #[ink(message)]
+        fn get_value(&self) -> bool {
+            self.value().clone()
+        }
+
+        #[ink(message)]
+        #[brush::modifiers(non_reentrant)]
+        fn flip(&mut self) -> Result<(), ReentrancyGuardError> {
+            *self.value_mut() = !self.value().clone();
+            Ok(())
+        }
+
+        #[ink(message)]
+        #[modifiers(non_reentrant)]
+        fn call_flip_on_me(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError> {
+            // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
+            // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
+            // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
+            // that call of `flip` after `call_flip_on_me` must fail.
+            let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
+            flipper.flip_on_me()
+        }
+    }
 
     #[ink(storage)]
     #[derive(Default, ReentrancyGuardStorage)]
@@ -48,33 +76,22 @@ pub mod my_flipper_guard {
         value: bool,
     }
 
+    impl FlipperStorage for MyFlipper {
+        fn value(&self) -> &bool {
+            &self.value
+        }
+
+        fn value_mut(&mut self) -> &mut bool {
+            &mut self.value
+        }
+    }
+
     impl MyFlipper {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self::default()
         }
-
-        #[ink(message)]
-        pub fn get_value(&self) -> bool {
-            self.value
-        }
-
-        #[ink(message)]
-        #[brush::modifiers(non_reentrant)]
-        pub fn flip(&mut self) -> Result<(), ReentrancyGuardError> {
-            self.value = !self.value;
-            Ok(())
-        }
-
-        #[ink(message)]
-        #[modifiers(non_reentrant)]
-        pub fn call_flip_on_me(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError> {
-            // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
-            // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
-            // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
-            // that call of `flip` after `call_flip_on_me` must fail.
-            let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
-            flipper.flip_on_me()
-        }
     }
+
+    impl Flipper for MyFlipper {}
 }

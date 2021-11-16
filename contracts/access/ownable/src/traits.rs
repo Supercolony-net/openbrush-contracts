@@ -9,9 +9,9 @@ use brush::{
         ZERO_ADDRESS,
     },
 };
+pub use common::errors::OwnableError;
 use ink_storage::traits::SpreadLayout;
 pub use ownable_derive::OwnableStorage;
-pub use common::errors::OwnableError;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -37,6 +37,9 @@ where
     }
     body(instance)
 }
+
+#[brush::wrapper]
+pub type OwnableWrapper = dyn Ownable;
 
 /// Contract module which provides a basic access control mechanism, where
 /// there is an account (an owner) that can be granted exclusive access to
@@ -87,7 +90,7 @@ pub trait Ownable: OwnableStorage {
     #[modifiers(only_owner)]
     fn transfer_ownership(&mut self, new_owner: AccountId) -> Result<(), OwnableError> {
         if new_owner.is_zero() {
-            return Err(OwnableError::NewOwnerIsZero);
+            return Err(OwnableError::NewOwnerIsZero)
         }
         let old_owner = self.get().owner.clone();
         self.get_mut().owner = new_owner.clone();

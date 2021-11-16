@@ -116,12 +116,17 @@ impl TraitDefinitions {
     }
 }
 
+pub(crate) enum LockType {
+    Exclusive,
+    Shared,
+}
+
 /// Function returns exclusively locked file for metadata.
 /// It stores file in the nearest target folder
 /// from the directory where the build command has been invoked(output of `pwd` command).
 /// If the directory doesn't contain `Cargo.toml` file,
 /// it will try to find `Cargo.toml` in the upper directories.
-pub(crate) fn get_locked_file() -> File {
+pub(crate) fn get_locked_file(t: LockType) -> File {
     let mut manifest_path = PathBuf::from(env::var("PWD").expect("Can't get PWD")).join("Cargo.toml");
 
     // if the current directory does not contain a Cargo.toml file, go up until you find it.
@@ -149,6 +154,14 @@ pub(crate) fn get_locked_file() -> File {
         Err(why) => panic!("Couldn't open temporary storage: {}", why),
         Ok(file) => file,
     };
-    file.lock_exclusive().expect("Can't do exclusive lock");
+    match t {
+        LockType::Exclusive => {
+            file.lock_exclusive().expect("Can't do exclusive lock");
+        }
+        LockType::Shared => {
+            file.lock_shared().expect("Can't do shared lock");
+        }
+    };
+
     file
 }

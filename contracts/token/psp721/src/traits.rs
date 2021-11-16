@@ -1,4 +1,3 @@
-use crate::stub::PSP721Receiver as PSP721ReceiverStub;
 use brush::{
     declare_storage_trait,
     traits::{
@@ -10,11 +9,7 @@ pub use common::errors::{
     PSP721Error,
     PSP721ReceiverError,
 };
-use ink_env::{
-    call::FromAccountId,
-    Error as EnvError,
-};
-use ink_lang::ForwardCallMut;
+use ink_env::Error as EnvError;
 use ink_prelude::{
     string::String,
     vec::Vec,
@@ -40,6 +35,9 @@ pub struct PSP721Data {
 }
 
 declare_storage_trait!(PSP721Storage, PSP721Data);
+
+#[brush::wrapper]
+pub type PSP721Wrapper = dyn PSP721;
 
 /// Contract module which provides a basic implementation of non fungible token.
 ///
@@ -223,8 +221,7 @@ pub trait PSP721: PSP721Storage {
         id: Id,
         data: Vec<u8>,
     ) -> Result<(), PSP721Error> {
-        let mut receiver: PSP721ReceiverStub = FromAccountId::from_account_id(to);
-        match receiver.call_mut().before_received(operator, from, id, data).fire() {
+        match PSP721ReceiverWrapper::before_received_builder(&to, operator, from, id, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -305,6 +302,9 @@ pub trait PSP721: PSP721Storage {
         self._burn_from(Self::env().caller(), id)
     }
 }
+
+#[brush::wrapper]
+pub type PSP721ReceiverWrapper = dyn PSP721Receiver;
 
 /// PSP721Receiver is a trait for any contract that wants to support safe transfers from a PSP721
 /// token smart contract to avoid unexpected tokens in the balance of contract.

@@ -44,3 +44,6 @@ std = [
     "pausable/std",
 ]
 ink-as-dependency = []
+
+[profile.dev]
+codegen-units = 16

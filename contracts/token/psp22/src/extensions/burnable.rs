@@ -6,6 +6,9 @@ use brush::traits::{
     Balance,
 };
 
+#[brush::wrapper]
+pub type PSP22BurnableWrapper = dyn PSP22Burnable + PSP22;
+
 #[brush::trait_definition]
 pub trait PSP22Burnable: PSP22 {
     /// Destroys `amount` tokens from the caller.

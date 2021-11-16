@@ -8,6 +8,7 @@
 #[macro_export]
 macro_rules! declare_storage_trait {
     ($trait_name:ident,$data_ty:ty) => {
+        #[::brush::trait_definition]
         pub trait $trait_name: InkStorage {
             fn get(&self) -> &$data_ty;
             fn get_mut(&mut self) -> &mut $data_ty;
