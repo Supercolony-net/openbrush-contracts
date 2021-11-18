@@ -29,10 +29,12 @@ pub type PSP22CappedWrapper = dyn PSP22Capped + PSP22;
 #[brush::trait_definition]
 pub trait PSP22Capped: PSP22CappedStorage + PSP22 {
     #[ink(message)]
+    /// Returns the token's cap
     fn cap(&self) -> Balance {
         PSP22CappedStorage::get(self).cap
     }
 
+    /// Initializes the token's cap
     fn init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
         if cap <= 0 {
             return Err(PSP22Error::Custom(String::from("Cap must be above 0")))

@@ -28,14 +28,10 @@ pub mod my_psp22_wrapper {
             instance
         }
 
+        /// Exposes the `_recover` function for message caller
         #[ink(message)]
         pub fn recover(&mut self) -> Result<Balance, PSP22Error> {
             self._recover(Self::env().caller())
-        }
-
-        #[ink(message)]
-        pub fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-            self._burn(Self::env().caller(), amount)
         }
     }
 }
