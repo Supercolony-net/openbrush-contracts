@@ -2,6 +2,7 @@
 
 #[brush::contract]
 pub mod my_psp22_capped {
+    use ink_prelude::string::String;
     use psp22::{
         extensions::capped::*,
         traits::*,
@@ -29,6 +30,12 @@ pub mod my_psp22_capped {
             assert!(instance.init_cap(cap).is_ok());
             assert!(instance._mint(instance.env().caller(), inital_supply).is_ok());
             instance
+        }
+
+        /// Expose the `_mint` function
+        #[ink(message)]
+        pub fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            self._mint(account, amount)
         }
 
         /// Overrides the `_mint` function to check for cap overflow before minting tokens

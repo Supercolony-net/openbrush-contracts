@@ -50,7 +50,7 @@ mod capped {
     }
 
     #[ink::test]
-    fn can_mint_when_cap_lower() {
+    fn can_mint_when_supply_lower_than_cap() {
         let accounts = accounts();
         let mint_amount = 1000;
         let cap = 2000;
@@ -67,7 +67,7 @@ mod capped {
     }
 
     #[ink::test]
-    fn can_not_mint_when_cap_higher() {
+    fn can_not_mint_if_supply_will_exceed_the_cap() {
         let accounts = accounts();
         let mint_amount = 2000;
         let cap = 2000;
