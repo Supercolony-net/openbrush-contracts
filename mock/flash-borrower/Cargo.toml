@@ -1,5 +1,5 @@
 [package]
-name = "psp3156_flash_borrower"
+name = "flash_borrower"
 version = "1.0.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2018"
@@ -20,7 +20,7 @@ psp22 = { path = "../../contracts/token/psp22", default-features = false }
 brush = { path = "../../utils/brush", default-features = false }
 
 [lib]
-name = "psp3156_flash_borrower"
+name = "flash_borrower"
 path = "lib.rs"
 crate-type = [
     "cdylib",
