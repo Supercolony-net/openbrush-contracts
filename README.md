@@ -1,4 +1,4 @@
-# ![logo-2](https://user-images.githubusercontent.com/18346821/127667990-a85453d6-8ded-470e-80c7-e2b6153a5eaf.png)
+# ![logo-2](https://user-images.githubusercontent.com/43150707/142042724-63623cdc-e109-4374-b15d-e57a21a30014.png)
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 
