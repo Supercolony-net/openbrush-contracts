@@ -10,3 +10,8 @@ declare_derive_storage_trait!(
     PSP721MetadataStorage,
     PSP721MetadataStorageField
 );
+declare_derive_storage_trait!(
+    derive_psp721_enumerable_storage,
+    PSP721EnumerableStorage,
+    PSP721EnumerableStorageField
+);
