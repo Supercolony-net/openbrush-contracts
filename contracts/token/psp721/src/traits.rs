@@ -2,7 +2,9 @@ use brush::{
     declare_storage_trait,
     traits::{
         AccountId,
+        AccountIdExt,
         InkStorage,
+        ZERO_ADDRESS,
     },
 };
 pub use common::errors::{
@@ -208,7 +210,7 @@ pub trait PSP721: PSP721Storage {
         Ok(())
     }
 
-    fn _before_token_transfer(&self, _from: &AccountId, _to: &AccountId, _id: &Id) -> Result<(), PSP721Error> {
+    fn _before_token_transfer(&mut self, _from: &AccountId, _to: &AccountId, _id: &Id) -> Result<(), PSP721Error> {
         Ok(())
     }
 
@@ -286,13 +288,18 @@ pub trait PSP721: PSP721Storage {
         if self.get_mut().token_owner.get(&id).is_some() {
             return Err(PSP721Error::TokenExists)
         }
+        if to.is_zero() {
+            return Err(PSP721Error::MintToZeroAddress)
+        }
 
+        self._before_token_transfer(&AccountId::from(ZERO_ADDRESS), &to, &id)?;
         self._add_token(to, id.clone())?;
         self._emit_transfer_event(None, Some(to), id);
         Ok(())
     }
 
     fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP721Error> {
+        self._before_token_transfer(&from, &AccountId::from(ZERO_ADDRESS), &id)?;
         self._remove_token(from, &id)?;
         self._emit_transfer_event(Some(from), None, id);
         Ok(())

@@ -18,6 +18,8 @@ pub enum PSP721Error {
     NotApproved,
     /// Returned if the owner already own the token.
     TokenExists,
+    /// Returned if we want to mint to zero address.
+    MintToZeroAddress,
     /// Returned if  the token doesn't exist
     TokenNotExists,
     /// Returned if safe transfer check fails

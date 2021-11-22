@@ -68,17 +68,17 @@ pub trait PSP721Enumerable: PSP721EnumerableStorage + PSP721 {
     /// When `to` is zero, ``from``'s `tokenId` will be burned
     /// `from` cannot be the zero address
     /// `to` cannot be the zero address.
-    fn handle_token_transfer(&mut self, from: AccountId, to: AccountId, id: Id) {
+    fn handle_token_transfer(&mut self, from: &AccountId, to: &AccountId, id: &Id) {
         if from.is_zero() {
-            self.add_token_to_all_tokens_enumeration(id);
+            self.add_token_to_all_tokens_enumeration(*id);
         } else {
-            self.remove_token_from_owner_enumeration(from, id);
+            self.remove_token_from_owner_enumeration(*from, *id);
         }
 
         if to.is_zero() {
-            self.remove_token_from_all_tokens_enumeration(id);
+            self.remove_token_from_all_tokens_enumeration(*id);
         } else {
-            self.add_token_to_owner_enumeration(to, id);
+            self.add_token_to_owner_enumeration(*to, *id);
         }
     }
 
@@ -113,7 +113,7 @@ pub trait PSP721Enumerable: PSP721EnumerableStorage + PSP721 {
     /// `from` is the owner of the token
     /// `token_id` is the id the token to be removed from the tokens list of the given address
     fn remove_token_from_owner_enumeration(&mut self, from: AccountId, token_id: Id) {
-        let last_index = self.balance_of(from);
+        let last_index = self.balance_of(from) - 1;
         let storage = PSP721EnumerableStorage::get_mut(self);
         let token_index = *storage.owned_tokens_index.get(&token_id).unwrap();
 
@@ -137,7 +137,7 @@ pub trait PSP721Enumerable: PSP721EnumerableStorage + PSP721 {
     /// Helper function to remove a token from contract token tracking data structures
     /// `token_id` is the id of the token to be removed from the tokens list
     fn remove_token_from_all_tokens_enumeration(&mut self, token_id: Id) {
-        let last_token_index = self.total_supply();
+        let last_token_index = self.total_supply() - 1;
         let storage = PSP721EnumerableStorage::get_mut(self);
         let token_index = *storage.all_tokens_index.get(&token_id).unwrap();
 
