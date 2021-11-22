@@ -3,23 +3,17 @@
 #[brush::contract]
 pub mod my_psp22_capped {
     use ink_prelude::string::String;
-    use psp22::{
-        extensions::capped::*,
-        traits::*,
-    };
+    use psp22::traits::*;
 
     #[ink(storage)]
-    #[derive(Default, PSP22Storage, PSP22CappedStorage)]
+    #[derive(Default, PSP22Storage)]
     pub struct MyPSP22Capped {
         #[PSP22StorageField]
         psp22: PSP22Data,
-        #[PSP22CappedStorageField]
-        capped: PSP22CappedData,
+        cap: Balance,
     }
 
     impl PSP22 for MyPSP22Capped {}
-
-    impl PSP22Capped for MyPSP22Capped {}
 
     impl MyPSP22Capped {
         /// Constructor which mints `initial_supply` of the token to sender
@@ -38,6 +32,12 @@ pub mod my_psp22_capped {
             self._mint(account, amount)
         }
 
+        #[ink(message)]
+        /// Returns the token's cap
+        pub fn cap(&self) -> Balance {
+            self.cap
+        }
+
         /// Overrides the `_mint` function to check for cap overflow before minting tokens
         /// Performs `PSP22::_mint` after the check succeeds
         fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
@@ -45,6 +45,15 @@ pub mod my_psp22_capped {
                 return Err(PSP22Error::Custom(String::from("Cap exceeded")))
             }
             PSP22::_mint(self, account, amount)
+        }
+
+        /// Initializes the token's cap
+        fn init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
+            if cap <= 0 {
+                return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
+            }
+            self.cap = cap;
+            Ok(())
         }
     }
 }

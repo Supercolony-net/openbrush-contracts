@@ -3,49 +3,29 @@ sidebar_position: 7
 title: PSP22 Capped
 ---
 
-This example shows how you can implement a [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) contract with a [PSP22Capped](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/extension/capped) extension.
+This example shows how you can implement a [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) contract with a supply cap, analogue to [ERC20Capped](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/extensions/ERC20Capped.sol).
 
-## Step 1: Add imports
+## Step 1: Define storage
 
-Replace `ink::contract` macro by `brush::contract` and import **everything** from `psp22::traits` and `psp22::extensions::capped`.
-
-```rust
-#[brush::contract]
-pub mod my_psp22_pausable {
-    use psp22::traits::*;
-    use psp22::extensions::capped::*;
-```
-
-## Step 2: Define storage
-
-Declare the storage struct and declare the fields related to the `PSP22CappedStorage` and `PSP22Storage` traits. Then you need to derive the `PSP22CappedStorage` and `PSP22Storage` traits and mark the corresponding fields with the `#[PSP22CappedStorageField]` and `#[PSP22StorageField]` attributes. Deriving these traits allows you to reuse the `PSP22` implementation with a `PSP22Capped` extension.
+Declare the storage struct and the field related to the `PSP22Storage` trait, derive the `PSP22Storage` trait and mark the corresponding field with the `#[PSP22StorageField]` attribute. Also add the storage variable for cap.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage, PSP22CappedStorage)]
+#[derive(Default, PSP22Storage)]
 pub struct MyPSP22Capped {
     #[PSP22StorageField]
     psp22: PSP22Data,
-    #[PSP22CappedStorageField]
-    capped: PSP22CappedData,
+    cap: Balance,
 }
 ```
 
-## Step 3: Inherit logic
+## Step 2: Define constructor and contract functions
 
-Inherit the implementation of the `PSP22` and `PSP22Capped` traits. You can customize (override) methods in this `impl` block.
+Define constructor, inherit `PSP22`, and override the basic functions for capped implementation. Your `PSP22Capped` contract is ready!
 
 ```rust
 impl PSP22 for MyPSP22Capped {}
 
-impl PSP22Capped for MyPSP22Capped {}
-```
-
-## Step 4: Define constructor and override mint logic
-
-Define constructor and override the mint function to check for cap overflow. Your `PSP22Capped` contract is ready!
-
-```rust
 impl MyPSP22Capped {
     #[ink(constructor)]
     pub fn new(inital_supply: Balance, cap: Balance) -> Self {
@@ -55,12 +35,34 @@ impl MyPSP22Capped {
         instance
     }
 
-    /// Add cap overflow check and then call the original `_mint` function
+    /// Expose the `_mint` function
+    #[ink(message)]
+    pub fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        self._mint(account, amount)
+    }
+
+    #[ink(message)]
+    /// Method to return token's cap
+    pub fn cap(&self) -> Balance {
+        self.cap
+    }
+
+    /// Overrides the `_mint` function to check for cap overflow before minting tokens
+    /// Performs `PSP22::_mint` after the check succeeds
     fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         if (self.total_supply() + amount) > self.cap() {
             return Err(PSP22Error::Custom(String::from("Cap exceeded")))
         }
         PSP22::_mint(self, account, amount)
+    }
+
+    /// Initializes the token's cap
+    fn init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
+        if cap <= 0 {
+            return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
+        }
+        self.cap = cap;
+        Ok(())
     }
 }
 ```
