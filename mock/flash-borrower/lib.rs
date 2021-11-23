@@ -6,8 +6,8 @@ pub mod flash_borrower {
     use psp22::{
         extensions::flashmint::*,
         traits::{
+            PSP22Caller,
             PSP22Error,
-            PSP22Wrapper,
         },
     };
 
@@ -27,7 +27,7 @@ pub mod flash_borrower {
             spender: AccountId,
             amount: Balance,
         ) -> Result<(), PSP22Error> {
-            PSP22Wrapper::approve(&token_address, spender, amount)
+            PSP22Caller::approve(&token_address, spender, amount)
         }
     }
 
