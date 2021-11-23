@@ -2,6 +2,7 @@ use brush::{
     declare_storage_trait,
     traits::{
         AccountId,
+        Flush,
         InkStorage,
     },
 };
@@ -44,7 +45,7 @@ pub type PSP721Wrapper = dyn PSP721;
 /// This module is used through embedding of `PSP721Data` and implementation of `PSP721` and
 /// `PSP721Storage` traits.
 #[brush::trait_definition]
-pub trait PSP721: PSP721Storage {
+pub trait PSP721: PSP721Storage + Flush {
     /// Returns the balance of the owner.
     ///
     /// This represents the amount of unique tokens the owner has.
@@ -214,13 +215,14 @@ pub trait PSP721: PSP721Storage {
 
     /// Child contract can override that if they don't want to do a cross call
     fn _do_safe_transfer_check(
-        &self,
+        &mut self,
         operator: AccountId,
         from: AccountId,
         to: AccountId,
         id: Id,
         data: Vec<u8>,
     ) -> Result<(), PSP721Error> {
+        self.flush();
         match PSP721ReceiverWrapper::before_received_builder(&to, operator, from, id, data).fire() {
             Ok(result) => {
                 match result {
@@ -243,7 +245,9 @@ pub trait PSP721: PSP721Storage {
                     }
                 }
             }
-        }
+        }?;
+        self.load();
+        Ok(())
     }
 
     fn _add_token(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {

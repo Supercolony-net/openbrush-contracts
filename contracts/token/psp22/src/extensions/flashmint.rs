@@ -2,6 +2,7 @@ use crate::traits::*;
 use brush::traits::{
     AccountId,
     Balance,
+    Flush,
 };
 pub use common::errors::{
     FlashBorrowerError,
@@ -18,7 +19,7 @@ use ink_prelude::{
 pub type PSP22FlashMintCaller = dyn PSP22FlashMint + PSP22;
 
 #[brush::trait_definition]
-pub trait PSP22FlashMint: PSP22 {
+pub trait PSP22FlashMint: PSP22 + Flush {
     /// Maximum amount of `token` available to mint
     /// Bounded by the max value of Balance (u128)
     #[ink(message)]
@@ -86,6 +87,7 @@ pub trait PSP22FlashMint: PSP22 {
         amount: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22FlashmintError> {
+        self.flush();
         match FlashBorrowerCaller::on_flashloan_builder(
             &receiver_account,
             Self::env().caller(),
@@ -99,20 +101,26 @@ pub trait PSP22FlashMint: PSP22 {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
-                    Err(e) => Err(e.into()),
+                    Err(_) => {
+                        Err(PSP22FlashmintError::FlashloanRejected(String::from(
+                            "Error while performing the flashloan",
+                        )))
+                    }
                 }
             }
             Err(e) => {
                 match e {
                     EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
                     _ => {
-                        return Err(PSP22FlashmintError::FlashloanRejected(String::from(
+                        Err(PSP22FlashmintError::FlashloanRejected(String::from(
                             "Error while performing the flashloan",
                         )))
                     }
                 }
             }
-        }
+        }?;
+        self.load();
+        Ok(())
     }
 }
 

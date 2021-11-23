@@ -4,6 +4,7 @@ use brush::{
         AccountId,
         AccountIdExt,
         Balance,
+        Flush,
         InkStorage,
     },
 };
@@ -43,7 +44,7 @@ pub type PSP22Caller = dyn PSP22;
 
 /// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
-pub trait PSP22: PSP22Storage {
+pub trait PSP22: PSP22Storage + Flush {
     /// Returns the total token supply.
     #[ink(message)]
     fn total_supply(&self) -> Balance {
@@ -195,12 +196,13 @@ pub trait PSP22: PSP22Storage {
 
     /// Child contract can override that if they don't want to do a cross call
     fn _do_safe_transfer_check(
-        &self,
+        &mut self,
         from: AccountId,
         to: AccountId,
         value: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
+        self.flush();
         match PSP22ReceiverWrapper::before_received_builder(&to, Self::env().caller(), from, value, data).fire() {
             Ok(result) => {
                 match result {
@@ -223,7 +225,9 @@ pub trait PSP22: PSP22Storage {
                     }
                 }
             }
-        }
+        }?;
+        self.load();
+        Ok(())
     }
 
     fn _before_token_transfer(

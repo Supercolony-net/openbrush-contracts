@@ -4,6 +4,7 @@ use brush::{
         AccountId,
         AccountIdExt,
         Balance,
+        Flush,
         InkStorage,
     },
 };
@@ -48,7 +49,7 @@ pub type PSP1155Wrapper = dyn PSP1155;
 /// This module is used through embedding of `PSP1155Data` and implementation of `PSP1155` and
 /// `PSP1155Storage` traits.
 #[brush::trait_definition]
-pub trait PSP1155: PSP1155Storage {
+pub trait PSP1155: PSP1155Storage + Flush {
     /// Returns the amount of tokens of token type `id` owned by `account`.
     #[ink(message)]
     fn balance_of(&self, account: AccountId, id: Id) -> Balance {
@@ -302,6 +303,7 @@ pub trait PSP1155: PSP1155Storage {
         ids_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
+        self.flush();
         match PSP1155ReceiverWrapper::before_received_builder(&to, operator, from, ids_amounts, data).fire() {
             Ok(result) => {
                 match result {
@@ -324,7 +326,9 @@ pub trait PSP1155: PSP1155Storage {
                     }
                 }
             }
-        }
+        }?;
+        self.load();
+        Ok(())
     }
 }
 
