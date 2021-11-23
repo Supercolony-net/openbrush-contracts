@@ -26,7 +26,7 @@ mod tests {
             _fee: Balance,
             _amount: Balance,
             _data: Vec<u8>,
-        ) -> Result<(), PSP22Error> {
+        ) -> Result<(), PSP22FlashmintError> {
             Ok(())
         }
 
@@ -60,7 +60,10 @@ mod tests {
         // wrong token
         assert_eq!(instance.max_flashloan(AccountId::from([0x1; 32])), 0);
         // flash fee on wrong token throws error
-        assert!(instance.flash_fee(AccountId::from([0x1; 32]), 100).is_err());
+        assert_eq!(
+            instance.flash_fee(AccountId::from([0x1; 32]), 100),
+            Err(PSP22FlashmintError::WrongTokenAddress)
+        );
     }
 
     #[ink::test]
@@ -90,8 +93,9 @@ mod tests {
         let token = instance.env().account_id();
         let loan_amount = 100;
 
-        assert!(instance
-            .flashloan(receiver, token, loan_amount, Vec::<u8>::new())
-            .is_err());
+        assert_eq!(
+            instance.flashloan(receiver, token, loan_amount, Vec::<u8>::new()),
+            Err(PSP22FlashmintError::AllowanceDoesNotAllowRefund)
+        );
     }
 }

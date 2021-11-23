@@ -40,9 +40,9 @@ pub mod flash_borrower {
             _amount: Balance,
             _fee: Balance,
             _data: Vec<u8>,
-        ) -> [u8; 32] {
+        ) -> Result<(), FlashBorrowerError> {
             // do something with the tokens
-            ink_lang::blake2x256!("FlashBorrower.onFlashLoan")
+            Ok(())
         }
     }
 }

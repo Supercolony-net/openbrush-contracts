@@ -1,4 +1,6 @@
 mod access_control;
+mod flashloan;
+mod flashmint;
 mod ownable;
 mod pausable;
 mod payment_splitter;
@@ -9,6 +11,11 @@ mod reentrancy_guard;
 mod timelock_controller;
 
 pub use access_control::AccessControlError;
+pub use flashloan::{
+    FlashBorrowerError,
+    FlashLenderError,
+};
+pub use flashmint::PSP22FlashmintError;
 pub use ownable::OwnableError;
 pub use pausable::PausableError;
 pub use payment_splitter::PaymentSplitterError;
