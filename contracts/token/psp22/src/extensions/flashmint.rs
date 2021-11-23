@@ -15,7 +15,7 @@ use ink_prelude::{
 };
 
 #[brush::wrapper]
-pub type PSP22FlashMintWrapper = dyn PSP22FlashMint + PSP22;
+pub type PSP22FlashMintCaller = dyn PSP22FlashMint + PSP22;
 
 #[brush::trait_definition]
 pub trait PSP22FlashMint: PSP22 {
@@ -58,7 +58,7 @@ pub trait PSP22FlashMint: PSP22 {
     ) -> Result<(), PSP22FlashmintError> {
         let fee = self.flash_fee(token, amount)?;
         self._mint(receiver_account, amount)?;
-        self.on_flashloan(receiver_account, token, fee, amount, data)?;
+        self._on_flashloan(receiver_account, token, fee, amount, data)?;
         let current_allowance = self.allowance(receiver_account, Self::env().account_id());
         if current_allowance < amount + fee {
             return Err(PSP22FlashmintError::AllowanceDoesNotAllowRefund)
@@ -78,7 +78,7 @@ pub trait PSP22FlashMint: PSP22 {
     }
 
     /// Helper function which calls `on_flashloan` on `receiver_account`
-    fn on_flashloan(
+    fn _on_flashloan(
         &mut self,
         receiver_account: AccountId,
         token: AccountId,
@@ -86,7 +86,7 @@ pub trait PSP22FlashMint: PSP22 {
         amount: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22FlashmintError> {
-        match FlashBorrowerWrapper::on_flashloan_builder(
+        match FlashBorrowerCaller::on_flashloan_builder(
             &receiver_account,
             Self::env().caller(),
             token,
@@ -117,7 +117,7 @@ pub trait PSP22FlashMint: PSP22 {
 }
 
 #[brush::wrapper]
-pub type FlashBorrowerWrapper = dyn FlashBorrower;
+pub type FlashBorrowerCaller = dyn FlashBorrower;
 
 /// Flash Borrower implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[brush::trait_definition]
@@ -134,7 +134,7 @@ pub trait FlashBorrower {
 }
 
 #[brush::wrapper]
-pub type FlashLenderWrapper = dyn FlashLender;
+pub type FlashLenderCaller = dyn FlashLender;
 
 /// Flash Lender implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[brush::trait_definition]

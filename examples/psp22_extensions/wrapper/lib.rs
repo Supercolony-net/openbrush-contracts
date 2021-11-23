@@ -18,7 +18,7 @@ pub mod my_psp22_wrapper {
 
     impl PSP22 for MyPSP22Wrapper {}
 
-    impl PSP22WrapperExt for MyPSP22Wrapper {}
+    impl PSP22Wrapper for MyPSP22Wrapper {}
 
     impl MyPSP22Wrapper {
         #[ink(constructor)]

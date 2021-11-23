@@ -68,12 +68,12 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
 
     /// Helper function to withdraw tokens
     fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-        PSP22Wrapper::transfer(&self.get().token_address, self.beneficiary(), amount, Vec::<u8>::new())
+        PSP22Caller::transfer(&self.get().token_address, self.beneficiary(), amount, Vec::<u8>::new())
     }
 
     /// Helper function to return balance of the contract
     fn contract_balance(&self) -> Balance {
-        PSP22Wrapper::balance_of(&self.get().token_address, Self::env().account_id())
+        PSP22Caller::balance_of(&self.get().token_address, Self::env().account_id())
     }
 
     /// Initializes the contract

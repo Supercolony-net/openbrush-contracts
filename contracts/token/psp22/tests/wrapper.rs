@@ -21,7 +21,7 @@ mod tests {
 
     /// We will override cross-contract wrapper calls in tests
     /// The cross-contract interaction will be tested in integration tests
-    impl PSP22WrapperExt for PSP22WrapperStruct {
+    impl PSP22Wrapper for PSP22WrapperStruct {
         fn deposit(&mut self, amount: Balance) -> Result<(), PSP22Error> {
             self.contract_balance += amount;
             Ok(())
@@ -32,7 +32,7 @@ mod tests {
             Ok(())
         }
 
-        fn underlying_balance(&self) -> Balance {
+        fn underlying_balance(&mut self) -> Balance {
             self.contract_balance
         }
     }

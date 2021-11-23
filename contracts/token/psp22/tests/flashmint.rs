@@ -19,7 +19,7 @@ mod tests {
 
     // we get rid of cross contract call in test
     impl PSP22FlashMint for PSP22FlashMintStruct {
-        fn on_flashloan(
+        fn _on_flashloan(
             &mut self,
             _receiver_account: AccountId,
             _token: AccountId,

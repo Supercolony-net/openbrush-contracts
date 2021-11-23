@@ -39,7 +39,7 @@ pub struct PSP22Data {
 declare_storage_trait!(PSP22Storage, PSP22Data);
 
 #[brush::wrapper]
-pub type PSP22Wrapper = dyn PSP22;
+pub type PSP22Caller = dyn PSP22;
 
 /// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
