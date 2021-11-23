@@ -5,7 +5,7 @@ title: PSP22 FlashMint
 
 This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22FlashMint](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/extensions/flashmint.rs) extension, which allows the user to perform a flash loan on the token by minting the borrowed amount and then burning it along with fees for the loan.
 
-## 1. Implement the Flashmint extension
+## 1. Implement the FlashMint extension
 
 For your smart contract to use this extension, you need to implement the `PSP22FlashMint` trait in your `PSP22` smart contract. Import everything from `psp22::extensions::flashmint::*` and inherit the implementation for `PSP22FlashMint` trait. You can also customize (override) the original functions from `PSP22FlashMint`.
 
