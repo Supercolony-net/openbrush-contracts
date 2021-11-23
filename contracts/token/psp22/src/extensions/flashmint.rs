@@ -123,6 +123,8 @@ pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
     }
 }
 
+// TODO: Refactor - FlashBorrower and FlashLender do not belong here
+
 #[brush::wrapper]
 pub type FlashBorrowerCaller = dyn FlashBorrower;
 
