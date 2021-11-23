@@ -17,6 +17,33 @@ mod tests {
 
     impl PSP22 for PSP22FlashMintStruct {}
 
+    impl FlashLender for PSP22FlashMintStruct {
+        #[ink(message)]
+        fn max_flashloan(&mut self, token: AccountId) -> Balance {
+            self._max_flashloan(token)
+        }
+
+        #[ink(message)]
+        fn flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, FlashLenderError> {
+            match self._flash_fee(token, amount) {
+                Ok(result) => Ok(result),
+                Err(e) => Err(e.into()),
+            }
+        }
+
+        #[ink(message)]
+        fn flashloan(
+            &mut self,
+            receiver_account: AccountId,
+            token: AccountId,
+            amount: Balance,
+            data: Vec<u8>,
+        ) -> Result<(), FlashLenderError> {
+            self._flashloan(receiver_account, token, amount, data)?;
+            Ok(())
+        }
+    }
+
     // we get rid of cross contract call in test
     impl PSP22FlashMint for PSP22FlashMintStruct {
         fn _on_flashloan(
@@ -62,7 +89,7 @@ mod tests {
         // flash fee on wrong token throws error
         assert_eq!(
             instance.flash_fee(AccountId::from([0x1; 32]), 100),
-            Err(PSP22FlashmintError::WrongTokenAddress)
+            Err(PSP22FlashmintError::WrongTokenAddress.into())
         );
     }
 
@@ -95,7 +122,7 @@ mod tests {
 
         assert_eq!(
             instance.flashloan(receiver, token, loan_amount, Vec::<u8>::new()),
-            Err(PSP22FlashmintError::AllowanceDoesNotAllowRefund)
+            Err(PSP22FlashmintError::AllowanceDoesNotAllowRefund.into())
         );
     }
 }

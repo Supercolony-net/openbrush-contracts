@@ -16,14 +16,14 @@ use ink_prelude::{
 };
 
 #[brush::wrapper]
-pub type PSP22FlashMintCaller = dyn PSP22FlashMint + PSP22;
+pub type PSP22FlashMintCaller = dyn FlashLender + PSP22;
 
 #[brush::trait_definition]
-pub trait PSP22FlashMint: PSP22 + Flush {
+pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
+    /// Call this function in `max_flashloan` function in `impl` block of FlashLender
     /// Maximum amount of `token` available to mint
     /// Bounded by the max value of Balance (u128)
-    #[ink(message)]
-    fn max_flashloan(&mut self, token: AccountId) -> Balance {
+    fn _max_flashloan(&mut self, token: AccountId) -> Balance {
         if token == Self::env().account_id() {
             Balance::MAX - self.total_supply()
         } else {
@@ -31,33 +31,32 @@ pub trait PSP22FlashMint: PSP22 + Flush {
         }
     }
 
+    /// Call this function in `flash_fee` function in `impl` block of FlashLender
     /// Fee for borrowing `amount` of the `token`
     ///
     /// Returns `WrongTokenAddress` error if the `token` account id is not this token
-    #[ink(message)]
-    fn flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, PSP22FlashmintError> {
+    fn _flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, PSP22FlashmintError> {
         if token != Self::env().account_id() {
             return Err(PSP22FlashmintError::WrongTokenAddress)
         }
         Ok(self.get_fee(amount))
     }
 
+    /// Call this function in `flashloan` function in `impl` block of FlashLender
     /// Mints `amount` of `token` to `receiver_account` and performs the flashloan
     /// `amount` is then burned along with the fee for the flashloan
-    ///
     /// `receiver_account` must implement `PSP3156FlashBorrower`
     ///
     /// Returns `AllowanceDoesNotAllowRefund` error if the contract does not have
     /// enough allowance to transfer borrowed amount and fees from `receiver_account`
-    #[ink(message)]
-    fn flashloan(
+    fn _flashloan(
         &mut self,
         receiver_account: AccountId,
         token: AccountId,
         amount: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22FlashmintError> {
-        let fee = self.flash_fee(token, amount)?;
+        let fee = self._flash_fee(token, amount)?;
         self._mint(receiver_account, amount)?;
         self._on_flashloan(receiver_account, token, fee, amount, data)?;
         let current_allowance = self.allowance(receiver_account, Self::env().account_id());
