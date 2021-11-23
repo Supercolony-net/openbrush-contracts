@@ -1,7 +1,3 @@
-use super::{
-    FlashBorrowerError,
-    PSP22Error,
-};
 use ink_prelude::string::String;
 
 /// The PSP22 error type. Contract will throw one of this errors.
@@ -14,30 +10,4 @@ pub enum PSP22FlashmintError {
     WrongTokenAddress,
     /// Returned if the contract does not have enough allowance to transfer borrowed amount and fees
     AllowanceDoesNotAllowRefund,
-    FlashloanRejected(String),
-}
-
-impl From<PSP22Error> for PSP22FlashmintError {
-    fn from(error: PSP22Error) -> Self {
-        match error {
-            PSP22Error::Custom(message) => PSP22FlashmintError::Custom(message),
-            PSP22Error::InsufficientBalance => PSP22FlashmintError::Custom(String::from("PSP22: Insufficient Balance")),
-            PSP22Error::InsufficientAllowance => {
-                PSP22FlashmintError::Custom(String::from("PSP22: Insufficient Allowance"))
-            }
-            PSP22Error::ZeroRecipientAddress => {
-                PSP22FlashmintError::Custom(String::from("PSP22: Zero Recipient Address"))
-            }
-            PSP22Error::ZeroSenderAddress => PSP22FlashmintError::Custom(String::from("PSP22: Zero Sender Address")),
-            PSP22Error::SafeTransferCheckFailed(message) => PSP22FlashmintError::Custom(message),
-        }
-    }
-}
-
-impl From<FlashBorrowerError> for PSP22FlashmintError {
-    fn from(error: FlashBorrowerError) -> Self {
-        match error {
-            FlashBorrowerError::FlashloanRejected(message) => PSP22FlashmintError::FlashloanRejected(message),
-        }
-    }
 }
