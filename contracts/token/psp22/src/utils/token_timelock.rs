@@ -10,10 +10,8 @@ use brush::{
         Timestamp,
     },
 };
-use ink_prelude::{
-    string::String,
-    vec::Vec,
-};
+pub use common::errors::PSP22TokenTimelockError;
+use ink_prelude::vec::Vec;
 use ink_storage::traits::SpreadLayout;
 pub use psp22_derive::PSP22TokenTimelockStorage;
 
@@ -23,7 +21,7 @@ use ink_storage::traits::StorageLayout;
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22TokenTimelockData {
-    token_address: AccountId,
+    token: AccountId,
     beneficiary: AccountId,
     release_time: Timestamp,
 }
@@ -38,7 +36,7 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
     /// Returns the token address
     #[ink(message)]
     fn token(&self) -> AccountId {
-        self.get().token_address
+        self.get().token
     }
 
     /// Returns the beneficiary of the tokens
@@ -55,40 +53,47 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
 
     /// Transfers the tokens held by timelock to the beneficairy
     #[ink(message)]
-    fn release(&mut self) -> Result<(), PSP22Error> {
+    fn release(&mut self) -> Result<(), PSP22TokenTimelockError> {
         if Self::env().block_timestamp() < self.get_mut().release_time {
-            return Err(PSP22Error::Custom(String::from("Current time is before release time")))
+            return Err(PSP22TokenTimelockError::CurrentTimeIsBeforeReleaseTime)
         }
         let amount = self.contract_balance();
         if amount == 0 {
-            return Err(PSP22Error::Custom(String::from("No tokens to release")))
+            return Err(PSP22TokenTimelockError::NoTokensToRelease)
         }
         self.withdraw(amount)
     }
 
     /// Helper function to withdraw tokens
-    fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-        PSP22Caller::transfer(&self.get().token_address, self.beneficiary(), amount, Vec::<u8>::new())
+    fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
+        let beneficairy = self.beneficiary();
+        self._token().transfer(beneficairy, amount, Vec::<u8>::new())?;
+        Ok(())
     }
 
     /// Helper function to return balance of the contract
-    fn contract_balance(&self) -> Balance {
-        PSP22Caller::balance_of(&self.get().token_address, Self::env().account_id())
+    fn contract_balance(&mut self) -> Balance {
+        self._token().balance_of(Self::env().account_id())
     }
 
     /// Initializes the contract
     fn init(
         &mut self,
-        token_address: AccountId,
+        token: AccountId,
         beneficiary: AccountId,
         release_time: Timestamp,
-    ) -> Result<(), PSP22Error> {
+    ) -> Result<(), PSP22TokenTimelockError> {
         if release_time <= Self::env().block_timestamp() {
-            return Err(PSP22Error::Custom(String::from("Release time is before current time")))
+            return Err(PSP22TokenTimelockError::ReleaseTimeIsBeforeCurrentTime)
         }
-        self.get_mut().token_address = token_address;
+        self.get_mut().token = token;
         self.get_mut().beneficiary = beneficiary;
         self.get_mut().release_time = release_time;
         Ok(())
+    }
+
+    /// Getter for caller to `PSP22Caller` of `token`
+    fn _token(&mut self) -> &mut PSP22Caller {
+        &mut self.get_mut().token
     }
 }

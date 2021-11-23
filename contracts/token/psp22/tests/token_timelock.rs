@@ -1,10 +1,7 @@
 #[brush::contract]
 mod tests {
     use ink_lang as ink;
-    use psp22::{
-        traits::*,
-        utils::token_timelock::*,
-    };
+    use psp22::utils::token_timelock::*;
 
     #[ink(storage)]
     #[derive(Default, PSP22TokenTimelockStorage)]
@@ -18,12 +15,12 @@ mod tests {
     /// We will just remove calls to the locked token
     /// The cross-contract interaction will be tested in integration tests
     impl PSP22TokenTimelock for PSP22TokenTimelockStruct {
-        fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22Error> {
+        fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
             self.locked_tokens -= amount;
             Ok(())
         }
 
-        fn contract_balance(&self) -> Balance {
+        fn contract_balance(&mut self) -> Balance {
             self.locked_tokens
         }
     }
@@ -89,7 +86,10 @@ mod tests {
         timelock.deposit(deposited_tokens);
 
         // release the tokens should panic
-        assert!(timelock.release().is_err());
+        assert_eq!(
+            timelock.release(),
+            Err(PSP22TokenTimelockError::CurrentTimeIsBeforeReleaseTime)
+        );
     }
 
     #[ink::test]
@@ -103,7 +103,7 @@ mod tests {
         assert_eq!(timelock.balance(), 0);
 
         // release the tokens
-        assert!(timelock.release().is_err());
+        assert_eq!(timelock.release(), Err(PSP22TokenTimelockError::NoTokensToRelease));
     }
 
     type DefEnv = ink_env::DefaultEnvironment;

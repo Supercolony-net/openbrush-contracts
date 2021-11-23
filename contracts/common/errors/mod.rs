@@ -26,6 +26,7 @@ pub use psp1155::{
 pub use psp22::{
     PSP22Error,
     PSP22ReceiverError,
+    PSP22TokenTimelockError,
 };
 pub use psp721::{
     PSP721Error,
