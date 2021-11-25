@@ -1,8 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-/// This contract will represent a stable coin which will be lended and borrowed inside our contract
+/// This is a simple `PSP-22` which will be used as a collateral token in our lending contract
 #[brush::contract]
-pub mod stable_coin {
+pub mod collateral {
     use ink_lang::{
         EmitEvent,
         Env,
@@ -17,7 +17,7 @@ pub mod stable_coin {
     /// Define the storage for PSP22 data and Metadata data
     #[ink(storage)]
     #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
-    pub struct StableCoin {
+    pub struct Collateral {
         #[PSP22StorageField]
         psp22: PSP22Data,
         #[PSP22MetadataStorageField]
@@ -45,7 +45,7 @@ pub mod stable_coin {
     }
 
     /// implement PSP22 Trait for our coin
-    impl PSP22 for StableCoin {
+    impl PSP22 for Collateral {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
@@ -63,18 +63,18 @@ pub mod stable_coin {
         }
     }
 
-    /// implement PSP22Metadata Trait for our coin
-    impl PSP22Metadata for StableCoin {}
+    /// implement Metadata Trait for our coin
+    impl PSP22Metadata for Collateral {}
 
-    impl StableCoin {
-        /// Define constructor where we mint the initial amount to the deployer and set the metadata values
+    impl Collateral {
+        /// constructor with name and symbol
         #[ink(constructor)]
         pub fn new() -> Self {
             let mut instance = Self::default();
-            let total_supply = 1_000_000 * 10_u128.pow(18);
-            Lazy::set(&mut instance.metadata.name, Some(String::from("Stable Coin")));
-            Lazy::set(&mut instance.metadata.symbol, Some(String::from("SC")));
+            Lazy::set(&mut instance.metadata.name, Some(String::from("Collateral")));
+            Lazy::set(&mut instance.metadata.symbol, Some(String::from("COL")));
             Lazy::set(&mut instance.metadata.decimals, 18);
+            let total_supply = 1_000_000 * 10_u128.pow(18);
             assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
             instance
         }
