@@ -72,7 +72,7 @@ pub mod lending {
             let mut instance = Self::default();
             let caller = instance.env().caller();
             instance._init_with_admin(caller);
-            instance.grant_role(MANAGER, caller);
+            instance.grant_role(MANAGER, caller).expect("Can not set manager role");
             instance
         }
     }
