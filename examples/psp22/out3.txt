@@ -1,0 +1,765 @@
+#![feature(prelude_import)]
+#![no_std]
+#[prelude_import]
+use core::prelude::rust_2018::*;
+#[macro_use]
+extern crate core;
+#[macro_use]
+extern crate compiler_builtins;
+#[cfg(not(feature = "ink-as-dependency"))]
+pub mod my_psp22 {
+    impl ::ink_lang::ContractEnv for MyPSP22 {
+        type Env = ::ink_env::DefaultEnvironment;
+    }
+    type Environment = <MyPSP22 as ::ink_lang::ContractEnv>::Env;
+    type AccountId =
+        <<MyPSP22 as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::AccountId;
+    type Balance = <<MyPSP22 as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::Balance;
+    type Hash = <<MyPSP22 as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::Hash;
+    type Timestamp =
+        <<MyPSP22 as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::Timestamp;
+    type BlockNumber =
+        <<MyPSP22 as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::BlockNumber;
+    #[cfg(not(feature = "ink-as-dependency"))]
+    const _: () = {
+        impl<'a> ::ink_lang::Env for &'a MyPSP22 {
+            type EnvAccess = ::ink_lang::EnvAccess<'a, <MyPSP22 as ::ink_lang::ContractEnv>::Env>;
+            fn env(self) -> Self::EnvAccess {
+                Default::default()
+            }
+        }
+        impl<'a> ::ink_lang::StaticEnv for MyPSP22 {
+            type EnvAccess =
+                ::ink_lang::EnvAccess<'static, <MyPSP22 as ::ink_lang::ContractEnv>::Env>;
+            fn env() -> Self::EnvAccess {
+                Default::default()
+            }
+        }
+    };
+    #[cfg(not(feature = "ink-as-dependency"))]
+    pub struct MyPSP22 {
+        #[PSP22StorageField]
+        psp22: PSP22Data,
+        #[PSP22MetadataStorageField]
+        metadata: PSP22MetadataData,
+        hated_account: AccountId,
+    }
+    const _: () = {
+        impl ::ink_storage::traits::SpreadLayout for MyPSP22 {
+            #[allow(unused_comparisons)]
+            const FOOTPRINT: u64 = [
+                (((0u64 + <PSP22Data as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
+                    + <PSP22MetadataData as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
+                    + <AccountId as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
+                0u64,
+            ][((((0u64
+                + <PSP22Data as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
+                + <PSP22MetadataData as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
+                + <AccountId as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
+                < 0u64) as usize];
+            const REQUIRES_DEEP_CLEAN_UP : bool = (false || (((false || < PSP22Data as :: ink_storage :: traits :: SpreadLayout > :: REQUIRES_DEEP_CLEAN_UP) || < PSP22MetadataData as :: ink_storage :: traits :: SpreadLayout > :: REQUIRES_DEEP_CLEAN_UP) || < AccountId as :: ink_storage :: traits :: SpreadLayout > :: REQUIRES_DEEP_CLEAN_UP)) ;
+            fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
+                MyPSP22 {
+                    psp22: <PSP22Data as ::ink_storage::traits::SpreadLayout>::pull_spread(
+                        __key_ptr,
+                    ),
+                    metadata:
+                        <PSP22MetadataData as ::ink_storage::traits::SpreadLayout>::pull_spread(
+                            __key_ptr,
+                        ),
+                    hated_account: <AccountId as ::ink_storage::traits::SpreadLayout>::pull_spread(
+                        __key_ptr,
+                    ),
+                }
+            }
+            fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                match self {
+                    MyPSP22 {
+                        psp22: __binding_0,
+                        metadata: __binding_1,
+                        hated_account: __binding_2,
+                    } => {
+                        {
+                            ::ink_storage::traits::SpreadLayout::push_spread(
+                                __binding_0,
+                                __key_ptr,
+                            );
+                        }
+                        {
+                            ::ink_storage::traits::SpreadLayout::push_spread(
+                                __binding_1,
+                                __key_ptr,
+                            );
+                        }
+                        {
+                            ::ink_storage::traits::SpreadLayout::push_spread(
+                                __binding_2,
+                                __key_ptr,
+                            );
+                        }
+                    }
+                }
+            }
+            fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                match self {
+                    MyPSP22 {
+                        psp22: __binding_0,
+                        metadata: __binding_1,
+                        hated_account: __binding_2,
+                    } => {
+                        {
+                            ::ink_storage::traits::SpreadLayout::clear_spread(
+                                __binding_0,
+                                __key_ptr,
+                            );
+                        }
+                        {
+                            ::ink_storage::traits::SpreadLayout::clear_spread(
+                                __binding_1,
+                                __key_ptr,
+                            );
+                        }
+                        {
+                            ::ink_storage::traits::SpreadLayout::clear_spread(
+                                __binding_2,
+                                __key_ptr,
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    };
+    #[automatically_derived]
+    #[allow(unused_qualifications)]
+    impl ::core::default::Default for MyPSP22 {
+        #[inline]
+        fn default() -> MyPSP22 {
+            MyPSP22 {
+                psp22: ::core::default::Default::default(),
+                metadata: ::core::default::Default::default(),
+                hated_account: ::core::default::Default::default(),
+            }
+        }
+    }
+    impl PSP22Storage for MyPSP22 {
+        fn get(&self) -> &PSP22Data {
+            &self.psp22
+        }
+        fn get_mut(&mut self) -> &mut PSP22Data {
+            &mut self.psp22
+        }
+    }
+    impl PSP22MetadataStorage for MyPSP22 {
+        fn get(&self) -> &PSP22MetadataData {
+            &self.metadata
+        }
+        fn get_mut(&mut self) -> &mut PSP22MetadataData {
+            &mut self.metadata
+        }
+    }
+    #[cfg(not(feature = "ink-as-dependency"))]
+    const _: () = {
+        #[allow(unused_imports)]
+        use ::ink_lang::{Env as _, StaticEnv as _};
+    };
+    #[cfg(not(test))]
+    #[cfg(not(feature = "ink-as-dependency"))]
+    const _: () = {
+        #[cfg(not(test))]
+        #[no_mangle]
+        fn deploy() -> u32 {
+            ::ink_lang::DispatchRetCode::from(
+                <MyPSP22 as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                    ::ink_lang::DispatchMode::Instantiate,
+                ),
+            )
+            .to_u32()
+        }
+        #[cfg(not(test))]
+        #[no_mangle]
+        fn call() -> u32 {
+            if true {
+                ::ink_lang::deny_payment::<<MyPSP22 as ::ink_lang::ContractEnv>::Env>()
+                    .expect("caller transferred value even though all ink! message deny payments")
+            }
+            ::ink_lang::DispatchRetCode::from(
+                <MyPSP22 as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                    ::ink_lang::DispatchMode::Call,
+                ),
+            )
+            .to_u32()
+        }
+        impl ::ink_lang::DispatchUsingMode for MyPSP22 {
+            #[allow(unused_parens)]
+            fn dispatch_using_mode(
+                mode: ::ink_lang::DispatchMode,
+            ) -> core::result::Result<(), ::ink_lang::DispatchError> {
+                match mode { :: ink_lang :: DispatchMode :: Instantiate => { < < MyPSP22 as :: ink_lang :: ConstructorDispatcher > :: Type as :: ink_lang :: Execute > :: execute (:: ink_env :: decode_input :: < < MyPSP22 as :: ink_lang :: ConstructorDispatcher > :: Type > () . map_err (| _ | :: ink_lang :: DispatchError :: CouldNotReadInput) ?) } :: ink_lang :: DispatchMode :: Call => { < < MyPSP22 as :: ink_lang :: MessageDispatcher > :: Type as :: ink_lang :: Execute > :: execute (:: ink_env :: decode_input :: < < MyPSP22 as :: ink_lang :: MessageDispatcher > :: Type > () . map_err (| _ | :: ink_lang :: DispatchError :: CouldNotReadInput) ?) } }
+            }
+        }
+        #[doc(hidden)]
+        pub struct __ink_Msg<S> {
+            marker: core::marker::PhantomData<fn() -> S>,
+        }
+        #[doc(hidden)]
+        pub struct __ink_Constr<S> {
+            marker: core::marker::PhantomData<fn() -> S>,
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 3579300862usize]> {
+            type Input = (AccountId, Balance);
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 3579300862usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([254u8, 203u8, 87u8, 213u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 3579300862usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 3579300862usize]> {
+            #[allow(unused_parens)]
+            type Output = ();
+        }
+        impl ::ink_lang::MessageMut for __ink_Msg<[(); 3579300862usize]> {
+            const CALLABLE: fn(
+                &mut <Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output =
+                |state, (__ink_binding_0, __ink_binding_1)| {
+                    <MyPSP22 as __brush_PSP22External>::__brush_decrease_allowance_external(
+                        state,
+                        __ink_binding_0,
+                        __ink_binding_1,
+                    )
+                };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 3172667314usize]> {
+            type Input = (AccountId, Balance);
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 3172667314usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([178u8, 15u8, 27u8, 189u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 3172667314usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 3172667314usize]> {
+            #[allow(unused_parens)]
+            type Output = ();
+        }
+        impl ::ink_lang::MessageMut for __ink_Msg<[(); 3172667314usize]> {
+            const CALLABLE: fn(
+                &mut <Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output =
+                |state, (__ink_binding_0, __ink_binding_1)| {
+                    <MyPSP22 as __brush_PSP22External>::__brush_approve_external(
+                        state,
+                        __ink_binding_0,
+                        __ink_binding_1,
+                    )
+                };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 2058737302usize]> {
+            type Input = (AccountId, Balance);
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 2058737302usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([150u8, 214u8, 181u8, 122u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 2058737302usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 2058737302usize]> {
+            #[allow(unused_parens)]
+            type Output = ();
+        }
+        impl ::ink_lang::MessageMut for __ink_Msg<[(); 2058737302usize]> {
+            const CALLABLE: fn(
+                &mut <Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output =
+                |state, (__ink_binding_0, __ink_binding_1)| {
+                    <MyPSP22 as __brush_PSP22External>::__brush_increase_allowance_external(
+                        state,
+                        __ink_binding_0,
+                        __ink_binding_1,
+                    )
+                };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 1858581332usize]> {
+            type Input = (AccountId, AccountId, Balance, Vec<u8>);
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 1858581332usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([84u8, 179u8, 199u8, 110u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 1858581332usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 1858581332usize]> {
+            #[allow(unused_parens)]
+            type Output = ();
+        }
+        impl ::ink_lang::MessageMut for __ink_Msg<[(); 1858581332usize]> {
+            const CALLABLE: fn(
+                &mut <Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output =
+                |state, (__ink_binding_0, __ink_binding_1, __ink_binding_2, __ink_binding_3)| {
+                    <MyPSP22 as __brush_PSP22External>::__brush_transfer_from_external(
+                        state,
+                        __ink_binding_0,
+                        __ink_binding_1,
+                        __ink_binding_2,
+                        __ink_binding_3,
+                    )
+                };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 4126744795usize]> {
+            type Input = (AccountId, Balance, Vec<u8>);
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 4126744795usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([219u8, 32u8, 249u8, 245u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 4126744795usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 4126744795usize]> {
+            #[allow(unused_parens)]
+            type Output = ();
+        }
+        impl ::ink_lang::MessageMut for __ink_Msg<[(); 4126744795usize]> {
+            const CALLABLE: fn(
+                &mut <Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output =
+                |state, (__ink_binding_0, __ink_binding_1, __ink_binding_2)| {
+                    <MyPSP22 as __brush_PSP22External>::__brush_transfer_external(
+                        state,
+                        __ink_binding_0,
+                        __ink_binding_1,
+                        __ink_binding_2,
+                    )
+                };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 792225893usize]> {
+            type Input = AccountId;
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 792225893usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([101u8, 104u8, 56u8, 47u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 792225893usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 792225893usize]> {
+            #[allow(unused_parens)]
+            type Output = Balance;
+        }
+        impl ::ink_lang::MessageRef for __ink_Msg<[(); 792225893usize]> {
+            const CALLABLE: fn(
+                &<Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output = |state, __ink_binding_0| {
+                <MyPSP22 as __brush_PSP22External>::__brush_balance_of_external(
+                    state,
+                    __ink_binding_0,
+                )
+            };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 567887693usize]> {
+            type Input = (AccountId, AccountId);
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 567887693usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([77u8, 71u8, 217u8, 33u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 567887693usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 567887693usize]> {
+            #[allow(unused_parens)]
+            type Output = Balance;
+        }
+        impl ::ink_lang::MessageRef for __ink_Msg<[(); 567887693usize]> {
+            const CALLABLE: fn(
+                &<Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output =
+                |state, (__ink_binding_0, __ink_binding_1)| {
+                    <MyPSP22 as __brush_PSP22External>::__brush_allowance_external(
+                        state,
+                        __ink_binding_0,
+                        __ink_binding_1,
+                    )
+                };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 3271044374usize]> {
+            type Input = ();
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 3271044374usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([22u8, 45u8, 248u8, 194u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 3271044374usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 3271044374usize]> {
+            #[allow(unused_parens)]
+            type Output = Balance;
+        }
+        impl ::ink_lang::MessageRef for __ink_Msg<[(); 3271044374usize]> {
+            const CALLABLE: fn(
+                &<Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output =
+                |state, _| <MyPSP22 as __brush_PSP22External>::__brushtotal_supply_external(state);
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 2193060210usize]> {
+            type Input = ();
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 2193060210usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([114u8, 113u8, 183u8, 130u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 2193060210usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 2193060210usize]> {
+            #[allow(unused_parens)]
+            type Output = u8;
+        }
+        impl ::ink_lang::MessageRef for __ink_Msg<[(); 2193060210usize]> {
+            const CALLABLE: fn(
+                &<Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output = |state, _| {
+                <MyPSP22 as __brush_PSP22MetadataExternal>::__brush_token_decimals_external(state)
+            };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 3847954484usize]> {
+            type Input = ();
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 3847954484usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([52u8, 32u8, 91u8, 229u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 3847954484usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 3847954484usize]> {
+            #[allow(unused_parens)]
+            type Output = Option<String>;
+        }
+        impl ::ink_lang::MessageRef for __ink_Msg<[(); 3847954484usize]> {
+            const CALLABLE: fn(
+                &<Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output = |state, _| {
+                <MyPSP22 as __brush_PSP22MetadataExternal>::__brush_token_symbol_external(state)
+            };
+        }
+        impl ::ink_lang::FnInput for __ink_Msg<[(); 3558549053usize]> {
+            type Input = ();
+        }
+        impl ::ink_lang::FnSelector for __ink_Msg<[(); 3558549053usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([61u8, 38u8, 27u8, 212u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Msg<[(); 3558549053usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::FnOutput for __ink_Msg<[(); 3558549053usize]> {
+            #[allow(unused_parens)]
+            type Output = Option<String>;
+        }
+        impl ::ink_lang::MessageRef for __ink_Msg<[(); 3558549053usize]> {
+            const CALLABLE: fn(
+                &<Self as ::ink_lang::FnState>::State,
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnOutput>::Output = |state, _| {
+                <MyPSP22 as __brush_PSP22MetadataExternal>::__brush_token_name_external(state)
+            };
+        }
+        impl ::ink_lang::FnInput for __ink_Constr<[(); 1587392155usize]> {
+            type Input = (Balance, Option<String>, Option<String>, u8);
+        }
+        impl ::ink_lang::FnSelector for __ink_Constr<[(); 1587392155usize]> {
+            const SELECTOR: ::ink_env::call::Selector =
+                ::ink_env::call::Selector::new([155u8, 174u8, 157u8, 94u8]);
+        }
+        impl ::ink_lang::FnState for __ink_Constr<[(); 1587392155usize]> {
+            type State = MyPSP22;
+        }
+        impl ::ink_lang::Constructor for __ink_Constr<[(); 1587392155usize]> {
+            const CALLABLE: fn(
+                <Self as ::ink_lang::FnInput>::Input,
+            ) -> <Self as ::ink_lang::FnState>::State =
+                |(__ink_binding_0, __ink_binding_1, __ink_binding_2, __ink_binding_3)| {
+                    <MyPSP22>::new(
+                        __ink_binding_0,
+                        __ink_binding_1,
+                        __ink_binding_2,
+                        __ink_binding_3,
+                    )
+                };
+        }
+        const _: () = {
+            #[doc(hidden)]
+            pub enum __ink_MessageDispatchEnum {
+                __ink_Message_0xfecb57d5(AccountId, Balance),
+                __ink_Message_0xb20f1bbd(AccountId, Balance),
+                __ink_Message_0x96d6b57a(AccountId, Balance),
+                __ink_Message_0x54b3c76e(AccountId, AccountId, Balance, Vec<u8>),
+                __ink_Message_0xdb20f9f5(AccountId, Balance, Vec<u8>),
+                __ink_Message_0x6568382f(AccountId),
+                __ink_Message_0x4d47d921(AccountId, AccountId),
+                __ink_Message_0x162df8c2(),
+                __ink_Message_0x7271b782(),
+                __ink_Message_0x34205be5(),
+                __ink_Message_0x3d261bd4(),
+            }
+            impl ::ink_lang::MessageDispatcher for MyPSP22 {
+                type Type = __ink_MessageDispatchEnum;
+            }
+            impl ::scale::Decode for __ink_MessageDispatchEnum {
+                fn decode<I: ::scale::Input>(
+                    input: &mut I,
+                ) -> ::core::result::Result<Self, ::scale::Error> {
+                    match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                        [254u8, 203u8, 87u8, 213u8] => Ok(Self::__ink_Message_0xfecb57d5(
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                            <Balance as ::scale::Decode>::decode(input)?,
+                        )),
+                        [178u8, 15u8, 27u8, 189u8] => Ok(Self::__ink_Message_0xb20f1bbd(
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                            <Balance as ::scale::Decode>::decode(input)?,
+                        )),
+                        [150u8, 214u8, 181u8, 122u8] => Ok(Self::__ink_Message_0x96d6b57a(
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                            <Balance as ::scale::Decode>::decode(input)?,
+                        )),
+                        [84u8, 179u8, 199u8, 110u8] => Ok(Self::__ink_Message_0x54b3c76e(
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                            <Balance as ::scale::Decode>::decode(input)?,
+                            <Vec<u8> as ::scale::Decode>::decode(input)?,
+                        )),
+                        [219u8, 32u8, 249u8, 245u8] => Ok(Self::__ink_Message_0xdb20f9f5(
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                            <Balance as ::scale::Decode>::decode(input)?,
+                            <Vec<u8> as ::scale::Decode>::decode(input)?,
+                        )),
+                        [101u8, 104u8, 56u8, 47u8] => Ok(Self::__ink_Message_0x6568382f(
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                        )),
+                        [77u8, 71u8, 217u8, 33u8] => Ok(Self::__ink_Message_0x4d47d921(
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                            <AccountId as ::scale::Decode>::decode(input)?,
+                        )),
+                        [22u8, 45u8, 248u8, 194u8] => Ok(Self::__ink_Message_0x162df8c2()),
+                        [114u8, 113u8, 183u8, 130u8] => Ok(Self::__ink_Message_0x7271b782()),
+                        [52u8, 32u8, 91u8, 229u8] => Ok(Self::__ink_Message_0x34205be5()),
+                        [61u8, 38u8, 27u8, 212u8] => Ok(Self::__ink_Message_0x3d261bd4()),
+                        _invalid => Err(::scale::Error::from(
+                            "encountered unknown ink! message selector",
+                        )),
+                    }
+                }
+            }
+            impl ::ink_lang::Execute for __ink_MessageDispatchEnum {
+                fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                    match self {
+                        Self::__ink_Message_0xfecb57d5(spender, delta_value) => {
+                            ::ink_lang::execute_message_mut::<
+                                <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                                __ink_Msg<[(); 3579300862usize]>,
+                                _,
+                            >(
+                                ::ink_lang::AcceptsPayments(true),
+                                ::ink_lang::EnablesDynamicStorageAllocator(false),
+                                move |state: &mut MyPSP22| {
+                                    < __ink_Msg < [() ; 3579300862usize] > as :: ink_lang :: MessageMut > :: CALLABLE (state , (spender , delta_value))
+                                },
+                            )
+                        }
+                        Self::__ink_Message_0xb20f1bbd(spender, value) => {
+                            ::ink_lang::execute_message_mut::<
+                                <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                                __ink_Msg<[(); 3172667314usize]>,
+                                _,
+                            >(
+                                ::ink_lang::AcceptsPayments(true),
+                                ::ink_lang::EnablesDynamicStorageAllocator(false),
+                                move |state: &mut MyPSP22| {
+                                    < __ink_Msg < [() ; 3172667314usize] > as :: ink_lang :: MessageMut > :: CALLABLE (state , (spender , value))
+                                },
+                            )
+                        }
+                        Self::__ink_Message_0x96d6b57a(spender, delta_value) => {
+                            ::ink_lang::execute_message_mut::<
+                                <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                                __ink_Msg<[(); 2058737302usize]>,
+                                _,
+                            >(
+                                ::ink_lang::AcceptsPayments(true),
+                                ::ink_lang::EnablesDynamicStorageAllocator(false),
+                                move |state: &mut MyPSP22| {
+                                    < __ink_Msg < [() ; 2058737302usize] > as :: ink_lang :: MessageMut > :: CALLABLE (state , (spender , delta_value))
+                                },
+                            )
+                        }
+                        Self::__ink_Message_0x54b3c76e(from, to, value, data) => {
+                            ::ink_lang::execute_message_mut::<
+                                <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                                __ink_Msg<[(); 1858581332usize]>,
+                                _,
+                            >(
+                                ::ink_lang::AcceptsPayments(true),
+                                ::ink_lang::EnablesDynamicStorageAllocator(false),
+                                move |state: &mut MyPSP22| {
+                                    < __ink_Msg < [() ; 1858581332usize] > as :: ink_lang :: MessageMut > :: CALLABLE (state , (from , to , value , data))
+                                },
+                            )
+                        }
+                        Self::__ink_Message_0xdb20f9f5(to, value, data) => {
+                            ::ink_lang::execute_message_mut::<
+                                <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                                __ink_Msg<[(); 4126744795usize]>,
+                                _,
+                            >(
+                                ::ink_lang::AcceptsPayments(true),
+                                ::ink_lang::EnablesDynamicStorageAllocator(false),
+                                move |state: &mut MyPSP22| {
+                                    < __ink_Msg < [() ; 4126744795usize] > as :: ink_lang :: MessageMut > :: CALLABLE (state , (to , value , data))
+                                },
+                            )
+                        }
+                        Self::__ink_Message_0x6568382f(owner) => ::ink_lang::execute_message::<
+                            <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                            __ink_Msg<[(); 792225893usize]>,
+                            _,
+                        >(
+                            ::ink_lang::AcceptsPayments(true),
+                            ::ink_lang::EnablesDynamicStorageAllocator(false),
+                            move |state: &MyPSP22| {
+                                < __ink_Msg < [() ; 792225893usize] > as :: ink_lang :: MessageRef > :: CALLABLE (state , owner)
+                            },
+                        ),
+                        Self::__ink_Message_0x4d47d921(owner, spender) => {
+                            ::ink_lang::execute_message::<
+                                <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                                __ink_Msg<[(); 567887693usize]>,
+                                _,
+                            >(
+                                ::ink_lang::AcceptsPayments(true),
+                                ::ink_lang::EnablesDynamicStorageAllocator(false),
+                                move |state: &MyPSP22| {
+                                    < __ink_Msg < [() ; 567887693usize] > as :: ink_lang :: MessageRef > :: CALLABLE (state , (owner , spender))
+                                },
+                            )
+                        }
+                        Self::__ink_Message_0x162df8c2() => ::ink_lang::execute_message::<
+                            <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                            __ink_Msg<[(); 3271044374usize]>,
+                            _,
+                        >(
+                            ::ink_lang::AcceptsPayments(true),
+                            ::ink_lang::EnablesDynamicStorageAllocator(false),
+                            move |state: &MyPSP22| {
+                                < __ink_Msg < [() ; 3271044374usize] > as :: ink_lang :: MessageRef > :: CALLABLE (state , ())
+                            },
+                        ),
+                        Self::__ink_Message_0x7271b782() => ::ink_lang::execute_message::<
+                            <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                            __ink_Msg<[(); 2193060210usize]>,
+                            _,
+                        >(
+                            ::ink_lang::AcceptsPayments(true),
+                            ::ink_lang::EnablesDynamicStorageAllocator(false),
+                            move |state: &MyPSP22| {
+                                < __ink_Msg < [() ; 2193060210usize] > as :: ink_lang :: MessageRef > :: CALLABLE (state , ())
+                            },
+                        ),
+                        Self::__ink_Message_0x34205be5() => ::ink_lang::execute_message::<
+                            <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                            __ink_Msg<[(); 3847954484usize]>,
+                            _,
+                        >(
+                            ::ink_lang::AcceptsPayments(true),
+                            ::ink_lang::EnablesDynamicStorageAllocator(false),
+                            move |state: &MyPSP22| {
+                                < __ink_Msg < [() ; 3847954484usize] > as :: ink_lang :: MessageRef > :: CALLABLE (state , ())
+                            },
+                        ),
+                        Self::__ink_Message_0x3d261bd4() => ::ink_lang::execute_message::<
+                            <MyPSP22 as ::ink_lang::ContractEnv>::Env,
+                            __ink_Msg<[(); 3558549053usize]>,
+                            _,
+                        >(
+                            ::ink_lang::AcceptsPayments(true),
+                            ::ink_lang::EnablesDynamicStorageAllocator(false),
+                            move |state: &MyPSP22| {
+                                < __ink_Msg < [() ; 3558549053usize] > as :: ink_lang :: MessageRef > :: CALLABLE (state , ())
+                            },
+                        ),
+                    }
+                }
+            }
+        };
+        const _: () = {
+            #[doc(hidden)]
+            pub enum __ink_ConstructorDispatchEnum {
+                __ink_Constructor_0x9bae9d5e(Balance, Option<String>, Option<String>, u8),
+            }
+            impl ::ink_lang::ConstructorDispatcher for MyPSP22 {
+                type Type = __ink_ConstructorDispatchEnum;
+            }
+            impl ::scale::Decode for __ink_ConstructorDispatchEnum {
+                fn decode<I: ::scale::Input>(
+                    input: &mut I,
+                ) -> ::core::result::Result<Self, ::scale::Error> {
+                    match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                        [155u8, 174u8, 157u8, 94u8] => Ok(Self::__ink_Constructor_0x9bae9d5e(
+                            <Balance as ::scale::Decode>::decode(input)?,
+                            <Option<String> as ::scale::Decode>::decode(input)?,
+                            <Option<String> as ::scale::Decode>::decode(input)?,
+                            <u8 as ::scale::Decode>::decode(input)?,
+                        )),
+                        _invalid => Err(::scale::Error::from(
+                            "encountered unknown ink! constructor selector",
+                        )),
+                    }
+                }
+            }
+            impl ::ink_lang::Execute for __ink_ConstructorDispatchEnum {
+                fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                    match self {
+                        Self::__ink_Constructor_0x9bae9d5e(
+                            total_supply,
+                            name,
+                            symbol,
+                            decimal,
+                        ) => {
+                            ::ink_lang::execute_constructor::<__ink_Constr<[(); 1587392155usize]>, _>(
+                                ::ink_lang::EnablesDynamicStorageAllocator(false),
+                                move || {
+                                    < __ink_Constr < [() ; 1587392155usize] > as :: ink_lang :: Constructor > :: CALLABLE ((total_supply , name , symbol , decimal))
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        };
+    };
+    #[cfg(not(feature = "ink-as-dependency"))]
+    const _: () = { use :: ink_lang :: { Env , EmitEvent , StaticEnv } ; const _ : fn () = | | { { trait TypeEq { type This : ? Sized ; } impl < T : ? Sized > TypeEq for T { type This = Self ; } fn assert_type_eq_all < T , U > () where T : ? Sized + TypeEq < This = U > , U : ? Sized { } assert_type_eq_all :: < MyPSP22 , MyPSP22 > () ; } } ; unsafe impl :: ink_lang :: CheckedInkTrait < [() ; 3669966341usize] > for MyPSP22 { } impl __brush_PSP22External for MyPSP22 { type __ink_Checksum = [() ; 3669966341usize] ; type BrushDecreaseAllowanceExternalOut = () ; # [doc = " Atomically decreases the allowance granted to `spender` by the caller."] # [doc = ""] # [doc = " An `Approval` event is emitted."] # [doc = ""] # [doc = " # Errors"] # [doc = ""] # [doc = " Panics with `InsufficientAllowance` error if there are not enough tokens allowed"] # [doc = " by owner for `spender`."] # [doc = ""] # [doc = " Panics with `ZeroSenderAddress` error if sender\'s address is zero."] # [doc = ""] # [doc = " Panics with `ZeroRecipientAddress` error if recipient\'s address is zero."] fn __brush_decrease_allowance_external (& mut self , spender : AccountId , delta_value : Balance) -> Self :: BrushDecreaseAllowanceExternalOut { PSP22 :: decrease_allowance (self , spender , delta_value) } type BrushApproveExternalOut = () ; # [doc = " Allows `spender` to withdraw from the caller\'s account multiple times, up to"] # [doc = " the `value` amount."] # [doc = ""] # [doc = " If this function is called again it overwrites the current allowance with `value`."] # [doc = ""] # [doc = " An `Approval` event is emitted."] # [doc = ""] # [doc = " # Errors"] # [doc = ""] # [doc = " Panics with `ZeroSenderAddress` error if sender\'s address is zero."] # [doc = ""] # [doc = " Panics with `ZeroRecipientAddress` error if recipient\'s address is zero."] fn __brush_approve_external (& mut self , spender : AccountId , value : Balance) -> Self :: BrushApproveExternalOut { PSP22 :: approve (self , spender , value) } type BrushIncreaseAllowanceExternalOut = () ; # [doc = " Atomically increases the allowance granted to `spender` by the caller."] # [doc = ""] # [doc = " An `Approval` event is emitted."] # [doc = ""] # [doc = " # Errors"] # [doc = ""] # [doc = " Panics with `ZeroSenderAddress` error if sender\'s address is zero."] # [doc = ""] # [doc = " Panics with `ZeroRecipientAddress` error if recipient\'s address is zero."] fn __brush_increase_allowance_external (& mut self , spender : AccountId , delta_value : Balance) -> Self :: BrushIncreaseAllowanceExternalOut { PSP22 :: increase_allowance (self , spender , delta_value) } type BrushTransferFromExternalOut = () ; # [doc = " Transfers `value` tokens on the behalf of `from` to the account `to`"] # [doc = " with additional `data` in unspecified format."] # [doc = ""] # [doc = " This can be used to allow a contract to transfer tokens on ones behalf and/or"] # [doc = " to charge fees in sub-currencies, for example."] # [doc = ""] # [doc = " On success a `Transfer` and `Approval` events are emitted."] # [doc = ""] # [doc = " # Errors"] # [doc = ""] # [doc = " Panics with `InsufficientAllowance` error if there are not enough tokens allowed"] # [doc = " for the caller to withdraw from `from`."] # [doc = ""] # [doc = " Panics with `InsufficientBalance` error if there are not enough tokens on"] # [doc = " the the account Balance of `from`."] # [doc = ""] # [doc = " Panics with `ZeroSenderAddress` error if sender\'s address is zero."] # [doc = ""] # [doc = " Panics with `ZeroRecipientAddress` error if recipient\'s address is zero."] fn __brush_transfer_from_external (& mut self , from : AccountId , to : AccountId , value : Balance , data : Vec < u8 >) -> Self :: BrushTransferFromExternalOut { PSP22 :: transfer_from (self , from , to , value , data) } type BrushTransferExternalOut = () ; # [doc = " Transfers `value` amount of tokens from the caller\'s account to account `to`"] # [doc = " with additional `data` in unspecified format."] # [doc = ""] # [doc = " On success a `Transfer` event is emitted."] # [doc = ""] # [doc = " # Errors"] # [doc = ""] # [doc = " Panics with `InsufficientBalance` error if there are not enough tokens on"] # [doc = " the caller\'s account Balance."] # [doc = ""] # [doc = " Panics with `ZeroSenderAddress` error if sender\'s address is zero."] # [doc = ""] # [doc = " Panics with `ZeroRecipientAddress` error if recipient\'s address is zero."] fn __brush_transfer_external (& mut self , to : AccountId , value : Balance , data : Vec < u8 >) -> Self :: BrushTransferExternalOut { PSP22 :: transfer (self , to , value , data) } type BrushBalanceOfExternalOut = Balance ; # [doc = " Returns the account Balance for the specified `owner`."] # [doc = ""] # [doc = " Returns `0` if the account is non-existent."] fn __brush_balance_of_external (& self , owner : AccountId) -> Self :: BrushBalanceOfExternalOut { PSP22 :: balance_of (self , owner) } type BrushAllowanceExternalOut = Balance ; # [doc = " Returns the amount which `spender` is still allowed to withdraw from `owner`."] # [doc = ""] # [doc = " Returns `0` if no allowance has been set `0`."] fn __brush_allowance_external (& self , owner : AccountId , spender : AccountId) -> Self :: BrushAllowanceExternalOut { PSP22 :: allowance (self , owner , spender) } type BrushTotalSupplyExternalOut = Balance ; # [doc = " Returns the total token supply."] fn __brushtotal_supply_external (& self) -> Self :: BrushTotalSupplyExternalOut { PSP22 :: total_supply (self) } } const _ : fn () = | | { { trait TypeEq { type This : ? Sized ; } impl < T : ? Sized > TypeEq for T { type This = Self ; } fn assert_type_eq_all < T , U > () where T : ? Sized + TypeEq < This = U > , U : ? Sized { } assert_type_eq_all :: < MyPSP22 , MyPSP22 > () ; } } ; unsafe impl :: ink_lang :: CheckedInkTrait < [() ; 3718423766usize] > for MyPSP22 { } impl __brush_PSP22MetadataExternal for MyPSP22 { type __ink_Checksum = [() ; 3718423766usize] ; type BrushTokenDecimalsExternalOut = u8 ; # [doc = " Returns the token decimals."] fn __brush_token_decimals_external (& self) -> Self :: BrushTokenDecimalsExternalOut { PSP22Metadata :: token_decimals (self) } type BrushTokenSymbolExternalOut = Option < String > ; # [doc = " Returns the token symbol."] fn __brush_token_symbol_external (& self) -> Self :: BrushTokenSymbolExternalOut { PSP22Metadata :: token_symbol (self) } type BrushTokenNameExternalOut = Option < String > ; # [doc = " Returns the token name."] fn __brush_token_name_external (& self) -> Self :: BrushTokenNameExternalOut { PSP22Metadata :: token_name (self) } } const _ : fn () = | | { { trait TypeEq { type This : ? Sized ; } impl < T : ? Sized > TypeEq for T { type This = Self ; } fn assert_type_eq_all < T , U > () where T : ? Sized + TypeEq < This = U > , U : ? Sized { } assert_type_eq_all :: < MyPSP22 , MyPSP22 > () ; } } ; impl MyPSP22 { pub fn new (total_supply : Balance , name : Option < String > , symbol : Option < String > , decimal : u8) -> Self { let mut instance = Self :: default () ; Lazy :: set (& mut instance . metadata . name , name) ; Lazy :: set (& mut instance . metadata . symbol , symbol) ; Lazy :: set (& mut instance . metadata . decimals , decimal) ; instance . _mint (instance . env () . caller () , total_supply) ; instance } } };
+    use psp22::traits::*;
+    use ink_storage::Lazy;
+    use ink_prelude::{string::String, vec::Vec};
+    impl PSP22 for MyPSP22 {}
+    impl PSP22Metadata for MyPSP22 {}
+}
