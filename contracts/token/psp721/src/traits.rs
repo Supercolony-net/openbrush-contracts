@@ -223,7 +223,7 @@ pub trait PSP721: PSP721Storage + Flush {
         data: Vec<u8>,
     ) -> Result<(), PSP721Error> {
         self.flush();
-        match PSP721ReceiverWrapper::before_received_builder(&to, operator, from, id, data).fire() {
+        let result = match PSP721ReceiverWrapper::before_received_builder(&to, operator, from, id, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -245,8 +245,9 @@ pub trait PSP721: PSP721Storage + Flush {
                     }
                 }
             }
-        }?;
+        };
         self.load();
+        result?;
         Ok(())
     }
 

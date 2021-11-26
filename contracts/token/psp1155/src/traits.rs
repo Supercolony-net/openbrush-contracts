@@ -304,7 +304,7 @@ pub trait PSP1155: PSP1155Storage + Flush {
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
         self.flush();
-        match PSP1155ReceiverWrapper::before_received_builder(&to, operator, from, ids_amounts, data).fire() {
+        let result = match PSP1155ReceiverWrapper::before_received_builder(&to, operator, from, ids_amounts, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -326,8 +326,9 @@ pub trait PSP1155: PSP1155Storage + Flush {
                     }
                 }
             }
-        }?;
+        };
         self.load();
+        result?;
         Ok(())
     }
 }

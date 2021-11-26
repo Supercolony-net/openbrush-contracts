@@ -432,18 +432,19 @@ pub trait TimelockController: AccessControl + TimelockControllerStorage + Flush 
         // Flush the state into storage before the cross call.
         // Because during cross call we cann call this contract(for example for `update_delay` method).
         self.flush();
-        build_call::<DefaultEnvironment>()
+        let result = build_call::<DefaultEnvironment>()
             .callee(transaction.callee)
             .gas_limit(transaction.gas_limit)
             .transferred_value(transaction.transferred_value)
             .exec_input(ExecutionInput::new(transaction.selector.into()).push_arg(CallInput(&transaction.input)))
             .returns::<()>()
             .fire()
-            .map_err(|_| TimelockControllerError::UnderlyingTransactionReverted)?;
+            .map_err(|_| TimelockControllerError::UnderlyingTransactionReverted);
 
         // Load the sate of the contract after the cross call.
         self.load();
 
+        result?;
         self._emit_call_executed_event(id, i, transaction);
         Ok(())
     }

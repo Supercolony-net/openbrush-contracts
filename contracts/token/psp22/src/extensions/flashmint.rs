@@ -90,7 +90,7 @@ pub trait FlashLender: PSP22 {
         data: Vec<u8>,
     ) -> Result<(), FlashLenderError> {
         self.flush();
-        match FlashBorrowerCaller::on_flashloan_builder(
+        let result = match FlashBorrowerCaller::on_flashloan_builder(
             &receiver_account,
             Self::env().caller(),
             token,
@@ -120,8 +120,9 @@ pub trait FlashLender: PSP22 {
                     }
                 }
             }
-        }?;
+        };
         self.load();
+        result?;
         Ok(())
     }
 }

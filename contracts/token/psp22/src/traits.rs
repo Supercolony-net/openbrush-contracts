@@ -203,7 +203,7 @@ pub trait PSP22: PSP22Storage + Flush {
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
         self.flush();
-        match PSP22ReceiverWrapper::before_received_builder(&to, Self::env().caller(), from, value, data).fire() {
+        let result = match PSP22ReceiverWrapper::before_received_builder(&to, Self::env().caller(), from, value, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -225,8 +225,9 @@ pub trait PSP22: PSP22Storage + Flush {
                     }
                 }
             }
-        }?;
+        };
         self.load();
+        result?;
         Ok(())
     }
 
