@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP22 Token Timelock
 ---
 
-This example shows how you can reuse the implementation of [PSP22 Token Timelock](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/utils/token_timelock) utility for [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22).
+This example shows how you can reuse the implementation of [PSP22 Token Timelock](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/utils/token_timelock) utility for [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22). This contract will lock user's `PSP22` tokens until the time specified, when they can withdraw them.
 
 ## Step 1: Include dependencies and add imports
 
