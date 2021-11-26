@@ -18,7 +18,7 @@ use ink_prelude::{
 pub type PSP22FlashMintCaller = dyn FlashLender + PSP22;
 
 #[brush::trait_definition]
-pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
+pub trait PSP22FlashMint: PSP22 + FlashLender {
     /// Call this function in `max_flashloan` function in `impl` block of FlashLender
     /// Maximum amount of `token` available to mint
     /// Bounded by the max value of Balance (u128)
