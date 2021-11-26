@@ -2,7 +2,6 @@ use crate::traits::*;
 use brush::traits::{
     AccountId,
     Balance,
-    Flush,
 };
 pub use common::errors::{
     FlashBorrowerError,

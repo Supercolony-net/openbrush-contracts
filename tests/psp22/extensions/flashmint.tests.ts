@@ -31,7 +31,7 @@ describe('MY_PSP22_FLASHMINT', () => {
         await expect(flashmintQuery.totalSupply()).to.have.output(minted)
 
         // we will do the flashloan
-        await expect(flashmintContract.tx.flashloan(receiverContract.address, flashmintContract.address, borrowAmount, []))
+        await expect(flashmintContract.tx.flashloan(receiverContract.address, flashmintContract.address, sendAmount, []))
            .to.eventually.be.fulfilled
 
         // reciver should have the fee deducted

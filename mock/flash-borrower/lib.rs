@@ -28,7 +28,7 @@ pub mod flash_borrower {
             fee: Balance,
             _data: Vec<u8>,
         ) -> Result<(), FlashBorrowerError> {
-            PSP22Caller::approve(&token, initiator, amount + fee)?;
+            PSP22Caller::approve(&token, token, amount + fee)?;
             // do something with the tokens
             Ok(())
         }
