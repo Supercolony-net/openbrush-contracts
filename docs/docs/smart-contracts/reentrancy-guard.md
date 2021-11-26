@@ -20,12 +20,12 @@ Include dependencies to `reentrancy-guard` and `brush` in the cargo file.
 
 ```toml
 [dependencies]
-ink_primitives = { version = "3.0.0-rc6", default-features = false }
-ink_metadata = { version = "3.0.0-rc6", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.0-rc6", default-features = false }
-ink_storage = { version = "3.0.0-rc6", default-features = false }
-ink_lang = { version = "3.0.0-rc6", default-features = false }
-ink_prelude = { version = "3.0.0-rc6", default-features = false }
+ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
@@ -204,12 +204,12 @@ To simplify cross-contract call to `MyFlipper` you need to import the contract w
 
 ```toml
 [dependencies]
-ink_primitives = { version = "3.0.0-rc6", default-features = false }
-ink_metadata = { version = "3.0.0-rc6", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.0-rc6", default-features = false }
-ink_storage = { version = "3.0.0-rc6", default-features = false }
-ink_lang = { version = "3.0.0-rc6", default-features = false }
-ink_prelude = { version = "3.0.0-rc6", default-features = false }
+ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
