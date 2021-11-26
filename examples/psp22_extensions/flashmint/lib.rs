@@ -46,7 +46,7 @@ pub mod my_psp22_flashmint {
 
     impl PSP22FlashMint for MyPSP22FlashMint {
         /// Override `get_fee` function to add 1% fee to the borrowed `amount`
-        fn get_fee(&mut self, amount: Balance) -> Balance {
+        fn _get_fee(&mut self, amount: Balance) -> Balance {
             amount / 100
         }
     }

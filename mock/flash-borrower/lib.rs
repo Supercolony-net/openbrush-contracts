@@ -22,7 +22,7 @@ pub mod flash_borrower {
         #[ink(message)]
         fn on_flashloan(
             &mut self,
-            initiator: AccountId,
+            _initiator: AccountId,
             token: AccountId,
             amount: Balance,
             fee: Balance,

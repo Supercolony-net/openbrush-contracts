@@ -37,7 +37,7 @@ pub trait PSP22FlashMint: PSP22 + FlashLender {
         if token != Self::env().account_id() {
             return Err(FlashLenderError::WrongTokenAddress)
         }
-        Ok(self.get_fee(amount))
+        Ok(self._get_fee(amount))
     }
 
     /// Call this function in `flashloan` function in `impl` block of FlashLender
@@ -71,7 +71,7 @@ pub trait PSP22FlashMint: PSP22 + FlashLender {
     }
 
     /// Helper function to get fee for borrowing `amount` of token
-    fn get_fee(&mut self, _amount: Balance) -> Balance {
+    fn _get_fee(&mut self, _amount: Balance) -> Balance {
         0
     }
 

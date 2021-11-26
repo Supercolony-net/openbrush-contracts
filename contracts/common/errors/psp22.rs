@@ -78,6 +78,7 @@ impl From<PSP22ReceiverError> for PSP22Error {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP22TokenTimelockError {
     Custom(String),
+    PSP22Error(PSP22Error),
     /// Returned if the owner wants to withdraw the tokens before the release time
     CurrentTimeIsBeforeReleaseTime,
     /// Returned if there are no tokens to be released
@@ -90,19 +91,13 @@ impl From<PSP22Error> for PSP22TokenTimelockError {
     fn from(error: PSP22Error) -> Self {
         match error {
             PSP22Error::Custom(message) => PSP22TokenTimelockError::Custom(message),
-            PSP22Error::InsufficientBalance => {
-                PSP22TokenTimelockError::Custom(String::from("PSP22: Insufficient Balance"))
+            PSP22Error::InsufficientBalance => PSP22TokenTimelockError::PSP22Error(PSP22Error::InsufficientBalance),
+            PSP22Error::InsufficientAllowance => PSP22TokenTimelockError::PSP22Error(PSP22Error::InsufficientAllowance),
+            PSP22Error::ZeroRecipientAddress => PSP22TokenTimelockError::PSP22Error(PSP22Error::ZeroRecipientAddress),
+            PSP22Error::ZeroSenderAddress => PSP22TokenTimelockError::PSP22Error(PSP22Error::ZeroSenderAddress),
+            PSP22Error::SafeTransferCheckFailed(message) => {
+                PSP22TokenTimelockError::PSP22Error(PSP22Error::SafeTransferCheckFailed(message))
             }
-            PSP22Error::InsufficientAllowance => {
-                PSP22TokenTimelockError::Custom(String::from("PSP22: Insufficient Allowance"))
-            }
-            PSP22Error::ZeroRecipientAddress => {
-                PSP22TokenTimelockError::Custom(String::from("PSP22: Zero Recipient Address"))
-            }
-            PSP22Error::ZeroSenderAddress => {
-                PSP22TokenTimelockError::Custom(String::from("PSP22: Zero Sender Address"))
-            }
-            PSP22Error::SafeTransferCheckFailed(message) => PSP22TokenTimelockError::Custom(message),
         }
     }
 }

@@ -24,7 +24,7 @@ pub mod my_psp22_wrapper {
         #[ink(constructor)]
         pub fn new(token_address: AccountId) -> Self {
             let mut instance = Self::default();
-            instance.init(token_address);
+            instance._init(token_address);
             instance
         }
 

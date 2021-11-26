@@ -53,6 +53,7 @@ Replace `ink::contract` macro by `brush::contract` and import **everything** fro
 ```rust
 #[brush::contract]
 pub mod my_psp22_pausable {
+    use brush::modifiers;
     use pausable::traits::*;
     use psp22::traits::*;
 ```
@@ -79,6 +80,7 @@ Inherit the implementation of the `PSP22` and `Pausable` traits. You can customi
 ```rust
 impl PSP22 for MyPSP22Pausable {
     /// Return `Paused` error if the token is paused
+    #[modifiers(when_not_paused)]
     fn _before_token_transfer(
         &mut self,
         _from: &AccountId,
@@ -86,9 +88,6 @@ impl PSP22 for MyPSP22Pausable {
         _amount: &Balance,
     ) -> Result<(), PSP22Error> {
         // TODO logic for before token transfer
-        if self.paused() {
-            return Err(PSP22Error::from(PausableError::Paused))
-        }
         Ok(())
     }
 }
