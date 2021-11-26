@@ -20,8 +20,3 @@ declare_derive_storage_trait!(
     PSP22TokenTimelockStorage,
     PSP22TokenTimelockStorageField
 );
-declare_derive_storage_trait!(
-    derive_psp22capped_storage,
-    PSP22CappedStorage,
-    PSP22CappedStorageField
-);

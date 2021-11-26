@@ -7,7 +7,6 @@ use brush::traits::{
 pub use common::errors::{
     FlashBorrowerError,
     FlashLenderError,
-    PSP22FlashmintError,
 };
 use ink_env::Error as EnvError;
 use ink_prelude::{
@@ -35,9 +34,9 @@ pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
     /// Fee for borrowing `amount` of the `token`
     ///
     /// Returns `WrongTokenAddress` error if the `token` account id is not this token
-    fn _flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, PSP22FlashmintError> {
+    fn _flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, FlashLenderError> {
         if token != Self::env().account_id() {
-            return Err(PSP22FlashmintError::WrongTokenAddress)
+            return Err(FlashLenderError::WrongTokenAddress)
         }
         Ok(self.get_fee(amount))
     }
@@ -55,13 +54,13 @@ pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
         token: AccountId,
         amount: Balance,
         data: Vec<u8>,
-    ) -> Result<(), PSP22FlashmintError> {
+    ) -> Result<(), FlashLenderError> {
         let fee = self._flash_fee(token, amount)?;
         self._mint(receiver_account, amount)?;
         self._on_flashloan(receiver_account, token, fee, amount, data)?;
         let current_allowance = self.allowance(receiver_account, Self::env().account_id());
         if current_allowance < amount + fee {
-            return Err(PSP22FlashmintError::AllowanceDoesNotAllowRefund)
+            return Err(FlashLenderError::AllowanceDoesNotAllowRefund)
         }
         self._approve_from_to(
             receiver_account,
@@ -85,7 +84,7 @@ pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
         fee: Balance,
         amount: Balance,
         data: Vec<u8>,
-    ) -> Result<(), PSP22FlashmintError> {
+    ) -> Result<(), FlashLenderError> {
         self.flush();
         match FlashBorrowerCaller::on_flashloan_builder(
             &receiver_account,
@@ -101,7 +100,7 @@ pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
                 match result {
                     Ok(_) => Ok(()),
                     Err(_) => {
-                        Err(PSP22FlashmintError::FlashloanRejected(String::from(
+                        Err(FlashLenderError::FlashloanRejected(String::from(
                             "Error while performing the flashloan",
                         )))
                     }
@@ -111,7 +110,7 @@ pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
                 match e {
                     EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
                     _ => {
-                        Err(PSP22FlashmintError::FlashloanRejected(String::from(
+                        Err(FlashLenderError::FlashloanRejected(String::from(
                             "Error while performing the flashloan",
                         )))
                     }
@@ -128,6 +127,7 @@ pub trait PSP22FlashMint: PSP22 + Flush + FlashLender {
 #[brush::wrapper]
 pub type FlashBorrowerCaller = dyn FlashBorrower;
 
+/// TODO remove eip link
 /// Flash Borrower implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[brush::trait_definition]
 pub trait FlashBorrower {
@@ -145,6 +145,7 @@ pub trait FlashBorrower {
 #[brush::wrapper]
 pub type FlashLenderCaller = dyn FlashLender;
 
+/// TODO remove eip link
 /// Flash Lender implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[brush::trait_definition]
 pub trait FlashLender {
