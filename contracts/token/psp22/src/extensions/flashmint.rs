@@ -16,12 +16,15 @@ use ink_prelude::{
 #[brush::wrapper]
 pub type PSP22FlashMintCaller = dyn FlashLender + PSP22;
 
+/// TODO remove eip link and refactor this
+/// Flash Lender implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[brush::trait_definition]
-pub trait PSP22FlashMint: PSP22 + FlashLender {
+pub trait FlashLender: PSP22 {
     /// Call this function in `max_flashloan` function in `impl` block of FlashLender
     /// Maximum amount of `token` available to mint
     /// Bounded by the max value of Balance (u128)
-    fn _max_flashloan(&mut self, token: AccountId) -> Balance {
+    #[ink(message)]
+    fn max_flashloan(&mut self, token: AccountId) -> Balance {
         if token == Self::env().account_id() {
             Balance::MAX - self.total_supply()
         } else {
@@ -33,7 +36,8 @@ pub trait PSP22FlashMint: PSP22 + FlashLender {
     /// Fee for borrowing `amount` of the `token`
     ///
     /// Returns `WrongTokenAddress` error if the `token` account id is not this token
-    fn _flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, FlashLenderError> {
+    #[ink(message)]
+    fn flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, FlashLenderError> {
         if token != Self::env().account_id() {
             return Err(FlashLenderError::WrongTokenAddress)
         }
@@ -47,14 +51,15 @@ pub trait PSP22FlashMint: PSP22 + FlashLender {
     ///
     /// Returns `AllowanceDoesNotAllowRefund` error if the contract does not have
     /// enough allowance to transfer borrowed amount and fees from `receiver_account`
-    fn _flashloan(
+    #[ink(message)]
+    fn flashloan(
         &mut self,
         receiver_account: AccountId,
         token: AccountId,
         amount: Balance,
         data: Vec<u8>,
     ) -> Result<(), FlashLenderError> {
-        let fee = self._flash_fee(token, amount)?;
+        let fee = self.flash_fee(token, amount)?;
         self._mint(receiver_account, amount)?;
         self._on_flashloan(receiver_account, token, fee, amount, data)?;
         let current_allowance = self.allowance(receiver_account, Self::env().account_id());
@@ -139,27 +144,4 @@ pub trait FlashBorrower {
         fee: Balance,
         data: Vec<u8>,
     ) -> Result<(), FlashBorrowerError>;
-}
-
-#[brush::wrapper]
-pub type FlashLenderCaller = dyn FlashLender;
-
-/// TODO remove eip link
-/// Flash Lender implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
-#[brush::trait_definition]
-pub trait FlashLender {
-    #[ink(message)]
-    fn max_flashloan(&mut self, _token: AccountId) -> Balance;
-
-    #[ink(message)]
-    fn flash_fee(&mut self, _token: AccountId, _amount: Balance) -> Result<Balance, FlashLenderError>;
-
-    #[ink(message)]
-    fn flashloan(
-        &mut self,
-        _receiver_account: AccountId,
-        _token: AccountId,
-        _amount: Balance,
-        _data: Vec<u8>,
-    ) -> Result<(), FlashLenderError>;
 }
