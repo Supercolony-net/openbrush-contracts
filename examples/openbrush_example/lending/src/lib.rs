@@ -1,5 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod errors;
+mod traits;
+
 /// This will be a simple lending contract where users can:
 ///
 /// 1. Lend tokens accepted by the smart contract.
@@ -40,26 +43,32 @@
 /// Users can still repay their loans, liquidate loans or withdraw their deposits
 #[brush::contract]
 pub mod lending {
+    use crate::errors::*;
     use access_control::traits::*;
-    use brush::modifiers;
-    use ink_lang::{
-        EmitEvent,
-        Env,
-    };
+    // use brush::modifiers;
+    // use ink_lang::{
+    // EmitEvent,
+    // Env,
+    // };
+    use crate::traits::*;
     use ink_prelude::string::String;
     use pausable::traits::*;
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(Default, AccessControlStorage, PausableStorage)]
+    #[derive(Default, AccessControlStorage, PausableStorage, LendingStorage)]
     pub struct Lending {
         #[AccessControlStorageField]
         access: AccessControlData,
         #[PausableStorageField]
         pause: PausableData,
+        #[LendingStorageField]
+        lending: LendingData,
     }
 
     const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
+
+    impl LendingStorageTrait for Lending {}
 
     impl AccessControl for Lending {}
 
@@ -74,6 +83,19 @@ pub mod lending {
             instance._init_with_admin(caller);
             instance.grant_role(MANAGER, caller).expect("Can not set manager role");
             instance
+        }
+
+        /// This function is called by a user who wants to lend tokens and gain interest
+        ///
+        /// `asset_address` is the AccountId of the PSP-22 token to be deposited
+        /// `amount` is the amount to be deposited
+        #[ink(message)]
+        pub fn lend_tokens(&mut self, asset_address: AccountId, amount: Balance) {
+            let err = LendingError::Custom(String::from("AXAX"));
+            // 1. A.transfer(L, contract, X)
+            // 2. Y = shares = X / A.balance(contract) + X
+            // 3. A1.mint(L, Y)
+            // 4. emit(Lend(L, X))
         }
     }
 }

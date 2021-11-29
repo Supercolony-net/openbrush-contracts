@@ -19,10 +19,11 @@ scale-info = { version = "1", default-features = false, features = ["derive"], o
 brush = { path = "../../../utils/brush", default-features = false }
 access-control = { path = "../../../contracts/access/access-control", default-features = false }
 pausable = { path = "../../../contracts/security/pausable", default-features = false }
+lending_derive = { path = "src/derive" }
 
 [lib]
 name = "lending"
-path = "lib.rs"
+path = "src/lib.rs"
 crate-type = [
     "cdylib",
 ]
