@@ -74,10 +74,31 @@ pub mod shares {
     }
 
     /// implement Mintable Trait for our coin
-    impl PSP22Mintable for Shares {}
+    impl PSP22Mintable for Shares {
+        /// override the `mint` function to add the `only_owner` modifier
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            self._mint(account, amount)
+        }
+    }
 
     /// implement Burnable Trait for our coin
-    impl PSP22Burnable for Shares {}
+    impl PSP22Burnable for Shares {
+        /// override the `burn` function to add the `only_owner` modifier
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
+            self._burn(self.env().caller(), amount)
+        }
+
+        /// override the `burn_from` function to add the `only_owner` modifier
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            self._burn_from(account, amount)
+        }
+    }
 
     /// implement Ownable Trait for our coin
     impl Ownable for Shares {}
@@ -96,27 +117,6 @@ pub mod shares {
             Lazy::set(&mut instance.metadata.decimals, 18);
             instance._init_with_owner(caller);
             instance
-        }
-
-        /// override the `mint` function to add the `only_owner` modifier
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        pub fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            PSP22Mintable::mint(self, account, amount)
-        }
-
-        /// override the `burn` function to add the `only_owner` modifier
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        pub fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-            PSP22Burnable::burn(self, amount)
-        }
-
-        /// override the `burn_from` function to add the `only_owner` modifier
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        pub fn burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            PSP22Burnable::burn_from(self, account, amount)
         }
     }
 }

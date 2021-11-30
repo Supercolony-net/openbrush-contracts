@@ -20,11 +20,11 @@ brush = { path = "../../../utils/brush", default-features = false }
 access-control = { path = "../../../contracts/access/access-control", default-features = false }
 pausable = { path = "../../../contracts/security/pausable", default-features = false }
 psp22 = { path = "../../../contracts/token/psp22", default-features = false }
-lending_derive = { path = "src/derive" }
+lending_derive = { path = "derive" }
 
 [lib]
 name = "lending"
-path = "src/lib.rs"
+path = "lib.rs"
 crate-type = [
     "cdylib",
 ]

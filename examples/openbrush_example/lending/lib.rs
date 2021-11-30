@@ -6,11 +6,11 @@ mod traits;
 /// This will be a simple lending contract where users can:
 ///
 /// 1. Lend tokens accepted by the smart contract.
-/// The allowance and disallowance of tokens is done by the accounts which have an admin role
+/// The allowance and disallowance of tokens is done by the accounts which have a manager role
 /// Upon lending, the user gets a PSP-22 token representing their share of the current liquidity pool
 ///
 /// 2. Borrow tokens from the smart contract by depositing collateral tokens.
-/// The tokens which can be deposited as collateral are allowed and disallowed by the accounts with admin role
+/// The tokens which can be deposited as collateral are allowed and disallowed by the accounts with manager role
 /// Upon borrowing user gets a PSP-721 token representing info about their loan (how much assets were borrowed,
 /// when did they borrow, what asset was borrowed, what asset was used as collateral, how much collateral assets
 /// were deposited, the liquidation price of the loan and if it was liquidated or not)
@@ -33,13 +33,13 @@ mod traits;
 /// the loan is then liquidated and the user performing the liquidation will get 1% of the liquidated assets
 ///
 /// 7. Allow and disallow assets for lending
-/// This can only be done by the accounts with the admin role
+/// This can only be done by the accounts with the manager role
 ///
 /// 8. Allow and disallow assets to be used as a collateral
-/// This can only be done by the accounts with the admin role
+/// This can only be done by the accounts with the manager role
 ///
 /// 9. Pause the contract
-/// Users with the admin role can pause the contract. If the contract is paused, no borrowing or lending can be performed
+/// Users with the manager role can pause the contract. If the contract is paused, no borrowing or lending can be performed
 /// Users can still repay their loans, liquidate loans or withdraw their deposits
 #[brush::contract]
 pub mod lending {
