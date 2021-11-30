@@ -112,7 +112,11 @@ pub mod lending {
             }
             let total_asset = self.total_asset(asset_address)?;
             PSP22Wrapper::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
-            let new_shares = (amount * self.total_shares(asset_address)?) / total_asset;
+            let new_shares = if total_asset == 0 {
+                amount
+            } else {
+                (amount * self.total_shares(asset_address)?) / total_asset
+            };
             PSP22MintableWrapper::mint(&asset_address, lender, new_shares)?;
             self._emit_lend_event(lender, asset_address, amount);
             Ok(())
