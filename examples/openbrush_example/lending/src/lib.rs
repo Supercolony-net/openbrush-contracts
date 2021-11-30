@@ -46,13 +46,23 @@ pub mod lending {
     use crate::errors::*;
     use access_control::traits::*;
     // use brush::modifiers;
-    // use ink_lang::{
-    // EmitEvent,
-    // Env,
-    // };
     use crate::traits::*;
-    use ink_prelude::string::String;
+    use ink_prelude::vec::Vec;
     use pausable::traits::*;
+    use psp22::{
+        extensions::mintable::*,
+        traits::*,
+    };
+
+    /// This event will be emitted when `lender` deposists `amount` of `asset` to the contract
+    #[ink(event)]
+    pub struct Lend {
+        #[ink(topic)]
+        lender: AccountId,
+        #[ink(topic)]
+        asset: AccountId,
+        amount: Balance,
+    }
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data
     #[ink(storage)]
@@ -90,12 +100,29 @@ pub mod lending {
         /// `asset_address` is the AccountId of the PSP-22 token to be deposited
         /// `amount` is the amount to be deposited
         #[ink(message)]
-        pub fn lend_tokens(&mut self, asset_address: AccountId, amount: Balance) {
-            let err = LendingError::Custom(String::from("AXAX"));
-            // 1. A.transfer(L, contract, X)
-            // 2. Y = shares = X / A.balance(contract) + X
-            // 3. A1.mint(L, Y)
-            // 4. emit(Lend(L, X))
+        pub fn lend_tokens(&mut self, asset_address: AccountId, amount: Balance) -> Result<(), LendingError> {
+            // we will be using these often so we store them in variables
+            let lender = Self::env().caller();
+            let contract = Self::env().account_id();
+            if PSP22Wrapper::allowance(&asset_address, lender, contract) < amount {
+                return Err(LendingError::InsufficientAllowanceToLend)
+            }
+            if PSP22Wrapper::balance_of(&asset_address, lender) < amount {
+                return Err(LendingError::InsufficientBalanceToLend)
+            }
+            let total_asset = self.total_asset(asset_address)?;
+            PSP22Wrapper::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
+            let new_shares = (amount * self.total_shares(asset_address)?) / total_asset;
+            PSP22MintableWrapper::mint(&asset_address, lender, new_shares)?;
+            self._emit_lend_event(lender, asset_address, amount);
+            Ok(())
+        }
+
+        // helper functions which can only be called inside our contract
+
+        /// helper function to emit an event when `lender` deposits `amount` of token `asset`
+        fn _emit_lend_event(&self, lender: AccountId, asset: AccountId, amount: Balance) {
+            self.env().emit_event(Lend { lender, asset, amount });
         }
     }
 }

@@ -1,10 +1,20 @@
+use crate::errors::LendingError;
 use brush::{
     declare_storage_trait,
-    traits::InkStorage,
+    traits::{
+        AccountId,
+        AccountIdExt,
+        Balance,
+        InkStorage,
+        ZERO_ADDRESS,
+    },
 };
-use ink_prelude::string::String;
-use ink_storage::traits::SpreadLayout;
+use ink_storage::{
+    collections::HashMap as StorageHashMap,
+    traits::SpreadLayout,
+};
 pub use lending_derive::LendingStorage;
+use psp22::traits::PSP22Wrapper;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -14,7 +24,16 @@ use ink_storage::traits::StorageLayout;
 /// define the struct with the data that our smart contract will be using
 /// this will isolate the logic of our smart contract from its storage
 pub struct LendingData {
-    pub string: String,
+    /// mapping from asset address to lended asset address
+    /// when X amount of asset is lended, X amount of asset it is mapped to is minted
+    /// so the contract knows how much of asset it has and how much of the asset was lended
+    pub assets_lended: StorageHashMap<AccountId, AccountId>,
+    /// mapping from asset address to shares asset address
+    /// the lended asset is mapped to a shares asset which represents
+    /// the total share of the mapping asset
+    /// example: if a user has X% of the total supply of the asset A', they
+    /// are eligible to withdraw X% of the asset A tracked by this contract
+    pub asset_shares: StorageHashMap<AccountId, AccountId>,
 }
 
 declare_storage_trait!(LendingStorage, LendingData);
@@ -23,7 +42,43 @@ declare_storage_trait!(LendingStorage, LendingData);
 #[brush::trait_definition]
 pub trait LendingStorageTrait: LendingStorage {
     #[ink(message)]
-    fn string(&self) -> String {
-        self.get().string.clone()
+    /// this function will return the total amount of assets available to borrow
+    /// along with amount of the same asset borrowed
+    ///
+    /// Returns `AssetNotSupported` error if we try to get amount of asset not supported by our contract
+    fn total_asset(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
+        // get asset from mapping
+        let mapped_asset = self
+            .get()
+            .assets_lended
+            .get(&asset_address)
+            .cloned()
+            .unwrap_or(ZERO_ADDRESS.into());
+        // return error if the asset is not supported
+        if mapped_asset.is_zero() {
+            return Err(LendingError::AssetNotSupported)
+        }
+        let contract = Self::env().account_id();
+        let available = PSP22Wrapper::balance_of(&asset_address, contract);
+        let unavailable = PSP22Wrapper::balance_of(&mapped_asset, contract);
+        Ok(available + unavailable)
+    }
+
+    /// this function will return the total amount of shares minted for an asset
+    ///
+    /// Returns `AssetNotSupported` error if we try to get shares of asset not supported by our contract
+    fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
+        // get asset from mapping
+        let mapped_asset = self
+            .get()
+            .asset_shares
+            .get(&asset_address)
+            .cloned()
+            .unwrap_or(ZERO_ADDRESS.into());
+        // return error if the asset is not supported
+        if mapped_asset.is_zero() {
+            return Err(LendingError::AssetNotSupported)
+        }
+        Ok(PSP22Wrapper::total_supply(&mapped_asset))
     }
 }

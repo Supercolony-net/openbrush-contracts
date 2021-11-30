@@ -19,6 +19,7 @@ scale-info = { version = "1", default-features = false, features = ["derive"], o
 brush = { path = "../../../utils/brush", default-features = false }
 access-control = { path = "../../../contracts/access/access-control", default-features = false }
 pausable = { path = "../../../contracts/security/pausable", default-features = false }
+psp22 = { path = "../../../contracts/token/psp22", default-features = false }
 lending_derive = { path = "src/derive" }
 
 [lib]
@@ -50,3 +51,6 @@ ink-as-dependency = []
 
 [profile.dev]
 codegen-units = 16
+
+[profile.release]
+overflow-checks = false
