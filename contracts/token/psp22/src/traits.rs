@@ -40,7 +40,7 @@ pub struct PSP22Data {
 declare_storage_trait!(PSP22Storage, PSP22Data);
 
 #[brush::wrapper]
-pub type PSP22Caller = dyn PSP22;
+pub type PSP22Ref = dyn PSP22;
 
 /// Trait implemented by all PSP-20 respecting smart traits.
 #[brush::trait_definition]
@@ -203,32 +203,32 @@ pub trait PSP22: PSP22Storage + Flush {
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
         self.flush();
-        let result = match PSP22ReceiverWrapper::before_received_builder(&to, Self::env().caller(), from, value, data).fire() {
-            Ok(result) => {
-                match result {
-                    Ok(_) => Ok(()),
-                    Err(e) => Err(e.into()),
-                }
-            }
-            Err(e) => {
-                match e {
-                    // `NotCallable` means that the receiver is not a contract.
-
-                    // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
-                    // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
-                    // https://github.com/paritytech/ink/issues/1002
-                    EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
-                    _ => {
-                        Err(PSP22Error::SafeTransferCheckFailed(String::from(
-                            "Error during call to receiver",
-                        )))
+        let result =
+            match PSP22ReceiverRef::before_received_builder(&to, Self::env().caller(), from, value, data).fire() {
+                Ok(result) => {
+                    match result {
+                        Ok(_) => Ok(()),
+                        Err(e) => Err(e.into()),
                     }
                 }
-            }
-        };
+                Err(e) => {
+                    match e {
+                        // `NotCallable` means that the receiver is not a contract.
+
+                        // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
+                        // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
+                        // https://github.com/paritytech/ink/issues/1002
+                        EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
+                        _ => {
+                            Err(PSP22Error::SafeTransferCheckFailed(String::from(
+                                "Error during call to receiver",
+                            )))
+                        }
+                    }
+                }
+            };
         self.load();
-        result?;
-        Ok(())
+        result
     }
 
     fn _before_token_transfer(
@@ -361,7 +361,7 @@ pub trait PSP22: PSP22Storage + Flush {
 }
 
 #[brush::wrapper]
-pub type PSP22ReceiverWrapper = dyn PSP22Receiver;
+pub type PSP22ReceiverRef = dyn PSP22Receiver;
 
 /// PSP22Receiver is a trait for any contract that wants to support safe transfers from a PSP22
 /// token smart contract to avoid unexpected tokens in the balance of contract.

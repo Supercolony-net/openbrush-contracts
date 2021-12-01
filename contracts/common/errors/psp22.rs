@@ -77,7 +77,6 @@ impl From<PSP22ReceiverError> for PSP22Error {
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PSP22TokenTimelockError {
-    Custom(String),
     PSP22Error(PSP22Error),
     /// Returned if the owner wants to withdraw the tokens before the release time
     CurrentTimeIsBeforeReleaseTime,
@@ -90,7 +89,7 @@ pub enum PSP22TokenTimelockError {
 impl From<PSP22Error> for PSP22TokenTimelockError {
     fn from(error: PSP22Error) -> Self {
         match error {
-            PSP22Error::Custom(message) => PSP22TokenTimelockError::Custom(message),
+            PSP22Error::Custom(message) => PSP22TokenTimelockError::PSP22Error(PSP22Error::Custom(message)),
             PSP22Error::InsufficientBalance => PSP22TokenTimelockError::PSP22Error(PSP22Error::InsufficientBalance),
             PSP22Error::InsufficientAllowance => PSP22TokenTimelockError::PSP22Error(PSP22Error::InsufficientAllowance),
             PSP22Error::ZeroRecipientAddress => PSP22TokenTimelockError::PSP22Error(PSP22Error::ZeroRecipientAddress),
@@ -99,5 +98,29 @@ impl From<PSP22Error> for PSP22TokenTimelockError {
                 PSP22TokenTimelockError::PSP22Error(PSP22Error::SafeTransferCheckFailed(message))
             }
         }
+    }
+}
+
+impl From<OwnableError> for PSP22TokenTimelockError {
+    fn from(ownable: OwnableError) -> Self {
+        PSP22TokenTimelockError::PSP22Error(ownable.into())
+    }
+}
+
+impl From<AccessControlError> for PSP22TokenTimelockError {
+    fn from(access: AccessControlError) -> Self {
+        PSP22TokenTimelockError::PSP22Error(access.into())
+    }
+}
+
+impl From<PausableError> for PSP22TokenTimelockError {
+    fn from(pausable: PausableError) -> Self {
+        PSP22TokenTimelockError::PSP22Error(pausable.into())
+    }
+}
+
+impl From<ReentrancyGuardError> for PSP22TokenTimelockError {
+    fn from(guard: ReentrancyGuardError) -> Self {
+        PSP22TokenTimelockError::PSP22Error(guard.into())
     }
 }

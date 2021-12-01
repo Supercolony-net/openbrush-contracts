@@ -1,6 +1,5 @@
 #[brush::contract]
 mod tests {
-    use brush::traits::InkStorage;
     use ink_lang as ink;
     use psp22::{
         extensions::wrapper::*,
@@ -22,17 +21,17 @@ mod tests {
     /// We will override cross-contract wrapper calls in tests
     /// The cross-contract interaction will be tested in integration tests
     impl PSP22Wrapper for PSP22WrapperStruct {
-        fn deposit(&mut self, amount: Balance) -> Result<(), PSP22Error> {
+        fn _deposit(&mut self, amount: Balance) -> Result<(), PSP22Error> {
             self.contract_balance += amount;
             Ok(())
         }
 
-        fn withdraw(&mut self, _account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        fn _withdraw(&mut self, _account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             self.contract_balance -= amount;
             Ok(())
         }
 
-        fn underlying_balance(&mut self) -> Balance {
+        fn _underlying_balance(&mut self) -> Balance {
             self.contract_balance
         }
     }
@@ -41,18 +40,18 @@ mod tests {
         #[ink(constructor)]
         pub fn new(underlying: AccountId) -> Self {
             let mut instance = Self::default();
-            instance.init(underlying);
+            instance._init(underlying);
             instance
         }
 
         #[ink(message)]
         pub fn recover(&mut self) -> Result<Balance, PSP22Error> {
-            self._recover(<PSP22WrapperStruct as InkStorage>::env().caller())
+            self._recover(self.env().caller())
         }
 
         #[ink(message)]
         pub fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-            self._burn(<PSP22WrapperStruct as InkStorage>::env().caller(), amount)
+            self._burn(self.env().caller(), amount)
         }
     }
 

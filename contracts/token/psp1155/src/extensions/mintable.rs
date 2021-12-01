@@ -7,7 +7,7 @@ use brush::traits::{
 use ink_prelude::vec::Vec;
 
 #[brush::wrapper]
-pub type PSP1155MintableWrapper = dyn PSP1155Mintable + PSP1155;
+pub type PSP1155MintableRef = dyn PSP1155Mintable + PSP1155;
 
 #[brush::trait_definition]
 pub trait PSP1155Mintable: PSP1155 {

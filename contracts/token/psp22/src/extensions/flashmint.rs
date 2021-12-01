@@ -103,27 +103,29 @@ pub trait FlashLender: PSP22 {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
-                    Err(_) => {
-                        Err(FlashLenderError::FlashloanRejected(String::from(
-                            "Error while performing the flashloan",
-                        )))
+                    Err(FlashBorrowerError::FlashloanRejected(message)) => {
+                        Err(FlashLenderError::BorrowerRejected(message))
                     }
                 }
             }
             Err(e) => {
                 match e {
+                    // `NotCallable` means that the receiver is not a contract.
+
+                    // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
+                    // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
+                    // https://github.com/paritytech/ink/issues/1002
                     EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
                     _ => {
-                        Err(FlashLenderError::FlashloanRejected(String::from(
-                            "Error while performing the flashloan",
+                        Err(FlashLenderError::BorrowerRejected(String::from(
+                            "Error while performing the `on_flashloan`",
                         )))
                     }
                 }
             }
         };
         self.load();
-        result?;
-        Ok(())
+        result
     }
 }
 

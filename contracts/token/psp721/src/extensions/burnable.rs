@@ -4,7 +4,7 @@ use crate::traits::*;
 use brush::traits::AccountId;
 
 #[brush::wrapper]
-pub type PSP721BurnableWrapper = dyn PSP721Burnable + PSP721;
+pub type PSP721BurnableRef = dyn PSP721Burnable + PSP721;
 
 #[brush::trait_definition]
 pub trait PSP721Burnable: PSP721 {

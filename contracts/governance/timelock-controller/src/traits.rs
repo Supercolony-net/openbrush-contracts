@@ -84,7 +84,7 @@ where
 }
 
 #[brush::wrapper]
-pub type TimelockControllerWrapper = dyn TimelockController + AccessControl;
+pub type TimelockControllerRef = dyn TimelockController + AccessControl;
 
 /// Contract module which acts as a time-locked controller. When set as the
 /// owner of an `Ownable` smart contract, it enforces a timelock on all

@@ -15,12 +15,12 @@ mod tests {
     /// We will just remove calls to the locked token
     /// The cross-contract interaction will be tested in integration tests
     impl PSP22TokenTimelock for PSP22TokenTimelockStruct {
-        fn withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
+        fn _withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
             self.locked_tokens -= amount;
             Ok(())
         }
 
-        fn contract_balance(&mut self) -> Balance {
+        fn _contract_balance(&mut self) -> Balance {
             self.locked_tokens
         }
     }
@@ -29,7 +29,7 @@ mod tests {
         #[ink(constructor)]
         pub fn new(token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) -> Self {
             let mut instance = Self::default();
-            assert!(instance.init(token_address, beneficiary, release_time).is_ok());
+            assert!(instance._init(token_address, beneficiary, release_time).is_ok());
             instance
         }
 

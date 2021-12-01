@@ -2,10 +2,14 @@
 
 #[brush::contract]
 pub mod flash_borrower {
-    use ink_prelude::vec::Vec;
+    use ink_lang::Env;
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
     use psp22::{
         extensions::flashmint::*,
-        traits::PSP22Caller,
+        traits::PSP22Ref,
     };
 
     #[ink(storage)]
@@ -28,8 +32,9 @@ pub mod flash_borrower {
             fee: Balance,
             _data: Vec<u8>,
         ) -> Result<(), FlashBorrowerError> {
-            PSP22Caller::approve(&token, token, amount + fee)?;
-            // do something with the tokens
+            if PSP22Ref::approve(&token, self.env().caller(), amount + fee).is_err() {
+                return Err(FlashBorrowerError::FlashloanRejected(String::from("Can't approve")))
+            }
             Ok(())
         }
     }

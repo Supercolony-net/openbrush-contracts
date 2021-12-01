@@ -29,7 +29,7 @@ pub struct PSP22TokenTimelockData {
 declare_storage_trait!(PSP22TokenTimelockStorage, PSP22TokenTimelockData);
 
 #[brush::wrapper]
-pub type PSP22TokenTimelockWrapper = dyn PSP22TokenTimelock;
+pub type PSP22TokenTimelockRef = dyn PSP22TokenTimelock;
 
 #[brush::trait_definition]
 pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
@@ -94,8 +94,8 @@ pub trait PSP22TokenTimelock: PSP22TokenTimelockStorage {
         Ok(())
     }
 
-    /// Getter for caller to `PSP22Caller` of `token`
-    fn _token(&mut self) -> &mut PSP22Caller {
+    /// Getter for caller to `PSP22Ref` of `token`
+    fn _token(&mut self) -> &mut PSP22Ref {
         &mut self.get_mut().token
     }
 }

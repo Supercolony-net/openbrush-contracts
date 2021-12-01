@@ -33,7 +33,7 @@ pub struct PaymentSplitterData {
 declare_storage_trait!(PaymentSplitterStorage, PaymentSplitterData);
 
 #[brush::wrapper]
-pub type PaymentSplitterWrapper = dyn PaymentSplitter;
+pub type PaymentSplitterRef = dyn PaymentSplitter;
 
 /// This contract allows splitting native token payments among a group of accounts. The sender does not need to be aware
 /// that the native token will be split in this way, since it is handled transparently by the contract.

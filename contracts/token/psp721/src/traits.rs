@@ -38,7 +38,7 @@ pub struct PSP721Data {
 declare_storage_trait!(PSP721Storage, PSP721Data);
 
 #[brush::wrapper]
-pub type PSP721Wrapper = dyn PSP721;
+pub type PSP721Ref = dyn PSP721;
 
 /// Contract module which provides a basic implementation of non fungible token.
 ///
@@ -223,7 +223,7 @@ pub trait PSP721: PSP721Storage + Flush {
         data: Vec<u8>,
     ) -> Result<(), PSP721Error> {
         self.flush();
-        let result = match PSP721ReceiverWrapper::before_received_builder(&to, operator, from, id, data).fire() {
+        let result = match PSP721ReceiverRef::before_received_builder(&to, operator, from, id, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -247,8 +247,7 @@ pub trait PSP721: PSP721Storage + Flush {
             }
         };
         self.load();
-        result?;
-        Ok(())
+        result
     }
 
     fn _add_token(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
@@ -309,7 +308,7 @@ pub trait PSP721: PSP721Storage + Flush {
 }
 
 #[brush::wrapper]
-pub type PSP721ReceiverWrapper = dyn PSP721Receiver;
+pub type PSP721ReceiverRef = dyn PSP721Receiver;
 
 /// PSP721Receiver is a trait for any contract that wants to support safe transfers from a PSP721
 /// token smart contract to avoid unexpected tokens in the balance of contract.

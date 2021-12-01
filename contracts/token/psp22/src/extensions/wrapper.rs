@@ -25,7 +25,7 @@ pub struct PSP22WrapperData {
 declare_storage_trait!(PSP22WrapperStorage, PSP22WrapperData);
 
 #[brush::wrapper]
-pub type PSP22WrapperCaller = dyn PSP22Wrapper + PSP22;
+pub type PSP22WrapperRef = dyn PSP22Wrapper + PSP22;
 
 #[brush::trait_definition]
 pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
@@ -77,7 +77,7 @@ pub trait PSP22Wrapper: PSP22WrapperStorage + PSP22 {
     }
 
     /// Getter for caller to `PSP22Wrapper` of `underlying`
-    fn _underlying(&mut self) -> &mut PSP22Caller {
+    fn _underlying(&mut self) -> &mut PSP22Ref {
         &mut PSP22WrapperStorage::get_mut(self).underlying
     }
 }

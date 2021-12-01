@@ -40,7 +40,7 @@ pub struct PSP1155Data {
 declare_storage_trait!(PSP1155Storage, PSP1155Data);
 
 #[brush::wrapper]
-pub type PSP1155Wrapper = dyn PSP1155;
+pub type PSP1155Ref = dyn PSP1155;
 
 /// Contract module which provides a basic implementation of multiple token types.
 /// A single deployed contract may include any combination of fungible tokens,
@@ -304,7 +304,7 @@ pub trait PSP1155: PSP1155Storage + Flush {
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
         self.flush();
-        let result = match PSP1155ReceiverWrapper::before_received_builder(&to, operator, from, ids_amounts, data).fire() {
+        let result = match PSP1155ReceiverRef::before_received_builder(&to, operator, from, ids_amounts, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -328,13 +328,12 @@ pub trait PSP1155: PSP1155Storage + Flush {
             }
         };
         self.load();
-        result?;
-        Ok(())
+        result
     }
 }
 
 #[brush::wrapper]
-pub type PSP1155ReceiverWrapper = dyn PSP1155Receiver;
+pub type PSP1155ReceiverRef = dyn PSP1155Receiver;
 
 /// PSP1155Receiver is a trait for any contract that wants to support safe transfers from a PSP1155
 /// multi token smart contract to avoid unexpected tokens in the balance of contract.

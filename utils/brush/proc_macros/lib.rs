@@ -345,7 +345,7 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 /// It is a wrapper for `AccountId` that knows how to do cross-contract calls to another contract.
 ///
 /// To define a wrapper you need to use the follow construction:
-/// `type Wrapper = dyn Trait_1 + Trait_2 ... + Trait_n`, where `Trait_i` contains ink! messages
+/// `type TraitName = dyn Trait_1 + Trait_2 ... + Trait_n`, where `Trait_i` contains ink! messages
 /// and defined via [`#[brush::trait_definition]`](`macro@crate::trait_definition`).
 /// If `Trait_i` doesn't contain ink! messages, then you don't need to create a wrapper for that trait,
 /// because the wrapped methods are created only for ink! messages. Otherwise, you will get an error like
@@ -371,31 +371,31 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 /// }
 ///
 /// #[brush::wrapper]
-/// type Wrapper1 = dyn Trait1;
+/// type Trait1Ref = dyn Trait1;
 ///
 /// #[brush::trait_definition]
 /// pub trait Trait2 {
 ///     #[ink(message)]
 ///     fn bar(&mut self, callee: brush::traits::AccountId) {
-///         let foo_bool = Wrapper1::foo(&callee);
+///         let foo_bool = Trait1Ref::foo(&callee);
 ///     }
 /// }
 ///
 /// #[brush::wrapper]
-/// type Wrapper1and2 = dyn Trait1 + Trait2;
+/// type Trait1and2Ref = dyn Trait1 + Trait2;
 ///
 /// // Example of explicit call
 /// let to: AccountId = [0; 32].into();
 /// let callee: AccountId = [0; 32].into();
-/// Wrapper1and2::bar(&to, callee);
+/// Trait1and2Ref::bar(&to, callee);
 ///
 /// // Example of implicit call
-/// let to: &Wrapper1and2 = &to;
+/// let to: &Trait1and2Ref = &to;
 /// to.bar(callee);
 ///
 /// // Example how to get ink! call builder
 /// let to: AccountId = [0; 32].into();
-/// let builder_for_foo: ::ink_env::call::CallBuilder<_, _, _, _, _, _> = Wrapper1and2::foo_builder(&to);
+/// let builder_for_foo: ::ink_env::call::CallBuilder<_, _, _, _, _, _> = Trait1and2Ref::foo_builder(&to);
 /// let ink_result: Result<bool, ink_env::Error> = builder_for_foo.fire();
 /// }
 /// ```
