@@ -5,13 +5,7 @@
 /// the amount of borrowed tokens
 #[brush::contract]
 pub mod shares {
-    use brush::modifiers;
-    use ink_lang::{
-        EmitEvent,
-        Env,
-    };
     use ink_prelude::string::String;
-    use ink_storage::Lazy;
     use ownable::traits::*;
     use psp22::{
         extensions::{

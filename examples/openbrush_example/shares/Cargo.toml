@@ -25,6 +25,7 @@ name = "shares"
 path = "lib.rs"
 crate-type = [
     "cdylib",
+    "rlib"
 ]
 
 [features]

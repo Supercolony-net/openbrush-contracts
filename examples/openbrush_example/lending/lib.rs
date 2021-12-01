@@ -43,16 +43,22 @@ mod traits;
 /// Users can still repay their loans, liquidate loans or withdraw their deposits
 #[brush::contract]
 pub mod lending {
-    use crate::errors::*;
+    use crate::{
+        errors::*,
+        traits::*,
+    };
     use access_control::traits::*;
-    // use brush::modifiers;
-    use crate::traits::*;
-    use ink_prelude::vec::Vec;
+    use brush::modifiers;
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
     use pausable::traits::*;
     use psp22::{
         extensions::mintable::*,
         traits::*,
     };
+    use shares::shares::Shares;
 
     /// This event will be emitted when `lender` deposists `amount` of `asset` to the contract
     #[ink(event)]
@@ -95,10 +101,30 @@ pub mod lending {
             instance
         }
 
+        /// This function will allow an asset to be accepted by the contract
+        /// It will also create the contracts for the shares token and lended reserves token
+        #[modifiers(only_role(MANAGER))]
+        #[ink(message)]
+        pub fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+            // we will ensure the asset is not accepted already
+            if self.is_accepted_lending(asset_address) {
+                return Err(LendingError::AssetSupported)
+            }
+            let _shares = Shares::new(Some(String::from("LendingShares")), Some(String::from("LS")));
+            // create lend reserves token
+            // accept it
+            // self._accept_lending(asset_address, share_address: AccountId, reserve_address: AccountId)
+            Ok(())
+        }
+
         /// This function is called by a user who wants to lend tokens and gain interest
         ///
         /// `asset_address` is the AccountId of the PSP-22 token to be deposited
         /// `amount` is the amount to be deposited
+        ///
+        /// Returns `InsufficientAllowanceToLend` if the caller does not have enough allowance
+        /// Returns `InsufficientBalanceToLend` if the caller does not have enough balance
+        /// Returns `AssetNotSupported` if the asset is not supported for lending
         #[ink(message)]
         pub fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> Result<(), LendingError> {
             // we will be using these often so we store them in variables

@@ -41,11 +41,11 @@ declare_storage_trait!(LendingStorage, LendingData);
 // we will declare a trait which holds getters and setters for our storage struct
 #[brush::trait_definition]
 pub trait LendingStorageTrait: LendingStorage {
-    #[ink(message)]
     /// this function will return the total amount of assets available to borrow
     /// along with amount of the same asset borrowed
     ///
     /// Returns `AssetNotSupported` error if we try to get amount of asset not supported by our contract
+    #[ink(message)]
     fn total_asset(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
         let mapped_asset = self
@@ -67,6 +67,7 @@ pub trait LendingStorageTrait: LendingStorage {
     /// this function will return the total amount of shares minted for an asset
     ///
     /// Returns `AssetNotSupported` error if we try to get shares of asset not supported by our contract
+    #[ink(message)]
     fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
         let mapped_asset = self
@@ -80,5 +81,25 @@ pub trait LendingStorageTrait: LendingStorage {
             return Err(LendingError::AssetNotSupported)
         }
         Ok(PSP22Wrapper::total_supply(&mapped_asset))
+    }
+
+    /// this function will return true if the asset is accepted by the contract
+    #[ink(message)]
+    fn is_accepted_lending(&self, asset_address: AccountId) -> bool {
+        !self
+            .get()
+            .asset_shares
+            .get(&asset_address)
+            .cloned()
+            .unwrap_or(ZERO_ADDRESS.into())
+            .is_zero()
+    }
+
+    /// this function will accept `asset_address` for lending
+    /// `share_address` is the address of the shares token of the asset being allowed
+    /// `reserve_address` is the address of the reserves token of the asset being allowed
+    fn _accept_lending(&mut self, asset_address: AccountId, share_address: AccountId, reserve_address: AccountId) {
+        self.get_mut().asset_shares.insert(asset_address, share_address);
+        self.get_mut().assets_lended.insert(asset_address, reserve_address);
     }
 }

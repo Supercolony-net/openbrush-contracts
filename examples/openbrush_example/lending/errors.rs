@@ -1,3 +1,4 @@
+use access_control::traits::AccessControlError;
 use ink_prelude::string::String;
 use psp22::traits::PSP22Error;
 
@@ -15,6 +16,18 @@ pub enum LendingError {
     /// This error will be thrown if the user tries to lend or borrow asset which is not supported by the lending contract
     /// or if a user tries to use an usupported asset as a collateral
     AssetNotSupported,
+    /// This error will be thrown if the user tries to allow an asset which is already allowed
+    AssetSupported,
+}
+
+impl From<AccessControlError> for LendingError {
+    fn from(access: AccessControlError) -> Self {
+        match access {
+            AccessControlError::MissingRole => LendingError::Custom(String::from("AC::MissingRole")),
+            AccessControlError::RoleRedundant => LendingError::Custom(String::from("AC::RoleRedundant")),
+            AccessControlError::InvalidCaller => LendingError::Custom(String::from("AC::InvalidCaller")),
+        }
+    }
 }
 
 impl From<PSP22Error> for LendingError {

@@ -16,6 +16,10 @@ fn _emit_lend_event(&self, lender: AccountId, asset: AccountId, amount: Balance)
 }
 ```
 
+## Allowing assets
+
+If we just started lending and borrowing random assets or using random assets as a collateral there would be chaos in our smart contract. Regarding lending, it would not be a big problem, since if somebody is willing to borrow an asset, it would generate a profit for the lender. But if we started accepting random assets as a collateral, anyone could just throw a random coin as a collateral and then just rug pull it and also keep the borrowed assets. Because of this we will only accept certain assets for lending and using as a collateral. In order for an asset to be accepted, a manager needs to allow it with the `allow_asset` function, which will look like this:
+
 ## Lending assets
 
 For lending the assets  we will use the function `lend_assets(asset_address, amount)`, where `asset_address` is the address of `PSP-22` we want to deposit and `amount` is the amount of asset deposited. Some checks need to be checked to assure the correct behavior of our contract. The asset deposited needs to be recognized by our contract (manager must have approved it). If it is not accepted, an error will be returned. Then the user must have approved the asset to spent by our contract and the user's balance must be greater than or equal to `amount`. So we will transfer the asset from the user to the contract, mint shares to the user and emit the `Lend` event. To perform a cross contract call we will be using the wrappers (`PSP22Wrapper`, `PSP22MintableWrapper`). The code will look like this:

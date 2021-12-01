@@ -21,6 +21,7 @@ access-control = { path = "../../../contracts/access/access-control", default-fe
 pausable = { path = "../../../contracts/security/pausable", default-features = false }
 psp22 = { path = "../../../contracts/token/psp22", default-features = false }
 lending_derive = { path = "derive" }
+shares = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
 
 [lib]
 name = "lending"
@@ -46,6 +47,7 @@ std = [
     "access-control/std",
     "brush/std",
     "pausable/std",
+    "shares/std",
 ]
 ink-as-dependency = []
 
