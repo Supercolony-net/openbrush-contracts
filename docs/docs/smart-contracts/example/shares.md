@@ -3,7 +3,7 @@ sidebar_position: 4
 title: Shares token
 ---
 
-Similarly, we will implement another [PSP-22](/smart-contracts/PSP22/psp22) token which will represent the ownership of assets available by the smart contract to be lent. In this token, we will need [PSP-22](/smart-contracts/PSP22/examples/metadata) and we will also need to mint and burn this token. We only want our contract to perform these actions, so we will also add the [Ownable](/smart-contracts/ownable) extension.
+Similarly, we will implement another [PSP-22](/smart-contracts/PSP22/psp22) token which will represent the ownership of assets available by the smart contract to be lent. In this token, we will need [PSP-22 Metadata](/smart-contracts/PSP22/extensions/metadata) and we will also need to mint and burn this token. We only want our contract to perform these actions, so we will also add the [Ownable](/smart-contracts/ownable) extension.
 
 ## Add dependencies
 
