@@ -100,24 +100,33 @@ pub mod lending {
         /// `asset_address` is the AccountId of the PSP-22 token to be deposited
         /// `amount` is the amount to be deposited
         #[ink(message)]
-        pub fn lend_tokens(&mut self, asset_address: AccountId, amount: Balance) -> Result<(), LendingError> {
+        pub fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> Result<(), LendingError> {
             // we will be using these often so we store them in variables
             let lender = Self::env().caller();
             let contract = Self::env().account_id();
+            // ensure the user gave allowance to the contract
             if PSP22Wrapper::allowance(&asset_address, lender, contract) < amount {
                 return Err(LendingError::InsufficientAllowanceToLend)
             }
+            // ensure the user has enough assets
             if PSP22Wrapper::balance_of(&asset_address, lender) < amount {
                 return Err(LendingError::InsufficientBalanceToLend)
             }
+            // how much assets is already in the contract
+            // if the asset is not accepted by the contract, this function will return an error
             let total_asset = self.total_asset(asset_address)?;
+            // transfer the assets from user to the contract|
             PSP22Wrapper::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
+            // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
             let new_shares = if total_asset == 0 {
                 amount
             } else {
+                // else we calculate how much shares will belong us after depositing the `amount`
                 (amount * self.total_shares(asset_address)?) / total_asset
             };
+            // mint the shares token to the user
             PSP22MintableWrapper::mint(&asset_address, lender, new_shares)?;
+            // emit the lend event
             self._emit_lend_event(lender, asset_address, amount);
             Ok(())
         }
