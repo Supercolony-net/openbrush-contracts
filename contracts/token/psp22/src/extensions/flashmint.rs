@@ -14,7 +14,7 @@ use ink_prelude::{
 };
 
 #[brush::wrapper]
-pub type PSP22FlashMintCaller = dyn FlashLender + PSP22;
+pub type PSP22FlashMintRef = dyn FlashLender + PSP22;
 
 /// TODO remove eip link and refactor this
 /// Flash Lender implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
@@ -132,7 +132,7 @@ pub trait FlashLender: PSP22 {
 // TODO: Refactor - FlashBorrower and FlashLender do not belong here
 
 #[brush::wrapper]
-pub type FlashBorrowerCaller = dyn FlashBorrower;
+pub type FlashBorrowerRef = dyn FlashBorrower;
 
 /// TODO remove eip link
 /// Flash Borrower implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)

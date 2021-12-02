@@ -23,7 +23,7 @@ pub struct PSP22MetadataData {
 declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);
 
 #[brush::wrapper]
-pub type PSP22MetadataCaller = dyn PSP22Metadata;
+pub type PSP22MetadataRef = dyn PSP22Metadata;
 
 /// Trait that contains metadata
 #[brush::trait_definition]
