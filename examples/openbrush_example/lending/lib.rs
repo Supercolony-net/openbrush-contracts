@@ -49,6 +49,7 @@ pub mod lending {
     };
     use access_control::traits::*;
     use brush::modifiers;
+    use ink_lang::ToAccountId;
     use ink_prelude::{
         string::String,
         vec::Vec,
@@ -70,6 +71,19 @@ pub mod lending {
         amount: Balance,
     }
 
+    /// This event will be emitted when `manager_address` accepts `asset_address` for lending
+    #[ink(event)]
+    pub struct LendingAllowed {
+        #[ink(topic)]
+        asset_address: AccountId,
+        #[ink(topic)]
+        shares_address: AccountId,
+        #[ink(topic)]
+        reserves_address: AccountId,
+        #[ink(topic)]
+        manager_address: AccountId,
+    }
+
     /// Define the storage for PSP22 data, Metadata data and Ownable data
     #[ink(storage)]
     #[derive(Default, AccessControlStorage, PausableStorage, LendingStorage)]
@@ -80,6 +94,7 @@ pub mod lending {
         pause: PausableData,
         #[LendingStorageField]
         lending: LendingData,
+        code_hash: Hash,
     }
 
     const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
@@ -93,11 +108,12 @@ pub mod lending {
     impl Lending {
         /// constructor with name and symbol
         #[ink(constructor)]
-        pub fn new() -> Self {
+        pub fn new(code_hash: Hash) -> Self {
             let mut instance = Self::default();
             let caller = instance.env().caller();
             instance._init_with_admin(caller);
             instance.grant_role(MANAGER, caller).expect("Can not set manager role");
+            instance.code_hash = code_hash;
             instance
         }
 
@@ -110,10 +126,12 @@ pub mod lending {
             if self.is_accepted_lending(asset_address) {
                 return Err(LendingError::AssetSupported)
             }
-            let _shares = Shares::new(Some(String::from("LendingShares")), Some(String::from("LS")));
-            // create lend reserves token
-            // accept it
-            // self._accept_lending(asset_address, share_address: AccountId, reserve_address: AccountId)
+            // instantiate the shares of the lended assets
+            let shares_address = self._instantiate_shares_contract("LendingShares", "LS");
+            // instantiate the reserves of the borrowed assets
+            let reserves_address = self._instantiate_shares_contract("LendingReserves", "LR");
+            // accept the asset and map shares and reserves to it
+            self._accept_lending(asset_address, shares_address, reserves_address);
             Ok(())
         }
 
@@ -157,9 +175,37 @@ pub mod lending {
             Ok(())
         }
 
-        // helper functions which can only be called inside our contract
+        // internal functions which can only be called inside our contract
 
-        /// helper function to emit an event when `lender` deposits `amount` of token `asset`
+        /// internal function which instantiates a shares contract and returns its AccountId
+        fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
+            let code_hash = self.code_hash;
+            let contract = Shares::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+                .endowment(25)
+                .code_hash(code_hash)
+                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .instantiate()
+                .unwrap();
+            contract.to_account_id()
+        }
+
+        /// internal function to emit an event when `manager_address` allows `asset_address` for lending
+        fn _emit_lending_accepted_event(
+            &self,
+            asset_address: AccountId,
+            shares_address: AccountId,
+            reserves_address: AccountId,
+            manager_address: AccountId,
+        ) {
+            self.env().emit_event(LendingAllowed {
+                asset_address,
+                shares_address,
+                reserves_address,
+                manager_address,
+            });
+        }
+
+        /// internal function to emit an event when `lender` deposits `amount` of token `asset`
         fn _emit_lend_event(&self, lender: AccountId, asset: AccountId, amount: Balance) {
             self.env().emit_event(Lend { lender, asset, amount });
         }

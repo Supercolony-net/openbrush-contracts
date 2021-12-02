@@ -7,7 +7,7 @@ Similarly, we will implement another [PSP-22](/smart-contracts/PSP22/psp22) toke
 
 ## Add dependencies
 
-In addition to the dependencies imported in the [PSP-22](/smart-contracts/PSP22/psp22) documentation, we will also add the `ownable` depdendency the same way as in the [ownable](/smart-contracts/ownable) documentation.
+In addition to the dependencies imported in the [PSP-22](/smart-contracts/PSP22/psp22) documentation, we will also add the `ownable` dependency the same way as in the [ownable](/smart-contracts/ownable) documentation. We will be using this contract as a dependency in our lending contract, so we need to also add the `"rlib"` crate type.
 
 ## Implement the contract
 
@@ -16,11 +16,21 @@ Implementing our shares contract will follow the same steps as implementing the 
 ```rust
 #[brush::contract]
 pub mod shares {
+    use brush::modifiers;
+    use ink_lang::{
+        EmitEvent,
+        Env,
+    };
+    use ink_prelude::string::String;
+    use ink_storage::Lazy;
     use ownable::traits::*;
-    use psp22::extensions::{
-        burnable::*,
-        metadata::*,
-        mintable::*,
+    use psp22::{
+        extensions::{
+            burnable::*,
+            metadata::*,
+            mintable::*,
+        },
+        traits::*,
     };
 ```
 

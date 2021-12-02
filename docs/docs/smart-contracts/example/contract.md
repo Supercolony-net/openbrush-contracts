@@ -12,20 +12,28 @@ As everywhere, we will import all we need for our smart contract to work.
 ```rust
 #[brush::contract]
 pub mod lending {
-    use crate::errors::*;
+    use crate::{
+        errors::*,
+        traits::*,
+    };
     use access_control::traits::*;
-    use crate::traits::*;
-    use ink_prelude::vec::Vec;
+    use brush::modifiers;
+    use ink_lang::ToAccountId;
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
     use pausable::traits::*;
     use psp22::{
         extensions::mintable::*,
         traits::*,
     };
+    use shares::shares::Shares;
 ```
 
 ## Define the events
 
-We will be keeping the track of events that happened in our smart contract. For that, we need to define the event structs and we will be emitting them when needed. We will be emitting the `Lend` event.
+We will be keeping the track of events that happened in our smart contract. For that, we need to define the event structs and we will be emitting them when needed. We will be emitting the `Lend` event when assets are deposited and the `LendingAllowed` event when an asset is allowed for lending by a manager account.
 
 ```rust
 #[ink(event)]
@@ -36,11 +44,23 @@ pub struct Lend {
     asset: AccountId,
     amount: Balance,
 }
+
+#[ink(event)]
+pub struct LendingAllowed {
+    #[ink(topic)]
+    asset_address: AccountId,
+    #[ink(topic)]
+    shares_address: AccountId,
+    #[ink(topic)]
+    reserves_address: AccountId,
+    #[ink(topic)]
+    manager_address: AccountId,
+}
 ```
 
 ## Define the contract storage
 
-As described earlier, we want our smart contract to be paused by the Manager accounts. To do that, we need our contract to be `Pausable` and we need a manager role. We can do this with the `AccessControl`. Also, we want to use the `LendingStorageTrait` we have declared. So we will declare a struct and derive all these traits needed.
+As described earlier, we want our smart contract to be paused by the Manager accounts. To do that, we need our contract to be `Pausable` and we need a manager role. We can do this with the `AccessControl`. Also, we want to use the `LendingStorageTrait` we have declared. So we will declare a struct and derive all these traits needed. We will also store the `code_hash` of our `Shares` contract, because we will be instantiating it later, for which we need the hash.
 
 ```rust
 #[ink(storage)]
@@ -52,6 +72,7 @@ pub struct Lending {
     pause: PausableData,
     #[LendingStorageField]
     lending: LendingData,
+    code_hash: Hash,
 }
 ```
 
@@ -82,11 +103,12 @@ Finally, we will add a constructor, in which we will initiate the admin of the c
 ```rust
 impl Lending {
     #[ink(constructor)]
-    pub fn new() -> Self {
+    pub fn new(code_hash: Hash) -> Self {
         let mut instance = Self::default();
         let caller = instance.env().caller();
         instance._init_with_admin(caller);
         instance.grant_role(MANAGER, caller).expect("Can not set manager role");
+        instance.code_hash = code_hash;
         instance
     }
 }

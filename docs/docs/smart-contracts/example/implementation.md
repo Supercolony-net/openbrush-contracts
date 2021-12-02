@@ -10,15 +10,66 @@ In this section we will implement the functions of our lending contract.
 We have defined our events in the previous step, now we will define helper functions, with which we will be emitting our events. We will start all our helper functions with `_`.
 
 ```rust
-#[brush::contract]
+fn _emit_lending_accepted_event(
+    &self,
+    asset_address: AccountId,
+    shares_address: AccountId,
+    reserves_address: AccountId,
+    manager_address: AccountId,
+) {
+    self.env().emit_event(LendingAllowed {
+        asset_address,
+        shares_address,
+        reserves_address,
+        manager_address,
+    });
+}
+
 fn _emit_lend_event(&self, lender: AccountId, asset: AccountId, amount: Balance) {
     self.env().emit_event(Lend { lender, asset, amount });
 }
 ```
 
+## Instantiating contracts
+
+Each asset that we will accept to be lent will have two underlying tokens: the shares token and the reserves token. The shares token will represent a user's share of the lent asset which they can then withdraw and the reserves token will represent the amount of asset lent since we don't want to keep track of all addresses and amounts which have borrowed the assets. We will simply take this amount from the total supply of the underlying reserve token. So when we are accepting an asset for lending, we need to create a new token contract for shares and for reserves. We will define an internal function for this:
+
+```rust
+fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
+    let code_hash = self.code_hash;
+    let contract = Shares::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+        .endowment(25)
+        .code_hash(code_hash)
+        .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+        .instantiate()
+        .unwrap();
+    contract.to_account_id()
+}
+```
+
+This function will instantiate our `Shares` contract and return the `AccountId` of the instantiated contract. We will call this function when allowing assets.
+
 ## Allowing assets
 
-If we just started lending and borrowing random assets or using random assets as a collateral there would be chaos in our smart contract. Regarding lending, it would not be a big problem, since if somebody is willing to borrow an asset, it would generate a profit for the lender. But if we started accepting random assets as a collateral, anyone could just throw a random coin as a collateral and then just rug pull it and also keep the borrowed assets. Because of this we will only accept certain assets for lending and using as a collateral. In order for an asset to be accepted, a manager needs to allow it with the `allow_asset` function, which will look like this:
+If we just started lending and borrowing random assets or using random assets as collateral there would be chaos in our smart contract. Regarding lending, it would not be a big problem, since if somebody is willing to borrow an asset, it would generate a profit for the lender. But if we started accepting random assets as collateral, anyone could just throw a random coin as collateral and then just for example rug pull it and also keep the borrowed assets. Because of this we will only accept certain assets for lending and using as collateral. For an asset to be accepted, an account with the `MANAGER` role needs to allow it with the `allow_asset` function. We will use a modifier from OpenBrush, which serves similarly to Solidity's function modifiers. The function will look like this:
+
+```rust
+#[modifiers(only_role(MANAGER))]
+#[ink(message)]
+pub fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+    // we will ensure the asset is not accepted already
+    if self.is_accepted_lending(asset_address) {
+        return Err(LendingError::AssetSupported)
+    }
+    // instantiate the shares of the lended assets
+    let shares_address = self._instantiate_shares_contract("LendingShares", "LS");
+    // instantiate the reserves of the borrowed assets
+    let reserves_address = self._instantiate_shares_contract("LendingReserves", "LR");
+    // accept the asset and map shares and reserves to it
+    self._accept_lending(asset_address, shares_address, reserves_address);
+    Ok(())
+}
+```
 
 ## Lending assets
 
