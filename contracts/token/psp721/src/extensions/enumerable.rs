@@ -72,24 +72,24 @@ pub trait PSP721Enumerable: PSP721EnumerableStorage + PSP721 {
     /// When `to` is zero, ``from``'s `tokenId` will be burned
     /// `from` cannot be the zero address
     /// `to` cannot be the zero address.
-    fn handle_token_transfer(&mut self, from: &AccountId, to: &AccountId, id: &Id) {
+    fn _handle_token_transfer(&mut self, from: &AccountId, to: &AccountId, id: &Id) {
         if from.is_zero() {
-            self.add_token_to_all_tokens_enumeration(*id);
+            self._add_token_to_all_tokens_enumeration(*id);
         } else {
-            self.remove_token_from_owner_enumeration(*from, *id);
+            self._remove_token_from_owner_enumeration(*from, *id);
         }
 
         if to.is_zero() {
-            self.remove_token_from_all_tokens_enumeration(*id);
+            self._remove_token_from_all_tokens_enumeration(*id);
         } else {
-            self.add_token_to_owner_enumeration(*to, *id);
+            self._add_token_to_owner_enumeration(*to, *id);
         }
     }
 
-    /// Helper function to add a token to ownership tracking data structures
+    /// Internal function to add a token to ownership tracking data structures
     /// `to` is the new token owner
     /// `token_id` is the id of the new token
-    fn add_token_to_owner_enumeration(&mut self, to: AccountId, token_id: Id) {
+    fn _add_token_to_owner_enumeration(&mut self, to: AccountId, token_id: Id) {
         let length = self.balance_of(to);
         let storage = PSP721EnumerableStorage::get_mut(self);
         storage
@@ -104,19 +104,19 @@ pub trait PSP721Enumerable: PSP721EnumerableStorage + PSP721 {
         storage.owned_tokens_index.insert(token_id, length);
     }
 
-    /// Helper function to add a token to token tracking data structures
+    /// Internal function to add a token to token tracking data structures
     /// `token_id` is the id of the new token
-    fn add_token_to_all_tokens_enumeration(&mut self, token_id: Id) {
+    fn _add_token_to_all_tokens_enumeration(&mut self, token_id: Id) {
         let len = self.total_supply();
         let storage = PSP721EnumerableStorage::get_mut(self);
         storage.all_tokens_index.insert(token_id, len);
         storage.all_tokens.push(token_id);
     }
 
-    /// Helper function to remove a token from contract ownership-tracking data structures.  
+    /// Internal function to remove a token from contract ownership-tracking data structures.  
     /// `from` is the owner of the token
     /// `token_id` is the id the token to be removed from the tokens list of the given address
-    fn remove_token_from_owner_enumeration(&mut self, from: AccountId, token_id: Id) {
+    fn _remove_token_from_owner_enumeration(&mut self, from: AccountId, token_id: Id) {
         let last_index = self.balance_of(from) - 1;
         let storage = PSP721EnumerableStorage::get_mut(self);
         let token_index = *storage.owned_tokens_index.get(&token_id).unwrap();
@@ -138,9 +138,9 @@ pub trait PSP721Enumerable: PSP721EnumerableStorage + PSP721 {
         });
     }
 
-    /// Helper function to remove a token from contract token tracking data structures
+    /// Internal function to remove a token from contract token tracking data structures
     /// `token_id` is the id of the token to be removed from the tokens list
-    fn remove_token_from_all_tokens_enumeration(&mut self, token_id: Id) {
+    fn _remove_token_from_all_tokens_enumeration(&mut self, token_id: Id) {
         let last_token_index = self.total_supply() - 1;
         let storage = PSP721EnumerableStorage::get_mut(self);
         let token_index = *storage.all_tokens_index.get(&token_id).unwrap();

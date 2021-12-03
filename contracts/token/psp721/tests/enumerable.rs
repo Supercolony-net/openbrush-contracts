@@ -24,7 +24,7 @@ mod metadata {
         /// for checks in `handle_token_transfer` function
         fn _before_token_transfer(&mut self, from: &AccountId, to: &AccountId, id: &Id) -> Result<(), PSP721Error> {
             // call super `_before_token_transfer` here
-            self.handle_token_transfer(from, to, id);
+            self._handle_token_transfer(from, to, id);
             Ok(())
         }
 
