@@ -43,7 +43,7 @@ where
 }
 
 #[brush::wrapper]
-pub type AccessControlWrapper = dyn AccessControl;
+pub type AccessControlRef = dyn AccessControl;
 
 /// Contract module that allows children to implement role-based access
 /// control mechanisms. This is a lightweight version that doesn't allow enumerating role

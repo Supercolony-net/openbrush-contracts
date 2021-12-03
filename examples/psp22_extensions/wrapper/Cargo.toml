@@ -1,7 +1,7 @@
 [package]
-name = "my_timelock_controller"
+name = "my_psp22_wrapper"
 version = "1.0.0"
-authors = ["Supercolony <green.baneling@supercolony.net>"]
+authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2018"
 
 [dependencies]
@@ -16,13 +16,14 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-timelock-controller = { path = "../../contracts/governance/timelock-controller", default-features = false }
-brush = { path = "../../utils/brush", default-features = false }
+psp22 = { path = "../../../contracts/token/psp22", default-features = false }
+brush = { path = "../../../utils/brush", default-features = false }
 
 [lib]
-name = "my_timelock_controller"
+name = "my_psp22_wrapper"
 path = "lib.rs"
 crate-type = [
+    # Used for normal contract Wasm blobs.
     "cdylib",
 ]
 
@@ -40,10 +41,14 @@ std = [
     "scale-info/std",
 
     # These dependencies
+    "psp22/std",
     "brush/std",
-    "timelock-controller/std",
 ]
 ink-as-dependency = []
 
 [profile.dev]
 codegen-units = 16
+overflow-checks = false
+
+[profile.release]
+overflow-checks = false

@@ -1,5 +1,5 @@
 [package]
-name = "flip_on_me"
+name = "my_timelock_controller"
 version = "1.0.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -15,16 +15,14 @@ ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", d
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
-# This dependencies
-# We will do a cross contract call via `MyFlipper` wrapper imported here
-reentrancy_guard = { path = "../../../contracts/security/reentrancy-guard", default-features = false }
-my_flipper_guard = { path = "../flipper", default-features = false, features = ["ink-as-dependency"] }
+# These dependencies
+timelock-controller = { path = "../../contracts/governance/timelock-controller", default-features = false }
+brush = { path = "../../utils/brush", default-features = false }
 
 [lib]
-name = "flip_on_me"
+name = "my_timelock_controller"
 path = "lib.rs"
 crate-type = [
-    # Used for normal contract Wasm blobs.
     "cdylib",
 ]
 
@@ -41,11 +39,15 @@ std = [
     "scale-info",
     "scale-info/std",
 
-    # This dependencies
-    "my_flipper_guard/std",
-    "reentrancy_guard/std",
+    # These dependencies
+    "brush/std",
+    "timelock-controller/std",
 ]
 ink-as-dependency = []
 
 [profile.dev]
 codegen-units = 16
+overflow-checks = false
+
+[profile.release]
+overflow-checks = false

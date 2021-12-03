@@ -4,7 +4,7 @@ use crate::traits::*;
 use brush::traits::AccountId;
 
 #[brush::wrapper]
-pub type PSP721MintableWrapper = dyn PSP721Mintable + PSP721;
+pub type PSP721MintableRef = dyn PSP721Mintable + PSP721;
 
 #[brush::trait_definition]
 pub trait PSP721Mintable: PSP721 {

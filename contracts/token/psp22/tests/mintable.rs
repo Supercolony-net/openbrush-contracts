@@ -43,7 +43,7 @@ mod psp22_mintable {
         fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
         fn _do_safe_transfer_check(
-            &self,
+            &mut self,
             _from: AccountId,
             _to: AccountId,
             _value: Balance,

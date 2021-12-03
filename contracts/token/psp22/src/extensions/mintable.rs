@@ -7,7 +7,7 @@ use brush::traits::{
 };
 
 #[brush::wrapper]
-pub type PSP22MintableWrapper = dyn PSP22Mintable + PSP22;
+pub type PSP22MintableRef = dyn PSP22Mintable + PSP22;
 
 #[brush::trait_definition]
 pub trait PSP22Mintable: PSP22 {

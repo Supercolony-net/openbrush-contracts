@@ -88,3 +88,5 @@ export const fromSigner = (contract: Contract, address: string): Contract => {
 
 export const bnArg = (value: number | string | number[] | Uint8Array | Buffer | BN, length = 32) =>
   new BN(value, undefined, 'le').toArray('le', length)
+
+export const oneDay = () => (24 * 60 * 60 * 1000)
