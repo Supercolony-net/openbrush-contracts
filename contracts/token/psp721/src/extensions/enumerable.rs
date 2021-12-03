@@ -10,6 +10,10 @@ use brush::{
         InkStorage,
     },
 };
+use ink_prelude::{
+    string::String,
+    vec::Vec,
+};
 use ink_storage::{
     collections::HashMap as StorageHashMap,
     traits::SpreadLayout,

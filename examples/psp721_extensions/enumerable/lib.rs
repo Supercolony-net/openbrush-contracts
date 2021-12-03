@@ -12,7 +12,7 @@ pub mod my_psp721_enumerable {
     pub struct MyPSP721 {
         #[PSP721StorageField]
         psp721: PSP721Data,
-        #[PSP721EnumerableField]
+        #[PSP721EnumerableStorageField]
         enumerable: PSP721EnumerableData,
     }
 
