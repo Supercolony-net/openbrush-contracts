@@ -7,7 +7,7 @@ This doc contains examples of how the library can be used and how to customize t
 
 * [PSP22](PSP22/psp22.md) shows an example of how you can reuse the implementation of
   [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token (in the same way you can reuse
-  [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) and [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)).
+  [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155)).
   * [PSP22Metadata](PSP22/Extensions/metadata.md): metadata for PSP22.
   * [PSP22Mintable](PSP22/Extensions/mintable.md): creation of new tokens.
   * [PSP22Burnable](PSP22/Extensions/burnable.md): destruction of own tokens.
@@ -16,6 +16,11 @@ This doc contains examples of how the library can be used and how to customize t
   * [PSP22Pausable](PSP22/Extensions/pausable.md): example of using pausable extension in the PSP22 contract.
   * [PSP22Capped](PSP22/Extensions/capped.md): extension which adds a cap for total supply of PSP22 tokens.
   * [PSP22TokenTimelock](PSP22/Utils/token-timelock.md): Utility which allows token holders to lock their tokens for a specified amount of time.
+* [PSP721](PSP721/psp721.md) shows how you can reuse the implementation of [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721)
+  * [PSP721Metadata](PSP721/Extensions/metadata): metadata for PSP721.
+  * [PSP721Mintable](PSP721/Extensions/mintable): creation of new tokens.
+  * [PSP721Burnable](PSP721/Extensions/burnable): destruction of tokens.
+  * [PSP721Enumerable](PSP721/extensions/enumerable): enumerate over contract's and user's NFTs.
 * [Access Control](access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access-control) and
   [psp721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) together to provide rights to mint and burn NFT tokens.
