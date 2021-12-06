@@ -37,5 +37,10 @@ pub mod my_psp721_enumerable {
         pub fn mint(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
             self._mint_to(account, id)
         }
+
+        #[ink(message)]
+        pub fn burn(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+            self._burn_from(account, id)
+        }
     }
 }
