@@ -63,7 +63,7 @@ pub(crate) fn generate(_: TokenStream, input: TokenStream) -> TokenStream {
     } else {
         return (quote! {
                 compile_error!(
-                    "Macro accepts only from of `type TraitWrapper = dyn Trait1 + Trait2`");
+                    "Macro accepts only form of `type Trait1and2Ref = dyn Trait1 + Trait2`");
         })
         .into()
     }

@@ -3,6 +3,7 @@ use brush::{
     traits::{
         AccountId,
         AccountIdExt,
+        Flush,
         InkStorage,
         ZERO_ADDRESS,
     },
@@ -39,14 +40,14 @@ pub struct PSP721Data {
 declare_storage_trait!(PSP721Storage, PSP721Data);
 
 #[brush::wrapper]
-pub type PSP721Wrapper = dyn PSP721;
+pub type PSP721Ref = dyn PSP721;
 
 /// Contract module which provides a basic implementation of non fungible token.
 ///
 /// This module is used through embedding of `PSP721Data` and implementation of `PSP721` and
 /// `PSP721Storage` traits.
 #[brush::trait_definition]
-pub trait PSP721: PSP721Storage {
+pub trait PSP721: PSP721Storage + Flush {
     /// Returns the balance of the owner.
     ///
     /// This represents the amount of unique tokens the owner has.
@@ -216,14 +217,15 @@ pub trait PSP721: PSP721Storage {
 
     /// Child contract can override that if they don't want to do a cross call
     fn _do_safe_transfer_check(
-        &self,
+        &mut self,
         operator: AccountId,
         from: AccountId,
         to: AccountId,
         id: Id,
         data: Vec<u8>,
     ) -> Result<(), PSP721Error> {
-        match PSP721ReceiverWrapper::before_received_builder(&to, operator, from, id, data).fire() {
+        self.flush();
+        let result = match PSP721ReceiverRef::before_received_builder(&to, operator, from, id, data).fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -245,7 +247,9 @@ pub trait PSP721: PSP721Storage {
                     }
                 }
             }
-        }
+        };
+        self.load();
+        result
     }
 
     fn _add_token(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error> {
@@ -311,7 +315,7 @@ pub trait PSP721: PSP721Storage {
 }
 
 #[brush::wrapper]
-pub type PSP721ReceiverWrapper = dyn PSP721Receiver;
+pub type PSP721ReceiverRef = dyn PSP721Receiver;
 
 /// PSP721Receiver is a trait for any contract that wants to support safe transfers from a PSP721
 /// token smart contract to avoid unexpected tokens in the balance of contract.

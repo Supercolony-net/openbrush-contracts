@@ -2,8 +2,7 @@
 
 #[ink_lang::contract]
 pub mod flip_on_me {
-    use ink_env::call::FromAccountId;
-    use my_flipper_guard::my_flipper_guard::*;
+    use my_flipper_guard::my_flipper_guard::FlipperRef;
     use reentrancy_guard::traits::*;
 
     #[ink(storage)]
@@ -25,8 +24,7 @@ pub mod flip_on_me {
         #[ink(message)]
         pub fn flip_on_target(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError> {
             // This method does a cross-contract call to caller contract and calls the `flip` method.
-            let mut flipper: MyFlipper = FromAccountId::from_account_id(callee);
-            flipper.flip()
+            FlipperRef::flip(&callee)
         }
     }
 }

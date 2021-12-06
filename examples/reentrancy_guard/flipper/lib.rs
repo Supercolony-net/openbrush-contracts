@@ -42,6 +42,9 @@ pub mod my_flipper_guard {
         fn value_mut(&mut self) -> &mut bool;
     }
 
+    #[brush::wrapper]
+    pub type FlipperRef = dyn Flipper;
+
     #[brush::trait_definition]
     pub trait Flipper: FlipperStorage + ReentrancyGuardStorage {
         #[ink(message)]

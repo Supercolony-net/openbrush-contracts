@@ -1,5 +1,5 @@
 [package]
-name = "my_flipper_guard"
+name = "my_access_control"
 version = "1.0.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -16,17 +16,15 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-reentrancy_guard = { path = "../../../contracts/security/reentrancy-guard", default-features = false }
-brush = { path = "../../../utils/brush", default-features = false }
+psp721 = { path = "../../contracts/token/psp721", default-features = false }
+access-control = { path = "../../contracts/access/access-control", default-features = false }
+brush = { path = "../../utils/brush", default-features = false }
 
 [lib]
-name = "my_flipper_guard"
+name = "my_access_control"
 path = "lib.rs"
-
 crate-type = [
     "cdylib",
-    # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
-    "rlib",
 ]
 
 [features]
@@ -43,11 +41,15 @@ std = [
     "scale-info/std",
 
     # These dependencies
+    "psp721/std",
+    "access-control/std",
     "brush/std",
-    "reentrancy_guard/std",
 ]
-
 ink-as-dependency = []
 
 [profile.dev]
 codegen-units = 16
+overflow-checks = false
+
+[profile.release]
+overflow-checks = false

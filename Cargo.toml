@@ -20,3 +20,9 @@ exclude = [
 [profile.release]
 panic = "abort"
 lto = true
+overflow-checks = false
+
+[profile.dev]
+panic = "abort"
+lto = true
+overflow-checks = false
