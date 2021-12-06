@@ -14,7 +14,7 @@ use ink_storage::{
     traits::SpreadLayout,
 };
 pub use lending_derive::LendingStorage;
-use psp22::traits::PSP22Wrapper;
+use psp22::traits::PSP22Ref;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -59,8 +59,8 @@ pub trait LendingStorageTrait: LendingStorage {
             return Err(LendingError::AssetNotSupported)
         }
         let contract = Self::env().account_id();
-        let available = PSP22Wrapper::balance_of(&asset_address, contract);
-        let unavailable = PSP22Wrapper::balance_of(&mapped_asset, contract);
+        let available = PSP22Ref::balance_of(&asset_address, contract);
+        let unavailable = PSP22Ref::balance_of(&mapped_asset, contract);
         Ok(available + unavailable)
     }
 
@@ -80,7 +80,7 @@ pub trait LendingStorageTrait: LendingStorage {
         if mapped_asset.is_zero() {
             return Err(LendingError::AssetNotSupported)
         }
-        Ok(PSP22Wrapper::total_supply(&mapped_asset))
+        Ok(PSP22Ref::total_supply(&mapped_asset))
     }
 
     /// this function will return true if the asset is accepted by the contract

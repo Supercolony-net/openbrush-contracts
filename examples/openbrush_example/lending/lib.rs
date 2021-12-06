@@ -149,18 +149,18 @@ pub mod lending {
             let lender = Self::env().caller();
             let contract = Self::env().account_id();
             // ensure the user gave allowance to the contract
-            if PSP22Wrapper::allowance(&asset_address, lender, contract) < amount {
+            if PSP22Ref::allowance(&asset_address, lender, contract) < amount {
                 return Err(LendingError::InsufficientAllowanceToLend)
             }
             // ensure the user has enough assets
-            if PSP22Wrapper::balance_of(&asset_address, lender) < amount {
+            if PSP22Ref::balance_of(&asset_address, lender) < amount {
                 return Err(LendingError::InsufficientBalanceToLend)
             }
             // how much assets is already in the contract
             // if the asset is not accepted by the contract, this function will return an error
             let total_asset = self.total_asset(asset_address)?;
             // transfer the assets from user to the contract|
-            PSP22Wrapper::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
+            PSP22Ref::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
             // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
             let new_shares = if total_asset == 0 {
                 amount
@@ -169,7 +169,7 @@ pub mod lending {
                 (amount * self.total_shares(asset_address)?) / total_asset
             };
             // mint the shares token to the user
-            PSP22MintableWrapper::mint(&asset_address, lender, new_shares)?;
+            PSP22MintableRef::mint(&asset_address, lender, new_shares)?;
             // emit the lend event
             self._emit_lend_event(lender, asset_address, amount);
             Ok(())
