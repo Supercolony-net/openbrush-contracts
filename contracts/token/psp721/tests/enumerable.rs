@@ -29,7 +29,7 @@ mod metadata {
         }
 
         fn _do_safe_transfer_check(
-            &self,
+            &mut self,
             _operator: AccountId,
             _from: AccountId,
             _to: AccountId,
