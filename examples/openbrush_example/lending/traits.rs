@@ -34,6 +34,15 @@ pub struct LendingData {
     /// example: if a user has X% of the total supply of the asset A', they
     /// are eligible to withdraw X% of the asset A tracked by this contract
     pub asset_shares: StorageHashMap<AccountId, AccountId>,
+    /// mapping from asset address to bool
+    /// maps to `true` if an asset is accepted for using as collateral
+    pub collateral_accepted: StorageHashMap<AccountId, bool>,
+    /// mapping from tuple of two assets to balance
+    /// mapped balance represents the amount of assets of tuple.1 we get
+    /// when we deposit 1 unit of tuple.0
+    /// we are using this just to simulate an oracle in our example
+    /// in the example the returned balance will be amount of stable coin for an asset
+    pub asset_price: StorageHashMap<(AccountId, AccountId), Balance>,
 }
 
 declare_storage_trait!(LendingStorage, LendingData);
@@ -95,11 +104,48 @@ pub trait LendingStorageTrait: LendingStorage {
             .is_zero()
     }
 
+    /// this function will return true if the asset is accepted by the contract
+    #[ink(message)]
+    fn is_accepted_collateral(&self, asset_address: AccountId) -> bool {
+        self.get()
+            .collateral_accepted
+            .get(&asset_address)
+            .cloned()
+            .unwrap_or(false)
+    }
+
     /// this function will accept `asset_address` for lending
     /// `share_address` is the address of the shares token of the asset being allowed
     /// `reserve_address` is the address of the reserves token of the asset being allowed
     fn _accept_lending(&mut self, asset_address: AccountId, share_address: AccountId, reserve_address: AccountId) {
         self.get_mut().asset_shares.insert(asset_address, share_address);
         self.get_mut().assets_lended.insert(asset_address, reserve_address);
+    }
+
+    /// this function will accept `asset_address` for using as collateral
+    fn _accept_collateral(&mut self, asset_address: AccountId) {
+        self.get_mut().collateral_accepted.insert(asset_address, true);
+    }
+
+    /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
+    /// we are using this function in our example to simulate an oracle
+    fn _set_asset_price(&mut self, asset_in: AccountId, asset_out: AccountId, price: Balance) {
+        self.get_mut().asset_price.insert((asset_in, asset_out), price);
+    }
+
+    /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
+    /// we are using this function in our example to simulate an oracle
+    fn _get_asset_price(&self, amount_in: Balance, asset_in: AccountId, asset_out: AccountId) -> Balance {
+        self.get().asset_price.get(&(asset_in, asset_out)).cloned().unwrap_or(0) * amount_in
+    }
+
+    /// Internal function which will return the address of the shares token
+    /// which are minted when `asset_address` is borrowed
+    fn _get_reserve_asset(&self, asset_address: AccountId) -> AccountId {
+        self.get()
+            .asset_shares
+            .get(&asset_address)
+            .cloned()
+            .unwrap_or(ZERO_ADDRESS.into())
     }
 }

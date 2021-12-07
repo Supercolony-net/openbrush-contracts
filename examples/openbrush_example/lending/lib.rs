@@ -48,7 +48,10 @@ pub mod lending {
         traits::*,
     };
     use access_control::traits::*;
-    use brush::modifiers;
+    use brush::{
+        modifiers,
+        traits::AccountIdExt,
+    };
     use ink_lang::ToAccountId;
     use ink_prelude::{
         string::String,
@@ -82,6 +85,20 @@ pub mod lending {
         reserves_address: AccountId,
         #[ink(topic)]
         manager_address: AccountId,
+    }
+
+    /// This event will be emitted when `borrower` borrows `borrow_amount` of `asset_address`
+    /// while depositing `collateral_amount` of `collateral_address` as collateral
+    #[ink(event)]
+    pub struct Borrow {
+        #[ink(topic)]
+        borrower: AccountId,
+        #[ink(topic)]
+        collateral_address: AccountId,
+        #[ink(topic)]
+        asset_address: AccountId,
+        collateral_amount: Balance,
+        borrow_amount: Balance,
     }
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data
@@ -132,6 +149,7 @@ pub mod lending {
             let reserves_address = self._instantiate_shares_contract("LendingReserves", "LR");
             // accept the asset and map shares and reserves to it
             self._accept_lending(asset_address, shares_address, reserves_address);
+            self._emit_lending_accepted_event(asset_address, shares_address, reserves_address, self.env().caller());
             Ok(())
         }
 
@@ -143,6 +161,7 @@ pub mod lending {
         /// Returns `InsufficientAllowanceToLend` if the caller does not have enough allowance
         /// Returns `InsufficientBalanceToLend` if the caller does not have enough balance
         /// Returns `AssetNotSupported` if the asset is not supported for lending
+        #[modifiers(when_not_paused)]
         #[ink(message)]
         pub fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> Result<(), LendingError> {
             // we will be using these often so we store them in variables
@@ -175,7 +194,91 @@ pub mod lending {
             Ok(())
         }
 
+        /// This function is called by a user who wants to borrow tokens. In order to do that,
+        /// they need to deposit collateral. The value of borrowed assets will be equal to 70%
+        /// of the value of deposited collateral.
+        ///
+        /// `asset_address` is the AccountId of the PSP-22 token to be borrowed
+        /// `collateral_address` is the AccountId of the PSP-22 token used as collateral
+        /// `amount` is the amount to be deposited
+        ///
+        /// Returns `InsufficientAllowanceForCollateral` if the caller does not have enough allowance
+        /// Returns `InsufficientCollateralBalance` if the caller does not have enough balance
+        /// Returns `AssetNotSupported` if the asset is not supported for using as collateral
+        /// Returns `AssetNotSupported` if the borrowing asset is not supported for borrowing
+        /// Returns `AmountNotSupported` if the user tries to deposit incorrect amount of collateral
+        /// Returns `InsufficientAmountInContract` if there is not enough amount of assets in the contract to borrow
+        #[modifiers(when_not_paused)]
+        #[ink(message)]
+        pub fn borrow_assets(
+            &mut self,
+            asset_address: AccountId,
+            collateral_address: AccountId,
+            amount: Balance,
+        ) -> Result<(), LendingError> {
+            // we will be using these often so we store them in variables
+            let borrower = Self::env().caller();
+            let contract = Self::env().account_id();
+            // ensure the user gave allowance to the contract
+            if PSP22Ref::allowance(&collateral_address, borrower, contract) < amount {
+                return Err(LendingError::InsufficientAllowanceForCollateral)
+            }
+            // ensure the user has enough collateral assets
+            if PSP22Ref::balance_of(&collateral_address, borrower) < amount {
+                return Err(LendingError::InsufficientCollateralBalance)
+            }
+            let reserve_asset = self._get_reserve_asset(asset_address);
+            // ensure the asset is supported by our contract
+            if reserve_asset.is_zero() {
+                return Err(LendingError::AssetNotSupported)
+            }
+            // we will transfer the collateral to the contract
+            PSP22Ref::transfer_from(&collateral_address, borrower, contract, amount, Vec::<u8>::new())?;
+            // we will find out the price of deposited collateral
+            let price = self._price_of(amount, collateral_address, asset_address);
+            // we will set the liquidation price to be 75% of current price
+            let liquidation_price = ((price * 100) - (price * 25)) / 100;
+            // we will ensure the borrower deposited enough amount
+            if liquidation_price <= 0 {
+                return Err(LendingError::AmountNotSupported)
+            }
+            let borrow_amount = ((price * 100) - (price * 70)) / 100;
+            // we will ensure the borrower can borrow at least 1 unit
+            if borrow_amount <= 0 {
+                return Err(LendingError::AmountNotSupported)
+            }
+            if PSP22Ref::balance_of(&asset_address, contract) < borrow_amount {
+                return Err(LendingError::InsufficientAmountInContract)
+            }
+            // TODO issueNft(B, C, X, Lp, Y, time(now), false)
+            PSP22Ref::transfer(&asset_address, borrower, borrow_amount, Vec::<u8>::new())?;
+            // mint `borrow_amount` of the reserve token
+            PSP22MintableRef::mint(&reserve_asset, contract, borrow_amount)?;
+            self._emit_borrow_event(borrower, collateral_address, asset_address, amount, borrow_amount);
+            Ok(())
+        }
+
+        /// This function will set price of `asset_in` in `asset_out` to `amount` in our simulated oracle
+        #[modifiers(only_role(MANAGER))]
+        #[ink(message)]
+        pub fn set_asset_price(
+            &mut self,
+            asset_in: AccountId,
+            asset_out: AccountId,
+            price: Balance,
+        ) -> Result<(), LendingError> {
+            self._set_asset_price(asset_in, asset_out, price);
+            Ok(())
+        }
+
         // internal functions which can only be called inside our contract
+
+        /// Internal function which will return the amount of `asset_out` we get
+        /// when we deposit `amount_in` of `asset_in`
+        /// This is enough for this example, but in a real application we would use an oracle for this
+        fn _price_of(&self, amount_in: Balance, asset_in: AccountId, asset_out: AccountId) -> Balance {
+            self._get_asset_price(amount_in, asset_in, asset_out)
+        }
 
         /// internal function which instantiates a shares contract and returns its AccountId
         fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
@@ -208,6 +311,25 @@ pub mod lending {
         /// internal function to emit an event when `lender` deposits `amount` of token `asset`
         fn _emit_lend_event(&self, lender: AccountId, asset: AccountId, amount: Balance) {
             self.env().emit_event(Lend { lender, asset, amount });
+        }
+
+        /// internal function to emit an event when `borrower` borrows `borrow_amount` of `asset_address`
+        /// while depositing `collateral_amount` of `collateral_address`
+        fn _emit_borrow_event(
+            &self,
+            borrower: AccountId,
+            collateral_address: AccountId,
+            asset_address: AccountId,
+            collateral_amount: Balance,
+            borrow_amount: Balance,
+        ) {
+            self.env().emit_event(Borrow {
+                borrower,
+                collateral_address,
+                asset_address,
+                collateral_amount,
+                borrow_amount,
+            });
         }
     }
 }

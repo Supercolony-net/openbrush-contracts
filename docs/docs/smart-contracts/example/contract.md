@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 9
 title: Lending contract
 ---
 
@@ -17,7 +17,10 @@ pub mod lending {
         traits::*,
     };
     use access_control::traits::*;
-    use brush::modifiers;
+    use brush::{
+        modifiers,
+        traits::AccountIdExt,
+    };
     use ink_lang::ToAccountId;
     use ink_prelude::{
         string::String,
@@ -55,6 +58,18 @@ pub struct LendingAllowed {
     reserves_address: AccountId,
     #[ink(topic)]
     manager_address: AccountId,
+}
+
+#[ink(event)]
+pub struct Borrow {
+    #[ink(topic)]
+    borrower: AccountId,
+    #[ink(topic)]
+    collateral_address: AccountId,
+    #[ink(topic)]
+    asset_address: AccountId,
+    collateral_amount: Balance,
+    borrow_amount: Balance,
 }
 ```
 

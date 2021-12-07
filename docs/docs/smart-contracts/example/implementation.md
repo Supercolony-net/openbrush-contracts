@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 10
 title: Implementation
 ---
 
@@ -7,7 +7,7 @@ In this section we will implement the functions of our lending contract.
 
 ## Emitting events
 
-We have defined our events in the previous step, now we will define helper functions, with which we will be emitting our events. We will start all our helper functions with `_`.
+We have defined our events in the previous step, now we will define internal functions, with which we will be emitting our events. We will start all our internal functions with `_`.
 
 ```rust
 fn _emit_lending_accepted_event(
@@ -27,6 +27,23 @@ fn _emit_lending_accepted_event(
 
 fn _emit_lend_event(&self, lender: AccountId, asset: AccountId, amount: Balance) {
     self.env().emit_event(Lend { lender, asset, amount });
+}
+
+fn _emit_borrow_event(
+    &self,
+    borrower: AccountId,
+    collateral_address: AccountId,
+    asset_address: AccountId,
+    collateral_amount: Balance,
+    borrow_amount: Balance,
+) {
+    self.env().emit_event(Borrow {
+        borrower,
+        collateral_address,
+        asset_address,
+        collateral_amount,
+        borrow_amount,
+    });
 }
 ```
 
@@ -49,9 +66,31 @@ fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &st
 
 This function will instantiate our `Shares` contract and return the `AccountId` of the instantiated contract. We will call this function when allowing assets.
 
+## Simulating oracle
+
+As mentioned before, we will not be using a price oracle in our example, but we will use our own simulated oracle. And by simulated we mean adding some storage fields which hold the info about price of an asset and a function only callable by the account with `MANAGER` role, which will set the price of the asset. For that we define these functions:
+
+```rust
+#[modifiers(only_role(MANAGER))]
+#[ink(message)]
+pub fn set_asset_price(
+    &mut self,
+    asset_in: AccountId,
+    asset_out: AccountId,
+    price: Balance,
+) -> Result<(), LendingError> {
+    self._set_asset_price(asset_in, asset_out, price);
+    Ok(())
+}
+
+fn _price_of(&self, amount_in: Balance, asset_in: AccountId, asset_out: AccountId) -> Balance {
+    self._get_asset_price(amount_in, asset_in, asset_out)
+}
+```
+
 ## Allowing assets
 
-If we just started lending and borrowing random assets or using random assets as collateral there would be chaos in our smart contract. Regarding lending, it would not be a big problem, since if somebody is willing to borrow an asset, it would generate a profit for the lender. But if we started accepting random assets as collateral, anyone could just throw a random coin as collateral and then just for example rug pull it and also keep the borrowed assets. Because of this we will only accept certain assets for lending and using as collateral. For an asset to be accepted, an account with the `MANAGER` role needs to allow it with the `allow_asset` function. We will use a modifier from OpenBrush, which serves similarly to Solidity's function modifiers. The function will look like this:
+If we just started lending and borrowing random assets or using random assets as collateral there would be chaos in our smart contract. Regarding lending, it would not be a big problem, since if somebody is willing to borrow an asset, it would generate a profit for the lender. But if we started accepting random assets as collateral, anyone could just throw a random coin as collateral and then just for example rug pull it and also keep the borrowed assets. Because of this we will only accept certain assets for lending and using as collateral. For an asset to be accepted, an account with the `MANAGER` role needs to allow it with the `allow_asset` function. We will use a modifier from OpenBrush, which serves similarly to Solidity's function modifiers. In the end we will emit the `LendingAllowed` event. The function will look like this:
 
 ```rust
 #[modifiers(only_role(MANAGER))]
@@ -67,33 +106,35 @@ pub fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingErr
     let reserves_address = self._instantiate_shares_contract("LendingReserves", "LR");
     // accept the asset and map shares and reserves to it
     self._accept_lending(asset_address, shares_address, reserves_address);
+    self._emit_lending_accepted_event(asset_address, shares_address, reserves_address, self.env().caller());
     Ok(())
 }
 ```
 
 ## Lending assets
 
-For lending the assets  we will use the function `lend_assets(asset_address, amount)`, where `asset_address` is the address of `PSP-22` we want to deposit and `amount` is the amount of asset deposited. Some checks need to be checked to assure the correct behavior of our contract. The asset deposited needs to be recognized by our contract (manager must have approved it). If it is not accepted, an error will be returned. Then the user must have approved the asset to spent by our contract and the user's balance must be greater than or equal to `amount`. So we will transfer the asset from the user to the contract, mint shares to the user and emit the `Lend` event. To perform a cross contract call we will be using the wrappers (`PSP22Wrapper`, `PSP22MintableWrapper`). The code will look like this:
+For lending the assets  we will use the function `lend_assets(asset_address, amount)`, where `asset_address` is the address of `PSP-22` we want to deposit and `amount` is the amount of asset deposited. Some checks need to be checked to assure the correct behavior of our contract. The asset deposited needs to be recognized by our contract (manager must have approved it). If it is not accepted, an error will be returned. Then the user must have approved the asset to spent by our contract and the user's balance must be greater than or equal to `amount`. So we will transfer the asset from the user to the contract, mint shares to the user and emit the `Lend` event. To perform a cross contract call we will be using the references to contracts from OpenBrush (`PSP22Ref`, `PSP22MintableRef`). We will also add `when_not_paused` modifier to this function, so it can be only called when the contract is not paused. The code will look like this:
 
 ```rust
+#[modifiers(when_not_paused)]
 #[ink(message)]
 pub fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> Result<(), LendingError> {
     // we will be using these often so we store them in variables
     let lender = Self::env().caller();
     let contract = Self::env().account_id();
     // ensure the user gave allowance to the contract
-    if PSP22Wrapper::allowance(&asset_address, lender, contract) < amount {
+    if PSP22Ref::allowance(&asset_address, lender, contract) < amount {
         return Err(LendingError::InsufficientAllowanceToLend)
     }
     // ensure the user has enough assets
-    if PSP22Wrapper::balance_of(&asset_address, lender) < amount {
+    if PSP22Ref::balance_of(&asset_address, lender) < amount {
         return Err(LendingError::InsufficientBalanceToLend)
     }
     // how much assets is already in the contract
     // if the asset is not accepted by the contract, this function will return an error
     let total_asset = self.total_asset(asset_address)?;
-    // transfer the assets from user to the contract
-    PSP22Wrapper::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
+    // transfer the assets from user to the contract|
+    PSP22Ref::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
     // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
     let new_shares = if total_asset == 0 {
         amount
@@ -102,7 +143,7 @@ pub fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> Resu
         (amount * self.total_shares(asset_address)?) / total_asset
     };
     // mint the shares token to the user
-    PSP22MintableWrapper::mint(&asset_address, lender, new_shares)?;
+    PSP22MintableRef::mint(&asset_address, lender, new_shares)?;
     // emit the lend event
     self._emit_lend_event(lender, asset_address, amount);
     Ok(())

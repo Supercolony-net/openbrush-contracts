@@ -1,35 +1,36 @@
+---
+sidebar_position: 7
+title: Errors
+---
+
+We will define errors thrown by our contract in a separate file `errors.rs`. In this file we will define the errors that will be returned by our contract, and implement conversion of OpenBrush errors (`AccessControlError` and `PSP22Error`) to our error.
+
+## Define errors
+
+```rust
 use access_control::traits::AccessControlError;
 use ink_prelude::string::String;
 use pausable::traits::PausableError;
 use psp22::traits::PSP22Error;
 
-/// Enum of errors raised by our lending smart contract
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum LendingError {
-    /// Custom error type for cases if writer of traits added own restrictions
     Custom(String),
-    /// This error will be thrown when the lender does not have enough allowance
-    /// to transfer the lending asset to the contract
     InsufficientAllowanceToLend,
-    /// This error will be thrown when the lender tries to lend more amount of asset than they own
     InsufficientBalanceToLend,
-    /// This error will be thrown when the borrower does not have enough allowance
-    /// to transfer the collateral asset to the contract
     InsufficientAllowanceForCollateral,
-    /// This error will be thrown when the borrower tries to use more amount of asset as collateral than they own
     InsufficientCollateralBalance,
-    // This error will be thrown if the liquidation price of deposited collateral is calculated to be 0
     AmountNotSupported,
-    // This error will be thrown if the user wants to borrow more assets than there currently are in the contract
     InsufficientAmountInContract,
-    /// This error will be thrown if the user tries to lend or borrow asset which is not supported by the lending contract
-    /// or if a user tries to use an usupported asset as a collateral
     AssetNotSupported,
-    /// This error will be thrown if the user tries to allow an asset which is already allowed
     AssetSupported,
 }
+```
 
+## Implement conversion from OpenBrush errors
+
+```rust
 impl From<AccessControlError> for LendingError {
     fn from(access: AccessControlError) -> Self {
         match access {
@@ -61,3 +62,4 @@ impl From<PSP22Error> for LendingError {
         }
     }
 }
+```
