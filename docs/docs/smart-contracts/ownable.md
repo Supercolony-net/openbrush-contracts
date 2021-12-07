@@ -66,7 +66,7 @@ Declare storage struct and declare the field related to `OwnableStorage` trait. 
 #[derive(Default, OwnableStorage)]
 pub struct MyOwnable {
     #[OwnableStorageField]
-    ownale: OwnableData,
+    ownable: OwnableData,
 }
 ```
 

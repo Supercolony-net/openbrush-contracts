@@ -237,6 +237,6 @@ std = [
 
 ## Testing
 
-For testing, you can run the [integration test](https://github.com/Supercolony-net/openbrush-contracts/blob/main/tests/reentrancy_guard.tests.ts), or you can deploy both
+For testing, you can run the [integration test](https://github.com/Supercolony-net/openbrush-contracts/blob/main/tests/reentrancy-guard.tests.ts), or you can deploy both
 contracts and call `call_flip_on_me` on `MyFlipper`
 account providing account id of `FlipOnMe` contract as an argument.

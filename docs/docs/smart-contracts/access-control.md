@@ -129,4 +129,4 @@ pub mod my_access_control {
 }
 ```
 
-You can check the example of usage of [Access Control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/access-control).
+You can check the example of usage of [Access Control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/access_control).
