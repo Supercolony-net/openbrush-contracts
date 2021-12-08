@@ -17,7 +17,6 @@ pub mod loan {
         extensions::{
             burnable::*,
             metadata::*,
-            mintable::*,
         },
         traits::*,
     };
@@ -87,21 +86,6 @@ pub mod loan {
         }
     }
 
-    /// implement Mintable Trait for our NFT
-    impl PSP721Mintable for Loan {
-        #[modifiers(only_owner)]
-        #[ink(message)]
-        fn mint(&mut self, id: Id) -> Result<(), PSP721Error> {
-            self._mint(id)
-        }
-
-        #[modifiers(only_owner)]
-        #[ink(message)]
-        fn mint_to(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
-            self._mint_to(account, id)
-        }
-    }
-
     /// implement Burnable Trait for our NFT
     impl PSP721Burnable for Loan {
         #[modifiers(only_owner)]
@@ -134,6 +118,31 @@ pub mod loan {
             instance._init_with_metadata(Some(String::from("Loan NFT")), Some(String::from("L-NFT")));
             instance._init_with_owner(Self::env().caller());
             instance
+        }
+
+        /// We will use this function to mint new loan token and to initialize the loan's data
+        #[modifiers(only_owner)]
+        #[ink(message)]
+        pub fn create_loan(
+            &mut self,
+            borrower: AccountId,
+            collateral_asset: AccountId,
+            collateral_amount: Balance,
+            borrow_asset: AccountId,
+            borrow_amount: Balance,
+            liquidation_price: Balance,
+            timestamp: Timestamp,
+        ) -> Result<(), PSP721Error> {
+            let id = self._init_loan(
+                borrower,
+                collateral_asset,
+                collateral_amount,
+                borrow_asset,
+                borrow_amount,
+                liquidation_price,
+                timestamp,
+            )?;
+            self._mint_to(borrower, id)
         }
     }
 }
