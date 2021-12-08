@@ -1,8 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp22_token_timelock {
-    use psp22::utils::token_timelock::*;
+    use brush::contracts::psp22::utils::token_timelock::*;
 
     #[ink(storage)]
     #[derive(Default, PSP22TokenTimelockStorage)]

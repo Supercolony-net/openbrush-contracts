@@ -15,9 +15,8 @@ ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", d
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
-# These dependencies
-psp22 = { path = "../../../contracts/token/psp22", default-features = false }
-brush = { path = "../../../utils/brush", default-features = false }
+# These dependencies]
+brush = { path = "../../..", default-features = false, features = ["psp22"] }
 
 [lib]
 name = "my_psp22_flashmint"
@@ -41,7 +40,6 @@ std = [
     "scale-info/std",
 
     # These dependencies
-    "psp22/std",
     "brush/std",
 ]
 ink-as-dependency = []

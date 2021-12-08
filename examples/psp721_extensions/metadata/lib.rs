@@ -1,12 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp721_metadata {
+    use brush::contracts::psp721::extensions::metadata::*;
     use ink_prelude::string::String;
-    use psp721::{
-        extensions::metadata::*,
-        traits::*,
-    };
 
     #[derive(Default, PSP721Storage, PSP721MetadataStorage)]
     #[ink(storage)]

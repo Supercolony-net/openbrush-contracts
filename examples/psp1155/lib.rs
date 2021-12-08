@@ -1,13 +1,14 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp1155 {
+    use brush::contracts::psp1155::*;
     use ink_prelude::{
         string::String,
         vec,
     };
     use ink_storage::collections::HashMap as StorageHashMap;
-    use psp1155::traits::*;
 
     #[derive(Default, PSP1155Storage)]
     #[ink(storage)]

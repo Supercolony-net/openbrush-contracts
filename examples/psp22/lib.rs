@@ -1,9 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp22 {
+    use brush::contracts::psp22::*;
     use ink_prelude::string::String;
-    use psp22::traits::*;
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage)]
@@ -14,7 +15,7 @@ pub mod my_psp22 {
         hated_account: AccountId,
     }
 
-    impl PSP22 for MyPSP22 {
+    impl PSP22Internal for MyPSP22 {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,
@@ -28,6 +29,8 @@ pub mod my_psp22 {
             Ok(())
         }
     }
+
+    impl PSP22 for MyPSP22 {}
 
     impl MyPSP22 {
         #[ink(constructor)]

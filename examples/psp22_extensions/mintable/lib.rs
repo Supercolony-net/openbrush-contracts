@@ -1,11 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp22_mintable {
-    use psp22::{
-        extensions::mintable::*,
-        traits::*,
-    };
+    use brush::contracts::psp22::extensions::mintable::*;
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage)]
