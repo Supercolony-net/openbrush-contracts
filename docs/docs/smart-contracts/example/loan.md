@@ -135,6 +135,30 @@ pub trait LoanTrait: LoanStorage {
 }
 ```
 
+## LoanRef
+
+In order to call our NFT contract's functions in other contracts we will define a trait, which will contain the functions we want to call, we will create a wrapper around this trait using `brush::wrapper` attribute, inherit this trait in our NFT contract and implement the functions to work with our contract. We will declare the trait like this:
+
+```rust
+#[brush::wrapper]
+pub type LoanRef = dyn LoanContract;
+
+#[brush::trait_definition]
+pub trait LoanContract {
+    #[ink(message)]
+    fn create_loan(
+        &mut self,
+        borrower: AccountId,
+        collateral_asset: AccountId,
+        collateral_amount: Balance,
+        borrow_asset: AccountId,
+        borrow_amount: Balance,
+        liquidation_price: Balance,
+        timestamp: Timestamp,
+    ) -> Result<(), PSP721Error>;
+}
+```
+
 ## Add dependencies
 
 In addition to the dependencies imported in the [PSP-721](/smart-contracts/PSP721/psp721) documentation, we will also add the `ownable` dependency, and a dependency on our derive file. We will be using this contract as a dependency in our lending contract, so we need to also add the `"rlib"` crate type. So in final, we will import these dependencies:
@@ -187,6 +211,7 @@ pub mod loan {
         },
         traits::*,
     };
+    pub use crate::traits::LoanRef;
 ```
 
 ## Define the storage
@@ -299,23 +324,15 @@ impl PSP721Burnable for Loan {
 
 This will restrict accounts other than the owner of the token (which will be the lending contract) from calling these functions.
 
-## Define the constructor and add functions
+## Implement the LoanContract trait
 
-Finally, we will define the constructor where we will set the name and the symbol of the token and then initialize the owner of the token (which then will be able to mint and burn the tokens). We will also add a function for creating loans, which will mint a new loan token and initialize its data to storage. This function will be again restricted only to the owner.
+We will implement the trait that we defined in the `traits.rs`. We defined some methods there, and we want our NFT contract to contain these methods, but we want to call them from other contracts, in this example from our lending contract. We can easily call these functions using our `brush::wrapper` attribute. So we implement our trait to the NFT contract and put there logic for our contract.
 
 ```rust
-impl Loan {
-    #[ink(constructor)]
-    pub fn new() -> Self {
-        let mut instance = Self::default();
-        instance._init_with_metadata(Some(String::from("Loan NFT")), Some(String::from("L-NFT")));
-        instance._init_with_owner(Self::env().caller());
-        instance
-    }
-
+impl LoanContract for Loan {
     #[modifiers(only_owner)]
     #[ink(message)]
-    pub fn create_loan(
+    fn create_loan(
         &mut self,
         borrower: AccountId,
         collateral_asset: AccountId,
@@ -335,6 +352,24 @@ impl Loan {
             timestamp,
         )?;
         self._mint_to(borrower, id)
+    }
+}
+```
+
+We can now call for example the `create_loan` function from other contracts with `LoanRef::(&contract_address, ..args)`, where `contract_address` is the account id of contract on which we want to the call the function and `args` are the arguments needed to call that function.
+
+## Define the constructor and add functions
+
+Finally, we will define the constructor where we will set the name and the symbol of the token and then initialize the owner of the token (which then will be able to mint and burn the tokens). We will also add a function for creating loans, which will mint a new loan token and initialize its data to storage. This function will be again restricted only to the owner.
+
+```rust
+impl Loan {
+    #[ink(constructor)]
+    pub fn new() -> Self {
+        let mut instance = Self::default();
+        instance._init_with_metadata(Some(String::from("Loan NFT")), Some(String::from("L-NFT")));
+        instance._init_with_owner(Self::env().caller());
+        instance
     }
 }
 ```

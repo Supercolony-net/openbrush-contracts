@@ -20,6 +20,7 @@ pub mod loan {
         },
         traits::*,
     };
+    pub use crate::traits::LoanRef;
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
@@ -110,20 +111,11 @@ pub mod loan {
     /// implement the storage trait of the NFT
     impl LoanTrait for Loan {}
 
-    impl Loan {
-        /// constructor with name and symbol
-        #[ink(constructor)]
-        pub fn new() -> Self {
-            let mut instance = Self::default();
-            instance._init_with_metadata(Some(String::from("Loan NFT")), Some(String::from("L-NFT")));
-            instance._init_with_owner(Self::env().caller());
-            instance
-        }
-
+    impl LoanContract for Loan {
         /// We will use this function to mint new loan token and to initialize the loan's data
         #[modifiers(only_owner)]
         #[ink(message)]
-        pub fn create_loan(
+        fn create_loan(
             &mut self,
             borrower: AccountId,
             collateral_asset: AccountId,
@@ -143,6 +135,17 @@ pub mod loan {
                 timestamp,
             )?;
             self._mint_to(borrower, id)
+        }
+    }
+
+    impl Loan {
+        /// constructor with name and symbol
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            let mut instance = Self::default();
+            instance._init_with_metadata(Some(String::from("Loan NFT")), Some(String::from("L-NFT")));
+            instance._init_with_owner(Self::env().caller());
+            instance
         }
     }
 }

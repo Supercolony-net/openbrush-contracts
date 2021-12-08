@@ -99,3 +99,22 @@ pub trait LoanTrait: LoanStorage {
         Ok(current)
     }
 }
+
+#[brush::wrapper]
+pub type LoanRef = dyn LoanContract;
+
+/// We will add this trait and implement it in our loan contract so we can refer to its method in other contracts
+#[brush::trait_definition]
+pub trait LoanContract {
+    #[ink(message)]
+    fn create_loan(
+        &mut self,
+        borrower: AccountId,
+        collateral_asset: AccountId,
+        collateral_amount: Balance,
+        borrow_asset: AccountId,
+        borrow_amount: Balance,
+        liquidation_price: Balance,
+        timestamp: Timestamp,
+    ) -> Result<(), PSP721Error>;
+}
