@@ -20,8 +20,9 @@ brush = { path = "../../../utils/brush", default-features = false }
 access-control = { path = "../../../contracts/access/access-control", default-features = false }
 pausable = { path = "../../../contracts/security/pausable", default-features = false }
 psp22 = { path = "../../../contracts/token/psp22", default-features = false }
-lending_derive = { path = "derive" }
 shares = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
+loan_nft = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
+lending_derive = { path = "derive" }
 
 [lib]
 name = "lending"
@@ -48,6 +49,7 @@ std = [
     "brush/std",
     "pausable/std",
     "shares/std",
+    "loan_nft/std",
 ]
 ink-as-dependency = []
 

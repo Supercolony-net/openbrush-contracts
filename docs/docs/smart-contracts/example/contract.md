@@ -75,7 +75,7 @@ pub struct Borrow {
 
 ## Define the contract storage
 
-As described earlier, we want our smart contract to be paused by the Manager accounts. To do that, we need our contract to be `Pausable` and we need a manager role. We can do this with the `AccessControl`. Also, we want to use the `LendingStorageTrait` we have declared. So we will declare a struct and derive all these traits needed. We will also store the `code_hash` of our `Shares` contract, because we will be instantiating it later, for which we need the hash.
+As described earlier, we want our smart contract to be paused by the Manager accounts. To do that, we need our contract to be `Pausable` and we need a manager role. We can do this with the `AccessControl`. Also, we want to use the `LendingStorageTrait` we have declared. So we will declare a struct and derive all these traits needed. We will also store the `code_hash` of our `Shares` contract, because we will be instantiating it later, for which we need the hash, and we will also need the AccountId of our nft contract.
 
 ```rust
 #[ink(storage)]
@@ -88,6 +88,7 @@ pub struct Lending {
     #[LendingStorageField]
     lending: LendingData,
     code_hash: Hash,
+    nft_contract: AccountId,
 }
 ```
 
@@ -113,7 +114,7 @@ impl Pausable for Lending {}
 
 ## Define the constructor
 
-Finally, we will add a constructor, in which we will initiate the admin of the contract, to whom we will also grant the manager role declared before.
+Finally, we will add a constructor, in which we will initiate the admin of the contract, to whom we will also grant the manager role declared before, and we will also instantiate the NFT contract here and store its AccountId in our contract.
 
 ```rust
 impl Lending {
@@ -124,6 +125,13 @@ impl Lending {
         instance._init_with_admin(caller);
         instance.grant_role(MANAGER, caller).expect("Can not set manager role");
         instance.code_hash = code_hash;
+        let nft = Loan::new()
+                .endowment(25)
+                .code_hash(nft_code_hash)
+                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .instantiate()
+                .unwrap();
+        instance.nft_contract = nft.to_account_id();
         instance
     }
 }

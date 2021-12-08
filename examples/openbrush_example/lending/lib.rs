@@ -57,6 +57,7 @@ pub mod lending {
         string::String,
         vec::Vec,
     };
+    use loan_nft::loan::Loan;
     use pausable::traits::*;
     use psp22::{
         extensions::mintable::*,
@@ -112,6 +113,7 @@ pub mod lending {
         #[LendingStorageField]
         lending: LendingData,
         code_hash: Hash,
+        nft_contract: AccountId,
     }
 
     const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
@@ -125,12 +127,20 @@ pub mod lending {
     impl Lending {
         /// constructor with name and symbol
         #[ink(constructor)]
-        pub fn new(code_hash: Hash) -> Self {
+        pub fn new(code_hash: Hash, nft_code_hash: Hash) -> Self {
             let mut instance = Self::default();
             let caller = instance.env().caller();
             instance._init_with_admin(caller);
             instance.grant_role(MANAGER, caller).expect("Can not set manager role");
             instance.code_hash = code_hash;
+            // instantiate NFT contract and store its account id
+            let nft = Loan::new()
+                .endowment(25)
+                .code_hash(nft_code_hash)
+                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .instantiate()
+                .unwrap();
+            instance.nft_contract = nft.to_account_id();
             instance
         }
 
