@@ -26,3 +26,6 @@ overflow-checks = false
 panic = "abort"
 lto = true
 overflow-checks = false
+
+[build]
+target-dir = "target"

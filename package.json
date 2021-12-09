@@ -35,9 +35,10 @@
     "chai": "^4.2.0"
   },
   "scripts": {
-    "build": "npx redspot compile",
-    "test-redspot": "npx redspot test",
+    "build": "redspot compile",
+    "build:release": "redspot compile --release",
+    "test-redspot": "redspot test",
     "test-mocha": "mocha --require @babel/register --require ts-node/register --require ./tests/setup/hooks.ts --recursive ./tests --extension \".ts\" --exit --timeout 30000",
-    "test": "npm run build && npm run test-mocha"
+    "test": "yarn run build && yarn run test-mocha"
   }
 }
