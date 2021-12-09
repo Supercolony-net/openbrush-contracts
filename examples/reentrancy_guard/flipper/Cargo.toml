@@ -16,8 +16,7 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-reentrancy_guard = { path = "../../../contracts/security/reentrancy-guard", default-features = false }
-brush = { path = "../../../utils/brush", default-features = false }
+brush = { path = "../../..", default-features = false, features = ["reentrancy_guard"] }
 
 [lib]
 name = "my_flipper_guard"
@@ -44,7 +43,6 @@ std = [
 
     # These dependencies
     "brush/std",
-    "reentrancy_guard/std",
 ]
 
 ink-as-dependency = []

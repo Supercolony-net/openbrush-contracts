@@ -16,8 +16,7 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-pausable = { path = "../../contracts/security/pausable", default-features = false }
-brush = { path = "../../utils/brush", default-features = false }
+brush = { path = "../..", default-features = false, features = ["pausable"] }
 
 [lib]
 name = "my_pausable"
@@ -41,7 +40,6 @@ std = [
 
     # These dependencies
     "brush/std",
-    "pausable/std",
 ]
 ink-as-dependency = []
 

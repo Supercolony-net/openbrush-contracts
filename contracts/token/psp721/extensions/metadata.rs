@@ -2,10 +2,7 @@ pub use crate::{
     psp721::*,
     traits::psp721::extensions::metadata::*,
 };
-use brush::{
-    declare_storage_trait,
-    traits::InkStorage,
-};
+use brush::declare_storage_trait;
 pub use derive::PSP721MetadataStorage;
 use ink_prelude::string::String;
 use ink_storage::traits::SpreadLayout;

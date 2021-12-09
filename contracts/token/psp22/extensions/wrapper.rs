@@ -7,7 +7,6 @@ use brush::{
     traits::{
         AccountId,
         Balance,
-        InkStorage,
     },
 };
 pub use derive::PSP22WrapperStorage;

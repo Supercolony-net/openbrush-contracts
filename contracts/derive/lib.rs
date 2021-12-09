@@ -45,3 +45,43 @@ declare_derive_storage_trait!(
     PSP1155MetadataStorage,
     PSP1155MetadataStorageField
 );
+
+// AccessControl
+#[cfg(feature = "access_control")]
+declare_derive_storage_trait!(
+    derive_access_control_storage,
+    AccessControlStorage,
+    AccessControlStorageField
+);
+
+// Ownable
+#[cfg(feature = "ownable")]
+declare_derive_storage_trait!(derive_ownable_storage, OwnableStorage, OwnableStorageField);
+
+// PaymentSplitter
+#[cfg(feature = "payment_splitter")]
+declare_derive_storage_trait!(
+    derive_payment_storage,
+    PaymentSplitterStorage,
+    PaymentSplitterStorageField
+);
+
+// ReentrancyGuard
+#[cfg(feature = "reentrancy_guard")]
+declare_derive_storage_trait!(
+    derive_reentrancy_storage,
+    ReentrancyGuardStorage,
+    ReentrancyGuardStorageField
+);
+
+// Pausable
+#[cfg(feature = "pausable")]
+declare_derive_storage_trait!(pausable_storage, PausableStorage, PausableStorageField);
+
+// TimelockController
+#[cfg(feature = "timelock_controller")]
+declare_derive_storage_trait!(
+    derive_timelock_controller_storage,
+    TimelockControllerStorage,
+    TimelockControllerStorageField
+);

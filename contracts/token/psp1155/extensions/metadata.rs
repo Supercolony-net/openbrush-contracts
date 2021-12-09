@@ -2,10 +2,7 @@ pub use crate::{
     psp1155::*,
     traits::psp1155::extensions::metadata::*,
 };
-use brush::{
-    declare_storage_trait,
-    traits::InkStorage,
-};
+use brush::declare_storage_trait;
 pub use derive::PSP1155MetadataStorage;
 use ink_prelude::string::String;
 use ink_storage::traits::SpreadLayout;

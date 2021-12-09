@@ -105,7 +105,6 @@ Customize it by adding ownable logic. We will add a `owner_function` to `MyOwnab
 pub mod ownable {
    use brush::{
       modifiers,
-      traits::InkStorage,
    };
    use ink_prelude::vec::Vec;
    use ownable::traits::*;

@@ -2,10 +2,7 @@ pub use crate::{
     psp22::*,
     traits::psp22::extensions::metadata::*,
 };
-use brush::{
-    declare_storage_trait,
-    traits::InkStorage,
-};
+use brush::declare_storage_trait;
 pub use derive::PSP22MetadataStorage;
 use ink_prelude::string::String;
 use ink_storage::{

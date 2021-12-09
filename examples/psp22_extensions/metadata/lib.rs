@@ -1,13 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp22 {
+    use brush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
     use ink_storage::Lazy;
-    use psp22::{
-        extensions::metadata::*,
-        traits::*,
-    };
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage, PSP22MetadataStorage)]

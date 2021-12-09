@@ -6,7 +6,6 @@ use brush::{
         AccountIdExt,
         Balance,
         Flush,
-        InkStorage,
     },
 };
 use core::result::Result;

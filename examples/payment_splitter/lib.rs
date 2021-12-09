@@ -1,9 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_payment_splitter {
+    use brush::contracts::payment_splitter::*;
     use ink_prelude::vec::Vec;
-    use payment_splitter::traits::*;
 
     #[ink(storage)]
     #[derive(Default, PaymentSplitterStorage)]

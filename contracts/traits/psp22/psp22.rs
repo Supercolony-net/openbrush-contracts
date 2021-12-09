@@ -1,4 +1,4 @@
-use crate::traits::errors::{
+pub use crate::traits::errors::{
     PSP22Error,
     PSP22ReceiverError,
 };

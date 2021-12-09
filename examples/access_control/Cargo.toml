@@ -16,9 +16,7 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-psp721 = { path = "../../contracts/token/psp721", default-features = false }
-access-control = { path = "../../contracts/access/access-control", default-features = false }
-brush = { path = "../../utils/brush", default-features = false }
+brush = { path = "../..", default-features = false, features = ["access_control", "psp721"] }
 
 [lib]
 name = "my_access_control"
@@ -41,8 +39,6 @@ std = [
     "scale-info/std",
 
     # These dependencies
-    "psp721/std",
-    "access-control/std",
     "brush/std",
 ]
 ink-as-dependency = []

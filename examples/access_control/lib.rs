@@ -1,15 +1,17 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_access_control {
-    use access_control::traits::*;
-    use brush::modifiers;
-    use psp721::{
-        extensions::{
-            burnable::*,
-            mintable::*,
+    use brush::{
+        contracts::{
+            access_control::*,
+            psp721::extensions::{
+                burnable::*,
+                mintable::*,
+            },
         },
-        traits::*,
+        modifiers,
     };
 
     #[ink(storage)]

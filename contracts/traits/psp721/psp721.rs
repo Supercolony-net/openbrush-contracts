@@ -11,9 +11,6 @@ pub type Id = [u8; 32];
 pub type PSP721Ref = dyn PSP721;
 
 /// Contract module which provides a basic implementation of non fungible token.
-///
-/// This module is used through embedding of `PSP721Data` and implementation of `PSP721` and
-/// `PSP721Storage` traits.
 #[brush::trait_definition]
 pub trait PSP721 {
     /// Returns the balance of the owner.

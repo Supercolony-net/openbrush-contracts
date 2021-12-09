@@ -16,8 +16,7 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-psp1155 = { path = "../../contracts/token/psp1155", default-features = false }
-brush = { path = "../../utils/brush", default-features = false }
+brush = { path = "../..", default-features = false, features = ["psp1155"] }
 
 [lib]
 name = "psp1155_receiver"
@@ -38,7 +37,6 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-    "psp1155/std",
     "brush/std",
 ]
 ink-as-dependency = []

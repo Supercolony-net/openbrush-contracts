@@ -2,11 +2,11 @@
 
 #[brush::contract]
 pub mod erc721_receiver {
+    use brush::contracts::traits::psp721::*;
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
-    use psp721::traits::*;
 
     #[ink(storage)]
     pub struct PSP721ReceiverStruct {

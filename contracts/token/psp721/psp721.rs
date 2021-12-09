@@ -4,7 +4,6 @@ use brush::{
     traits::{
         AccountId,
         Flush,
-        InkStorage,
     },
 };
 pub use derive::PSP721Storage;

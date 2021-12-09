@@ -16,9 +16,6 @@ pub type PSP1155Ref = dyn PSP1155;
 /// Contract module which provides a basic implementation of multiple token types.
 /// A single deployed contract may include any combination of fungible tokens,
 /// non-fungible tokens or other configurations (e.g. semi-fungible tokens).
-///
-/// This module is used through embedding of `PSP1155Data` and implementation of `PSP1155` and
-/// `PSP1155Storage` traits.
 #[brush::trait_definition]
 pub trait PSP1155 {
     /// Returns the amount of tokens of token type `id` owned by `account`.

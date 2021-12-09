@@ -7,7 +7,6 @@ use brush::{
     traits::{
         AccountId,
         Balance,
-        InkStorage,
         Timestamp,
     },
 };

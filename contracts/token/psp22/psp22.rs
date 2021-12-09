@@ -12,7 +12,6 @@ use brush::{
         AccountIdExt,
         Balance,
         Flush,
-        InkStorage,
     },
 };
 pub use derive::{

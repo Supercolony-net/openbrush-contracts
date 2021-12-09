@@ -2,8 +2,8 @@
 
 #[ink_lang::contract]
 pub mod flip_on_me {
+    use brush::contracts::reentrancy_guard::*;
     use my_flipper_guard::my_flipper_guard::FlipperRef;
-    use reentrancy_guard::traits::*;
 
     #[ink(storage)]
     #[derive(Default)]

@@ -1,20 +1,20 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod ownable {
     use brush::{
+        contracts::{
+            ownable::*,
+            psp1155::extensions::{
+                burnable::*,
+                mintable::*,
+            },
+        },
         modifiers,
         traits::InkStorage,
     };
     use ink_prelude::vec::Vec;
-    use ownable::traits::*;
-    use psp1155::{
-        extensions::{
-            burnable::*,
-            mintable::*,
-        },
-        traits::*,
-    };
 
     #[ink(storage)]
     #[derive(Default, PSP1155Storage, OwnableStorage)]

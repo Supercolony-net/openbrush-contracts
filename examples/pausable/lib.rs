@@ -1,8 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_pausable {
-    use pausable::traits::*;
+    use brush::contracts::pausable::*;
 
     #[ink(storage)]
     #[derive(Default, PausableStorage)]
