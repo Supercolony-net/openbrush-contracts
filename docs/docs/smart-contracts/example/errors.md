@@ -3,7 +3,7 @@ sidebar_position: 7
 title: Errors
 ---
 
-We will define errors thrown by our contract in a separate file `errors.rs`. In this file we will define the errors that will be returned by our contract, and implement conversion of OpenBrush errors (`AccessControlError` and `PSP22Error`) to our error.
+We will define errors thrown by our contract in a separate file `errors.rs`. In this file we will define the errors that will be returned by our contract, and implement conversion of OpenBrush errors (`AccessControlError`, `PSP22Error` and `PSP721Error`) to our error.
 
 ## Define errors
 
@@ -59,6 +59,19 @@ impl From<PSP22Error> for LendingError {
             PSP22Error::ZeroRecipientAddress => LendingError::Custom(String::from("PSP22::ZeroRecipientAddress")),
             PSP22Error::ZeroSenderAddress => LendingError::Custom(String::from("PSP22::ZeroSenderAddress")),
             PSP22Error::SafeTransferCheckFailed(message) => LendingError::Custom(message),
+        }
+    }
+}
+
+impl From<PSP721Error> for LendingError {
+    fn from(error: PSP721Error) -> Self {
+        match error {
+            PSP721Error::Custom(message) => LendingError::Custom(message),
+            PSP721Error::SelfApprove => LendingError::Custom(String::from("PSP721::SelfApprove")),
+            PSP721Error::NotApproved => LendingError::Custom(String::from("PSP721::NotApproved")),
+            PSP721Error::TokenExists => LendingError::Custom(String::from("PSP721::TokenExists")),
+            PSP721Error::TokenNotExists => LendingError::Custom(String::from("PSP721::TokenNotExists")),
+            PSP721Error::SafeTransferCheckFailed(message) => LendingError::Custom(message),
         }
     }
 }

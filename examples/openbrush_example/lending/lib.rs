@@ -57,7 +57,10 @@ pub mod lending {
         string::String,
         vec::Vec,
     };
-    use loan_nft::loan::Loan;
+    use loan_nft::loan::{
+        Loan,
+        LoanRef,
+    };
     use pausable::traits::*;
     use psp22::{
         extensions::mintable::*,
@@ -229,6 +232,10 @@ pub mod lending {
             // we will be using these often so we store them in variables
             let borrower = Self::env().caller();
             let contract = Self::env().account_id();
+            // ensure this asset is accepted as collateral
+            if !self.is_accepted_collateral(collateral_address) {
+                return Err(LendingError::AssetNotSupported)
+            }
             // ensure the user gave allowance to the contract
             if PSP22Ref::allowance(&collateral_address, borrower, contract) < amount {
                 return Err(LendingError::InsufficientAllowanceForCollateral)
@@ -242,25 +249,35 @@ pub mod lending {
             if reserve_asset.is_zero() {
                 return Err(LendingError::AssetNotSupported)
             }
-            // we will transfer the collateral to the contract
-            PSP22Ref::transfer_from(&collateral_address, borrower, contract, amount, Vec::<u8>::new())?;
             // we will find out the price of deposited collateral
             let price = self._price_of(amount, collateral_address, asset_address);
             // we will set the liquidation price to be 75% of current price
-            let liquidation_price = ((price * 100) - (price * 25)) / 100;
-            // we will ensure the borrower deposited enough amount
-            if liquidation_price <= 0 {
+            let liquidation_price = (price * 75) / 100;
+            // borrow amount is 70% of collateral
+            let borrow_amount = (price * 70) / 100;
+            // ensure the liquidation price is greater than borrowed amount to avoid misuses
+            if borrow_amount >= liquidation_price {
                 return Err(LendingError::AmountNotSupported)
             }
-            let borrow_amount = ((price * 100) - (price * 70)) / 100;
-            // we will ensure the borrower can borrow at least 1 unit
-            if borrow_amount <= 0 {
-                return Err(LendingError::AmountNotSupported)
-            }
+            // ensure we have enough assets in the contract
             if PSP22Ref::balance_of(&asset_address, contract) < borrow_amount {
                 return Err(LendingError::InsufficientAmountInContract)
             }
-            // TODO issueNft(B, C, X, Lp, Y, time(now), false)
+            // we will transfer the collateral to the contract
+            PSP22Ref::transfer_from(&collateral_address, borrower, contract, amount, Vec::<u8>::new())?;
+            // create loan nft
+            let nft_address = self.nft_contract;
+            LoanRef::create_loan(
+                &nft_address,
+                borrower,
+                collateral_address,
+                amount,
+                asset_address,
+                borrow_amount,
+                liquidation_price,
+                Self::env().block_timestamp(),
+            )?;
+            // transfer assets to borrower
             PSP22Ref::transfer(&asset_address, borrower, borrow_amount, Vec::<u8>::new())?;
             // mint `borrow_amount` of the reserve token
             PSP22MintableRef::mint(&reserve_asset, contract, borrow_amount)?;

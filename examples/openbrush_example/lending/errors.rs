@@ -2,6 +2,7 @@ use access_control::traits::AccessControlError;
 use ink_prelude::string::String;
 use pausable::traits::PausableError;
 use psp22::traits::PSP22Error;
+use psp721::traits::PSP721Error;
 
 /// Enum of errors raised by our lending smart contract
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -19,7 +20,7 @@ pub enum LendingError {
     InsufficientAllowanceForCollateral,
     /// This error will be thrown when the borrower tries to use more amount of asset as collateral than they own
     InsufficientCollateralBalance,
-    // This error will be thrown if the liquidation price of deposited collateral is calculated to be 0
+    // This error will be thrown if the amount of borrowed assets is greater than or equal to the liquidation price of deposited collateral
     AmountNotSupported,
     // This error will be thrown if the user wants to borrow more assets than there currently are in the contract
     InsufficientAmountInContract,
@@ -58,6 +59,19 @@ impl From<PSP22Error> for LendingError {
             PSP22Error::ZeroRecipientAddress => LendingError::Custom(String::from("PSP22::ZeroRecipientAddress")),
             PSP22Error::ZeroSenderAddress => LendingError::Custom(String::from("PSP22::ZeroSenderAddress")),
             PSP22Error::SafeTransferCheckFailed(message) => LendingError::Custom(message),
+        }
+    }
+}
+
+impl From<PSP721Error> for LendingError {
+    fn from(error: PSP721Error) -> Self {
+        match error {
+            PSP721Error::Custom(message) => LendingError::Custom(message),
+            PSP721Error::SelfApprove => LendingError::Custom(String::from("PSP721::SelfApprove")),
+            PSP721Error::NotApproved => LendingError::Custom(String::from("PSP721::NotApproved")),
+            PSP721Error::TokenExists => LendingError::Custom(String::from("PSP721::TokenExists")),
+            PSP721Error::TokenNotExists => LendingError::Custom(String::from("PSP721::TokenNotExists")),
+            PSP721Error::SafeTransferCheckFailed(message) => LendingError::Custom(message),
         }
     }
 }
