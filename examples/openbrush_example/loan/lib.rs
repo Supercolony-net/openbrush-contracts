@@ -5,8 +5,11 @@ mod traits;
 /// This contract will represent the loan of a user
 #[brush::contract]
 pub mod loan {
-    pub use crate::traits::LoanRef;
     use crate::traits::*;
+    pub use crate::traits::{
+        LoanInfo,
+        LoanRef,
+    };
     use brush::modifiers;
     use ink_lang::{
         EmitEvent,
@@ -15,10 +18,7 @@ pub mod loan {
     use ink_prelude::string::String;
     use ownable::traits::*;
     use psp721::{
-        extensions::{
-            burnable::*,
-            metadata::*,
-        },
+        extensions::metadata::*,
         traits::*,
     };
 
@@ -87,21 +87,6 @@ pub mod loan {
         }
     }
 
-    /// implement Burnable Trait for our NFT
-    impl PSP721Burnable for Loan {
-        #[modifiers(only_owner)]
-        #[ink(message)]
-        fn burn(&mut self, id: Id) -> Result<(), PSP721Error> {
-            self._burn(id)
-        }
-
-        #[modifiers(only_owner)]
-        #[ink(message)]
-        fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
-            self._burn_from(account, id)
-        }
-    }
-
     /// implement Ownable Trait for our NFT
     impl Ownable for Loan {}
 
@@ -133,6 +118,14 @@ pub mod loan {
                 timestamp,
             )?;
             self._mint_to(borrower, id)
+        }
+
+        /// We will use this function to burn unused loan token and to free the loan's data
+        #[modifiers(only_owner)]
+        #[ink(message)]
+        fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP721Error> {
+            self._delete_loan(loan_id);
+            self._burn_from(initiator, loan_id)
         }
     }
 

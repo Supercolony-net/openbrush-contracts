@@ -97,7 +97,7 @@ And finally, add some functions for our trait. In order to call our NFT contract
 
 ```rust
 #[brush::wrapper]
-pub type LoanRef = dyn LoanTrait + LoanStorage;
+pub type LoanRef = dyn LoanTrait;
 
 #[brush::trait_definition]
 pub trait LoanTrait: LoanStorage {
@@ -112,6 +112,34 @@ pub trait LoanTrait: LoanStorage {
         liquidation_price: Balance,
         timestamp: Timestamp,
     ) -> Result<(), PSP721Error>;
+
+    #[ink(message)]
+    fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP721Error>;
+
+    #[ink(message)]
+    fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP721Error> {
+        if self.get().borrower.get(&loan_id).cloned().is_none() {
+            return Err(PSP721Error::Custom(String::from("Loan does not exist")))
+        }
+        let borrower = self.get().borrower.get(&loan_id).cloned().unwrap();
+        let collateral_asset = self.get().collateral_asset.get(&loan_id).cloned().unwrap();
+        let collateral_amount = self.get().collateral_amount.get(&loan_id).cloned().unwrap();
+        let borrow_asset = self.get().borrow_asset.get(&loan_id).cloned().unwrap();
+        let borrow_amount = self.get().borrow_amount.get(&loan_id).cloned().unwrap();
+        let liquidation_price = self.get().liquidation_price.get(&loan_id).cloned().unwrap();
+        let timestamp = self.get().timestamp.get(&loan_id).cloned().unwrap();
+        let liquidated = self.get().liquidated.get(&loan_id).cloned().unwrap();
+        Ok((
+            borrower,
+            collateral_asset,
+            collateral_amount,
+            borrow_asset,
+            borrow_amount,
+            liquidation_price,
+            timestamp,
+            liquidated,
+        ))
+    }
 
     fn _init(&mut self) {
         self.get_mut().last_loan_id = [0x0; 32];
@@ -140,6 +168,19 @@ pub trait LoanTrait: LoanStorage {
         self.get_mut().timestamp.insert(loan_id, timestamp);
         self.get_mut().liquidated.insert(loan_id, false);
         Ok(loan_id)
+    }
+
+    /// internal function to delete data of burned loan token
+    fn _delete_loan(&mut self, loan_id: Id) {
+        self.get_mut().borrower.take(&loan_id);
+        self.get_mut().collateral_asset.take(&loan_id);
+        self.get_mut().collateral_amount.take(&loan_id);
+        self.get_mut().borrow_asset.take(&loan_id);
+        self.get_mut().borrow_amount.take(&loan_id);
+        self.get_mut().liquidation_price.take(&loan_id);
+        self.get_mut().timestamp.take(&loan_id);
+        self.get_mut().liquidated.take(&loan_id);
+        self.get_mut().freed_ids.push(loan_id);
     }
 
     fn _get_next_loan_id_and_increase(&mut self) -> Result<Id, PSP721Error> {
@@ -182,7 +223,7 @@ Along with the ink dependencies.
 
 ## Implement the contract
 
-We want a basic [PSP-721](/smart-contracts/PSP721/psp721) token with metadata, ownable and burnable extensions, so we will add these to our contract. We will add a `brush::contract` macro to our contract and add some imports:
+We want a basic [PSP-721](/smart-contracts/PSP721/psp721) token with metadata and ownable extensions, so we will add these to our contract. We will add a `brush::contract` macro to our contract and add some imports:
 
 ```rust
 #[brush::contract]
@@ -196,10 +237,7 @@ pub mod loan {
     use ink_prelude::string::String;
     use ownable::traits::*;
     use psp721::{
-        extensions::{
-            burnable::*,
-            metadata::*,
-        },
+        extensions::metadata::*,
         traits::*,
     };
     pub use crate::traits::LoanRef;
@@ -290,37 +328,14 @@ impl Ownable for Loan {}
 
 impl PSP721Metadata for Loan {}
 
-impl LoanTrait for Loan {}
 ```
 
-## Implement the Burnable trait
+## Implement the LoanTrait trait
 
-Now we will implement the `PSP721Burnable` trait. Since we don't want anybody to burn the tokens, we only want the owner, in this case, our lending contract, to do it. So we will add the `PSP721Burnable` and mark the functions of this trait with the `only_owner` restriction.
-
-```rust
-impl PSP721Burnable for Loan {
-    #[modifiers(only_owner)]
-    #[ink(message)]
-    fn burn(&mut self, id: Id) -> Result<(), PSP721Error> {
-        self._burn(id)
-    }
-
-    #[modifiers(only_owner)]
-    #[ink(message)]
-    fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
-        self._burn_from(account, id)
-    }
-}
-```
-
-This will restrict accounts other than the owner of the token (which will be the lending contract) from calling these functions.
-
-## Implement the LoanContract trait
-
-We will implement the trait that we defined in the `traits.rs`. We defined some methods there, and we want our NFT contract to contain these methods, but we want to call them from other contracts, in this example from our lending contract. We can easily call these functions using our `brush::wrapper` attribute. So we implement our trait to the NFT contract and put there logic for our contract.
+We will implement the storage trait, but in this trait we have declared some functions without a body, so we need to define the body in this `impl` block. We also want these functions to only be callable by the owner of the contract, so we will add to them the `only_owner` modifier.
 
 ```rust
-impl LoanContract for Loan {
+impl LoanTrait for Loan {
     #[modifiers(only_owner)]
     #[ink(message)]
     fn create_loan(
@@ -344,10 +359,17 @@ impl LoanContract for Loan {
         )?;
         self._mint_to(borrower, id)
     }
+
+    #[modifiers(only_owner)]
+    #[ink(message)]
+    fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP721Error> {
+        self._delete_loan(loan_id);
+        self._burn_from(initiator, loan_id)
+    }
 }
 ```
 
-We can now call for example the `create_loan` function from other contracts with `LoanRef::(&contract_address, ..args)`, where `contract_address` is the account id of contract on which we want to the call the function and `args` are the arguments needed to call that function.
+The fact that we created a wrapper over our `LoanTrait` allows us to call for example the `create_loan` function from other contracts with `LoanRef::(&contract_address, ..args)`, where `contract_address` is the account id of contract on which we want to the call the function and `args` are the arguments needed to call that function.
 
 ## Define the constructor and add functions
 
