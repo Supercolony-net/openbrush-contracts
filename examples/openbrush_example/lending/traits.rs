@@ -123,8 +123,8 @@ pub trait LendingStorageTrait: LendingStorage {
     }
 
     /// this function will accept `asset_address` for using as collateral
-    fn _accept_collateral(&mut self, asset_address: AccountId) {
-        self.get_mut().collateral_accepted.insert(asset_address, true);
+    fn _set_collateral_accepted(&mut self, asset_address: AccountId, accepted: bool) {
+        self.get_mut().collateral_accepted.insert(asset_address, accepted);
     }
 
     /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`

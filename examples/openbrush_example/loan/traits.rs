@@ -46,9 +46,24 @@ pub struct LoanData {
 
 declare_storage_trait!(LoanStorage, LoanData);
 
+#[brush::wrapper]
+pub type LoanRef = dyn LoanTrait + LoanStorage;
+
 // we will declare a trait which holds getters and setters for our storage struct
 #[brush::trait_definition]
 pub trait LoanTrait: LoanStorage {
+    #[ink(message)]
+    fn create_loan(
+        &mut self,
+        borrower: AccountId,
+        collateral_asset: AccountId,
+        collateral_amount: Balance,
+        borrow_asset: AccountId,
+        borrow_amount: Balance,
+        liquidation_price: Balance,
+        timestamp: Timestamp,
+    ) -> Result<(), PSP721Error>;
+
     /// internal function to initialize the id to 0
     fn _init(&mut self) {
         self.get_mut().last_loan_id = [0x0; 32];
@@ -98,23 +113,4 @@ pub trait LoanTrait: LoanStorage {
         self.get_mut().last_loan_id = current;
         Ok(current)
     }
-}
-
-#[brush::wrapper]
-pub type LoanRef = dyn LoanContract;
-
-/// We will add this trait and implement it in our loan contract so we can refer to its method in other contracts
-#[brush::trait_definition]
-pub trait LoanContract {
-    #[ink(message)]
-    fn create_loan(
-        &mut self,
-        borrower: AccountId,
-        collateral_asset: AccountId,
-        collateral_amount: Balance,
-        borrow_asset: AccountId,
-        borrow_amount: Balance,
-        liquidation_price: Balance,
-        timestamp: Timestamp,
-    ) -> Result<(), PSP721Error>;
 }

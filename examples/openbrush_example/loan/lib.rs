@@ -5,6 +5,7 @@ mod traits;
 /// This contract will represent the loan of a user
 #[brush::contract]
 pub mod loan {
+    pub use crate::traits::LoanRef;
     use crate::traits::*;
     use brush::modifiers;
     use ink_lang::{
@@ -20,7 +21,6 @@ pub mod loan {
         },
         traits::*,
     };
-    pub use crate::traits::LoanRef;
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
@@ -109,9 +109,7 @@ pub mod loan {
     impl PSP721Metadata for Loan {}
 
     /// implement the storage trait of the NFT
-    impl LoanTrait for Loan {}
-
-    impl LoanContract for Loan {
+    impl LoanTrait for Loan {
         /// We will use this function to mint new loan token and to initialize the loan's data
         #[modifiers(only_owner)]
         #[ink(message)]

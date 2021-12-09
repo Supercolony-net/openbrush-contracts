@@ -93,11 +93,26 @@ pub struct LoanData {
 declare_storage_trait!(LoanStorage, LoanData);
 ```
 
-And finally, add some functions for our trait:
+And finally, add some functions for our trait. In order to call our NFT contract's functions in other contracts we will create a wrapper around this trait using `brush::wrapper` attribute, inherit this trait in our NFT contract and implement the unimplemented functions to work with our contract. We will declare the trait like this:
 
 ```rust
+#[brush::wrapper]
+pub type LoanRef = dyn LoanTrait + LoanStorage;
+
 #[brush::trait_definition]
 pub trait LoanTrait: LoanStorage {
+    #[ink(message)]
+    fn create_loan(
+        &mut self,
+        borrower: AccountId,
+        collateral_asset: AccountId,
+        collateral_amount: Balance,
+        borrow_asset: AccountId,
+        borrow_amount: Balance,
+        liquidation_price: Balance,
+        timestamp: Timestamp,
+    ) -> Result<(), PSP721Error>;
+
     fn _init(&mut self) {
         self.get_mut().last_loan_id = [0x0; 32];
     }
@@ -132,30 +147,6 @@ pub trait LoanTrait: LoanStorage {
         // logic to determine next id will not be covered here, but you can check the example :)
         Ok(current)
     }
-}
-```
-
-## LoanRef
-
-In order to call our NFT contract's functions in other contracts we will define a trait, which will contain the functions we want to call, we will create a wrapper around this trait using `brush::wrapper` attribute, inherit this trait in our NFT contract and implement the functions to work with our contract. We will declare the trait like this:
-
-```rust
-#[brush::wrapper]
-pub type LoanRef = dyn LoanContract;
-
-#[brush::trait_definition]
-pub trait LoanContract {
-    #[ink(message)]
-    fn create_loan(
-        &mut self,
-        borrower: AccountId,
-        collateral_asset: AccountId,
-        collateral_amount: Balance,
-        borrow_asset: AccountId,
-        borrow_amount: Balance,
-        liquidation_price: Balance,
-        timestamp: Timestamp,
-    ) -> Result<(), PSP721Error>;
 }
 ```
 
