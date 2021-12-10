@@ -21,7 +21,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-standard": "^5.0.0",
     "prettier": "^2.3.0",
-    "redspot": "0.13.1",
+    "redspot": "https://github.com/Supercolony-net/redspot.git",
     "typescript": "^4.3.2",
     "@redspot/chai": "0.13.1",
     "@redspot/decimals": "0.13.1",
@@ -35,9 +35,10 @@
     "chai": "^4.2.0"
   },
   "scripts": {
+    "build:release": "npx redspot compile --release",
     "build": "npx redspot compile",
-    "test-redspot": "npx redspot test",
-    "test-mocha": "mocha --require @babel/register --require ts-node/register --require ./tests/setup/hooks.ts --recursive ./tests --extension \".ts\" --exit --timeout 30000",
-    "test": "npm run build && npm run test-mocha"
+    "test:redspot": "npx redspot test",
+    "test:mocha": "mocha --require @babel/register --require ts-node/register --require ./tests/setup/hooks.ts --recursive ./tests --extension \".ts\" --exit --timeout 30000",
+    "test": "npm run build && npm run test:mocha"
   }
 }
