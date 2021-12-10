@@ -34,6 +34,8 @@ pub struct LendingData {
     /// example: if a user has X% of the total supply of the asset A', they
     /// are eligible to withdraw X% of the asset A tracked by this contract
     pub asset_shares: StorageHashMap<AccountId, AccountId>,
+    /// mapping from share token to asset token
+    pub shares_asset: StorageHashMap<AccountId, AccountId>,
     /// mapping from asset address to bool
     /// maps to `true` if an asset is accepted for using as collateral
     pub collateral_accepted: StorageHashMap<AccountId, bool>,
@@ -119,7 +121,20 @@ pub trait LendingStorageTrait: LendingStorage {
     /// `reserve_address` is the address of the reserves token of the asset being allowed
     fn _accept_lending(&mut self, asset_address: AccountId, share_address: AccountId, reserve_address: AccountId) {
         self.get_mut().asset_shares.insert(asset_address, share_address);
+        self.get_mut().shares_asset.insert(share_address, asset_address);
         self.get_mut().assets_lended.insert(asset_address, reserve_address);
+    }
+
+    fn _disallow_lending(&mut self, asset_address: AccountId) {
+        let share_address = self
+            .get_mut()
+            .asset_shares
+            .get(&asset_address)
+            .cloned()
+            .unwrap_or(ZERO_ADDRESS.into());
+        self.get_mut().asset_shares.take(&asset_address);
+        self.get_mut().shares_asset.take(&share_address);
+        self.get_mut().assets_lended.take(&asset_address);
     }
 
     /// this function will accept `asset_address` for using as collateral
@@ -145,6 +160,16 @@ pub trait LendingStorageTrait: LendingStorage {
         self.get()
             .asset_shares
             .get(&asset_address)
+            .cloned()
+            .unwrap_or(ZERO_ADDRESS.into())
+    }
+
+    /// internal function which will return the address of asset
+    /// which is bound to `shares_address` shares token
+    fn _get_asset_from_shares(&self, shares_address: AccountId) -> AccountId {
+        self.get()
+            .shares_asset
+            .get(&shares_address)
             .cloned()
             .unwrap_or(ZERO_ADDRESS.into())
     }

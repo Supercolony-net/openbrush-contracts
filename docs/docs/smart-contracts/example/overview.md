@@ -17,7 +17,7 @@ Users can borrow [PSP-22](/smart-contracts/PSP22/psp22) tokens, which are availa
 
 ## Repaying the loan
 
-Users can repay their loan by depositing the borrowed amount of the borrowed assets with the interest which is calculated by the contract. Our contract has an interest rate of 10% per year. Users can repay the whole loan, a part of the loan, or they can swap their collateral tokens on a DEX and get the rest of the converted assets back. The user will use their NFT to repay the loan. If the loan was liquidated in the meantime, they do not get their collateral back and the NFT is burned.
+Users can repay their loan by depositing the borrowed amount of the borrowed assets with the interest which is calculated by the contract. Our contract has an interest rate of 10% per year. Users can repay the whole loan or a portion of the loan. The user will use their NFT to repay the loan. If the loan was liquidated in the meantime, they do not get their collateral back and the NFT is burned.
 
 ## Withdraw deposited assets
 

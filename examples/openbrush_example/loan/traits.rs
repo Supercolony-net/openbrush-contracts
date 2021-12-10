@@ -82,6 +82,20 @@ pub trait LoanTrait: LoanStorage + PSP721 {
     #[ink(message)]
     fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP721Error>;
 
+    /// this function will be used when the user repays their loan only partially
+    #[ink(message)]
+    fn update_loan(
+        &mut self,
+        loan_id: Id,
+        new_borrow_amount: Balance,
+        new_timestamp: Timestamp,
+        new_collateral_amount: Balance,
+    ) -> Result<(), PSP721Error>;
+
+    /// this function will set a loan to liquidated
+    #[ink(message)]
+    fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error>;
+
     /// function which returns data of a loan as a tuple
     #[ink(message)]
     fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP721Error> {
@@ -111,7 +125,7 @@ pub trait LoanTrait: LoanStorage + PSP721 {
 
     /// internal function to initialize the id to 0
     fn _init(&mut self) {
-        let  storage = LoanStorage::get_mut(self);
+        let storage = LoanStorage::get_mut(self);
         storage.last_loan_id = [0x0; 32];
         storage.freed_ids = Vec::<Id>::new();
     }
@@ -155,6 +169,33 @@ pub trait LoanTrait: LoanStorage + PSP721 {
         storage.timestamp.take(&loan_id);
         storage.liquidated.take(&loan_id);
         storage.freed_ids.push(loan_id);
+    }
+
+    /// internal function to update data of a loan
+    fn _update_loan(
+        &mut self,
+        loan_id: Id,
+        new_borrow_amount: Balance,
+        new_timestamp: Timestamp,
+        new_collateral_amount: Balance,
+    ) -> Result<(), PSP721Error> {
+        let storage = LoanStorage::get_mut(self);
+        if storage.borrower.get(&loan_id).is_some() {
+            return Err(PSP721Error::Custom(String::from("This loan does not exist!")))
+        }
+        storage.collateral_amount.insert(loan_id, new_collateral_amount);
+        storage.borrow_amount.insert(loan_id, new_borrow_amount);
+        storage.timestamp.insert(loan_id, new_timestamp);
+        Ok(())
+    }
+
+    /// internal function to set loan to liquidated
+    fn _liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error> {
+        if LoanStorage::get_mut(self).borrower.get(&loan_id).is_some() {
+            return Err(PSP721Error::Custom(String::from("This loan does not exist!")))
+        }
+        LoanStorage::get_mut(self).liquidated.insert(loan_id, true);
+        Ok(())
     }
 
     /// internal function to return the id of a new loan and to increase it in the storage

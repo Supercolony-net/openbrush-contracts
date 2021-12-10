@@ -127,6 +127,24 @@ pub mod loan {
             self._delete_loan(loan_id);
             self._burn_from(initiator, loan_id)
         }
+
+        #[modifiers(only_owner)]
+        #[ink(message)]
+        fn update_loan(
+            &mut self,
+            loan_id: Id,
+            new_borrow_amount: Balance,
+            new_timestamp: Timestamp,
+            new_collateral_amount: Balance,
+        ) -> Result<(), PSP721Error> {
+            self._update_loan(loan_id, new_borrow_amount, new_timestamp, new_collateral_amount)
+        }
+
+        #[modifiers(only_owner)]
+        #[ink(message)]
+        fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error> {
+            self._liquidate_loan(loan_id)
+        }
     }
 
     impl Loan {

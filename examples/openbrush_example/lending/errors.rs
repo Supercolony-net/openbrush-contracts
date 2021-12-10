@@ -16,14 +16,19 @@ pub enum LendingError {
     /// This error will be thrown when the lender tries to lend more amount of asset than they own
     InsufficientBalanceToLend,
     /// This error will be thrown when the borrower does not have enough allowance
+    /// to transfer the borrowed asset to the contract
+    InsufficientAllowanceToRepay,
+    /// This error will be thrown when the borrower tries to repay more amount of asset than they own
+    InsufficientBalanceToRepay,
+    /// This error will be thrown when the borrower does not have enough allowance
     /// to transfer the collateral asset to the contract
     InsufficientAllowanceForCollateral,
     /// This error will be thrown when the borrower tries to use more amount of asset as collateral than they own
     InsufficientCollateralBalance,
     // This error will be thrown if the amount of borrowed assets is greater than or equal to the liquidation price of deposited collateral
     AmountNotSupported,
-    // This error will be thrown if the user wants to borrow more assets than there currently are in the contract
-    InsufficientAmountInContract,
+    // This error will be thrown if the user wants to borrow or withdraw more assets than there currently are in the contract
+    InsufficientBalanceInContract,
     /// This error will be thrown if the user tries to lend or borrow asset which is not supported by the lending contract
     /// or if a user tries to use an usupported asset as a collateral
     AssetNotSupported,
@@ -31,6 +36,12 @@ pub enum LendingError {
     AssetSupported,
     /// This error will be thrown if the user tries to repay a loan he does not own
     NotTheOwner,
+    /// This error will be thrown if the loan we try to liquidate was already liquidated
+    LoanLiquidated,
+    /// This error will be thrown if the loan we try to liquidate is not below liquidation price
+    CanNotBeLiquidated,
+    /// This error will be thrown if an user wants to disallow lending of an asset which is still present in the contract
+    AssetsInTheContract,
 }
 
 impl From<AccessControlError> for LendingError {
