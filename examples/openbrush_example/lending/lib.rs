@@ -384,16 +384,15 @@ pub mod lending {
             Ok(true)
         }
 
-
         /// This function is called by the user who borrowed some asset. The contract will swap the collateral deposited to the borrowed asset,
         /// if the loan was not liquidated yet, the amount to repay (borrowed + interest) will be kept in the contract and the rest will be sent
-        /// back to the borrower. The loan token will then be burned along with the reserves for the borrowed tokens 
+        /// back to the borrower. The loan token will then be burned along with the reserves for the borrowed tokens
         ///
         /// `loan_id` is the id of the loan to be repaid
         ///
         /// Returns true if the loan was repaid successfuly, false if the loan was already liquidated and can not be repaid
         #[ink(message)]
-        pub fn swap_and_repay(&mut self, loan_id:Id){
+        pub fn swap_and_repay(&mut self, loan_id: Id) -> Result<bool, LendingError> {
             //  SWAP_AND_REPAY (borrower: B, nft)
             // 1.   if nft.liquidated
             // 1.1. burn(nft)
@@ -410,6 +409,7 @@ pub mod lending {
             // 7.   else
             // 7.1. end
             // 8.  emit(Repay(B, R))
+            Ok(true)
         }
 
         /// This function is called by the user who wants to withdraw assets they deposited for lending. They will deposit their
