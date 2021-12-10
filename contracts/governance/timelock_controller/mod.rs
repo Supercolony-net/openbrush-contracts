@@ -117,7 +117,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         self._hash_operation_batch(&transactions, &predecessor, &salt)
     }
 
-    #[modifiers(only_role(Self::_proposal_tole()))]
+    #[modifiers(only_role(Self::_proposal_role()))]
     default fn schedule(
         &mut self,
         transaction: Transaction,
@@ -133,7 +133,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         Ok(())
     }
 
-    #[modifiers(only_role(Self::_proposal_tole()))]
+    #[modifiers(only_role(Self::_proposal_role()))]
     default fn schedule_batch(
         &mut self,
         transactions: Vec<Transaction>,
@@ -151,7 +151,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         Ok(())
     }
 
-    #[modifiers(only_role(Self::_proposal_tole()))]
+    #[modifiers(only_role(Self::_proposal_role()))]
     default fn cancel(&mut self, id: OperationId) -> Result<(), TimelockControllerError> {
         if !self.is_operation_pending(id) {
             return Err(TimelockControllerError::OperationCannonBeCanceled)
@@ -162,7 +162,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         Ok(())
     }
 
-    #[modifiers(only_role_or_open_role(Self::_executor_tole()))]
+    #[modifiers(only_role_or_open_role(Self::_executor_role()))]
     default fn execute(
         &mut self,
         transaction: Transaction,
@@ -176,7 +176,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         self._after_call(id)
     }
 
-    #[modifiers(only_role_or_open_role(Self::_executor_tole()))]
+    #[modifiers(only_role_or_open_role(Self::_executor_role()))]
     default fn execute_batch(
         &mut self,
         transactions: Vec<Transaction>,
@@ -264,11 +264,11 @@ pub trait TimelockControllerInternal {
     /// Emits a `CallExecuted` event.
     fn _call(&mut self, id: OperationId, i: u8, transaction: Transaction) -> Result<(), TimelockControllerError>;
 
-    fn _timelock_admin_tole() -> RoleType;
+    fn _timelock_admin_role() -> RoleType;
 
-    fn _proposal_tole() -> RoleType;
+    fn _proposal_role() -> RoleType;
 
-    fn _executor_tole() -> RoleType;
+    fn _executor_role() -> RoleType;
 
     fn _done_timestamp() -> Timestamp;
 }
@@ -307,22 +307,22 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         proposers: Vec<AccountId>,
         executors: Vec<AccountId>,
     ) {
-        self._set_role_admin(Self::_timelock_admin_tole(), Self::_timelock_admin_tole());
-        self._set_role_admin(Self::_proposal_tole(), Self::_proposal_tole());
-        self._set_role_admin(Self::_executor_tole(), Self::_executor_tole());
+        self._set_role_admin(Self::_timelock_admin_role(), Self::_timelock_admin_role());
+        self._set_role_admin(Self::_proposal_role(), Self::_proposal_role());
+        self._set_role_admin(Self::_executor_role(), Self::_executor_role());
 
         // admin + self administration
-        self._setup_role(Self::_timelock_admin_tole(), Self::env().account_id());
-        self._setup_role(Self::_timelock_admin_tole(), admin);
+        self._setup_role(Self::_timelock_admin_role(), Self::env().account_id());
+        self._setup_role(Self::_timelock_admin_role(), admin);
 
         // register proposers
         proposers
             .into_iter()
-            .for_each(|proposer| self._setup_role(Self::_proposal_tole(), proposer));
+            .for_each(|proposer| self._setup_role(Self::_proposal_role(), proposer));
         // register executors
         executors
             .into_iter()
-            .for_each(|executor| self._setup_role(Self::_executor_tole(), executor));
+            .for_each(|executor| self._setup_role(Self::_executor_role(), executor));
 
         let old_delay = TimelockControllerStorage::get(self).min_delay.clone();
         TimelockControllerStorage::get_mut(self).min_delay = min_delay;
@@ -421,15 +421,15 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         Ok(())
     }
 
-    default fn _timelock_admin_tole() -> RoleType {
+    default fn _timelock_admin_role() -> RoleType {
         TIMELOCK_ADMIN_ROLE
     }
 
-    default fn _proposal_tole() -> RoleType {
+    default fn _proposal_role() -> RoleType {
         PROPOSER_ROLE
     }
 
-    default fn _executor_tole() -> RoleType {
+    default fn _executor_role() -> RoleType {
         EXECUTOR_ROLE
     }
 
