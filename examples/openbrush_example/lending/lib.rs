@@ -94,6 +94,33 @@ pub mod lending {
         manager_address: AccountId,
     }
 
+    /// This event will be emitted when `manager_address` cancels `asset_address` for lending
+    #[ink(event)]
+    pub struct LendingCancelled {
+        #[ink(topic)]
+        asset_address: AccountId,
+        #[ink(topic)]
+        manager_address: AccountId,
+    }
+
+    /// This event will be emitted when `manager_address` accepts `asset_address` for being used as collateral
+    #[ink(event)]
+    pub struct CollateralAllowed {
+        #[ink(topic)]
+        asset_address: AccountId,
+        #[ink(topic)]
+        manager_address: AccountId,
+    }
+
+    /// This event will be emitted when `manager_address` cancels usage of `asset_address` as collateral
+    #[ink(event)]
+    pub struct CollateralCancelled {
+        #[ink(topic)]
+        asset_address: AccountId,
+        #[ink(topic)]
+        manager_address: AccountId,
+    }
+
     /// This event will be emitted when `borrower` borrows `borrow_amount` of `asset_address`
     /// while depositing `collateral_amount` of `collateral_address` as collateral
     #[ink(event)]
@@ -106,6 +133,45 @@ pub mod lending {
         asset_address: AccountId,
         collateral_amount: Balance,
         borrow_amount: Balance,
+    }
+
+    /// This event will be emitted when `borrower` repays `repay_amount` of `asset_address`
+    /// while getting back `collateral_amount` of `collateral_address`
+    #[ink(event)]
+    pub struct Repay {
+        #[ink(topic)]
+        borrower: AccountId,
+        #[ink(topic)]
+        collateral_address: AccountId,
+        #[ink(topic)]
+        asset_address: AccountId,
+        collateral_amount: Balance,
+        repay_amount: Balance,
+        to_repay: Balance,
+    }
+
+    /// This event will be emitted when `lender` withdraws `withdraw_amount` of `asset_address`
+    #[ink(event)]
+    pub struct Withdraw {
+        #[ink(topic)]
+        lender: AccountId,
+        #[ink(topic)]
+        asset_address: AccountId,
+        withdraw_amount: Balance,
+    }
+
+    /// This event will be emitted when `liquidator` liquidates a loan of `borrower`
+    /// liquidating `collateral_amount` of `collateral_address` while getting `liquidator_fee`
+    #[ink(event)]
+    pub struct Liquidate {
+        #[ink(topic)]
+        liquidator: AccountId,
+        #[ink(topic)]
+        borrower: AccountId,
+        #[ink(topic)]
+        collateral_address: AccountId,
+        collateral_amount: Balance,
+        liquidator_fee: Balance,
     }
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data
@@ -121,11 +187,6 @@ pub mod lending {
         code_hash: Hash,
         nft_contract: AccountId,
     }
-
-    // TODO more events
-    // Repay(borrower, amount, toRepay)
-    // Withdraw(lender, amount)
-    // Liquidate(borrower, collateralToken, collateralAmount, amount, liquidatorFee)
 
     const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
     const YEAR: Timestamp = 60 * 60 * 24 * 365;
@@ -187,7 +248,7 @@ pub mod lending {
                 return Err(LendingError::AssetsInTheContract)
             }
             self._disallow_lending(asset_address);
-            // TODO emit event
+            self._emit_lending_cancelled_event(asset_address, Self::env().caller());
             Ok(())
         }
 
@@ -200,7 +261,7 @@ pub mod lending {
                 return Err(LendingError::AssetSupported)
             }
             self._set_collateral_accepted(asset_address, true);
-            // TODO emit event
+            self._emit_collateral_accepted_event(asset_address, Self::env().caller());
             Ok(())
         }
 
@@ -211,7 +272,7 @@ pub mod lending {
             // we will ensure the asset is not accepted already
             if self.is_accepted_collateral(asset_address) {
                 self._set_collateral_accepted(asset_address, false);
-                // TODO emit event
+                self._emit_collateral_cancelled_event(asset_address, Self::env().caller());
             }
             Ok(())
         }
@@ -385,7 +446,14 @@ pub mod lending {
                 PSP22Ref::transfer(&collateral_asset, initiator, collateral_amount, Vec::<u8>::new())?;
                 LoanRef::delete_loan(&loan_contract, initiator, loan_id)?;
                 PSP22BurnableRef::burn(&reserve_asset, borrow_amount)?;
-                // TODO emit(Repay(B, X, 0))
+                self._emit_repay_event(
+                    loan_info.0,
+                    collateral_asset,
+                    borrow_asset,
+                    collateral_amount,
+                    to_repay,
+                    0,
+                );
             } else {
                 PSP22Ref::transfer_from(&borrow_asset, initiator, contract, repay_amount, Vec::<u8>::new())?;
                 let to_return = (repay_amount * collateral_amount) / to_repay;
@@ -398,7 +466,14 @@ pub mod lending {
                     Self::env().block_timestamp(),
                     collateral_amount - to_return,
                 )?;
-                // TODO emit(Repay(B, X, R-X))
+                self._emit_repay_event(
+                    loan_info.0,
+                    collateral_asset,
+                    borrow_asset,
+                    to_return,
+                    repay_amount,
+                    to_repay - repay_amount,
+                );
             }
             Ok(true)
         }
@@ -424,7 +499,7 @@ pub mod lending {
             }
             PSP22BurnableRef::burn_from(&shares_address, Self::env().caller(), shares_amount)?;
             PSP22Ref::transfer(&withdraw_asset, Self::env().caller(), withdraw_amount, Vec::<u8>::new())?;
-            // TODO emit(Withdraw(L, X))
+            self._emit_withdraw_event(Self::env().caller(), withdraw_asset, withdraw_amount);
             Ok(())
         }
 
@@ -457,10 +532,16 @@ pub mod lending {
                 let reward = (collateral_amount * 1000) / 100000;
                 PSP22Ref::transfer(&collateral_asset, Self::env().caller(), reward, Vec::<u8>::new())?;
                 LoanRef::liquidate_loan(&loan_contract, loan_id)?;
+                self._emit_liquidate_event(
+                    Self::env().caller(),
+                    loan_info.0,
+                    collateral_asset,
+                    collateral_amount,
+                    reward,
+                );
             } else {
                 return Err(LendingError::CanNotBeLiquidated)
             }
-            // TODO emit(Liquidate(nft.to, nft.collateralToken, nft.collateralAmount, X, Lr))
             Ok(())
         }
 
@@ -514,6 +595,30 @@ pub mod lending {
             });
         }
 
+        /// internal function to emit an event when `manager_address` cancels lending of `asset_address`
+        fn _emit_lending_cancelled_event(&self, asset_address: AccountId, manager_address: AccountId) {
+            self.env().emit_event(LendingCancelled {
+                asset_address,
+                manager_address,
+            });
+        }
+
+        /// internal function to emit an event when `manager_address` allows `asset_address` for collateral
+        fn _emit_collateral_accepted_event(&self, asset_address: AccountId, manager_address: AccountId) {
+            self.env().emit_event(CollateralAllowed {
+                asset_address,
+                manager_address,
+            });
+        }
+
+        /// internal function to emit an event when `manager_address` cancels usage of `asset_address` as collateral
+        fn _emit_collateral_cancelled_event(&self, asset_address: AccountId, manager_address: AccountId) {
+            self.env().emit_event(CollateralCancelled {
+                asset_address,
+                manager_address,
+            });
+        }
+
         /// internal function to emit an event when `lender` deposits `amount` of token `asset`
         fn _emit_lend_event(&self, lender: AccountId, asset: AccountId, amount: Balance) {
             self.env().emit_event(Lend { lender, asset, amount });
@@ -535,6 +640,55 @@ pub mod lending {
                 asset_address,
                 collateral_amount,
                 borrow_amount,
+            });
+        }
+
+        /// internal function to emit an event when `borrower` repays `repay_amount` of `asset_address`
+        /// while getting back `collateral_amount` of `collateral_address`
+        fn _emit_repay_event(
+            &self,
+            borrower: AccountId,
+            collateral_address: AccountId,
+            asset_address: AccountId,
+            collateral_amount: Balance,
+            repay_amount: Balance,
+            to_repay: Balance,
+        ) {
+            self.env().emit_event(Repay {
+                borrower,
+                collateral_address,
+                asset_address,
+                collateral_amount,
+                repay_amount,
+                to_repay,
+            });
+        }
+
+        /// internal function to emit an event when `lender` withdraws `withdraw_amount` of `asset_address`
+        fn _emit_withdraw_event(&self, lender: AccountId, asset_address: AccountId, withdraw_amount: Balance) {
+            self.env().emit_event(Withdraw {
+                lender,
+                asset_address,
+                withdraw_amount,
+            });
+        }
+
+        /// internal function to emit an event when `liquidator` liquidates a loan of `borrower`
+        /// liquidating `collateral_amount` of `collateral_address` while getting `liquidator_fee`
+        fn _emit_liquidate_event(
+            &self,
+            liquidator: AccountId,
+            borrower: AccountId,
+            collateral_address: AccountId,
+            collateral_amount: Balance,
+            liquidator_fee: Balance,
+        ) {
+            self.env().emit_event(Liquidate {
+                liquidator,
+                borrower,
+                collateral_address,
+                collateral_amount,
+                liquidator_fee,
             });
         }
     }
