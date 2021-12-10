@@ -24,28 +24,9 @@ fn _emit_lending_accepted_event(
         manager_address,
     });
 }
-
-fn _emit_lend_event(&self, lender: AccountId, asset: AccountId, amount: Balance) {
-    self.env().emit_event(Lend { lender, asset, amount });
-}
-
-fn _emit_borrow_event(
-    &self,
-    borrower: AccountId,
-    collateral_address: AccountId,
-    asset_address: AccountId,
-    collateral_amount: Balance,
-    borrow_amount: Balance,
-) {
-    self.env().emit_event(Borrow {
-        borrower,
-        collateral_address,
-        asset_address,
-        collateral_amount,
-        borrow_amount,
-    });
-}
 ```
+
+In same fashion we will implement internal functions to emit all of the other events defined.
 
 ## Instantiating contracts
 

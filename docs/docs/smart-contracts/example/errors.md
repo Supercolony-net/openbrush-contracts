@@ -19,12 +19,18 @@ pub enum LendingError {
     Custom(String),
     InsufficientAllowanceToLend,
     InsufficientBalanceToLend,
+    InsufficientAllowanceToRepay,
+    InsufficientBalanceToRepay,
     InsufficientAllowanceForCollateral,
     InsufficientCollateralBalance,
     AmountNotSupported,
-    InsufficientAmountInContract,
+    InsufficientBalanceInContract,
     AssetNotSupported,
     AssetSupported,
+    NotTheOwner,
+    LoanLiquidated,
+    CanNotBeLiquidated,
+    AssetsInTheContract,
 }
 ```
 

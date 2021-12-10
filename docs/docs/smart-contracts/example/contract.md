@@ -19,18 +19,29 @@ pub mod lending {
     use access_control::traits::*;
     use brush::{
         modifiers,
-        traits::AccountIdExt,
+        traits::{
+            AccountIdExt,
+            ZERO_ADDRESS,
+        },
     };
     use ink_lang::ToAccountId;
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
+    use loan_nft::loan::{
+        Loan,
+        LoanRef,
+    };
     use pausable::traits::*;
     use psp22::{
-        extensions::mintable::*,
+        extensions::{
+            burnable::*,
+            mintable::*,
+        },
         traits::*,
     };
+    use psp721::traits::Id;
     use shares::shares::Shares;
 ```
 
@@ -61,6 +72,30 @@ pub struct LendingAllowed {
 }
 
 #[ink(event)]
+pub struct LendingCancelled {
+    #[ink(topic)]
+    asset_address: AccountId,
+    #[ink(topic)]
+    manager_address: AccountId,
+}
+
+#[ink(event)]
+pub struct CollateralAllowed {
+    #[ink(topic)]
+    asset_address: AccountId,
+    #[ink(topic)]
+    manager_address: AccountId,
+}
+
+#[ink(event)]
+pub struct CollateralCancelled {
+    #[ink(topic)]
+    asset_address: AccountId,
+    #[ink(topic)]
+    manager_address: AccountId,
+}
+
+#[ink(event)]
 pub struct Borrow {
     #[ink(topic)]
     borrower: AccountId,
@@ -70,6 +105,40 @@ pub struct Borrow {
     asset_address: AccountId,
     collateral_amount: Balance,
     borrow_amount: Balance,
+}
+
+#[ink(event)]
+pub struct Repay {
+    #[ink(topic)]
+    borrower: AccountId,
+    #[ink(topic)]
+    collateral_address: AccountId,
+    #[ink(topic)]
+    asset_address: AccountId,
+    collateral_amount: Balance,
+    repay_amount: Balance,
+    to_repay: Balance,
+}
+
+#[ink(event)]
+pub struct Withdraw {
+    #[ink(topic)]
+    lender: AccountId,
+    #[ink(topic)]
+    asset_address: AccountId,
+    withdraw_amount: Balance,
+}
+
+#[ink(event)]
+pub struct Liquidate {
+    #[ink(topic)]
+    liquidator: AccountId,
+    #[ink(topic)]
+    borrower: AccountId,
+    #[ink(topic)]
+    collateral_address: AccountId,
+    collateral_amount: Balance,
+    liquidator_fee: Balance,
 }
 ```
 

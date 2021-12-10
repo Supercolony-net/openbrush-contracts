@@ -26,7 +26,7 @@ use ink_storage::{
     traits::SpreadLayout,
 };
 pub use lending_derive::LendingStorage;
-use psp22::traits::PSP22Wrapper;
+use psp22::traits::PSP22Ref;
 ```
 
 ## Define the storage struct
@@ -42,8 +42,8 @@ use ink_storage::traits::StorageLayout;
 pub struct LendingData {
     pub assets_lended: StorageHashMap<AccountId, AccountId>,
     pub asset_shares: StorageHashMap<AccountId, AccountId>,
+    pub shares_asset: StorageHashMap<AccountId, AccountId>,
     pub collateral_accepted: StorageHashMap<AccountId, bool>,
-    // for our oracle simulation
     pub asset_price: StorageHashMap<(AccountId, AccountId), Balance>,
 }
 
@@ -59,79 +59,50 @@ Once we have our storage struct, we will implement the trait, in which we will d
 pub trait LendingStorageTrait: LendingStorage {
     #[ink(message)]
     fn total_asset(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
-        // get asset from mapping
-        let mapped_asset = self
-            .get()
-            .assets_lended
-            .get(&asset_address)
-            .cloned()
-            .unwrap_or(ZERO_ADDRESS.into());
-        // return error if the asset is not supported
-        if mapped_asset.is_zero() {
-            return Err(LendingError::AssetNotSupported)
-        }
-        let contract = Self::env().account_id();
-        let available = PSP22Ref::balance_of(&asset_address, contract);
-        let unavailable = PSP22Ref::balance_of(&mapped_asset, contract);
-        Ok(available + unavailable)
+        todo()!;
     }
 
-    /// this function will return the total amount of shares minted for an asset
-    ///
-    /// Returns `AssetNotSupported` error if we try to get shares of asset not supported by our contract
     #[ink(message)]
     fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
-        // get asset from mapping
-        let mapped_asset = self
-            .get()
-            .asset_shares
-            .get(&asset_address)
-            .cloned()
-            .unwrap_or(ZERO_ADDRESS.into());
-        // return error if the asset is not supported
-        if mapped_asset.is_zero() {
-            return Err(LendingError::AssetNotSupported)
-        }
-        Ok(PSP22Ref::total_supply(&mapped_asset))
+        todo()!;
+    }
+
+    #[ink(message)]
+    fn is_accepted_lending(&self, asset_address: AccountId) -> bool {
+        todo()!;
     }
 
     #[ink(message)]
     fn is_accepted_collateral(&self, asset_address: AccountId) -> bool {
-        self.get()
-            .collateral_accepted
-            .get(&asset_address)
-            .cloned()
-            .unwrap_or(false)
+        todo()!;
     }
 
     fn _accept_lending(&mut self, asset_address: AccountId, share_address: AccountId, reserve_address: AccountId) {
-        self.get_mut().asset_shares.insert(asset_address, share_address);
-        self.get_mut().assets_lended.insert(asset_address, reserve_address);
+        todo()!;
     }
 
-    fn _accept_collateral(&mut self, asset_address: AccountId) {
-        self.get_mut().collateral_accepted.insert(asset_address, true);
+    fn _disallow_lending(&mut self, asset_address: AccountId) {
+        todo()!;
     }
 
-    fn _accept_lending(&mut self, asset_address: AccountId, share_address: AccountId, reserve_address: AccountId) {
-        self.get_mut().asset_shares.insert(asset_address, share_address);
-        self.get_mut().assets_lended.insert(asset_address, reserve_address);
+    fn _set_collateral_accepted(&mut self, asset_address: AccountId, accepted: bool) {
+        todo()!;
     }
 
     fn _set_asset_price(&mut self, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-        self.get_mut().asset_price.insert((asset_in, asset_out), price);
+        todo()!;
     }
 
     fn _get_asset_price(&self, amount_in: Balance, asset_in: AccountId, asset_out: AccountId) -> Balance {
-        self.get().asset_price.get(&(asset_in, asset_out)).cloned().unwrap_or(0) * amount_in
+        todo()!;
     }
 
     fn _get_reserve_asset(&self, asset_address: AccountId) -> AccountId {
-        self.get()
-            .asset_shares
-            .get(&asset_address)
-            .cloned()
-            .unwrap_or(ZERO_ADDRESS.into())
+        todo()!;
+    }
+
+    fn _get_asset_from_shares(&self, shares_address: AccountId) -> AccountId {
+        todo()!;
     }
 }
 ```
