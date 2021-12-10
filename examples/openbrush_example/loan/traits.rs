@@ -16,10 +16,7 @@ use ink_storage::{
     traits::SpreadLayout,
 };
 pub use loan_derive::LoanStorage;
-use psp721::traits::{
-    Id,
-    PSP721Error,
-};
+use psp721::traits::*;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
@@ -63,11 +60,11 @@ pub type LoanInfo = (
 );
 
 #[brush::wrapper]
-pub type LoanRef = dyn LoanTrait;
+pub type LoanRef = dyn LoanTrait + PSP721;
 
 // we will declare a trait which holds getters and setters for our storage struct
 #[brush::trait_definition]
-pub trait LoanTrait: LoanStorage {
+pub trait LoanTrait: LoanStorage + PSP721 {
     /// we need to override this function and initalize data of a loan and mint token inside it
     #[ink(message)]
     fn create_loan(
@@ -88,17 +85,18 @@ pub trait LoanTrait: LoanStorage {
     /// function which returns data of a loan as a tuple
     #[ink(message)]
     fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP721Error> {
-        if self.get().borrower.get(&loan_id).cloned().is_none() {
+        let storage = LoanStorage::get(self);
+        if storage.borrower.get(&loan_id).cloned().is_none() {
             return Err(PSP721Error::Custom(String::from("Loan does not exist")))
         }
-        let borrower = self.get().borrower.get(&loan_id).cloned().unwrap();
-        let collateral_asset = self.get().collateral_asset.get(&loan_id).cloned().unwrap();
-        let collateral_amount = self.get().collateral_amount.get(&loan_id).cloned().unwrap();
-        let borrow_asset = self.get().borrow_asset.get(&loan_id).cloned().unwrap();
-        let borrow_amount = self.get().borrow_amount.get(&loan_id).cloned().unwrap();
-        let liquidation_price = self.get().liquidation_price.get(&loan_id).cloned().unwrap();
-        let timestamp = self.get().timestamp.get(&loan_id).cloned().unwrap();
-        let liquidated = self.get().liquidated.get(&loan_id).cloned().unwrap();
+        let borrower = storage.borrower.get(&loan_id).cloned().unwrap();
+        let collateral_asset = storage.collateral_asset.get(&loan_id).cloned().unwrap();
+        let collateral_amount = storage.collateral_amount.get(&loan_id).cloned().unwrap();
+        let borrow_asset = storage.borrow_asset.get(&loan_id).cloned().unwrap();
+        let borrow_amount = storage.borrow_amount.get(&loan_id).cloned().unwrap();
+        let liquidation_price = storage.liquidation_price.get(&loan_id).cloned().unwrap();
+        let timestamp = storage.timestamp.get(&loan_id).cloned().unwrap();
+        let liquidated = storage.liquidated.get(&loan_id).cloned().unwrap();
         Ok((
             borrower,
             collateral_asset,
@@ -113,8 +111,9 @@ pub trait LoanTrait: LoanStorage {
 
     /// internal function to initialize the id to 0
     fn _init(&mut self) {
-        self.get_mut().last_loan_id = [0x0; 32];
-        self.get_mut().freed_ids = Vec::<Id>::new();
+        let  storage = LoanStorage::get_mut(self);
+        storage.last_loan_id = [0x0; 32];
+        storage.freed_ids = Vec::<Id>::new();
     }
 
     /// internal function to initialize data of a new loan token
@@ -129,39 +128,42 @@ pub trait LoanTrait: LoanStorage {
         timestamp: Timestamp,
     ) -> Result<Id, PSP721Error> {
         let loan_id = self._get_next_loan_id_and_increase()?;
-        if self.get_mut().borrower.get(&loan_id).is_some() {
+        let storage = LoanStorage::get_mut(self);
+        if storage.borrower.get(&loan_id).is_some() {
             return Err(PSP721Error::Custom(String::from("This loan id already exists!")))
         }
-        self.get_mut().borrower.insert(loan_id, borrower);
-        self.get_mut().collateral_asset.insert(loan_id, collateral_asset);
-        self.get_mut().collateral_amount.insert(loan_id, collateral_amount);
-        self.get_mut().borrow_asset.insert(loan_id, borrow_asset);
-        self.get_mut().borrow_amount.insert(loan_id, borrow_amount);
-        self.get_mut().liquidation_price.insert(loan_id, liquidation_price);
-        self.get_mut().timestamp.insert(loan_id, timestamp);
-        self.get_mut().liquidated.insert(loan_id, false);
+        storage.borrower.insert(loan_id, borrower);
+        storage.collateral_asset.insert(loan_id, collateral_asset);
+        storage.collateral_amount.insert(loan_id, collateral_amount);
+        storage.borrow_asset.insert(loan_id, borrow_asset);
+        storage.borrow_amount.insert(loan_id, borrow_amount);
+        storage.liquidation_price.insert(loan_id, liquidation_price);
+        storage.timestamp.insert(loan_id, timestamp);
+        storage.liquidated.insert(loan_id, false);
         Ok(loan_id)
     }
 
     /// internal function to delete data of burned loan token
     fn _delete_loan(&mut self, loan_id: Id) {
-        self.get_mut().borrower.take(&loan_id);
-        self.get_mut().collateral_asset.take(&loan_id);
-        self.get_mut().collateral_amount.take(&loan_id);
-        self.get_mut().borrow_asset.take(&loan_id);
-        self.get_mut().borrow_amount.take(&loan_id);
-        self.get_mut().liquidation_price.take(&loan_id);
-        self.get_mut().timestamp.take(&loan_id);
-        self.get_mut().liquidated.take(&loan_id);
-        self.get_mut().freed_ids.push(loan_id);
+        let storage = LoanStorage::get_mut(self);
+        storage.borrower.take(&loan_id);
+        storage.collateral_asset.take(&loan_id);
+        storage.collateral_amount.take(&loan_id);
+        storage.borrow_asset.take(&loan_id);
+        storage.borrow_amount.take(&loan_id);
+        storage.liquidation_price.take(&loan_id);
+        storage.timestamp.take(&loan_id);
+        storage.liquidated.take(&loan_id);
+        storage.freed_ids.push(loan_id);
     }
 
     /// internal function to return the id of a new loan and to increase it in the storage
     fn _get_next_loan_id_and_increase(&mut self) -> Result<Id, PSP721Error> {
-        if self.get_mut().freed_ids.len() > 0 {
-            return Ok(self.get_mut().freed_ids.pop().unwrap())
+        let mut storage = LoanStorage::get_mut(self);
+        if storage.freed_ids.len() > 0 {
+            return Ok(storage.freed_ids.pop().unwrap())
         }
-        let mut current = self.get_mut().last_loan_id;
+        let mut current = storage.last_loan_id;
         for n in 0..32 {
             if current[n] == u8::MAX {
                 if n == 31 {
@@ -174,7 +176,7 @@ pub trait LoanTrait: LoanStorage {
                 break
             }
         }
-        self.get_mut().last_loan_id = current;
+        storage.last_loan_id = current;
         Ok(current)
     }
 }

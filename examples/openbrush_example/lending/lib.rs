@@ -50,7 +50,10 @@ pub mod lending {
     use access_control::traits::*;
     use brush::{
         modifiers,
-        traits::AccountIdExt,
+        traits::{
+            AccountIdExt,
+            ZERO_ADDRESS,
+        },
     };
     use ink_lang::ToAccountId;
     use ink_prelude::{
@@ -66,6 +69,7 @@ pub mod lending {
         extensions::mintable::*,
         traits::*,
     };
+    use psp721::traits::Id;
     use shares::shares::Shares;
 
     /// This event will be emitted when `lender` deposists `amount` of `asset` to the contract
@@ -119,7 +123,13 @@ pub mod lending {
         nft_contract: AccountId,
     }
 
+    // TODO more events
+    // Repay(borrower, amount, toRepay)
+    // Withdraw(lender, amount)
+    // Liquidate(borrower, collateralToken, collateralAmount, amount, liquidatorFee)
+
     const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
+    const YEAR: Timestamp = 60 * 60 * 24 * 365;
 
     impl LendingStorageTrait for Lending {}
 
@@ -163,6 +173,40 @@ pub mod lending {
             // accept the asset and map shares and reserves to it
             self._accept_lending(asset_address, shares_address, reserves_address);
             self._emit_lending_accepted_event(asset_address, shares_address, reserves_address, self.env().caller());
+            Ok(())
+        }
+
+        /// This function will disallow lending and borrowing of asset
+        /// To do this all assets of this asset must be repaid and all of the asset must be withdrawn
+        #[modifiers(only_role(MANAGER))]
+        #[ink(message)]
+        pub fn disallow_lending(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+            // TODO
+            Ok(())
+        }
+
+        /// This function will allow an asset to be accepted as collateral
+        #[modifiers(only_role(MANAGER))]
+        #[ink(message)]
+        pub fn allow_collateral(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+            // we will ensure the asset is not accepted already
+            if self.is_accepted_collateral(asset_address) {
+                return Err(LendingError::AssetSupported)
+            }
+            self._set_collateral_accepted(asset_address, true);
+            // TODO emit event
+            Ok(())
+        }
+
+        /// This function will disallow an asset to be accepted as collateral
+        #[modifiers(only_role(MANAGER))]
+        #[ink(message)]
+        pub fn disallow_collateral(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+            // we will ensure the asset is not accepted already
+            if self.is_accepted_collateral(asset_address) {
+                self._set_collateral_accepted(asset_address, false);
+                // TODO emit event
+            }
             Ok(())
         }
 
@@ -215,11 +259,11 @@ pub mod lending {
         /// `collateral_address` is the AccountId of the PSP-22 token used as collateral
         /// `amount` is the amount to be deposited
         ///
+        /// Returns `AssetNotSupported` if `asset_address` is not supported for using as collateral
         /// Returns `InsufficientAllowanceForCollateral` if the caller does not have enough allowance
         /// Returns `InsufficientCollateralBalance` if the caller does not have enough balance
-        /// Returns `AssetNotSupported` if the asset is not supported for using as collateral
         /// Returns `AssetNotSupported` if the borrowing asset is not supported for borrowing
-        /// Returns `AmountNotSupported` if the user tries to deposit incorrect amount of collateral
+        /// Returns `AmountNotSupported` if the liquidation price is less than or equal to the borrowed amount
         /// Returns `InsufficientAmountInContract` if there is not enough amount of assets in the contract to borrow
         #[modifiers(when_not_paused)]
         #[ink(message)]
@@ -282,6 +326,133 @@ pub mod lending {
             // mint `borrow_amount` of the reserve token
             PSP22MintableRef::mint(&reserve_asset, contract, borrow_amount)?;
             self._emit_borrow_event(borrower, collateral_address, asset_address, amount, borrow_amount);
+            Ok(())
+        }
+
+        /// This function is called by the user who borrowed some asset. User needs to deposit borrowed amount along with interest
+        /// They can either repay the full amount or just a portion of the amount. If they repay the full amount, they will get all deposited
+        /// collateral back, another way they will get back the same portion of collateral as the repay portion (eg. if they deposit 80% of
+        /// the loan + interests, they will get 80% of collateral back). If the loan was liquidated, the user does not get their collateral
+        /// back and the NFT will be burned
+        ///
+        /// `loan_id` is the id of the loan to be repaid
+        /// `repay_amount` is the amount of borrowed asset to be repaid
+        ///
+        /// Returns true if the loan was repaid successfuly, false if the loan was already liquidated and can not be repaid
+        #[ink(message)]
+        pub fn repay(&mut self, loan_id: Id, repay_amount: Balance) -> Result<bool, LendingError> {
+            // REPAYING (borrower: B, nft, repayAmount: X):
+            let initiator = Self::env().caller();
+            let loan_contract = self.nft_contract;
+            let apy = 1000; // TODO store this in contract and getter and setter - 1000 is 10%
+                            // initiator must own the nft
+            if LoanRef::owner_of(&loan_contract, loan_id).unwrap_or(ZERO_ADDRESS.into()) != initiator {
+                return Err(LendingError::NotTheOwner)
+            }
+            let loan_info = LoanRef::get_loan_info(&loan_contract, loan_id)?;
+            // 1. if nft.liquidated
+            if loan_info.7 {
+                // 1.1. burn(nft)
+                LoanRef::delete_loan(&loan_contract, initiator, loan_id)?;
+                // 1.2. end
+                return Ok(false)
+            }
+            // 2.   T = timePassed = time(now) - nft.timestamp
+            let time_passed = Self::env().block_timestamp() - loan_info.6;
+            // 3.   IR = Interest Rate = (100 + (T / year) * APY) / 100
+            let total_apy = (apy * time_passed as Balance) / YEAR as Balance;
+            // 4.   R = toRepay = (nft.borrowAmount * IR) + 1
+            let to_repay = (((loan_info.5) * (10000 + total_apy)) / 10000) + 1;
+            // repaying more
+            // 5.   if X >= R
+            // 5.1. A.transfer(B, contract, R)
+            // 5.2. nft.collateralToken.transfer(contract, B, nft.collateralAmount)
+            // 5.3. burn(nft)
+            // 5.4. B1.burn(contract, nft.borrowAmount)
+            // 5.5. emit(Repay(B, X, 0))
+            // repaying less
+            // 6.   else
+            // 6.1. A.transfer(B, contract, X)
+            // 6.2. C = collateralAmount = (X / R) * nft.collateralAmount
+            // 6.3. B1.burn(contract, nft.borrowAmount)
+            // 6.4. nft.borrowAmount = R - X
+            // 6.5. B1.mint(contract, R - X)
+            // 6.6. nft.timestamp = time(now)
+            // 6.7. nft.collateralAmount -= C
+            // 6.8. nft.collateralToken.transfer(contract, B, C)
+            // 7.   emit(Repay(B, X, R-X))
+            Ok(true)
+        }
+
+
+        /// This function is called by the user who borrowed some asset. The contract will swap the collateral deposited to the borrowed asset,
+        /// if the loan was not liquidated yet, the amount to repay (borrowed + interest) will be kept in the contract and the rest will be sent
+        /// back to the borrower. The loan token will then be burned along with the reserves for the borrowed tokens 
+        ///
+        /// `loan_id` is the id of the loan to be repaid
+        ///
+        /// Returns true if the loan was repaid successfuly, false if the loan was already liquidated and can not be repaid
+        #[ink(message)]
+        pub fn swap_and_repay(&mut self, loan_id:Id){
+            //  SWAP_AND_REPAY (borrower: B, nft)
+            // 1.   if nft.liquidated
+            // 1.1. burn(nft)
+            // 1.2. end
+            // 2.   T = timePassed = time(now) - nft.timestamp
+            // 3.   IR = Interest Rate = (100 + (T / year) * APY) / 100
+            // 4.   R = toRepay = nft.borrowAmount * IR
+            // 5.   P = swap(nft.collateralToken, A, nft.collateralAmount)
+            // 6.   if P >= R
+            // 6.1. A.transfer(contract, B, P - R)
+            // 6.2. B1.burn(contract, nft.borrowAmount)
+            // 6.3. burn(nft)
+            // 6.4. end
+            // 7.   else
+            // 7.1. end
+            // 8.  emit(Repay(B, R))
+        }
+
+        /// This function is called by the user who wants to withdraw assets they deposited for lending. They will deposit their
+        /// share tokens and get back their share of the asset mapped to this share token
+        ///
+        /// `shares_address` account id of the shares token which is binded to the asset
+        /// `shares_amount` amount of shares being withdrawn
+        #[ink(message)]
+        pub fn withdraw_asset(
+            &mut self,
+            shares_address: AccountId,
+            shares_amount: Balance,
+        ) -> Result<(), LendingError> {
+            // TODO
+            // WITHDRAW MONEY (lender: L, amount: X):
+            // 1.   S = share = X / A1.supply()
+            // 2.   Y = withdrawAmount = (A.balaceOf(contract) + B1.supply()) * S
+            // 3.   if Y > A.balanceOf(contract)
+            // 3.1. end
+            // 4.   A1.burn(L, X)
+            // 5.   A.transfer(contract, L, Y)
+            // 6.   emit(Withdraw(L, X))
+            Ok(())
+        }
+
+        /// This function will liquidate the loan with `loan_id`.
+        ///
+        /// `loan_id` id of loan to be liquidated
+        #[ink(message)]
+        pub fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError> {
+            // TODO
+            // LIQUIDATE (liquidator: L, nft):
+            // 1.   C = nft.collateralToken
+            // 2.   P = priceOf(C)
+            // 3.   if P <= Lp
+            // 3.1. X = swap(nft.collateralToken, A, nft.collateralAmount)
+            // 3.2. B1.burn(nft.borrowAmount)
+            // 3.3. Lr = Liquidation Reward = X * 0.01
+            // 3.4. A.transfer(contract, L, Lr)
+            // 3.5. nft.liquidated = true
+            // 4.   else
+            // 4.1. end
+            // 5.   emit(Liquidate(nft.to, nft.collateralToken, nft.collateralAmount, X, Lr))
             Ok(())
         }
 

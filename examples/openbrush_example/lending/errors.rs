@@ -29,6 +29,8 @@ pub enum LendingError {
     AssetNotSupported,
     /// This error will be thrown if the user tries to allow an asset which is already allowed
     AssetSupported,
+    /// This error will be thrown if the user tries to repay a loan he does not own
+    NotTheOwner,
 }
 
 impl From<AccessControlError> for LendingError {
