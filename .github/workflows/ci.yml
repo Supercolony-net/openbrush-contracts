@@ -1,14 +1,18 @@
-name: CI
+name: CI/CD
 on:
   pull_request:
     branches: [ main ]
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/gokuseii/openbrush-contracts-ci
+      image: ghcr.io/Supercolony-net/openbrush-contracts-ci
       options: --user root
+      credentials:
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_TOKEN }}
       env:
+        node: /usr/local/bin/node
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/checkout@v2
@@ -20,10 +24,10 @@ jobs:
         run: |
           chown -R root .
           chmod -R a+rwx .
-          yarn run build:release
+          yarn build:release
       - name: Run Test Mocha
         run: |
           europa --tmp > /dev/null 2>&1 & P1=$!
-          yarn run test:mocha & P2=$!
+          yarn test:mocha & P2=$!
           wait $P2
           kill $P1
