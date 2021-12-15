@@ -1,7 +1,7 @@
 name: Check Dockerfile changes
 on:
   push:
-    branches: [ main-ci ]
+    branches: [ ci ]
 jobs:
   check-changes:
     runs-on: ubuntu-latest
