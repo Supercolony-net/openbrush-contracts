@@ -1,0 +1,33 @@
+name: CI/CD
+on:
+  pull_request:
+    branches: [ ci ]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/Supercolony-net/openbrush-contracts-ci
+      options: --user root
+      credentials:
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_TOKEN }}
+      env:
+        node: /usr/local/bin/node
+        CARGO_TARGET_DIR: /usr/local/cache/target
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build & Run Cargo tests
+        run: cargo test --release
+      - name: Yarn install dependencies
+        run: yarn
+      - name: Redspot Сompile
+        run: |
+          chown -R root .
+          chmod -R a+rwx .
+          yarn build:release
+      - name: Run Test Mocha
+        run: |
+          europa --tmp > /dev/null 2>&1 & P1=$!
+          yarn test:mocha & P2=$!
+          wait $P2
+          kill $P1
