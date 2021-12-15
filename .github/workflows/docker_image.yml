@@ -17,6 +17,6 @@ jobs:
           dockerfile: Dockerfile
           tags: latest
           registry: ghcr.io
-          githubOrg: Supercolony-net
+          githubOrg: supercolony-net
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
