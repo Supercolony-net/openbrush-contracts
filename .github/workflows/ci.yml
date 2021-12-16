@@ -16,7 +16,7 @@ jobs:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/checkout@v2
-      - name: Build & Run Cargo tests
+      - name: Build & Run cargo tests
         run: cargo test --release
       - name: Yarn install dependencies
         run: yarn
