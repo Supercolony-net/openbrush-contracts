@@ -5,7 +5,6 @@ mod psp22_metadata {
     /// Imports all the definitions from the outer scope so we can use them here.
     use contracts::psp22::extensions::metadata::*;
     use ink_lang as ink;
-    use ink_storage::Lazy;
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
@@ -25,9 +24,9 @@ mod psp22_metadata {
         #[ink(constructor)]
         pub fn new(name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
             let mut instance = Self::default();
-            Lazy::set(&mut instance.metadata.name, name);
-            Lazy::set(&mut instance.metadata.symbol, symbol);
-            Lazy::set(&mut instance.metadata.decimals, decimal);
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance.metadata.decimals = decimal;
             instance
         }
     }

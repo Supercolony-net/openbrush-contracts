@@ -147,7 +147,7 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 ------- Release 3.0.0
 
-- [ ] All extensions for tokens.
+- [x] All extensions for tokens.
 - [ ] Improve ink! to allow code injection to have default implementation on ink! level instead Rust level.
 - [ ] Refactor the library according to new changes.
 
