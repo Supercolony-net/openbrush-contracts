@@ -156,15 +156,28 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 - [ ] Add support of upgradable contracts to ink!/contract-pallet level.
 - [ ] Create upgradable contracts.
 
-## Testing
+## Installation & Testing
+To work with project you need to install ink! toolchain and NodeJS's dependencies.
+- [ink! toolchain](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/#prerequisites)
+- NodeJS deps you can install via `yarn` command
+
+### Build
+```
+$ yarn build
+```
+If you want to build in release mode, you can use this command
+```
+$ yarn build:release
+```
+
+### Tests
+
 You can run unit tests by `cargo test --all-features --workspace` command from the root of the directory.
 
-To run integration test you need to install ink! toolchain, NodeJS's dependencies and start the node with contract-pallet.
-- [ink! toolchain](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/#prerequisites)
+To run integration test you need to start the node with contract-pallet.
 - [Setup and start the node with contract-pallet](https://docs.patract.io/en/redspot/intro/installation#setup-local-test-node)
-- NodeJS deps you can install via `yarn run install` command
 
-After you can run tests by `yarn run test` command. It will build all contracts required for integration tests and run them.
+After you can run tests by `npm run test` command. It will build all contracts required for integration tests and run them.
 
 ## History behind
 

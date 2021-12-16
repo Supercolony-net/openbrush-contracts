@@ -42,3 +42,13 @@ payment_splitter = ["contracts/payment_splitter"]
 reentrancy_guard = ["contracts/reentrancy_guard"]
 pausable = ["contracts/pausable"]
 timelock_controller = ["contracts/timelock_controller"]
+
+[profile.release]
+panic = "abort"
+lto = true
+overflow-checks = false
+
+[profile.dev]
+panic = "abort"
+lto = true
+overflow-checks = false
