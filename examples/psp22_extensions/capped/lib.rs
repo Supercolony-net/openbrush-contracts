@@ -1,9 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp22_capped {
+    use brush::contracts::psp22::*;
     use ink_prelude::string::String;
-    use psp22::traits::*;
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage)]
@@ -44,7 +45,7 @@ pub mod my_psp22_capped {
             if (self.total_supply() + amount) > self.cap() {
                 return Err(PSP22Error::Custom(String::from("Cap exceeded")))
             }
-            PSP22::_mint(self, account, amount)
+            PSP22Internal::_mint(self, account, amount)
         }
 
         /// Initializes the token's cap

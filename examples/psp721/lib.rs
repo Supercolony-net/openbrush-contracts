@@ -1,8 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp721 {
-    use psp721::traits::*;
+    use brush::contracts::psp721::*;
 
     #[ink(storage)]
     #[derive(Default, PSP721Storage)]

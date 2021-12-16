@@ -10,7 +10,7 @@
 /// ```
 #[ink_lang::contract(compile_as_dependency = true)]
 pub mod flip_on_me {
-    use reentrancy_guard::traits::*;
+    use brush::contracts::reentrancy_guard::*;
     #[ink(storage)]
     pub struct CallerOfFlip {}
 
@@ -31,8 +31,10 @@ pub mod flip_on_me {
 
 #[brush::contract]
 pub mod my_flipper_guard {
-    use brush::modifiers;
-    use reentrancy_guard::traits::*;
+    use brush::{
+        contracts::reentrancy_guard::*,
+        modifiers,
+    };
 
     use crate::flip_on_me::CallerOfFlip;
     use ink_env::call::FromAccountId;
@@ -42,6 +44,7 @@ pub mod my_flipper_guard {
         fn value_mut(&mut self) -> &mut bool;
     }
 
+    // TODO: Refactor example to have a separate trait defined in ../ to avoid `ink-as-dependency`
     #[brush::wrapper]
     pub type FlipperRef = dyn Flipper;
 

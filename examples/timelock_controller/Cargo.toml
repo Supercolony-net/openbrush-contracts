@@ -16,8 +16,7 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-timelock-controller = { path = "../../contracts/governance/timelock-controller", default-features = false }
-brush = { path = "../../utils/brush", default-features = false }
+brush = { path = "../..", default-features = false, features = ["timelock_controller"] }
 
 [lib]
 name = "my_timelock_controller"
@@ -41,7 +40,6 @@ std = [
 
     # These dependencies
     "brush/std",
-    "timelock-controller/std",
 ]
 ink-as-dependency = []
 

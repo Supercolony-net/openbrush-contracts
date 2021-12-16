@@ -1,10 +1,15 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp22_pausable {
-    use brush::modifiers;
-    use pausable::traits::*;
-    use psp22::traits::*;
+    use brush::{
+        contracts::{
+            pausable::*,
+            psp22::*,
+        },
+        modifiers,
+    };
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage, PausableStorage)]
@@ -15,7 +20,9 @@ pub mod my_psp22_pausable {
         pause: PausableData,
     }
 
-    impl PSP22 for MyPSP22Pausable {
+    impl PSP22 for MyPSP22Pausable {}
+
+    impl PSP22Internal for MyPSP22Pausable {
         /// Return `Paused` error if the token is paused
         #[modifiers(when_not_paused)]
         fn _before_token_transfer(

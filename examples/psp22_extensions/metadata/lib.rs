@@ -1,13 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp22 {
+    use brush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
-    use ink_storage::Lazy;
-    use psp22::{
-        extensions::metadata::*,
-        traits::*,
-    };
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
@@ -26,10 +23,12 @@ pub mod my_psp22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
             let mut instance = Self::default();
-            Lazy::set(&mut instance.metadata.name, name);
-            Lazy::set(&mut instance.metadata.symbol, symbol);
-            Lazy::set(&mut instance.metadata.decimals, decimal);
-            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance.metadata.decimals = decimal;
+            instance
+                ._mint(instance.env().caller(), total_supply)
+                .expect("Should mint total_supply");
             instance
         }
     }

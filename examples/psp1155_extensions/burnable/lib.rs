@@ -1,12 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp1155 {
+    use brush::contracts::psp1155::extensions::burnable::*;
     use ink_prelude::vec;
-    use psp1155::{
-        extensions::burnable::*,
-        traits::*,
-    };
 
     #[derive(Default, PSP1155Storage)]
     #[ink(storage)]

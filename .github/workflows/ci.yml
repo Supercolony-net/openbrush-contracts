@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build & Run cargo tests
-        run: cargo test --release
+        run: cargo test --all-features --workspace --release
       - name: Yarn install dependencies
         run: yarn
       - name: Redspot Сompile

@@ -1,11 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp721_mintable {
-    use psp721::{
-        extensions::mintable::*,
-        traits::*,
-    };
+    use brush::contracts::psp721::extensions::mintable::*;
 
     #[derive(Default, PSP721Storage)]
     #[ink(storage)]

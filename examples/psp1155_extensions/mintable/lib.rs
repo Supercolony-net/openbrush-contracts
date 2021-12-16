@@ -1,11 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp1155 {
-    use psp1155::{
-        extensions::mintable::*,
-        traits::*,
-    };
+    use brush::contracts::psp1155::extensions::mintable::*;
 
     #[derive(Default, PSP1155Storage)]
     #[ink(storage)]

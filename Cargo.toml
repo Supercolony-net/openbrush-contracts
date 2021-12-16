@@ -1,21 +1,47 @@
 [workspace]
 members = [
-    "contracts/token/psp22",
-    "contracts/token/psp721",
-    "contracts/token/psp1155",
-    "contracts/access/ownable",
-    "contracts/access/access-control",
-    "contracts/security/reentrancy-guard",
-    "contracts/security/pausable",
-    "contracts/governance/timelock-controller",
-    "contracts/finance/payment-splitter",
-    "utils/brush",
+    "contracts",
+    "utils/brush_macro",
     "utils/brush_derive_macro",
 ]
+
 exclude = [
     "examples",
     "mock"
 ]
+
+[package]
+name = "brush"
+version = "1.0.0"
+authors = ["Supercolony <green.baneling@supercolony.net>"]
+edition = "2018"
+
+[dependencies]
+contracts = { path = "./contracts", default-features = false }
+brush-macro = { path = "./utils/brush_macro", default-features = false }
+
+[lib]
+name = "brush"
+path = "lib.rs"
+crate-type = [
+    "rlib",
+]
+
+[features]
+default = ["std"]
+std = [
+    "brush-macro/std",
+    "contracts/std",
+]
+psp22 = ["contracts/psp22"]
+psp721 = ["contracts/psp721"]
+psp1155 = ["contracts/psp1155"]
+ownable = ["contracts/ownable"]
+access_control = ["contracts/access_control"]
+payment_splitter = ["contracts/payment_splitter"]
+reentrancy_guard = ["contracts/reentrancy_guard"]
+pausable = ["contracts/pausable"]
+timelock_controller = ["contracts/timelock_controller"]
 
 [profile.release]
 panic = "abort"

@@ -16,8 +16,7 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-payment-splitter = { path = "../../contracts/finance/payment-splitter", default-features = false }
-brush = { path = "../../utils/brush", default-features = false }
+brush = { path = "../..", default-features = false, features = ["payment_splitter"] }
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
@@ -49,6 +48,5 @@ std = [
 
     # These dependencies
     "brush/std",
-    "payment-splitter/std",
 ]
 ink-as-dependency = []

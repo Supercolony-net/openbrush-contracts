@@ -1,11 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
 pub mod my_psp721_burnable {
-    use psp721::{
-        extensions::burnable::*,
-        traits::*,
-    };
+    use brush::contracts::psp721::extensions::burnable::*;
 
     #[derive(Default, PSP721Storage)]
     #[ink(storage)]
