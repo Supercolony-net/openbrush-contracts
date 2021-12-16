@@ -1,7 +1,7 @@
 name: CI/CD
 on:
   pull_request:
-    branches: [ ci ]
+    branches: [ main ]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
