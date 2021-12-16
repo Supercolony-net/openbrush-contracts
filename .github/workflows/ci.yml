@@ -6,7 +6,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/Supercolony-net/openbrush-contracts-ci
+      image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
       credentials:
         username: ${{ secrets.GHCR_USERNAME }}
