@@ -1,0 +1,22 @@
+name: Check Dockerfile changes
+on:
+  push:
+    branches: [ ci ]
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: files
+        uses: jitterbit/get-changed-files@v1
+      - name: Build & Push Docker Image
+        if: contains(steps.files.outputs.all, 'Dockerfile')
+        uses: mr-smithers-excellent/docker-build-push@v5
+        with:
+          image: openbrush-contracts-ci
+          dockerfile: Dockerfile
+          tags: latest
+          registry: ghcr.io
+          githubOrg: Supercolony-net
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
