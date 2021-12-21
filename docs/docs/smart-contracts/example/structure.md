@@ -27,7 +27,7 @@ This will of course work only after you added the correct dependencies:
 syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
-brush_derive_macro = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts"}
+brush_derive_macro = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts"}
 
 [lib]
 name = "lending_derive"

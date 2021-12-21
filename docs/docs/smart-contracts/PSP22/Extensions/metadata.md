@@ -5,14 +5,18 @@ title: PSP22 Metadata
 
 This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with the [PSP22Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/extensions/metadata.rs) extension.
 
-## Step 1: Add imports
+## Step 1: Add imports and enable unstable feature
 
-Replace `ink::contract` macro by `brush::contract` and import **everything** from `psp22::extensions::metadata`.
+Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp22::extensions::metadata`.
 
 ```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
 #[brush::contract]
-pub mod my_psp22_metadata {
-   use psp22::extensions::metadata::*;
+pub mod my_psp22 {
+    use brush::contracts::psp22::extensions::metadata::*;
+    use ink_prelude::string::String;
 ```
 
 ## Step 2: Define storage
@@ -44,16 +48,20 @@ Define constructor. Your `PSP22Metadata` contract is ready!
 
 ```rust
 impl MyPSP22 {
-   #[ink(constructor)]
-   pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
-      let mut instance = Self::default();
-      Lazy::set(&mut instance.metadata.name, name);
-      Lazy::set(&mut instance.metadata.symbol,symbol);
-      Lazy::set(&mut instance.metadata.decimals,decimal);
-      instance._mint(instance.env().caller(), total_supply);
-      instance
-   }
+    #[ink(constructor)]
+    pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
+        let mut instance = Self::default();
+        instance.metadata.name = name;
+        instance.metadata.symbol = symbol;
+        instance.metadata.decimals = decimal;
+        instance
+            ._mint(instance.env().caller(), total_supply)
+            .expect("Should mint total_supply");
+        instance
+    }
 }
 ```
+
+You can check the example of usage of [PSP22 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).

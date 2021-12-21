@@ -8,52 +8,25 @@ This example shows how you can reuse the implementation of
 
 ## Step 1: Include dependencies
 
-Include dependencies to `pausable` and `brush` in the cargo file.
+Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable a default implementation of Pausable via features of the `brush`.
 
 ```toml
-[dependencies]
-ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-
-scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
-scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
-
-# These dependencies
-pausable = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-
-[features]
-default = ["std"]
-std = [
-   "ink_primitives/std",
-   "ink_metadata",
-   "ink_metadata/std",
-   "ink_env/std",
-   "ink_storage/std",
-   "ink_lang/std",
-   "scale/std",
-   "scale-info",
-   "scale-info/std",
-
-   # These dependencies
-   "pausable/std",
-   "brush/std",
-]
+brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["pausable"] }
 ```
 
-## Step 2: Add imports
+## Step 2: Add imports and enable unstable feature
 
-Replace `ink::contract` macro by `brush::contract`.
-Import **everything** from `pausable::traits`.
+Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::pausable`.
 
 ```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
 #[brush::contract]
 pub mod my_pausable {
-   use pausable::traits::*;
+    use brush::contracts::pausable::*;
+...
 ```
 
 ## Step 3: Define storage
@@ -99,28 +72,47 @@ impl MyFlipper {
 Customize it by adding flipper logic. We will implement `flip` method marked with `when_not_paused` modifier.
 
 ```rust
-impl MyFlipper {
-   #[ink(constructor)]
-   pub fn new() -> Self {
-      Self::default()
-   }
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
-   #[ink(message)]
-   #[brush::modifiers(when_not_paused)]
-   pub fn flip(&mut self) {
-      self.flipped = !self.flipped;
-   }
+#[brush::contract]
+pub mod my_pausable {
+    use brush::contracts::pausable::*;
 
-   #[ink(message)]
-   pub fn pause(&mut self) {
-      self._pause()
-   }
+    #[ink(storage)]
+    #[derive(Default, PausableStorage)]
+    pub struct MyFlipper {
+        #[PausableStorageField]
+        pause: PausableData,
+        flipped: bool,
+    }
 
-   #[ink(message)]
-   pub fn unpause(&mut self) {
-      self._unpause()
-   }
+    impl MyFlipper {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            Self::default()
+        }
+
+        #[ink(message)]
+        #[brush::modifiers(when_not_paused)]
+        pub fn flip(&mut self) -> Result<(), PausableError> {
+            self.flipped = !self.flipped;
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn pause(&mut self) -> Result<(), PausableError> {
+            self._pause()
+        }
+
+        #[ink(message)]
+        pub fn unpause(&mut self) -> Result<(), PausableError> {
+            self._unpause()
+        }
+    }
+
+    impl Pausable for MyFlipper {}
 }
-
-impl Pausable for MyFlipper {}
 ```
+
+You can check the example of usage of [Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/pausable).

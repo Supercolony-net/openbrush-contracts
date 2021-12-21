@@ -2,30 +2,22 @@
 #![feature(min_specialization)]
 
 #[brush::contract]
-pub mod ownable {
+pub mod my_ownable {
     use brush::{
-        contracts::{
-            ownable::*,
-            psp1155::extensions::{
-                burnable::*,
-                mintable::*,
-            },
-        },
+        contracts::ownable::*,
         modifiers,
-        traits::InkStorage,
     };
-    use ink_prelude::vec::Vec;
 
     #[ink(storage)]
-    #[derive(Default, PSP1155Storage, OwnableStorage)]
-    pub struct PSP1155Struct {
-        #[PSP1155StorageField]
-        psp1155: PSP1155Data,
+    #[derive(Default, OwnableStorage)]
+    pub struct MyOwnable {
         #[OwnableStorageField]
         ownable: OwnableData,
     }
 
-    impl PSP1155Struct {
+    impl Ownable for MyOwnable {}
+
+    impl MyOwnable {
         #[ink(constructor)]
         pub fn new() -> Self {
             let mut instance = Self::default();
@@ -33,37 +25,11 @@ pub mod ownable {
             instance._init_with_owner(caller);
             instance
         }
-    }
-
-    impl Ownable for PSP1155Struct {}
-
-    impl PSP1155 for PSP1155Struct {}
-
-    impl PSP1155Mintable for PSP1155Struct {
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        fn mint(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
-            self._mint_to(Self::env().caller(), ids_amounts)
-        }
 
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint_to(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
-            self._mint_to(to, ids_amounts)
-        }
-    }
-
-    impl PSP1155Burnable for PSP1155Struct {
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        fn burn(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
-            self._burn_from(Self::env().caller(), ids_amounts)
-        }
-
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        fn burn_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
-            self._burn_from(from, ids_amounts)
+        pub fn owner_function(&mut self) -> Result<(), OwnableError> {
+            todo!()
         }
     }
 }

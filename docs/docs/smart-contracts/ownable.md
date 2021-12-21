@@ -7,54 +7,28 @@ This example shows how you can use the implementation of [ownable](https://githu
 
 ## Step 1: Include dependencies
 
-Include dependencies to `ownable` and `brush` in the cargo file.
+Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable a default implementation of Ownable via features of the `brush`.
 
 ```toml
-[dependencies]
-ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-
-scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
-scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
-
-# These dependencies
-ownable = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-
-[features]
-default = ["std"]
-std = [
-   "ink_primitives/std",
-   "ink_metadata",
-   "ink_metadata/std",
-   "ink_env/std",
-   "ink_storage/std",
-   "ink_lang/std",
-   "scale/std",
-   "scale-info",
-   "scale-info/std",
-
-   # These dependencies   
-   "ownable/std",
-   "brush/std",
-]
+brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ownable"] }
 ```
 
-## Step 2: Add imports
+## Step 2: Add imports and enable unstable feature
 
-Replace `ink::contract` macro by `brush::contract`.
-Import **everything** from `ownable::traits`.
+Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::ownable`.
 
 ```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
 #[brush::contract]
-pub mod ownable {
-   use ownable::traits::*;
-   use brush::modifiers;
-   use ink_prelude::vec::Vec;
+pub mod my_ownable {
+    use brush::{
+        contracts::ownable::*,
+        modifiers,
+    };
+...
 ```
 
 ## Step 3: Define storage
@@ -100,14 +74,14 @@ Customize it by adding ownable logic. We will add a `owner_function` to `MyOwnab
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
 #[brush::contract]
-pub mod ownable {
-   use brush::{
-      modifiers,
-   };
-   use ink_prelude::vec::Vec;
-   use ownable::traits::*;
+pub mod my_ownable {
+    use brush::{
+        contracts::ownable::*,
+        modifiers,
+    };
 
    #[ink(storage)]
    #[derive(Default, OwnableStorage)]
@@ -130,12 +104,10 @@ pub mod ownable {
 
       #[ink(message)]
       #[modifiers(only_owner)]
-      pub fn owner_function(&mut self) {
+      pub fn owner_function(&mut self) -> Result<(), OwnableError> {
          todo!()
       }
-
    }
-
 }
 
 ```

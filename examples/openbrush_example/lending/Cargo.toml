@@ -17,7 +17,7 @@ scale-info = { version = "1", default-features = false, features = ["derive"], o
 
 # These dependencies
 brush = { path = "../../../utils/brush", default-features = false }
-access-control = { path = "../../../contracts/access/access-control", default-features = false }
+access-control = { path = "../../../contracts/access/access_control", default-features = false }
 pausable = { path = "../../../contracts/security/pausable", default-features = false }
 psp22 = { path = "../../../contracts/token/psp22", default-features = false }
 psp721 = { path = "../../../contracts/token/psp721", default-features = false }

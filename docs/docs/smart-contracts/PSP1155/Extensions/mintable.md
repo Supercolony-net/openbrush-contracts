@@ -7,14 +7,15 @@ This example shows how you can reuse the implementation of [PSP1155](https://git
 
 ## How to use this extension
 
-For your smart contract to use this extension, you only need to implement the `PSP1155Mintable` trait in your `PSP1155` smart contract. Add import for  `psp1155::extensions::mintable::*`, inherit the implementation for `PSP1155Mintable` trait, where you can also customize (override) the original functions from `PSP1155Mintable`.
+For your smart contract to use this extension, you only need to implement the `PSP1155Mintable` trait in your `PSP1155` smart contract. Add import for `brush::contracts::psp1155::extensions::mintable::*`, inherit the implementation for `PSP1155Mintable` trait, where you can also customize (override) the original functions from `PSP1155Mintable`.
 
 ```rust
-use psp1155::extensions::mintable::*;
+use brush::contracts::psp1155::extensions::mintable::*;
 
 impl PSP1155Mintable for MyPSP1155 {}
 ```
 
 And that's it! Your `PSP1155` is now extended by the `PSP1155Mintable` extension and ready to use its functions!
+You can check the example of usage of [PSP1155 Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp1155_extensions/mintable).
 
 You can also check the documentation for the basic implementation of [PSP1155](/smart-contracts/PSP1155/psp1155).

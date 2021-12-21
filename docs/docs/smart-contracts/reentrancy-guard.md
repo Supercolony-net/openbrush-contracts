@@ -3,7 +3,7 @@ sidebar_position: 4
 title: Reentrancy Guard
 ---
 
-This example shows how you can use the [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy-guard)
+This example shows how you can use the [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy_guard)
 modifier to prevent reentrancy into certain functions. In this example we will create two contracts:
 
 - `my_flipper_guard` - this contract is the simple version of [flipper](https://github.com/paritytech/ink/tree/master/examples/flipper),
@@ -16,63 +16,30 @@ modifier to prevent reentrancy into certain functions. In this example we will c
 
 ### Step 1: Include dependencies
 
-Include dependencies to `reentrancy-guard` and `brush` in the cargo file.
+Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable a default implementation of Reentrancy Guard via features of the `brush`.
 
 ```toml
-[dependencies]
-ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-
-scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
-scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
-
-# These dependencies
-reentrancy-guard = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-
-crate-type = [
-    "cdylib",
-    # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
-    "rlib",
-]
-
-[features]
-default = ["std"]
-std = [
-    "ink_primitives/std",
-    "ink_metadata",
-    "ink_metadata/std",
-    "ink_env/std",
-    "ink_storage/std",
-    "ink_lang/std",
-    "scale/std",
-    "scale-info",
-    "scale-info/std",
-
-    # These dependencies
-    "brush/std",
-    "reentrancy_guard/std",
-]
-
-ink-as-dependency = []
+brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["reentrancy_guard"] }
 ```
 
 ### Step 2: Add imports
 
 To declare the contract, you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-from `reentrancy-guard` trait module.
+from `brush::contracts::reentrancy_guard`.
 
 ```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
 #[brush::contract]
 pub mod my_flipper_guard {
-    use reentrancy_guard::traits::*;
-    use brush::modifiers;
-    use ink_env::call::FromAccountId;
-    use crate::flip_on_me::CallerOfFlip;
+  use brush::{
+    contracts::reentrancy_guard::*,
+    modifiers,
+  };
+
+  use crate::flip_on_me::CallerOfFlip;
+  use ink_env::call::FromAccountId;
 ```
 
 
@@ -200,7 +167,9 @@ pub mod flip_on_me {
 
 ### Step 2: Include dependencies
 
-To simplify cross-contract call to `MyFlipper` you need to import the contract with `ink-as-dependency` feature.
+To do a cross-contract call to `MyFlipper` you need to import the `MyFlipper` contract with `ink-as-dependency` feature.
+
+> **_Note:_**  The crate type of the `MyFlipper` should be `rlib` for that.
 
 ```toml
 [dependencies]
@@ -234,6 +203,8 @@ std = [
     "my_flipper_guard/std",
 ]
 ```
+
+You can check the example of usage of [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/reentrancy_guard).
 
 ## Testing
 

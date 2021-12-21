@@ -5,7 +5,7 @@ title: Lending contract
 
 Now we will define the contract's logic in our `lib.rs` file.
 
-## Add imports
+## Add imports and enable unstable feature
 
 As everywhere, we will import all we need for our smart contract to work.
 
