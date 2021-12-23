@@ -8,7 +8,7 @@ edition = "2018"
 syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
-brush_derive_macro = { path = "../../utils/brush_derive_macro" }
+brush_derive = { path = "../../utils/brush_derive" }
 
 [lib]
 name = "derive"

@@ -2,7 +2,7 @@
 extern crate proc_macro;
 
 #[allow(unused_imports)]
-use brush_derive_macro::declare_derive_storage_trait;
+use brush_derive::declare_derive_storage_trait;
 
 // PSP22
 #[cfg(feature = "psp22")]

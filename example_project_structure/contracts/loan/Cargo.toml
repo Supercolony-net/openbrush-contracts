@@ -1,7 +1,7 @@
 [package]
-name = "contracts"
+name = "loan_contract"
 version = "1.0.0"
-authors = ["Supercolony <green.baneling@supercolony.net>"]
+authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2018"
 
 [dependencies]
@@ -15,53 +15,40 @@ ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", d
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
-derive = { path = "./derive" }
-brush = { package = "brush_lang", path = "../utils/brush_lang", default-features = false }
+# These dependencies
+lending_project = { path = "../..", default-features = false }
+brush = { path = "../../..", default-features = false, features = ["ownable", "psp721"] }
 
 [lib]
-name = "contracts"
+name = "loan_contract"
 path = "lib.rs"
 crate-type = [
-    "rlib",
+    "cdylib",
+    "rlib"
 ]
 
 [features]
 default = ["std"]
 std = [
+    "ink_primitives/std",
+    "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
     "ink_storage/std",
-    "ink_primitives/std",
+    "ink_lang/std",
     "scale/std",
+    "scale-info",
     "scale-info/std",
 
+    # These dependencies
+    "lending_project/std",
     "brush/std",
 ]
-psp22 = [
-    "derive/psp22",
-]
-psp721 = [
-    "derive/psp721",
-]
-psp1155 = [
-    "derive/psp1155",
-]
-access_control = [
-    "derive/access_control",
-]
-ownable = [
-    "derive/ownable",
-]
-payment_splitter = [
-    "derive/payment_splitter",
-]
-reentrancy_guard = [
-    "derive/reentrancy_guard",
-]
-pausable = [
-    "derive/pausable",
-]
-timelock_controller = [
-    "access_control",
-    "derive/timelock_controller",
-]
+ink-as-dependency = []
+
+[profile.dev]
+codegen-units = 16
+overflow-checks = false
+
+[profile.release]
+overflow-checks = false

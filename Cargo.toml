@@ -1,12 +1,13 @@
 [workspace]
 members = [
     "contracts",
-    "utils/brush_macro",
-    "utils/brush_derive_macro",
+    "utils/brush_lang",
+    "utils/brush_derive",
 ]
 
 exclude = [
     "examples",
+    "example_project_structure",
     "mock"
 ]
 
@@ -18,7 +19,7 @@ edition = "2018"
 
 [dependencies]
 contracts = { path = "./contracts", default-features = false }
-brush-macro = { path = "./utils/brush_macro", default-features = false }
+brush_lang = { path = "./utils/brush_lang", default-features = false }
 
 [lib]
 name = "brush"
@@ -30,8 +31,8 @@ crate-type = [
 [features]
 default = ["std"]
 std = [
-    "brush-macro/std",
     "contracts/std",
+    "brush_lang/std",
 ]
 psp22 = ["contracts/psp22"]
 psp721 = ["contracts/psp721"]

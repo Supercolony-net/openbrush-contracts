@@ -20,7 +20,7 @@ edition = "2018"
 syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
-brush_derive_macro = { path = "../../../../utils/brush_derive_macro" }
+brush_derive = { path = "../../../../utils/brush_derive" }
 
 [lib]
 name = "loan_derive"
@@ -39,7 +39,7 @@ And a `lib.rs` file, where we declare the derive macro, and we will do it like t
 
 extern crate proc_macro;
 
-use brush_derive_macro::declare_derive_storage_trait;
+use brush_derive::declare_derive_storage_trait;
 
 declare_derive_storage_trait!(derive_loan_storage, LoanStorage, LoanStorageField);
 ```
