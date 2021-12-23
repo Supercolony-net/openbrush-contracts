@@ -49,6 +49,7 @@ std = [
 ink-as-dependency = []
 
 [profile.dev]
+overflow-checks = false
 codegen-units = 16
 
 [profile.release]

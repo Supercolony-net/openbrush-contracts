@@ -1,25 +1,27 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
-#![allow(unused_imports)]
 
 /// This contract will be used to represent the shares of a user
 /// and other instance of this contract will be used to represent
 /// the amount of borrowed tokens
 #[brush::contract]
 pub mod shares {
-    use brush::{
-        contracts::{
-            ownable::*,
-            psp22::extensions::{
-                burnable::*,
-                metadata::*,
-                mintable::*,
-            },
+    use brush::contracts::{
+        ownable::*,
+        psp22::extensions::{
+            burnable::*,
+            metadata::*,
+            mintable::*,
         },
-        modifiers,
     };
+
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use brush::modifiers;
+
+    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang::Env;
     use ink_prelude::string::String;
+    #[cfg(not(feature = "ink-as-dependency"))]
     use lending_project::traits::shares::*;
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data

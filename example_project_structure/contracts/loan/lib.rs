@@ -1,21 +1,23 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
-#![allow(unused_imports)]
 
 /// This contract will represent the loan of a user
 #[brush::contract]
 pub mod loan {
-    use brush::{
-        contracts::{
-            ownable::*,
-            psp721::extensions::metadata::*,
-        },
-        modifiers,
+    use brush::contracts::{
+        ownable::*,
+        psp721::extensions::metadata::*,
     };
+
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use brush::modifiers;
+
+    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
+    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_storage::collections::HashMap as StorageHashMap;
     use lending_project::traits::loan::*;
 
