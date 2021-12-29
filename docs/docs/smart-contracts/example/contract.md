@@ -3,207 +3,154 @@ sidebar_position: 9
 title: Lending contract
 ---
 
-Now we will define the contract's logic in our `lib.rs` file.
+The main logic of the `LendingContract` is defined in the `impls/lending` directory.
+Now we need only to "inherit" it.
 
-## Add imports and enable unstable feature
+## Add dependencies
 
-As everywhere, we will import all we need for our smart contract to work.
+`LendingContract` instantiates the `SharesContract` and `LoanContract`, so we
+should import them as `ink-as-dependency`. Also we want to use the `AccessControl`
+and `Pausable` from OpenBrush, so we import them too. We also want to "inherit" the
+implementation of `Lending` and `LendingPermissioned` traits defined in the `lending_project` crate.
 
-```rust
-#[brush::contract]
-pub mod lending {
-    use crate::{
-        errors::*,
-        traits::*,
-    };
-    use access_control::traits::*;
-    use brush::{
-        modifiers,
-        traits::{
-            AccountIdExt,
-            ZERO_ADDRESS,
-        },
-    };
-    use ink_lang::ToAccountId;
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
-    use loan_nft::loan::{
-        Loan,
-        LoanRef,
-    };
-    use pausable::traits::*;
-    use psp22::{
-        extensions::{
-            burnable::*,
-            mintable::*,
-        },
-        traits::*,
-    };
-    use psp721::traits::Id;
-    use shares::shares::Shares;
-```
+```toml
+[package]
+name = "lending_contract"
+version = "1.0.0"
+authors = ["Supercolony <dominik.krizo@supercolony.net>"]
+edition = "2018"
 
-## Define the events
+[dependencies]
+ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
 
-We will be keeping the track of events that happened in our smart contract. For that, we need to define the event structs and we will be emitting them when needed. We will be emitting the `Lend` event when assets are deposited and the `LendingAllowed` event when an asset is allowed for lending by a manager account.
+scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
+scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
-```rust
-#[ink(event)]
-pub struct Lend {
-    #[ink(topic)]
-    lender: AccountId,
-    #[ink(topic)]
-    asset: AccountId,
-    amount: Balance,
-}
+# These dependencies
+shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
+loan_contract = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
+lending_project = { path = "../..", default-features = false }
+brush = { path = "../../..", default-features = false, features = ["psp22", "psp721", "pausable", "access_control"] }
 
-#[ink(event)]
-pub struct LendingAllowed {
-    #[ink(topic)]
-    asset_address: AccountId,
-    #[ink(topic)]
-    shares_address: AccountId,
-    #[ink(topic)]
-    reserves_address: AccountId,
-    #[ink(topic)]
-    manager_address: AccountId,
-}
+[lib]
+name = "lending_contract"
+path = "lib.rs"
+crate-type = [
+    "cdylib",
+]
 
-#[ink(event)]
-pub struct LendingCancelled {
-    #[ink(topic)]
-    asset_address: AccountId,
-    #[ink(topic)]
-    manager_address: AccountId,
-}
+[features]
+default = ["std"]
+std = [
+    "ink_primitives/std",
+    "ink_metadata",
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_lang/std",
+    "scale/std",
+    "scale-info",
+    "scale-info/std",
 
-#[ink(event)]
-pub struct CollateralAllowed {
-    #[ink(topic)]
-    asset_address: AccountId,
-    #[ink(topic)]
-    manager_address: AccountId,
-}
+    # These dependencies
+    "loan_contract/std",
+    "shares_contract/std",
+    "brush/std",
+]
+ink-as-dependency = []
 
-#[ink(event)]
-pub struct CollateralCancelled {
-    #[ink(topic)]
-    asset_address: AccountId,
-    #[ink(topic)]
-    manager_address: AccountId,
-}
+[profile.dev]
+overflow-checks = false
+codegen-units = 16
 
-#[ink(event)]
-pub struct Borrow {
-    #[ink(topic)]
-    borrower: AccountId,
-    #[ink(topic)]
-    collateral_address: AccountId,
-    #[ink(topic)]
-    asset_address: AccountId,
-    collateral_amount: Balance,
-    borrow_amount: Balance,
-}
-
-#[ink(event)]
-pub struct Repay {
-    #[ink(topic)]
-    borrower: AccountId,
-    #[ink(topic)]
-    collateral_address: AccountId,
-    #[ink(topic)]
-    asset_address: AccountId,
-    collateral_amount: Balance,
-    repay_amount: Balance,
-    to_repay: Balance,
-}
-
-#[ink(event)]
-pub struct Withdraw {
-    #[ink(topic)]
-    lender: AccountId,
-    #[ink(topic)]
-    asset_address: AccountId,
-    withdraw_amount: Balance,
-}
-
-#[ink(event)]
-pub struct Liquidate {
-    #[ink(topic)]
-    liquidator: AccountId,
-    #[ink(topic)]
-    borrower: AccountId,
-    #[ink(topic)]
-    collateral_address: AccountId,
-    collateral_amount: Balance,
-    liquidator_fee: Balance,
-}
+[profile.release]
+overflow-checks = false
 ```
 
 ## Define the contract storage
 
-As described earlier, we want our smart contract to be paused by the Manager accounts. To do that, we need our contract to be `Pausable` and we need a manager role. We can do this with the `AccessControl`. Also, we want to use the `LendingStorageTrait` we have declared. So we will declare a struct and derive all these traits needed. We will also store the `code_hash` of our `Shares` contract, because we will be instantiating it later, for which we need the hash, and we will also need the AccountId of our nft contract.
+As described earlier, we want our smart contract to be paused by the Manager accounts. 
+To do that, we need our contract to be `Pausable` and we need a manager role. 
+We can do this with the `AccessControl`. Also, we want to use the `LendingStorage` we have declared. 
+So we will declare a struct and derive all these traits needed.
 
 ```rust
 #[ink(storage)]
 #[derive(Default, AccessControlStorage, PausableStorage, LendingStorage)]
-pub struct Lending {
+pub struct LendingContract {
     #[AccessControlStorageField]
     access: AccessControlData,
     #[PausableStorageField]
     pause: PausableData,
     #[LendingStorageField]
     lending: LendingData,
-    code_hash: Hash,
-    nft_contract: AccountId,
 }
-```
-
-## Define roles
-
-What about the manager role we have mentioned? We will declare a `const RoleType` Manager and we will allow the admin to grant a Manager role to other accounts.
-
-```rust
-const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
 ```
 
 ## Implement traits
 
-All the traits we need and we have declared storage fields for, we need to implement them so we can call the functions on our smart contract.
+We need to "inherit" the implementation of `AccessControll`, `Pausable`, `Lending`, 
+`LendingPermissioned` and `LendingPermissionedInternal`.
 
 ```rust
-impl LendingStorageTrait for Lending {}
+impl AccessControl for LendingContract {}
 
-impl AccessControl for Lending {}
+impl Pausable for LendingContract {}
 
-impl Pausable for Lending {}
-```
+impl Lending for LendingContract {}
 
-## Define the constructor
+impl LendingPermissioned for LendingContract {}
 
-Finally, we will add a constructor, in which we will initiate the admin of the contract, to whom we will also grant the manager role declared before, and we will also instantiate the NFT contract here and store its AccountId in our contract.
-
-```rust
-impl Lending {
-    #[ink(constructor)]
-    pub fn new(code_hash: Hash) -> Self {
-        let mut instance = Self::default();
-        let caller = instance.env().caller();
-        instance._init_with_admin(caller);
-        instance.grant_role(MANAGER, caller).expect("Can not set manager role");
-        instance.code_hash = code_hash;
-        let nft = Loan::new()
-                .endowment(25)
-                .code_hash(nft_code_hash)
-                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-                .instantiate()
-                .unwrap();
-        instance.nft_contract = nft.to_account_id();
-        instance
+impl LendingPermissionedInternal for LendingContract {
+    fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
+        let code_hash = self.lending.shares_contract_code_hash;
+        let (hash, _) =
+            ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Ger random salt");
+        let hash = hash.as_ref();
+        let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+            .endowment(10000000000)
+            .code_hash(code_hash)
+            .salt_bytes(&[hash[0], hash[1], hash[2], hash[3]])
+            .instantiate()
+            .unwrap();
+        contract.to_account_id()
     }
 }
 ```
 
-We will take a look at the specific implementation of the functions of the smart contract now.
+Now the `LendingContract` has functionality of all that traits.
+
+## Define the constructor
+
+Finally, we will add a constructor, in which we will initiate the admin of 
+the contract, to whom we will also grant the manager role declared before, 
+and we will also instantiate the `LoanContract` here and store its AccountId 
+in `LendingContract`.
+
+```rust
+impl LendingContract {
+    /// constructor with name and symbol
+    #[ink(constructor)]
+    pub fn new(code_hash: Hash, nft_code_hash: Hash) -> Self {
+        let mut instance = Self::default();
+        let caller = instance.env().caller();
+        instance._init_with_admin(caller);
+        instance.grant_role(MANAGER, caller).expect("Can not set manager role");
+        instance.lending.shares_contract_code_hash = code_hash;
+        // instantiate NFT contract and store its account id
+        let nft = LoanContract::new()
+            .endowment(10000000000)
+            .code_hash(nft_code_hash)
+            .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+            .instantiate()
+            .unwrap();
+        instance.lending.loan_account = nft.to_account_id();
+        instance
+    }
+}
+```

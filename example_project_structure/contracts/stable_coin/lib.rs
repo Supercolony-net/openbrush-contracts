@@ -21,7 +21,7 @@ pub mod token {
     /// implement PSP22 Trait for our coin
     impl PSP22 for StableCoinContract {}
 
-    /// implement Metadata Trait for our coin
+    /// implement PSP22Metadata Trait for our coin
     impl PSP22Metadata for StableCoinContract {}
 
     // It forces the compiler to check that you implemented all super traits

@@ -20,7 +20,9 @@ pub mod shares {
 
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang::Env;
+
     use ink_prelude::string::String;
+
     #[cfg(not(feature = "ink-as-dependency"))]
     use lending_project::traits::shares::*;
 
@@ -36,10 +38,16 @@ pub mod shares {
         metadata: PSP22MetadataData,
     }
 
-    // implement PSP22 Trait for our coin
+    // implement PSP22 Trait for our share
     impl PSP22 for SharesContract {}
 
-    // implement Mintable Trait for our coin
+    // implement Ownable Trait for our share
+    impl Ownable for SharesContract {}
+
+    // implement Metadata Trait for our share
+    impl PSP22Metadata for SharesContract {}
+
+    // implement Mintable Trait for our share
     impl PSP22Mintable for SharesContract {
         /// override the `mint` function to add the `only_owner` modifier
         #[ink(message)]
@@ -49,7 +57,7 @@ pub mod shares {
         }
     }
 
-    // implement Burnable Trait for our coin
+    // implement Burnable Trait for our share
     impl PSP22Burnable for SharesContract {
         /// override the `burn` function to add the `only_owner` modifier
         #[ink(message)]
@@ -65,12 +73,6 @@ pub mod shares {
             self._burn_from(account, amount)
         }
     }
-
-    // implement Ownable Trait for our coin
-    impl Ownable for SharesContract {}
-
-    // implement Metadata Trait for our coin
-    impl PSP22Metadata for SharesContract {}
 
     // It forces the compiler to check that you implemented all super traits
     impl Shares for SharesContract {}

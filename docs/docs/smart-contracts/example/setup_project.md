@@ -6,7 +6,7 @@ title: Setup the project
 In the first step, we will define a structure of the project.
 We suggest using that structure during development because it:
 - The interface of the contracts is defined separately from the contracts. That allows others to communicate with these contracts without knowledge about the implementation and these interfaces easily can be imported to another project(that allows others to communicate with these contracts).
-- Resolves the problem with cycle dependencies across the project. To call the methods of the contract from the project you enough to have an interface.
+- Resolves the problem with cyclic dependencies across the project. To call the methods of the contract from the project you enough to have an interface.
 - The usage of the `ink-as-dependency` feature is minimized. That can resolve a lot of headaches in the future.
 - The implementation of big contracts can be split into small parts to simplify the development.
 - The body of the contract doesn't contain the whole implementation of the contract. That improves the readability of the contracts.

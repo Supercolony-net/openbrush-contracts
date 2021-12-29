@@ -47,7 +47,6 @@ pub mod lending {
     use loan_contract::loan::LoanContract;
     use shares_contract::shares::SharesContract;
 
-    /// Define the storage for PSP22 data, Metadata data and Ownable data
     #[ink(storage)]
     #[derive(Default, AccessControlStorage, PausableStorage, LendingStorage)]
     pub struct LendingContract {
@@ -70,10 +69,13 @@ pub mod lending {
     impl LendingPermissionedInternal for LendingContract {
         fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
             let code_hash = self.lending.shares_contract_code_hash;
+            let (hash, _) =
+                ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Ger random salt");
+            let hash = hash.as_ref();
             let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
-                .endowment(25)
+                .endowment(10000000000)
                 .code_hash(code_hash)
-                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(&[hash[0], hash[1], hash[2], hash[3]])
                 .instantiate()
                 .unwrap();
             contract.to_account_id()
@@ -91,7 +93,7 @@ pub mod lending {
             instance.lending.shares_contract_code_hash = code_hash;
             // instantiate NFT contract and store its account id
             let nft = LoanContract::new()
-                .endowment(25)
+                .endowment(10000000000)
                 .code_hash(nft_code_hash)
                 .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
                 .instantiate()

@@ -122,7 +122,7 @@ pub type LendingPermissionedRef = dyn LendingPermissioned;
 pub trait LendingPermissioned {
     /// This function will allow an asset to be accepted by the contract
     /// It will also create the contracts for the shares token and lended reserves token
-    #[ink(message)]
+    #[ink(message, payable)]
     fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError>;
 
     /// This function will disallow lending and borrowing of asset
@@ -193,49 +193,24 @@ pub enum LendingError {
 
 impl From<AccessControlError> for LendingError {
     fn from(access: AccessControlError) -> Self {
-        match access {
-            AccessControlError::MissingRole => LendingError::AccessControlError(AccessControlError::MissingRole),
-            AccessControlError::RoleRedundant => LendingError::AccessControlError(AccessControlError::RoleRedundant),
-            AccessControlError::InvalidCaller => LendingError::AccessControlError(AccessControlError::InvalidCaller),
-        }
+        LendingError::AccessControlError(access)
     }
 }
 
 impl From<PausableError> for LendingError {
     fn from(access: PausableError) -> Self {
-        match access {
-            PausableError::Paused => LendingError::PausableError(PausableError::Paused),
-            PausableError::NotPaused => LendingError::PausableError(PausableError::NotPaused),
-        }
+        LendingError::PausableError(access)
     }
 }
 
 impl From<PSP22Error> for LendingError {
     fn from(error: PSP22Error) -> Self {
-        match error {
-            PSP22Error::Custom(message) => LendingError::PSP22Error(PSP22Error::Custom(message)),
-            PSP22Error::InsufficientBalance => LendingError::PSP22Error(PSP22Error::InsufficientBalance),
-            PSP22Error::InsufficientAllowance => LendingError::PSP22Error(PSP22Error::InsufficientAllowance),
-            PSP22Error::ZeroRecipientAddress => LendingError::PSP22Error(PSP22Error::ZeroRecipientAddress),
-            PSP22Error::ZeroSenderAddress => LendingError::PSP22Error(PSP22Error::ZeroSenderAddress),
-            PSP22Error::SafeTransferCheckFailed(message) => {
-                LendingError::PSP22Error(PSP22Error::SafeTransferCheckFailed(message))
-            }
-        }
+        LendingError::PSP22Error(error)
     }
 }
 
 impl From<PSP721Error> for LendingError {
     fn from(error: PSP721Error) -> Self {
-        match error {
-            PSP721Error::Custom(message) => LendingError::PSP721Error(PSP721Error::Custom(message)),
-            PSP721Error::SelfApprove => LendingError::PSP721Error(PSP721Error::SelfApprove),
-            PSP721Error::NotApproved => LendingError::PSP721Error(PSP721Error::NotApproved),
-            PSP721Error::TokenExists => LendingError::PSP721Error(PSP721Error::TokenExists),
-            PSP721Error::TokenNotExists => LendingError::PSP721Error(PSP721Error::TokenNotExists),
-            PSP721Error::SafeTransferCheckFailed(message) => {
-                LendingError::PSP721Error(PSP721Error::SafeTransferCheckFailed(message))
-            }
-        }
+        LendingError::PSP721Error(error)
     }
 }

@@ -48,7 +48,7 @@ ink-as-dependency = []
 
 To avoid unexpected compilation errors better to always import all ink! crates.
 
-By default, the `brush` crate provides [macros](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_macro/proc_macros/lib.rs)
+By default, the `brush` crate provides [macros](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_lang/proc_macros/lib.rs)
 for simplification of the development and [traits](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/traits) of 
 contracts(you can implement them by yourself, and you can use them for a cross-contract calls). 
 

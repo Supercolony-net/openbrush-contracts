@@ -50,7 +50,6 @@ pub mod loan {
     /// implement PSP721Metadata Trait for our NFT
     impl PSP721Metadata for LoanContract {}
 
-    /// implement the storage trait of the NFT
     impl Loan for LoanContract {
         #[modifiers(only_owner)]
         #[ink(message)]

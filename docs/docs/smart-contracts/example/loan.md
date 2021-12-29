@@ -1,136 +1,87 @@
 ---
 sidebar_position: 5
-title: Loan token
+title: Loan contract
 ---
 
-In our project we will be also implementing [PSP-721](/smart-contracts/PSP721/psp721) token. This token will represent a loan of a user who borrowed some assets. Upon borrowing assets the contract will mint an NFT to them, which will hold the information about their loan, namely the user who borrowed the assets, address of the asset which was used as collateral, how much collateral was deposited, what asset was borrowed, and how much, the liquidation price of the loan, timestamp of when was the loan performed, and information whether the loan is liquidated or not. This data will be stored in a separate storage trait, which we will derive in our NFT contract. We do this to separate storage from the logic, and we will do this in the lending contract as well. We do not want anybody to just mint and burn these, so we will implement the [Ownable](/smart-contracts/ownable) extension in our NFT. The mint and burn logic will be covered differently, we will not be using the mintable and burnable extensions.
+In our project we will be also implementing [PSP-721](/smart-contracts/PSP721/psp721) 
+token. This token will represent a loan of a user who borrowed some assets. 
+Upon borrowing assets the contract will mint an NFT to them, which will hold 
+the information about their loan, namely the user who borrowed the assets, 
+address of the asset which was used as collateral, how much collateral was 
+deposited, what asset was borrowed, and how much, the liquidation price of 
+the loan, timestamp of when was the loan performed, and information whether 
+the loan is liquidated or not. This data will be stored in a separate storage 
+trait, which we will derive in our NFT contract. We do this to separate storage 
+from the logic, and we will do this in the lending contract as well. 
+We do not want anybody to just mint and burn these, so we will implement 
+the [Ownable](/smart-contracts/ownable) extension in our NFT. The mint and burn 
+logic will be covered differently, we will not be using the mintable and 
+burnable extensions.
 
-## File structure
+The `LoanContract` will contain several methods defined in the `Loan` trait.
+These methods are restricted and can be called only by an owner of the contract.
+There is not too much logic to split it, so everything will be implemented
+in the body of the contract.
 
-For our NFT contract we need a `Cargo.toml` file, `lib.rs` file with the contract's logic, and `traits.rs` file, where we will declare our storage trait. Apart from that, we will create a `derive` folder, where we define our derive macro for deriving the storage trait. There we need `Cargo.toml` where we import dependencies:
+## Definition of the `Loan` trait
 
-```toml
-[package]
-name = "loan_derive"
-version = "1.0.0"
-authors = ["Supercolony <dominik.krizo@supercolony.net>"]
-edition = "2018"
-
-[dependencies]
-syn = { version = "1.0" }
-quote = "1.0"
-proc-macro2 = "1"
-brush_derive = { path = "../../../../utils/brush_derive" }
-
-[lib]
-name = "loan_derive"
-path = "lib.rs"
-proc-macro = true
-
-[features]
-default = ["std"]
-std = []
-```
-
-And a `lib.rs` file, where we declare the derive macro, and we will do it like this:
-
-```rust
-#![cfg_attr(not(feature = "std"), no_std)]
-
-extern crate proc_macro;
-
-use brush_derive::declare_derive_storage_trait;
-
-declare_derive_storage_trait!(derive_loan_storage, LoanStorage, LoanStorageField);
-```
-
-## Storage trait
-
-All the data about our loan will be stored in the storage trait, which we will derive in our NFT contract. The storage trait will be declared in the `traits.rs` file. First, we import stuff that we will be using in the trait: 
+In the `traits/loan.rs`, we will define a `Loan` trait.
+That trait contains three super traits: `PSP721`, `PSP721Metadata`, and `Ownable`.
+Also, the trait contains several methods, and the definition of the `LoanInfo`
+(that structure is used during interacting with the contract 
+so it is defined in the `traits` instead of the body of the contract).
+`LoanRef` can be used by other developers to do a cross contract call to `LoanContract`.
 
 ```rust
 use brush::{
-    declare_storage_trait,
+    contracts::traits::{
+        ownable::*,
+        psp721::{
+            extensions::metadata::*,
+            *,
+        },
+    },
     traits::{
         AccountId,
         Balance,
-        InkStorage,
         Timestamp,
     },
 };
-use ink_prelude::{
-    string::String,
-    vec::Vec,
+use ink_storage::traits::{
+    PackedLayout,
+    SpreadLayout,
 };
-use ink_storage::{
-    collections::HashMap as StorageHashMap,
-    traits::SpreadLayout,
-};
-pub use loan_derive::LoanStorage;
-use psp721::traits::*;
-```
 
-And then we will define the storage struct. `last_loan_id` will be the id of last loan token, so we can mantain unique ids in each new NFT, and `freed_ids` will contain ids of deleted NFTs, which will be reused in new loans.
-
-```rust
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
-pub struct LoanData {
-    pub borrower: StorageHashMap<Id, AccountId>,
-    pub collateral_asset: StorageHashMap<Id, AccountId>,
-    pub collateral_amount: StorageHashMap<Id, Balance>,
-    pub borrow_asset: StorageHashMap<Id, AccountId>,
-    pub borrow_amount: StorageHashMap<Id, Balance>,
-    pub liquidation_price: StorageHashMap<Id, Balance>,
-    pub timestamp: StorageHashMap<Id, Timestamp>,
-    pub liquidated: StorageHashMap<Id, bool>,
-    last_loan_id: Id,
-    freed_ids: Vec<Id>,
+#[derive(Default, Debug, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
+#[cfg_attr(feature = "std", derive(StorageLayout, scale_info::TypeInfo))]
+pub struct LoanInfo {
+    pub borrower: AccountId,
+    pub collateral_token: AccountId,
+    pub collateral_amount: Balance,
+    pub borrow_token: AccountId,
+    pub borrow_amount: Balance,
+    pub liquidation_price: Balance,
+    pub timestamp: Timestamp,
+    pub liquidated: bool,
 }
 
-declare_storage_trait!(LoanStorage, LoanData);
-```
-
-We will also declare a type `LoanInfo`, which will be a tuple of the loan data, which we will use on other places.
-
-```rust
-pub type LoanInfo = (
-    AccountId,
-    AccountId,
-    Balance,
-    AccountId,
-    Balance,
-    Balance,
-    Timestamp,
-    bool,
-);
-```
-
-And finally, add some functions for our trait. In order to call our NFT contract's functions in other contracts we will create a wrapper around this trait using `brush::wrapper` attribute, inherit this trait in our NFT contract and implement the unimplemented functions to work with our contract. You can check the logic of each function in the example, here we will just show the headers of the functions. We will declare the trait like this:
-
-```rust
 #[brush::wrapper]
-pub type LoanRef = dyn LoanTrait;
+pub type LoanRef = dyn Loan + PSP721 + PSP721Metadata + Ownable;
 
 #[brush::trait_definition]
-pub trait LoanTrait: LoanStorage {
+pub trait Loan: PSP721 + PSP721Metadata + Ownable {
+    /// This function initalizes data of a loan and mint token inside it
     #[ink(message)]
-    fn create_loan(
-        &mut self,
-        borrower: AccountId,
-        collateral_asset: AccountId,
-        collateral_amount: Balance,
-        borrow_asset: AccountId,
-        borrow_amount: Balance,
-        liquidation_price: Balance,
-        timestamp: Timestamp,
-    ) -> Result<(), PSP721Error>;
+    fn create_loan(&mut self, loan_info: LoanInfo) -> Result<(), PSP721Error>;
 
+    /// This function frees data of a loan and burn token inside it
+    #[ink(message)]
     fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP721Error>;
 
+    /// This function will be used when the user repays their loan only partially
     #[ink(message)]
     fn update_loan(
         &mut self,
@@ -140,35 +91,177 @@ pub trait LoanTrait: LoanStorage {
         new_collateral_amount: Balance,
     ) -> Result<(), PSP721Error>;
 
+    /// This function will set a loan to liquidated
     #[ink(message)]
     fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error>;
 
+    /// Function returns `LoanInfo` by `Id`
+    #[ink(message)]
+    fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP721Error>;
+}
+```
+
+## Add dependencies
+
+In addition to the dependencies imported in the [PSP-721](/smart-contracts/PSP721/psp721)
+documentation, we will also add the `ownable` dependency the same way as in the
+[ownable](/smart-contracts/ownable) documentation. We will be using `LoanContract`
+as a dependency in our lending contract to instantiate it. So we need to also add
+the `"rlib"` crate type to have the ability to import the `LoanContract` as a dependency.
+
+## Implement the contract
+
+We want a basic [PSP-721](/smart-contracts/PSP721/psp721) token with metadata and ownable extensions, 
+so we will add these to our contract. We will add a `brush::contract` macro to our contract and add some imports:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
+/// This contract will represent the loan of a user
+#[brush::contract]
+pub mod loan {
+    use brush::contracts::{
+        ownable::*,
+        psp721::extensions::metadata::*,
+    };
+
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use brush::modifiers;
+
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_storage::collections::HashMap as StorageHashMap;
+    use lending_project::traits::loan::*;
+```
+You can notice that we marked some imports with `#[cfg(not(feature = "ink-as-dependency"))]`.
+It is needed to remove rust's warnings when we will import `LoanContract` as `ink-as-dependency`
+into `LendingContract` for instantiation. When we are importing some contracts as
+`ink-as-dependency`, we only import the signature of methods without
+the implementation of them. It is why the imports are not used during
+`ink-as-dependency` and it is why the rust is throwing warnings.
+
+## Define the storage
+
+We will derive the storage traits related to `PSP-721`, `PSP-721 Metadata`, and 
+`Ownable` and declare the fields related to these traits. Also, we will declare 
+fields related to `Loan` itself.
+
+```rust
+/// Define the storage for PSP721 data, Metadata data and Ownable data
+#[ink(storage)]
+#[derive(Default, PSP721Storage, OwnableStorage, PSP721MetadataStorage)]
+pub struct LoanContract {
+    #[PSP721StorageField]
+    psp721: PSP721Data,
+    #[OwnableStorageField]
+    ownable: OwnableData,
+    #[PSP721MetadataStorageField]
+    metadata: PSP721MetadataData,
+
+    // Fields of current contract
+    /// mapping from token id to `LoanInfo`
+    loan_info: StorageHashMap<Id, LoanInfo>,
+    /// the id of last loan
+    last_loan_id: Id,
+    /// ids no longer used (can be reused)
+    freed_ids: Vec<Id>,
+}
+```
+
+## Implement the extension traits
+
+We will be using these extensions in our NFT token, so we will implement them for our storage.
+
+```rust
+/// implement PSP721 Trait for our NFT
+impl PSP721 for LoanContract {}
+
+/// implement Ownable Trait for our NFT
+impl Ownable for LoanContract {}
+
+/// implement PSP721Metadata Trait for our NFT
+impl PSP721Metadata for LoanContract {}
+```
+
+## Implement the Loan trait
+
+We will implement the `Loan` trait. 
+All functions except one are restricted by the `only_owner` modifier.
+
+```rust
+impl Loan for LoanContract {
+    #[modifiers(only_owner)]
+    #[ink(message)]
+    fn create_loan(&mut self, mut loan_info: LoanInfo) -> Result<(), PSP721Error> {
+        let loan_id = self._get_next_loan_id_and_increase()?;
+        if self.loan_info.get(&loan_id).is_some() {
+            return Err(PSP721Error::Custom(String::from("This loan id already exists!")))
+        }
+        loan_info.liquidated = false;
+        self.loan_info.insert(loan_id, loan_info.clone());
+        self._mint_to(loan_info.borrower, loan_id)
+    }
+
+    #[modifiers(only_owner)]
+    #[ink(message)]
+    fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP721Error> {
+        self.loan_info.take(&loan_id);
+        self._burn_from(initiator, loan_id)
+    }
+
+    #[modifiers(only_owner)]
+    #[ink(message)]
+    fn update_loan(
+        &mut self,
+        loan_id: Id,
+        new_borrow_amount: Balance,
+        new_timestamp: Timestamp,
+        new_collateral_amount: Balance,
+    ) -> Result<(), PSP721Error> {
+        self._update_loan(loan_id, new_borrow_amount, new_timestamp, new_collateral_amount)
+    }
+
+    #[modifiers(only_owner)]
+    #[ink(message)]
+    fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error> {
+        self._liquidate_loan(loan_id)
+    }
+
     #[ink(message)]
     fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP721Error> {
-        todo()!;
+        let loan_info = self.loan_info.get(&loan_id);
+        if loan_info.is_none() {
+            return Err(PSP721Error::Custom(String::from("Loan does not exist")))
+        }
+        Ok(loan_info.cloned().unwrap())
+    }
+}
+```
+
+## Define the constructor and add functions
+
+Finally, we will define the constructor where we will set the name and
+the symbol of the token and then initialize the owner of the token
+(that owner will be able to mint and burn the tokens).
+We will also add several helper functions.
+
+```rust
+impl LoanContract {
+    /// constructor with name and symbol
+    #[ink(constructor)]
+    pub fn new() -> Self {
+        let mut instance = Self::default();
+        instance._init_with_metadata(Some(String::from("LoanContract NFT")), Some(String::from("L-NFT")));
+        instance._init_with_owner(Self::env().caller());
+        instance
     }
 
-    fn _init(&mut self) {
-        todo()!;
-    }
-
-    fn _init_loan(
-        &mut self,
-        borrower: AccountId,
-        collateral_asset: AccountId,
-        collateral_amount: Balance,
-        borrow_asset: AccountId,
-        borrow_amount: Balance,
-        liquidation_price: Balance,
-        timestamp: Timestamp,
-    ) -> Result<Id, PSP721Error> {
-        todo()!;
-    }
-
-    fn _delete_loan(&mut self, loan_id: Id) {
-        todo()!;
-    }
-
+    /// internal function to update data of a loan
     fn _update_loan(
         &mut self,
         loan_id: Id,
@@ -176,222 +269,59 @@ pub trait LoanTrait: LoanStorage {
         new_timestamp: Timestamp,
         new_collateral_amount: Balance,
     ) -> Result<(), PSP721Error> {
-        todo()!;
+        let loan_info = self.loan_info.get(&loan_id);
+
+        if loan_info.is_none() {
+            return Err(PSP721Error::Custom(String::from("This loan does not exist!")))
+        }
+
+        let mut loan_info = loan_info.cloned().unwrap();
+        loan_info.collateral_amount = new_collateral_amount;
+        loan_info.borrow_amount = new_borrow_amount;
+        loan_info.timestamp = new_timestamp;
+
+        self.loan_info.insert(loan_id, loan_info);
+
+        Ok(())
     }
 
+    /// internal function to set loan to liquidated
     fn _liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error> {
-        todo()!;
+        let loan_info = self.loan_info.get(&loan_id);
+
+        if loan_info.is_none() {
+            return Err(PSP721Error::Custom(String::from("This loan does not exist!")))
+        }
+
+        let mut loan_info = loan_info.cloned().unwrap();
+        loan_info.liquidated = true;
+
+        self.loan_info.insert(loan_id, loan_info);
+
+        Ok(())
     }
 
+    /// internal function to return the id of a new loan and to increase it in the storage
     fn _get_next_loan_id_and_increase(&mut self) -> Result<Id, PSP721Error> {
-        todo()!;
-    }
-}
-```
-
-## Add dependencies
-
-In addition to the dependencies imported in the [PSP-721](/smart-contracts/PSP721/psp721) documentation, we will also add the `ownable` dependency, and a dependency on our derive file. We will be using this contract as a dependency in our lending contract, so we need to also add the `"rlib"` crate type. So in final, we will import these dependencies:
-
-```toml
-[dependencies]
-psp721 = { path = "../../../contracts/token/psp721", default-features = false }
-ownable = { path = "../../../contracts/access/ownable", default-features = false }
-brush = { path = "../../../utils/brush", default-features = false }
-loan_derive = { path = "derive" }
-
-[lib]
-name = "loan_nft"
-path = "lib.rs"
-crate-type = [
-    "cdylib",
-    "rlib"
-]
-
-[features]
-default = ["std"]
-std = [
-    "ownable/std",
-    "psp721/std",
-    "brush/std",
-]
-```
-
-Along with the ink dependencies.
-
-## Implement the contract
-
-We want a basic [PSP-721](/smart-contracts/PSP721/psp721) token with metadata and ownable extensions, so we will add these to our contract. We will add a `brush::contract` macro to our contract and add some imports:
-
-```rust
-#[brush::contract]
-pub mod loan {
-    use crate::traits::*;
-    pub use crate::traits::{
-        LoanInfo,
-        LoanRef,
-    };
-    use brush::modifiers;
-    use ink_lang::{
-        EmitEvent,
-        Env,
-    };
-    use ink_prelude::string::String;
-    use ownable::traits::*;
-    use psp721::{
-        extensions::metadata::*,
-        traits::*,
-    };
-```
-
-## Define the storage
-
-In this storage, we will also derive the storage traits related to `Ownable` and `Loan` and declare the fields related to these traits.
-
-```rust
-#[ink(storage)]
-#[derive(Default, PSP721Storage, OwnableStorage, PSP721MetadataStorage, LoanStorage)]
-pub struct Loan {
-    #[PSP721StorageField]
-    psp721: PSP721Data,
-    #[OwnableStorageField]
-    ownable: OwnableData,
-    #[PSP721MetadataStorageField]
-    metadata: PSP721MetadataData,
-    #[LoanStorageField]
-    loan: LoanData,
-}
-```
-
-## Define Event structs
-
-Our token will be emitting events on transfer and approval, so to do that, we need to define them and override the functions to emit them. We will define an event for `Approval`, `ApprovalForAll` and an event for `Transfer`.
-
-```rust
-#[ink(event)]
-pub struct Transfer {
-    #[ink(topic)]
-    from: Option<AccountId>,
-    #[ink(topic)]
-    to: Option<AccountId>,
-    #[ink(topic)]
-    id: Id,
-}
-
-#[ink(event)]
-pub struct Approval {
-    #[ink(topic)]
-    from: AccountId,
-    #[ink(topic)]
-    to: AccountId,
-    #[ink(topic)]
-    id: Id,
-}
-
-#[ink(event)]
-pub struct ApprovalForAll {
-    #[ink(topic)]
-    owner: AccountId,
-    #[ink(topic)]
-    operator: AccountId,
-    approved: bool,
-}
-```
-
-We will also override the `_emit_transfer_event`, `_emit_approval_event` and `_emit_approval_for_all_event` functions and emit the events inside them.
-
-```rust
-impl PSP721 for Loan {
-    fn _emit_transfer_event(&self, from: Option<AccountId>, to: Option<AccountId>, id: Id) {
-        self.env().emit_event(Transfer { from, to, id });
-    }
-
-    fn _emit_approval_event(&self, from: AccountId, to: AccountId, id: Id) {
-        self.env().emit_event(Approval { from, to, id });
-    }
-
-    fn _emit_approval_for_all_event(&self, owner: AccountId, operator: AccountId, approved: bool) {
-        self.env().emit_event(ApprovalForAll {
-            owner,
-            operator,
-            approved,
-        });
-    }
-}
-```
-
-## Implement the extension traits
-
-We will be using these extensions in our token, so we will implement them for our storage.
-
-```rust
-impl Ownable for Loan {}
-
-impl PSP721Metadata for Loan {}
-
-```
-
-## Implement the LoanTrait trait
-
-We will implement the storage trait, but in this trait we have declared some functions without a body, so we need to define the body in this `impl` block. We also want these functions to only be callable by the owner of the contract, so we will add to them the `only_owner` modifier.
-
-```rust
-impl LoanTrait for Loan {
-    #[modifiers(only_owner)]
-    #[ink(message)]
-    fn create_loan(
-        &mut self,
-        borrower: AccountId,
-        collateral_asset: AccountId,
-        collateral_amount: Balance,
-        borrow_asset: AccountId,
-        borrow_amount: Balance,
-        liquidation_price: Balance,
-        timestamp: Timestamp,
-    ) -> Result<(), PSP721Error> {
-        todo()!;
-    }
-
-    #[modifiers(only_owner)]
-    #[ink(message)]
-    fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP721Error> {
-        todo()!;
-    }
-
-    #[modifiers(only_owner)]
-    #[ink(message)]
-    fn update_loan(
-        &mut self,
-        loan_id: Id,
-        new_borrow_amount: Balance,
-        new_timestamp: Timestamp,
-        new_collateral_amount: Balance,
-    ) -> Result<(), PSP721Error> {
-        todo()!;
-    }
-
-    #[modifiers(only_owner)]
-    #[ink(message)]
-    fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error> {
-        todo()!;
-    }
-}
-```
-
-The fact that we created a wrapper over our `LoanTrait` allows us to call for example the `create_loan` function from other contracts with `LoanRef::(&contract_address, ..args)`, where `contract_address` is the account id of contract on which we want to the call the function and `args` are the arguments needed to call that function.
-
-## Define the constructor and add functions
-
-Finally, we will define the constructor where we will set the name and the symbol of the token and then initialize the owner of the token (which then will be able to mint and burn the tokens). We will also add a function for creating loans, which will mint a new loan token and initialize its data to storage. This function will be again restricted only to the owner.
-
-```rust
-impl Loan {
-    #[ink(constructor)]
-    pub fn new() -> Self {
-        let mut instance = Self::default();
-        instance._init_with_metadata(Some(String::from("Loan NFT")), Some(String::from("L-NFT")));
-        instance._init_with_owner(Self::env().caller());
-        instance
+        if self.freed_ids.len() > 0 {
+            return Ok(self.freed_ids.pop().unwrap())
+        }
+        let mut current = self.last_loan_id;
+        // It is not fully correct implementation of the increasing. but it is only an example
+        for n in 0..32 {
+            if current[n] == u8::MAX {
+                if n == 31 {
+                    return Err(PSP721Error::Custom(String::from("Max Id reached!")))
+                } else {
+                    current[n] = 0;
+                }
+            } else {
+                current[n] += 1;
+                break
+            }
+        }
+        self.last_loan_id = current;
+        Ok(current)
     }
 }
 ```

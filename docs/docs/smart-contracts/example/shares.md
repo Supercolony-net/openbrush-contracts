@@ -1,47 +1,104 @@
 ---
 sidebar_position: 4
-title: Shares token
+title: Shares contract
 ---
 
-Similarly, we will implement another [PSP-22](/smart-contracts/PSP22/psp22) token which will represent the ownership of assets available by the smart contract to be lent. In this token, we will need [PSP-22 Metadata](/smart-contracts/PSP22/extensions/metadata) and we will also need to mint and burn this token. We only want our contract to perform these actions, so we will also add the [Ownable](/smart-contracts/ownable) extension.
+Similarly, we will implement another [PSP-22](/smart-contracts/PSP22/psp22) token 
+which will represent the ownership of assets available by the smart contract 
+to be lent. In this token, we will need [PSP-22 Metadata](/smart-contracts/PSP22/extensions/metadata) 
+and we will also need to mint and burn this token. We only want our contract(lending contract) to 
+perform these actions, so we will also add the [Ownable](/smart-contracts/ownable) extension.
 
-## Add dependencies
+## Definition of the `Shares` trait
 
-In addition to the dependencies imported in the [PSP-22](/smart-contracts/PSP22/psp22) documentation, we will also add the `ownable` dependency the same way as in the [ownable](/smart-contracts/ownable) documentation. We will be using this contract as a dependency in our lending contract, so we need to also add the `"rlib"` crate type.
-
-## Implement the contract
-
-Implementing our shares contract will follow the same steps as implementing the basic `PSP-22` contract in the previous step, but we will do some small changes for the token to be mintable, burnable, and for these functions to be restricted. Therefore, on top of the imports in the previous contract, we also need these imports:
+In the `traits/shares.rs`, we will define a `Shares` trait.
+That trait contains the next super traits: `PSP22`, `PSP22Mintable`, `PSP22Burnable`, `PSP22Metadata`, and `Ownable`, without any other method.
+That shows that `Shares` is `PSP22` with mint and burn methods that can be called only by the owner.
+In the implementation of the contract, we will implement that trait to be sure that all super traits are also implemented.
+`SharesRef` can be used by other developers to do a cross contract call to `SharesContract`.
 
 ```rust
-#[brush::contract]
-pub mod shares {
-    use brush::modifiers;
-    use ink_lang::{
-        EmitEvent,
-        Env,
-    };
-    use ink_prelude::string::String;
-    use ink_storage::Lazy;
-    use ownable::traits::*;
-    use psp22::{
+use brush::contracts::traits::{
+    ownable::*,
+    psp22::{
         extensions::{
             burnable::*,
             metadata::*,
             mintable::*,
         },
-        traits::*,
-    };
+        *,
+    },
+};
+
+#[brush::wrapper]
+pub type SharesRef = dyn PSP22 + PSP22Mintable + PSP22Burnable + PSP22Metadata + Ownable;
+
+#[brush::trait_definition]
+pub trait Shares: PSP22 + PSP22Mintable + PSP22Burnable + PSP22Metadata + Ownable {}
 ```
+
+## Add dependencies
+
+In addition to the dependencies imported in the [PSP-22](/smart-contracts/PSP22/psp22)
+documentation, we will also add the `ownable` dependency the same way as in the
+[ownable](/smart-contracts/ownable) documentation. We will be using `SharesContract`
+as a dependency in our lending contract to instantiate it. So we need to also add
+the `"rlib"` crate type to have the ability to import the `SharesContract` as a dependency.
+
+## Implement the contract
+
+Implementing our shares contract will follow the same steps as implementing 
+the basic `PSP-22` contract in the previous step, but we will do some small 
+changes for the token to be mintable, burnable, and for these functions to 
+be restricted. Therefore, on top of the imports in the previous contract, 
+we also need these imports:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
+/// This contract will be used to represent the shares of a user
+/// and other instance of this contract will be used to represent
+/// the amount of borrowed tokens
+#[brush::contract]
+pub mod shares {
+    use brush::contracts::{
+        ownable::*,
+        psp22::extensions::{
+            burnable::*,
+            metadata::*,
+            mintable::*,
+        },
+    };
+
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use brush::modifiers;
+
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_lang::Env;
+
+    use ink_prelude::string::String;
+
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use lending_project::traits::shares::*;
+```
+You can notice that we marked some imports with `#[cfg(not(feature = "ink-as-dependency"))]`.
+It is needed to remove rust's warnings when we will import `SharesContract` as `ink-as-dependency`
+into `LendingContract` for instantiation. When we are importing some contracts as 
+`ink-as-dependency`, we only import the signature of methods without 
+the implementation of them. It is why the imports are not used during 
+`ink-as-dependency` and it is why the rust is throwing warnings.
 
 ## Define the storage
 
-In this storage, we will also derive the storage trait related to `Ownable` and declare the field related to this trait.
+In this storage, we will also derive the storage trait related to `Ownable` 
+and declare the field related to this trait.
 
 ```rust
+/// Define the storage for PSP22 data, Metadata data and Ownable data
 #[ink(storage)]
 #[derive(Default, PSP22Storage, OwnableStorage, PSP22MetadataStorage)]
-pub struct Shares {
+pub struct SharesContract {
     #[PSP22StorageField]
     psp22: PSP22Data,
     #[OwnableStorageField]
@@ -53,20 +110,36 @@ pub struct Shares {
 
 ## Implement the extension traits
 
-We will be using these extensions in our token, so we will implement them for our storage.
+We will be using these extensions in our token, so we will implement them for 
+our storage.
 
 ```rust
-impl Ownable for Shares {}
+// implement PSP22 Trait for our share
+impl PSP22 for SharesContract {}
 
-impl PSP22Metadata for Shares {}
+// implement Ownable Trait for our share
+impl Ownable for SharesContract {}
+
+// implement Metadata Trait for our share
+impl PSP22Metadata for SharesContract {}
+
+// It forces the compiler to check that you implemented all super traits
+impl Shares for SharesContract {}
 ```
 
 ## Implement the Burnable and Mintable traits
 
-Now we will implement the `PSP22Burnable` and `PSP22Mintable` traits. These are a little different so we are doing it in a separate section. We don't want anybody to mint or burn the tokens, we only want the owner, in this case, our lending contract, to do it. So we will add the `PSP22Burnable` and `PSP22Mintable` and mark the functions of these traits with the `only_owner` restriction.
+Now we will implement the `PSP22Burnable` and `PSP22Mintable` traits. 
+These are a little different so we are doing it in a separate section. 
+We don't want anybody to mint or burn the tokens, we only want the owner, 
+in this case, our lending contract, to do it. So we will add the `PSP22Burnable` 
+and `PSP22Mintable` and mark the functions of these traits with the `only_owner` 
+restriction.
 
 ```rust
-impl PSP22Mintable for Shares {
+// implement Mintable Trait for our share
+impl PSP22Mintable for SharesContract {
+    /// override the `mint` function to add the `only_owner` modifier
     #[ink(message)]
     #[modifiers(only_owner)]
     fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
@@ -74,13 +147,16 @@ impl PSP22Mintable for Shares {
     }
 }
 
-impl PSP22Burnable for Shares {
+// implement Burnable Trait for our share
+impl PSP22Burnable for SharesContract {
+    /// override the `burn` function to add the `only_owner` modifier
     #[ink(message)]
     #[modifiers(only_owner)]
     fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
         self._burn(self.env().caller(), amount)
     }
 
+    /// override the `burn_from` function to add the `only_owner` modifier
     #[ink(message)]
     #[modifiers(only_owner)]
     fn burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
@@ -89,21 +165,25 @@ impl PSP22Burnable for Shares {
 }
 ```
 
-This will restrict accounts other than the owner of the token (which will be the lending contract) from calling these functions.
+This will restrict accounts other than the owner of the token (which will be the lending contract) 
+from calling these functions.
 
 ## Define the constructor
 
-Finally, we will define the constructor where we will set the name and the symbol of the token and then initialize the owner of the token (which then will be able to mint and burn the tokens.)
+Finally, we will define the constructor where we will set the name and the symbol 
+of the token and then initialize the owner of the token 
+(which then will be able to mint and burn the tokens).
 
 ```rust
-impl Shares {
+impl SharesContract {
+    /// constructor with name and symbol
     #[ink(constructor)]
     pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
         let mut instance = Self::default();
         let caller = instance.env().caller();
-        Lazy::set(&mut instance.metadata.name, name);
-        Lazy::set(&mut instance.metadata.symbol, symbol);
-        Lazy::set(&mut instance.metadata.decimals, 18);
+        instance.metadata.name = name;
+        instance.metadata.symbol = symbol;
+        instance.metadata.decimals = 18;
         instance._init_with_owner(caller);
         instance
     }

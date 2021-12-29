@@ -19,7 +19,7 @@ scale-info = { version = "1", default-features = false, features = ["derive"], o
 shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
 loan_contract = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
 lending_project = { path = "../..", default-features = false }
-brush = { path = "../../..", default-features = false, features = ["psp22", "psp721", "pausable", "access_control"] }
+brush = { path = "../../..", default-features = false, features = ["pausable", "access_control"] }
 
 [lib]
 name = "lending_contract"
