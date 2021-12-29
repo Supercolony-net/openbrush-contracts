@@ -20,5 +20,5 @@ package-lock.json
 # macOS
 .DS_Store
 
-yarn_щдв_2.lock
+yarn.lock
 .cargo/config.toml
