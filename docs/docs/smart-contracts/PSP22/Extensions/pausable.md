@@ -96,6 +96,6 @@ impl MyPSP22Pausable {
 }
 ```
 
-You can check the example of implementation of [PSP22 Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/pausable).
+You can check an implementation example of [PSP22 Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/pausable).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).

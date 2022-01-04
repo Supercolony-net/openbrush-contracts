@@ -57,6 +57,6 @@ impl MyPSP1155 {
     }
 }
 ```
-You can check the example of usage of [PSP1155 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp1155_extensions/metadata).
+You can check an example of the usage of [PSP1155 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp1155_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP1155](/smart-contracts/PSP1155/psp1155).

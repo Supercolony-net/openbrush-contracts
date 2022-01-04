@@ -17,6 +17,6 @@ impl PSP22Burnable for MyPSP22 {}
 ```
 
 And that's it! Your `PSP22` is now extended by the `PSP22Burnable` extension and ready to use its functions!
-You can check the example of usage of [PSP22 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/burnable).
+You can check an example of the usage of [PSP22 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/burnable).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).

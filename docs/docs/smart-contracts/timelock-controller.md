@@ -76,4 +76,4 @@ impl TimelockStruct {
 }
 ```
 
-You can check the example of usage of [TimelockController](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/timelock_controller).
+You can check an example of the usage of [TimelockController](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/timelock_controller).

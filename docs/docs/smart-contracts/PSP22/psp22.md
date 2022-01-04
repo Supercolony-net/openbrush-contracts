@@ -119,7 +119,7 @@ impl MyPSP22 {
 }
 ```
 
-You can check the example of usage of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22).
+You can check an example of the usage of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22).
 
 Also you can use extensions for PSP22 token:
 

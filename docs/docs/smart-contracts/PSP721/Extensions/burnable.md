@@ -16,6 +16,6 @@ impl PSP721Burnable for MyPSP721 {}
 ```
 
 And that's it! Your `PSP721` is now extended by the `PSP721Burnable` extension and ready to use its functions!
-You can check the example of usage of [PSP721 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp721_extensions/burnable).
+You can check an example of the usage of [PSP721 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp721_extensions/burnable).
 
 You can also check the documentation for the basic implementation of [PSP721](/smart-contracts/PSP721/psp721).

@@ -68,6 +68,6 @@ impl MyPSP721 {
 }
 ```
 
-You can check the example of usage of [PSP721 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp721_extensions/metadata).
+You can check an example of the usage of [PSP721 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp721_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP721](/smart-contracts/PSP721/psp721).

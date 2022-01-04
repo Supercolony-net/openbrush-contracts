@@ -16,6 +16,6 @@ impl PSP721Mintable for MyPSP721 {}
 ```
 
 And that's it! Your `PSP721` is now extended by the `PSP721Mintable` extension and ready to use its functions!
-You can check the example of usage of [PSP721 Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp721_extensions/mintable).
+You can check an example of the usage of [PSP721 Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp721_extensions/mintable).
 
 You can also check the documentation for the basic implementation of [PSP721](/smart-contracts/PSP721/psp721).

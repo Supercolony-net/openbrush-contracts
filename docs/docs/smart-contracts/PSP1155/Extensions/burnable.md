@@ -16,6 +16,6 @@ impl PSP1155Burnable for MyPSP1155 {}
 ```
 
 And that's it! Your `PSP1155` is now extended by the `PSP1155Burnable` extension and ready to use its functions!
-You can check the example of usage of [PSP1155 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp1155_extensions/burnable).
+You can check an example of the usage of [PSP1155 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp1155_extensions/burnable).
 
 You can also check the documentation for the basic implementation of [PSP1155](/smart-contracts/PSP1155/psp1155).
