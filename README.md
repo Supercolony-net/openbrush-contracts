@@ -188,17 +188,6 @@ After you can run tests by `npm run test` command. It will build all contracts r
 
 ## FAQ
 
-### Why IntelliJ rust plugin doesn't autocomplete the library's derive macros?
-
-It requires enabling of several experimental features:
-
-* `org.rust.cargo.evaluate.build.scripts` - enables building and collecting build artefacts including proc-macro
-  libraries during importing of project structure
-* `org.rust.macros.proc` - enables expansion of procedural macros
-
-To enable an experimental feature, type `Experimental feature` in the dialog of `Help | Find Action` action and enabled
-the corresponding item.
-
 ### Was it audited?
 
 Contracts in this repository have not yet been audited. But it is in plans.
