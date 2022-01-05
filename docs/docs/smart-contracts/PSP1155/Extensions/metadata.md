@@ -5,14 +5,19 @@ title: PSP1155 Metadata
 
 This example shows how you can reuse the implementation of [PSP1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155) token with [PSP1155Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155/src/extensions/metadata.rs) extension.
 
-## Step 1: Add imports
+## Step 1: Add imports and enable unstable feature
 
-Import **everything** from `psp1155::extensions::metadata`.
+Import **everything** from `brush::contracts::psp1155::extensions::metadata`.
 
 ```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
 #[brush::contract]
 pub mod my_psp1155 {
-   use psp1155::extensions::metadata::*;
+    use brush::contracts::psp1155::extensions::metadata::*;
+    use ink_prelude::string::String;
+...
 ```
 
 ## Step 2: Define storage
@@ -52,5 +57,6 @@ impl MyPSP1155 {
     }
 }
 ```
+You can check an example of the usage of [PSP1155 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp1155_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP1155](/smart-contracts/PSP1155/psp1155).

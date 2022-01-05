@@ -7,55 +7,30 @@ This example shows how you can implement a [PSP22](https://github.com/Supercolon
 
 ## Step 1: Include dependencies
 
-Include dependencies to `psp22`, `pausable` and `brush` in the cargo file.
+Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of PSP22 and Pausable via `brush` features.
 
 ```toml
-[dependencies]
-ink_primitives = { version = "3.0.0-rc6", default-features = false }
-ink_metadata = { version = "3.0.0-rc6", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.0-rc6", default-features = false }
-ink_storage = { version = "3.0.0-rc6", default-features = false }
-ink_lang = { version = "3.0.0-rc6", default-features = false }
-ink_prelude = { version = "3.0.0-rc6", default-features = false }
-
-scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
-scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
-
-# These dependencies
-pausable = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-psp22 = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-
-[features]
-default = ["std"]
-std = [
-   "ink_primitives/std",
-   "ink_metadata",
-   "ink_metadata/std",
-   "ink_env/std",
-   "ink_storage/std",
-   "ink_lang/std",
-   "scale/std",
-   "scale-info",
-   "scale-info/std",
-
-   # These dependencies   
-   "psp22/std",
-   "brush/std",
-   "pausable/std",
-]
+brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22", "pausable"] }
 ```
 
-## Step 2: Add imports
+## Step 2: Add imports and enable unstable feature
 
-Replace `ink::contract` macro by `brush::contract` and import **everything** from `psp22::traits` and `pausable::traits`.
+Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp22` and `brush::contracts::pausable`.
 
 ```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
 #[brush::contract]
 pub mod my_psp22_pausable {
-    use brush::modifiers;
-    use pausable::traits::*;
-    use psp22::traits::*;
+    use brush::{
+        contracts::{
+            pausable::*,
+            psp22::*,
+        },
+        modifiers,
+    };
 ```
 
 ## Step 3: Define storage
@@ -78,7 +53,9 @@ pub struct MyPSP22Pausable {
 Inherit the implementation of the `PSP22` and `Pausable` traits. You can customize (override) methods in this `impl` block. We will implement the `Pausable` logic in this section.
 
 ```rust
-impl PSP22 for MyPSP22Pausable {
+impl PSP22 for MyPSP22Pausable {}
+
+impl PSP22Internal for MyPSP22Pausable {
     /// Return `Paused` error if the token is paused
     #[modifiers(when_not_paused)]
     fn _before_token_transfer(
@@ -118,5 +95,7 @@ impl MyPSP22Pausable {
     }
 }
 ```
+
+You can check an implementation example of [PSP22 Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/pausable).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).

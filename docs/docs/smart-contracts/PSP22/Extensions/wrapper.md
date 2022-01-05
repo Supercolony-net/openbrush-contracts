@@ -5,20 +5,30 @@ title: PSP22 Wrapper
 
 This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/extensions/wrapper.rs) extension, which allows you to wrap your `PSP22` token in a `PSP22Wrapper` token which can be used for example for governance.
 
-## Step 1: Include dependencies and add imports
+## Step 1: Include dependencies
 
-Include dependencies to `psp22` and `brush` in the cargo file. Then we need to replace `ink::contract` macro by `brush::contract` and import **everything** from `psp22::traits` and `psp22::extensions::wrapper`.
+Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of PSP22 via `brush` features.
 
-```rust
-#[brush::contract]
-pub mod my_psp22 {
-   use psp22::{
-        extensions::wrapper::*,
-        traits::*,
-    };
+```toml
+brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22"] }
 ```
 
-## Step 2: Define storage
+## Step 2: Add imports and enable unstable feature
+
+Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp22::extensions::wrapper`.
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
+#[brush::contract]
+pub mod my_psp22_wrapper {
+    use brush::contracts::psp22::extensions::wrapper::*;
+...
+```
+
+## Step 3: Define storage
 
 Declare storage struct and declare the fields related to `PSP22Storage` and `PSP22WrapperStorage` traits. Then you need to derive `PSP22Storage` and `PSP22WrapperStorage` traits and mark corresponding fields with `#[PSP22StorageField]` and `#[PSP22WrapperStorageField]` attributes. Deriving these traits allows you to reuse the default implementation of `PSP22` and `PSP22Wrapper`.
 
@@ -33,7 +43,7 @@ pub struct MyPSP22Wrapper {
 }
 ```
 
-## Step 3: Inherit logic
+## Step 4: Inherit logic
 
 Inherit implementations of `PSP22` and `PSP22Wrapper` traits. You can customize (override) methods in this `impl` block.
 
@@ -43,7 +53,7 @@ impl PSP22 for MyPSP22Wrapper {}
 impl PSP22Wrapper for MyPSP22Wrapper {}
 ```
 
-## Step 4: Define constructor
+## Step 5: Define constructor
 
 Define constructor. Your implementation of `PSP22Wrapper` contract is ready!
 
@@ -57,5 +67,7 @@ impl MyPSP22 {
     }
 }
 ```
+
+You can check an example of the usage of [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/wrapper).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).

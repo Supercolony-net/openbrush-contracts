@@ -1,0 +1,56 @@
+[package]
+name = "lending_contract"
+version = "1.0.0"
+authors = ["Supercolony <dominik.krizo@supercolony.net>"]
+edition = "2018"
+
+[dependencies]
+ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
+scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
+
+# These dependencies
+shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
+loan_contract = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
+lending_project = { path = "../..", default-features = false }
+brush = { path = "../../..", default-features = false, features = ["pausable", "access_control"] }
+
+[lib]
+name = "lending_contract"
+path = "lib.rs"
+crate-type = [
+    "cdylib",
+]
+
+[features]
+default = ["std"]
+std = [
+    "ink_primitives/std",
+    "ink_metadata",
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_lang/std",
+    "scale/std",
+    "scale-info",
+    "scale-info/std",
+
+    # These dependencies
+    "loan_contract/std",
+    "shares_contract/std",
+    "brush/std",
+]
+ink-as-dependency = []
+
+[profile.dev]
+overflow-checks = false
+codegen-units = 16
+
+[profile.release]
+overflow-checks = false

@@ -8,13 +8,15 @@ This example shows how you can reuse the implementation of
 
 ## How to use this extension
 
-For your smart contract to use this extension, you only need to implement the `PSP22Mintable` trait in your `PSP22` smart contract. Add import for  `psp22::extensions::mintable::*`, inherit the implementation for `PSP22Mintable` trait, where you can also customize (override) the original functions from `PSP22Mintable`.
+For your smart contract to use this extension, you only need to implement the `PSP22Mintable` trait in your `PSP22` smart contract. Add import for `brush::contracts::psp22::extensions::mintable::*`, inherit the implementation for `PSP22Mintable` trait, where you can also customize (override) the original functions from `PSP22Mintable`.
 
 ```rust
-use psp22::extensions::mintable::*;
+use brush::contracts::psp22::extensions::mintable::*;
 
 impl PSP22Mintable for MyPSP22 {}
 ```
+
+You can check an example of the usage of [PSP22 Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/mintable).
 
 And that's it! Your `PSP22` is now extended by the `PSP22Mintable` extension and ready to use its functions!
 

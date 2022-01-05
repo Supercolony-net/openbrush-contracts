@@ -5,17 +5,31 @@ title: PSP721 Metadata
 
 This example shows how you can reuse the implementation of [PSP721](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721) token with [PSP721Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp721/src/extensions/metadata.rs) extension.
 
-## Step 1: Add imports
+## Step 1: Include dependencies
 
-Import **everything** from `psp721::extensions::metadata`.
+Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of PSP721 via `brush` features.
 
-```rust
-#[brush::contract]
-pub mod my_psp721 {
-   use psp721::extensions::metadata::*;
+```toml
+brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp721"] }
 ```
 
-## Step 2: Define storage
+## Step 2: Add imports and enable unstable feature
+
+Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp721::extensions::metadata`.
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
+#[brush::contract]
+pub mod my_psp721_metadata {
+    use brush::contracts::psp721::extensions::metadata::*;
+    use ink_prelude::string::String;
+...
+```
+
+## Step 3: Define storage
 
 Declare storage struct and declare the field related to the `PSP721MetadataStorage` trait in addition to your `PSP721Storage` field. Then you need to derive the `PSP721MetadataStorage` trait and mark the corresponding field with the `#[PSP721MetadataStorageField]` attribute. Deriving this trait allows you to reuse the `PSP721Metadata` extension in your `PSP721` implementation.
 
@@ -30,7 +44,7 @@ pub struct MyPSP721 {
 }
 ```
 
-## Step 3: Inherit logic
+## Step 4: Inherit logic
 
 Inherit implementation of the `PSP721Metadata` trait. You can customize (override) methods in this `impl` block.
 
@@ -38,7 +52,7 @@ Inherit implementation of the `PSP721Metadata` trait. You can customize (overrid
 impl PSP721Metadata for MyPSP721 {}
 ```
 
-## Step 4: Define constructor
+## Step 5: Define constructor
 
 Define constructor. Your `PSP721Metadata` contract is ready!
 
@@ -53,5 +67,7 @@ impl MyPSP721 {
     }
 }
 ```
+
+You can check an example of the usage of [PSP721 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp721_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP721](/smart-contracts/PSP721/psp721).

@@ -28,7 +28,7 @@ ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", d
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
 scale-info = { version = "1", default-features = false, features = ["derive"] }
 
-brush = { package = "brush-macro", path = "..", default-features = false }
+brush = { package = "brush_lang", path = "..", default-features = false }
 
 [lib]
 name = "proc_macros"

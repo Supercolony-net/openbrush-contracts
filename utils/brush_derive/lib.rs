@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 /// This `macro_rule` generates a procedural derive macro for storage trait.
 ///
 /// The first argument is the name of the procedural function.

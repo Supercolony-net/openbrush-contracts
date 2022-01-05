@@ -4,28 +4,15 @@ title: Payment Splitter
 ---
 
 This example shows how you can reuse the implementation of
-[payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment-splitter).
+[payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment_splitter).
 
 ## Step 1: Include dependencies
 
-Include dependencies to `payment-splitter` and `brush` in the cargo file.
+Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Payment Splitter via `brush` features.
 
 ```toml
-[dependencies]
-ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-
-scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
-scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
-
-# These dependencies
-payment-splitter = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-brush = { tag = "v1.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
-
+brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["payment_splitter"] }
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
@@ -33,36 +20,20 @@ overflow-checks = false
 
 [profile.release]
 overflow-checks = false
-
-[features]
-default = ["std"]
-std = [
-   "ink_primitives/std",
-   "ink_metadata",
-   "ink_metadata/std",
-   "ink_env/std",
-   "ink_storage/std",
-   "ink_lang/std",
-   "scale/std",
-   "scale-info",
-   "scale-info/std",
-
-   # These dependencies   
-   "payment-splitter/std",
-   "brush/std",
-]
 ```
 
-## Step 2: Add imports
+## Step 2: Add imports and enable unstable feature
 
-Replace `ink::contract` macro by `brush::contract`. 
-Import **everything** from `payment_splitter::traits`.
+Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::payment_splitter`.
 
 ```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
 #[brush::contract]
 pub mod my_payment_splitter {
-   use payment_splitter::traits::*;
-   use ink_prelude::vec::Vec;
+    use brush::contracts::payment_splitter::*;
+    use ink_prelude::vec::Vec;
 ```
 
 ## Step 3: Define storage
@@ -103,3 +74,5 @@ impl SplitterStruct {
    }
 }
 ```
+
+You can check an example of the usage of [PaymentSplitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/payment_splitter).

@@ -1,5 +1,5 @@
 [package]
-name = "brush-macro"
+name = "brush_lang"
 version = "1.0.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
@@ -13,7 +13,7 @@ proc_macros = { path = "proc_macros" }
 test_utils = { path = "test_utils", default-features = false }
 
 [lib]
-name = "brush_macro"
+name = "brush_lang"
 path = "lib.rs"
 crate-type = [
     "rlib",

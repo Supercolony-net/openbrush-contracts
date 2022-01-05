@@ -67,4 +67,6 @@ impl MyPSP22Capped {
 }
 ```
 
+You can check an implementation example of [PSP22 Capped](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/capped).
+
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).

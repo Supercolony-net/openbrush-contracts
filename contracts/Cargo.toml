@@ -16,7 +16,7 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 derive = { path = "./derive" }
-brush = { package = "brush-macro", path = "../utils/brush_macro", default-features = false }
+brush = { package = "brush_lang", path = "../utils/brush_lang", default-features = false }
 
 [lib]
 name = "contracts"
