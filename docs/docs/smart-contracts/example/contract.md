@@ -4,7 +4,7 @@ title: Lending contract
 ---
 
 The main logic of the `LendingContract` is defined in the `impls/lending` directory.
-Now we need only to "inherit" it.
+In this file, we only need to "inherit" it.
 
 ## Add dependencies
 
@@ -74,10 +74,10 @@ overflow-checks = false
 
 ## Define the contract storage
 
-As described earlier, we want our smart contract to be paused by the Manager accounts. 
+As described earlier, we want our smart contract to be paused by the Manager account. 
 To do that, we need our contract to be `Pausable` and we need a manager role. 
 We can do this with the `AccessControl`. Also, we want to use the `LendingStorage` we have declared. 
-So we will declare a struct and derive all these traits needed.
+So we will declare a struct and derive all the needed traits.
 
 ```rust
 #[ink(storage)]

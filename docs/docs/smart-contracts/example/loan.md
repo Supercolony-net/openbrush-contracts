@@ -3,7 +3,7 @@ sidebar_position: 5
 title: Loan contract
 ---
 
-In our project we will be also implementing [PSP-721](/smart-contracts/PSP721/psp721) 
+In our project we will also implement [PSP-721](/smart-contracts/PSP721/psp721) 
 token. This token will represent a loan of a user who borrowed some assets. 
 Upon borrowing assets the contract will mint an NFT to them, which will hold 
 the information about their loan, namely the user who borrowed the assets, 
@@ -143,7 +143,7 @@ It is needed to remove rust's warnings when we will import `LoanContract` as `in
 into `LendingContract` for instantiation. When we are importing some contracts as
 `ink-as-dependency`, we only import the signature of methods without
 the implementation of them. It is why the imports are not used during
-`ink-as-dependency` and it is why the rust is throwing warnings.
+`ink-as-dependency` and it is why Rust is throwing warnings.
 
 ## Define the storage
 

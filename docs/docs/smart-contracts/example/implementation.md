@@ -3,7 +3,7 @@ sidebar_position: 10
 title: Notes about methods
 ---
 
-In this section we describe the implement of the functions of our lending 
+In this section, we describe the implementation of the functions of our lending 
 contract.
 
 ## Instantiating contracts

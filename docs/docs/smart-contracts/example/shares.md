@@ -87,7 +87,7 @@ It is needed to remove rust's warnings when we will import `SharesContract` as `
 into `LendingContract` for instantiation. When we are importing some contracts as 
 `ink-as-dependency`, we only import the signature of methods without 
 the implementation of them. It is why the imports are not used during 
-`ink-as-dependency` and it is why the rust is throwing warnings.
+`ink-as-dependency` and it is why Rust is throwing warnings.
 
 ## Define the storage
 

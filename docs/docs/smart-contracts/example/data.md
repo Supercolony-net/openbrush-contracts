@@ -5,12 +5,12 @@ title: Data and derive macro
 
 ## Data segregation
 
-The rust doesn't have inheritance like OOP languages.
+Rust doesn't have inheritance like OOP languages.
 If you want to "inherit" some fields, you can use structural composition.
 If you want to "inherit" some implementation, you can use traits. Traits can have a [default implementation](https://doc.rust-lang.org/book/ch10-02-traits.html#default-implementations) or a [generic implementation](https://doc.rust-lang.org/book/ch10-02-traits.html#using-trait-bounds-to-conditionally-implement-methods).
-The traits in the rust can't contain fields, it is pure interfaces.
+The traits in Rust can't contain fields, it is pure interfaces.
 
-Based on that information we propose you the next concept of the smart contract development:
+Based on that information we propose you the following concept of smart contract development:
 
 ### Storage trait
 

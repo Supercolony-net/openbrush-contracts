@@ -8,7 +8,7 @@ This example shows how you can use the implementation of [ownable](https://githu
 ## Step 1: Include dependencies
 
 Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable a default implementation of Ownable via features of the `brush`.
+After you need to enable default implementation of Ownable via `brush` features.
 
 ```toml
 brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ownable"] }
