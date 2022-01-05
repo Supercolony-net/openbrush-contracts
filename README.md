@@ -133,6 +133,8 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 ------- Pre-release 2.0.0
 
 - [x] Finalize PSP for fungible tokens. Refactor of implementation.
+- [x] Agnostic traits.
+- [x] Wrapper around the trait definition to do a cross-contract calls.
 - [ ] PSPs for NFT and multi-token.
 - [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
 - [ ] Refactor NFT and multi-token according to final decisions in PSPs.
