@@ -133,6 +133,8 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 ------- Pre-release 2.0.0
 
 - [x] Finalize PSP for fungible tokens. Refactor of implementation.
+- [x] Agnostic traits.
+- [x] Wrapper around the trait definition to do a cross-contract calls.
 - [ ] PSPs for NFT and multi-token.
 - [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
 - [ ] Refactor NFT and multi-token according to final decisions in PSPs.
@@ -185,17 +187,6 @@ After you can run tests by `npm run test` command. It will build all contracts r
 - [Openbrush was born](https://supercolony.medium.com/openbrush-an-early-alpha-of-our-openzeppelin-library-for-ink-a0c3f4f9432)
 
 ## FAQ
-
-### Why IntelliJ rust plugin doesn't autocomplete the library's derive macros?
-
-It requires enabling of several experimental features:
-
-* `org.rust.cargo.evaluate.build.scripts` - enables building and collecting build artefacts including proc-macro
-  libraries during importing of project structure
-* `org.rust.macros.proc` - enables expansion of procedural macros
-
-To enable an experimental feature, type `Experimental feature` in the dialog of `Help | Find Action` action and enabled
-the corresponding item.
 
 ### Was it audited?
 
