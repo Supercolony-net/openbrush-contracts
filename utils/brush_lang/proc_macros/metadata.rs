@@ -132,7 +132,7 @@ pub(crate) enum LockType {
 /// If the directory doesn't contain `Cargo.toml` file,
 /// it will try to find `Cargo.toml` in the upper directories.
 pub(crate) fn get_locked_file(t: LockType) -> File {
-    let manifest_path = locate_manifest().unwrap_or_else(|error| panic!("Unable to get locate manifest: {:?}", error));
+    let manifest_path = locate_manifest().unwrap_or_else(|error| panic!("Unable to locate manifest: {:?}", error));
 
     let mut cmd = MetadataCommand::new();
     let metadata = cmd
