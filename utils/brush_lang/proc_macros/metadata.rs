@@ -133,6 +133,7 @@ pub(crate) enum LockType {
 /// it will try to find `Cargo.toml` in the upper directories.
 pub(crate) fn get_locked_file(t: LockType) -> File {
     let manifest_path = locate_manifest().unwrap_or_else(|error| panic!("Unable to locate manifest: {:?}", error));
+    println!("Manifest: {:?}", manifest_path);
 
     let mut cmd = MetadataCommand::new();
     let metadata = cmd
@@ -141,6 +142,7 @@ pub(crate) fn get_locked_file(t: LockType) -> File {
         .expect("Error invoking `cargo metadata`");
 
     let dir = metadata.target_directory.join(TEMP_FILE);
+    println!("{:?}", dir);
 
     let file = match OpenOptions::new().read(true).write(true).create(true).open(&dir) {
         Err(why) => panic!("Couldn't open temporary storage: {}", why),
