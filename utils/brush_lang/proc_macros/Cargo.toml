@@ -15,7 +15,6 @@ cargo_metadata = "0.13.1"
 unwrap = "1.2.1"
 blake2 = "0.9"
 heck = "0.3.1"
-json = "0.12.4"
 ink_lang_ir = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
 
 [dev-dependencies]
