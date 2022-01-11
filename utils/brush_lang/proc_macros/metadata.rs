@@ -8,23 +8,18 @@ use serde::{
 use serde_json;
 use std::{
     collections::HashMap,
-    convert,
     env,
-    fmt,
     fs::{
         File,
         OpenOptions,
     },
-    io,
     io::{
         BufReader,
         Seek,
         SeekFrom,
     },
     path::PathBuf,
-    process,
     str::FromStr,
-    string,
 };
 use syn::{
     ItemTrait,
@@ -132,7 +127,20 @@ pub(crate) enum LockType {
 /// If the directory doesn't contain `Cargo.toml` file,
 /// it will try to find `Cargo.toml` in the upper directories.
 pub(crate) fn get_locked_file(t: LockType) -> File {
-    let manifest_path = locate_manifest().unwrap_or_else(|error| panic!("Unable to locate manifest: {:?}", error));
+    let mut manifest_path = PathBuf::from(env::var("PWD").expect("Can't get PWD")).join("Cargo.toml");
+
+    // if the current directory does not contain a Cargo.toml file, go up until you find it.
+    while !manifest_path.exists() {
+        if let Some(str) = manifest_path.as_os_str().to_str() {
+            // If `/Cargo.toml` is not exist, it means that we will do infinity while, so break it
+            assert_ne!(str, "/Cargo.toml", "Can't find Cargo.toml in directories tree");
+        }
+        // Remove Cargo.toml
+        manifest_path.pop();
+        // Remove parent folder
+        manifest_path.pop();
+        manifest_path = manifest_path.join("Cargo.toml");
+    }
 
     let mut cmd = MetadataCommand::new();
     let metadata = cmd
@@ -156,102 +164,4 @@ pub(crate) fn get_locked_file(t: LockType) -> File {
     };
 
     file
-}
-
-/// Returns the Cargo manifest path of the surrounding crate.
-///
-/// The path is retrieved by parsing the output of `cargo locate-project`.
-pub fn locate_manifest() -> Result<PathBuf, LocateManifestError> {
-    let cargo = env::var("CARGO").unwrap_or("cargo".to_owned());
-    let output = process::Command::new(cargo).arg("locate-project").output()?;
-    if !output.status.success() {
-        return Err(LocateManifestError::CargoExecution { stderr: output.stderr })
-    }
-
-    let output = String::from_utf8(output.stdout)?;
-    let parsed = json::parse(&output)?;
-    let root = parsed["root"].as_str().ok_or(LocateManifestError::NoRoot)?;
-    Ok(PathBuf::from(root))
-}
-
-/// Errors that can occur while retrieving the cargo manifest path.
-#[derive(Debug)]
-pub enum LocateManifestError {
-    /// An I/O error that occurred while trying to execute `cargo locate-project`.
-    Io(io::Error),
-    /// The command `cargo locate-project` did not exit successfully.
-    CargoExecution {
-        /// The standard error output of `cargo locate-project`.
-        stderr: Vec<u8>,
-    },
-    /// The output of `cargo locate-project` was not valid UTF-8.
-    StringConversion(string::FromUtf8Error),
-    /// An error occurred while parsing the output of `cargo locate-project` as JSON.
-    ParseJson(json::Error),
-    /// The JSON output of `cargo locate-project` did not contain the expected "root" string.
-    NoRoot,
-}
-
-impl fmt::Display for LocateManifestError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            LocateManifestError::Io(err) => {
-                write!(
-                    f,
-                    "An I/O error occurred while trying to execute `cargo locate-project`: {}",
-                    err
-                )
-            }
-            LocateManifestError::CargoExecution { stderr } => {
-                write!(
-                    f,
-                    "The command `cargo locate-project` did not exit successfully.\n\
-                Stderr: {}",
-                    String::from_utf8_lossy(stderr)
-                )
-            }
-            LocateManifestError::StringConversion(err) => {
-                write!(f, "The output of `cargo locate-project` was not valid UTF-8: {}", err)
-            }
-            LocateManifestError::ParseJson(err) => {
-                write!(f, "The output of `cargo locate-project` was not valid JSON: {}", err)
-            }
-            LocateManifestError::NoRoot => {
-                write!(
-                    f,
-                    "The JSON output of `cargo locate-project` did not contain the expected \"root\" string."
-                )
-            }
-        }
-    }
-}
-
-impl std::error::Error for LocateManifestError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            LocateManifestError::Io(err) => Some(err),
-            LocateManifestError::CargoExecution { stderr: _ } => None,
-            LocateManifestError::StringConversion(err) => Some(err),
-            LocateManifestError::ParseJson(err) => Some(err),
-            LocateManifestError::NoRoot => None,
-        }
-    }
-}
-
-impl convert::From<io::Error> for LocateManifestError {
-    fn from(source: io::Error) -> Self {
-        LocateManifestError::Io(source)
-    }
-}
-
-impl convert::From<string::FromUtf8Error> for LocateManifestError {
-    fn from(source: string::FromUtf8Error) -> Self {
-        LocateManifestError::StringConversion(source)
-    }
-}
-
-impl convert::From<json::Error> for LocateManifestError {
-    fn from(source: json::Error) -> Self {
-        LocateManifestError::ParseJson(source)
-    }
 }
