@@ -3,6 +3,7 @@
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
 [![element chat](https://img.shields.io/badge/Element-green.svg?style=flat-square)](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=matrix.parity.io)
+[![discord chat](https://img.shields.io/badge/Discord-purple.svg?style=flat-square)](https://discord.gg/mcwCWxHt)
 
 Our mission with this project is to make ink! development faster, safer and easier.
 
