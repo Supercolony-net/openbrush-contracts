@@ -6,7 +6,7 @@
 pub mod loan {
     use brush::contracts::{
         ownable::*,
-        psp721::extensions::metadata::*,
+        psp34::extensions::metadata::*,
     };
 
     #[cfg(not(feature = "ink-as-dependency"))]
@@ -21,16 +21,16 @@ pub mod loan {
     use ink_storage::collections::HashMap as StorageHashMap;
     use lending_project::traits::loan::*;
 
-    /// Define the storage for PSP721 data, Metadata data and Ownable data
+    /// Define the storage for PSP34 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(Default, PSP721Storage, OwnableStorage, PSP721MetadataStorage)]
+    #[derive(Default, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
     pub struct LoanContract {
-        #[PSP721StorageField]
-        psp721: PSP721Data,
+        #[PSP34StorageField]
+        psp34: PSP34Data,
         #[OwnableStorageField]
         ownable: OwnableData,
-        #[PSP721MetadataStorageField]
-        metadata: PSP721MetadataData,
+        #[PSP34MetadataStorageField]
+        metadata: PSP34MetadataData,
 
         // Fields of current contract
         /// mapping from token id to `LoanInfo`
@@ -41,22 +41,22 @@ pub mod loan {
         freed_ids: Vec<Id>,
     }
 
-    /// implement PSP721 Trait for our NFT
-    impl PSP721 for LoanContract {}
+    /// implement PSP34 Trait for our NFT
+    impl PSP34 for LoanContract {}
 
     /// implement Ownable Trait for our NFT
     impl Ownable for LoanContract {}
 
-    /// implement PSP721Metadata Trait for our NFT
-    impl PSP721Metadata for LoanContract {}
+    /// implement PSP34Metadata Trait for our NFT
+    impl PSP34Metadata for LoanContract {}
 
     impl Loan for LoanContract {
         #[modifiers(only_owner)]
         #[ink(message)]
-        fn create_loan(&mut self, mut loan_info: LoanInfo) -> Result<(), PSP721Error> {
+        fn create_loan(&mut self, mut loan_info: LoanInfo) -> Result<(), PSP34Error> {
             let loan_id = self._get_next_loan_id_and_increase()?;
             if self.loan_info.get(&loan_id).is_some() {
-                return Err(PSP721Error::Custom(String::from("This loan id already exists!")))
+                return Err(PSP34Error::Custom(String::from("This loan id already exists!")))
             }
             loan_info.liquidated = false;
             self.loan_info.insert(loan_id, loan_info.clone());
@@ -65,7 +65,7 @@ pub mod loan {
 
         #[modifiers(only_owner)]
         #[ink(message)]
-        fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP721Error> {
+        fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP34Error> {
             self.loan_info.take(&loan_id);
             self._burn_from(initiator, loan_id)
         }
@@ -78,21 +78,21 @@ pub mod loan {
             new_borrow_amount: Balance,
             new_timestamp: Timestamp,
             new_collateral_amount: Balance,
-        ) -> Result<(), PSP721Error> {
+        ) -> Result<(), PSP34Error> {
             self._update_loan(loan_id, new_borrow_amount, new_timestamp, new_collateral_amount)
         }
 
         #[modifiers(only_owner)]
         #[ink(message)]
-        fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error> {
+        fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP34Error> {
             self._liquidate_loan(loan_id)
         }
 
         #[ink(message)]
-        fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP721Error> {
+        fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP34Error> {
             let loan_info = self.loan_info.get(&loan_id);
             if loan_info.is_none() {
-                return Err(PSP721Error::Custom(String::from("Loan does not exist")))
+                return Err(PSP34Error::Custom(String::from("Loan does not exist")))
             }
             Ok(loan_info.cloned().unwrap())
         }
@@ -115,11 +115,11 @@ pub mod loan {
             new_borrow_amount: Balance,
             new_timestamp: Timestamp,
             new_collateral_amount: Balance,
-        ) -> Result<(), PSP721Error> {
+        ) -> Result<(), PSP34Error> {
             let loan_info = self.loan_info.get(&loan_id);
 
             if loan_info.is_none() {
-                return Err(PSP721Error::Custom(String::from("This loan does not exist!")))
+                return Err(PSP34Error::Custom(String::from("This loan does not exist!")))
             }
 
             let mut loan_info = loan_info.cloned().unwrap();
@@ -133,11 +133,11 @@ pub mod loan {
         }
 
         /// internal function to set loan to liquidated
-        fn _liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP721Error> {
+        fn _liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP34Error> {
             let loan_info = self.loan_info.get(&loan_id);
 
             if loan_info.is_none() {
-                return Err(PSP721Error::Custom(String::from("This loan does not exist!")))
+                return Err(PSP34Error::Custom(String::from("This loan does not exist!")))
             }
 
             let mut loan_info = loan_info.cloned().unwrap();
@@ -149,7 +149,7 @@ pub mod loan {
         }
 
         /// internal function to return the id of a new loan and to increase it in the storage
-        fn _get_next_loan_id_and_increase(&mut self) -> Result<Id, PSP721Error> {
+        fn _get_next_loan_id_and_increase(&mut self) -> Result<Id, PSP34Error> {
             if self.freed_ids.len() > 0 {
                 return Ok(self.freed_ids.pop().unwrap())
             }
@@ -158,7 +158,7 @@ pub mod loan {
             for n in 0..32 {
                 if current[n] == u8::MAX {
                     if n == 31 {
-                        return Err(PSP721Error::Custom(String::from("Max Id reached!")))
+                        return Err(PSP34Error::Custom(String::from("Max Id reached!")))
                     } else {
                         current[n] = 0;
                     }

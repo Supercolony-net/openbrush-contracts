@@ -14,7 +14,7 @@ use brush::{
         pausable::*,
         traits::{
             psp22::PSP22Ref,
-            psp721::Id,
+            psp34::Id,
         },
     },
     modifiers,

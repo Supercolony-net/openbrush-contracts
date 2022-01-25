@@ -29,9 +29,9 @@ use brush::{
     access_control::*,
     pausable::*,
     psp22::PSP22Error,
-    psp721::{
+    psp34::{
       Id,
-      PSP721Error,
+      PSP34Error,
     },
   },
   traits::{
@@ -488,7 +488,7 @@ use brush::{
         pausable::*,
         traits::{
             psp22::PSP22Ref,
-            psp721::Id,
+            psp34::Id,
         },
     },
     modifiers,
