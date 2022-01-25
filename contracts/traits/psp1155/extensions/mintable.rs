@@ -12,15 +12,9 @@ pub type PSP1155MintableRef = dyn PSP1155Mintable;
 
 #[brush::trait_definition]
 pub trait PSP1155Mintable {
-    /// Mints `amount` tokens of token type `id` to the caller
-    ///
-    /// See [`PSP1155::_mint_to`].
-    #[ink(message)]
-    fn mint(&mut self, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error>;
-
     /// Mints `amount` tokens of token type `id` to `to`
     ///
     /// See [`PSP1155::_mint_to`].
     #[ink(message)]
-    fn mint_to(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error>;
+    fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error>;
 }

@@ -119,8 +119,15 @@ pub trait PSP22Internal {
 
     fn _before_token_transfer(
         &mut self,
-        _from: &AccountId,
-        _to: &AccountId,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
         _amount: &Balance,
     ) -> Result<(), PSP22Error>;
 
@@ -185,8 +192,17 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
 
     default fn _before_token_transfer(
         &mut self,
-        _from: &AccountId,
-        _to: &AccountId,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
         _amount: &Balance,
     ) -> Result<(), PSP22Error> {
         Ok(())
@@ -206,7 +222,7 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        self._before_token_transfer(&from, &to, &amount)?;
+        self._before_token_transfer(Some(&from), Some(&to), &amount)?;
 
         let from_balance = self.balance_of(from);
 
@@ -221,6 +237,7 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         self.get_mut().balances.insert(to, to_balance + amount);
 
         self._emit_transfer_event(Some(from), Some(to), amount);
+        self._after_token_transfer(Some(&from), Some(&to), &amount)?;
         Ok(())
     }
 
@@ -247,11 +264,14 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
+        self._before_token_transfer(None, Some(&account), &amount)?;
+
         let mut new_balance = self.balance_of(account);
         new_balance += amount;
         self.get_mut().balances.insert(account, new_balance);
         self.get_mut().supply += amount;
         self._emit_transfer_event(None, Some(account), amount);
+        self._after_token_transfer(None, Some(&account), &amount)?;
         Ok(())
     }
 
@@ -259,6 +279,8 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         if account.is_zero() {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
+
+        self._before_token_transfer(Some(&account), None, &amount)?;
 
         let mut from_balance = self.balance_of(account);
 
@@ -270,11 +292,18 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         self.get_mut().balances.insert(account, from_balance);
         self.get_mut().supply -= amount;
         self._emit_transfer_event(Some(account), None, amount);
+
+        self._after_token_transfer(Some(&account), None, &amount)?;
         Ok(())
     }
 
     default fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         let caller = Self::env().caller();
+
+        if caller == account {
+            return self._burn(account, amount)
+        }
+
         let current_allowance = self.allowance(account, caller);
 
         if current_allowance < amount {

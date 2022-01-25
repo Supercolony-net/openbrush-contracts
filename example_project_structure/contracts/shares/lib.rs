@@ -62,14 +62,7 @@ pub mod shares {
         /// override the `burn` function to add the `only_owner` modifier
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-            self._burn(self.env().caller(), amount)
-        }
-
-        /// override the `burn_from` function to add the `only_owner` modifier
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        fn burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             self._burn_from(account, amount)
         }
     }

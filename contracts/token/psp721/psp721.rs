@@ -107,7 +107,19 @@ pub trait PSP721Internal {
     ) -> Result<(), PSP721Error>;
 
     /// Transfers token `id` `from` the sender to the `to` AccountId.
-    fn _before_token_transfer(&self, _from: &AccountId, _to: &AccountId, _id: &Id) -> Result<(), PSP721Error>;
+    fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id
+    ) -> Result<(), PSP721Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id
+    ) -> Result<(), PSP721Error>;
 
     /// Child contract can override that if they don't want to do a cross call
     fn _do_safe_transfer_check(
@@ -194,15 +206,30 @@ impl<T: PSP721Storage + Flush> PSP721Internal for T {
         id: Id,
         data: Vec<u8>,
     ) -> Result<(), PSP721Error> {
-        self._before_token_transfer(&from, &to, &id)?;
+        self._before_token_transfer(Some(&from), Some(&to), &id)?;
         self._remove_token(from, &id)?;
         self._do_safe_transfer_check(Self::env().caller(), from, to, id, data)?;
         self._add_token(to.clone(), id.clone())?;
         self._emit_transfer_event(Some(from), Some(to), id);
+        self._after_token_transfer(Some(&from), Some(&to), &id)?;
         Ok(())
     }
 
-    default fn _before_token_transfer(&self, _from: &AccountId, _to: &AccountId, _id: &Id) -> Result<(), PSP721Error> {
+    default fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id
+    ) -> Result<(), PSP721Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id
+    ) -> Result<(), PSP721Error> {
         Ok(())
     }
 
@@ -283,14 +310,22 @@ impl<T: PSP721Storage + Flush> PSP721Internal for T {
             return Err(PSP721Error::TokenExists)
         }
 
+        self._before_token_transfer(None, Some(&to), &id)?;
+
         self._add_token(to, id.clone())?;
         self._emit_transfer_event(None, Some(to), id);
+
+        self._after_token_transfer(None, Some(&to), &id)?;
         Ok(())
     }
 
     default fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP721Error> {
+        self._before_token_transfer(Some(&from), None, &id)?;
+
         self._remove_token(from, &id)?;
         self._emit_transfer_event(Some(from), None, id);
+
+        self._after_token_transfer(Some(&from), None, &id)?;
         Ok(())
     }
 

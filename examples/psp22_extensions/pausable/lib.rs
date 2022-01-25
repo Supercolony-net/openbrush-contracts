@@ -27,8 +27,8 @@ pub mod my_psp22_pausable {
         #[modifiers(when_not_paused)]
         fn _before_token_transfer(
             &mut self,
-            _from: &AccountId,
-            _to: &AccountId,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             // TODO logic for before token transfer

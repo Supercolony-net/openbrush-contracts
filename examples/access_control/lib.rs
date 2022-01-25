@@ -48,13 +48,7 @@ pub mod my_access_control {
     impl PSP721Mintable for PSP721Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
-        fn mint(&mut self, id: Id) -> Result<(), PSP721Error> {
-            self._mint(id)
-        }
-
-        #[ink(message)]
-        #[modifiers(only_role(MINTER))]
-        fn mint_to(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+        fn mint(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
             self._mint_to(account, id)
         }
     }
@@ -62,13 +56,7 @@ pub mod my_access_control {
     impl PSP721Burnable for PSP721Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
-        fn burn(&mut self, id: Id) -> Result<(), PSP721Error> {
-            self._burn(id)
-        }
-
-        #[ink(message)]
-        #[modifiers(only_role(MINTER))]
-        fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+        fn burn(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
             self._burn_from(account, id)
         }
     }

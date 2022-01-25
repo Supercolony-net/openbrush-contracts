@@ -12,11 +12,5 @@ pub trait PSP721Mintable {
     ///
     /// See [`PSP721::_mint`].
     #[ink(message)]
-    fn mint(&mut self, id: Id) -> Result<(), PSP721Error>;
-
-    /// Mints a new token with `id` to `account`
-    ///
-    /// See [`PSP721::_mint_to`].
-    #[ink(message)]
-    fn mint_to(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error>;
+    fn mint(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error>;
 }

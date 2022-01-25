@@ -73,12 +73,14 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
         self._transfer_guard(operator, from, to)?;
 
         let ids_amounts = vec![(id, amount)];
-        self._before_token_transfer(&from, &to, &ids_amounts)?;
-        self._do_safe_transfer_check(operator, from, to, ids_amounts, data)?;
+        self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
+        self._do_safe_transfer_check(operator, from, to, ids_amounts.clone(), data)?;
 
         self._transfer_from(from, to, id, amount)?;
 
         self._emit_transfer_single_event(operator, Some(from), Some(to), id, amount);
+
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         Ok(())
     }
 
@@ -92,7 +94,7 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
         let operator = Self::env().caller();
         self._transfer_guard(operator, from, to)?;
 
-        self._before_token_transfer(&from, &to, &ids_amounts)?;
+        self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         self._do_safe_transfer_check(
             operator,
             from,
@@ -106,7 +108,9 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
             self._transfer_from(from, to, item.0, item.1)?;
         }
 
-        self._emit_transfer_batch_event(operator, Some(from), Some(to), ids_amounts);
+        self._emit_transfer_batch_event(operator, Some(from), Some(to), ids_amounts.clone());
+
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         Ok(())
     }
 }
@@ -164,9 +168,16 @@ pub trait PSP1155Internal {
     fn _decrease_sender_balance(&mut self, from: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error>;
 
     fn _before_token_transfer(
-        &self,
-        _from: &AccountId,
-        _to: &AccountId,
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
         _ids: &Vec<(Id, Balance)>,
     ) -> Result<(), PSP1155Error>;
 
@@ -212,6 +223,8 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
             return Ok(())
         }
 
+        self._before_token_transfer(None, Some(&to), &ids_amounts)?;
+
         for (id, amount) in ids_amounts.iter() {
             self._increase_receiver_balance(to, id.clone(), amount.clone());
         }
@@ -219,8 +232,10 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         if ids_amounts.len() == 1 {
             self._emit_transfer_single_event(operator, None, Some(to), ids_amounts[0].0, ids_amounts[0].1);
         } else {
-            self._emit_transfer_batch_event(operator, None, Some(to), ids_amounts);
+            self._emit_transfer_batch_event(operator, None, Some(to), ids_amounts.clone());
         }
+
+        self._after_token_transfer(None, Some(&to), &ids_amounts)?;
         Ok(())
     }
 
@@ -234,6 +249,8 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
             return Ok(())
         }
 
+        self._before_token_transfer(Some(&from), None, &ids_amounts)?;
+
         for (id, amount) in ids_amounts.iter() {
             self._decrease_sender_balance(from, id.clone(), amount.clone())?;
         }
@@ -242,8 +259,10 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         if ids_amounts.len() == 1 {
             self._emit_transfer_single_event(operator, Some(from), None, ids_amounts[0].0, ids_amounts[0].1);
         } else {
-            self._emit_transfer_batch_event(operator, Some(from), None, ids_amounts);
+            self._emit_transfer_batch_event(operator, Some(from), None, ids_amounts.clone());
         }
+
+        self._after_token_transfer(Some(&from), None, &ids_amounts)?;
         Ok(())
     }
 
@@ -303,9 +322,18 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
     }
 
     default fn _before_token_transfer(
-        &self,
-        _from: &AccountId,
-        _to: &AccountId,
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
         _ids: &Vec<(Id, Balance)>,
     ) -> Result<(), PSP1155Error> {
         Ok(())
