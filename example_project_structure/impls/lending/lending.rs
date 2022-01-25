@@ -178,12 +178,12 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let loan_account = LendingStorage::get(self).loan_account;
         let apy = 1000;
         // initiator must own the nft
-        if LoanRef::owner_of(&loan_account, loan_id).unwrap_or(ZERO_ADDRESS.into()) != initiator {
+        if LoanRef::owner_of(&loan_account, loan_id.clone()).unwrap_or(ZERO_ADDRESS.into()) != initiator {
             return Err(LendingError::NotTheOwner)
         }
-        let loan_info = LoanRef::get_loan_info(&loan_account, loan_id)?;
+        let loan_info = LoanRef::get_loan_info(&loan_account, loan_id.clone())?;
         if loan_info.liquidated {
-            LoanRef::delete_loan(&loan_account, initiator, loan_id)?;
+            LoanRef::delete_loan(&loan_account, initiator, loan_id.clone())?;
             return Ok(false)
         }
 
@@ -207,7 +207,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
                 loan_info.collateral_amount,
                 Vec::<u8>::new(),
             )?;
-            LoanRef::delete_loan(&loan_account, initiator, loan_id)?;
+            LoanRef::delete_loan(&loan_account, initiator, loan_id.clone())?;
             SharesRef::burn(&reserve_asset, loan_info.borrow_amount)?;
         } else {
             PSP22Ref::transfer_from(
@@ -226,7 +226,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
             )?;
             LoanRef::update_loan(
                 &loan_account,
-                loan_id,
+                loan_id.clone(),
                 to_repay - repay_amount,
                 Self::env().block_timestamp(),
                 loan_info.collateral_amount - to_return,
@@ -254,7 +254,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
 
     default fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError> {
         let loan_account = LendingStorage::get(self).loan_account;
-        let loan_info = LoanRef::get_loan_info(&loan_account, loan_id)?;
+        let loan_info = LoanRef::get_loan_info(&loan_account, loan_id.clone())?;
 
         if loan_info.liquidated {
             return Err(LendingError::LoanLiquidated)
@@ -278,7 +278,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
                 reward,
                 Vec::<u8>::new(),
             )?;
-            LoanRef::liquidate_loan(&loan_account, loan_id)?;
+            LoanRef::liquidate_loan(&loan_account, loan_id.clone())?;
         } else {
             return Err(LendingError::CanNotBeLiquidated)
         }

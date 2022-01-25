@@ -9,6 +9,8 @@ describe('MY_PSP34', () => {
         return setupContract('psp34_receiver', 'new')
     }
 
+    // TODO: add tests for total_supply and collection_id
+
     it('Transfer works', async () => {
         const {
             contract,

@@ -32,17 +32,17 @@ mod psp34_burnable {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint([1; 32]).is_ok());
+        assert!(nft._mint(Id::U8(1u8)).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Alice owns token Id 1.
-        assert_eq!(nft.owner_of([1; 32]), Some(accounts.alice));
+        assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.alice));
         // Destroy token Id 1.
-        assert!(nft.burn([1; 32]).is_ok());
+        assert!(nft.burn(Id::U8(1u8)).is_ok());
         // Alice does not owns tokens.
         assert_eq!(nft.balance_of(accounts.alice), 0);
         // Token Id 1 does not _exists
-        assert_eq!(nft.owner_of([1; 32]), None);
+        assert_eq!(nft.owner_of(Id::U8(1u8)), None);
     }
 
     #[ink::test]
@@ -50,7 +50,7 @@ mod psp34_burnable {
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
         // Try burning a non existent token
-        assert_eq!(nft.burn([4; 32]), Err(PSP34Error::TokenNotExists));
+        assert_eq!(nft.burn(Id::U8(4u8)), Err(PSP34Error::TokenNotExists));
     }
 
     #[ink::test]
@@ -58,9 +58,9 @@ mod psp34_burnable {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint([1; 32]).is_ok());
+        assert!(nft._mint(Id::U8(1u8)).is_ok());
         // Try burning this token with a different account
         change_caller(accounts.eve);
-        assert_eq!(nft.burn([1; 32]), Err(PSP34Error::NotApproved));
+        assert_eq!(nft.burn(Id::U8(1u8)), Err(PSP34Error::NotApproved));
     }
 }

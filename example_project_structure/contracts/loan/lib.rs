@@ -103,8 +103,7 @@ pub mod loan {
         #[ink(constructor)]
         pub fn new() -> Self {
             let mut instance = Self::default();
-            instance._init_with_metadata(Some(String::from("LoanContract NFT")), Some(String::from("L-NFT")));
-            instance._init_with_owner(Self::env().caller());
+            instance._set_attribute(Id::U8(1u8), String::from("LoanContract NFT").into_bytes(), String::from("L-NFT").into_bytes());
             instance
         }
 
@@ -155,19 +154,15 @@ pub mod loan {
             }
             let mut current = self.last_loan_id;
             // It is not fully correct implementation of the increasing. but it is only an example
-            for n in 0..32 {
-                if current[n] == u8::MAX {
-                    if n == 31 {
+            match current {
+                Id::U8(v) => {
+                    if v == u8::MAX {
                         return Err(PSP34Error::Custom(String::from("Max Id reached!")))
-                    } else {
-                        current[n] = 0;
                     }
-                } else {
-                    current[n] += 1;
-                    break
-                }
-            }
-            self.last_loan_id = current;
+                    self.last_loan_id = Id::U8(v + 1);
+                },
+                _ => {},
+            };
             Ok(current)
         }
     }

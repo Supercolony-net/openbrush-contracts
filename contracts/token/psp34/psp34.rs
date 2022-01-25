@@ -7,7 +7,7 @@ use brush::{
     },
 };
 pub use derive::PSP34Storage;
-use ink_env::Error as EnvError;
+use ink_env::{Error as EnvError};
 use ink_prelude::{
     string::String,
     vec::Vec,
@@ -19,6 +19,7 @@ use ink_storage::{
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
+use brush::traits::Balance;
 
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
@@ -27,11 +28,18 @@ pub struct PSP34Data {
     pub token_approvals: StorageHashMap<Id, AccountId>,
     pub owned_tokens_count: StorageHashMap<AccountId, u32>,
     pub operator_approvals: StorageHashMap<(AccountId, AccountId), bool>,
+    pub total_supply: Balance,
 }
 
 declare_storage_trait!(PSP34Storage, PSP34Data);
 
 impl<T: PSP34Storage + Flush> PSP34 for T {
+    default fn collection_id(&self) -> Id {
+        // TODO: make it work
+        //Id::Bytes(Self::env().account_id().as_ref().to_vec())
+        todo!()
+    }
+
     default fn balance_of(&self, owner: AccountId) -> u32 {
         self.get().owned_tokens_count.get(&owner).cloned().unwrap_or(0)
     }
@@ -74,6 +82,10 @@ impl<T: PSP34Storage + Flush> PSP34 for T {
         self._transfer_token_from(from, to, id, data)?;
         Ok(())
     }
+
+    default fn total_supply(&self) -> Balance {
+        self.get().total_supply
+    }
 }
 
 pub trait PSP34Internal {
@@ -85,6 +97,9 @@ pub trait PSP34Internal {
 
     /// Emits approval for all event. This method must be implemented in derived implementation
     fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool);
+
+    /// Event is emitted when an attribute is set for a token.
+    fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>);
 
     /// Approves or disapproves the operator to transfer all tokens of the caller.
     fn _approve_for_all(&mut self, owner: AccountId, operator: AccountId, approved: bool) -> Result<(), PSP34Error>;
@@ -139,6 +154,8 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
 
     default fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {}
 
+    default fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>) {}
+
     default fn _approve_for_all(
         &mut self,
         owner: AccountId,
@@ -170,8 +187,8 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
             return Err(PSP34Error::NotApproved)
         };
 
-        self.get_mut().token_approvals.insert(id, to);
-        self._emit_approval_event(caller, to, id);
+        self.get_mut().token_approvals.insert(id.clone(), to);
+        self._emit_approval_event(caller, to, id.clone());
         Ok(())
     }
 
@@ -196,7 +213,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
     ) -> Result<(), PSP34Error> {
         self._before_token_transfer(&from, &to, &id)?;
         self._remove_token(from, &id)?;
-        self._do_safe_transfer_check(Self::env().caller(), from, to, id, data)?;
+        self._do_safe_transfer_check(Self::env().caller(), from, to, id.clone(), data)?;
         self._add_token(to.clone(), id.clone())?;
         self._emit_transfer_event(Some(from), Some(to), id);
         Ok(())
@@ -245,6 +262,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
     default fn _add_token(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error> {
         let to_balance = self.get_mut().owned_tokens_count.get_mut(&to).cloned().unwrap_or(0);
         self.get_mut().owned_tokens_count.insert(to.clone(), to_balance + 1);
+        self.get_mut().total_supply += Balance::from(1u128);
 
         self.get_mut().token_owner.insert(id, to);
         Ok(())
@@ -270,6 +288,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
 
         let from_balance = self.get_mut().owned_tokens_count.get_mut(&from).unwrap().clone();
         self.get_mut().owned_tokens_count.insert(from, from_balance - 1);
+        self.get_mut().total_supply -= Balance::from(1u128);
         Ok(())
     }
 

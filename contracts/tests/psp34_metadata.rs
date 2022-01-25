@@ -19,19 +19,18 @@ mod psp34_metadata {
 
     impl PSP34Struct {
         #[ink(constructor)]
-        pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
+        pub fn new(id: Id, key: String, val: String) -> Self {
             let mut instance = Self::default();
-            instance._init_with_metadata(name, symbol);
+            instance._set_attribute(id, key.into_bytes(), val.into_bytes());
             instance
         }
     }
 
     #[ink::test]
     fn init_with_name_and_symbol_works() {
-        let nft = PSP34Struct::new(Some(String::from("TOKEN")), Some(String::from("TKN")));
+        let id = Id::U8(1u8);
+        let nft = PSP34Struct::new(id.clone(), String::from("KEY"), String::from("VAL"));
 
-        assert_eq!(nft.name(), Some(String::from("TOKEN")));
-        assert_eq!(nft.symbol(), Some(String::from("TKN")));
-        assert_eq!(nft.uri([1; 32]), None);
+        assert_eq!(nft.get_attribute(id.clone(), String::from("KEY").into_bytes()), Some(String::from("VAL").into_bytes()));
     }
 }

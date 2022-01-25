@@ -2,10 +2,43 @@ pub use crate::traits::errors::{
     PSP34Error,
     PSP34ReceiverError,
 };
+use ink_storage::traits::{
+    PackedLayout,
+    SpreadLayout,
+};
 use brush::traits::AccountId;
-use ink_prelude::vec::Vec;
+use ink_prelude::{
+    string::String,
+    format,
+    vec::Vec,
+    vec,
+};
+use brush::traits::Balance;
 
-pub type Id = [u8; 32];
+// Id is an Enum and its variant are types
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub enum Id {
+    U8(u8),
+    U16(u16),
+    U32(u32),
+    U64(u64),
+    U128(u128),
+    Bytes(Vec<u8>),
+}
+
+impl From<Id> for Vec<u8> {
+    fn from(id: Id) -> Self {
+        match id {
+            Id::U8(v) => vec![v],
+            Id::U16(v) => String::from(format!("{}",v)).into(),
+            Id::U32(v) => String::from(format!("{}",v)).into(),
+            Id::U64(v) => String::from(format!("{}",v)).into(),
+            Id::U128(v) => String::from(format!("{}",v)).into(),
+            Id::Bytes(v) => v,
+        }
+    }
+}
 
 #[brush::wrapper]
 pub type PSP34Ref = dyn PSP34;
@@ -13,13 +46,19 @@ pub type PSP34Ref = dyn PSP34;
 /// Contract module which provides a basic implementation of non fungible token.
 #[brush::trait_definition]
 pub trait PSP34 {
+    /// Returns the collection `Id` of the NFT token.
+    ///
+    /// This can represents the relationship between tokens/contracts/pallets.
+    #[ink(message)]
+    fn collection_id(&self) -> Id;
+
     /// Returns the balance of the owner.
     ///
     /// This represents the amount of unique tokens the owner has.
     #[ink(message)]
     fn balance_of(&self, owner: AccountId) -> u32;
 
-    /// Returns the owner of the token.
+    /// Returns the owner of the token if any.
     #[ink(message)]
     fn owner_of(&self, id: Id) -> Option<AccountId>;
 
@@ -59,7 +98,7 @@ pub trait PSP34 {
     ///
     /// # Errors
     ///
-    /// Returns `TokenNotExists` error if `id` is not exist.
+    /// Returns `TokenNotExists` error if `id` does not exist.
     ///
     /// Returns `NotApproved` error if `from` doesn't have allowance for transferring.
     ///
@@ -80,6 +119,10 @@ pub trait PSP34 {
     /// Returns `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
     #[ink(message)]
     fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error>;
+
+    /// Returns current NFT total supply.
+    #[ink(message)]
+    fn total_supply(&self) -> Balance;
 }
 
 #[brush::wrapper]

@@ -4,6 +4,7 @@
 mod psp34_mintable {
     use brush::test_utils::accounts;
     use contracts::psp34::extensions::mintable::*;
+    use contracts::psp34::Id;
     use ink_lang as ink;
 
     #[derive(Default, PSP34Storage)]
@@ -30,11 +31,11 @@ mod psp34_mintable {
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
         // Token 1 does not _exists.
-        assert_eq!(nft.owner_of([1; 32]), None);
+        assert_eq!(nft.owner_of(Id::U8(1u8)), None);
         // Alice does not owns tokens.
         assert_eq!(nft.balance_of(accounts.alice), 0);
         // Create token Id 1.
-        assert!(nft.mint([1; 32]).is_ok());
+        assert!(nft.mint(Id::U8(1u8)).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
     }
@@ -45,13 +46,13 @@ mod psp34_mintable {
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
         // Create token Id 1.
-        assert!(nft.mint([1; 32]).is_ok());
+        assert!(nft.mint(Id::U8(1u8)).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Alice owns token Id 1.
-        assert_eq!(nft.owner_of([1; 32]), Some(accounts.alice));
+        assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.alice));
         // Cannot create  token Id if it _exists.
-        assert_eq!(nft.mint([1; 32]), Err(PSP34Error::TokenExists));
-        assert_eq!(nft.mint_to(accounts.bob, [1; 32]), Err(PSP34Error::TokenExists));
+        assert_eq!(nft.mint(Id::U8(1u8)), Err(PSP34Error::TokenExists));
+        assert_eq!(nft.mint_to(accounts.bob, Id::U8(1u8)), Err(PSP34Error::TokenExists));
     }
 }
