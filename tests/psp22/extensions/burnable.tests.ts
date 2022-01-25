@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { expect, fromSigner, setupContract, getSigner } from '../../helpers';
+import {consts} from '../../constants'
 
 describe('MY_PSP22_BURNABLE', () => {
     async function setup() {
@@ -20,20 +21,20 @@ describe('MY_PSP22_BURNABLE', () => {
         await tx.transfer(ALICE.address, 10, []);
 
         // Act - Burn Alice's tokens
-        await fromSigner(contract, ALICE.address).tx.burn(10)
+        await fromSigner(contract, ALICE.address).tx.burn(ALICE.address, 10)
 
         // Assert - Ensure sender balance is now 0
         await expect(query.balanceOf(ALICE.address)).to.have.output(0);
     })
 
     it('Decreases total supply after burning', async () => {
-        const { contract, query } = await setup()
+        const { contract, query, defaultSigner: sender } = await setup()
 
         // Arrange - Ensure initial supply is correct
         await expect(query.totalSupply()).to.have.output(1000)
 
         // Act - Burn token from owner
-        await contract.tx.burn(1)
+        await contract.tx.burn(sender.address, 1)
 
         // Assert - Ensure sender balance is now 999
         await expect(query.totalSupply()).to.have.output(999)
@@ -48,7 +49,7 @@ describe('MY_PSP22_BURNABLE', () => {
         await fromSigner(contract, ALICE.address).tx.approve(defaultSigner.address, 10)
 
         // Act - burn from Alice address
-        await fromSigner(contract, defaultSigner.address).tx.burnFrom(ALICE.address, 10)
+        await fromSigner(contract, defaultSigner.address).tx.burn(ALICE.address, 10)
 
         // Assert - ensure needed amount was burnt
         await expect(query.balanceOf(ALICE.address)).to.have.output(0);
@@ -110,4 +111,28 @@ describe('MY_PSP22_BURNABLE', () => {
         await expect(query.balanceOf(BOB.address)).to.have.output(5);
     })
 
+    it('Can not burn from hated account', async () => {
+        const {
+            query,
+            contract,
+            accounts: [hated_account]
+        } = await setup()
+        // Check that we can burn money while account is not hated
+        await contract.tx.transfer(hated_account.address, 20, [])
+        await expect(fromSigner(contract, hated_account.address).tx.burn(hated_account.address, 10)).to.eventually.be.fulfilled
+        let result = await query.balanceOf(hated_account.address)
+        expect(result.output).to.equal(10)
+        await expect(query.getHatedAccount()).to.have.output(consts.EMPTY_ADDRESS)
+
+        // Hate account
+        await expect(contract.tx.setHatedAccount(hated_account.address)).to.eventually.be.ok
+        await expect(query.getHatedAccount()).to.have.output(hated_account.address)
+
+        // Burn must fail
+        await expect(fromSigner(contract, hated_account.address).tx.burn(hated_account.address, 10)).to.eventually.be.rejected
+
+        // Amount of tokens must be the same
+        result = await query.balanceOf(hated_account.address)
+        expect(result.output).to.equal(10)
+    })
 })

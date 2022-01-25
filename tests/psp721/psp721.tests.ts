@@ -1,4 +1,5 @@
 import { bnArg, expect, setupContract, fromSigner } from '../helpers'
+import {consts} from '../constants'
 
 describe('MY_PSP721', () => {
     async function setup() {
@@ -156,4 +157,34 @@ describe('MY_PSP721', () => {
         await expect(query.balanceOf(sender.address)).to.have.output(1)
     })
 
+    it('Can not transfer to hated account', async () => {
+        const {
+            contract,
+            query,
+            tx,
+            defaultSigner: sender,
+            accounts: [hated_account]
+        } = await setup()
+
+        await expect(tx.mintToken()).to.be.fulfilled
+        await expect(tx.mintToken()).to.be.fulfilled
+        await expect(query.balanceOf(sender.address)).to.have.output(2)
+
+        // Check that we can transfer token while account is not hated
+        await expect(fromSigner(contract, sender.address).tx.transferFrom(sender.address, hated_account.address, bnArg(0), [])).to.eventually.be.fulfilled
+        let result = await query.balanceOf(hated_account.address)
+        expect(result.output).to.equal(1)
+        await expect(query.getHatedAccount()).to.have.output(consts.EMPTY_ADDRESS)
+
+        // Hate account
+        await expect(tx.setHatedAccount(hated_account.address)).to.eventually.be.ok
+        await expect(query.getHatedAccount()).to.have.output(hated_account.address)
+
+        // Transfer must fail
+        await expect(fromSigner(contract, sender.address).tx.transferFrom(sender.address, hated_account.address, bnArg(1), [])).to.eventually.be.rejected
+
+        // Amount of tokens must be the same
+        result = await query.balanceOf(sender.address)
+        expect(result.output).to.equal(1)
+    })
 })
