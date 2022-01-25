@@ -26,6 +26,8 @@ mod psp22_mintable {
     pub struct PSP22Struct {
         #[PSP22StorageField]
         psp22: PSP22Data,
+        // fields for hater logic
+        hated_account: AccountId,
     }
 
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
@@ -51,6 +53,19 @@ mod psp22_mintable {
         ) -> Result<(), PSP22Error> {
             Ok(())
         }
+
+        // Let's override method to reject transactions to bad account
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if to.unwrap() == &self.hated_account {
+                return Err(PSP22Error::Custom(String::from("I hate this account!")))
+            }
+            Ok(())
+        }
     }
 
     impl PSP22 for PSP22Struct {}
@@ -61,6 +76,16 @@ mod psp22_mintable {
             let mut instance = Self::default();
             assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
             instance
+        }
+
+        #[ink(message)]
+        pub fn set_hated_account(&mut self, hated: AccountId) {
+            self.hated_account = hated;
+        }
+
+        #[ink(message)]
+        pub fn get_hated_account(&self) -> AccountId {
+            self.hated_account.clone()
         }
     }
 
@@ -178,5 +203,26 @@ mod psp22_mintable {
         let new_account_balance = psp22.balance_of(accounts.alice);
 
         assert_eq!(new_account_balance, account_balance + amount_to_mint);
+    }
+
+    #[ink::test]
+    fn should_not_mint_if_receiver_hated_account() {
+        // Constructor works.
+        let mut psp22 = PSP22Struct::new(100);
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+
+        // Can mint tokens to Alice while not hated
+        assert!(psp22.mint(accounts.alice, 10).is_ok());
+        assert_eq!(psp22.balance_of(accounts.alice), 110);
+
+        // Hate Alice account
+        psp22.set_hated_account(accounts.alice);
+
+        // Cannot mint tokens to hated account
+        assert_eq!(
+            psp22.mint(accounts.alice, 10),
+            Err(PSP22Error::Custom(String::from("I hate this account!")))
+        );
+        assert_eq!(psp22.balance_of(accounts.alice), 110);
     }
 }

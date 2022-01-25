@@ -26,6 +26,8 @@ mod psp22_burnable {
     pub struct PSP22Struct {
         #[PSP22StorageField]
         psp22: PSP22Data,
+        // fields for hater logic
+        hated_account: AccountId,
     }
 
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
@@ -51,6 +53,19 @@ mod psp22_burnable {
         ) -> Result<(), PSP22Error> {
             Ok(())
         }
+
+        // Let's override method to reject transactions to bad account
+        fn _before_token_transfer(
+            &mut self,
+            from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if from.is_some() && from.unwrap() == &self.hated_account {
+                return Err(PSP22Error::Custom(String::from("I hate this account!")))
+            }
+            Ok(())
+        }
     }
 
     impl PSP22 for PSP22Struct {}
@@ -61,6 +76,16 @@ mod psp22_burnable {
             let mut instance = Self::default();
             assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
             instance
+        }
+
+        #[ink(message)]
+        pub fn set_hated_account(&mut self, hated: AccountId) {
+            self.hated_account = hated;
+        }
+
+        #[ink(message)]
+        pub fn get_hated_account(&self) -> AccountId {
+            self.hated_account.clone()
         }
     }
 
@@ -112,9 +137,10 @@ mod psp22_burnable {
     fn should_not_burn_if_burn_amount_greater_than_account_balance() {
         let initial_balance = 10;
         let mut psp22 = PSP22Struct::new(initial_balance);
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         let amount_to_burn = 100;
 
-        assert_eq!(psp22.burn(amount_to_burn), Err(PSP22Error::InsufficientBalance));
+        assert_eq!(psp22.burn(accounts.alice, amount_to_burn), Err(PSP22Error::InsufficientBalance));
     }
 
     #[ink::test]
@@ -122,10 +148,11 @@ mod psp22_burnable {
         // Constructor works.
         let initial_amount = 100;
         let mut psp22 = PSP22Struct::new(initial_amount);
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Transfer event triggered during initial construction.
         let amount_to_burn = 10;
 
-        assert!(psp22.burn(amount_to_burn).is_ok());
+        assert!(psp22.burn(accounts.alice, amount_to_burn).is_ok());
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
@@ -148,12 +175,13 @@ mod psp22_burnable {
     #[ink::test]
     fn total_supply_decreases_after_burning() {
         let mut psp22 = PSP22Struct::new(100);
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
 
         // Contract's total supply before burning
         let total_supply = psp22.total_supply();
         let amount_to_burn = 10;
 
-        assert!(psp22.burn(amount_to_burn).is_ok());
+        assert!(psp22.burn(accounts.alice, amount_to_burn).is_ok());
 
         // Contract's total supply after burning
         let newtotal_supply = psp22.total_supply();
@@ -170,7 +198,7 @@ mod psp22_burnable {
         let alice_balance = psp22.balance_of(accounts.alice);
         let amount_to_burn = 10;
 
-        assert!(psp22.burn(amount_to_burn).is_ok());
+        assert!(psp22.burn(accounts.alice, amount_to_burn).is_ok());
 
         // Alice's balance after burning
         let new_alice_balance = psp22.balance_of(accounts.alice);
@@ -193,7 +221,7 @@ mod psp22_burnable {
         change_caller(accounts.bob);
 
         // Burning some amount from Alice's account
-        assert!(psp22.burn_from(accounts.alice, amount_to_burn).is_ok());
+        assert!(psp22.burn(accounts.alice, amount_to_burn).is_ok());
 
         // Expecting Alice's balance decrease
         assert_eq!(psp22.balance_of(accounts.alice), alice_balance - amount_to_burn);
@@ -212,8 +240,29 @@ mod psp22_burnable {
         assert_eq!(psp22.allowance(accounts.bob, accounts.alice), 0);
         // Try to burn some amount from Bob's account
         assert_eq!(
-            psp22.burn_from(accounts.bob, amount_to_burn),
+            psp22.burn(accounts.bob, amount_to_burn),
             Err(PSP22Error::InsufficientAllowance)
         );
+    }
+
+    #[ink::test]
+    fn should_not_burn_from_hated_account() {
+        // Constructor works.
+        let mut psp22 = PSP22Struct::new(100);
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+
+        // Alice can burn 10 tokens while not hated
+        assert!(psp22.burn(accounts.alice, 10).is_ok());
+        assert_eq!(psp22.balance_of(accounts.alice), 90);
+
+        // Hate Alice account
+        psp22.set_hated_account(accounts.alice);
+
+        // Alice cannot burn 10 tokens when hated account
+        assert_eq!(
+            psp22.burn(accounts.alice, 10),
+            Err(PSP22Error::Custom(String::from("I hate this account!")))
+        );
+        assert_eq!(psp22.balance_of(accounts.alice), 90);
     }
 }

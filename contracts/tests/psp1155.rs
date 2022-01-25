@@ -48,6 +48,8 @@ mod psp1155 {
     pub struct PSP1155Struct {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
+        // fields for hater logic
+        hated_account: AccountId,
     }
 
     impl PSP1155Internal for PSP1155Struct {
@@ -102,6 +104,19 @@ mod psp1155 {
         ) -> Result<(), PSP1155Error> {
             Ok(())
         }
+
+        // Let's override method to reject transactions to bad account
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            to: Option<&AccountId>,
+            _ids: &Vec<(Id, Balance)>,
+        ) -> Result<(), PSP1155Error> {
+            if to.unwrap() == &self.hated_account {
+                return Err(PSP1155Error::Custom(String::from("I hate this account!")))
+            }
+            Ok(())
+        }
     }
 
     impl PSP1155 for PSP1155Struct {}
@@ -115,6 +130,16 @@ mod psp1155 {
         #[ink(message)]
         pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
             self._mint_to(acc, vec![(id, amount)])
+        }
+
+        #[ink(message)]
+        pub fn set_hated_account(&mut self, hated: AccountId) {
+            self.hated_account = hated;
+        }
+
+        #[ink(message)]
+        pub fn get_hated_account(&self) -> AccountId {
+            self.hated_account.clone()
         }
     }
 
@@ -506,6 +531,28 @@ mod psp1155 {
         );
 
         assert_eq!(ink_env::test::recorded_events().count(), 4);
+    }
+
+    #[ink::test]
+    fn should_fail_transfer_to_hated_account() {
+        let token_id_1 = [1; 32];
+        let token_id_2 = [2; 32];
+        let token_1_amount = 1;
+        let token_2_amount = 20;
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP1155Struct::new();
+        assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
+        assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
+        // Can transfer tokens to not hated account
+        assert!(nft.transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![]).is_ok());
+        // Hate bob account
+        nft.set_hated_account(accounts.bob);
+        // Cannot transfer tokens to hated account
+        assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),
+            Err(PSP1155Error::Custom(String::from("I hate this account!")))
+        );
     }
 
     fn assert_transfer_event(
