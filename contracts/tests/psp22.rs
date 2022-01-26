@@ -38,8 +38,10 @@ mod psp22 {
     pub struct PSP22Struct {
         #[PSP22StorageField]
         psp22: PSP22Data,
-        // fields for hater logic
-        hated_account: AccountId,
+        // field for testing _before_token_transfer
+        return_err_on_before: bool,
+        // field for testing _after_token_transfer
+        return_err_on_after: bool,
     }
 
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
@@ -72,15 +74,26 @@ mod psp22 {
             Ok(())
         }
 
-        // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
-            to: Option<&AccountId>,
+            _to: Option<&AccountId>,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
-            if to.unwrap() == &self.hated_account {
-                return Err(PSP22Error::Custom(String::from("I hate this account!")))
+            if self.return_err_on_before {
+                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")));
+            }
+            Ok(())
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if self.return_err_on_after {
+                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")));
             }
             Ok(())
         }
@@ -97,13 +110,13 @@ mod psp22 {
         }
 
         #[ink(message)]
-        pub fn set_hated_account(&mut self, hated: AccountId) {
-            self.hated_account = hated;
-        }
-
-        #[ink(message)]
-        pub fn get_hated_account(&self) -> AccountId {
-            self.hated_account.clone()
+        pub fn change_state_err(&mut self) {
+            if self.return_err_on_before {
+                self.return_err_on_before = false;
+                self.return_err_on_after = true;
+            } else {
+                self.return_err_on_before = true;
+            }
         }
     }
 
@@ -295,26 +308,29 @@ mod psp22 {
     }
 
     #[ink::test]
-    fn should_fail_transfer_if_receiver_hated_account() {
+    fn before_and_after_token_transfer_should_fail_transfer() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        // Alice transfers 10 tokens to Bob which not hated
+        // Alice can transfer 10 tokens to Bob
         assert!(psp22
             .transfer(accounts.bob, 10, Vec::<u8>::new())
             .is_ok()
         );
         assert_eq!(psp22.balance_of(accounts.alice), 90);
-
-        // Hate bob account
-        psp22.set_hated_account(accounts.bob);
-
-        // Alice cannot transfers 10 tokens to hated account
+        // Turn on error on _before_token_transfer
+        psp22.change_state_err();
+        // Alice gets an error on _before_token_transfer
         assert_eq!(
             psp22.transfer(accounts.bob, 10, Vec::<u8>::new()),
-            Err(PSP22Error::Custom(String::from("I hate this account!")))
+            Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
         );
-        assert_eq!(psp22.balance_of(accounts.alice), 90);
+        // Turn on error on _after_token_transfer
+        psp22.change_state_err();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            psp22.transfer(accounts.bob, 10, Vec::<u8>::new()),
+            Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
+        );
     }
 }

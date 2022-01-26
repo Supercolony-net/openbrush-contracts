@@ -14,20 +14,33 @@ mod psp721_burnable {
     pub struct PSP721Struct {
         #[PSP721StorageField]
         psp721: PSP721Data,
-        // fields for hater logic
-        hated_account: AccountId,
+        // field for testing _before_token_transfer
+        return_err_on_before: bool,
+        // field for testing _after_token_transfer
+        return_err_on_after: bool,
     }
 
     impl PSP721Internal for PSP721Struct {
-        // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,
-            from: Option<&AccountId>,
+            _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _id: &Id,
         ) -> Result<(), PSP721Error> {
-            if from.is_some() && from.unwrap() == &self.hated_account {
-                return Err(PSP721Error::Custom(String::from("I hate this account!")))
+            if self.return_err_on_before {
+                return Err(PSP721Error::Custom(String::from("Error on _before_token_transfer")));
+            }
+            Ok(())
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _id: &Id,
+        ) -> Result<(), PSP721Error> {
+            if self.return_err_on_after {
+                return Err(PSP721Error::Custom(String::from("Error on _after_token_transfer")));
             }
             Ok(())
         }
@@ -43,13 +56,13 @@ mod psp721_burnable {
         }
 
         #[ink(message)]
-        pub fn set_hated_account(&mut self, hated: AccountId) {
-            self.hated_account = hated;
-        }
-
-        #[ink(message)]
-        pub fn get_hated_account(&self) -> AccountId {
-            self.hated_account.clone()
+        pub fn change_state_err(&mut self) {
+            if self.return_err_on_before {
+                self.return_err_on_before = false;
+                self.return_err_on_after = true;
+            } else {
+                self.return_err_on_before = true;
+            }
         }
     }
 
@@ -92,7 +105,7 @@ mod psp721_burnable {
     }
 
     #[ink::test]
-    fn should_not_burn_from_hated_account() {
+    fn before_and_after_token_transfer_should_fail_burn() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
@@ -100,16 +113,21 @@ mod psp721_burnable {
         assert!(nft._mint([2; 32]).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
-        // Alice can burn token from not hated account
+        // Alice can burn token
         assert!(nft.burn(accounts.alice, [1; 32]).is_ok());
-        // Hate Alice account
-        nft.set_hated_account(accounts.alice);
-        // Alice cannot burn tokens from hated account
+        // Turn on error on _before_token_transfer
+        nft.change_state_err();
+        // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, [2; 32]),
-            Err(PSP721Error::Custom(String::from("I hate this account!")))
+            Err(PSP721Error::Custom(String::from("Error on _before_token_transfer")))
         );
-        // Alice owns 1 token.
-        assert_eq!(nft.balance_of(accounts.alice), 1);
+        // Turn on error on _after_token_transfer
+        nft.change_state_err();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            nft.burn(accounts.alice, [2; 32]),
+            Err(PSP721Error::Custom(String::from("Error on _after_token_transfer")))
+        );
     }
 }

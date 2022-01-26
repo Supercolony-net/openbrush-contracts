@@ -11,20 +11,33 @@ mod psp1155_mintable {
     pub struct PSP1155Struct {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
-        // fields for hater logic
-        hated_account: AccountId,
+        // field for testing _before_token_transfer
+        return_err_on_before: bool,
+        // field for testing _after_token_transfer
+        return_err_on_after: bool,
     }
 
     impl PSP1155Internal for PSP1155Struct {
-        // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
-            to: Option<&AccountId>,
+            _to: Option<&AccountId>,
             _ids: &Vec<(Id, Balance)>,
         ) -> Result<(), PSP1155Error> {
-            if to.unwrap() == &self.hated_account {
-                return Err(PSP1155Error::Custom(String::from("I hate this account!")))
+            if self.return_err_on_before {
+                return Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")));
+            }
+            Ok(())
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _ids: &Vec<(Id, Balance)>,
+        ) -> Result<(), PSP1155Error> {
+            if self.return_err_on_after {
+                return Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")));
             }
             Ok(())
         }
@@ -40,13 +53,13 @@ mod psp1155_mintable {
         }
 
         #[ink(message)]
-        pub fn set_hated_account(&mut self, hated: AccountId) {
-            self.hated_account = hated;
-        }
-
-        #[ink(message)]
-        pub fn get_hated_account(&self) -> AccountId {
-            self.hated_account.clone()
+        pub fn change_state_err(&mut self) {
+            if self.return_err_on_before {
+                self.return_err_on_before = false;
+                self.return_err_on_after = true;
+            } else {
+                self.return_err_on_before = true;
+            }
         }
     }
 
@@ -70,26 +83,31 @@ mod psp1155_mintable {
     }
 
     #[ink::test]
-    fn should_not_mint_to_hated_account() {
+    fn before_and_after_token_transfer_should_fail_mint() {
         let token_id_1 = [1; 32];
         let token_id_2 = [2; 32];
         let token_1_amount = 1;
         let token_2_amount = 20;
         let accounts = accounts();
-
         let mut nft = PSP1155Struct::new();
-        // Can mint to not hated account
+        // Can mint
         assert_eq!(nft.balance_of(accounts.alice, token_id_1), 0);
         assert!(nft.mint(accounts.alice, vec![(token_id_1, token_1_amount)]).is_ok());
         assert_eq!(nft.balance_of(accounts.alice, token_id_1), token_1_amount);
-        // Hate Alice account
-        nft.set_hated_account(accounts.alice);
-        // Cannot mint to hated account
-        assert_eq!(nft.balance_of(accounts.alice, token_id_2), 0);
+        // Turn on error on _before_token_transfer
+        nft.change_state_err();
+        // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.mint(accounts.alice, vec![(token_id_2, token_2_amount)]),
-            Err(PSP1155Error::Custom(String::from("I hate this account!")))
+            Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
         );
         assert_eq!(nft.balance_of(accounts.alice, token_id_2), 0);
+        // Turn on error on _after_token_transfer
+        nft.change_state_err();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            nft.mint(accounts.alice, vec![(token_id_2, token_2_amount)]),
+            Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")))
+        );
     }
 }

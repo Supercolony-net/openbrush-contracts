@@ -26,8 +26,10 @@ mod psp22_burnable {
     pub struct PSP22Struct {
         #[PSP22StorageField]
         psp22: PSP22Data,
-        // fields for hater logic
-        hated_account: AccountId,
+        // field for testing _before_token_transfer
+        return_err_on_before: bool,
+        // field for testing _after_token_transfer
+        return_err_on_after: bool,
     }
 
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
@@ -54,15 +56,26 @@ mod psp22_burnable {
             Ok(())
         }
 
-        // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,
-            from: Option<&AccountId>,
+            _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
-            if from.is_some() && from.unwrap() == &self.hated_account {
-                return Err(PSP22Error::Custom(String::from("I hate this account!")))
+            if self.return_err_on_before {
+                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")));
+            }
+            Ok(())
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if self.return_err_on_after {
+                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")));
             }
             Ok(())
         }
@@ -79,13 +92,13 @@ mod psp22_burnable {
         }
 
         #[ink(message)]
-        pub fn set_hated_account(&mut self, hated: AccountId) {
-            self.hated_account = hated;
-        }
-
-        #[ink(message)]
-        pub fn get_hated_account(&self) -> AccountId {
-            self.hated_account.clone()
+        pub fn change_state_err(&mut self) {
+            if self.return_err_on_before {
+                self.return_err_on_before = false;
+                self.return_err_on_after = true;
+            } else {
+                self.return_err_on_before = true;
+            }
         }
     }
 
@@ -246,23 +259,26 @@ mod psp22_burnable {
     }
 
     #[ink::test]
-    fn should_not_burn_from_hated_account() {
+    fn before_and_after_token_transfer_should_fail_burn() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-
-        // Alice can burn 10 tokens while not hated
+        // Alice can burn 10 tokens
         assert!(psp22.burn(accounts.alice, 10).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 90);
-
-        // Hate Alice account
-        psp22.set_hated_account(accounts.alice);
-
-        // Alice cannot burn 10 tokens when hated account
+        // Turn on error on _before_token_transfer
+        psp22.change_state_err();
+        // Alice gets an error on _before_token_transfer
         assert_eq!(
             psp22.burn(accounts.alice, 10),
-            Err(PSP22Error::Custom(String::from("I hate this account!")))
+            Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
         );
-        assert_eq!(psp22.balance_of(accounts.alice), 90);
+        // Turn on error on _after_token_transfer
+        psp22.change_state_err();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            psp22.burn(accounts.alice, 10),
+            Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
+        );
     }
 }
