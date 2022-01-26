@@ -1,6 +1,5 @@
 /* eslint-disable */
 import { expect, fromSigner, setupContract, getSigner } from '../../helpers';
-import {consts} from '../../constants'
 
 describe('MY_PSP22_BURNABLE', () => {
     async function setup() {
@@ -109,30 +108,5 @@ describe('MY_PSP22_BURNABLE', () => {
         // Assert - ensure tokens was not burnt from the accounts
         await expect(query.balanceOf(ALICE.address)).to.have.output(10);
         await expect(query.balanceOf(BOB.address)).to.have.output(5);
-    })
-
-    it('Can not burn from hated account', async () => {
-        const {
-            query,
-            contract,
-            accounts: [hated_account]
-        } = await setup()
-        // Check that we can burn money while account is not hated
-        await contract.tx.transfer(hated_account.address, 20, [])
-        await expect(fromSigner(contract, hated_account.address).tx.burn(hated_account.address, 10)).to.eventually.be.fulfilled
-        let result = await query.balanceOf(hated_account.address)
-        expect(result.output).to.equal(10)
-        await expect(query.getHatedAccount()).to.have.output(consts.EMPTY_ADDRESS)
-
-        // Hate account
-        await expect(contract.tx.setHatedAccount(hated_account.address)).to.eventually.be.ok
-        await expect(query.getHatedAccount()).to.have.output(hated_account.address)
-
-        // Burn must fail
-        await expect(fromSigner(contract, hated_account.address).tx.burn(hated_account.address, 10)).to.eventually.be.rejected
-
-        // Amount of tokens must be the same
-        result = await query.balanceOf(hated_account.address)
-        expect(result.output).to.equal(10)
     })
 })

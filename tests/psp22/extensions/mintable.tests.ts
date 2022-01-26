@@ -1,6 +1,5 @@
 /* eslint-disable */
 import {bnArg, expect, fromSigner, setupContract} from '../../helpers'
-import {consts} from '../../constants'
 
 describe('MY_PSP22_MINTABLE', () => {
     async function setup() {
@@ -37,29 +36,5 @@ describe('MY_PSP22_MINTABLE', () => {
 
         // Assert - Sender balance is now 1
         await expect(query.totalSupply()).to.have.output(1001)
-    })
-
-    it('Can not mint to hated account', async () => {
-        const {
-            query,
-            contract,
-            accounts: [hated_account]
-        } = await setup()
-        // Check that we can mint to not hated account
-        await expect(contract.tx.mint(hated_account.address, 10)).to.eventually.be.fulfilled
-        let result = await query.balanceOf(hated_account.address)
-        expect(result.output).to.equal(10)
-        await expect(query.getHatedAccount()).to.have.output(consts.EMPTY_ADDRESS)
-
-        // Hate account
-        await expect(contract.tx.setHatedAccount(hated_account.address)).to.eventually.be.ok
-        await expect(query.getHatedAccount()).to.have.output(hated_account.address)
-
-        // Mint must fail
-        await expect(contract.tx.mint(hated_account.address, 10)).to.eventually.be.rejected
-
-        // Amount of tokens must be the same
-        result = await query.balanceOf(hated_account.address)
-        expect(result.output).to.equal(10)
     })
 })

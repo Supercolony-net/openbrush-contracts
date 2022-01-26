@@ -193,34 +193,4 @@ describe('MY_PSP1155', () => {
         await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
             .to.have.output([0, 0])
     })
-
-    it('Transfer to hated account should fail', async () => {
-        const {contract, defaultSigner: sender, accounts: [hated_account], query, tx} = await setup()
-
-        let token1 = bnArg(0)
-        let token2 = bnArg(1)
-        let amount1 = 1
-        let amount2 = 20
-        await expect(tx.mintTokens(token1, amount1)).to.be.fulfilled
-        await expect(tx.mintTokens(token2, amount2)).to.be.fulfilled
-
-        await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2]]))
-          .to.have.output([amount1, amount2])
-
-        // Check that we can transfer token to account which is not hated
-        await expect(fromSigner(contract, sender.address).tx.transferFrom(sender.address, hated_account.address, token1, amount1, []))
-          .to.eventually.be.fulfilled
-
-        // Hate account
-        await expect(tx.setHatedAccount(hated_account.address)).to.eventually.be.ok
-        await expect(query.getHatedAccount()).to.have.output(hated_account.address)
-
-        // Transfer must failed
-        await expect(fromSigner(contract, sender.address).tx.transferFrom(sender.address, hated_account.address, token2, amount2, []))
-          .to.eventually.be.rejected
-
-        // Amount of tokens must be the same
-        await expect(query.balanceOfBatch([[sender.address, token2], [hated_account.address, token2]]))
-          .to.have.output([amount2, 0])
-    })
 })

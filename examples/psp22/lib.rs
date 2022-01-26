@@ -4,7 +4,6 @@
 #[brush::contract]
 pub mod my_psp22 {
     use brush::contracts::psp22::*;
-    use brush::traits::ZERO_ADDRESS;
     use ink_prelude::string::String;
 
     #[ink(storage)]

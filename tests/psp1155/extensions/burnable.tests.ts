@@ -100,32 +100,4 @@ describe('MY_PSP1155_BURNABLE', () => {
         await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
             .to.have.output([0, 0])
     })
-
-    it('Burn from hated account should fail', async () => {
-        const {contract, defaultSigner: hated_account, query, tx} = await setup()
-
-        let token1 = bnArg(0)
-        let token2 = bnArg(1)
-        let amount1 = 1
-        let amount2 = 20
-
-        await expect(query.balanceOfBatch([[hated_account.address, token1], [hated_account.address, token2]]))
-          .to.have.output([amount1, amount2])
-
-        // Check that we can burn token from account which is not hated
-        await expect(fromSigner(contract, hated_account.address).tx.burn(hated_account.address, [[token1, amount1]]))
-          .to.eventually.be.fulfilled
-
-        // Hate account
-        await expect(tx.setHatedAccount(hated_account.address)).to.eventually.be.ok
-        await expect(query.getHatedAccount()).to.have.output(hated_account.address)
-
-        // Burn must failed
-        await expect(fromSigner(contract, hated_account.address).tx.burn(hated_account.address, [[token2, amount2]]))
-          .to.eventually.be.rejected
-
-        // Amount of tokens must be the same
-        await expect(query.balanceOfBatch([[hated_account.address, token1], [hated_account.address, token2]]))
-          .to.have.output([0, amount2])
-    })
 })
