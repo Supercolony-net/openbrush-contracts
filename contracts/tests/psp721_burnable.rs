@@ -55,14 +55,12 @@ mod psp721_burnable {
             Self::default()
         }
 
-        #[ink(message)]
-        pub fn change_state_err(&mut self) {
-            if self.return_err_on_before {
-                self.return_err_on_before = false;
-                self.return_err_on_after = true;
-            } else {
-                self.return_err_on_before = true;
-            }
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -105,7 +103,7 @@ mod psp721_burnable {
     }
 
     #[ink::test]
-    fn before_and_after_token_transfer_should_fail_burn() {
+    fn before_token_transfer_should_fail_burn() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
@@ -116,14 +114,27 @@ mod psp721_burnable {
         // Alice can burn token
         assert!(nft.burn(accounts.alice, [1; 32]).is_ok());
         // Turn on error on _before_token_transfer
-        nft.change_state_err();
+        nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, [2; 32]),
             Err(PSP721Error::Custom(String::from("Error on _before_token_transfer")))
         );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_burn() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP721Struct::new();
+        assert!(nft._mint([1; 32]).is_ok());
+        assert!(nft._mint([2; 32]).is_ok());
+        // Alice owns 2 tokens.
+        assert_eq!(nft.balance_of(accounts.alice), 2);
+        // Alice can burn token
+        assert!(nft.burn(accounts.alice, [1; 32]).is_ok());
         // Turn on error on _after_token_transfer
-        nft.change_state_err();
+        nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, [2; 32]),

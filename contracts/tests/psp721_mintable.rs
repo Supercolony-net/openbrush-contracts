@@ -52,14 +52,12 @@ mod psp721_mintable {
             Self::default()
         }
 
-        #[ink(message)]
-        pub fn change_state_err(&mut self) {
-            if self.return_err_on_before {
-                self.return_err_on_before = false;
-                self.return_err_on_after = true;
-            } else {
-                self.return_err_on_before = true;
-            }
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -104,14 +102,25 @@ mod psp721_mintable {
         assert!(nft.mint(accounts.alice, [1; 32]).is_ok());
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Turn on error on _before_token_transfer
-        nft.change_state_err();
+        nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.mint(accounts.alice, [2; 32]),
             Err(PSP721Error::Custom(String::from("Error on _before_token_transfer")))
         );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_mint() {
+        // Constructor works.
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP721Struct::new();
+        // Can mint token to Alice
+        assert!(nft.mint(accounts.alice, [1; 32]).is_ok());
+        assert_eq!(nft.balance_of(accounts.alice), 1);
         // Turn on error on _after_token_transfer
-        nft.change_state_err();
+        nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             nft.mint(accounts.alice, [2; 32]),

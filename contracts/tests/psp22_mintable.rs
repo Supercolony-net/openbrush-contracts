@@ -91,14 +91,12 @@ mod psp22_mintable {
             instance
         }
 
-        #[ink(message)]
-        pub fn change_state_err(&mut self) {
-            if self.return_err_on_before {
-                self.return_err_on_before = false;
-                self.return_err_on_after = true;
-            } else {
-                self.return_err_on_before = true;
-            }
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -219,7 +217,7 @@ mod psp22_mintable {
     }
 
     #[ink::test]
-    fn before_and_after_token_transfer_should_fail_mint() {
+    fn before_token_transfer_should_fail_mint() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
@@ -227,14 +225,24 @@ mod psp22_mintable {
         assert!(psp22.mint(accounts.alice, 10).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 110);
         // Turn on error on _before_token_transfer
-        psp22.change_state_err();
+        psp22.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             psp22.mint(accounts.alice, 10),
             Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
         );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_mint() {
+        // Constructor works.
+        let mut psp22 = PSP22Struct::new(100);
+        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        // Can mint tokens
+        assert!(psp22.mint(accounts.alice, 10).is_ok());
+        assert_eq!(psp22.balance_of(accounts.alice), 110);
         // Turn on error on _after_token_transfer
-        psp22.change_state_err();
+        psp22.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             psp22.mint(accounts.alice, 10),

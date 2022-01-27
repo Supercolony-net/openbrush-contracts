@@ -145,14 +145,12 @@ mod psp1155 {
             self._mint_to(acc, vec![(id, amount)])
         }
 
-        #[ink(message)]
-        pub fn change_state_err(&mut self) {
-            if self.return_err_on_before {
-                self.return_err_on_before = false;
-                self.return_err_on_after = true;
-            } else {
-                self.return_err_on_before = true;
-            }
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -547,7 +545,7 @@ mod psp1155 {
     }
 
     #[ink::test]
-    fn before_and_after_token_transfer_should_fail_transfer() {
+    fn before_token_transfer_should_fail_transfer() {
         let token_id_1 = [1; 32];
         let token_id_2 = [2; 32];
         let token_1_amount = 1;
@@ -560,14 +558,29 @@ mod psp1155 {
         // Can transfer tokens
         assert!(nft.transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![]).is_ok());
         // Turn on error on _before_token_transfer
-        nft.change_state_err();
+        nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),
             Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
         );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_transfer() {
+        let token_id_1 = [1; 32];
+        let token_id_2 = [2; 32];
+        let token_1_amount = 1;
+        let token_2_amount = 20;
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP1155Struct::new();
+        assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
+        assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
+        // Can transfer tokens
+        assert!(nft.transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![]).is_ok());
         // Turn on error on _after_token_transfer
-        nft.change_state_err();
+        nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),

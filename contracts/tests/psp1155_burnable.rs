@@ -60,14 +60,12 @@ mod psp1155_burnable {
             self._mint_to(acc, vec![(id, amount)])
         }
 
-        #[ink(message)]
-        pub fn change_state_err(&mut self) {
-            if self.return_err_on_before {
-                self.return_err_on_before = false;
-                self.return_err_on_after = true;
-            } else {
-                self.return_err_on_before = true;
-            }
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -140,7 +138,7 @@ mod psp1155_burnable {
     }
 
     #[ink::test]
-    fn before_and_after_token_transfer_should_fail_burn() {
+    fn before_token_transfer_should_fail_burn() {
         let accounts = accounts();
         let token_id_1 = [1; 32];
         let token_1_amount = 1;
@@ -153,14 +151,29 @@ mod psp1155_burnable {
         // Alice can burn tokens
         assert!(nft.burn(accounts.alice, vec![(token_id_1, token_1_amount)]).is_ok());
         // Turn on error on _before_token_transfer
-        nft.change_state_err();
+        nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, vec![(token_id_2, token_2_amount)]),
             Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
         );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_burn() {
+        let accounts = accounts();
+        let token_id_1 = [1; 32];
+        let token_1_amount = 1;
+        let token_id_2 = [2; 32];
+        let token_2_amount = 1;
+        // Create a new contract instance.
+        let mut nft = PSP1155Struct::new();
+        assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
+        assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
+        // Alice can burn tokens
+        assert!(nft.burn(accounts.alice, vec![(token_id_1, token_1_amount)]).is_ok());
         // Turn on error on _after_token_transfer
-        nft.change_state_err();
+        nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, vec![(token_id_2, token_2_amount)]),
