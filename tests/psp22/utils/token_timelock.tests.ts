@@ -1,5 +1,5 @@
 import { expect, fromSigner, setupContract, oneDay } from './../../helpers'
-import { network } from 'redspot'
+import { network } from '@supercolony/redspot'
 
 const { api } = network
 
