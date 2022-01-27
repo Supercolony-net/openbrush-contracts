@@ -6,6 +6,8 @@ use ink_storage::traits::{
     PackedLayout,
     SpreadLayout,
 };
+#[cfg(feature = "std")]
+use ink_storage::traits::StorageLayout;
 use brush::traits::AccountId;
 use ink_prelude::{
     string::String,
@@ -17,7 +19,7 @@ use brush::traits::Balance;
 
 // Id is an Enum and its variant are types
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
 pub enum Id {
     U8(u8),
     U16(u16),

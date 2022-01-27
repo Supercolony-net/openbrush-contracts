@@ -61,7 +61,7 @@ impl MyPSP34 {
     #[ink(constructor)]
     pub fn new() -> Self {
         let mut instance = Self::default();
-        instance.metadata._set_attribute(id, key, val);
+        instance.metadata.attributes.insert(key_with_id, value);
         instance
     }
 }

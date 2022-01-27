@@ -10,17 +10,13 @@ pub use derive::{
 use ink_prelude::vec::Vec;
 use ink_storage::collections::HashMap as StorageHashMap;
 
+use ink_storage::traits::SpreadLayout;
 #[cfg(feature = "std")]
-use ink_storage::{
-    traits::{
-        StorageLayout,
-        SpreadLayout,
-    },
-};
+use ink_storage::traits::StorageLayout;
 
 
-#[derive(Default, Debug)]
-#[cfg_attr(feature = "std", derive(StorageLayout), derive(SpreadLayout))]
+#[derive(Default, Debug, SpreadLayout)]
+#[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP34MetadataData {
     pub attributes: StorageHashMap<Vec<u8>, Vec<u8>>,
 }

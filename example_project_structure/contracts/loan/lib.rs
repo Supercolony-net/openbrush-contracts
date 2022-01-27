@@ -59,8 +59,8 @@ pub mod loan {
                 return Err(PSP34Error::Custom(String::from("This loan id already exists!")))
             }
             loan_info.liquidated = false;
-            self.loan_info.insert(loan_id, loan_info.clone());
-            self._mint_to(loan_info.borrower, loan_id)
+            self.loan_info.insert(loan_id.clone(), loan_info.clone());
+            self._mint_to(loan_info.borrower, loan_id.clone())
         }
 
         #[modifiers(only_owner)]
@@ -102,7 +102,14 @@ pub mod loan {
         /// constructor with name and symbol
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
+            let mut instance = Self {
+                psp34: PSP34Data::default(),
+                ownable: OwnableData::default(),
+                metadata: PSP34MetadataData::default(),
+                loan_info: StorageHashMap::default(),
+                last_loan_id: Id::U8(1u8),
+                freed_ids: Vec::new(),
+            };
             instance._set_attribute(Id::U8(1u8), String::from("LoanContract NFT").into_bytes(), String::from("L-NFT").into_bytes());
             instance
         }
@@ -152,7 +159,7 @@ pub mod loan {
             if self.freed_ids.len() > 0 {
                 return Ok(self.freed_ids.pop().unwrap())
             }
-            let mut current = self.last_loan_id;
+            let current = self.last_loan_id.clone();
             // It is not fully correct implementation of the increasing. but it is only an example
             match current {
                 Id::U8(v) => {

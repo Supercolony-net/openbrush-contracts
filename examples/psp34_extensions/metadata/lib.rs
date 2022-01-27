@@ -4,7 +4,10 @@
 #[brush::contract]
 pub mod my_psp34_metadata {
     use brush::contracts::psp34::extensions::metadata::*;
-    use ink_prelude::string::String;
+    use ink_prelude::{
+        string::String,
+        vec::Vec,
+    };
 
     #[derive(Default, PSP34Storage, PSP34MetadataStorage)]
     #[ink(storage)]
@@ -22,10 +25,14 @@ pub mod my_psp34_metadata {
     impl MyPSP34 {
         /// A constructor which mints the first token to the owner
         #[ink(constructor)]
-        pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
+        pub fn new(id: Id, name: String, symbol: String) -> Self {
             let mut instance = Self::default();
-            instance.metadata.name = name;
-            instance.metadata.symbol = symbol;
+            let mut name_key: Vec<u8> = String::from("name").into_bytes();
+            name_key.append(&mut id.clone().into());
+            let mut symbol_key: Vec<u8> = String::from("symbol").into_bytes();
+            symbol_key.append(&mut id.clone().into());
+            instance.metadata.attributes.insert(name_key.clone(), name.into_bytes());
+            instance.metadata.attributes.insert(symbol_key.clone(), symbol.into_bytes());
             instance
         }
     }

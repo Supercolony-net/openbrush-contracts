@@ -85,7 +85,7 @@ impl MyPSP34 {
 
     #[ink(message)]
     pub fn mint_token(&mut self) -> Result<(), PSP34Error> {
-        self._mint([self.next_id; 32])?;
+        self._mint(Id::U8(self.next_id))?;
         self.next_id += 1;
         Ok(())
     }

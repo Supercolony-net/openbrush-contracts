@@ -16,8 +16,8 @@ describe('MY_PSP34_MINTABLE', () => {
         await expect(query.balanceOf(sender.address)).to.have.output(0)
         await expect(query.balanceOf(alice.address)).to.have.output(0)
 
-        await contract.tx.mint(bnArg(0))
-        await contract.tx.mintTo(alice.address, bnArg(1))
+        await contract.tx.mint(bnArg(0, 1))
+        await contract.tx.mintTo(alice.address, bnArg(1, 1))
 
         await expect(query.balanceOf(sender.address)).to.have.output(1)
         await expect(query.balanceOf(alice.address)).to.have.output(1)
@@ -31,12 +31,12 @@ describe('MY_PSP34_MINTABLE', () => {
             query
         } = await setup()
 
-        await expect(contract.tx.mint(bnArg(0))).to.eventually.be.fulfilled
+        await expect(contract.tx.mint(bnArg(0, 1))).to.eventually.be.fulfilled
         await expect(query.balanceOf(sender.address)).to.have.output(1)
         await expect(query.balanceOf(alice.address)).to.have.output(0)
 
-        await expect(contract.tx.mint(bnArg(0))).to.eventually.be.rejected
-        await expect(contract.tx.mintTo(alice.address, bnArg(0))).to.eventually.be.rejected
+        await expect(contract.tx.mint(bnArg(0, 1))).to.eventually.be.rejected
+        await expect(contract.tx.mintTo(alice.address, bnArg(0, 1))).to.eventually.be.rejected
 
         await expect(query.balanceOf(sender.address)).to.have.output(1)
         await expect(query.balanceOf(alice.address)).to.have.output(0)

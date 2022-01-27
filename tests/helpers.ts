@@ -86,7 +86,11 @@ export const fromSigner = (contract: Contract, address: string): Contract => {
   return patchContractMethods(contract.connect(address))
 }
 
-export const bnArg = (value: number | string | number[] | Uint8Array | Buffer | BN, length = 32) =>
-  new BN(value, undefined, 'le').toArray('le', length)
+export const bnArg = (value: number | string | number[] | Uint8Array | Buffer | BN, len = 32) => {
+  if (len == 1) {
+    return value
+  }
+  return new BN(value, undefined, 'le').toArray('le', len)
+}
 
 export const oneDay = () => (24 * 60 * 60 * 1000)
