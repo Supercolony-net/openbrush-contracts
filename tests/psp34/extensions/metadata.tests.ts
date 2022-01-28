@@ -8,7 +8,7 @@ describe('MY_PSP34_METADATA', () => {
   it('Metadata works', async () => {
     const { query } = await setup()
 
-    await expect(query.get_attribute(1, 'name')).to.have.output('Non Fungible Token')
-    await expect(query.get_attribute(1, 'symbol')).to.have.output('NFT')
+    await expect(query.getAttribute(1, 'name')).to.have.output('Non Fungible Token')
+    await expect(query.getAttribute(1, 'symbol')).to.have.output('NFT')
   })
 })

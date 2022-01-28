@@ -9,7 +9,20 @@ describe('MY_PSP34', () => {
     return setupContract('psp34_receiver', 'new')
   }
 
-  // TODO: add tests for total_supply and collection_id
+  // TODO: add test for collection_id
+
+  it('Returns total supply', async () => {
+    const {
+      query,
+      tx
+    } = await setup()
+
+    await expect(tx.mintToken()).to.be.fulfilled
+    await expect(tx.mintToken()).to.be.fulfilled
+    await expect(tx.mintToken()).to.be.fulfilled
+
+    await expect(query.totalSupply()).to.have.output(3)
+  })
 
   it('Transfer works', async () => {
     const {
