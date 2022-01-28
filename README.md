@@ -64,7 +64,7 @@ type Trait1Ref = dyn Trait1;
 
 {
     // It should be `AccountId` of some contract in the network
-    let callee: brush::traits::AccountId = Id::U8(1u8).into();
+    let callee: brush::traits::AccountId = [1; 32].into();
     // This code will execute a cross contract call to `callee` contract
     let result_of_foo: bool = Trait1Ref::foo(&callee);
 }

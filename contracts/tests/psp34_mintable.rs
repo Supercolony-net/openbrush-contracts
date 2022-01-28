@@ -3,8 +3,10 @@
 #[brush::contract]
 mod psp34_mintable {
     use brush::test_utils::accounts;
-    use contracts::psp34::extensions::mintable::*;
-    use contracts::psp34::Id;
+    use contracts::psp34::{
+        extensions::mintable::*,
+        Id,
+    };
     use ink_lang as ink;
 
     #[derive(Default, PSP34Storage)]

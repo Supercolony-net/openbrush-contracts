@@ -185,7 +185,9 @@ mod psp34 {
         // Get contract address.
         change_caller(accounts.bob);
         // Bob transfers token Id 1 from Alice to Eve.
-        assert!(nft.transfer_from(accounts.alice, accounts.eve, Id::U8(1u8), vec![]).is_ok());
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.eve, Id::U8(1u8), vec![])
+            .is_ok());
         // TokenId 3 is owned by Eve.
         assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.eve));
         // Alice has one token left
@@ -214,13 +216,17 @@ mod psp34 {
 
         change_caller(accounts.bob);
         // Bob transfers token Id 1 from Alice to Eve.
-        assert!(nft.transfer_from(accounts.alice, accounts.eve, Id::U8(1u8), vec![]).is_ok());
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.eve, Id::U8(1u8), vec![])
+            .is_ok());
         // TokenId 1 is owned by Eve.
         assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.eve));
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Bob transfers token Id 2 from Alice to Eve.
-        assert!(nft.transfer_from(accounts.alice, accounts.eve, Id::U8(2u8), vec![]).is_ok());
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.eve, Id::U8(2u8), vec![])
+            .is_ok());
         // Bob does not owns tokens.
         assert_eq!(nft.balance_of(accounts.bob), 0);
         // Eve owns 2 tokens.

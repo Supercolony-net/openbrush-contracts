@@ -2,20 +2,22 @@ pub use crate::traits::errors::{
     PSP34Error,
     PSP34ReceiverError,
 };
+use brush::traits::{
+    AccountId,
+    Balance,
+};
+use ink_prelude::{
+    format,
+    string::String,
+    vec,
+    vec::Vec,
+};
+#[cfg(feature = "std")]
+use ink_storage::traits::StorageLayout;
 use ink_storage::traits::{
     PackedLayout,
     SpreadLayout,
 };
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
-use brush::traits::AccountId;
-use ink_prelude::{
-    string::String,
-    format,
-    vec::Vec,
-    vec,
-};
-use brush::traits::Balance;
 
 // Id is an Enum and its variant are types
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
@@ -33,10 +35,10 @@ impl From<Id> for Vec<u8> {
     fn from(id: Id) -> Self {
         match id {
             Id::U8(v) => vec![v],
-            Id::U16(v) => String::from(format!("{}",v)).into(),
-            Id::U32(v) => String::from(format!("{}",v)).into(),
-            Id::U64(v) => String::from(format!("{}",v)).into(),
-            Id::U128(v) => String::from(format!("{}",v)).into(),
+            Id::U16(v) => String::from(format!("{}", v)).into(),
+            Id::U32(v) => String::from(format!("{}", v)).into(),
+            Id::U64(v) => String::from(format!("{}", v)).into(),
+            Id::U128(v) => String::from(format!("{}", v)).into(),
             Id::Bytes(v) => v,
         }
     }

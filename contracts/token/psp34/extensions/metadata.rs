@@ -14,7 +14,6 @@ use ink_storage::traits::SpreadLayout;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP34MetadataData {

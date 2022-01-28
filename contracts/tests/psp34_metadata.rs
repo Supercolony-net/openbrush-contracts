@@ -31,6 +31,9 @@ mod psp34_metadata {
         let id = Id::U8(1u8);
         let nft = PSP34Struct::new(id.clone(), String::from("KEY"), String::from("VAL"));
 
-        assert_eq!(nft.get_attribute(id.clone(), String::from("KEY").into_bytes()), Some(String::from("VAL").into_bytes()));
+        assert_eq!(
+            nft.get_attribute(id.clone(), String::from("KEY").into_bytes()),
+            Some(String::from("VAL").into_bytes())
+        );
     }
 }

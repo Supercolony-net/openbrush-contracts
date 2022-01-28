@@ -7,7 +7,7 @@ use brush::{
     },
 };
 pub use derive::PSP34Storage;
-use ink_env::{Error as EnvError};
+use ink_env::Error as EnvError;
 use ink_prelude::{
     string::String,
     vec::Vec,
@@ -17,9 +17,9 @@ use ink_storage::{
     traits::SpreadLayout,
 };
 
+use brush::traits::Balance;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
-use brush::traits::Balance;
 
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
@@ -36,7 +36,7 @@ declare_storage_trait!(PSP34Storage, PSP34Data);
 impl<T: PSP34Storage + Flush> PSP34 for T {
     default fn collection_id(&self) -> Id {
         // TODO: make it work
-        //Id::Bytes(Self::env().account_id().as_ref().to_vec())
+        // Id::Bytes(Self::env().account_id().as_ref().to_vec())
         todo!()
     }
 
@@ -113,13 +113,8 @@ pub trait PSP34Internal {
     fn _approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool;
 
     /// Gets an operator on other Account's behalf.
-    fn _transfer_token_from(
-        &mut self,
-        from: AccountId,
-        to: AccountId,
-        id: Id,
-        data: Vec<u8>,
-    ) -> Result<(), PSP34Error>;
+    fn _transfer_token_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>)
+        -> Result<(), PSP34Error>;
 
     /// Transfers token `id` `from` the sender to the `to` AccountId.
     fn _before_token_transfer(&self, _from: &AccountId, _to: &AccountId, _id: &Id) -> Result<(), PSP34Error>;
