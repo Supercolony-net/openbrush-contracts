@@ -22,17 +22,17 @@ pub mod my_psp34_metadata {
 
     impl PSP34Metadata for MyPSP34 {}
 
+    impl PSP34MetadataInternal for MyPSP34 {}
+
     impl MyPSP34 {
         /// A constructor which mints the first token to the owner
         #[ink(constructor)]
         pub fn new(id: Id, name: String, symbol: String) -> Self {
             let mut instance = Self::default();
             let mut name_key: Vec<u8> = String::from("name").into_bytes();
-            name_key.append(&mut id.clone().into());
             let mut symbol_key: Vec<u8> = String::from("symbol").into_bytes();
-            symbol_key.append(&mut id.clone().into());
-            instance.metadata.attributes.insert(name_key.clone(), name.into_bytes());
-            instance.metadata.attributes.insert(symbol_key.clone(), symbol.into_bytes());
+            instance.metadata._set_attribute(id, name_key, name.into_bytes());
+            instance.metadata._set_attribute(id, symbol_key, symbol.into_bytes());
             instance
         }
     }

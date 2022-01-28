@@ -183,7 +183,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         };
 
         self.get_mut().token_approvals.insert(id.clone(), to);
-        self._emit_approval_event(caller, to, id.clone());
+        self._emit_approval_event(caller, to, id);
         Ok(())
     }
 
@@ -257,7 +257,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
     default fn _add_token(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error> {
         let to_balance = self.get_mut().owned_tokens_count.get_mut(&to).cloned().unwrap_or(0);
         self.get_mut().owned_tokens_count.insert(to.clone(), to_balance + 1);
-        self.get_mut().total_supply += Balance::from(1u128);
+        self.get_mut().total_supply += 1;
 
         self.get_mut().token_owner.insert(id, to);
         Ok(())
@@ -283,7 +283,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
 
         let from_balance = self.get_mut().owned_tokens_count.get_mut(&from).unwrap().clone();
         self.get_mut().owned_tokens_count.insert(from, from_balance - 1);
-        self.get_mut().total_supply -= Balance::from(1u128);
+        self.get_mut().total_supply -= 1;
         Ok(())
     }
 

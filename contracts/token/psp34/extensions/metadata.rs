@@ -17,16 +17,14 @@ use ink_storage::traits::StorageLayout;
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP34MetadataData {
-    pub attributes: StorageHashMap<Vec<u8>, Vec<u8>>,
+    pub attributes: StorageHashMap<(Id, Vec<u8>), Vec<u8>>,
 }
 
 declare_storage_trait!(PSP34MetadataStorage, PSP34MetadataData);
 
 impl<T: PSP34MetadataStorage> PSP34Metadata for T {
     default fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>> {
-        let mut key: Vec<u8> = key.clone();
-        key.append(&mut id.into());
-        self.get().attributes.get(&key).cloned()
+        self.get().attributes.get(&(id, key)).cloned()
     }
 }
 
@@ -36,9 +34,7 @@ pub trait PSP34MetadataInternal {
 
 impl<T: PSP34MetadataStorage + PSP34Internal> PSP34MetadataInternal for T {
     fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>) {
-        let mut key: Vec<u8> = key.clone();
-        key.append(&mut id.clone().into());
-        self.get_mut().attributes.insert(key.clone(), value.clone());
+        self.get_mut().attributes.insert((id.clone(), key.clone()), value.clone());
         self._emit_attribute_set_event(id, key, value);
     }
 }

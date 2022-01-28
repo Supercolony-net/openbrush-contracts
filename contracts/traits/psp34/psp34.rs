@@ -7,8 +7,6 @@ use brush::traits::{
     Balance,
 };
 use ink_prelude::{
-    format,
-    string::String,
     vec,
     vec::Vec,
 };
@@ -29,19 +27,6 @@ pub enum Id {
     U64(u64),
     U128(u128),
     Bytes(Vec<u8>),
-}
-
-impl From<Id> for Vec<u8> {
-    fn from(id: Id) -> Self {
-        match id {
-            Id::U8(v) => vec![v],
-            Id::U16(v) => String::from(format!("{}", v)).into(),
-            Id::U32(v) => String::from(format!("{}", v)).into(),
-            Id::U64(v) => String::from(format!("{}", v)).into(),
-            Id::U128(v) => String::from(format!("{}", v)).into(),
-            Id::Bytes(v) => v,
-        }
-    }
 }
 
 #[brush::wrapper]
