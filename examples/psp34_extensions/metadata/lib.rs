@@ -22,6 +22,8 @@ pub mod my_psp34_metadata {
 
     impl PSP34Metadata for MyPSP34 {}
 
+    impl PSP34Internal for MyPSP34 {}
+
     impl PSP34MetadataInternal for MyPSP34 {}
 
     impl MyPSP34 {
@@ -29,10 +31,10 @@ pub mod my_psp34_metadata {
         #[ink(constructor)]
         pub fn new(id: Id, name: String, symbol: String) -> Self {
             let mut instance = Self::default();
-            let mut name_key: Vec<u8> = String::from("name").into_bytes();
-            let mut symbol_key: Vec<u8> = String::from("symbol").into_bytes();
-            instance.metadata._set_attribute(id, name_key, name.into_bytes());
-            instance.metadata._set_attribute(id, symbol_key, symbol.into_bytes());
+            let name_key: Vec<u8> = String::from("name").into_bytes();
+            let symbol_key: Vec<u8> = String::from("symbol").into_bytes();
+            instance._set_attribute(id.clone(), name_key, name.into_bytes());
+            instance._set_attribute(id, symbol_key, symbol.into_bytes());
             instance
         }
     }

@@ -33,7 +33,7 @@ pub trait PSP34MetadataInternal {
 }
 
 impl<T: PSP34MetadataStorage + PSP34Internal> PSP34MetadataInternal for T {
-    fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>) {
+    default fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>) {
         self.get_mut().attributes.insert((id.clone(), key.clone()), value.clone());
         self._emit_attribute_set_event(id, key, value);
     }

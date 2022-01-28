@@ -50,6 +50,9 @@ Inherit implementation of the `PSP34Metadata` trait. You can customize (override
 
 ```rust
 impl PSP34Metadata for MyPSP34 {}
+// Optionally you can add more default implementations
+impl PSP34Internal for MyPSP34 {}
+impl PSP34MetadataInternal for MYPSP34 {}
 ```
 
 ## Step 5: Define constructor
@@ -61,7 +64,7 @@ impl MyPSP34 {
     #[ink(constructor)]
     pub fn new() -> Self {
         let mut instance = Self::default();
-        instance.metadata._set_attribute(id, key, value);
+        instance._set_attribute(id, key, value);
         instance
     }
 }

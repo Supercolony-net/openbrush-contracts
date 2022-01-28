@@ -7,7 +7,6 @@ use brush::traits::{
     Balance,
 };
 use ink_prelude::{
-    vec,
     vec::Vec,
 };
 #[cfg(feature = "std")]
