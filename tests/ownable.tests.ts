@@ -26,7 +26,7 @@ describe('MY_OWNABLE', () => {
     await expect(contract.tx.mint(sender.address, [bnArg(0), 1])).to.eventually.be.fulfilled
 
     // Act & Assert - Alice can mint a token
-    await expect(fromSigner(contract, alice.address).tx.mint(alice.address, bnArg(0), 100)).to.eventually.be.rejected
+    await expect(contract.tx.mint(alice.address, bnArg(0), 100)).to.eventually.be.rejected
   })
 
   it('OWNABLE - transfer ownership works', async () => {

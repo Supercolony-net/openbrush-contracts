@@ -13,17 +13,16 @@ describe('MY_PSP22_BURNABLE', () => {
     })
 
     it('Can burn', async () => {
-        const { query, tx, contract } = await setup();
+        const { query, contract, defaultSigner: sender } = await setup();
 
-        // Arrange - Create a signer and transfer tokens to him
-        const ALICE = await getSigner('Alice')
-        await tx.transfer(ALICE.address, 10, []);
+        // Assert - Ensure sender initial balance is 1000
+        await expect(query.balanceOf(sender.address)).to.have.output(1000);
 
-        // Act - Burn Alice's tokens
-        await fromSigner(contract, ALICE.address).tx.burn(ALICE.address, 10)
+        // Act - Burn sender's tokens
+        await contract.tx.burn(sender.address, 10)
 
-        // Assert - Ensure sender balance is now 0
-        await expect(query.balanceOf(ALICE.address)).to.have.output(0);
+        // Assert - Ensure sender balance is now 990
+        await expect(query.balanceOf(sender.address)).to.have.output(990);
     })
 
     it('Decreases total supply after burning', async () => {
@@ -40,73 +39,72 @@ describe('MY_PSP22_BURNABLE', () => {
     })
 
     it('Can burn from', async () => {
-        const { query, tx, contract, defaultSigner, accounts: [alice, bob, eve] } = await setup();
+        const { query, tx, contract, defaultSigner, accounts: [alice] } = await setup();
 
-        // Arrange - Create a signer, transfer tokens to him and approve that contract can spend his tokens
-        const ALICE = await getSigner('Alice')
-        await tx.transfer(ALICE.address, 10, []);
-        await fromSigner(contract, ALICE.address).tx.approve(defaultSigner.address, 10)
+        // Arrange - Transfer tokens to Alice and approve that contract can spend her tokens
+        await tx.transfer(alice.address, 10, []);
+        await fromSigner(contract, alice.address).tx.approve(defaultSigner.address, 10)
 
         // Act - burn from Alice address
-        await fromSigner(contract, defaultSigner.address).tx.burn(ALICE.address, 10)
+        await tx.burn(alice.address, 10)
 
         // Assert - ensure needed amount was burnt
-        await expect(query.balanceOf(ALICE.address)).to.have.output(0);
+        await expect(query.balanceOf(alice.address)).to.have.output(0);
     })
 
     it('Can burn from many', async () => {
         const { query, tx, contract, defaultSigner } = await setup();
 
         // Arrange - Create a signers, transfer tokens to them and approve that contract can spend their tokens
-        const ALICE = await getSigner('Alice')
-        const BOB = await getSigner('Bob')
-        await tx.transfer(ALICE.address, 10, []);
-        await tx.transfer(BOB.address, 10, []);
-        await fromSigner(contract, ALICE.address).tx.approve(defaultSigner.address, 10)
-        await fromSigner(contract, BOB.address).tx.approve(defaultSigner.address, 10)
+        const alice = await getSigner('Alice')
+        const bob = await getSigner('Bob')
+        await tx.transfer(alice.address, 10, []);
+        await tx.transfer(bob.address, 10, []);
+        await fromSigner(contract, alice.address).tx.approve(defaultSigner.address, 10)
+        await fromSigner(contract, bob.address).tx.approve(defaultSigner.address, 10)
 
         // Act - burn tokens from Alice and Bob
-        await fromSigner(contract, defaultSigner.address).tx.burnFromMany([[ALICE.address, 10], [BOB.address, 10]])
+        await contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])
 
         // Assert - ensure needed amount was burnt
-        await expect(query.balanceOf(ALICE.address)).to.have.output(0);
-        await expect(query.balanceOf(BOB.address)).to.have.output(0);
+        await expect(query.balanceOf(alice.address)).to.have.output(0);
+        await expect(query.balanceOf(bob.address)).to.have.output(0);
     })
 
     it('Fails if do not have an allowance to burn from one of the account', async () => {
         const { query, tx, contract, defaultSigner } = await setup();
 
         // Arrange - Create a signers, transfer tokens to them but not give neede allowance to one of the signers
-        const ALICE = await getSigner('Alice')
-        const BOB = await getSigner('Bob')
-        await tx.transfer(ALICE.address, 10, []);
-        await tx.transfer(BOB.address, 10, []);
-        await fromSigner(contract, ALICE.address).tx.approve(defaultSigner.address, 10)
+        const alice = await getSigner('Alice')
+        const bob = await getSigner('Bob')
+        await tx.transfer(alice.address, 10, []);
+        await tx.transfer(bob.address, 10, []);
+        await fromSigner(contract, alice.address).tx.approve(defaultSigner.address, 10)
 
         // Act - burn tokens from Alice and Bob
-        await expect(fromSigner(contract, defaultSigner.address).tx.burnFromMany([[ALICE.address, 10], [BOB.address, 10]])).to.eventually.be.rejected
+        await expect(contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])).to.eventually.be.rejected
 
         // Assert - ensure tokens was not burnt from the accounts
-        await expect(query.balanceOf(ALICE.address)).to.have.output(10);
-        await expect(query.balanceOf(BOB.address)).to.have.output(10);
+        await expect(query.balanceOf(alice.address)).to.have.output(10);
+        await expect(query.balanceOf(bob.address)).to.have.output(10);
     })
 
     it(`Fails if one of the account's balance exceeds amount to burn`, async () => {
         const { query, tx, contract, defaultSigner } = await setup();
 
         // Arrange - Create a signers, transfer tokens to them and give allowance
-        const ALICE = await getSigner('Alice')
-        const BOB = await getSigner('Bob')
-        await tx.transfer(ALICE.address, 10, []);
-        await tx.transfer(BOB.address, 5, []);
-        await fromSigner(contract, ALICE.address).tx.approve(defaultSigner.address, 10)
-        await fromSigner(contract, BOB.address).tx.approve(defaultSigner.address, 10)
+        const alice = await getSigner('Alice')
+        const bob = await getSigner('Bob')
+        await tx.transfer(alice.address, 10, []);
+        await tx.transfer(bob.address, 5, []);
+        await fromSigner(contract, alice.address).tx.approve(defaultSigner.address, 10)
+        await fromSigner(contract, bob.address).tx.approve(defaultSigner.address, 10)
 
-        // Act - burn tokens from Alice and Bob but burt from Bob more than he own
-        await expect(fromSigner(contract, defaultSigner.address).tx.burnFromMany([[ALICE.address, 10], [BOB.address, 10]])).to.eventually.be.rejected
+        // Act - burn tokens from Alice and Bob but burnt from Bob more than he own
+        await expect(contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])).to.eventually.be.rejected
 
         // Assert - ensure tokens was not burnt from the accounts
-        await expect(query.balanceOf(ALICE.address)).to.have.output(10);
-        await expect(query.balanceOf(BOB.address)).to.have.output(5);
+        await expect(query.balanceOf(alice.address)).to.have.output(10);
+        await expect(query.balanceOf(bob.address)).to.have.output(5);
     })
 })

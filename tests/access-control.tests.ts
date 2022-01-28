@@ -164,7 +164,7 @@ describe('MY_ACCESS_CONTROL', () => {
     // Assert - Grant Alice minter role & mint a token
     await tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
-    await expect(fromSigner(contract, alice.address).tx.mint(alice.address, bnArg(0))).to.eventually.be.fulfilled
+    await expect(contract.tx.mint(alice.address, bnArg(0))).to.eventually.be.fulfilled
     await expect(query.ownerOf(bnArg(0))).to.have.output(alice.address)
 
     // Act - revoke Alice minter role
@@ -172,6 +172,6 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
 
     // Assert - Alice cannot burn token
-    await expect(fromSigner(contract, alice.address).tx.burn(alice.address, bnArg(0), 1)).to.eventually.be.rejected
+    await expect(contract.tx.burn(alice.address, bnArg(0), 1)).to.eventually.be.rejected
   })
 })
