@@ -49,7 +49,7 @@ describe('MY_PSP1155_BURNABLE', () => {
             .to.have.output([0, 0])
     })
 
-    it('Burn from without allowance should fail', async () => {
+    it('Burn from without allowance works', async () => {
         const { contract, accounts: [alice], query, defaultSigner: sender } = await setup()
 
         let token1 = bnArg(0)
@@ -63,12 +63,10 @@ describe('MY_PSP1155_BURNABLE', () => {
             .to.have.output([amount1, amount2])
 
         await expect(contract.tx.burn(alice.address, [[token1, amount1], [token2, amount2]]))
-            .to.eventually.be.rejected
-        await expect(contract.tx.burn(alice.address, [[token1, amount1]]))
-            .to.eventually.be.rejected
+            .to.eventually.be.fulfilled
 
         await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
-            .to.have.output([amount1, amount2])
+            .to.have.output([0, 0])
     })
 
     it('Burn inssuficient balance should fail', async () => {

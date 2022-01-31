@@ -143,8 +143,6 @@ pub trait PSP22Internal {
 
     fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
-    fn _burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
-
     fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
 
@@ -275,7 +273,7 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         Ok(())
     }
 
-    default fn _burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+    default fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         if account.is_zero() {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
@@ -295,23 +293,5 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
 
         self._after_token_transfer(Some(&account), None, &amount)?;
         Ok(())
-    }
-
-    default fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        let caller = Self::env().caller();
-
-        if caller == account {
-            return self._burn(account, amount)
-        }
-
-        let current_allowance = self.allowance(account, caller);
-
-        if current_allowance < amount {
-            return Err(PSP22Error::InsufficientAllowance)
-        }
-
-        let new_amount = current_allowance - amount;
-        self._approve_from_to(account, caller, new_amount)?;
-        self._burn(account, amount)
     }
 }

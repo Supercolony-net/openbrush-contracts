@@ -240,11 +240,6 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
     }
 
     default fn _burn_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
-        let operator = Self::env().caller();
-        if from != operator && !self._is_approved_for_all(from, operator) {
-            return Err(PSP1155Error::NotAllowed)
-        }
-
         if ids_amounts.is_empty() {
             return Ok(())
         }

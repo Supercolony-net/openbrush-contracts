@@ -140,8 +140,6 @@ pub trait PSP721Internal {
     fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP721Error>;
 
     fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP721Error>;
-
-    fn _burn(&mut self, id: Id) -> Result<(), PSP721Error>;
 }
 
 impl<T: PSP721Storage + Flush> PSP721Internal for T {
@@ -284,18 +282,10 @@ impl<T: PSP721Storage + Flush> PSP721Internal for T {
             return Err(PSP721Error::TokenNotExists)
         }
 
-        let owner = owner.unwrap();
-        let caller = Self::env().caller();
-        if owner != caller
-            && Some(caller) != self.get().token_approvals.get(id).cloned()
-            && !self._approved_for_all(owner, caller)
-        {
-            return Err(PSP721Error::NotApproved)
-        }
         self.get_mut().token_approvals.take(id);
         self.get_mut().token_owner.take(id);
 
-        let from_balance = self.get_mut().owned_tokens_count.get_mut(&from).unwrap().clone();
+        let from_balance = self.get_mut().owned_tokens_count.get_mut(&from).cloned().unwrap_or(1);
         self.get_mut().owned_tokens_count.insert(from, from_balance - 1);
         Ok(())
     }
@@ -327,9 +317,5 @@ impl<T: PSP721Storage + Flush> PSP721Internal for T {
 
         self._after_token_transfer(Some(&from), None, &id)?;
         Ok(())
-    }
-
-    default fn _burn(&mut self, id: Id) -> Result<(), PSP721Error> {
-        self._burn_from(Self::env().caller(), id)
     }
 }

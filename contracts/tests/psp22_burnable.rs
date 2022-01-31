@@ -223,9 +223,6 @@ mod psp22_burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         let amount_to_burn = 50;
 
-        // Alice approves Bob for token transfers on her behalf.
-        assert!(psp22.approve(accounts.bob, amount_to_burn).is_ok());
-        assert_eq!(psp22.allowance(accounts.alice, accounts.bob), amount_to_burn);
         let alice_balance = psp22.balance_of(accounts.alice);
 
         // switch to bob
@@ -236,11 +233,10 @@ mod psp22_burnable {
 
         // Expecting Alice's balance decrease
         assert_eq!(psp22.balance_of(accounts.alice), alice_balance - amount_to_burn);
-        assert_eq!(psp22.allowance(accounts.alice, accounts.bob), 0);
     }
 
     #[ink::test]
-    fn burn_from_fails_if_amount_exceeds_allowance() {
+    fn burn_from_without_allowance() {
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         let amount_to_burn = 50;
@@ -250,10 +246,7 @@ mod psp22_burnable {
         // Alice's allowance to spend Bob's tokens is 0
         assert_eq!(psp22.allowance(accounts.bob, accounts.alice), 0);
         // Try to burn some amount from Bob's account
-        assert_eq!(
-            psp22.burn(accounts.bob, amount_to_burn),
-            Err(PSP22Error::InsufficientAllowance)
-        );
+        assert!(psp22.burn(accounts.bob, amount_to_burn).is_ok());
     }
 
     #[ink::test]

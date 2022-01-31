@@ -35,7 +35,7 @@ describe('MY_PSP721_BURNABLE', () => {
         await expect(query.balanceOf(sender.address)).to.have.output(2)
     })
 
-    it('Burn from without allowance should fail', async () => {
+    it('Burn from without allowance works', async () => {
         const {
             contract,
             defaultSigner: sender,
@@ -46,8 +46,8 @@ describe('MY_PSP721_BURNABLE', () => {
         await expect(query.balanceOf(sender.address)).to.have.output(3)
 
         await expect(fromSigner(contract, alice.address).tx.burn(sender.address, bnArg(0)))
-            .to.eventually.be.rejected
+            .to.eventually.be.fulfilled
 
-        await expect(query.balanceOf(sender.address)).to.have.output(3)
+        await expect(query.balanceOf(sender.address)).to.have.output(2)
     })
 })

@@ -100,10 +100,7 @@ mod psp1155_burnable {
         let mut nft = PSP1155Struct::new();
         assert!(nft.mint(accounts.bob, token_id_1, token_1_amount).is_ok());
 
-        assert_eq!(
-            Err(PSP1155Error::NotAllowed),
-            nft.burn(accounts.bob, vec![(token_id_1, token_1_amount)])
-        );
+        assert!(nft.burn(accounts.bob, vec![(token_id_1, token_1_amount)]).is_ok());
     }
 
     #[ink::test]

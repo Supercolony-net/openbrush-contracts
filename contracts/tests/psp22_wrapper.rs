@@ -52,7 +52,7 @@ mod psp22_wrapper {
 
         #[ink(message)]
         pub fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-            self._burn(self.env().caller(), amount)
+            self._burn_from(self.env().caller(), amount)
         }
     }
 

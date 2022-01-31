@@ -92,14 +92,14 @@ mod psp721_burnable {
     }
 
     #[ink::test]
-    fn burn_fails_not_owner() {
+    fn burn_not_owner() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
         assert!(nft._mint([1; 32]).is_ok());
         // Try burning this token with a different account
         change_caller(accounts.eve);
-        assert_eq!(nft.burn(accounts.eve,[1; 32]), Err(PSP721Error::NotApproved));
+        assert!(nft.burn(accounts.eve,[1; 32]).is_ok());
     }
 
     #[ink::test]

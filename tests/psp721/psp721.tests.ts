@@ -138,7 +138,7 @@ describe('MY_PSP721', () => {
         await expect(query.balanceOf(sender.address)).to.have.output(0)
     })
 
-    it('Can not transfer without allowance', async () => {
+    it('Can transfer without allowance', async () => {
         const {
             contract,
             accounts: [alice],
@@ -151,8 +151,9 @@ describe('MY_PSP721', () => {
         await expect(query.balanceOf(sender.address)).to.have.output(1)
 
         await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, bnArg(0), []))
-            .to.eventually.be.rejected
+            .to.eventually.be.fulfilled
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1)
+        await expect(query.balanceOf(sender.address)).to.have.output(0)
+        await expect(query.balanceOf(alice.address)).to.have.output(1)
     })
 })
