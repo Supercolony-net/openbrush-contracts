@@ -16,7 +16,7 @@ use ink_storage::traits::{
     SpreadLayout,
 };
 
-// Id is an Enum and its variant are types
+/// `Id` represents the identifier of the NFT. `Id::U8(1)` and `Id::U16(1)` are two different identifiers.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
 pub enum Id {

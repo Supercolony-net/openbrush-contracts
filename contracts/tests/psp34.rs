@@ -52,6 +52,7 @@ mod psp34 {
         #[PSP34StorageField]
         psp34: PSP34Data,
     }
+
     impl PSP34Internal for PSP34Struct {
         fn _emit_transfer_event(&self, from: Option<AccountId>, to: Option<AccountId>, id: Id) {
             self.env().emit_event(Transfer { from, to, id });
@@ -198,7 +199,16 @@ mod psp34 {
         assert_eq!(nft.balance_of(accounts.eve), 1);
     }
 
-    // TODO: add tests for total_supply
+    #[ink::test]
+    fn total_supply_works() {
+        // Create a new contract instance.
+        let mut nft = PSP34Struct::new();
+        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint(Id::U8(3u8)).is_ok());
+        // 3 tokens minted in total
+        assert_eq!(nft.total_supply(), 3)
+    }
 
     #[ink::test]
     fn approved_for_all_works() {
