@@ -9,7 +9,12 @@ describe('MY_PSP34', () => {
     return setupContract('psp34_receiver', 'new')
   }
 
-  // TODO: add test for collection_id
+  // TODO: change it when collection_id is implemented
+  it('Fail to return collection_id (as it is not implemented yet)', async () => {
+    const { query } = await setup()
+
+    await expect(query.collectionId()).to.throw
+  })
 
   it('Returns total supply', async () => {
     const {

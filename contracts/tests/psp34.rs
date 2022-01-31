@@ -2,6 +2,7 @@
 #[cfg(feature = "psp34")]
 #[brush::contract]
 mod psp34 {
+    use std::panic;
     use brush::test_utils::{
         accounts,
         change_caller,
@@ -93,6 +94,11 @@ mod psp34 {
         pub fn new() -> Self {
             Self::default()
         }
+    }
+
+    #[ink::test]
+    fn collection_id_fails() {
+        assert!(panic::catch_unwind(|| { PSP34Struct::new().collection_id(); }).is_err());
     }
 
     #[ink::test]
