@@ -62,9 +62,10 @@ Define constructor. Your `PSP34Metadata` contract is ready!
 ```rust
 impl MyPSP34 {
     #[ink(constructor)]
-    pub fn new() -> Self {
+    pub fn new(id: Id, name: String, symbol: String) -> Self {
         let mut instance = Self::default();
-        instance._set_attribute(id, key, value);
+        instance._set_attribute(id.clone(), String::from("name").into_bytes(), name.into_bytes());
+        instance._set_attribute(id, String::from("symbol").into_bytes(), symbol.into_bytes());
         instance
     }
 }
