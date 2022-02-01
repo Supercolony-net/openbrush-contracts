@@ -26,14 +26,14 @@ declare_derive_storage_trait!(
     PSP22TokenTimelockStorageField
 );
 
-// PSP721
-#[cfg(feature = "psp721")]
-declare_derive_storage_trait!(derive_psp721_storage, PSP721Storage, PSP721StorageField);
-#[cfg(feature = "psp721")]
+// PSP34
+#[cfg(feature = "psp34")]
+declare_derive_storage_trait!(derive_psp34_storage, PSP34Storage, PSP34StorageField);
+#[cfg(feature = "psp34")]
 declare_derive_storage_trait!(
-    derive_psp721_metadata_storage,
-    PSP721MetadataStorage,
-    PSP721MetadataStorageField
+    derive_psp34_metadata_storage,
+    PSP34MetadataStorage,
+    PSP34MetadataStorageField
 );
 
 // PSP1155

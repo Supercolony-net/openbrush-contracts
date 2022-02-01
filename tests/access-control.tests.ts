@@ -1,5 +1,6 @@
-import { Roles } from './constants'
 import { bnArg, expect, fromSigner, setupContract } from './helpers'
+
+import { Roles } from './constants'
 
 describe('MY_ACCESS_CONTROL', () => {
   async function setup() {
@@ -16,15 +17,15 @@ describe('MY_ACCESS_CONTROL', () => {
 
     // Arrange - Alice doesn't have Minter role hence minting should fail
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
-    await expect(fromSigner(contract, alice.address).tx.mint(alice.address, bnArg(1))).to.eventually.be.rejected
+    await expect(fromSigner(contract, alice.address).tx.mint(alice.address, 1)).to.eventually.be.rejected
 
     // Act - Grant Alice the minter role
     await tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
 
     // Assert - Alice can mint a token
-    await expect(fromSigner(contract, alice.address).tx.mint(alice.address, bnArg(0))).to.eventually.be.fulfilled
-    await expect(query.ownerOf(bnArg(0))).to.have.output(alice.address)
+    await expect(fromSigner(contract, alice.address).tx.mint(alice.address, 0)).to.eventually.be.fulfilled
+    await expect(query.ownerOf(0)).to.have.output(alice.address)
   })
 
   it('ACCESS CONTROL - should grant initial roles to default signer', async () => {
@@ -164,14 +165,14 @@ describe('MY_ACCESS_CONTROL', () => {
     // Assert - Grant Alice minter role & mint a token
     await tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
-    await expect(contract.tx.mint(alice.address, bnArg(0))).to.eventually.be.fulfilled
-    await expect(query.ownerOf(bnArg(0))).to.have.output(alice.address)
+    await expect(contract.tx.mint(alice.address, 0)).to.eventually.be.fulfilled
+    await expect(query.ownerOf(0)).to.have.output(alice.address)
 
     // Act - revoke Alice minter role
     await tx.revokeRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
 
     // Assert - Alice cannot burn token
-    await expect(contract.tx.burn(alice.address, bnArg(0), 1)).to.eventually.be.rejected
+    await expect(contract.tx.burn(alice.address, 0, 1)).to.eventually.be.rejected
   })
 })

@@ -40,8 +40,8 @@ std = [
 psp22 = [
     "derive/psp22",
 ]
-psp721 = [
-    "derive/psp721",
+psp34 = [
+    "derive/psp34",
 ]
 psp1155 = [
     "derive/psp1155",

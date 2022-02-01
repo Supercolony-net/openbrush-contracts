@@ -9,7 +9,7 @@
 ///
 /// 2. Borrow tokens from the smart contract by depositing collateral tokens.
 /// The tokens which can be deposited as collateral are allowed and disallowed by the accounts with manager role
-/// Upon borrowing user gets a PSP-721 token representing info about their loan (how much assets were borrowed,
+/// Upon borrowing user gets a PSP-34 token representing info about their loan (how much assets were borrowed,
 /// when did they borrow, what asset was borrowed, what asset was used as collateral, how much collateral assets
 /// were deposited, the liquidation price of the loan and if it was liquidated or not)
 ///

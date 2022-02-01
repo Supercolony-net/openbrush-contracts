@@ -6,7 +6,7 @@ pub mod my_access_control {
     use brush::{
         contracts::{
             access_control::*,
-            psp721::extensions::{
+            psp34::extensions::{
                 burnable::*,
                 mintable::*,
             },
@@ -15,10 +15,10 @@ pub mod my_access_control {
     };
 
     #[ink(storage)]
-    #[derive(Default, PSP721Storage, AccessControlStorage)]
-    pub struct PSP721Struct {
-        #[PSP721StorageField]
-        psp721: PSP721Data,
+    #[derive(Default, PSP34Storage, AccessControlStorage)]
+    pub struct PSP34Struct {
+        #[PSP34StorageField]
+        psp34: PSP34Data,
         #[AccessControlStorageField]
         access: AccessControlData,
     }
@@ -29,7 +29,7 @@ pub mod my_access_control {
     // And will reduce the chance to have overlapping roles.
     const MINTER: RoleType = ink_lang::selector_id!("MINTER");
 
-    impl PSP721Struct {
+    impl PSP34Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
             let mut instance = Self::default();
@@ -41,22 +41,22 @@ pub mod my_access_control {
         }
     }
 
-    impl PSP721 for PSP721Struct {}
+    impl PSP34 for PSP34Struct {}
 
-    impl AccessControl for PSP721Struct {}
+    impl AccessControl for PSP34Struct {}
 
-    impl PSP721Mintable for PSP721Struct {
+    impl PSP34Mintable for PSP34Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
-        fn mint(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+        fn mint(&mut self, account: AccountId, id: Id) -> Result<(), PSP34Error> {
             self._mint_to(account, id)
         }
     }
 
-    impl PSP721Burnable for PSP721Struct {
+    impl PSP34Burnable for PSP34Struct {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
-        fn burn(&mut self, account: AccountId, id: Id) -> Result<(), PSP721Error> {
+        fn burn(&mut self, account: AccountId, id: Id) -> Result<(), PSP34Error> {
             self._burn_from(account, id)
         }
     }

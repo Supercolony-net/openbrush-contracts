@@ -5,7 +5,7 @@ mod pausable;
 mod payment_splitter;
 mod psp1155;
 mod psp22;
-mod psp721;
+mod psp34;
 mod reentrancy_guard;
 mod timelock_controller;
 
@@ -26,9 +26,9 @@ pub use psp22::{
     PSP22ReceiverError,
     PSP22TokenTimelockError,
 };
-pub use psp721::{
-    PSP721Error,
-    PSP721ReceiverError,
+pub use psp34::{
+    PSP34Error,
+    PSP34ReceiverError,
 };
 pub use reentrancy_guard::ReentrancyGuardError;
 pub use timelock_controller::TimelockControllerError;

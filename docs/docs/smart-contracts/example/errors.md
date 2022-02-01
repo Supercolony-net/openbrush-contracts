@@ -18,7 +18,7 @@ In the project, we implement the conversion for some errors from OpenBrush.
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum LendingError {
     PSP22Error(PSP22Error),
-    PSP721Error(PSP721Error),
+    PSP34Error(PSP34Error),
     AccessControlError(AccessControlError),
     PausableError(PausableError),
 
@@ -78,9 +78,9 @@ impl From<PSP22Error> for LendingError {
     }
 }
 
-impl From<PSP721Error> for LendingError {
-    fn from(error: PSP721Error) -> Self {
-        LendingError::PSP721Error(error)
+impl From<PSP34Error> for LendingError {
+    fn from(error: PSP34Error) -> Self {
+        LendingError::PSP34Error(error)
     }
 }
 ```
