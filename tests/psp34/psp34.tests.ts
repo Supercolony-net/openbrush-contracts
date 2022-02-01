@@ -1,4 +1,4 @@
-import { expect, setupContract, fromSigner } from '../helpers'
+import { expect, fromSigner, setupContract } from '../helpers'
 
 describe('MY_PSP34', () => {
   async function setup() {
