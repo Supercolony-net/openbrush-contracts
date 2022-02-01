@@ -241,7 +241,7 @@ mod psp721 {
     }
 
     #[ink::test]
-    fn not_approved_for_all_works() {
+    fn approved_for_all_works() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
@@ -249,8 +249,10 @@ mod psp721 {
         assert!(nft._mint([2; 32]).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
+        // Approve token Id 1 transfer for Bob on behalf of Alice.
+        assert!(nft.set_approval_for_all(accounts.bob, true).is_ok());
         // Bob is an approved operator for Alice
-        assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), false);
+        assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), true);
 
         change_caller(accounts.bob);
         // Bob transfers token Id 1 from Alice to Eve.
@@ -265,10 +267,16 @@ mod psp721 {
         assert_eq!(nft.balance_of(accounts.bob), 0);
         // Eve owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.eve), 2);
+
+        change_caller(accounts.alice);
+        // Remove operator approval for Bob on behalf of Alice.
+        assert!(nft.set_approval_for_all(accounts.bob, false).is_ok());
+        // Bob is not an approved operator for Alice.
+        assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), false);
     }
 
     #[ink::test]
-    fn not_approved_transfer_works() {
+    fn not_approved_transfer_should_fail() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
@@ -283,7 +291,10 @@ mod psp721 {
         // Get contract address.
         change_caller(accounts.bob);
         // Eve is not an approved operator by Alice.
-        assert!(nft.transfer_from(accounts.alice, accounts.frank, [1; 32], vec![]).is_ok());
+        assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.frank, [1; 32], vec![]),
+            Err(PSP721Error::NotApproved)
+        );
     }
 
     #[ink::test]
