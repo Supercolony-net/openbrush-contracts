@@ -17,7 +17,7 @@ scale-info = { version = "1", default-features = false, features = ["derive"], o
 
 # These dependencies
 lending_project_derive = { path = "derive" }
-brush = { path = "..", default-features = false, features = ["psp22", "psp721", "ownable", "pausable", "access_control"] }
+brush = { path = "..", default-features = false, features = ["psp22", "psp34", "ownable", "pausable", "access_control"] }
 
 [lib]
 name = "lending_project"

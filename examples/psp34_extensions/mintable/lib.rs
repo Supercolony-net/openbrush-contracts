@@ -1,0 +1,26 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
+#[brush::contract]
+pub mod my_psp34_mintable {
+    use brush::contracts::psp34::extensions::mintable::*;
+
+    #[derive(Default, PSP34Storage)]
+    #[ink(storage)]
+    pub struct MyPSP34 {
+        #[PSP34StorageField]
+        psp34: PSP34Data,
+    }
+
+    impl PSP34 for MyPSP34 {}
+
+    impl PSP34Mintable for MyPSP34 {}
+
+    impl MyPSP34 {
+        /// The constructor
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            Self::default()
+        }
+    }
+}
