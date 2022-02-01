@@ -2,7 +2,6 @@
 #[cfg(feature = "psp34")]
 #[brush::contract]
 mod psp34 {
-    use std::panic;
     use brush::test_utils::{
         accounts,
         change_caller,
@@ -97,8 +96,9 @@ mod psp34 {
     }
 
     #[ink::test]
+    #[should_panic]
     fn collection_id_fails() {
-        assert!(panic::catch_unwind(|| { PSP34Struct::new().collection_id(); }).is_err());
+        PSP34Struct::new().collection_id();
     }
 
     #[ink::test]
@@ -209,6 +209,7 @@ mod psp34 {
     fn total_supply_works() {
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
+        assert_eq!(nft.total_supply(), 0);
         assert!(nft._mint(Id::U8(1u8)).is_ok());
         assert!(nft._mint(Id::U8(2u8)).is_ok());
         assert!(nft._mint(Id::U8(3u8)).is_ok());

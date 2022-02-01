@@ -22,6 +22,7 @@ describe('MY_PSP34', () => {
       tx
     } = await setup()
 
+    await expect(query.totalSupply()).to.have.output(0)
     await expect(tx.mintToken()).to.be.fulfilled
     await expect(tx.mintToken()).to.be.fulfilled
     await expect(tx.mintToken()).to.be.fulfilled
