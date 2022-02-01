@@ -155,7 +155,7 @@ mod psp721 {
     }
 
     #[ink::test]
-    fn invalid_transfer_should_fail() {
+    fn not_exist_token_transfer_should_fail() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP721Struct::new();
@@ -166,6 +166,25 @@ mod psp721 {
         );
         // Token Id 2 does not exists.
         assert_eq!(nft.owner_of([1; 32]), None);
+    }
+
+    #[ink::test]
+    fn not_owned_token_transfer_should_fail() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP721Struct::new();
+        // Create token Id 2.
+        assert!(nft._mint([1; 32]).is_ok());
+        // Alice owns 1 token.
+        assert_eq!(nft.balance_of(accounts.alice), 1);
+        // Token Id 2 is owned by Alice.
+        assert_eq!(nft.owner_of([1; 32]), Some(accounts.alice));
+        change_caller(accounts.bob);
+        // Bob cannot transfer not owned tokens.
+        assert_eq!(
+            nft.transfer(accounts.eve, [1; 32], vec![]),
+            Err(PSP721Error::NotApproved)
+        );
     }
 
     #[ink::test]
