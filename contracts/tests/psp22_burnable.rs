@@ -236,20 +236,6 @@ mod psp22_burnable {
     }
 
     #[ink::test]
-    fn burn_from_without_allowance() {
-        let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
-        let amount_to_burn = 50;
-
-        // Transfer to Bob some amount so it can be burnt
-        assert!(psp22.transfer(accounts.bob, amount_to_burn, Vec::<u8>::new()).is_ok());
-        // Alice's allowance to spend Bob's tokens is 0
-        assert_eq!(psp22.allowance(accounts.bob, accounts.alice), 0);
-        // Try to burn some amount from Bob's account
-        assert!(psp22.burn(accounts.bob, amount_to_burn).is_ok());
-    }
-
-    #[ink::test]
     fn before_token_transfer_should_fail_burn() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
