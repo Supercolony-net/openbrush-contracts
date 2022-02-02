@@ -306,7 +306,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         self.get_mut().token_approvals.take(id);
         self.get_mut().token_owner.take(id);
 
-        let from_balance = self.get_mut().owned_tokens_count.get_mut(&from).cloned().unwrap_or(1);
+        let from_balance = self.get_mut().owned_tokens_count.get_mut(&from).unwrap().clone();
         self.get_mut().owned_tokens_count.insert(from, from_balance - 1);
         self.get_mut().total_supply -= 1;
         Ok(())
