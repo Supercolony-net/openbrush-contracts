@@ -6,9 +6,7 @@ use brush::traits::{
     AccountId,
     Balance,
 };
-use ink_prelude::{
-    vec::Vec,
-};
+use ink_prelude::vec::Vec;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 use ink_storage::traits::{

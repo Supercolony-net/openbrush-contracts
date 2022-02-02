@@ -25,7 +25,7 @@ mod psp1155_mintable {
             _ids: &Vec<(Id, Balance)>,
         ) -> Result<(), PSP1155Error> {
             if self.return_err_on_before {
-                return Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")));
+                return Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -37,7 +37,7 @@ mod psp1155_mintable {
             _ids: &Vec<(Id, Balance)>,
         ) -> Result<(), PSP1155Error> {
             if self.return_err_on_after {
-                return Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")));
+                return Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }

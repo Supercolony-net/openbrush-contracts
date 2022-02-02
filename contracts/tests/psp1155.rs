@@ -114,7 +114,7 @@ mod psp1155 {
             _ids: &Vec<(Id, Balance)>,
         ) -> Result<(), PSP1155Error> {
             if self.return_err_on_before {
-                return Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")));
+                return Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -126,7 +126,7 @@ mod psp1155 {
             _ids: &Vec<(Id, Balance)>,
         ) -> Result<(), PSP1155Error> {
             if self.return_err_on_after {
-                return Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")));
+                return Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }
@@ -556,7 +556,9 @@ mod psp1155 {
         assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
         assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
         // Can transfer tokens
-        assert!(nft.transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![]).is_ok());
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![])
+            .is_ok());
         // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
@@ -578,7 +580,9 @@ mod psp1155 {
         assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
         assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
         // Can transfer tokens
-        assert!(nft.transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![]).is_ok());
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![])
+            .is_ok());
         // Turn on error on _after_token_transfer
         nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer

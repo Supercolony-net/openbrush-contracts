@@ -96,7 +96,7 @@ mod psp34 {
             _id: &Id,
         ) -> Result<(), PSP34Error> {
             if self.return_err_on_before {
-                return Err(PSP34Error::Custom(String::from("Error on _before_token_transfer")));
+                return Err(PSP34Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -108,7 +108,7 @@ mod psp34 {
             _id: &Id,
         ) -> Result<(), PSP34Error> {
             if self.return_err_on_after {
-                return Err(PSP34Error::Custom(String::from("Error on _after_token_transfer")));
+                return Err(PSP34Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }
@@ -332,7 +332,9 @@ mod psp34 {
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Alice can transfer token
-        assert!(nft.transfer_from(accounts.alice, accounts.bob, Id::U8(1u8), vec![]).is_ok());
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.bob, Id::U8(1u8), vec![])
+            .is_ok());
         // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
@@ -352,7 +354,9 @@ mod psp34 {
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Alice can transfer token
-        assert!(nft.transfer_from(accounts.alice, accounts.bob, Id::U8(1u8), vec![]).is_ok());
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.bob, Id::U8(1u8), vec![])
+            .is_ok());
         // Turn on error on _after_token_transfer
         nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer

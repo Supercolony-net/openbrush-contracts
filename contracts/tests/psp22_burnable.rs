@@ -63,7 +63,7 @@ mod psp22_burnable {
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             if self.return_err_on_before {
-                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")));
+                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -75,7 +75,7 @@ mod psp22_burnable {
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             if self.return_err_on_after {
-                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")));
+                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }
@@ -151,7 +151,10 @@ mod psp22_burnable {
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         let amount_to_burn = 100;
 
-        assert_eq!(psp22.burn(accounts.alice, amount_to_burn), Err(PSP22Error::InsufficientBalance));
+        assert_eq!(
+            psp22.burn(accounts.alice, amount_to_burn),
+            Err(PSP22Error::InsufficientBalance)
+        );
     }
 
     #[ink::test]

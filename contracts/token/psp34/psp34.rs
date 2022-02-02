@@ -121,14 +121,14 @@ pub trait PSP34Internal {
         &mut self,
         _from: Option<&AccountId>,
         _to: Option<&AccountId>,
-        _id: &Id
+        _id: &Id,
     ) -> Result<(), PSP34Error>;
 
     fn _after_token_transfer(
         &mut self,
         _from: Option<&AccountId>,
         _to: Option<&AccountId>,
-        _id: &Id
+        _id: &Id,
     ) -> Result<(), PSP34Error>;
 
     /// Child contract can override that if they don't want to do a cross call
@@ -243,7 +243,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         &mut self,
         _from: Option<&AccountId>,
         _to: Option<&AccountId>,
-        _id: &Id
+        _id: &Id,
     ) -> Result<(), PSP34Error> {
         Ok(())
     }
@@ -252,7 +252,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         &mut self,
         _from: Option<&AccountId>,
         _to: Option<&AccountId>,
-        _id: &Id
+        _id: &Id,
     ) -> Result<(), PSP34Error> {
         Ok(())
     }

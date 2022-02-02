@@ -81,7 +81,7 @@ mod psp22 {
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             if self.return_err_on_before {
-                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")));
+                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -93,7 +93,7 @@ mod psp22 {
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             if self.return_err_on_after {
-                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")));
+                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }
@@ -311,10 +311,7 @@ mod psp22 {
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Alice can transfer 10 tokens to Bob
-        assert!(psp22
-            .transfer(accounts.bob, 10, Vec::<u8>::new())
-            .is_ok()
-        );
+        assert!(psp22.transfer(accounts.bob, 10, Vec::<u8>::new()).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 90);
         // Turn on error on _before_token_transfer
         psp22.change_state_err_on_before();
@@ -331,10 +328,7 @@ mod psp22 {
         let mut psp22 = PSP22Struct::new(100);
         let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
         // Alice can transfer 10 tokens to Bob
-        assert!(psp22
-            .transfer(accounts.bob, 10, Vec::<u8>::new())
-            .is_ok()
-        );
+        assert!(psp22.transfer(accounts.bob, 10, Vec::<u8>::new()).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 90);
         // Turn on error on _after_token_transfer
         psp22.change_state_err_on_after();
