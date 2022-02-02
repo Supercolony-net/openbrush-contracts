@@ -73,15 +73,14 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
         self._transfer_guard(operator, from, to)?;
 
         let ids_amounts = vec![(id, amount)];
+
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
+
         self._do_safe_transfer_check(operator, from, to, ids_amounts.clone(), data)?;
-
         self._transfer_from(from, to, id, amount)?;
-
         self._emit_transfer_single_event(operator, Some(from), Some(to), id, amount);
 
-        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
-        Ok(())
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)
     }
 
     default fn batch_transfer_from(
@@ -95,6 +94,7 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
         self._transfer_guard(operator, from, to)?;
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
+
         self._do_safe_transfer_check(
             operator,
             from,
@@ -110,8 +110,7 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
 
         self._emit_transfer_batch_event(operator, Some(from), Some(to), ids_amounts.clone());
 
-        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
-        Ok(())
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)
     }
 }
 
@@ -235,16 +234,15 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
             self._emit_transfer_batch_event(operator, None, Some(to), ids_amounts.clone());
         }
 
-        self._after_token_transfer(None, Some(&to), &ids_amounts)?;
-        Ok(())
+        self._after_token_transfer(None, Some(&to), &ids_amounts)
     }
 
     default fn _burn_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
+        self._before_token_transfer(Some(&from), None, &ids_amounts)?;
+
         if ids_amounts.is_empty() {
             return Ok(())
         }
-
-        self._before_token_transfer(Some(&from), None, &ids_amounts)?;
 
         for (id, amount) in ids_amounts.iter() {
             self._decrease_sender_balance(from, id.clone(), amount.clone())?;
@@ -257,8 +255,7 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
             self._emit_transfer_batch_event(operator, Some(from), None, ids_amounts.clone());
         }
 
-        self._after_token_transfer(Some(&from), None, &ids_amounts)?;
-        Ok(())
+        self._after_token_transfer(Some(&from), None, &ids_amounts)
     }
 
     default fn _transfer_guard(&self, operator: AccountId, from: AccountId, to: AccountId) -> Result<(), PSP1155Error> {
