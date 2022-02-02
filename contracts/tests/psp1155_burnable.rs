@@ -2,10 +2,7 @@
 #[cfg(feature = "psp1155")]
 #[brush::contract]
 mod psp1155_burnable {
-    use brush::test_utils::{
-        accounts,
-        change_caller,
-    };
+    use brush::test_utils::accounts;
     use contracts::psp1155::extensions::burnable::*;
     use ink_lang as ink;
 
@@ -78,9 +75,7 @@ mod psp1155_burnable {
         let mut nft = PSP1155Struct::new();
         assert!(nft.mint(accounts.alice, token_id, token_amount).is_ok());
         assert!(nft.mint(accounts.bob, token_id, token_amount).is_ok());
-        change_caller(accounts.bob);
-        assert!(nft.set_approval_for_all(accounts.alice, true).is_ok());
-        change_caller(accounts.alice);
+
         assert_eq!(nft.balance_of(accounts.alice, token_id), token_amount);
         assert_eq!(nft.balance_of(accounts.bob, token_id), token_amount);
 
@@ -89,18 +84,6 @@ mod psp1155_burnable {
 
         assert_eq!(nft.balance_of(accounts.alice, token_id), 0);
         assert_eq!(nft.balance_of(accounts.bob, token_id), 0);
-    }
-
-    #[ink::test]
-    fn burn_from_without_allowance() {
-        let token_id_1 = [1; 32];
-        let token_1_amount = 20;
-        let accounts = accounts();
-
-        let mut nft = PSP1155Struct::new();
-        assert!(nft.mint(accounts.bob, token_id_1, token_1_amount).is_ok());
-
-        assert!(nft.burn(accounts.bob, vec![(token_id_1, token_1_amount)]).is_ok());
     }
 
     #[ink::test]
@@ -124,9 +107,6 @@ mod psp1155_burnable {
         let accounts = accounts();
 
         let mut nft = PSP1155Struct::new();
-        change_caller(accounts.bob);
-        assert!(nft.set_approval_for_all(accounts.alice, true).is_ok());
-        change_caller(accounts.alice);
 
         assert_eq!(
             Err(PSP1155Error::InsufficientBalance),
