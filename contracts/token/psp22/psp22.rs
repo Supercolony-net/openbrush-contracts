@@ -256,6 +256,7 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
     }
 
     default fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+
         if account.is_zero() {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
