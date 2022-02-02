@@ -21,9 +21,9 @@ pub mod my_psp34_burnable {
         #[ink(constructor)]
         pub fn new() -> Self {
             let mut instance = Self::default();
-            instance._mint(Id::U8(0u8)).expect("Should mint token with id 0");
-            instance._mint(Id::U8(1u8)).expect("Should mint token with id 1");
-            instance._mint(Id::U8(2u8)).expect("Should mint token with id 2");
+            instance._mint_to(Self::env().caller(), Id::U8(0u8)).expect("Should mint token with id 0");
+            instance._mint_to(Self::env().caller(), Id::U8(1u8)).expect("Should mint token with id 1");
+            instance._mint_to(Self::env().caller(), Id::U8(2u8)).expect("Should mint token with id 2");
             instance
         }
     }

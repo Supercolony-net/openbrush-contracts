@@ -143,7 +143,7 @@ mod psp34 {
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
         // Create token Id 1 for Alice
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
         // Alice owns token 1
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Bob does not owns any token
@@ -172,8 +172,15 @@ mod psp34 {
         );
         // Token Id 2 does not exists.
         assert_eq!(nft.owner_of(Id::U8(1u8)), None);
+    }
+
+    #[ink::test]
+    fn not_owned_token_transfer_should_fail() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP34Struct::new();
         // Create token Id 2.
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Token Id 2 is owned by Alice.
@@ -191,7 +198,7 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
 
         // Token 1 is not approved
         assert_eq!(nft.get_approved(Id::U8(1u8)), None);
@@ -207,7 +214,7 @@ mod psp34 {
         let mut nft = PSP34Struct::new();
         assert_eq!(nft.approve(accounts.bob, Id::U8(1u8)), Err(PSP34Error::TokenNotExists));
 
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
         assert_eq!(nft.approve(accounts.alice, Id::U8(1u8)), Err(PSP34Error::SelfApprove));
 
         change_caller(accounts.bob);
@@ -219,8 +226,8 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // Token Id 1 is owned by Alice.
         assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.alice));
         // Approve token Id 1 transfer for Bob on behalf of Alice.
@@ -243,12 +250,13 @@ mod psp34 {
 
     #[ink::test]
     fn total_supply_works() {
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
         assert_eq!(nft.total_supply(), 0);
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
-        assert!(nft._mint(Id::U8(3u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(3u8)).is_ok());
         // 3 tokens minted in total
         assert_eq!(nft.total_supply(), 3)
     }
@@ -258,8 +266,8 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Approve token Id 1 transfer for Bob on behalf of Alice.
@@ -297,8 +305,8 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Bob does not owns tokens.
@@ -319,8 +327,8 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(4u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(4u8)).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Alice can transfer token
@@ -339,8 +347,8 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(4u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(4u8)).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Alice can transfer token

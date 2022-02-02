@@ -60,30 +60,11 @@ describe('MY_PSP22_BURNABLE', () => {
         const bob = await getSigner('Bob')
         await tx.transfer(alice.address, 10, []);
         await tx.transfer(bob.address, 10, []);
-        await fromSigner(contract, alice.address).tx.approve(defaultSigner.address, 10)
-        await fromSigner(contract, bob.address).tx.approve(defaultSigner.address, 10)
 
         // Act - burn tokens from Alice and Bob
         await contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])
 
         // Assert - ensure needed amount was burnt
-        await expect(query.balanceOf(alice.address)).to.have.output(0);
-        await expect(query.balanceOf(bob.address)).to.have.output(0);
-    })
-
-    it('Burn many without allowance', async () => {
-        const { query, tx, contract, defaultSigner } = await setup();
-
-        // Arrange - Create a signers, transfer tokens to them but not give neede allowance to one of the signers
-        const alice = await getSigner('Alice')
-        const bob = await getSigner('Bob')
-        await tx.transfer(alice.address, 10, []);
-        await tx.transfer(bob.address, 10, []);
-
-        // Act - burn tokens from Alice and Bob
-        await expect(contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])).to.eventually.be.fulfilled
-
-        // Assert - ensure tokens was burnt from the accounts
         await expect(query.balanceOf(alice.address)).to.have.output(0);
         await expect(query.balanceOf(bob.address)).to.have.output(0);
     })

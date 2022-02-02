@@ -28,25 +28,8 @@ describe('MY_PSP34_BURNABLE', () => {
     } = await setup()
 
     await expect(query.balanceOf(sender.address)).to.have.output(3)
-    await contract.tx.setApprovalForAll(alice.address, true)
 
     await fromSigner(contract, alice.address).tx.burn(sender.address, 0)
-
-    await expect(query.balanceOf(sender.address)).to.have.output(2)
-  })
-
-  it('Burn from without allowance works', async () => {
-    const {
-      contract,
-      defaultSigner: sender,
-      accounts: [alice],
-      query
-    } = await setup()
-
-    await expect(query.balanceOf(sender.address)).to.have.output(3)
-
-    await expect(fromSigner(contract, alice.address).tx.burn(sender.address, 0))
-      .to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address)).to.have.output(2)
   })

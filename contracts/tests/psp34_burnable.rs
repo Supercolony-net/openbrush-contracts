@@ -2,10 +2,7 @@
 #[cfg(feature = "psp34")]
 #[brush::contract]
 mod psp34_burnable {
-    use brush::test_utils::{
-        accounts,
-        change_caller,
-    };
+    use brush::test_utils::accounts;
     use contracts::psp34::extensions::burnable::*;
     use ink_lang as ink;
 
@@ -69,7 +66,7 @@ mod psp34_burnable {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Alice owns token Id 1.
@@ -83,7 +80,7 @@ mod psp34_burnable {
     }
 
     #[ink::test]
-    fn burn_fails_token_not_found() {
+    fn burn_not_existing_should_fail() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
@@ -92,23 +89,12 @@ mod psp34_burnable {
     }
 
     #[ink::test]
-    fn burn_not_owner() {
-        let accounts = accounts();
-        // Create a new contract instance.
-        let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        // Try burning this token with a different account
-        change_caller(accounts.eve);
-        assert!(nft.burn(accounts.eve, Id::U8(1u8)).is_ok());
-    }
-
-    #[ink::test]
     fn before_token_transfer_should_fail_burn() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Alice can burn token
@@ -127,8 +113,8 @@ mod psp34_burnable {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Alice can burn token

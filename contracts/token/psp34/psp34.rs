@@ -145,8 +145,6 @@ pub trait PSP34Internal {
 
     fn _remove_token(&mut self, from: AccountId, id: &Id) -> Result<(), PSP34Error>;
 
-    fn _mint(&mut self, id: Id) -> Result<(), PSP34Error>;
-
     fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error>;
 
     fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP34Error>;
@@ -217,10 +215,26 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         data: Vec<u8>,
     ) -> Result<(), PSP34Error> {
         self._before_token_transfer(Some(&from), Some(&to), &id)?;
+
+        let owner = self.get().token_owner.get(&id).cloned();
+
+        if owner.is_none() {
+            return Err(PSP34Error::TokenNotExists)
+        }
+
+        let owner = owner.unwrap();
+        let caller = Self::env().caller();
+        if owner != caller
+            && Some(caller) != self.get().token_approvals.get(&id).cloned()
+            && !self._approved_for_all(owner, caller)
+        {
+            return Err(PSP34Error::NotApproved)
+        }
+
         self._remove_token(from, &id)?;
         self._do_safe_transfer_check(Self::env().caller(), from, to, id.clone(), data)?;
         self._add_token(to.clone(), id.clone())?;
-        self._emit_transfer_event(Some(from), Some(to), id);
+        self._emit_transfer_event(Some(from), Some(to), id.clone());
         self._after_token_transfer(Some(&from), Some(&to), &id)?;
         Ok(())
     }
@@ -289,12 +303,6 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
     }
 
     default fn _remove_token(&mut self, from: AccountId, id: &Id) -> Result<(), PSP34Error> {
-        let owner = self.get().token_owner.get(id).cloned();
-
-        if owner.is_none() {
-            return Err(PSP34Error::TokenNotExists)
-        }
-
         self.get_mut().token_approvals.take(id);
         self.get_mut().token_owner.take(id);
 
@@ -302,11 +310,6 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         self.get_mut().owned_tokens_count.insert(from, from_balance - 1);
         self.get_mut().total_supply -= 1;
         Ok(())
-    }
-
-    default fn _mint(&mut self, id: Id) -> Result<(), PSP34Error> {
-        let to = Self::env().caller();
-        self._mint_to(to, id)
     }
 
     default fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error> {
@@ -317,17 +320,21 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         self._before_token_transfer(None, Some(&to), &id)?;
 
         self._add_token(to, id.clone())?;
-        self._emit_transfer_event(None, Some(to), id);
+        self._emit_transfer_event(None, Some(to), id.clone());
 
         self._after_token_transfer(None, Some(&to), &id)?;
         Ok(())
     }
 
     default fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP34Error> {
+        if self.get_mut().token_owner.get(&id).is_none() {
+            return Err(PSP34Error::TokenNotExists)
+        }
+
         self._before_token_transfer(Some(&from), None, &id)?;
 
         self._remove_token(from, &id)?;
-        self._emit_transfer_event(Some(from), None, id);
+        self._emit_transfer_event(Some(from), None, id.clone());
 
         self._after_token_transfer(Some(&from), None, &id)?;
         Ok(())
