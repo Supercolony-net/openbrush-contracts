@@ -12,7 +12,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of Payment Splitter via `brush` features.
 
 ```toml
-brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["payment_splitter"] }
+brush = { tag = "v1.3.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["payment_splitter"] }
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
