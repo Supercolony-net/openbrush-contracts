@@ -23,7 +23,7 @@ pub mod my_psp22 {
             to: Option<&AccountId>,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
-            if to.is_some() && to.unwrap() == &self.hated_account {
+            if to == Some(&self.hated_account) {
                 return Err(PSP22Error::Custom(String::from("I hate this account!")))
             }
             Ok(())
