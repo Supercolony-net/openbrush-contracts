@@ -214,13 +214,13 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         id: Id,
         data: Vec<u8>,
     ) -> Result<(), PSP34Error> {
-        self._before_token_transfer(Some(&from), Some(&to), &id)?;
-
         let owner = self.get().token_owner.get(&id).cloned();
 
         if owner.is_none() {
             return Err(PSP34Error::TokenNotExists)
         }
+
+        self._before_token_transfer(Some(&from), Some(&to), &id)?;
 
         let owner = owner.unwrap();
         let caller = Self::env().caller();
