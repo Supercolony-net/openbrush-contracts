@@ -39,7 +39,6 @@ describe('MY_PSP1155_BURNABLE', () => {
             .to.have.output([0, amount2])
 
         await contract.tx.burn(sender.address, [[token1, amount1], [token2, amount2]])
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
         await contract.tx.burn(alice.address, [[token1, 0], [token2, amount2]])
 
         await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2]]))
@@ -66,7 +65,6 @@ describe('MY_PSP1155_BURNABLE', () => {
         await expect(contract.tx.burn(sender.address, [[token1, amount1 + 1]]))
             .to.eventually.be.rejected
 
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
         await expect(contract.tx.burn(alice.address, [[token1, amount1 + 1], [token2, amount2]]))
             .to.eventually.be.rejected
         await expect(contract.tx.burn(alice.address, [[token1, amount1 + 1]]))

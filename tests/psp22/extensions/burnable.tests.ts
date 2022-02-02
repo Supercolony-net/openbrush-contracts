@@ -41,9 +41,8 @@ describe('MY_PSP22_BURNABLE', () => {
     it('Can burn from', async () => {
         const { query, tx, contract, defaultSigner, accounts: [alice] } = await setup();
 
-        // Arrange - Transfer tokens to Alice and approve that contract can spend her tokens
+        // Arrange - Transfer tokens to Alice
         await tx.transfer(alice.address, 10, []);
-        await fromSigner(contract, alice.address).tx.approve(defaultSigner.address, 10)
 
         // Act - burn from Alice address
         await tx.burn(alice.address, 10)
@@ -55,7 +54,7 @@ describe('MY_PSP22_BURNABLE', () => {
     it('Can burn from many', async () => {
         const { query, tx, contract, defaultSigner } = await setup();
 
-        // Arrange - Create a signers, transfer tokens to them and approve that contract can spend their tokens
+        // Arrange - Create a signers, transfer tokens to them
         const alice = await getSigner('Alice')
         const bob = await getSigner('Bob')
         await tx.transfer(alice.address, 10, []);
@@ -72,13 +71,11 @@ describe('MY_PSP22_BURNABLE', () => {
     it(`Fails if one of the account's balance exceeds amount to burn`, async () => {
         const { query, tx, contract, defaultSigner } = await setup();
 
-        // Arrange - Create a signers, transfer tokens to them and give allowance
+        // Arrange - Create a signers, transfer tokens to them
         const alice = await getSigner('Alice')
         const bob = await getSigner('Bob')
         await tx.transfer(alice.address, 10, []);
         await tx.transfer(bob.address, 5, []);
-        await fromSigner(contract, alice.address).tx.approve(defaultSigner.address, 10)
-        await fromSigner(contract, bob.address).tx.approve(defaultSigner.address, 10)
 
         // Act - burn tokens from Alice and Bob but burnt from Bob more than he own
         await expect(contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])).to.eventually.be.rejected
