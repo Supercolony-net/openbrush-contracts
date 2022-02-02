@@ -82,43 +82,36 @@ mod psp1155_mintable {
 
     #[ink::test]
     fn before_token_transfer_should_fail_mint() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
-        let token_1_amount = 1;
-        let token_2_amount = 20;
+        let token_id = [1; 32];
+        let amount = 1;
         let accounts = accounts();
         let mut nft = PSP1155Struct::new();
         // Can mint
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1), 0);
-        assert!(nft.mint(accounts.alice, vec![(token_id_1, token_1_amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1), token_1_amount);
+        assert!(nft.mint(accounts.alice, vec![(token_id, amount)]).is_ok());
+        assert_eq!(nft.balance_of(accounts.alice, token_id), amount);
         // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
-            nft.mint(accounts.alice, vec![(token_id_2, token_2_amount)]),
+            nft.mint(accounts.alice, vec![(token_id, amount)]),
             Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
         );
-        assert_eq!(nft.balance_of(accounts.alice, token_id_2), 0);
     }
 
     #[ink::test]
     fn after_token_transfer_should_fail_mint() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
-        let token_1_amount = 1;
-        let token_2_amount = 20;
+        let token_id = [1; 32];
+        let amount = 1;
         let accounts = accounts();
         let mut nft = PSP1155Struct::new();
         // Can mint
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1), 0);
-        assert!(nft.mint(accounts.alice, vec![(token_id_1, token_1_amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1), token_1_amount);
+        assert!(nft.mint(accounts.alice, vec![(token_id, amount)]).is_ok());
+        assert_eq!(nft.balance_of(accounts.alice, token_id), amount);
         // Turn on error on _after_token_transfer
         nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
-            nft.mint(accounts.alice, vec![(token_id_2, token_2_amount)]),
+            nft.mint(accounts.alice, vec![(token_id, amount)]),
             Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }

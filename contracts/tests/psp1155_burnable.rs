@@ -95,8 +95,8 @@ mod psp1155_burnable {
         let mut nft = PSP1155Struct::new();
 
         assert_eq!(
+            nft.burn(accounts.alice, vec![(token_id_1, burn_amount)]),
             Err(PSP1155Error::InsufficientBalance),
-            nft.burn(accounts.alice, vec![(token_id_1, burn_amount)])
         );
     }
 
@@ -109,29 +109,25 @@ mod psp1155_burnable {
         let mut nft = PSP1155Struct::new();
 
         assert_eq!(
-            Err(PSP1155Error::InsufficientBalance),
-            nft.burn(accounts.bob, vec![(token_id_1, burn_amount)])
+            nft.burn(accounts.bob, vec![(token_id_1, burn_amount)]),
+            Err(PSP1155Error::InsufficientBalance)
         );
     }
 
     #[ink::test]
     fn before_token_transfer_should_fail_burn() {
         let accounts = accounts();
-        let token_id_1 = [1; 32];
-        let token_1_amount = 1;
-        let token_id_2 = [2; 32];
-        let token_2_amount = 1;
+        let token_id = [1; 32];
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
-        assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
+        assert!(nft.mint(accounts.alice, token_id, 2).is_ok());
         // Alice can burn tokens
-        assert!(nft.burn(accounts.alice, vec![(token_id_1, token_1_amount)]).is_ok());
+        assert!(nft.burn(accounts.alice, vec![(token_id, 1)]).is_ok());
         // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
-            nft.burn(accounts.alice, vec![(token_id_2, token_2_amount)]),
+            nft.burn(accounts.alice, vec![(token_id, 1)]),
             Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
@@ -139,21 +135,17 @@ mod psp1155_burnable {
     #[ink::test]
     fn after_token_transfer_should_fail_burn() {
         let accounts = accounts();
-        let token_id_1 = [1; 32];
-        let token_1_amount = 1;
-        let token_id_2 = [2; 32];
-        let token_2_amount = 1;
+        let token_id = [1; 32];
         // Create a new contract instance.
         let mut nft = PSP1155Struct::new();
-        assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
-        assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
+        assert!(nft.mint(accounts.alice, token_id, 2).is_ok());
         // Alice can burn tokens
-        assert!(nft.burn(accounts.alice, vec![(token_id_1, token_1_amount)]).is_ok());
+        assert!(nft.burn(accounts.alice, vec![(token_id, 1)]).is_ok());
         // Turn on error on _after_token_transfer
         nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
-            nft.burn(accounts.alice, vec![(token_id_2, token_2_amount)]),
+            nft.burn(accounts.alice, vec![(token_id, 1)]),
             Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }

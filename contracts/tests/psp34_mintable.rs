@@ -96,7 +96,7 @@ mod psp34_mintable {
     }
 
     #[ink::test]
-    fn before_and_after_token_transfer_should_fail_mint() {
+    fn before_token_transfer_should_fail_mint() {
         // Constructor works.
         let accounts = accounts();
         // Create a new contract instance.

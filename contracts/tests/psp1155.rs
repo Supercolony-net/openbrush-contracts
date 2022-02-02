@@ -375,8 +375,8 @@ mod psp1155 {
         let mut nft = PSP1155Struct::new();
         assert!(nft.mint(accounts.alice, token_id, mint_amount).is_ok());
         assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.bob, token_id, transfer_amount, vec![]),
             Err(PSP1155Error::InsufficientBalance),
-            nft.transfer_from(accounts.alice, accounts.bob, token_id, transfer_amount, vec![])
         );
     }
 
@@ -453,8 +453,8 @@ mod psp1155 {
         assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
         assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
         assert_eq!(
+            nft.batch_transfer_from(accounts.alice, accounts.bob, ids_amounts, vec![]),
             Err(PSP1155Error::InsufficientBalance),
-            nft.batch_transfer_from(accounts.alice, accounts.bob, ids_amounts, vec![])
         );
     }
 
@@ -472,8 +472,8 @@ mod psp1155 {
         assert!(nft.mint(accounts.bob, token_id_2, token_2_amount).is_ok());
 
         assert_eq!(
-            Err(PSP1155Error::NotAllowed),
-            nft.batch_transfer_from(accounts.bob, accounts.alice, ids_amounts, vec![],)
+            nft.batch_transfer_from(accounts.bob, accounts.alice, ids_amounts, vec![]),
+            Err(PSP1155Error::NotAllowed)
         );
     }
 
