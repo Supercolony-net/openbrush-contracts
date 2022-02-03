@@ -159,7 +159,7 @@ mod psp22_mintable {
         let initial_amount = 100;
         let mut psp22 = PSP22Struct::new(initial_amount);
         // Transfer event triggered during initial construction.
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         let amount_to_mint = 10;
 
         assert!(psp22.mint(accounts.bob, amount_to_mint).is_ok());
@@ -185,7 +185,7 @@ mod psp22_mintable {
     #[ink::test]
     fn total_supply_increases_after_minting() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Contract's total supply before minting
         let total_supply = psp22.total_supply();
@@ -202,7 +202,7 @@ mod psp22_mintable {
     #[ink::test]
     fn mint_requested_amount() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Owner account's balance before minting
         let account_balance = psp22.balance_of(accounts.alice);
@@ -220,7 +220,7 @@ mod psp22_mintable {
     fn before_token_transfer_should_fail_mint() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Can mint tokens
         assert!(psp22.mint(accounts.alice, 10).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 110);
@@ -237,7 +237,7 @@ mod psp22_mintable {
     fn after_token_transfer_should_fail_mint() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Can mint tokens
         assert!(psp22.mint(accounts.alice, 10).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 110);

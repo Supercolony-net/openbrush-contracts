@@ -148,7 +148,7 @@ mod psp22_burnable {
     fn should_not_burn_if_burn_amount_greater_than_account_balance() {
         let initial_balance = 10;
         let mut psp22 = PSP22Struct::new(initial_balance);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         let amount_to_burn = 100;
 
         assert_eq!(
@@ -162,7 +162,7 @@ mod psp22_burnable {
         // Constructor works.
         let initial_amount = 100;
         let mut psp22 = PSP22Struct::new(initial_amount);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Transfer event triggered during initial construction.
         let amount_to_burn = 10;
 
@@ -189,7 +189,7 @@ mod psp22_burnable {
     #[ink::test]
     fn total_supply_decreases_after_burning() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Contract's total supply before burning
         let total_supply = psp22.total_supply();
@@ -206,7 +206,7 @@ mod psp22_burnable {
     #[ink::test]
     fn burn_requested_amount() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Alice's balance before burning
         let alice_balance = psp22.balance_of(accounts.alice);
@@ -223,7 +223,7 @@ mod psp22_burnable {
     #[ink::test]
     fn burn_requested_amount_from() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         let amount_to_burn = 50;
 
         let alice_balance = psp22.balance_of(accounts.alice);
@@ -242,7 +242,7 @@ mod psp22_burnable {
     fn before_token_transfer_should_fail_burn() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Alice can burn 10 tokens
         assert!(psp22.burn(accounts.alice, 10).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 90);
@@ -259,7 +259,7 @@ mod psp22_burnable {
     fn after_token_transfer_should_fail_burn() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Alice can burn 10 tokens
         assert!(psp22.burn(accounts.alice, 10).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 90);

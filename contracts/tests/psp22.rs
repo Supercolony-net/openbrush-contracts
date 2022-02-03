@@ -192,7 +192,7 @@ mod psp22 {
         // Transfer event triggered during initial construction
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Alice owns all the tokens on deployment
         assert_eq!(psp22.balance_of(accounts.alice), 100);
         // Bob does not owns tokens
@@ -228,7 +228,7 @@ mod psp22 {
     fn invalid_transfer_should_fail() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         assert_eq!(psp22.balance_of(accounts.bob), 0);
         change_caller(accounts.bob);
@@ -245,7 +245,7 @@ mod psp22 {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Bob fails to transfer tokens owned by Alice.
         assert_eq!(
@@ -258,7 +258,7 @@ mod psp22 {
     fn transfer_from_works() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Alice approves Bob for token transfers on her behalf.
         assert!(psp22.approve(accounts.bob, 10).is_ok());
@@ -291,7 +291,7 @@ mod psp22 {
     #[ink::test]
     fn allowance_must_not_change_on_failed_transfer() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Alice approves Bob for token transfers on her behalf.
         let alice_balance = psp22.balance_of(accounts.alice);
@@ -309,7 +309,7 @@ mod psp22 {
     fn before_token_transfer_should_fail_transfer() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Alice can transfer 10 tokens to Bob
         assert!(psp22.transfer(accounts.bob, 10, Vec::<u8>::new()).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 90);
@@ -326,7 +326,7 @@ mod psp22 {
     fn after_token_transfer_should_fail_transfer() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Alice can transfer 10 tokens to Bob
         assert!(psp22.transfer(accounts.bob, 10, Vec::<u8>::new()).is_ok());
         assert_eq!(psp22.balance_of(accounts.alice), 90);

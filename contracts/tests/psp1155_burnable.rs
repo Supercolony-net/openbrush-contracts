@@ -101,20 +101,6 @@ mod psp1155_burnable {
     }
 
     #[ink::test]
-    fn burn_from_insufficient_balance() {
-        let token_id_1 = [1; 32];
-        let burn_amount = 21;
-        let accounts = accounts();
-
-        let mut nft = PSP1155Struct::new();
-
-        assert_eq!(
-            nft.burn(accounts.bob, vec![(token_id_1, burn_amount)]),
-            Err(PSP1155Error::InsufficientBalance)
-        );
-    }
-
-    #[ink::test]
     fn before_token_transfer_should_fail_burn() {
         let accounts = accounts();
         let token_id = [1; 32];
