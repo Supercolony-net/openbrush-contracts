@@ -8,16 +8,10 @@ pub type PSP34BurnableRef = dyn PSP34Burnable;
 
 #[brush::trait_definition]
 pub trait PSP34Burnable {
-    /// Destroys token of type `id`.
-    ///
-    /// See [`PSP34::_burn`].
-    #[ink(message)]
-    fn burn(&mut self, id: Id) -> Result<(), PSP34Error>;
-
     /// Destroys token with id equal to `id` from `account`
     ///
     /// Caller must be approved to transfer tokens from `account`
     /// or to transfer token with `id`
     #[ink(message)]
-    fn burn_from(&mut self, account: AccountId, id: Id) -> Result<(), PSP34Error>;
+    fn burn(&mut self, account: AccountId, id: Id) -> Result<(), PSP34Error>;
 }

@@ -23,7 +23,7 @@ pub mod my_psp34 {
 
         #[ink(message)]
         pub fn mint_token(&mut self) -> Result<(), PSP34Error> {
-            self._mint(Id::U8(self.next_id))?;
+            self._mint_to(Self::env().caller(), Id::U8(self.next_id))?;
             self.next_id += 1;
             Ok(())
         }

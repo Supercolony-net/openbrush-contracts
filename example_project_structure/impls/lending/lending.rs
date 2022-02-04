@@ -207,8 +207,8 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
                 loan_info.collateral_amount,
                 Vec::<u8>::new(),
             )?;
-            LoanRef::delete_loan(&loan_account, initiator, loan_id.clone())?;
-            SharesRef::burn(&reserve_asset, loan_info.borrow_amount)?;
+            LoanRef::delete_loan(&loan_account, initiator, loan_id)?;
+            SharesRef::burn(&reserve_asset, Self::env().caller(), loan_info.borrow_amount)?;
         } else {
             PSP22Ref::transfer_from(
                 &loan_info.borrow_token,
@@ -247,7 +247,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
             return Err(LendingError::InsufficientBalanceInContract)
         }
 
-        SharesRef::burn_from(&shares_address, Self::env().caller(), shares_amount)?;
+        SharesRef::burn(&shares_address, Self::env().caller(), shares_amount)?;
         PSP22Ref::transfer(&withdraw_asset, Self::env().caller(), withdraw_amount, Vec::<u8>::new())?;
         Ok(())
     }

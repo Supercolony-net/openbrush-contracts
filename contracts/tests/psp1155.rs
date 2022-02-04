@@ -48,6 +48,10 @@ mod psp1155 {
     pub struct PSP1155Struct {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
+        // field for testing _before_token_transfer
+        return_err_on_before: bool,
+        // field for testing _after_token_transfer
+        return_err_on_after: bool,
     }
 
     impl PSP1155Internal for PSP1155Struct {
@@ -102,6 +106,30 @@ mod psp1155 {
         ) -> Result<(), PSP1155Error> {
             Ok(())
         }
+
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _ids: &Vec<(Id, Balance)>,
+        ) -> Result<(), PSP1155Error> {
+            if self.return_err_on_before {
+                return Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
+            }
+            Ok(())
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _ids: &Vec<(Id, Balance)>,
+        ) -> Result<(), PSP1155Error> {
+            if self.return_err_on_after {
+                return Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")))
+            }
+            Ok(())
+        }
     }
 
     impl PSP1155 for PSP1155Struct {}
@@ -115,6 +143,14 @@ mod psp1155 {
         #[ink(message)]
         pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error> {
             self._mint_to(acc, vec![(id, amount)])
+        }
+
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -339,8 +375,8 @@ mod psp1155 {
         let mut nft = PSP1155Struct::new();
         assert!(nft.mint(accounts.alice, token_id, mint_amount).is_ok());
         assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.bob, token_id, transfer_amount, vec![]),
             Err(PSP1155Error::InsufficientBalance),
-            nft.transfer_from(accounts.alice, accounts.bob, token_id, transfer_amount, vec![])
         );
     }
 
@@ -417,8 +453,8 @@ mod psp1155 {
         assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
         assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
         assert_eq!(
+            nft.batch_transfer_from(accounts.alice, accounts.bob, ids_amounts, vec![]),
             Err(PSP1155Error::InsufficientBalance),
-            nft.batch_transfer_from(accounts.alice, accounts.bob, ids_amounts, vec![])
         );
     }
 
@@ -436,8 +472,8 @@ mod psp1155 {
         assert!(nft.mint(accounts.bob, token_id_2, token_2_amount).is_ok());
 
         assert_eq!(
-            Err(PSP1155Error::NotAllowed),
-            nft.batch_transfer_from(accounts.bob, accounts.alice, ids_amounts, vec![],)
+            nft.batch_transfer_from(accounts.bob, accounts.alice, ids_amounts, vec![]),
+            Err(PSP1155Error::NotAllowed)
         );
     }
 
@@ -506,6 +542,54 @@ mod psp1155 {
         );
 
         assert_eq!(ink_env::test::recorded_events().count(), 4);
+    }
+
+    #[ink::test]
+    fn before_token_transfer_should_fail_transfer() {
+        let token_id_1 = [1; 32];
+        let token_id_2 = [2; 32];
+        let token_1_amount = 1;
+        let token_2_amount = 20;
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP1155Struct::new();
+        assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
+        assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
+        // Can transfer tokens
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![])
+            .is_ok());
+        // Turn on error on _before_token_transfer
+        nft.change_state_err_on_before();
+        // Alice gets an error on _before_token_transfer
+        assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),
+            Err(PSP1155Error::Custom(String::from("Error on _before_token_transfer")))
+        );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_transfer() {
+        let token_id_1 = [1; 32];
+        let token_id_2 = [2; 32];
+        let token_1_amount = 1;
+        let token_2_amount = 20;
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP1155Struct::new();
+        assert!(nft.mint(accounts.alice, token_id_1, token_1_amount).is_ok());
+        assert!(nft.mint(accounts.alice, token_id_2, token_2_amount).is_ok());
+        // Can transfer tokens
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![])
+            .is_ok());
+        // Turn on error on _after_token_transfer
+        nft.change_state_err_on_after();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),
+            Err(PSP1155Error::Custom(String::from("Error on _after_token_transfer")))
+        );
     }
 
     fn assert_transfer_event(

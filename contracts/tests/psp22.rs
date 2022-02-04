@@ -38,6 +38,10 @@ mod psp22 {
     pub struct PSP22Struct {
         #[PSP22StorageField]
         psp22: PSP22Data,
+        // field for testing _before_token_transfer
+        return_err_on_before: bool,
+        // field for testing _after_token_transfer
+        return_err_on_after: bool,
     }
 
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
@@ -69,6 +73,30 @@ mod psp22 {
         ) -> Result<(), PSP22Error> {
             Ok(())
         }
+
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if self.return_err_on_before {
+                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
+            }
+            Ok(())
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if self.return_err_on_after {
+                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
+            }
+            Ok(())
+        }
     }
 
     impl PSP22 for PSP22Struct {}
@@ -79,6 +107,14 @@ mod psp22 {
             let mut instance = Self::default();
             assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
             instance
+        }
+
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -156,7 +192,7 @@ mod psp22 {
         // Transfer event triggered during initial construction
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         // Alice owns all the tokens on deployment
         assert_eq!(psp22.balance_of(accounts.alice), 100);
         // Bob does not owns tokens
@@ -192,7 +228,7 @@ mod psp22 {
     fn invalid_transfer_should_fail() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         assert_eq!(psp22.balance_of(accounts.bob), 0);
         change_caller(accounts.bob);
@@ -209,7 +245,7 @@ mod psp22 {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Bob fails to transfer tokens owned by Alice.
         assert_eq!(
@@ -222,7 +258,7 @@ mod psp22 {
     fn transfer_from_works() {
         // Constructor works.
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Alice approves Bob for token transfers on her behalf.
         assert!(psp22.approve(accounts.bob, 10).is_ok());
@@ -255,7 +291,7 @@ mod psp22 {
     #[ink::test]
     fn allowance_must_not_change_on_failed_transfer() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Alice approves Bob for token transfers on her behalf.
         let alice_balance = psp22.balance_of(accounts.alice);
@@ -266,6 +302,40 @@ mod psp22 {
         assert_eq!(
             psp22.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new()),
             Err(PSP22Error::InsufficientBalance)
+        );
+    }
+
+    #[ink::test]
+    fn before_token_transfer_should_fail_transfer() {
+        // Constructor works.
+        let mut psp22 = PSP22Struct::new(100);
+        let accounts = accounts();
+        // Alice can transfer 10 tokens to Bob
+        assert!(psp22.transfer(accounts.bob, 10, Vec::<u8>::new()).is_ok());
+        assert_eq!(psp22.balance_of(accounts.alice), 90);
+        // Turn on error on _before_token_transfer
+        psp22.change_state_err_on_before();
+        // Alice gets an error on _before_token_transfer
+        assert_eq!(
+            psp22.transfer(accounts.bob, 10, Vec::<u8>::new()),
+            Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
+        );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_transfer() {
+        // Constructor works.
+        let mut psp22 = PSP22Struct::new(100);
+        let accounts = accounts();
+        // Alice can transfer 10 tokens to Bob
+        assert!(psp22.transfer(accounts.bob, 10, Vec::<u8>::new()).is_ok());
+        assert_eq!(psp22.balance_of(accounts.alice), 90);
+        // Turn on error on _after_token_transfer
+        psp22.change_state_err_on_after();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            psp22.transfer(accounts.bob, 10, Vec::<u8>::new()),
+            Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }
 }

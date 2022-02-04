@@ -31,7 +31,7 @@ impl<T: PSP22 + PSP22WrapperStorage + PSP22Internal> PSP22Wrapper for T {
     }
 
     default fn withdraw_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        self._burn(Self::env().caller(), amount)?;
+        self._burn_from(Self::env().caller(), amount)?;
         self._withdraw(account, amount)
     }
 }

@@ -26,6 +26,10 @@ mod psp22_mintable {
     pub struct PSP22Struct {
         #[PSP22StorageField]
         psp22: PSP22Data,
+        // field for testing _before_token_transfer
+        return_err_on_before: bool,
+        // field for testing _after_token_transfer
+        return_err_on_after: bool,
     }
 
     type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
@@ -51,6 +55,30 @@ mod psp22_mintable {
         ) -> Result<(), PSP22Error> {
             Ok(())
         }
+
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if self.return_err_on_before {
+                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
+            }
+            Ok(())
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if self.return_err_on_after {
+                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
+            }
+            Ok(())
+        }
     }
 
     impl PSP22 for PSP22Struct {}
@@ -61,6 +89,14 @@ mod psp22_mintable {
             let mut instance = Self::default();
             assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
             instance
+        }
+
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -123,7 +159,7 @@ mod psp22_mintable {
         let initial_amount = 100;
         let mut psp22 = PSP22Struct::new(initial_amount);
         // Transfer event triggered during initial construction.
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         let amount_to_mint = 10;
 
         assert!(psp22.mint(accounts.bob, amount_to_mint).is_ok());
@@ -149,7 +185,7 @@ mod psp22_mintable {
     #[ink::test]
     fn total_supply_increases_after_minting() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Contract's total supply before minting
         let total_supply = psp22.total_supply();
@@ -166,7 +202,7 @@ mod psp22_mintable {
     #[ink::test]
     fn mint_requested_amount() {
         let mut psp22 = PSP22Struct::new(100);
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
 
         // Owner account's balance before minting
         let account_balance = psp22.balance_of(accounts.alice);
@@ -178,5 +214,39 @@ mod psp22_mintable {
         let new_account_balance = psp22.balance_of(accounts.alice);
 
         assert_eq!(new_account_balance, account_balance + amount_to_mint);
+    }
+
+    #[ink::test]
+    fn before_token_transfer_should_fail_mint() {
+        // Constructor works.
+        let mut psp22 = PSP22Struct::new(100);
+        let accounts = accounts();
+        // Can mint tokens
+        assert!(psp22.mint(accounts.alice, 10).is_ok());
+        assert_eq!(psp22.balance_of(accounts.alice), 110);
+        // Turn on error on _before_token_transfer
+        psp22.change_state_err_on_before();
+        // Alice gets an error on _before_token_transfer
+        assert_eq!(
+            psp22.mint(accounts.alice, 10),
+            Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
+        );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_mint() {
+        // Constructor works.
+        let mut psp22 = PSP22Struct::new(100);
+        let accounts = accounts();
+        // Can mint tokens
+        assert!(psp22.mint(accounts.alice, 10).is_ok());
+        assert_eq!(psp22.balance_of(accounts.alice), 110);
+        // Turn on error on _after_token_transfer
+        psp22.change_state_err_on_after();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            psp22.mint(accounts.alice, 10),
+            Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
+        );
     }
 }

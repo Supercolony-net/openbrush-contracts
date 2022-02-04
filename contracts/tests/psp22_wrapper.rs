@@ -2,6 +2,7 @@
 #[cfg(feature = "psp22")]
 #[brush::contract]
 mod psp22_wrapper {
+    use brush::test_utils::accounts;
     use contracts::psp22::extensions::wrapper::*;
     use ink_lang as ink;
 
@@ -52,13 +53,13 @@ mod psp22_wrapper {
 
         #[ink(message)]
         pub fn burn(&mut self, amount: Balance) -> Result<(), PSP22Error> {
-            self._burn(self.env().caller(), amount)
+            self._burn_from(self.env().caller(), amount)
         }
     }
 
     #[ink::test]
     fn deposit_for_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         let mut wrapper = PSP22WrapperStruct::new(AccountId::from([0x1; 32]));
 
         assert_eq!(wrapper.balance_of(accounts.alice), 0);
@@ -72,7 +73,7 @@ mod psp22_wrapper {
 
     #[ink::test]
     fn withdraw_to_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         let mut wrapper = PSP22WrapperStruct::new(AccountId::from([0x1; 32]));
 
         assert!(wrapper.deposit_for(accounts.alice, 100).is_ok());
@@ -86,7 +87,7 @@ mod psp22_wrapper {
 
     #[ink::test]
     fn recover_works() {
-        let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>().expect("Cannot get accounts");
+        let accounts = accounts();
         let mut wrapper = PSP22WrapperStruct::new(AccountId::from([0x1; 32]));
 
         assert!(wrapper.deposit_for(accounts.alice, 100).is_ok());

@@ -13,7 +13,6 @@ pub mod my_psp22_mintable {
     }
 
     impl PSP22 for MyPSP22 {}
-
     impl PSP22Mintable for MyPSP22 {}
 
     impl MyPSP22 {

@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { bnArg, expect, setupContract } from '../../helpers';
+import {bnArg, expect, fromSigner, setupContract} from '../../helpers'
 
 describe('MY_PSP22_MINTABLE', () => {
     async function setup() {
@@ -37,5 +37,4 @@ describe('MY_PSP22_MINTABLE', () => {
         // Assert - Sender balance is now 1
         await expect(query.totalSupply()).to.have.output(1001)
     })
-
 })

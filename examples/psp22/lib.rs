@@ -19,11 +19,11 @@ pub mod my_psp22 {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,
-            _from: &AccountId,
-            to: &AccountId,
+            _from: Option<&AccountId>,
+            to: Option<&AccountId>,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
-            if to == &self.hated_account {
+            if to == Some(&self.hated_account) {
                 return Err(PSP22Error::Custom(String::from("I hate this account!")))
             }
             Ok(())

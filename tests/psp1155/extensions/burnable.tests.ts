@@ -16,10 +16,9 @@ describe('MY_PSP1155_BURNABLE', () => {
         await contract.tx.transferFrom(sender.address, alice.address, tokenId, mintAmount, [])
         await expect(query.balanceOf(alice.address, tokenId)).to.have.output(mintAmount)
         await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(mintAmount2)
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
 
-        await contract.tx.burn([[tokenId2, mintAmount2]])
-        await contract.tx.burnFrom(alice.address, [[tokenId, mintAmount]])
+        await contract.tx.burn(sender.address, [[tokenId2, mintAmount2]])
+        await contract.tx.burn(alice.address, [[tokenId, mintAmount]])
 
         await expect(query.balanceOf(sender.address, tokenId)).to.have.output(0)
         await expect(query.balanceOf(alice.address, tokenId2)).to.have.output(0)
@@ -39,36 +38,13 @@ describe('MY_PSP1155_BURNABLE', () => {
         await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
             .to.have.output([0, amount2])
 
-        await contract.tx.burn([[token1, amount1], [token2, amount2]])
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
-        await contract.tx.burnFrom(alice.address, [[token1, 0], [token2, amount2]])
+        await contract.tx.burn(sender.address, [[token1, amount1], [token2, amount2]])
+        await contract.tx.burn(alice.address, [[token1, 0], [token2, amount2]])
 
         await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2]]))
             .to.have.output([0, 0])
         await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
             .to.have.output([0, 0])
-    })
-
-    it('Burn from without allowance should fail', async () => {
-        const { contract, accounts: [alice], query, defaultSigner: sender } = await setup()
-
-        let token1 = bnArg(0)
-        let token2 = bnArg(1)
-        let amount1 = 1
-        let amount2 = 20
-
-        await contract.tx.transferFrom(sender.address, alice.address, token1, amount1, [])
-        await contract.tx.transferFrom(sender.address, alice.address, token2, amount2, [])
-        await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
-            .to.have.output([amount1, amount2])
-
-        await expect(contract.tx.burnFrom(alice.address, [[token1, amount1], [token2, amount2]]))
-            .to.eventually.be.rejected
-        await expect(contract.tx.burnFrom(alice.address, [[token1, amount1]]))
-            .to.eventually.be.rejected
-
-        await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
-            .to.have.output([amount1, amount2])
     })
 
     it('Burn inssuficient balance should fail', async () => {
@@ -84,21 +60,19 @@ describe('MY_PSP1155_BURNABLE', () => {
         await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
             .to.have.output([0, 0])
 
-        await expect(contract.tx.burn([[token1, amount1 + 1], [token2, amount2]]))
+        await expect(contract.tx.burn(sender.address, [[token1, amount1 + 1], [token2, amount2]]))
             .to.eventually.be.rejected
-        await expect(contract.tx.burn([[token1, amount1 + 1]]))
+        await expect(contract.tx.burn(sender.address, [[token1, amount1 + 1]]))
             .to.eventually.be.rejected
 
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
-        await expect(contract.tx.burnFrom(alice.address, [[token1, amount1 + 1], [token2, amount2]]))
+        await expect(contract.tx.burn(alice.address, [[token1, amount1 + 1], [token2, amount2]]))
             .to.eventually.be.rejected
-        await expect(contract.tx.burnFrom(alice.address, [[token1, amount1 + 1]]))
+        await expect(contract.tx.burn(alice.address, [[token1, amount1 + 1]]))
             .to.eventually.be.rejected
 
         await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2]]))
             .to.have.output([amount1, amount2])
         await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
             .to.have.output([0, 0])
-
     })
 })

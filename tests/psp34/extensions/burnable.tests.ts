@@ -1,4 +1,4 @@
-import { bnArg, expect, setupContract, fromSigner } from '../../helpers'
+import { bnArg, expect, fromSigner, setupContract } from '../../helpers'
 
 describe('MY_PSP34_BURNABLE', () => {
   async function setup() {
@@ -14,7 +14,7 @@ describe('MY_PSP34_BURNABLE', () => {
 
     await expect(query.balanceOf(sender.address)).to.have.output(3)
 
-    await contract.tx.burn(0)
+    await contract.tx.burn(sender.address, 0)
 
     await expect(query.balanceOf(sender.address)).to.have.output(2)
   })
@@ -28,27 +28,9 @@ describe('MY_PSP34_BURNABLE', () => {
     } = await setup()
 
     await expect(query.balanceOf(sender.address)).to.have.output(3)
-    await contract.tx.setApprovalForAll(alice.address, true)
 
-    await fromSigner(contract, alice.address).tx.burnFrom(sender.address, 0)
+    await fromSigner(contract, alice.address).tx.burn(sender.address, 0)
 
     await expect(query.balanceOf(sender.address)).to.have.output(2)
   })
-
-  it('Burn from without allowance should fail', async () => {
-    const {
-      contract,
-      defaultSigner: sender,
-      accounts: [alice],
-      query
-    } = await setup()
-
-    await expect(query.balanceOf(sender.address)).to.have.output(3)
-
-    await expect(fromSigner(contract, alice.address).tx.burnFrom(sender.address, 0))
-      .to.eventually.be.rejected
-
-    await expect(query.balanceOf(sender.address)).to.have.output(3)
-  })
-
 })

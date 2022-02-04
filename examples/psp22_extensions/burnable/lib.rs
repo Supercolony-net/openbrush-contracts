@@ -4,7 +4,9 @@
 #[brush::contract]
 pub mod my_psp22_burnable {
     use brush::contracts::psp22::extensions::burnable::*;
-    use ink_prelude::vec::Vec;
+    use ink_prelude::{
+        vec::Vec,
+    };
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage)]
@@ -14,7 +16,6 @@ pub mod my_psp22_burnable {
     }
 
     impl PSP22 for MyPSP22 {}
-
     impl PSP22Burnable for MyPSP22 {}
 
     impl MyPSP22 {
@@ -28,7 +29,7 @@ pub mod my_psp22_burnable {
         #[ink(message)]
         pub fn burn_from_many(&mut self, accounts: Vec<(AccountId, Balance)>) -> Result<(), PSP22Error> {
             for account in accounts.iter() {
-                self.burn_from(account.0, account.1)?;
+                self.burn(account.0, account.1)?;
             }
             Ok(())
         }

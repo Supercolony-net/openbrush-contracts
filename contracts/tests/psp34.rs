@@ -51,6 +51,10 @@ mod psp34 {
     pub struct PSP34Struct {
         #[PSP34StorageField]
         psp34: PSP34Data,
+        // field for testing _before_token_transfer
+        return_err_on_before: bool,
+        // field for testing _after_token_transfer
+        return_err_on_after: bool,
     }
 
     impl PSP34Internal for PSP34Struct {
@@ -84,6 +88,30 @@ mod psp34 {
         ) -> Result<(), PSP34Error> {
             Ok(())
         }
+
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _id: &Id,
+        ) -> Result<(), PSP34Error> {
+            if self.return_err_on_before {
+                return Err(PSP34Error::Custom(String::from("Error on _before_token_transfer")))
+            }
+            Ok(())
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _id: &Id,
+        ) -> Result<(), PSP34Error> {
+            if self.return_err_on_after {
+                return Err(PSP34Error::Custom(String::from("Error on _after_token_transfer")))
+            }
+            Ok(())
+        }
     }
 
     impl PSP34 for PSP34Struct {}
@@ -92,6 +120,14 @@ mod psp34 {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self::default()
+        }
+
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
+        pub fn change_state_err_on_after(&mut self) {
+            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -107,7 +143,7 @@ mod psp34 {
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
         // Create token Id 1 for Alice
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
         // Alice owns token 1
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Bob does not owns any token
@@ -125,7 +161,7 @@ mod psp34 {
     }
 
     #[ink::test]
-    fn invalid_transfer_should_fail() {
+    fn not_exist_token_transfer_should_fail() {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
@@ -136,8 +172,15 @@ mod psp34 {
         );
         // Token Id 2 does not exists.
         assert_eq!(nft.owner_of(Id::U8(1u8)), None);
+    }
+
+    #[ink::test]
+    fn not_owned_token_transfer_should_fail() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP34Struct::new();
         // Create token Id 2.
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Token Id 2 is owned by Alice.
@@ -155,7 +198,7 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
 
         // Token 1 is not approved
         assert_eq!(nft.get_approved(Id::U8(1u8)), None);
@@ -171,7 +214,7 @@ mod psp34 {
         let mut nft = PSP34Struct::new();
         assert_eq!(nft.approve(accounts.bob, Id::U8(1u8)), Err(PSP34Error::TokenNotExists));
 
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
         assert_eq!(nft.approve(accounts.alice, Id::U8(1u8)), Err(PSP34Error::SelfApprove));
 
         change_caller(accounts.bob);
@@ -183,8 +226,8 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // Token Id 1 is owned by Alice.
         assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.alice));
         // Approve token Id 1 transfer for Bob on behalf of Alice.
@@ -207,12 +250,13 @@ mod psp34 {
 
     #[ink::test]
     fn total_supply_works() {
+        let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
         assert_eq!(nft.total_supply(), 0);
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
-        assert!(nft._mint(Id::U8(3u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(3u8)).is_ok());
         // 3 tokens minted in total
         assert_eq!(nft.total_supply(), 3)
     }
@@ -222,8 +266,8 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Approve token Id 1 transfer for Bob on behalf of Alice.
@@ -261,8 +305,8 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert!(nft._mint(Id::U8(1u8)).is_ok());
-        assert!(nft._mint(Id::U8(2u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Bob does not owns tokens.
@@ -275,6 +319,50 @@ mod psp34 {
         assert_eq!(
             nft.transfer_from(accounts.alice, accounts.frank, Id::U8(1u8), vec![]),
             Err(PSP34Error::NotApproved)
+        );
+    }
+
+    #[ink::test]
+    fn before_token_transfer_should_fail_transfer() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP34Struct::new();
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(4u8)).is_ok());
+        // Alice owns 2 tokens.
+        assert_eq!(nft.balance_of(accounts.alice), 2);
+        // Alice can transfer token
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.bob, Id::U8(1u8), vec![])
+            .is_ok());
+        // Turn on error on _before_token_transfer
+        nft.change_state_err_on_before();
+        // Alice gets an error on _before_token_transfer
+        assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.bob, Id::U8(4u8), vec![]),
+            Err(PSP34Error::Custom(String::from("Error on _before_token_transfer")))
+        );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_transfer() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP34Struct::new();
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(4u8)).is_ok());
+        // Alice owns 2 tokens.
+        assert_eq!(nft.balance_of(accounts.alice), 2);
+        // Alice can transfer token
+        assert!(nft
+            .transfer_from(accounts.alice, accounts.bob, Id::U8(1u8), vec![])
+            .is_ok());
+        // Turn on error on _after_token_transfer
+        nft.change_state_err_on_after();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            nft.transfer_from(accounts.alice, accounts.bob, Id::U8(4u8), vec![]),
+            Err(PSP34Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }
 }

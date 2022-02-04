@@ -48,7 +48,7 @@ impl<T: PSP22 + PSP22Internal + Flush> FlashLender for T {
             Self::env().account_id(),
             current_allowance - amount - fee,
         )?;
-        self._burn(receiver_account, amount + fee)?;
+        self._burn_from(receiver_account, amount + fee)?;
         Ok(())
     }
 }

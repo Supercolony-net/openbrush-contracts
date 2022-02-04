@@ -119,8 +119,15 @@ pub trait PSP22Internal {
 
     fn _before_token_transfer(
         &mut self,
-        _from: &AccountId,
-        _to: &AccountId,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
         _amount: &Balance,
     ) -> Result<(), PSP22Error>;
 
@@ -135,8 +142,6 @@ pub trait PSP22Internal {
     fn _approve_from_to(&mut self, owner: AccountId, spender: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
     fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
-
-    fn _burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
     fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
@@ -185,8 +190,17 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
 
     default fn _before_token_transfer(
         &mut self,
-        _from: &AccountId,
-        _to: &AccountId,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
         _amount: &Balance,
     ) -> Result<(), PSP22Error> {
         Ok(())
@@ -206,22 +220,21 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        self._before_token_transfer(&from, &to, &amount)?;
-
         let from_balance = self.balance_of(from);
 
         if from_balance < amount {
             return Err(PSP22Error::InsufficientBalance)
         }
 
-        self._do_safe_transfer_check(from, to, amount, data)?;
+        self._before_token_transfer(Some(&from), Some(&to), &amount)?;
 
+        self._do_safe_transfer_check(from, to, amount, data)?;
         self.get_mut().balances.insert(from, from_balance - amount);
         let to_balance = self.balance_of(to);
         self.get_mut().balances.insert(to, to_balance + amount);
 
         self._emit_transfer_event(Some(from), Some(to), amount);
-        Ok(())
+        self._after_token_transfer(Some(&from), Some(&to), &amount)
     }
 
     default fn _approve_from_to(
@@ -247,15 +260,16 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
+        self._before_token_transfer(None, Some(&account), &amount)?;
         let mut new_balance = self.balance_of(account);
         new_balance += amount;
         self.get_mut().balances.insert(account, new_balance);
         self.get_mut().supply += amount;
         self._emit_transfer_event(None, Some(account), amount);
-        Ok(())
+        self._after_token_transfer(None, Some(&account), &amount)
     }
 
-    default fn _burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+    default fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         if account.is_zero() {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
@@ -266,23 +280,13 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
             return Err(PSP22Error::InsufficientBalance)
         }
 
+        self._before_token_transfer(Some(&account), None, &amount)?;
+
         from_balance -= amount;
         self.get_mut().balances.insert(account, from_balance);
         self.get_mut().supply -= amount;
         self._emit_transfer_event(Some(account), None, amount);
-        Ok(())
-    }
 
-    default fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        let caller = Self::env().caller();
-        let current_allowance = self.allowance(account, caller);
-
-        if current_allowance < amount {
-            return Err(PSP22Error::InsufficientAllowance)
-        }
-
-        let new_amount = current_allowance - amount;
-        self._approve_from_to(account, caller, new_amount)?;
-        self._burn(account, amount)
+        self._after_token_transfer(Some(&account), None, &amount)
     }
 }

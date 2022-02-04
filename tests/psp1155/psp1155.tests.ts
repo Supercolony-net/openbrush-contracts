@@ -193,5 +193,4 @@ describe('MY_PSP1155', () => {
         await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
             .to.have.output([0, 0])
     })
-
 })
