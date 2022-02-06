@@ -9,7 +9,7 @@ pub type Balance = <DefaultEnvironment as Environment>::Balance;
 pub type Hash = <DefaultEnvironment as Environment>::Hash;
 pub type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
 pub type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
-pub type RentFraction = <DefaultEnvironment as Environment>::RentFraction;
+pub type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 pub type EnvAccess = ::ink_lang::EnvAccess<'static, DefaultEnvironment>;
 
 #[crate::trait_definition]

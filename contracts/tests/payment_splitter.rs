@@ -8,7 +8,7 @@ mod payment_splitter {
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
 
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
@@ -63,7 +63,7 @@ mod payment_splitter {
         }
     }
 
-    type Event = <MySplitter as ::ink_lang::BaseEvent>::Type;
+    type Event = <MySplitter as ::ink_lang::reflect::ContractEventBase>::Type;
 
     fn setup() -> DefaultAccounts<DefaultEnvironment> {
         let accounts = accounts();

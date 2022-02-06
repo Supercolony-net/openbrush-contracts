@@ -19,7 +19,7 @@ pub mod shares {
     use brush::modifiers;
 
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_lang::Env;
+    use ink_lang::codegen::Env;
 
     use ink_prelude::string::String;
 

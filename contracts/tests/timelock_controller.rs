@@ -11,7 +11,7 @@ mod timelock_controller {
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
 
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
@@ -61,7 +61,7 @@ mod timelock_controller {
         timelock: TimelockControllerData,
     }
 
-    type Event = <TimelockControllerStruct as ::ink_lang::BaseEvent>::Type;
+    type Event = <TimelockControllerStruct as ::ink_lang::reflect::ContractEventBase>::Type;
 
     impl AccessControl for TimelockControllerStruct {}
     impl TimelockController for TimelockControllerStruct {}

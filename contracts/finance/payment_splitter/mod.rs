@@ -53,7 +53,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
     }
 
     default fn receive(&mut self) {
-        self._emit_payee_added_event(Self::env().caller(), Self::env().transferred_balance())
+        self._emit_payee_added_event(Self::env().caller(), Self::env().transferred_value())
     }
 
     default fn release(&mut self, account: AccountId) -> Result<(), PaymentSplitterError> {
@@ -63,7 +63,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
 
         let current_balance = Self::env()
             .balance()
-            .checked_sub(Self::env().minimum_balance() + Self::env().tombstone_deposit())
+            .checked_sub(Self::env().minimum_balance())
             .unwrap_or_default();
         let total_received = current_balance + self.get().total_released;
         let shares = self.get().shares.get(&account).unwrap().clone();

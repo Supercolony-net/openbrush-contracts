@@ -8,7 +8,7 @@ mod pausable {
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
 
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
@@ -61,7 +61,7 @@ mod pausable {
         }
     }
 
-    type Event = <MyFlipper as ::ink_lang::BaseEvent>::Type;
+    type Event = <MyFlipper as ::ink_lang::reflect::ContractEventBase>::Type;
 
     fn assert_paused_event(event: &ink_env::test::EmittedEvent, expected_account: AccountId) {
         if let Event::Paused(Paused { account }) = <Event as scale::Decode>::decode(&mut &event.data[..])

@@ -7,7 +7,7 @@ mod psp34 {
         change_caller,
     };
     use contracts::psp34::*;
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };

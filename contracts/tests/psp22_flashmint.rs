@@ -5,7 +5,7 @@ mod psp22_flashmint {
     use brush::test_utils::accounts;
     use contracts::psp22::extensions::flashmint::*;
     use ink_lang as ink;
-    use ink_lang::Env;
+    use ink_lang::codegen::Env;
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage)]

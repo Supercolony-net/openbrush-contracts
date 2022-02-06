@@ -7,7 +7,7 @@ mod psp1155 {
         change_caller,
     };
     use contracts::psp1155::*;
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
@@ -154,7 +154,7 @@ mod psp1155 {
         }
     }
 
-    type Event = <PSP1155Struct as ::ink_lang::BaseEvent>::Type;
+    type Event = <PSP1155Struct as ::ink_lang::reflect::ContractEventBase>::Type;
 
     #[ink::test]
     fn balance_of() {

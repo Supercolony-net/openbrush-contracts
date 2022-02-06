@@ -3,7 +3,7 @@
 #[brush::contract]
 pub mod flash_borrower {
     use brush::contracts::psp22::extensions::flashmint::*;
-    use ink_lang::Env;
+    use ink_lang::codegen::Env;
     use ink_prelude::{
         string::String,
         vec::Vec,

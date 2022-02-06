@@ -4,7 +4,7 @@
 mod psp22_mintable {
     use brush::test_utils::*;
     use contracts::psp22::extensions::mintable::*;
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
@@ -32,7 +32,7 @@ mod psp22_mintable {
         return_err_on_after: bool,
     }
 
-    type Event = <PSP22Struct as ::ink_lang::BaseEvent>::Type;
+    type Event = <PSP22Struct as ::ink_lang::reflect::ContractEventBase>::Type;
 
     impl PSP22Internal for PSP22Struct {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {

@@ -197,7 +197,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 syn::ReturnType::Type(_, return_type) => quote! { ::ink_env::call::utils::ReturnType<#return_type> },
             };
             let selector_string = format!("{}::{}", trait_ident, message_ident);
-            let selector_bytes = ::ink_lang_ir::Selector::new(&selector_string.into_bytes()).hex_lits();
+            let selector_bytes = ::ink_lang_ir::Selector::compute(&selector_string.into_bytes()).hex_lits();
             let input_bindings = method
                 .sig
                 .inputs
@@ -323,7 +323,7 @@ fn add_selectors_attribute(trait_item: &mut ItemTrait) {
 
                 if contains_selector.is_none() {
                     let selector_string = format!("{}::{}", trait_ident, method.sig.ident);
-                    let selector_id = ::ink_lang_ir::Selector::new(&selector_string.into_bytes()).into_be_u32();
+                    let selector_id = ::ink_lang_ir::Selector::compute(&selector_string.into_bytes()).into_be_u32();
                     method.attrs.push(crate::internal::new_attribute(
                         quote! { #[ink(selector = #selector_id)] },
                     ));
