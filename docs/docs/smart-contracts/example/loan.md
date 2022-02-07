@@ -135,7 +135,7 @@ pub mod loan {
         vec::Vec,
     };
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_storage::collections::HashMap as StorageHashMap;
+    use ink_storage::Mapping;
     use lending_project::traits::loan::*;
 ```
 You can notice that we marked some imports with `#[cfg(not(feature = "ink-as-dependency"))]`.
@@ -165,7 +165,7 @@ pub struct LoanContract {
 
     // Fields of current contract
     /// mapping from token id to `LoanInfo`
-    loan_info: StorageHashMap<Id, LoanInfo>,
+    loan_info: Mapping<Id, LoanInfo>,
     /// the id of last loan
     last_loan_id: Id,
     /// ids no longer used (can be reused)

@@ -18,7 +18,7 @@ pub mod loan {
         vec::Vec,
     };
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_storage::collections::HashMap as StorageHashMap;
+    use ink_storage::Mapping;
     use lending_project::traits::loan::*;
 
     /// Define the storage for PSP34 data, Metadata data and Ownable data
@@ -34,7 +34,7 @@ pub mod loan {
 
         // Fields of current contract
         /// mapping from token id to `LoanInfo`
-        loan_info: StorageHashMap<Id, LoanInfo>,
+        loan_info: Mapping<Id, LoanInfo>,
         /// the id of last loan
         last_loan_id: Id,
         /// ids no longer used (can be reused)
@@ -106,7 +106,7 @@ pub mod loan {
                 psp34: PSP34Data::default(),
                 ownable: OwnableData::default(),
                 metadata: PSP34MetadataData::default(),
-                loan_info: StorageHashMap::default(),
+                loan_info: Mapping::default(),
                 last_loan_id: Id::U8(1u8),
                 freed_ids: Vec::new(),
             };

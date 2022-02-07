@@ -17,7 +17,7 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
+    Mapping,
     traits::SpreadLayout,
 };
 
@@ -27,8 +27,8 @@ use ink_storage::traits::StorageLayout;
 #[derive(Default, Debug, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP1155Data {
-    pub balances: StorageHashMap<(Id, AccountId), Balance>,
-    pub operator_approval: StorageHashMap<(AccountId, AccountId), bool>,
+    pub balances: Mapping<(Id, AccountId), Balance>,
+    pub operator_approval: Mapping<(AccountId, AccountId), bool>,
 }
 
 declare_storage_trait!(PSP1155Storage, PSP1155Data);
@@ -51,7 +51,7 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
         if caller == operator {
             return Err(PSP1155Error::NotAllowed)
         }
-        self.get_mut().operator_approval.insert((caller, operator), approved);
+        self.get_mut().operator_approval.insert((caller, operator), &approved);
 
         self._emit_approval_for_all_event(caller, operator, approved);
         Ok(())
@@ -282,20 +282,19 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
     }
 
     default fn _balance_of_or_zero(&self, owner: AccountId, id: Id) -> Balance {
-        self.get().balances.get(&(id, owner)).cloned().unwrap_or(0)
+        self.get().balances.get(&(id, owner)).unwrap_or(0)
     }
 
     default fn _is_approved_for_all(&self, account: AccountId, operator: AccountId) -> bool {
         self.get()
             .operator_approval
             .get(&(account, operator))
-            .cloned()
             .unwrap_or(false)
     }
 
     default fn _increase_receiver_balance(&mut self, to: AccountId, id: Id, amount: Balance) {
-        let to_balance = self.get_mut().balances.get(&(id, to)).cloned().unwrap_or(0);
-        self.get_mut().balances.insert((id, to), to_balance + amount);
+        let to_balance = self.get_mut().balances.get(&(id, to)).unwrap_or(0);
+        self.get_mut().balances.insert((id, to), &(to_balance + amount));
     }
 
     default fn _decrease_sender_balance(
@@ -309,7 +308,7 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
             return Err(PSP1155Error::InsufficientBalance)
         }
 
-        self.get_mut().balances.insert((id, from), balance - amount);
+        self.get_mut().balances.insert((id, from), &(balance - amount));
         Ok(())
     }
 

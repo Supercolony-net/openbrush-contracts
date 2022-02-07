@@ -29,7 +29,7 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
+    Mapping,
     traits::SpreadLayout,
 };
 use scale::Encode;
@@ -41,7 +41,7 @@ use ink_storage::traits::StorageLayout;
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct TimelockControllerData {
     pub min_delay: Timestamp,
-    pub timestamps: StorageHashMap<OperationId, Timestamp>,
+    pub timestamps: Mapping<OperationId, Timestamp>,
 }
 
 declare_storage_trait!(TimelockControllerStorage, TimelockControllerData);
@@ -91,7 +91,6 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         TimelockControllerStorage::get(self)
             .timestamps
             .get(&id)
-            .cloned()
             .unwrap_or(Timestamp::default())
     }
 
@@ -156,7 +155,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         if !self.is_operation_pending(id) {
             return Err(TimelockControllerError::OperationCannonBeCanceled)
         }
-        TimelockControllerStorage::get_mut(self).timestamps.take(&id);
+        TimelockControllerStorage::get_mut(self).timestamps.remove(id);
 
         self._emit_cancelled_event(id);
         Ok(())
@@ -373,7 +372,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
 
         TimelockControllerStorage::get_mut(self)
             .timestamps
-            .insert(id, Self::env().block_timestamp() + delay);
+            .insert(id, &(Self::env().block_timestamp() + delay));
         Ok(())
     }
 
@@ -391,7 +390,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
 
         TimelockControllerStorage::get_mut(self)
             .timestamps
-            .insert(id, Self::_done_timestamp());
+            .insert(id, &Self::_done_timestamp());
         Ok(())
     }
 

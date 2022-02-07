@@ -8,14 +8,14 @@ pub mod my_psp1155 {
         string::String,
         vec,
     };
-    use ink_storage::collections::HashMap as StorageHashMap;
+    use ink_storage::Mapping;
 
     #[derive(Default, PSP1155Storage)]
     #[ink(storage)]
     pub struct MyPSP1155 {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
-        denied_ids: StorageHashMap<Id, ()>,
+        denied_ids: Mapping<Id, ()>,
     }
 
     impl PSP1155 for MyPSP1155 {}
