@@ -5,9 +5,10 @@
 pub mod my_psp22 {
     use brush::contracts::psp22::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage)]
     pub struct MyPSP22 {
         #[PSP22StorageField]
         psp22: PSP22Data,
@@ -35,11 +36,11 @@ pub mod my_psp22 {
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            let mut instance = Self::default();
-            instance
-                ._mint(instance.env().caller(), total_supply)
-                .expect("Should mint");
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+                instance
+                    ._mint(instance.env().caller(), total_supply)
+                    .expect("Should mint");
+            })
         }
 
         #[ink(message)]

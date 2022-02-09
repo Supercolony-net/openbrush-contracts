@@ -24,14 +24,17 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
     Mapping,
-    traits::SpreadLayout,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22Data {
     pub supply: Balance,
@@ -256,7 +259,6 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
     }
 
     default fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-
         if account.is_zero() {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
