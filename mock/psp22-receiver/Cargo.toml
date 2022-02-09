@@ -2,7 +2,7 @@
 name = "psp22_receiver"
 version = "1.2.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }

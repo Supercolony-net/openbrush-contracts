@@ -2,7 +2,7 @@
 name = "derive"
 version = "1.2.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 syn = { version = "1.0" }

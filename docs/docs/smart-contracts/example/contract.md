@@ -18,7 +18,7 @@ implementation of `Lending` and `LendingPermissioned` traits defined in the `len
 name = "lending_contract"
 version = "1.0.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 ink_primitives = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }

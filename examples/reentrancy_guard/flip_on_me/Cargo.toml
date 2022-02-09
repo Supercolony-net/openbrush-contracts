@@ -2,7 +2,7 @@
 name = "flip_on_me"
 version = "1.2.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 ink_primitives = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }

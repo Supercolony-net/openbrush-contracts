@@ -2,7 +2,7 @@
 name = "my_psp22_metadata"
 version = "1.2.0"
 authors = ["Supercolony <m.konstantinovna@supercolony.net>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 ink_primitives = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
