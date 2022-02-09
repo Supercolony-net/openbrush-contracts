@@ -20,7 +20,7 @@ mod reentrancy_guard {
         }
 
         #[ink(message)]
-        #[brush::modifiers(non_reentrant)]
+        //#[brush::modifiers(non_reentrant)]
         pub fn flip(&mut self) -> Result<bool, ReentrancyGuardError> {
             let previous = self.flipped;
             self.flipped = !previous;
@@ -29,7 +29,7 @@ mod reentrancy_guard {
         }
 
         #[ink(message)]
-        #[brush::modifiers(non_reentrant)]
+        //#[brush::modifiers(non_reentrant)]
         pub fn call_flip_after_lock(&mut self) -> Result<bool, ReentrancyGuardError> {
             self.flip()
         }

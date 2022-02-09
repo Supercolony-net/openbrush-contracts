@@ -40,7 +40,7 @@ mod pausable {
         }
 
         #[ink(message)]
-        #[brush::modifiers(when_paused)]
+        //#[brush::modifiers(when_paused)]
         pub fn flip(&mut self) -> Result<bool, PausableError> {
             let previous = self.flipped;
             self.flipped = !previous;
