@@ -199,7 +199,7 @@ pub(crate) fn impl_external_trait(
                 );
                 let mut attrs = method.attrs.clone();
                 method.attrs = extract_attr(&mut attrs, "doc");
-                method.attrs.append(&mut extract_attr(&mut attrs, "ink"));
+                method.attrs = extract_attr(&mut attrs, "ink");
                 ink_methods.insert(method.sig.ident.to_string(), method);
             }
         });
@@ -227,7 +227,7 @@ pub(crate) fn impl_external_trait(
 
     let ink_methods_iter = ink_methods.iter().map(|(_, value)| value);
 
-    let self_ty = impl_item.self_ty.clone().as_ref().clone();
+    let self_ty = impl_item.self_ty.as_ref().clone();
     let external_impl: ItemImpl = syn::parse2(quote! {
         #(#impl_ink_attrs)*
         impl #trait_path for #self_ty {
