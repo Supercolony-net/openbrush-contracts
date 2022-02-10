@@ -12,13 +12,16 @@ pub use derive::PaymentSplitterStorage;
 use ink_prelude::vec::Vec;
 use ink_storage::{
     Mapping,
-    traits::SpreadLayout,
+    traits::{
+        SpreadLayout,
+        SpreadAllocate,
+    },
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PaymentSplitterData {
     pub total_shares: Balance,

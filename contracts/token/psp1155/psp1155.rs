@@ -18,13 +18,16 @@ use ink_prelude::{
 };
 use ink_storage::{
     Mapping,
-    traits::SpreadLayout,
+    traits::{
+        SpreadLayout,
+        SpreadAllocate,
+    },
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP1155Data {
     pub balances: Mapping<(Id, AccountId), Balance>,

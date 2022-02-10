@@ -11,6 +11,7 @@ mod psp1155 {
         EmitEvent,
         Env,
     };
+    use ink_storage::traits::SpreadAllocate;
     use ink_lang as ink;
 
     #[ink(event)]
@@ -43,7 +44,7 @@ mod psp1155 {
         approved: bool,
     }
 
-    #[derive(Default, PSP1155Storage)]
+    #[derive(Default, SpreadAllocate, PSP1155Storage)]
     #[ink(storage)]
     pub struct PSP1155Struct {
         #[PSP1155StorageField]
@@ -137,7 +138,7 @@ mod psp1155 {
     impl PSP1155Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut PSP1155Struct| {})
         }
 
         #[ink(message)]
