@@ -56,7 +56,7 @@ pub mod my_flipper_guard {
         }
 
         #[ink(message)]
-        //#[brush::modifiers(non_reentrant)]
+        #[brush::modifiers(non_reentrant)]
         fn flip(&mut self) -> Result<(), ReentrancyGuardError> {
             *self.value_mut() = !self.value().clone();
             Ok(())

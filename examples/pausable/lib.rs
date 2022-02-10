@@ -20,7 +20,7 @@ pub mod my_pausable {
         }
 
         #[ink(message)]
-        //#[brush::modifiers(when_not_paused)]
+        #[brush::modifiers(when_not_paused)]
         pub fn flip(&mut self) -> Result<(), PausableError> {
             self.flipped = !self.flipped;
             Ok(())
