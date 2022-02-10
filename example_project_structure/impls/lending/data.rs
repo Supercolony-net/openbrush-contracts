@@ -13,7 +13,10 @@ use brush::{
 };
 use ink_storage::{
     Mapping,
-    traits::SpreadLayout,
+    traits::{
+        SpreadLayout,
+        SpreadAllocate,
+    },
 };
 // it is public because when you will import the trait you also will import the derive for the trait
 pub use lending_project_derive::LendingStorage;
@@ -21,7 +24,7 @@ pub use lending_project_derive::LendingStorage;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 /// define the struct with the data that our smart contract will be using
 /// this will isolate the logic of our smart contract from its storage
@@ -58,7 +61,7 @@ declare_storage_trait!(LendingStorage, LendingData);
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
 pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-    instance.get_mut().asset_price.insert((asset_in, asset_out), price);
+    instance.get_mut().asset_price.insert((asset_in, asset_out), &price);
 }
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
@@ -73,7 +76,6 @@ pub fn get_asset_price<T: LendingStorage>(
         .get()
         .asset_price
         .get(&(asset_in, asset_out))
-        .cloned()
         .unwrap_or(0);
     price * amount_in
 }
@@ -88,7 +90,6 @@ pub fn get_reserve_asset<T: LendingStorage>(
         .get()
         .asset_shares
         .get(asset_address)
-        .cloned()
         .unwrap_or(ZERO_ADDRESS.into());
     if reserve_asset.is_zero() {
         return Err(LendingError::AssetNotSupported)
@@ -106,7 +107,6 @@ pub fn get_asset_from_shares<T: LendingStorage>(
         .get()
         .shares_asset
         .get(&shares_address)
-        .cloned()
         .unwrap_or(ZERO_ADDRESS.into());
     if token.is_zero() {
         return Err(LendingError::AssetNotSupported)

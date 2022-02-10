@@ -8,6 +8,8 @@ pub mod loan {
         ownable::*,
         psp34::extensions::metadata::*,
     };
+    use ink_storage::traits::SpreadAllocate;
+    use ink_storage::Mapping;
 
     #[cfg(not(feature = "ink-as-dependency"))]
     use brush::modifiers;
@@ -18,12 +20,11 @@ pub mod loan {
         vec::Vec,
     };
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_storage::Mapping;
     use lending_project::traits::loan::*;
 
     /// Define the storage for PSP34 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
+    #[derive(SpreadAllocate, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
     pub struct LoanContract {
         #[PSP34StorageField]
         psp34: PSP34Data,
@@ -102,16 +103,15 @@ pub mod loan {
         /// constructor with name and symbol
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self {
-                psp34: PSP34Data::default(),
-                ownable: OwnableData::default(),
-                metadata: PSP34MetadataData::default(),
-                loan_info: Mapping::default(),
-                last_loan_id: Id::U8(1u8),
-                freed_ids: Vec::new(),
-            };
-            instance._set_attribute(Id::U8(1u8), String::from("LoanContract NFT").into_bytes(), String::from("L-NFT").into_bytes());
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut LoanContract| {
+                instance.psp34 = PSP34Data::default();
+                instance.ownable = OwnableData::default();
+                instance.metadata = PSP34MetadataData::default();
+                instance.loan_info = Mapping::default();
+                instance.last_loan_id = Id::U8(1u8);
+                instance.freed_ids = Vec::new();
+                instance._set_attribute(Id::U8(1u8), String::from("LoanContract NFT").into_bytes(), String::from("L-NFT").into_bytes());
+            })
         }
 
         /// internal function to update data of a loan

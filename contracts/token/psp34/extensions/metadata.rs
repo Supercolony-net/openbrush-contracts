@@ -10,11 +10,14 @@ pub use derive::{
 use ink_prelude::vec::Vec;
 use ink_storage::Mapping;
 
-use ink_storage::traits::SpreadLayout;
+use ink_storage::traits::{
+    SpreadLayout,
+    SpreadAllocate,
+};
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP34MetadataData {
     pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>>,
