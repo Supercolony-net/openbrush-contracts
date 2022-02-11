@@ -8,18 +8,17 @@ pub mod loan {
         ownable::*,
         psp34::extensions::metadata::*,
     };
-    use ink_storage::traits::SpreadAllocate;
-    use ink_storage::Mapping;
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use brush::modifiers;
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
-    #[cfg(not(feature = "ink-as-dependency"))]
     use lending_project::traits::loan::*;
 
     /// Define the storage for PSP34 data, Metadata data and Ownable data
@@ -60,14 +59,14 @@ pub mod loan {
                 return Err(PSP34Error::Custom(String::from("This loan id already exists!")))
             }
             loan_info.liquidated = false;
-            self.loan_info.insert(loan_id.clone(), loan_info.clone());
+            self.loan_info.insert(loan_id.clone(), &loan_info);
             self._mint_to(loan_info.borrower, loan_id.clone())
         }
 
         #[modifiers(only_owner)]
         #[ink(message)]
         fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP34Error> {
-            self.loan_info.take(&loan_id);
+            self.loan_info.remove(&loan_id);
             self._burn_from(initiator, loan_id)
         }
 
@@ -95,7 +94,7 @@ pub mod loan {
             if loan_info.is_none() {
                 return Err(PSP34Error::Custom(String::from("Loan does not exist")))
             }
-            Ok(loan_info.cloned().unwrap())
+            Ok(loan_info.unwrap())
         }
     }
 
@@ -110,7 +109,11 @@ pub mod loan {
                 instance.loan_info = Mapping::default();
                 instance.last_loan_id = Id::U8(1u8);
                 instance.freed_ids = Vec::new();
-                instance._set_attribute(Id::U8(1u8), String::from("LoanContract NFT").into_bytes(), String::from("L-NFT").into_bytes());
+                instance._set_attribute(
+                    Id::U8(1u8),
+                    String::from("LoanContract NFT").into_bytes(),
+                    String::from("L-NFT").into_bytes(),
+                );
             })
         }
 
@@ -128,12 +131,12 @@ pub mod loan {
                 return Err(PSP34Error::Custom(String::from("This loan does not exist!")))
             }
 
-            let mut loan_info = loan_info.cloned().unwrap();
+            let mut loan_info = loan_info.unwrap();
             loan_info.collateral_amount = new_collateral_amount;
             loan_info.borrow_amount = new_borrow_amount;
             loan_info.timestamp = new_timestamp;
 
-            self.loan_info.insert(loan_id, loan_info);
+            self.loan_info.insert(loan_id, &loan_info);
 
             Ok(())
         }
@@ -146,10 +149,10 @@ pub mod loan {
                 return Err(PSP34Error::Custom(String::from("This loan does not exist!")))
             }
 
-            let mut loan_info = loan_info.cloned().unwrap();
+            let mut loan_info = loan_info.unwrap();
             loan_info.liquidated = true;
 
-            self.loan_info.insert(loan_id, loan_info);
+            self.loan_info.insert(loan_id, &loan_info);
 
             Ok(())
         }
@@ -167,8 +170,8 @@ pub mod loan {
                         return Err(PSP34Error::Custom(String::from("Max Id reached!")))
                     }
                     self.last_loan_id = Id::U8(v + 1);
-                },
-                _ => {},
+                }
+                _ => {}
             };
             Ok(current)
         }

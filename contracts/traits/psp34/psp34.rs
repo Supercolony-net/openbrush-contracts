@@ -7,13 +7,16 @@ use brush::traits::{
     Balance,
 };
 use ink_prelude::vec::Vec;
+use ink_primitives::Key;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 use ink_storage::traits::{
+    ExtKeyPtr,
     KeyPtr,
+    PackedAllocate,
     PackedLayout,
-    SpreadLayout,
     SpreadAllocate,
+    SpreadLayout,
 };
 
 /// `Id` represents the identifier of the NFT. `Id::U8(1)` and `Id::U16(1)` are two different identifiers.
@@ -30,9 +33,13 @@ pub enum Id {
 
 impl SpreadAllocate for Id {
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        ptr.advance_by(<Id as SpreadLayout>::FOOTPRINT);
+        ptr.next_for::<Id>();
         Id::U8(0)
     }
+}
+impl PackedAllocate for Id {
+    #[inline]
+    fn allocate_packed(&mut self, _at: &Key) {}
 }
 
 #[brush::wrapper]

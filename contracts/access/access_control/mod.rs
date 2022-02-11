@@ -7,14 +7,17 @@ use brush::{
 };
 pub use derive::AccessControlStorage;
 use ink_storage::{
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
     Mapping,
-    traits::SpreadLayout,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct AccessControlData {
     pub admin_roles: Mapping<RoleType, RoleType>,
@@ -164,9 +167,5 @@ pub fn has_role<T: AccessControlStorage>(instance: &T, role: &RoleType, account:
 }
 
 pub fn get_role_admin<T: AccessControlStorage>(instance: &T, role: &RoleType) -> RoleType {
-    instance
-        .get()
-        .admin_roles
-        .get(role)
-        .unwrap_or(T::_default_admin())
+    instance.get().admin_roles.get(role).unwrap_or(T::_default_admin())
 }

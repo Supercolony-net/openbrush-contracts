@@ -132,12 +132,11 @@ impl Attributes {
     }
 }
 
-// Returns "ink-as-dependency" and not("ink-as-dependency") impls
 pub(crate) fn impl_external_trait(
     mut impl_item: syn::ItemImpl,
     trait_path: &syn::Path,
     metadata: &Metadata,
-) -> (Vec<syn::Item>, Vec<syn::Item>) {
+) -> Vec<syn::Item> {
     let trait_ident = trait_path.segments.last().expect("Trait path is empty").ident.clone();
     let namespace_ident = format_ident!("{}_external", trait_ident.to_string().to_lowercase());
     let original_trait_path = trait_path.segments.clone();
@@ -205,7 +204,7 @@ pub(crate) fn impl_external_trait(
         });
 
     if ink_methods.is_empty() {
-        return (vec![], vec![syn::Item::from(impl_item)])
+        return vec![syn::Item::from(impl_item)]
     }
 
     // Move ink! attrs from internal trait to external
@@ -236,23 +235,12 @@ pub(crate) fn impl_external_trait(
     })
     .unwrap();
 
-    let ink_methods_iter = ink_methods.iter().map(|(_, value)| value);
-    let as_dependency_ident = format_ident!("{}AsDependency", trait_ident);
-    let ink_as_dependency_impl: ItemImpl = syn::parse2(quote! {
-        #(#impl_ink_attrs)*
-        impl #as_dependency_ident for #self_ty {
-            #(#ink_methods_iter)*
-        }
-    })
-    .unwrap();
-
-    // Internal implementation must be disable during "ink-as-dependency"
     let internal_impl = impl_item;
 
-    (
-        vec![syn::Item::from(ink_as_dependency_impl)],
-        vec![syn::Item::from(internal_impl), syn::Item::from(external_impl)],
-    )
+    vec![
+        syn::Item::from(internal_impl.clone()),
+        syn::Item::from(external_impl.clone()),
+    ]
 }
 
 #[inline]

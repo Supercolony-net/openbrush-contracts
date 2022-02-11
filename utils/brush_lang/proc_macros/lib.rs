@@ -19,8 +19,6 @@ use proc_macro::TokenStream;
 /// After consumption, it pastes ink! code and then ink!'s macros will be processed.
 ///
 /// This macro consumes impl section for traits defined with [`#[brush::trait_definition]`](`macro@crate::trait_definition`).
-///
-/// Also, this macro marks each non-ink! implementation section with `#[cfg(not(feature = "ink-as-dependency"))]`.
 #[proc_macro_attribute]
 pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
     contract::generate(_attrs, ink_module)

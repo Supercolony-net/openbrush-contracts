@@ -6,25 +6,19 @@
 /// the amount of borrowed tokens
 #[brush::contract]
 pub mod shares {
-    use brush::contracts::{
-        ownable::*,
-        psp22::extensions::{
-            burnable::*,
-            metadata::*,
-            mintable::*,
+    use brush::{
+        contracts::{
+            ownable::*,
+            psp22::extensions::{
+                burnable::*,
+                metadata::*,
+                mintable::*,
+            },
         },
+        modifiers,
     };
-    use ink_storage::traits::SpreadAllocate;
-
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use brush::modifiers;
-
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_lang::codegen::Env;
-
     use ink_prelude::string::String;
-
-    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_storage::traits::SpreadAllocate;
     use lending_project::traits::shares::*;
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data

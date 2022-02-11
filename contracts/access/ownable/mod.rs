@@ -11,8 +11,8 @@ use brush::{
 };
 pub use derive::OwnableStorage;
 use ink_storage::traits::{
-    SpreadLayout,
     SpreadAllocate,
+    SpreadLayout,
 };
 
 #[cfg(feature = "std")]

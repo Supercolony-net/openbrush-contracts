@@ -73,13 +73,8 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
         });
 
         let wrapper_trait = generate_wrapper(ink_trait.clone());
-        let mut ink_as_dependency_trait = ink_trait.clone();
-        ink_as_dependency_trait.ident = format_ident!("{}AsDependency", ink_trait.ident);
 
         ink_code = quote! {
-            #[ink_lang::trait_definition(#attrs)]
-            #ink_as_dependency_trait
-
             #[allow(non_camel_case_types)]
             pub mod #namespace_ident {
                 use super::*;
