@@ -28,7 +28,7 @@ pub mod my_psp1155 {
 
         #[ink(message)]
         pub fn deny(&mut self, id: Id) {
-            self.denied_ids.insert(id, ());
+            self.denied_ids.insert(id, &());
         }
 
         #[ink(message)]
