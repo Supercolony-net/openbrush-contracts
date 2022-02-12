@@ -36,7 +36,7 @@ pub mod my_flipper_guard {
         modifiers,
     };
 
-    use crate::flip_on_me::CallerOfFlip;
+    use crate::flip_on_me::CallerOfFlipRef;
     use ink_env::call::FromAccountId;
 
     pub trait FlipperStorage {
@@ -69,7 +69,7 @@ pub mod my_flipper_guard {
             // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
             // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
             // that call of `flip` after `call_flip_on_me` must fail.
-            let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
+            let mut flipper: CallerOfFlipRef = FromAccountId::from_account_id(callee);
             flipper.flip_on_me()
         }
     }

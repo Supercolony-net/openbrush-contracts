@@ -12,7 +12,6 @@ pub mod ownable {
             },
         },
         modifiers,
-        traits::InkStorage,
     };
     use ink_prelude::vec::Vec;
 
