@@ -1,15 +1,16 @@
-import Contract from '@supercolony/redspot-patract/contract'
 import BN from 'bn.js'
-import { artifacts, network, patract } from '@supercolony/redspot'
+import Contract from '@redspot/patract/contract'
+import { artifacts, network, patract } from 'redspot'
 import { expect } from './setup/chai'
 import { KeyringPair } from '@polkadot/keyring/types'
-import { buildTx } from '@supercolony/redspot-patract/buildTx'
+import { buildTx } from '@redspot/patract/buildTx'
 import { Keyring } from '@polkadot/keyring'
-import { TransactionParams, TransactionResponse } from "@supercolony/redspot-patract/types";
+import { TransactionParams, TransactionResponse } from "@redspot/patract/types";
 
 
 const { getContractFactory, getRandomSigner } = patract
 const { api, getSigners, getAddresses } = network
+
 
 export { expect } from './setup/chai'
 

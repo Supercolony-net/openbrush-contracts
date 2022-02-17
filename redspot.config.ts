@@ -1,7 +1,7 @@
-import {RedspotUserConfig} from '@supercolony/redspot/types'
-import '@supercolony/redspot-patract'
-import '@supercolony/redspot-chai'
-import '@supercolony/redspot-gas-reporter'
+import {RedspotUserConfig} from 'redspot/types'
+import '@redspot/patract'
+import '@redspot/chai'
+import '@redspot/gas-reporter'
 
 export default {
     defaultNetwork: 'development',

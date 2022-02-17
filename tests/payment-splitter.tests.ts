@@ -1,5 +1,5 @@
 import { bnArg, expect, fromSigner, setupContract } from './helpers'
-import { network, patract } from '@supercolony/redspot'
+import { network, patract } from 'redspot'
 const { api } = network
 
 const { getRandomSigner } = patract
