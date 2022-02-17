@@ -27,10 +27,7 @@ jobs:
           yarn build:release
       - name: Run Test Mocha
         run: |
-          // TODO: remove later when europa is up to date
-          cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked
-          substrate-contracts-node --dev --tmp > /dev/null 2>&1 & P1=$!
-          // europa --tmp > /dev/null 2>&1 & P1=$!
+          europa --tmp > /dev/null 2>&1 & P1=$!
           yarn test:mocha & P2=$!
           wait $P2
           kill $P1
