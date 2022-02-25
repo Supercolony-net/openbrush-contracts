@@ -26,12 +26,12 @@ pub trait FlashLender {
     ///
     /// Returns `WrongTokenAddress` error if the `token` account id is not this token
     #[ink(message)]
-    fn flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, FlashLenderError>;
+    fn flash_fee(&self, token: AccountId, amount: Balance) -> Result<Balance, FlashLenderError>;
 
     /// Call this function in `flashloan` function in `impl` block of FlashLender
     /// Mints `amount` of `token` to `receiver_account` and performs the flashloan
     /// `amount` is then burned along with the fee for the flashloan
-    /// `receiver_account` must implement `PSP3156FlashBorrower`
+    /// `receiver_account` must implement `FlashBorrower`
     ///
     /// Returns `AllowanceDoesNotAllowRefund` error if the contract does not have
     /// enough allowance to transfer borrowed amount and fees from `receiver_account`

@@ -4,9 +4,10 @@
 #[brush::contract]
 pub mod my_psp34 {
     use brush::contracts::psp34::*;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP34Storage)]
+    #[derive(Default, SpreadAllocate, PSP34Storage)]
     pub struct MyPSP34 {
         #[PSP34StorageField]
         psp34: PSP34Data,
@@ -18,7 +19,7 @@ pub mod my_psp34 {
     impl MyPSP34 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

@@ -18,7 +18,10 @@ pub use derive::{
     PSP22MetadataStorage,
     PSP22Storage,
 };
-use ink_env::Error as EnvError;
+use ink_env::{
+    CallFlags,
+    Error as EnvError,
+};
 use ink_prelude::{
     string::String,
     vec::Vec,
@@ -34,7 +37,7 @@ use ink_storage::{
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22Data {
     pub supply: Balance,
@@ -162,30 +165,31 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
         self.flush();
-        let result =
-            match PSP22ReceiverRef::before_received_builder(&to, Self::env().caller(), from, value, data).fire() {
-                Ok(result) => {
-                    match result {
-                        Ok(_) => Ok(()),
-                        Err(e) => Err(e.into()),
-                    }
+        let builder = PSP22ReceiverRef::before_received_builder(&to, Self::env().caller(), from, value, data)
+            .call_flags(CallFlags::default().set_allow_reentry(true));
+        let result = match builder.fire() {
+            Ok(result) => {
+                match result {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(e.into()),
                 }
-                Err(e) => {
-                    match e {
-                        // `NotCallable` means that the receiver is not a contract.
+            }
+            Err(e) => {
+                match e {
+                    // `NotCallable` means that the receiver is not a contract.
 
-                        // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
-                        // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
-                        // https://github.com/paritytech/ink/issues/1002
-                        EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
-                        _ => {
-                            Err(PSP22Error::SafeTransferCheckFailed(String::from(
-                                "Error during call to receiver",
-                            )))
-                        }
+                    // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
+                    // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
+                    // https://github.com/paritytech/ink/issues/1002
+                    EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
+                    _ => {
+                        Err(PSP22Error::SafeTransferCheckFailed(String::from(
+                            "Error during call to receiver",
+                        )))
                     }
                 }
-            };
+            }
+        };
         self.load();
         result?;
         Ok(())

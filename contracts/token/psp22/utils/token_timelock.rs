@@ -1,5 +1,6 @@
 /// Extension of [`PSP22`] which allows the beneficiary to extract tokens after given time
 pub use crate::traits::psp22::utils::token_timelock::*;
+use ink_env::CallFlags;
 
 pub use crate::traits::psp22::PSP22Ref;
 use brush::{
@@ -12,12 +13,15 @@ use brush::{
 };
 pub use derive::PSP22TokenTimelockStorage;
 use ink_prelude::vec::Vec;
-use ink_storage::traits::SpreadLayout;
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
+};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22TokenTimelockData {
     token: AccountId,
@@ -78,7 +82,11 @@ pub trait PSP22TokenTimelockInternal {
 impl<T: PSP22TokenTimelockStorage> PSP22TokenTimelockInternal for T {
     default fn _withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
         let beneficairy = self.beneficiary();
-        self._token().transfer(beneficairy, amount, Vec::<u8>::new())?;
+        self._token()
+            .transfer_builder(beneficairy, amount, Vec::<u8>::new())
+            .call_flags(CallFlags::default().set_allow_reentry(true))
+            .fire()
+            .unwrap()?;
         Ok(())
     }
 

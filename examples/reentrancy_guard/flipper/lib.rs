@@ -35,6 +35,7 @@ pub mod my_flipper_guard {
         contracts::reentrancy_guard::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 
     use crate::flip_on_me::CallerOfFlipRef;
     use ink_env::call::FromAccountId;
@@ -75,7 +76,7 @@ pub mod my_flipper_guard {
     }
 
     #[ink(storage)]
-    #[derive(Default, ReentrancyGuardStorage)]
+    #[derive(Default, SpreadAllocate, ReentrancyGuardStorage)]
     pub struct MyFlipper {
         #[ReentrancyGuardStorageField]
         guard: ReentrancyGuardData,
@@ -95,7 +96,7 @@ pub mod my_flipper_guard {
     impl MyFlipper {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 

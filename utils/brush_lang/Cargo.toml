@@ -5,10 +5,10 @@ authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
-ink_env = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_lang = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_primitives = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_storage = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_env = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_primitives = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
 proc_macros = { path = "proc_macros" }
 test_utils = { path = "test_utils", default-features = false }
 

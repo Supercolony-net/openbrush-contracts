@@ -5,11 +5,11 @@ const { api } = network
 
 describe('TOKEN_TIMELOCK', () => {
   async function setup() {
-    const psp22 = await setupContract('my_psp22', 'new', '1000')
+    let psp22 = await setupContract('my_psp22', 'new', '1000')
     const beneficiary = psp22.defaultSigner
-    const releaseTimeStr = await api.query.timestamp.now().toString()
-    const releaseTime = parseInt(releaseTimeStr) + oneDay()
-    const timelock = await setupContract('my_psp22_token_timelock', 'new', psp22.contract.address, beneficiary.address, releaseTime)
+    // @ts-ignore
+    let releaseTime = (await api.query.timestamp.now()).toNumber() + oneDay()
+    let timelock = await setupContract('my_psp22_token_timelock', 'new', psp22.contract.address, beneficiary.address, releaseTime)
     return { psp22, timelock, beneficiary, releaseTime }
   }
 
@@ -71,7 +71,6 @@ describe('TOKEN_TIMELOCK', () => {
     const tokens = 1000
     await expect(psp22Query.balanceOf(timelock.address)).to.have.output(0)
     await expect(psp22Query.balanceOf(beneficiary.address)).to.have.output(tokens)
-    await api.tx.timestamp.set(releaseTime).signAndSend(beneficiary.pair)
 
     // release the tokens
     await expect(fromSigner(timelock, beneficiary.address).tx.release()).to.eventually.be.rejected

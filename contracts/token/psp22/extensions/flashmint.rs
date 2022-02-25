@@ -7,7 +7,10 @@ use brush::traits::{
     Balance,
     Flush,
 };
-use ink_env::Error as EnvError;
+use ink_env::{
+    CallFlags,
+    Error as EnvError,
+};
 use ink_prelude::{
     string::String,
     vec::Vec,
@@ -22,7 +25,7 @@ impl<T: PSP22 + PSP22Internal + Flush> FlashLender for T {
         }
     }
 
-    default fn flash_fee(&mut self, token: AccountId, amount: Balance) -> Result<Balance, FlashLenderError> {
+    default fn flash_fee(&self, token: AccountId, amount: Balance) -> Result<Balance, FlashLenderError> {
         if token != Self::env().account_id() {
             return Err(FlashLenderError::WrongTokenAddress)
         }
@@ -39,22 +42,19 @@ impl<T: PSP22 + PSP22Internal + Flush> FlashLender for T {
         let fee = self.flash_fee(token, amount)?;
         self._mint(receiver_account, amount)?;
         self._on_flashloan(receiver_account, token, fee, amount, data)?;
-        let current_allowance = self.allowance(receiver_account, Self::env().account_id());
+        let this = Self::env().account_id();
+        let current_allowance = self.allowance(receiver_account, this);
         if current_allowance < amount + fee {
             return Err(FlashLenderError::AllowanceDoesNotAllowRefund)
         }
-        self._approve_from_to(
-            receiver_account,
-            Self::env().account_id(),
-            current_allowance - amount - fee,
-        )?;
+        self._approve_from_to(receiver_account, this, current_allowance - amount - fee)?;
         self._burn_from(receiver_account, amount + fee)?;
         Ok(())
     }
 }
 
 pub trait PSP22FlashLenderInternal {
-    fn _get_fee(&mut self, _amount: Balance) -> Balance;
+    fn _get_fee(&self, _amount: Balance) -> Balance;
 
     fn _on_flashloan(
         &mut self,
@@ -67,7 +67,7 @@ pub trait PSP22FlashLenderInternal {
 }
 
 impl<T: PSP22 + PSP22Internal + Flush> PSP22FlashLenderInternal for T {
-    default fn _get_fee(&mut self, _amount: Balance) -> Balance {
+    default fn _get_fee(&self, _amount: Balance) -> Balance {
         0
     }
 
@@ -80,16 +80,10 @@ impl<T: PSP22 + PSP22Internal + Flush> PSP22FlashLenderInternal for T {
         data: Vec<u8>,
     ) -> Result<(), FlashLenderError> {
         self.flush();
-        let result = match FlashBorrowerRef::on_flashloan_builder(
-            &receiver_account,
-            Self::env().caller(),
-            token,
-            amount,
-            fee,
-            data,
-        )
-        .fire()
-        {
+        let builder =
+            FlashBorrowerRef::on_flashloan_builder(&receiver_account, Self::env().caller(), token, amount, fee, data)
+                .call_flags(CallFlags::default().set_allow_reentry(true));
+        let result = match builder.fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),

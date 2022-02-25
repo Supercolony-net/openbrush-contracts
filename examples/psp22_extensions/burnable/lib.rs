@@ -4,12 +4,11 @@
 #[brush::contract]
 pub mod my_psp22_burnable {
     use brush::contracts::psp22::extensions::burnable::*;
-    use ink_prelude::{
-        vec::Vec,
-    };
+    use ink_prelude::vec::Vec;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage)]
     pub struct MyPSP22 {
         #[PSP22StorageField]
         psp22: PSP22Data,
@@ -21,9 +20,9 @@ pub mod my_psp22_burnable {
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            let mut instance = Self::default();
-            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+            })
         }
 
         #[ink(message)]

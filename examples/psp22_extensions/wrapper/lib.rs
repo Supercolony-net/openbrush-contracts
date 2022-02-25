@@ -4,9 +4,10 @@
 #[brush::contract]
 pub mod my_psp22_wrapper {
     use brush::contracts::psp22::extensions::wrapper::*;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP22WrapperStorage, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22WrapperStorage, PSP22Storage)]
     pub struct MyPSP22Wrapper {
         #[PSP22StorageField]
         psp22: PSP22Data,
@@ -21,9 +22,9 @@ pub mod my_psp22_wrapper {
     impl MyPSP22Wrapper {
         #[ink(constructor)]
         pub fn new(token_address: AccountId) -> Self {
-            let mut instance = Self::default();
-            instance._init(token_address);
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                instance._init(token_address);
+            })
         }
 
         /// Exposes the `_recover` function for message caller

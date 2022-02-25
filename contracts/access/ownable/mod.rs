@@ -18,7 +18,7 @@ use ink_storage::traits::{
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
 pub struct OwnableData {
     pub owner: AccountId,

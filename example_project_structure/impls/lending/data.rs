@@ -12,11 +12,11 @@ use brush::{
     },
 };
 use ink_storage::{
-    Mapping,
     traits::{
-        SpreadLayout,
         SpreadAllocate,
+        SpreadLayout,
     },
+    Mapping,
 };
 // it is public because when you will import the trait you also will import the derive for the trait
 pub use lending_project_derive::LendingStorage;
@@ -24,7 +24,7 @@ pub use lending_project_derive::LendingStorage;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 /// define the struct with the data that our smart contract will be using
 /// this will isolate the logic of our smart contract from its storage
@@ -72,11 +72,7 @@ pub fn get_asset_price<T: LendingStorage>(
     asset_in: AccountId,
     asset_out: AccountId,
 ) -> Balance {
-    let price = instance
-        .get()
-        .asset_price
-        .get(&(asset_in, asset_out))
-        .unwrap_or(0);
+    let price = instance.get().asset_price.get(&(asset_in, asset_out)).unwrap_or(0);
     price * amount_in
 }
 

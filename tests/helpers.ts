@@ -39,8 +39,8 @@ const patchContractMethods = (contract: Contract): Contract => {
 // query.tokenName()
 const patchMethods = (object) => {
   for (const prop in object) {
-    if (prop.includes(',')) {
-      const selectors = prop.split(',')
+    if (prop.includes('::')) {
+      const selectors = prop.split('::')
       const method = selectors[selectors.length - 1]
       object[method] = object[prop]
     }
@@ -50,8 +50,8 @@ const patchMethods = (object) => {
 export const setupContract = async (name, constructor, ...args) => {
   const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
   const signers = await getSigners()
-  const defaultSigner = await getRandomSigner(signers[0], one.muln(10000))
-  const alice = await getRandomSigner(signers[1], one.muln(10000))
+  const defaultSigner = await getRandomSigner(signers[0], one.muln(10))
+  const alice = await getRandomSigner(signers[1], one.muln(10))
 
   const contractFactory = await getContractFactory(name, defaultSigner)
   const contract = await contractFactory.deploy(constructor, ...args)

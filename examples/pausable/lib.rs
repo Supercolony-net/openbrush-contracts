@@ -4,9 +4,10 @@
 #[brush::contract]
 pub mod my_pausable {
     use brush::contracts::pausable::*;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PausableStorage)]
+    #[derive(Default, SpreadAllocate, PausableStorage)]
     pub struct MyFlipper {
         #[PausableStorageField]
         pause: PausableData,
@@ -16,7 +17,7 @@ pub mod my_pausable {
     impl MyFlipper {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

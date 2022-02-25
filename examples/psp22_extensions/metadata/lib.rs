@@ -5,9 +5,10 @@
 pub mod my_psp22 {
     use brush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage, PSP22MetadataStorage)]
     pub struct MyPSP22 {
         #[PSP22StorageField]
         psp22: PSP22Data,
@@ -22,14 +23,14 @@ pub mod my_psp22 {
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
-            let mut instance = Self::default();
-            instance.metadata.name = name;
-            instance.metadata.symbol = symbol;
-            instance.metadata.decimals = decimal;
-            instance
-                ._mint(instance.env().caller(), total_supply)
-                .expect("Should mint total_supply");
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                instance.metadata.name = name;
+                instance.metadata.symbol = symbol;
+                instance.metadata.decimals = decimal;
+                instance
+                    ._mint(instance.env().caller(), total_supply)
+                    .expect("Should mint total_supply");
+            })
         }
     }
 }

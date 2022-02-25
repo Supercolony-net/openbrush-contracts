@@ -11,17 +11,17 @@ use brush::{
 pub use derive::PaymentSplitterStorage;
 use ink_prelude::vec::Vec;
 use ink_storage::{
-    Mapping,
     traits::{
-        SpreadLayout,
         SpreadAllocate,
+        SpreadLayout,
     },
+    Mapping,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PaymentSplitterData {
     pub total_shares: Balance,
@@ -52,7 +52,11 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
     }
 
     default fn payee(&self, index: u32) -> AccountId {
-        self.get().payees.get(index as usize).cloned().unwrap_or(ZERO_ADDRESS.into())
+        self.get()
+            .payees
+            .get(index as usize)
+            .cloned()
+            .unwrap_or(ZERO_ADDRESS.into())
     }
 
     default fn receive(&mut self) {

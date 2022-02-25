@@ -14,15 +14,15 @@ So you should use the same version of the ink! across your project.
 ```toml
 [dependencies]
 # Import of all ink! crates
-ink_primitives = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_metadata = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_storage = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_lang = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
-ink_prelude = { branch = "master", git = "https://github.com/Supercolony-net/ink", default-features = false }
+ink_primitives = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
-scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
 brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }

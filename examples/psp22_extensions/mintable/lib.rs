@@ -4,9 +4,10 @@
 #[brush::contract]
 pub mod my_psp22_mintable {
     use brush::contracts::psp22::extensions::mintable::*;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage)]
     pub struct MyPSP22 {
         #[PSP22StorageField]
         psp22: PSP22Data,
@@ -18,9 +19,9 @@ pub mod my_psp22_mintable {
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            let mut instance = Self::default();
-            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+            })
         }
 
         #[ink(message)]

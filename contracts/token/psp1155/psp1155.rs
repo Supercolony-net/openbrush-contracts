@@ -10,24 +10,27 @@ use brush::{
 };
 use core::result::Result;
 pub use derive::PSP1155Storage;
-use ink_env::Error as EnvError;
+use ink_env::{
+    CallFlags,
+    Error as EnvError,
+};
 use ink_prelude::{
     string::String,
     vec,
     vec::Vec,
 };
 use ink_storage::{
-    Mapping,
     traits::{
-        SpreadLayout,
         SpreadAllocate,
+        SpreadLayout,
     },
+    Mapping,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP1155Data {
     pub balances: Mapping<(Id, AccountId), Balance>,
@@ -289,10 +292,7 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
     }
 
     default fn _is_approved_for_all(&self, account: AccountId, operator: AccountId) -> bool {
-        self.get()
-            .operator_approval
-            .get(&(account, operator))
-            .unwrap_or(false)
+        self.get().operator_approval.get(&(account, operator)).unwrap_or(false)
     }
 
     default fn _increase_receiver_balance(&mut self, to: AccountId, id: Id, amount: Balance) {
@@ -342,7 +342,9 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         data: Vec<u8>,
     ) -> Result<(), PSP1155Error> {
         self.flush();
-        let result = match PSP1155ReceiverRef::before_received_builder(&to, operator, from, ids_amounts, data).fire() {
+        let builder = PSP1155ReceiverRef::before_received_builder(&to, operator, from, ids_amounts, data)
+            .call_flags(CallFlags::default().set_allow_reentry(true));
+        let result = match builder.fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),

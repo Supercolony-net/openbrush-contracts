@@ -3,16 +3,17 @@
 #[ink_lang::contract]
 pub mod flip_on_me {
     use brush::contracts::reentrancy_guard::*;
+    use ink_storage::traits::SpreadAllocate;
     use my_flipper_guard::my_flipper_guard::FlipperRef;
 
     #[ink(storage)]
-    #[derive(Default)]
+    #[derive(Default, SpreadAllocate)]
     pub struct FlipOnMe {}
 
     impl FlipOnMe {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

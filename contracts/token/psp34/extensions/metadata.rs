@@ -10,14 +10,14 @@ pub use derive::{
 use ink_prelude::vec::Vec;
 use ink_storage::Mapping;
 
-use ink_storage::traits::{
-    SpreadLayout,
-    SpreadAllocate,
-};
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
+};
 
-#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP34MetadataData {
     pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>>,
@@ -37,9 +37,7 @@ pub trait PSP34MetadataInternal {
 
 impl<T: PSP34MetadataStorage + PSP34Internal> PSP34MetadataInternal for T {
     default fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>) {
-        self.get_mut()
-            .attributes
-            .insert((id.clone(), key.clone()), &value);
+        self.get_mut().attributes.insert((id.clone(), key.clone()), &value);
         self._emit_attribute_set_event(id, key, value);
     }
 }

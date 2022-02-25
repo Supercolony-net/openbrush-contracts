@@ -5,8 +5,9 @@
 pub mod my_psp1155 {
     use brush::contracts::psp1155::extensions::metadata::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 
-    #[derive(Default, PSP1155Storage, PSP1155MetadataStorage)]
+    #[derive(Default, SpreadAllocate, PSP1155Storage, PSP1155MetadataStorage)]
     #[ink(storage)]
     pub struct MyPSP1155 {
         #[PSP1155StorageField]
@@ -23,9 +24,9 @@ pub mod my_psp1155 {
         /// contract constructor
         #[ink(constructor)]
         pub fn new(uri: Option<String>) -> Self {
-            let mut instance = Self::default();
-            instance.metadata.uri = uri;
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                instance.metadata.uri = uri;
+            })
         }
     }
 }

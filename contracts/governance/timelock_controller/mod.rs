@@ -22,6 +22,7 @@ use ink_env::{
         ExecutionInput,
     },
     hash::Blake2x256,
+    CallFlags,
     DefaultEnvironment,
 };
 use ink_prelude::{
@@ -29,15 +30,18 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
     Mapping,
-    traits::SpreadLayout,
 };
 use scale::Encode;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct TimelockControllerData {
     pub min_delay: Timestamp,
@@ -409,6 +413,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
             .transferred_value(transaction.transferred_value)
             .exec_input(ExecutionInput::new(transaction.selector.into()).push_arg(CallInput(&transaction.input)))
             .returns::<()>()
+            .call_flags(CallFlags::default().set_allow_reentry(true))
             .fire()
             .map_err(|_| TimelockControllerError::UnderlyingTransactionReverted);
 

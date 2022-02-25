@@ -7,24 +7,27 @@ use brush::{
     },
 };
 pub use derive::PSP34Storage;
-use ink_env::Error as EnvError;
+use ink_env::{
+    CallFlags,
+    Error as EnvError,
+};
 use ink_prelude::{
     string::String,
     vec::Vec,
 };
 use ink_storage::{
-    Mapping,
     traits::{
-        SpreadLayout,
         SpreadAllocate,
+        SpreadLayout,
     },
+    Mapping,
 };
 
 use brush::traits::Balance;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP34Data {
     pub token_owner: Mapping<Id, AccountId>,
@@ -268,7 +271,9 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         data: Vec<u8>,
     ) -> Result<(), PSP34Error> {
         self.flush();
-        let result = match PSP34ReceiverRef::before_received_builder(&to, operator, from, id, data).fire() {
+        let builder = PSP34ReceiverRef::before_received_builder(&to, operator, from, id, data)
+            .call_flags(CallFlags::default().set_allow_reentry(true));
+        let result = match builder.fire() {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),

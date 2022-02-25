@@ -6,14 +6,14 @@ use brush::declare_storage_trait;
 pub use derive::PSP22MetadataStorage;
 use ink_prelude::string::String;
 use ink_storage::traits::{
-    SpreadLayout,
     SpreadAllocate,
+    SpreadLayout,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout, SpreadAllocate)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22MetadataData {
     pub name: Option<String>,
