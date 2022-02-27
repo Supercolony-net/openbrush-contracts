@@ -159,7 +159,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         if !self.is_operation_pending(id) {
             return Err(TimelockControllerError::OperationCannonBeCanceled)
         }
-        TimelockControllerStorage::get_mut(self).timestamps.remove(id);
+        TimelockControllerStorage::get_mut(self).timestamps.remove(&id);
 
         self._emit_cancelled_event(id);
         Ok(())
@@ -376,7 +376,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
 
         TimelockControllerStorage::get_mut(self)
             .timestamps
-            .insert(id, &(Self::env().block_timestamp() + delay));
+            .insert(&id, &(Self::env().block_timestamp() + delay));
         Ok(())
     }
 
@@ -394,7 +394,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
 
         TimelockControllerStorage::get_mut(self)
             .timestamps
-            .insert(id, &Self::_done_timestamp());
+            .insert(&id, &Self::_done_timestamp());
         Ok(())
     }
 

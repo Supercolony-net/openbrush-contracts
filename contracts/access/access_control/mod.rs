@@ -56,7 +56,7 @@ impl<T: AccessControlStorage> AccessControl for T {
         if has_role(self, &role, &account) {
             return Err(AccessControlError::RoleRedundant)
         }
-        self.get_mut().members.insert((role.clone(), account.clone()), &());
+        self.get_mut().members.insert((&role, &account), &());
         self._emit_role_granted(role, account, Some(Self::env().caller()));
         Ok(())
     }
@@ -129,24 +129,24 @@ impl<T: AccessControlStorage> AccessControlInternal for T {
 
     default fn _setup_role(&mut self, role: RoleType, admin: AccountId) {
         if !has_role(self, &role, &admin) {
-            self.get_mut().members.insert((role.clone(), admin.clone()), &());
+            self.get_mut().members.insert((&role, &admin), &());
 
             self._emit_role_granted(role, admin, None);
         }
     }
 
     default fn _do_revoke_role(&mut self, role: RoleType, account: AccountId) {
-        self.get_mut().members.remove(&(role, account));
+        self.get_mut().members.remove((&role, &account));
         self._emit_role_revoked(role, account, Self::env().caller());
     }
 
     default fn _set_role_admin(&mut self, role: RoleType, new_admin: RoleType) {
-        let mut entry = self.get_mut().admin_roles.get(role);
+        let mut entry = self.get_mut().admin_roles.get(&role);
         if entry.is_none() {
             entry = Some(Self::_default_admin());
         }
         let old_admin = entry.unwrap();
-        self.get_mut().admin_roles.insert(role, &new_admin);
+        self.get_mut().admin_roles.insert(&role, &new_admin);
         self._emit_role_admin_changed(role, old_admin, new_admin);
     }
 }
@@ -163,7 +163,7 @@ pub fn check_role<T: AccessControlStorage>(
 }
 
 pub fn has_role<T: AccessControlStorage>(instance: &T, role: &RoleType, account: &AccountId) -> bool {
-    instance.get().members.get((role.clone(), account.clone())).is_some()
+    instance.get().members.get((role, account)).is_some()
 }
 
 pub fn get_role_admin<T: AccessControlStorage>(instance: &T, role: &RoleType) -> RoleType {

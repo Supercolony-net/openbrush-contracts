@@ -176,7 +176,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         if owner == operator {
             return Err(PSP34Error::SelfApprove)
         }
-        self.get_mut().operator_approvals.insert((owner, operator), &approved);
+        self.get_mut().operator_approvals.insert((&owner, &operator), &approved);
         self._emit_approval_for_all_event(owner, operator, approved);
         Ok(())
     }
@@ -198,25 +198,25 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
             return Err(PSP34Error::NotApproved)
         };
 
-        self.get_mut().token_approvals.insert(id.clone(), &to);
+        self.get_mut().token_approvals.insert(&id, &to);
         self._emit_approval_event(caller, to, id);
         Ok(())
     }
 
     default fn _owner_of(&self, id: &Id) -> Option<AccountId> {
-        self.get().token_owner.get(id)
+        self.get().token_owner.get(&id)
     }
 
     default fn _approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
         self.get()
             .operator_approvals
-            .get(&(owner, operator))
+            .get((&owner, &operator))
             .unwrap_or(false)
             .clone()
     }
 
     default fn _check_token_exists(&self, id: &Id) -> Result<AccountId, PSP34Error> {
-        self.get().token_owner.get(id).ok_or(PSP34Error::TokenNotExists)
+        self.get().token_owner.get(&id).ok_or(PSP34Error::TokenNotExists)
     }
 
     default fn _transfer_token_from(
@@ -301,11 +301,11 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
     }
 
     default fn _add_token(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error> {
-        let to_balance = self.get_mut().owned_tokens_count.get(to).unwrap_or(0);
-        self.get_mut().owned_tokens_count.insert(to.clone(), &(to_balance + 1));
+        let to_balance = self.get_mut().owned_tokens_count.get(&to).unwrap_or(0);
+        self.get_mut().owned_tokens_count.insert(&to, &(to_balance + 1));
         self.get_mut().total_supply += 1;
 
-        self.get_mut().token_owner.insert(id, &to);
+        self.get_mut().token_owner.insert(&id, &to);
         Ok(())
     }
 
@@ -313,8 +313,8 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         self.get_mut().token_approvals.remove(id);
         self.get_mut().token_owner.remove(id);
 
-        let from_balance = self.get_mut().owned_tokens_count.get(from).unwrap_or(0);
-        self.get_mut().owned_tokens_count.insert(from, &(from_balance - 1));
+        let from_balance = self.get_mut().owned_tokens_count.get(&from).unwrap_or(0);
+        self.get_mut().owned_tokens_count.insert(&from, &(from_balance - 1));
         self.get_mut().total_supply -= 1;
         Ok(())
     }

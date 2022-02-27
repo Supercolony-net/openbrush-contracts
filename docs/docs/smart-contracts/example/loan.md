@@ -203,7 +203,7 @@ impl Loan for LoanContract {
             return Err(PSP34Error::Custom(String::from("This loan id already exists!")))
         }
         loan_info.liquidated = false;
-        self.loan_info.insert(loan_id, loan_info.clone());
+        self.loan_info.insert(&loan_id, &loan_info);
         self._mint_to(loan_info.borrower, loan_id)
     }
 
@@ -280,7 +280,7 @@ impl LoanContract {
         loan_info.borrow_amount = new_borrow_amount;
         loan_info.timestamp = new_timestamp;
 
-        self.loan_info.insert(loan_id, loan_info);
+        self.loan_info.insert(&loan_id, &loan_info);
 
         Ok(())
     }
@@ -296,7 +296,7 @@ impl LoanContract {
         let mut loan_info = loan_info.cloned().unwrap();
         loan_info.liquidated = true;
 
-        self.loan_info.insert(loan_id, loan_info);
+        self.loan_info.insert(&loan_id, &loan_info);
 
         Ok(())
     }

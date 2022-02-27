@@ -28,7 +28,6 @@ pub struct PaymentSplitterData {
     pub total_released: Balance,
     pub shares: Mapping<AccountId, Balance>,
     pub released: Mapping<AccountId, Balance>,
-    // TODO: change this
     pub payees: Vec<AccountId>,
 }
 
@@ -64,7 +63,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
     }
 
     default fn release(&mut self, account: AccountId) -> Result<(), PaymentSplitterError> {
-        if !self.get().shares.get(account).is_some() {
+        if !self.get().shares.get(&account).is_some() {
             return Err(PaymentSplitterError::AccountHasNoShares)
         }
 
@@ -82,7 +81,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
             return Err(PaymentSplitterError::AccountIsNotDuePayment)
         }
 
-        self.get_mut().released.insert(account, &(released + payment));
+        self.get_mut().released.insert(&account, &(released + payment));
         self.get_mut().total_released += payment;
 
         let transfer_result = Self::env().transfer(account.clone(), payment);
@@ -141,12 +140,12 @@ impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
         if share == 0 {
             return Err(PaymentSplitterError::SharesAreZero)
         }
-        if self.get().shares.get(payee).is_some() {
+        if self.get().shares.get(&payee).is_some() {
             return Err(PaymentSplitterError::AlreadyHasShares)
         }
 
         self.get_mut().payees.push(payee.clone());
-        self.get_mut().shares.insert(payee.clone(), &share);
+        self.get_mut().shares.insert(&payee, &share);
         self.get_mut().total_shares += share;
         self._emit_payee_added_event(payee, share);
         Ok(())

@@ -61,7 +61,7 @@ declare_storage_trait!(LendingStorage, LendingData);
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
 pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-    instance.get_mut().asset_price.insert((asset_in, asset_out), &price);
+    instance.get_mut().asset_price.insert((&asset_in, &asset_out), &price);
 }
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
@@ -72,7 +72,7 @@ pub fn get_asset_price<T: LendingStorage>(
     asset_in: AccountId,
     asset_out: AccountId,
 ) -> Balance {
-    let price = instance.get().asset_price.get(&(asset_in, asset_out)).unwrap_or(0);
+    let price = instance.get().asset_price.get((&asset_in, &asset_out)).unwrap_or(0);
     price * amount_in
 }
 
@@ -85,7 +85,7 @@ pub fn get_reserve_asset<T: LendingStorage>(
     let reserve_asset = instance
         .get()
         .asset_shares
-        .get(asset_address)
+        .get(&asset_address)
         .unwrap_or(ZERO_ADDRESS.into());
     if reserve_asset.is_zero() {
         return Err(LendingError::AssetNotSupported)

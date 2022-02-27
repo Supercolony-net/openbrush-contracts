@@ -1,6 +1,6 @@
 [package]
 name = "my_psp22_capped"
-version = "1.2.0"
+version = "1.4.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 

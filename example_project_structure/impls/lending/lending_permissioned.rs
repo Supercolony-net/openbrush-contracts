@@ -89,9 +89,12 @@ fn accept_lending<T: LendingStorage>(
     share_address: AccountId,
     reserve_address: AccountId,
 ) {
-    instance.get_mut().asset_shares.insert(asset_address, &share_address);
-    instance.get_mut().shares_asset.insert(share_address, &asset_address);
-    instance.get_mut().assets_lended.insert(asset_address, &reserve_address);
+    instance.get_mut().asset_shares.insert(&asset_address, &share_address);
+    instance.get_mut().shares_asset.insert(&share_address, &asset_address);
+    instance
+        .get_mut()
+        .assets_lended
+        .insert(&asset_address, &reserve_address);
 }
 
 fn disallow_lending<T: LendingStorage>(instance: &mut T, asset_address: AccountId) {
@@ -107,5 +110,5 @@ fn disallow_lending<T: LendingStorage>(instance: &mut T, asset_address: AccountI
 
 /// this function will accept `asset_address` for using as collateral
 fn set_collateral_accepted<T: LendingStorage>(instance: &mut T, asset_address: AccountId, accepted: bool) {
-    instance.get_mut().collateral_accepted.insert(asset_address, &accepted);
+    instance.get_mut().collateral_accepted.insert(&asset_address, &accepted);
 }

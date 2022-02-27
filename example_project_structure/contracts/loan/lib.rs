@@ -59,8 +59,8 @@ pub mod loan {
                 return Err(PSP34Error::Custom(String::from("This loan id already exists!")))
             }
             loan_info.liquidated = false;
-            self.loan_info.insert(loan_id.clone(), &loan_info);
-            self._mint_to(loan_info.borrower, loan_id.clone())
+            self.loan_info.insert(&loan_id, &loan_info);
+            self._mint_to(loan_info.borrower, loan_id)
         }
 
         #[modifiers(only_owner)]
@@ -136,7 +136,7 @@ pub mod loan {
             loan_info.borrow_amount = new_borrow_amount;
             loan_info.timestamp = new_timestamp;
 
-            self.loan_info.insert(loan_id, &loan_info);
+            self.loan_info.insert(&loan_id, &loan_info);
 
             Ok(())
         }
@@ -152,7 +152,7 @@ pub mod loan {
             let mut loan_info = loan_info.unwrap();
             loan_info.liquidated = true;
 
-            self.loan_info.insert(loan_id, &loan_info);
+            self.loan_info.insert(&loan_id, &loan_info);
 
             Ok(())
         }

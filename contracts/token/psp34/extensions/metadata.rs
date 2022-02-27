@@ -27,7 +27,7 @@ declare_storage_trait!(PSP34MetadataStorage, PSP34MetadataData);
 
 impl<T: PSP34MetadataStorage> PSP34Metadata for T {
     default fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>> {
-        self.get().attributes.get(&(id, key))
+        self.get().attributes.get((&id, &key))
     }
 }
 
@@ -37,7 +37,7 @@ pub trait PSP34MetadataInternal {
 
 impl<T: PSP34MetadataStorage + PSP34Internal> PSP34MetadataInternal for T {
     default fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>) {
-        self.get_mut().attributes.insert((id.clone(), key.clone()), &value);
+        self.get_mut().attributes.insert((&id, &key), &value);
         self._emit_attribute_set_event(id, key, value);
     }
 }

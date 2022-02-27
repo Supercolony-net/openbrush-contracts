@@ -22,12 +22,12 @@ this:
 fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
     let code_hash = self.lending.shares_contract_code_hash;
     let (hash, _) =
-        ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Ger random salt");
+        ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
     let hash = hash.as_ref();
     let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
         .endowment(10000000000)
         .code_hash(code_hash)
-        .salt_bytes(&[hash[0], hash[1], hash[2], hash[3]])
+        .salt_bytes(&hash[..4])
         .instantiate()
         .unwrap();
     contract.to_account_id()
@@ -61,7 +61,7 @@ default fn set_asset_price(
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
 pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-    instance.get_mut().asset_price.insert((asset_in, asset_out), price);
+    instance.get_mut().asset_price.insert((&asset_in, &asset_out), &price);
 }
 ```
 
