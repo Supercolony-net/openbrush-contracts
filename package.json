@@ -4,10 +4,10 @@
   "private": true,
   "//": "Resolutions is workaround for https://github.com/patractlabs/redspot/issues/175",
   "resolutions": {
-    "@polkadot/api": "7.8.1",
-    "@polkadot/api-contract": "7.8.1",
-    "@polkadot/types": "7.8.1",
-    "@polkadot/util": "8.4.1"
+    "@polkadot/api": "7.9.1",
+    "@polkadot/api-contract": "7.9.1",
+    "@polkadot/types": "7.9.1",
+    "@polkadot/util": "^8.4.1"
   },
   "dependencies": {
     "@babel/core": "^7.7.4",
@@ -34,7 +34,7 @@
     "build:release": "npx redspot compile --release",
     "build": "npx redspot compile",
     "test:redspot": "npx redspot test",
-    "test:mocha": "mocha --require @babel/register --require ts-node/register --require ./tests/setup/hooks.ts --recursive ./tests --extension \".ts\" --exit --timeout 30000",
+    "test:mocha": "mocha --require @babel/register --require ts-node/register --require ./tests/setup/hooks.ts --recursive ./tests --extension \".ts\" --exit --timeout 50000",
     "test": "yarn build:release && yarn test:mocha"
   }
 }
