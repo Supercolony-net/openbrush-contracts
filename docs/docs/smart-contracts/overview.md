@@ -5,10 +5,8 @@ title: Overview
 
 This doc contains description of how the OpenBrush library can be imported and used. 
 
-The OpenBrush is using [ink! 3.0.0 RC 6](https://github.com/paritytech/ink/releases/tag/v3.0.0-rc6) at the moment.
+The OpenBrush is using ink! from the `master` branch at the moment.
 So you should use the same version of the ink! across your project.
-
-> **_Note:_**  At the moment we don't support the latest ink! due to the [issue](https://github.com/paritytech/ink/issues/982).
 
 #### The default `toml` of your project with OpenBrush:
 ```toml
@@ -25,7 +23,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-brush = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]
