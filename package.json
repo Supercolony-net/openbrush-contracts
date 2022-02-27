@@ -7,8 +7,8 @@
     "@babel/plugin-transform-runtime": "^7.14.2",
     "@babel/preset-env": "^7.7.4",
     "@babel/register": "^7.7.4",
-    "@redspot/patract": "^0.13.4",
-    "@redspot/gas-reporter": "^0.13.4",
+    "@redspot/patract": "^0.13.5",
+    "@redspot/gas-reporter": "^0.13.5",
     "@redspot/chai": "^0.13.4",
     "@types/chai": "^4.3.0",
     "@types/chai-as-promised": "^7.1.5",
@@ -21,7 +21,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
-    "redspot": "^0.13.4"
+    "redspot": "^0.13.5"
   },
   "scripts": {
     "build:release": "npx redspot compile --release",
