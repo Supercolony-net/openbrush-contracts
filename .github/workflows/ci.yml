@@ -28,7 +28,7 @@ jobs:
       - name: Run Test Mocha
         run: |
           substrate-contracts-node --tmp > /dev/null 2>&1 & P1=$!
-          sleep 10s
+          sleep 30
           yarn test:mocha & P2=$!
           wait $P2
           kill $P1
