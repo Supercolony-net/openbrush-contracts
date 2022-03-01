@@ -5,12 +5,15 @@ pub use crate::{
 use brush::declare_storage_trait;
 pub use derive::PSP1155MetadataStorage;
 use ink_prelude::string::String;
-use ink_storage::traits::SpreadLayout;
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
+};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP1155MetadataData {
     pub uri: Option<String>,

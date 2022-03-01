@@ -8,8 +8,9 @@ pub mod my_psp34_metadata {
         string::String,
         vec::Vec,
     };
+    use ink_storage::traits::SpreadAllocate;
 
-    #[derive(Default, PSP34Storage, PSP34MetadataStorage)]
+    #[derive(Default, SpreadAllocate, PSP34Storage, PSP34MetadataStorage)]
     #[ink(storage)]
     pub struct MyPSP34 {
         #[PSP34StorageField]
@@ -30,12 +31,12 @@ pub mod my_psp34_metadata {
         /// A constructor which mints the first token to the owner
         #[ink(constructor)]
         pub fn new(id: Id, name: String, symbol: String) -> Self {
-            let mut instance = Self::default();
-            let name_key: Vec<u8> = String::from("name").into_bytes();
-            let symbol_key: Vec<u8> = String::from("symbol").into_bytes();
-            instance._set_attribute(id.clone(), name_key, name.into_bytes());
-            instance._set_attribute(id, symbol_key, symbol.into_bytes());
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                let name_key: Vec<u8> = String::from("name").into_bytes();
+                let symbol_key: Vec<u8> = String::from("symbol").into_bytes();
+                instance._set_attribute(id.clone(), name_key, name.into_bytes());
+                instance._set_attribute(id, symbol_key, symbol.into_bytes());
+            })
         }
     }
 }

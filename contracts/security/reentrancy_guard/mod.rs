@@ -10,13 +10,14 @@ use ink_primitives::{
 };
 use ink_storage::traits::{
     push_spread_root,
+    SpreadAllocate,
     SpreadLayout,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, SpreadAllocate)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct ReentrancyGuardData {
     pub status: u8,

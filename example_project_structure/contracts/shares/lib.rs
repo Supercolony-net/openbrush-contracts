@@ -6,29 +6,24 @@
 /// the amount of borrowed tokens
 #[brush::contract]
 pub mod shares {
-    use brush::contracts::{
-        ownable::*,
-        psp22::extensions::{
-            burnable::*,
-            metadata::*,
-            mintable::*,
+    use brush::{
+        contracts::{
+            ownable::*,
+            psp22::extensions::{
+                burnable::*,
+                metadata::*,
+                mintable::*,
+            },
         },
+        modifiers,
     };
-
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use brush::modifiers;
-
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_lang::Env;
-
     use ink_prelude::string::String;
-
-    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_storage::traits::SpreadAllocate;
     use lending_project::traits::shares::*;
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(Default, PSP22Storage, OwnableStorage, PSP22MetadataStorage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage, PSP22MetadataStorage)]
     pub struct SharesContract {
         #[PSP22StorageField]
         psp22: PSP22Data,
@@ -74,13 +69,13 @@ pub mod shares {
         /// constructor with name and symbol
         #[ink(constructor)]
         pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-            let mut instance = Self::default();
-            let caller = instance.env().caller();
-            instance.metadata.name = name;
-            instance.metadata.symbol = symbol;
-            instance.metadata.decimals = 18;
-            instance._init_with_owner(caller);
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut SharesContract| {
+                let caller = instance.env().caller();
+                instance.metadata.name = name;
+                instance.metadata.symbol = symbol;
+                instance.metadata.decimals = 18;
+                instance._init_with_owner(caller);
+            })
         }
     }
 }

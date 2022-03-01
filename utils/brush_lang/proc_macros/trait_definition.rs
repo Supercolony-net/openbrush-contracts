@@ -1,7 +1,7 @@
 use crate::{
     internal::{
+        extract_attr,
         is_attr,
-        new_attribute,
         remove_attr,
     },
     metadata,
@@ -73,13 +73,8 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
         });
 
         let wrapper_trait = generate_wrapper(ink_trait.clone());
-        let mut ink_as_dependency_trait = ink_trait.clone();
-        ink_as_dependency_trait.ident = format_ident!("{}AsDependency", ink_trait.ident);
 
         ink_code = quote! {
-            #[ink_lang::trait_definition(#attrs)]
-            #ink_as_dependency_trait
-
             #[allow(non_camel_case_types)]
             pub mod #namespace_ident {
                 use super::*;
@@ -133,29 +128,7 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
         .filter_map(|mut item| {
             if let syn::TraitItem::Method(method) = &mut item {
                 if is_attr(&method.attrs, "ink") {
-                    // Remove every attribute except `#[ink(message)]` and `#[ink(constructor)]`
-                    // Because ink! doesn't allow another attributes in the trait
-                    // We will paste that attributes back in impl section
-                    method.attrs = method
-                        .attrs
-                        .clone()
-                        .into_iter()
-                        .filter_map(|attr| {
-                            let str_attr = attr.to_token_stream().to_string();
-
-                            if str_attr.contains("#[ink") {
-                                if str_attr.contains("message") {
-                                    Some(new_attribute(quote! { #[ink(message)] }))
-                                } else if str_attr.contains("constructor") {
-                                    Some(new_attribute(quote! { #[ink(constructor)] }))
-                                } else {
-                                    None
-                                }
-                            } else {
-                                None
-                            }
-                        })
-                        .collect();
+                    method.attrs = extract_attr(&mut method.attrs, "ink");
                     Some(item)
                 } else {
                     None
@@ -197,7 +170,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 syn::ReturnType::Type(_, return_type) => quote! { ::ink_env::call::utils::ReturnType<#return_type> },
             };
             let selector_string = format!("{}::{}", trait_ident, message_ident);
-            let selector_bytes = ::ink_lang_ir::Selector::new(&selector_string.into_bytes()).hex_lits();
+            let selector_bytes = ::ink_lang_ir::Selector::compute(&selector_string.into_bytes()).hex_lits();
             let input_bindings = method
                 .sig
                 .inputs
@@ -323,7 +296,7 @@ fn add_selectors_attribute(trait_item: &mut ItemTrait) {
 
                 if contains_selector.is_none() {
                     let selector_string = format!("{}::{}", trait_ident, method.sig.ident);
-                    let selector_id = ::ink_lang_ir::Selector::new(&selector_string.into_bytes()).into_be_u32();
+                    let selector_id = ::ink_lang_ir::Selector::compute(&selector_string.into_bytes()).into_be_u32();
                     method.attrs.push(crate::internal::new_attribute(
                         quote! { #[ink(selector = #selector_id)] },
                     ));

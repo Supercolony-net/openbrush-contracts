@@ -18,18 +18,18 @@ implementation of `Lending` and `LendingPermissioned` traits defined in the `len
 name = "lending_contract"
 version = "1.0.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-ink_primitives = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { tag = "v3.0.0-rc6", git = "https://github.com/paritytech/ink", default-features = false }
+ink_primitives = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
-scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
 shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
@@ -110,12 +110,12 @@ impl LendingPermissionedInternal for LendingContract {
     fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
         let code_hash = self.lending.shares_contract_code_hash;
         let (hash, _) =
-            ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Ger random salt");
+            ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
         let hash = hash.as_ref();
         let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
             .endowment(10000000000)
             .code_hash(code_hash)
-            .salt_bytes(&[hash[0], hash[1], hash[2], hash[3]])
+            .salt_bytes(&hash[..4])
             .instantiate()
             .unwrap();
         contract.to_account_id()

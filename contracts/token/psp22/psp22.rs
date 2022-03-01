@@ -18,25 +18,31 @@ pub use derive::{
     PSP22MetadataStorage,
     PSP22Storage,
 };
-use ink_env::Error as EnvError;
+use ink_env::{
+    CallFlags,
+    Error as EnvError,
+};
 use ink_prelude::{
     string::String,
     vec::Vec,
 };
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
-    traits::SpreadLayout,
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
+    Mapping,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22Data {
     pub supply: Balance,
-    pub balances: StorageHashMap<AccountId, Balance>,
-    pub allowances: StorageHashMap<(AccountId, AccountId), Balance>,
+    pub balances: Mapping<AccountId, Balance>,
+    pub allowances: Mapping<(AccountId, AccountId), Balance>,
 }
 
 declare_storage_trait!(PSP22Storage, PSP22Data);
@@ -47,11 +53,11 @@ impl<T: PSP22Storage + Flush> PSP22 for T {
     }
 
     default fn balance_of(&self, owner: AccountId) -> Balance {
-        self.get().balances.get(&owner).copied().unwrap_or(0)
+        self.get().balances.get(&owner).unwrap_or(0)
     }
 
     default fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        self.get().allowances.get(&(owner, spender)).copied().unwrap_or(0)
+        self.get().allowances.get((&owner, &spender)).unwrap_or(0)
     }
 
     default fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
@@ -159,30 +165,31 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
         self.flush();
-        let result =
-            match PSP22ReceiverRef::before_received_builder(&to, Self::env().caller(), from, value, data).fire() {
-                Ok(result) => {
-                    match result {
-                        Ok(_) => Ok(()),
-                        Err(e) => Err(e.into()),
-                    }
+        let builder = PSP22ReceiverRef::before_received_builder(&to, Self::env().caller(), from, value, data)
+            .call_flags(CallFlags::default().set_allow_reentry(true));
+        let result = match builder.fire() {
+            Ok(result) => {
+                match result {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(e.into()),
                 }
-                Err(e) => {
-                    match e {
-                        // `NotCallable` means that the receiver is not a contract.
+            }
+            Err(e) => {
+                match e {
+                    // `NotCallable` means that the receiver is not a contract.
 
-                        // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
-                        // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
-                        // https://github.com/paritytech/ink/issues/1002
-                        EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
-                        _ => {
-                            Err(PSP22Error::SafeTransferCheckFailed(String::from(
-                                "Error during call to receiver",
-                            )))
-                        }
+                    // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
+                    // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
+                    // https://github.com/paritytech/ink/issues/1002
+                    EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
+                    _ => {
+                        Err(PSP22Error::SafeTransferCheckFailed(String::from(
+                            "Error during call to receiver",
+                        )))
                     }
                 }
-            };
+            }
+        };
         self.load();
         result?;
         Ok(())
@@ -229,9 +236,9 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         self._before_token_transfer(Some(&from), Some(&to), &amount)?;
 
         self._do_safe_transfer_check(from, to, amount, data)?;
-        self.get_mut().balances.insert(from, from_balance - amount);
+        self.get_mut().balances.insert(&from, &(from_balance - amount));
         let to_balance = self.balance_of(to);
-        self.get_mut().balances.insert(to, to_balance + amount);
+        self.get_mut().balances.insert(&to, &(to_balance + amount));
 
         self._emit_transfer_event(Some(from), Some(to), amount);
         self._after_token_transfer(Some(&from), Some(&to), &amount)
@@ -250,7 +257,7 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        self.get_mut().allowances.insert((owner, spender), amount);
+        self.get_mut().allowances.insert((&owner, &spender), &amount);
         self._emit_approval_event(owner, spender, amount);
         Ok(())
     }
@@ -263,7 +270,7 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         self._before_token_transfer(None, Some(&account), &amount)?;
         let mut new_balance = self.balance_of(account);
         new_balance += amount;
-        self.get_mut().balances.insert(account, new_balance);
+        self.get_mut().balances.insert(&account, &new_balance);
         self.get_mut().supply += amount;
         self._emit_transfer_event(None, Some(account), amount);
         self._after_token_transfer(None, Some(&account), &amount)
@@ -283,7 +290,7 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         self._before_token_transfer(Some(&account), None, &amount)?;
 
         from_balance -= amount;
-        self.get_mut().balances.insert(account, from_balance);
+        self.get_mut().balances.insert(&account, &from_balance);
         self.get_mut().supply -= amount;
         self._emit_transfer_event(Some(account), None, amount);
 

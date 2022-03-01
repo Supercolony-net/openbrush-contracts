@@ -27,7 +27,7 @@ jobs:
           yarn build:release
       - name: Run Test Mocha
         run: |
-          europa --tmp > /dev/null 2>&1 & P1=$!
+          substrate-contracts-node --tmp --dev > /dev/null 2>&1 & P1=$!
           yarn test:mocha & P2=$!
           wait $P2
           kill $P1

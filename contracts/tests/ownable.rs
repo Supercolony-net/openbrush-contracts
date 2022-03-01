@@ -7,7 +7,7 @@ mod ownable {
         traits::AccountIdExt,
     };
     use contracts::ownable::*;
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
@@ -28,7 +28,7 @@ mod ownable {
         ownable: OwnableData,
     }
 
-    type Event = <MyOwnable as ::ink_lang::BaseEvent>::Type;
+    type Event = <MyOwnable as ::ink_lang::reflect::ContractEventBase>::Type;
 
     impl MyOwnable {
         #[ink(constructor)]

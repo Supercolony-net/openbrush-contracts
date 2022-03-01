@@ -4,8 +4,9 @@
 #[brush::contract]
 pub mod my_psp34_mintable {
     use brush::contracts::psp34::extensions::mintable::*;
+    use ink_storage::traits::SpreadAllocate;
 
-    #[derive(Default, PSP34Storage)]
+    #[derive(Default, SpreadAllocate, PSP34Storage)]
     #[ink(storage)]
     pub struct MyPSP34 {
         #[PSP34StorageField]
@@ -20,7 +21,7 @@ pub mod my_psp34_mintable {
         /// The constructor
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 }

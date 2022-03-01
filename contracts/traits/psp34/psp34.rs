@@ -7,10 +7,15 @@ use brush::traits::{
     Balance,
 };
 use ink_prelude::vec::Vec;
+use ink_primitives::Key;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 use ink_storage::traits::{
+    ExtKeyPtr,
+    KeyPtr,
+    PackedAllocate,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 
@@ -24,6 +29,17 @@ pub enum Id {
     U64(u64),
     U128(u128),
     Bytes(Vec<u8>),
+}
+
+impl SpreadAllocate for Id {
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        ptr.next_for::<Id>();
+        Id::U8(0)
+    }
+}
+impl PackedAllocate for Id {
+    #[inline]
+    fn allocate_packed(&mut self, _at: &Key) {}
 }
 
 #[brush::wrapper]

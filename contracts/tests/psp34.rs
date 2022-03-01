@@ -7,10 +7,11 @@ mod psp34 {
         change_caller,
     };
     use contracts::psp34::*;
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
+    use ink_storage::traits::SpreadAllocate;
     use ink_lang as ink;
 
     /// Event emitted when a token transfer occurs.
@@ -46,7 +47,7 @@ mod psp34 {
         approved: bool,
     }
 
-    #[derive(Default, PSP34Storage)]
+    #[derive(Default, SpreadAllocate, PSP34Storage)]
     #[ink(storage)]
     pub struct PSP34Struct {
         #[PSP34StorageField]
@@ -119,7 +120,7 @@ mod psp34 {
     impl PSP34Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut PSP34Struct| {})
         }
 
         pub fn change_state_err_on_before(&mut self) {

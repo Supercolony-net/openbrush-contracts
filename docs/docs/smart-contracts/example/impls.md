@@ -200,7 +200,7 @@ use brush::{
     },
 };
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
+    Mapping,
     traits::SpreadLayout,
 };
 // it is public because when you will import the trait you also will import the derive for the trait
@@ -217,24 +217,24 @@ pub struct LendingData {
     /// mapping from asset address to lended asset address
     /// when X amount of asset is lended, X amount of asset it is mapped to is minted
     /// so the contract knows how much of asset it has and how much of the asset was lended
-    pub assets_lended: StorageHashMap<AccountId, AccountId>,
+    pub assets_lended: Mapping<AccountId, AccountId>,
     /// mapping from asset address to shares asset address
     /// the lended asset is mapped to a shares asset which represents
     /// the total share of the mapping asset
     /// example: if a user has X% of the total supply of the asset A', they
     /// are eligible to withdraw X% of the asset A tracked by this contract
-    pub asset_shares: StorageHashMap<AccountId, AccountId>,
+    pub asset_shares: Mapping<AccountId, AccountId>,
     /// mapping from share token to asset token
-    pub shares_asset: StorageHashMap<AccountId, AccountId>,
+    pub shares_asset: Mapping<AccountId, AccountId>,
     /// mapping from asset address to bool
     /// maps to `true` if an asset is accepted for using as collateral
-    pub collateral_accepted: StorageHashMap<AccountId, bool>,
+    pub collateral_accepted: Mapping<AccountId, bool>,
     /// mapping from tuple of two assets to balance
     /// mapped balance represents the amount of assets of tuple.1 we get
     /// when we deposit 1 unit of tuple.0
     /// we are using this just to simulate an oracle in our example
     /// in the example the returned balance will be amount of stable coin for an asset
-    pub asset_price: StorageHashMap<(AccountId, AccountId), Balance>,
+    pub asset_price: Mapping<(AccountId, AccountId), Balance>,
     /// code hash of the `SharesContract`
     pub shares_contract_code_hash: Hash,
     /// the `AccountId` of the `Loan`
@@ -246,7 +246,7 @@ declare_storage_trait!(LendingStorage, LendingData);
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
 pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-    instance.get_mut().asset_price.insert((asset_in, asset_out), price);
+    instance.get_mut().asset_price.insert((&asset_in, &asset_out), &price);
 }
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
@@ -260,7 +260,7 @@ pub fn get_asset_price<T: LendingStorage>(
     let price = instance
         .get()
         .asset_price
-        .get(&(asset_in, asset_out))
+        .get((&asset_in, &asset_out))
         .cloned()
         .unwrap_or(0);
     price * amount_in
@@ -331,12 +331,12 @@ impl LendingPermissionedInternal for LendingContract {
   fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
     let code_hash = self.lending.shares_contract_code_hash;
     let (hash, _) =
-            ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Ger random salt");
+            ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
     let hash = hash.as_ref();
     let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
             .endowment(10000000000)
             .code_hash(code_hash)
-            .salt_bytes(&[hash[0], hash[1], hash[2], hash[3]])
+            .salt_bytes(&hash[..4])
             .instantiate()
             .unwrap();
     contract.to_account_id()
@@ -441,9 +441,9 @@ fn accept_lending<T: LendingStorage>(
   share_address: AccountId,
   reserve_address: AccountId,
 ) {
-  instance.get_mut().asset_shares.insert(asset_address, share_address);
-  instance.get_mut().shares_asset.insert(share_address, asset_address);
-  instance.get_mut().assets_lended.insert(asset_address, reserve_address);
+  instance.get_mut().asset_shares.insert(&asset_address, &share_address);
+  instance.get_mut().shares_asset.insert(&share_address, &asset_address);
+  instance.get_mut().assets_lended.insert(&asset_address, &reserve_address);
 }
 
 fn disallow_lending<T: LendingStorage>(instance: &mut T, asset_address: AccountId) {
@@ -460,7 +460,7 @@ fn disallow_lending<T: LendingStorage>(instance: &mut T, asset_address: AccountI
 
 /// this function will accept `asset_address` for using as collateral
 fn set_collateral_accepted<T: LendingStorage>(instance: &mut T, asset_address: AccountId, accepted: bool) {
-  instance.get_mut().collateral_accepted.insert(asset_address, accepted);
+  instance.get_mut().collateral_accepted.insert(&asset_address, &accepted);
 }
 ```
 

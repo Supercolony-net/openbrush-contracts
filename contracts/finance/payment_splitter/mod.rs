@@ -11,22 +11,24 @@ use brush::{
 pub use derive::PaymentSplitterStorage;
 use ink_prelude::vec::Vec;
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
-    traits::SpreadLayout,
-    Vec as StorageVec,
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
+    Mapping,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PaymentSplitterData {
     pub total_shares: Balance,
     pub total_released: Balance,
-    pub shares: StorageHashMap<AccountId, Balance>,
-    pub released: StorageHashMap<AccountId, Balance>,
-    pub payees: StorageVec<AccountId>,
+    pub shares: Mapping<AccountId, Balance>,
+    pub released: Mapping<AccountId, Balance>,
+    pub payees: Vec<AccountId>,
 }
 
 declare_storage_trait!(PaymentSplitterStorage, PaymentSplitterData);
@@ -41,41 +43,45 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
     }
 
     default fn shares(&self, account: AccountId) -> Balance {
-        self.get().shares.get(&account).cloned().unwrap_or(0)
+        self.get().shares.get(&account).unwrap_or(0)
     }
 
     default fn released(&self, account: AccountId) -> Balance {
-        self.get().released.get(&account).cloned().unwrap_or(0)
+        self.get().released.get(&account).unwrap_or(0)
     }
 
     default fn payee(&self, index: u32) -> AccountId {
-        self.get().payees.get(index).cloned().unwrap_or(ZERO_ADDRESS.into())
+        self.get()
+            .payees
+            .get(index as usize)
+            .cloned()
+            .unwrap_or(ZERO_ADDRESS.into())
     }
 
     default fn receive(&mut self) {
-        self._emit_payee_added_event(Self::env().caller(), Self::env().transferred_balance())
+        self._emit_payee_added_event(Self::env().caller(), Self::env().transferred_value())
     }
 
     default fn release(&mut self, account: AccountId) -> Result<(), PaymentSplitterError> {
-        if !self.get().shares.contains_key(&account) {
+        if !self.get().shares.get(&account).is_some() {
             return Err(PaymentSplitterError::AccountHasNoShares)
         }
 
         let current_balance = Self::env()
             .balance()
-            .checked_sub(Self::env().minimum_balance() + Self::env().tombstone_deposit())
+            .checked_sub(Self::env().minimum_balance())
             .unwrap_or_default();
         let total_received = current_balance + self.get().total_released;
         let shares = self.get().shares.get(&account).unwrap().clone();
         let total_shares = self.get().total_shares;
-        let released = self.get_mut().released.get(&account).cloned().unwrap_or_default();
+        let released = self.get_mut().released.get(&account).unwrap_or_default();
         let payment = total_received * shares / total_shares - released;
 
         if payment == 0 {
             return Err(PaymentSplitterError::AccountIsNotDuePayment)
         }
 
-        self.get_mut().released.insert(account, released + payment);
+        self.get_mut().released.insert(&account, &(released + payment));
         self.get_mut().total_released += payment;
 
         let transfer_result = Self::env().transfer(account.clone(), payment);
@@ -134,12 +140,12 @@ impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
         if share == 0 {
             return Err(PaymentSplitterError::SharesAreZero)
         }
-        if self.get().shares.contains_key(&payee) {
+        if self.get().shares.get(&payee).is_some() {
             return Err(PaymentSplitterError::AlreadyHasShares)
         }
 
         self.get_mut().payees.push(payee.clone());
-        self.get_mut().shares.insert(payee.clone(), share);
+        self.get_mut().shares.insert(&payee, &share);
         self.get_mut().total_shares += share;
         self._emit_payee_added_event(payee, share);
         Ok(())

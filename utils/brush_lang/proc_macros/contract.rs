@@ -35,21 +35,13 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
     let metadata = metadata::Metadata::load(&locked_file);
     locked_file.unlock().expect("Can't remove shared lock");
 
-    let (ink_items, not_ink_items) = split_impls(items, &metadata);
+    let generated_items = generate_impls(items, &metadata);
 
-    module.content = Some((braces.clone(), not_ink_items));
-
-    let mut ink_module = module.clone();
-    ink_module.content = Some((braces.clone(), ink_items));
+    module.content = Some((braces.clone(), generated_items));
 
     let result = quote! {
-        #[cfg(not(feature = "ink-as-dependency"))]
         #[::ink_lang::contract(#attrs)]
         #module
-
-        #[cfg(feature = "ink-as-dependency")]
-        #[::ink_lang::contract(#attrs)]
-        #ink_module
     };
     result.into()
 }
@@ -83,54 +75,24 @@ fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {
     result
 }
 
-// This function will generate "ink-as-dependency" and not("ink-as-dependency") items.
-fn split_impls(mut items: Vec<syn::Item>, metadata: &metadata::Metadata) -> (Vec<syn::Item>, Vec<syn::Item>) {
-    let mut ink_items: Vec<syn::Item> = vec![];
-    let mut not_ink_items: Vec<syn::Item> = vec![];
+fn generate_impls(mut items: Vec<syn::Item>, metadata: &metadata::Metadata) -> Vec<syn::Item> {
+    let mut generated_items: Vec<syn::Item> = vec![];
     items.iter_mut().for_each(|mut item| {
         if let Item::Impl(item_impl) = &mut item {
             if let Some((_, trait_path, _)) = item_impl.trait_.clone() {
                 let trait_ident = trait_path.segments.last().expect("Trait path is empty").ident.clone();
                 if metadata.external_traits.contains_key(&trait_ident.to_string()) {
-                    let (mut _ink_impls, mut _not_ink_impls) =
-                        internal::impl_external_trait(item_impl.clone(), &trait_path, &metadata);
-                    ink_items.append(&mut _ink_impls);
-                    not_ink_items.append(&mut _not_ink_impls);
+                    let mut generated_impls = internal::impl_external_trait(item_impl.clone(), &trait_path, &metadata);
+                    generated_items.append(&mut generated_impls);
                     return
                 }
             }
 
-            // We want to mark all non-external impl sections like ink as dependencies to avoid errors during compilation,
-            // because ink! creates wrappers around structures, and impl sections are not valid in this case
-            let ink_as_dep_attr = new_attribute(quote! { #[cfg(not(feature = "ink-as-dependency"))] });
-            let mut item_impl = item_impl.clone();
-            let ink_methods: Vec<_> = item_impl
-                .items
-                .iter_mut()
-                .filter_map(|item| {
-                    if let syn::ImplItem::Method(method) = item {
-                        if internal::is_attr(&method.attrs, "ink") {
-                            Some(method)
-                        } else {
-                            method.attrs.push(ink_as_dep_attr.clone());
-                            None
-                        }
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-
-            if ink_methods.is_empty() {
-                item_impl.attrs.push(ink_as_dep_attr);
-            }
-            ink_items.push(syn::Item::from(item_impl.clone()));
-            not_ink_items.push(syn::Item::from(item_impl.clone()));
+            generated_items.push(syn::Item::from(item_impl.clone()));
         } else {
-            ink_items.push(item.clone());
-            not_ink_items.push(item.clone());
+            generated_items.push(item.clone());
         }
     });
 
-    (ink_items, not_ink_items)
+    generated_items
 }

@@ -1,5 +1,5 @@
 import { bnArg, expect, fromSigner, setupContract } from './helpers'
-import { network, patract } from '@supercolony/redspot'
+import { network, patract } from 'redspot'
 import BN from 'bn.js'
 
 const { getRandomSigner } = patract
@@ -43,11 +43,11 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
     await expect(contract.query.isOperationDone(id)).to.have.output(false)
   })
 
-  it('TIMELOCK CONTROLLER - schedule and execute without input data `TimelockController,get_min_delay`', async () => {
+  it('TIMELOCK CONTROLLER - schedule and execute without input data `TimelockController::get_min_delay`', async () => {
     const { contract, bob } = await setup()
 
     // Arrange - Prepare data for execute `get_min_delay`
-    const message = getMessageAbi(contract, 'TimelockController,get_min_delay')
+    const message = getMessageAbi(contract, 'TimelockController::get_min_delay')
     let transaction = {
       callee: contract.contract.address,
       selector: message.selector,
@@ -67,11 +67,11 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
     await expect(contract.query.isOperationDone(id)).to.have.output(true)
   })
 
-  it('TIMELOCK CONTROLLER - schedule and execute by passing value into `TimelockController,update_delay`, and update', async () => {
+  it('TIMELOCK CONTROLLER - schedule and execute by passing value into `TimelockController::update_delay`, and update', async () => {
     const { contract, bob } = await setup()
 
     // Arrange - Prepare data for execute `update_delay` with a new `min_delay`
-    const message = getMessageAbi(contract, 'TimelockController,update_delay')
+    const message = getMessageAbi(contract, 'TimelockController::update_delay')
     const new_min_delay = 15
     let dataWithSelector = message.toU8a([new_min_delay])
 

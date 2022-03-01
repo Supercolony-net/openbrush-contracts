@@ -6,9 +6,10 @@ mod payment_splitter {
     use brush::test_utils::accounts;
     use contracts::payment_splitter::*;
     use ink_env::test::DefaultAccounts;
+    use ink_storage::traits::SpreadAllocate;
     use ink_lang as ink;
 
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
@@ -32,7 +33,7 @@ mod payment_splitter {
     }
 
     #[ink(storage)]
-    #[derive(Default, PaymentSplitterStorage)]
+    #[derive(Default, SpreadAllocate, PaymentSplitterStorage)]
     pub struct MySplitter {
         #[PaymentSplitterStorageField]
         splitter: PaymentSplitterData,
@@ -41,9 +42,9 @@ mod payment_splitter {
     impl MySplitter {
         #[ink(constructor)]
         pub fn new(payees_and_shares: Vec<(AccountId, Balance)>) -> Self {
-            let mut instance = Self::default();
-            instance._init(payees_and_shares).unwrap();
-            instance
+            ink_lang::codegen::initialize_contract(| instance: &mut MySplitter| {
+                instance._init(payees_and_shares).unwrap();
+            })
         }
     }
 
@@ -63,7 +64,7 @@ mod payment_splitter {
         }
     }
 
-    type Event = <MySplitter as ::ink_lang::BaseEvent>::Type;
+    type Event = <MySplitter as ::ink_lang::reflect::ContractEventBase>::Type;
 
     fn setup() -> DefaultAccounts<DefaultEnvironment> {
         let accounts = accounts();
@@ -140,23 +141,23 @@ mod payment_splitter {
 
         assert_eq!(100 + 200, instance.total_shares());
         assert!(instance.release(accounts.alice).is_ok());
-        assert_eq!(333314, instance.total_released());
+        assert_eq!(333319, instance.total_released());
         assert!(instance.release(accounts.bob).is_ok());
-        assert_eq!(999942, instance.total_released());
-        assert_eq!(333314, instance.released(accounts.alice));
+        assert_eq!(999957, instance.total_released());
+        assert_eq!(333319, instance.released(accounts.alice));
         assert_eq!(
-            333314,
+            333319,
             ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.alice).unwrap()
         );
-        assert_eq!(2 * 333314, instance.released(accounts.bob));
+        assert_eq!(2 * 333319, instance.released(accounts.bob));
         assert_eq!(
-            2 * 333314,
+            2 * 333319,
             ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.bob).unwrap()
         );
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_payment_released_event(&emitted_events[2], accounts.alice, 333314);
-        assert_payment_released_event(&emitted_events[3], accounts.bob, 2 * 333314);
+        assert_payment_released_event(&emitted_events[2], accounts.alice, 333319);
+        assert_payment_released_event(&emitted_events[3], accounts.bob, 2 * 333319);
     }
 
     #[ink::test]
@@ -174,29 +175,29 @@ mod payment_splitter {
         add_funds(instance.env().account_id(), amount);
         assert!(instance.release(accounts.alice).is_ok());
         assert!(instance.release(accounts.bob).is_ok());
-        assert_eq!(1999884, instance.total_released());
-        assert_eq!(666628, instance.released(accounts.alice));
+        assert_eq!(1999914, instance.total_released());
+        assert_eq!(666638, instance.released(accounts.alice));
         assert_eq!(
-            333314,
+            333319,
             ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.alice).unwrap()
         );
-        assert_eq!(1333256, instance.released(accounts.bob));
+        assert_eq!(1333276, instance.released(accounts.bob));
         assert_eq!(
-            666628,
+            666638,
             ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(accounts.bob).unwrap()
         );
 
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
-        assert_payment_released_event(&emitted_events[2], accounts.alice, 333314);
-        assert_payment_released_event(&emitted_events[3], accounts.bob, 666628);
-        assert_payment_released_event(&emitted_events[4], accounts.alice, 333314);
-        assert_payment_released_event(&emitted_events[5], accounts.bob, 666628);
+        assert_payment_released_event(&emitted_events[2], accounts.alice, 333319);
+        assert_payment_released_event(&emitted_events[3], accounts.bob, 666638);
+        assert_payment_released_event(&emitted_events[4], accounts.alice, 333319);
+        assert_payment_released_event(&emitted_events[5], accounts.bob, 666638);
     }
 
     #[ink::test]
     fn correct_release_with_zero_payment() {
         let accounts = setup();
-        let mut instance = MySplitter::new(vec![(accounts.alice, 100), (accounts.bob, 200)]);
+        let mut instance = MySplitter::new(vec![(accounts.alice, 101), (accounts.bob, 200)]);
 
         assert_eq!(
             Err(PaymentSplitterError::AccountIsNotDuePayment),

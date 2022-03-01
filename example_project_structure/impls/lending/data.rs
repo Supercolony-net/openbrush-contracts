@@ -12,8 +12,11 @@ use brush::{
     },
 };
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
-    traits::SpreadLayout,
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
+    Mapping,
 };
 // it is public because when you will import the trait you also will import the derive for the trait
 pub use lending_project_derive::LendingStorage;
@@ -21,7 +24,7 @@ pub use lending_project_derive::LendingStorage;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 /// define the struct with the data that our smart contract will be using
 /// this will isolate the logic of our smart contract from its storage
@@ -29,24 +32,24 @@ pub struct LendingData {
     /// mapping from asset address to lended asset address
     /// when X amount of asset is lended, X amount of asset it is mapped to is minted
     /// so the contract knows how much of asset it has and how much of the asset was lended
-    pub assets_lended: StorageHashMap<AccountId, AccountId>,
+    pub assets_lended: Mapping<AccountId, AccountId>,
     /// mapping from asset address to shares asset address
     /// the lended asset is mapped to a shares asset which represents
     /// the total share of the mapping asset
     /// example: if a user has X% of the total supply of the asset A', they
     /// are eligible to withdraw X% of the asset A tracked by this contract
-    pub asset_shares: StorageHashMap<AccountId, AccountId>,
+    pub asset_shares: Mapping<AccountId, AccountId>,
     /// mapping from share token to asset token
-    pub shares_asset: StorageHashMap<AccountId, AccountId>,
+    pub shares_asset: Mapping<AccountId, AccountId>,
     /// mapping from asset address to bool
     /// maps to `true` if an asset is accepted for using as collateral
-    pub collateral_accepted: StorageHashMap<AccountId, bool>,
+    pub collateral_accepted: Mapping<AccountId, bool>,
     /// mapping from tuple of two assets to balance
     /// mapped balance represents the amount of assets of tuple.1 we get
     /// when we deposit 1 unit of tuple.0
     /// we are using this just to simulate an oracle in our example
     /// in the example the returned balance will be amount of stable coin for an asset
-    pub asset_price: StorageHashMap<(AccountId, AccountId), Balance>,
+    pub asset_price: Mapping<(AccountId, AccountId), Balance>,
     /// code hash of the `SharesContract`
     pub shares_contract_code_hash: Hash,
     /// the `AccountId` of the `Loan`
@@ -58,7 +61,7 @@ declare_storage_trait!(LendingStorage, LendingData);
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
 pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-    instance.get_mut().asset_price.insert((asset_in, asset_out), price);
+    instance.get_mut().asset_price.insert((&asset_in, &asset_out), &price);
 }
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
@@ -69,12 +72,7 @@ pub fn get_asset_price<T: LendingStorage>(
     asset_in: AccountId,
     asset_out: AccountId,
 ) -> Balance {
-    let price = instance
-        .get()
-        .asset_price
-        .get(&(asset_in, asset_out))
-        .cloned()
-        .unwrap_or(0);
+    let price = instance.get().asset_price.get((&asset_in, &asset_out)).unwrap_or(0);
     price * amount_in
 }
 
@@ -87,8 +85,7 @@ pub fn get_reserve_asset<T: LendingStorage>(
     let reserve_asset = instance
         .get()
         .asset_shares
-        .get(asset_address)
-        .cloned()
+        .get(&asset_address)
         .unwrap_or(ZERO_ADDRESS.into());
     if reserve_asset.is_zero() {
         return Err(LendingError::AssetNotSupported)
@@ -106,7 +103,6 @@ pub fn get_asset_from_shares<T: LendingStorage>(
         .get()
         .shares_asset
         .get(&shares_address)
-        .cloned()
         .unwrap_or(ZERO_ADDRESS.into());
     if token.is_zero() {
         return Err(LendingError::AssetNotSupported)

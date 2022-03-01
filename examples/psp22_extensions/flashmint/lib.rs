@@ -4,9 +4,10 @@
 #[brush::contract]
 pub mod my_psp22_flashmint {
     use brush::contracts::psp22::extensions::flashmint::*;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage)]
     pub struct MyPSP22FlashMint {
         #[PSP22StorageField]
         psp22: PSP22Data,
@@ -20,7 +21,7 @@ pub mod my_psp22_flashmint {
     // you need to override that in the `PSP22FlashLenderInternal` trait
     impl PSP22FlashLenderInternal for MyPSP22FlashMint {
         /// Override `get_fee` function to add 1% fee to the borrowed `amount`
-        fn _get_fee(&mut self, amount: Balance) -> Balance {
+        fn _get_fee(&self, amount: Balance) -> Balance {
             amount / 100
         }
     }
@@ -28,9 +29,9 @@ pub mod my_psp22_flashmint {
     impl MyPSP22FlashMint {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            let mut instance = Self::default();
-            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+            })
         }
     }
 }

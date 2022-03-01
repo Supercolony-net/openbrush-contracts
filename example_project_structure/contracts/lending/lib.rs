@@ -43,12 +43,13 @@ pub mod lending {
     };
     use ink_lang::ToAccountId;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
     use lending_project::impls::lending::*;
-    use loan_contract::loan::LoanContract;
-    use shares_contract::shares::SharesContract;
+    use loan_contract::loan::LoanContractRef;
+    use shares_contract::shares::SharesContractRef;
 
     #[ink(storage)]
-    #[derive(Default, AccessControlStorage, PausableStorage, LendingStorage)]
+    #[derive(Default, SpreadAllocate, AccessControlStorage, PausableStorage, LendingStorage)]
     pub struct LendingContract {
         #[AccessControlStorageField]
         access: AccessControlData,
@@ -70,14 +71,15 @@ pub mod lending {
         fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
             let code_hash = self.lending.shares_contract_code_hash;
             let (hash, _) =
-                ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Ger random salt");
+                ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
             let hash = hash.as_ref();
-            let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
-                .endowment(10000000000)
-                .code_hash(code_hash)
-                .salt_bytes(&[hash[0], hash[1], hash[2], hash[3]])
-                .instantiate()
-                .unwrap();
+            let contract =
+                SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+                    .endowment(10000000000)
+                    .code_hash(code_hash)
+                    .salt_bytes(&hash[..4])
+                    .instantiate()
+                    .unwrap();
             contract.to_account_id()
         }
     }
@@ -86,20 +88,20 @@ pub mod lending {
         /// constructor with name and symbol
         #[ink(constructor)]
         pub fn new(code_hash: Hash, nft_code_hash: Hash) -> Self {
-            let mut instance = Self::default();
-            let caller = instance.env().caller();
-            instance._init_with_admin(caller);
-            instance.grant_role(MANAGER, caller).expect("Can not set manager role");
-            instance.lending.shares_contract_code_hash = code_hash;
-            // instantiate NFT contract and store its account id
-            let nft = LoanContract::new()
-                .endowment(10000000000)
-                .code_hash(nft_code_hash)
-                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-                .instantiate()
-                .unwrap();
-            instance.lending.loan_account = nft.to_account_id();
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut LendingContract| {
+                let caller = instance.env().caller();
+                instance._init_with_admin(caller);
+                instance.grant_role(MANAGER, caller).expect("Can not set manager role");
+                instance.lending.shares_contract_code_hash = code_hash;
+                // instantiate NFT contract and store its account id
+                let nft = LoanContractRef::new()
+                    .endowment(10000000000)
+                    .code_hash(nft_code_hash)
+                    .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                    .instantiate()
+                    .unwrap();
+                instance.lending.loan_account = nft.to_account_id();
+            })
         }
     }
 }

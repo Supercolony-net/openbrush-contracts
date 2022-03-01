@@ -36,7 +36,6 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let mapped_asset = LendingStorage::get(self)
             .assets_lended
             .get(&asset_address)
-            .cloned()
             .unwrap_or(ZERO_ADDRESS.into());
         // return error if the asset is not supported
         if mapped_asset.is_zero() {
@@ -53,7 +52,6 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let mapped_asset = LendingStorage::get(self)
             .asset_shares
             .get(&asset_address)
-            .cloned()
             .unwrap_or(ZERO_ADDRESS.into());
         // return error if the asset is not supported
         if mapped_asset.is_zero() {
@@ -66,7 +64,6 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         !LendingStorage::get(self)
             .asset_shares
             .get(&asset_address)
-            .cloned()
             .unwrap_or(ZERO_ADDRESS.into())
             .is_zero()
     }
@@ -75,7 +72,6 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         LendingStorage::get(self)
             .collateral_accepted
             .get(&asset_address)
-            .cloned()
             .unwrap_or(false)
     }
 

@@ -8,14 +8,17 @@ pub mod my_psp1155 {
         string::String,
         vec,
     };
-    use ink_storage::collections::HashMap as StorageHashMap;
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
 
-    #[derive(Default, PSP1155Storage)]
+    #[derive(Default, SpreadAllocate, PSP1155Storage)]
     #[ink(storage)]
     pub struct MyPSP1155 {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
-        denied_ids: StorageHashMap<Id, ()>,
+        denied_ids: Mapping<Id, ()>,
     }
 
     impl PSP1155 for MyPSP1155 {}
@@ -23,12 +26,12 @@ pub mod my_psp1155 {
     impl MyPSP1155 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]
         pub fn deny(&mut self, id: Id) {
-            self.denied_ids.insert(id, ());
+            self.denied_ids.insert(&id, &());
         }
 
         #[ink(message)]

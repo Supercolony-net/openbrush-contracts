@@ -121,7 +121,7 @@ mod psp22_timelock {
     }
 
     fn advance_block() {
-        ink_env::test::advance_block::<DefEnv>().expect("Cannot advance block");
+        let _ = ink_env::test::advance_block::<DefEnv>();
     }
 
     fn get_accounts() -> ink_env::test::DefaultAccounts<DefEnv> {
@@ -129,6 +129,6 @@ mod psp22_timelock {
     }
 
     fn get_time() -> Timestamp {
-        ink_env::block_timestamp::<DefEnv>().expect("Cannot get block timestamp")
+        ink_env::block_timestamp::<DefEnv>()
     }
 }

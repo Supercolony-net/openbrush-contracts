@@ -135,7 +135,7 @@ pub mod loan {
         vec::Vec,
     };
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_storage::collections::HashMap as StorageHashMap;
+    use ink_storage::Mapping;
     use lending_project::traits::loan::*;
 ```
 You can notice that we marked some imports with `#[cfg(not(feature = "ink-as-dependency"))]`.
@@ -165,7 +165,7 @@ pub struct LoanContract {
 
     // Fields of current contract
     /// mapping from token id to `LoanInfo`
-    loan_info: StorageHashMap<Id, LoanInfo>,
+    loan_info: Mapping<Id, LoanInfo>,
     /// the id of last loan
     last_loan_id: Id,
     /// ids no longer used (can be reused)
@@ -203,7 +203,7 @@ impl Loan for LoanContract {
             return Err(PSP34Error::Custom(String::from("This loan id already exists!")))
         }
         loan_info.liquidated = false;
-        self.loan_info.insert(loan_id, loan_info.clone());
+        self.loan_info.insert(&loan_id, &loan_info);
         self._mint_to(loan_info.borrower, loan_id)
     }
 
@@ -280,7 +280,7 @@ impl LoanContract {
         loan_info.borrow_amount = new_borrow_amount;
         loan_info.timestamp = new_timestamp;
 
-        self.loan_info.insert(loan_id, loan_info);
+        self.loan_info.insert(&loan_id, &loan_info);
 
         Ok(())
     }
@@ -296,7 +296,7 @@ impl LoanContract {
         let mut loan_info = loan_info.cloned().unwrap();
         loan_info.liquidated = true;
 
-        self.loan_info.insert(loan_id, loan_info);
+        self.loan_info.insert(&loan_id, &loan_info);
 
         Ok(())
     }

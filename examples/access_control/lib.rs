@@ -13,9 +13,10 @@ pub mod my_access_control {
         },
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP34Storage, AccessControlStorage)]
+    #[derive(Default, SpreadAllocate, PSP34Storage, AccessControlStorage)]
     pub struct PSP34Struct {
         #[PSP34StorageField]
         psp34: PSP34Data,
@@ -32,12 +33,12 @@ pub mod my_access_control {
     impl PSP34Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            let caller = instance.env().caller();
-            instance._init_with_admin(caller);
-            // We grant minter role to caller in constructor, so he can mint/burn tokens
-            instance.grant_role(MINTER, caller).expect("Should grant MINTER role");
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                let caller = instance.env().caller();
+                instance._init_with_admin(caller);
+                // We grant minter role to caller in constructor, so he can mint/burn tokens
+                instance.grant_role(MINTER, caller).expect("Should grant MINTER role");
+            })
         }
     }
 

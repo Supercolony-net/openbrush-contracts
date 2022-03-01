@@ -35,8 +35,9 @@ pub mod my_flipper_guard {
         contracts::reentrancy_guard::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 
-    use crate::flip_on_me::CallerOfFlip;
+    use crate::flip_on_me::CallerOfFlipRef;
     use ink_env::call::FromAccountId;
 
     pub trait FlipperStorage {
@@ -69,13 +70,13 @@ pub mod my_flipper_guard {
             // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
             // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
             // that call of `flip` after `call_flip_on_me` must fail.
-            let mut flipper: CallerOfFlip = FromAccountId::from_account_id(callee);
+            let mut flipper: CallerOfFlipRef = FromAccountId::from_account_id(callee);
             flipper.flip_on_me()
         }
     }
 
     #[ink(storage)]
-    #[derive(Default, ReentrancyGuardStorage)]
+    #[derive(Default, SpreadAllocate, ReentrancyGuardStorage)]
     pub struct MyFlipper {
         #[ReentrancyGuardStorageField]
         guard: ReentrancyGuardData,
@@ -95,7 +96,7 @@ pub mod my_flipper_guard {
     impl MyFlipper {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 

@@ -12,12 +12,12 @@ pub mod ownable {
             },
         },
         modifiers,
-        traits::InkStorage,
     };
     use ink_prelude::vec::Vec;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PSP1155Storage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, PSP1155Storage, OwnableStorage)]
     pub struct PSP1155Struct {
         #[PSP1155StorageField]
         psp1155: PSP1155Data,
@@ -28,10 +28,10 @@ pub mod ownable {
     impl PSP1155Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            let caller = instance.env().caller();
-            instance._init_with_owner(caller);
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                let caller = instance.env().caller();
+                instance._init_with_owner(caller);
+            })
         }
     }
 

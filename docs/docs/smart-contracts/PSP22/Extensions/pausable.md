@@ -11,7 +11,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of PSP22 and Pausable via `brush` features.
 
 ```toml
-brush = { tag = "v1.3.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22", "pausable"] }
+brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22", "pausable"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature

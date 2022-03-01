@@ -5,7 +5,7 @@ mod psp22_flashmint {
     use brush::test_utils::accounts;
     use contracts::psp22::extensions::flashmint::*;
     use ink_lang as ink;
-    use ink_lang::Env;
+    use ink_lang::codegen::Env;
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage)]
@@ -19,7 +19,7 @@ mod psp22_flashmint {
     // we get rid of cross contract call in test
     impl PSP22FlashLenderInternal for PSP22FlashMintStruct {
         // we will add 1% fee to the amount
-        fn _get_fee(&mut self, amount: Balance) -> Balance {
+        fn _get_fee(&self, amount: Balance) -> Balance {
             amount / 100
         }
 

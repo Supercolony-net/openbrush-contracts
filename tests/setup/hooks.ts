@@ -1,4 +1,4 @@
-import { network } from '@supercolony/redspot'
+import { network } from 'redspot'
 
 const { api } = network
 

@@ -23,8 +23,6 @@ use syn::{
 const INSTANCE: &'static str = "__brush_instance_modifier";
 
 pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
-    let input: TokenStream2 = _input.clone().into();
-
     let modifiers = parse_macro_input!(_attrs as AttributeArgs);
     let mut impl_item =
         syn::parse2::<ImplItemMethod>(_input.into()).expect("Can't parse input of `modifiers` macro like a method.");
@@ -114,11 +112,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     impl_item.block = block;
 
     let code = quote! {
-        #[cfg(not(feature = "ink-as-dependency"))]
         #impl_item
-
-        #[cfg(feature = "ink-as-dependency")]
-        #input
     };
 
     code.into()

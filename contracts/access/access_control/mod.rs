@@ -7,18 +7,21 @@ use brush::{
 };
 pub use derive::AccessControlStorage;
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
-    traits::SpreadLayout,
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
+    Mapping,
 };
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct AccessControlData {
-    pub admin_roles: StorageHashMap<RoleType, RoleType>,
-    pub members: StorageHashMap<(RoleType, AccountId), ()>,
+    pub admin_roles: Mapping<RoleType, RoleType>,
+    pub members: Mapping<(RoleType, AccountId), ()>,
 }
 
 declare_storage_trait!(AccessControlStorage, AccessControlData);
@@ -53,7 +56,7 @@ impl<T: AccessControlStorage> AccessControl for T {
         if has_role(self, &role, &account) {
             return Err(AccessControlError::RoleRedundant)
         }
-        self.get_mut().members.insert((role.clone(), account.clone()), ());
+        self.get_mut().members.insert((&role, &account), &());
         self._emit_role_granted(role, account, Some(Self::env().caller()));
         Ok(())
     }
@@ -126,21 +129,24 @@ impl<T: AccessControlStorage> AccessControlInternal for T {
 
     default fn _setup_role(&mut self, role: RoleType, admin: AccountId) {
         if !has_role(self, &role, &admin) {
-            self.get_mut().members.insert((role.clone(), admin.clone()), ());
+            self.get_mut().members.insert((&role, &admin), &());
 
             self._emit_role_granted(role, admin, None);
         }
     }
 
     default fn _do_revoke_role(&mut self, role: RoleType, account: AccountId) {
-        self.get_mut().members.take(&(role, account));
+        self.get_mut().members.remove((&role, &account));
         self._emit_role_revoked(role, account, Self::env().caller());
     }
 
     default fn _set_role_admin(&mut self, role: RoleType, new_admin: RoleType) {
-        let entry = self.get_mut().admin_roles.entry(role).or_insert(Self::_default_admin());
-        let old_admin = entry.clone();
-        *entry = new_admin;
+        let mut entry = self.get_mut().admin_roles.get(&role);
+        if entry.is_none() {
+            entry = Some(Self::_default_admin());
+        }
+        let old_admin = entry.unwrap();
+        self.get_mut().admin_roles.insert(&role, &new_admin);
         self._emit_role_admin_changed(role, old_admin, new_admin);
     }
 }
@@ -157,14 +163,9 @@ pub fn check_role<T: AccessControlStorage>(
 }
 
 pub fn has_role<T: AccessControlStorage>(instance: &T, role: &RoleType, account: &AccountId) -> bool {
-    instance.get().members.contains_key(&(role.clone(), account.clone()))
+    instance.get().members.get((role, account)).is_some()
 }
 
 pub fn get_role_admin<T: AccessControlStorage>(instance: &T, role: &RoleType) -> RoleType {
-    instance
-        .get()
-        .admin_roles
-        .get(role)
-        .cloned()
-        .unwrap_or(T::_default_admin())
+    instance.get().admin_roles.get(role).unwrap_or(T::_default_admin())
 }

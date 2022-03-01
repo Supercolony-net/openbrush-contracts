@@ -11,7 +11,7 @@ mod access_control {
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
 
-    use ink::{
+    use ink::codegen::{
         EmitEvent,
         Env,
     };
@@ -60,7 +60,7 @@ mod access_control {
         access: AccessControlData,
     }
 
-    type Event = <AccessControlStruct as ::ink_lang::BaseEvent>::Type;
+    type Event = <AccessControlStruct as ::ink_lang::reflect::ContractEventBase>::Type;
 
     impl AccessControl for AccessControlStruct {}
 

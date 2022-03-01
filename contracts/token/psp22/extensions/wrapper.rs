@@ -10,13 +10,17 @@ use brush::{
     },
 };
 pub use derive::PSP22WrapperStorage;
+use ink_env::CallFlags;
 use ink_prelude::vec::Vec;
-use ink_storage::traits::SpreadLayout;
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
+};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct PSP22WrapperData {
     pub underlying: AccountId,
@@ -68,11 +72,18 @@ impl<T: PSP22 + PSP22Internal + PSP22WrapperStorage> PSP22WrapperInternal for T 
 
     default fn _deposit(&mut self, amount: Balance) -> Result<(), PSP22Error> {
         self._underlying()
-            .transfer_from(Self::env().caller(), Self::env().account_id(), amount, Vec::<u8>::new())
+            .transfer_from_builder(Self::env().caller(), Self::env().account_id(), amount, Vec::<u8>::new())
+            .call_flags(CallFlags::default().set_allow_reentry(true))
+            .fire()
+            .unwrap()
     }
 
     default fn _withdraw(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        self._underlying().transfer(account, amount, Vec::<u8>::new())
+        self._underlying()
+            .transfer_builder(account, amount, Vec::<u8>::new())
+            .call_flags(CallFlags::default().set_allow_reentry(true))
+            .fire()
+            .unwrap()
     }
 
     default fn _underlying_balance(&mut self) -> Balance {

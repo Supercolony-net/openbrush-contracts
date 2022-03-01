@@ -22,6 +22,7 @@ use ink_env::{
         ExecutionInput,
     },
     hash::Blake2x256,
+    CallFlags,
     DefaultEnvironment,
 };
 use ink_prelude::{
@@ -29,19 +30,22 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::{
-    collections::HashMap as StorageHashMap,
-    traits::SpreadLayout,
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
+    Mapping,
 };
 use scale::Encode;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 pub struct TimelockControllerData {
     pub min_delay: Timestamp,
-    pub timestamps: StorageHashMap<OperationId, Timestamp>,
+    pub timestamps: Mapping<OperationId, Timestamp>,
 }
 
 declare_storage_trait!(TimelockControllerStorage, TimelockControllerData);
@@ -91,7 +95,6 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         TimelockControllerStorage::get(self)
             .timestamps
             .get(&id)
-            .cloned()
             .unwrap_or(Timestamp::default())
     }
 
@@ -156,7 +159,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         if !self.is_operation_pending(id) {
             return Err(TimelockControllerError::OperationCannonBeCanceled)
         }
-        TimelockControllerStorage::get_mut(self).timestamps.take(&id);
+        TimelockControllerStorage::get_mut(self).timestamps.remove(&id);
 
         self._emit_cancelled_event(id);
         Ok(())
@@ -373,7 +376,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
 
         TimelockControllerStorage::get_mut(self)
             .timestamps
-            .insert(id, Self::env().block_timestamp() + delay);
+            .insert(&id, &(Self::env().block_timestamp() + delay));
         Ok(())
     }
 
@@ -391,7 +394,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
 
         TimelockControllerStorage::get_mut(self)
             .timestamps
-            .insert(id, Self::_done_timestamp());
+            .insert(&id, &Self::_done_timestamp());
         Ok(())
     }
 
@@ -410,6 +413,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
             .transferred_value(transaction.transferred_value)
             .exec_input(ExecutionInput::new(transaction.selector.into()).push_arg(CallInput(&transaction.input)))
             .returns::<()>()
+            .call_flags(CallFlags::default().set_allow_reentry(true))
             .fire()
             .map_err(|_| TimelockControllerError::UnderlyingTransactionReverted);
 

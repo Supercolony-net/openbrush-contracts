@@ -13,6 +13,7 @@ RUN npm install -g n && \
 RUN curl -sSf https://sh.rustup.rs/ | sh -s -- --default-toolchain nightly -y
 
 RUN rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+RUN rustup target add wasm32-unknown-unknown
 
 RUN cargo install --force cargo-contract && \
-    cargo install europa --git=https://github.com/patractlabs/europa.git --force --locked
+    cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked

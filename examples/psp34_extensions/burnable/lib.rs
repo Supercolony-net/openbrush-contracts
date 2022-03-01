@@ -4,8 +4,9 @@
 #[brush::contract]
 pub mod my_psp34_burnable {
     use brush::contracts::psp34::extensions::burnable::*;
+    use ink_storage::traits::SpreadAllocate;
 
-    #[derive(Default, PSP34Storage)]
+    #[derive(Default, SpreadAllocate, PSP34Storage)]
     #[ink(storage)]
     pub struct MyPSP34 {
         #[PSP34StorageField]
@@ -20,11 +21,17 @@ pub mod my_psp34_burnable {
         /// The constructor
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            instance._mint_to(Self::env().caller(), Id::U8(0u8)).expect("Should mint token with id 0");
-            instance._mint_to(Self::env().caller(), Id::U8(1u8)).expect("Should mint token with id 1");
-            instance._mint_to(Self::env().caller(), Id::U8(2u8)).expect("Should mint token with id 2");
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                instance
+                    ._mint_to(Self::env().caller(), Id::U8(0u8))
+                    .expect("Should mint token with id 0");
+                instance
+                    ._mint_to(Self::env().caller(), Id::U8(1u8))
+                    .expect("Should mint token with id 1");
+                instance
+                    ._mint_to(Self::env().caller(), Id::U8(2u8))
+                    .expect("Should mint token with id 2");
+            })
         }
     }
 }
