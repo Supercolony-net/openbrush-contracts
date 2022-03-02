@@ -390,6 +390,7 @@ mod timelock_controller {
         let accounts = setup();
         let min_delay = 10;
         let mut timelock = TimelockControllerStruct::new(accounts.alice, min_delay, vec![accounts.alice], vec![]);
+        change_caller([13; 32].into());
 
         assert_eq!(
             Err(TimelockControllerError::CallerMustBeTimeLock),

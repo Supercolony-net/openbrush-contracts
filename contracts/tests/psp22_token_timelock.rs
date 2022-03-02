@@ -2,6 +2,7 @@
 #[cfg(feature = "psp22")]
 #[brush::contract]
 mod psp22_timelock {
+    use brush::test_utils::accounts;
     use contracts::psp22::utils::token_timelock::*;
     use ink_lang as ink;
 
@@ -53,7 +54,7 @@ mod psp22_timelock {
     /// Test the constructor
     #[ink::test]
     fn new_works() {
-        let accounts = get_accounts();
+        let accounts = accounts();
         let timelock = PSP22TokenTimelockStruct::new(AccountId::from([0x1; 32]), accounts.alice, day());
 
         assert_eq!(timelock.token(), AccountId::from([0x1; 32]));
@@ -64,7 +65,7 @@ mod psp22_timelock {
     #[ink::test]
     fn release_works() {
         let deposited_tokens = 1000;
-        let accounts = get_accounts();
+        let accounts = accounts();
         let mut timelock = PSP22TokenTimelockStruct::new(AccountId::from([0x1; 32]), accounts.alice, day());
         // deposit tokens to the contract
         timelock.deposit(deposited_tokens);
@@ -84,7 +85,7 @@ mod psp22_timelock {
     #[ink::test]
     fn release_soon_should_panic() {
         let deposited_tokens = 1000;
-        let accounts = get_accounts();
+        let accounts = accounts();
         let mut timelock = PSP22TokenTimelockStruct::new(AccountId::from([0x1; 32]), accounts.alice, day());
         // deposit tokens to the contract
         timelock.deposit(deposited_tokens);
@@ -98,7 +99,7 @@ mod psp22_timelock {
 
     #[ink::test]
     fn release_without_deposit_should_panic() {
-        let accounts = get_accounts();
+        let accounts = accounts();
         let mut timelock = PSP22TokenTimelockStruct::new(AccountId::from([0x1; 32]), accounts.alice, day());
         // pass one day
         for _ in 0..day_blocks() {
@@ -122,10 +123,6 @@ mod psp22_timelock {
 
     fn advance_block() {
         let _ = ink_env::test::advance_block::<DefEnv>();
-    }
-
-    fn get_accounts() -> ink_env::test::DefaultAccounts<DefEnv> {
-        ink_env::test::default_accounts::<DefEnv>().expect("Cannot get accounts")
     }
 
     fn get_time() -> Timestamp {

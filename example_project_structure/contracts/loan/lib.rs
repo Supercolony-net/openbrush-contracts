@@ -100,13 +100,9 @@ pub mod loan {
 
     impl LoanContract {
         /// constructor with name and symbol
-        #[ink(constructor)]
+        #[ink(constructor, payable)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut LoanContract| {
-                instance.psp34 = PSP34Data::default();
-                instance.ownable = OwnableData::default();
-                instance.metadata = PSP34MetadataData::default();
-                instance.loan_info = Mapping::default();
                 instance.last_loan_id = Id::U8(1u8);
                 instance.freed_ids = Vec::new();
                 instance._set_attribute(
