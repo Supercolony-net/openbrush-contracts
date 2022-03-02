@@ -59,10 +59,10 @@ mod psp22_flashmint {
         // flash fee is 1/100 of amount
         assert_eq!(instance.flash_fee(instance.env().account_id(), 100), Ok(1));
         // wrong token
-        assert_eq!(instance.max_flashloan(AccountId::from([0x1; 32])), 0);
+        assert_eq!(instance.max_flashloan(AccountId::from([0x10; 32])), 0);
         // flash fee on wrong token throws error
         assert_eq!(
-            instance.flash_fee(AccountId::from([0x1; 32]), 100),
+            instance.flash_fee(AccountId::from([0x10; 32]), 100),
             Err(FlashLenderError::WrongTokenAddress)
         );
     }

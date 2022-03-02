@@ -113,7 +113,7 @@ impl LendingPermissionedInternal for LendingContract {
             ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
         let hash = hash.as_ref();
         let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
-            .endowment(10000000000)
+            .endowment(0)
             .code_hash(code_hash)
             .salt_bytes(&hash[..4])
             .instantiate()
@@ -135,7 +135,7 @@ in `LendingContract`.
 ```rust
 impl LendingContract {
     /// constructor with name and symbol
-    #[ink(constructor)]
+    #[ink(constructor, payable)]
     pub fn new(code_hash: Hash, nft_code_hash: Hash) -> Self {
         let mut instance = Self::default();
         let caller = instance.env().caller();
@@ -144,7 +144,7 @@ impl LendingContract {
         instance.lending.shares_contract_code_hash = code_hash;
         // instantiate NFT contract and store its account id
         let nft = LoanContract::new()
-            .endowment(10000000000)
+            .endowment(0)
             .code_hash(nft_code_hash)
             .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()

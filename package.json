@@ -2,13 +2,6 @@
   "name": "openbrush-contracts",
   "version": "0.1.0",
   "private": true,
-  "//": "Resolutions is workaround for https://github.com/patractlabs/redspot/issues/175",
-  "resolutions": {
-    "@polkadot/api": "7.9.1",
-    "@polkadot/api-contract": "7.9.1",
-    "@polkadot/types": "7.9.1",
-    "@polkadot/util": "^8.4.1"
-  },
   "dependencies": {
     "@babel/core": "^7.7.4",
     "@babel/plugin-transform-runtime": "^7.14.2",

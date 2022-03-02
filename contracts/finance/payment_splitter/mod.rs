@@ -67,10 +67,8 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
             return Err(PaymentSplitterError::AccountHasNoShares)
         }
 
-        let current_balance = Self::env()
-            .balance()
-            .checked_sub(Self::env().minimum_balance())
-            .unwrap_or_default();
+        let balance = Self::env().balance();
+        let current_balance = balance.checked_sub(Self::env().minimum_balance()).unwrap_or_default();
         let total_received = current_balance + self.get().total_released;
         let shares = self.get().shares.get(&account).unwrap().clone();
         let total_shares = self.get().total_shares;

@@ -60,13 +60,10 @@ where
 
 #[cfg(feature = "std")]
 pub fn accounts() -> DefaultAccounts<DefaultEnvironment> {
-    ink_env::test::default_accounts::<DefaultEnvironment>().expect("Cannot get accounts")
+    ink_env::test::default_accounts::<DefaultEnvironment>()
 }
 
 #[cfg(feature = "std")]
 pub fn change_caller(new_caller: <DefaultEnvironment as Environment>::AccountId) {
-    let callee = ink_env::account_id::<DefaultEnvironment>();
-    let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4]));
-    data.push_arg(&new_caller);
-    ink_env::test::push_execution_context::<DefaultEnvironment>(new_caller, callee, 1000000, 1000000, data);
+    ink_env::test::set_caller::<ink_env::DefaultEnvironment>(new_caller);
 }

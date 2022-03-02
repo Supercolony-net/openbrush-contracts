@@ -135,10 +135,12 @@ mod psp22_burnable {
             }),
         ];
         for (n, (actual_topic, expected_topic)) in event.topics.iter().zip(expected_topics).enumerate() {
-            let topic = actual_topic
-                .decode::<Hash>()
-                .expect("encountered invalid topic encoding");
-            assert_eq!(topic, expected_topic, "encountered invalid topic at {}", n);
+            assert_eq!(
+                &actual_topic[..],
+                expected_topic.as_ref(),
+                "encountered invalid topic at {}",
+                n
+            );
         }
     }
 

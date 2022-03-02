@@ -75,7 +75,7 @@ pub mod lending {
             let hash = hash.as_ref();
             let contract =
                 SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
-                    .endowment(10000000000)
+                    .endowment(0)
                     .code_hash(code_hash)
                     .salt_bytes(&hash[..4])
                     .instantiate()
@@ -86,17 +86,17 @@ pub mod lending {
 
     impl LendingContract {
         /// constructor with name and symbol
-        #[ink(constructor)]
-        pub fn new(code_hash: Hash, nft_code_hash: Hash) -> Self {
+        #[ink(constructor, payable)]
+        pub fn new(shares_hash: Hash, loan_hash: Hash) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut LendingContract| {
                 let caller = instance.env().caller();
                 instance._init_with_admin(caller);
                 instance.grant_role(MANAGER, caller).expect("Can not set manager role");
-                instance.lending.shares_contract_code_hash = code_hash;
+                instance.lending.shares_contract_code_hash = shares_hash;
                 // instantiate NFT contract and store its account id
                 let nft = LoanContractRef::new()
-                    .endowment(10000000000)
-                    .code_hash(nft_code_hash)
+                    .endowment(0)
+                    .code_hash(loan_hash)
                     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
                     .instantiate()
                     .unwrap();
