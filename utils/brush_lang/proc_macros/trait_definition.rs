@@ -165,10 +165,6 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 syn::ReturnType::Default => quote! { () },
                 syn::ReturnType::Type(_, return_type) => quote! { #return_type },
             };
-            let output_sig = match method.sig.output {
-                syn::ReturnType::Default => quote! { () },
-                syn::ReturnType::Type(_, return_type) => quote! { ::ink_env::call::utils::ReturnType<#return_type> },
-            };
             let selector_string = format!("{}::{}", trait_ident, message_ident);
             let selector_bytes = ::ink_lang_ir::Selector::compute(&selector_string.into_bytes()).hex_lits();
             let input_bindings = method
@@ -229,7 +225,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     ::ink_env::call::utils::Unset< ::core::primitive::u64 >,
                     ::ink_env::call::utils::Unset< <::ink_env::DefaultEnvironment as ::ink_env::Environment>::Balance >,
                     ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
-                    ::ink_env::call::utils::Set<#output_sig>,
+                    ::ink_env::call::utils::Set<::ink_env::call::utils::ReturnType<#output_ty>>,
                 >;
             });
 
@@ -254,7 +250,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     ::ink_env::call::utils::Unset< ::core::primitive::u64 >,
                     ::ink_env::call::utils::Unset< <::ink_env::DefaultEnvironment as ::ink_env::Environment>::Balance >,
                     ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
-                    ::ink_env::call::utils::Set<#output_sig>,
+                    ::ink_env::call::utils::Set<::ink_env::call::utils::ReturnType<#output_ty>>,
                 > {
                     ::ink_env::call::build_call::<::ink_env::DefaultEnvironment>()
                         .callee(self.clone())
@@ -266,7 +262,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                                 .push_arg(#input_bindings)
                             )*
                         )
-                        .returns::<#output_sig>()
+                        .returns::<#output_ty>()
                 }
             });
         });
