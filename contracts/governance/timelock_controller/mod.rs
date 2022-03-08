@@ -409,7 +409,7 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         // Because during cross call we cann call this contract(for example for `update_delay` method).
         self.flush();
         let result = build_call::<DefaultEnvironment>()
-            .set_call_type(
+            .call_type(
                 Call::new()
                     .callee(transaction.callee)
                     .gas_limit(transaction.gas_limit)

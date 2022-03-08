@@ -249,7 +249,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     ::ink_env::call::utils::Set<::ink_env::call::utils::ReturnType<#output_ty>>,
                 > {
                     ::ink_env::call::build_call::<::ink_env::DefaultEnvironment>()
-                        .set_call_type(
+                        .call_type(
                             ::ink_env::call::Call::new()
                                 .callee(self.clone()))
                         .exec_input(
