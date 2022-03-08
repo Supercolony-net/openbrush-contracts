@@ -221,9 +221,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     #( , #input_bindings : #input_types )*
                 ) -> ::ink_env::call::CallBuilder<
                     ::ink_env::DefaultEnvironment,
-                    ::ink_env::call::utils::Set< <::ink_env::DefaultEnvironment as ::ink_env::Environment>::AccountId >,
-                    ::ink_env::call::utils::Unset< ::core::primitive::u64 >,
-                    ::ink_env::call::utils::Unset< <::ink_env::DefaultEnvironment as ::ink_env::Environment>::Balance >,
+                    ::ink_env::call::utils::Set< ::ink_env::call::Call< ::ink_env::DefaultEnvironment > >,
                     ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
                     ::ink_env::call::utils::Set<::ink_env::call::utils::ReturnType<#output_ty>>,
                 >;
@@ -246,14 +244,14 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     #( , #input_bindings : #input_types )*
                 ) -> ::ink_env::call::CallBuilder<
                     ::ink_env::DefaultEnvironment,
-                    ::ink_env::call::utils::Set< <::ink_env::DefaultEnvironment as ::ink_env::Environment>::AccountId >,
-                    ::ink_env::call::utils::Unset< ::core::primitive::u64 >,
-                    ::ink_env::call::utils::Unset< <::ink_env::DefaultEnvironment as ::ink_env::Environment>::Balance >,
+                    ::ink_env::call::utils::Set< ::ink_env::call::Call< ::ink_env::DefaultEnvironment > >,
                     ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
                     ::ink_env::call::utils::Set<::ink_env::call::utils::ReturnType<#output_ty>>,
                 > {
                     ::ink_env::call::build_call::<::ink_env::DefaultEnvironment>()
-                        .callee(self.clone())
+                        .call_type(
+                            ::ink_env::call::Call::new()
+                                .callee(self.clone()))
                         .exec_input(
                             ::ink_env::call::ExecutionInput::new(
                                 ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
