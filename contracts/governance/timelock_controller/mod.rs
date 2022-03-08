@@ -19,6 +19,7 @@ pub use derive::TimelockControllerStorage;
 use ink_env::{
     call::{
         build_call,
+        Call,
         ExecutionInput,
     },
     hash::Blake2x256,
@@ -408,9 +409,12 @@ impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockContro
         // Because during cross call we cann call this contract(for example for `update_delay` method).
         self.flush();
         let result = build_call::<DefaultEnvironment>()
-            .callee(transaction.callee)
-            .gas_limit(transaction.gas_limit)
-            .transferred_value(transaction.transferred_value)
+            .set_call_type(
+                Call::new()
+                    .callee(transaction.callee)
+                    .gas_limit(transaction.gas_limit)
+                    .transferred_value(transaction.transferred_value),
+            )
             .exec_input(ExecutionInput::new(transaction.selector.into()).push_arg(CallInput(&transaction.input)))
             .returns::<()>()
             .call_flags(CallFlags::default().set_allow_reentry(true))

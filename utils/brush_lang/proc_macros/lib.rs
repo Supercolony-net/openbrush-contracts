@@ -393,7 +393,7 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 ///
 /// // Example how to get ink! call builder
 /// let to: AccountId = [0; 32].into();
-/// let builder_for_foo: ::ink_env::call::CallBuilder<_, _, _, _, _, _> = Trait1and2Ref::foo_builder(&to);
+/// let builder_for_foo: ::ink_env::call::CallBuilder<_, _, _, _> = Trait1and2Ref::foo_builder(&to);
 /// let ink_result: Result<bool, ink_env::Error> = builder_for_foo.fire();
 /// }
 /// ```
