@@ -6,6 +6,7 @@ mod internal;
 mod metadata;
 mod modifier_definition;
 mod modifiers;
+mod storage;
 mod trait_definition;
 mod wrapper;
 
@@ -401,3 +402,5 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
     wrapper::generate(attrs, input)
 }
+
+synstructure::decl_attribute!([storage] => storage::storage);
