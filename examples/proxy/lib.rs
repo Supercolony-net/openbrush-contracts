@@ -30,6 +30,10 @@ pub mod proxy {
                 instance._init_with_owner(caller);
             })
         }
+        #[ink(message, payable, selector = _)]
+        pub fn forward(&self) {
+            proxy._fallback(self);
+        }
     }
 
     impl Proxy for ProxyStruct {}

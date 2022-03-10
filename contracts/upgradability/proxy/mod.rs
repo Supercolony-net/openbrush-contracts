@@ -43,13 +43,17 @@ impl<T: OwnableStorage + ProxyStorage> Proxy for T {
     }
 
     #[modifiers(only_owner)]
-    default fn change_delegate_code(&mut self, new_forward_to: Hash) -> Result<(), ProxyError> {
-        ProxyStorage::get_mut(self).forward_to = new_forward_to;
+    default fn change_delegate_code(&mut self, new_code_hash: Hash) -> Result<(), ProxyError> {
+        let old_code_hash = ProxyStorage::get(self).forward_to.clone();
+        ProxyStorage::get_mut(self).forward_to = new_code_hash;
+        self._emit_delegate_code_changed_event(Some(old_code_hash), Some(new_code_hash));
         Ok(())
     }
 }
 
 pub trait ProxyInternal {
+    fn _emit_delegate_code_changed_event(&self, _previous_code_hash: Option<Hash>, _new_code_hash: Option<Hash>);
+
     fn _init_with_forward_to(&mut self, forward_to: Hash);
 
     fn _fallback(&self);
@@ -57,8 +61,16 @@ pub trait ProxyInternal {
 
 
 impl<T: OwnableStorage + ProxyStorage> ProxyInternal for T {
+    default fn _emit_delegate_code_changed_event(
+        &self,
+        _previous_code_hash: Option<Hash>,
+        _new_code_hash: Option<Hash>
+    ) {
+    }
+
     default fn _init_with_forward_to(&mut self, forward_to: Hash) {
         ProxyStorage::get_mut(self).forward_to = forward_to;
+        self._emit_delegate_code_changed_event(None, Some(forward_to));
     }
 
     default fn _fallback(&self) {
