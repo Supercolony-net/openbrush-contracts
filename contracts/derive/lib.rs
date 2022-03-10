@@ -85,3 +85,7 @@ declare_derive_storage_trait!(
     TimelockControllerStorage,
     TimelockControllerStorageField
 );
+
+// Proxy
+#[cfg(feature = "proxy")]
+declare_derive_storage_trait!(derive_proxy_storage, ProxyStorage, ProxyStorageField);
