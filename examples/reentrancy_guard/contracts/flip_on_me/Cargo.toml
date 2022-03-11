@@ -1,5 +1,5 @@
 [package]
-name = "my_flipper_guard"
+name = "flip_on_me"
 version = "1.4.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
@@ -15,17 +15,15 @@ ink_prelude = { branch = "master", git = "https://github.com/paritytech/ink", de
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-# These dependencies
-brush = { path = "../../..", default-features = false, features = ["reentrancy_guard"] }
+flipper = { path = "../..", default-features = false }
+brush = { path = "../../../..", default-features = false }
 
 [lib]
-name = "my_flipper_guard"
+name = "flip_on_me"
 path = "lib.rs"
-
 crate-type = [
+    # Used for normal contract Wasm blobs.
     "cdylib",
-    # This contract will be imported by FlipOnMe contract, so we need build this crate also like a `rlib`
-    "rlib",
 ]
 
 [features]
@@ -41,10 +39,9 @@ std = [
     "scale-info",
     "scale-info/std",
 
-    # These dependencies
+    "flipper/std",
     "brush/std",
 ]
-
 ink-as-dependency = []
 
 [profile.dev]

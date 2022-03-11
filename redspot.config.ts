@@ -8,7 +8,7 @@ export default {
     contract: {
         ink: {
             toolchain: 'nightly',
-            sources: ['example_project_structure/contracts/**', 'examples/**', 'mock/**']
+            sources: ['example_project_structure/contracts/**', 'examples/**/', 'mock/**', `!examples/reentrancy_guard/Cargo.toml`]
         }
     },
     networks: {
