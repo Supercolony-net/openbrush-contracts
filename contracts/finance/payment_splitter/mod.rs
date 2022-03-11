@@ -10,19 +10,15 @@ use brush::{
 };
 pub use derive::PaymentSplitterStorage;
 use ink_prelude::vec::Vec;
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
-};
+use ink_storage::Mapping;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PaymentSplitterData");
+
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PaymentSplitterData {
     pub total_shares: Balance,
     pub total_released: Balance,

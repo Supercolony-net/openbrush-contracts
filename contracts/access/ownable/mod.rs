@@ -10,16 +10,14 @@ use brush::{
     },
 };
 pub use derive::OwnableStorage;
-use ink_storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::OwnableData");
+
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct OwnableData {
     pub owner: AccountId,
 }
