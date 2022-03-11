@@ -1,4 +1,4 @@
-use cargo_metadata::MetadataCommand;
+use cargo_metadata::camino::Utf8PathBuf;
 use fs2::FileExt;
 use proc_macro2::TokenStream as TokenStream2;
 use serde::{
@@ -18,7 +18,6 @@ use std::{
         Seek,
         SeekFrom,
     },
-    path::PathBuf,
     str::FromStr,
 };
 use syn::{
@@ -122,36 +121,24 @@ pub(crate) enum LockType {
 }
 
 /// Function returns exclusively locked file for metadata.
-/// It stores file in the nearest target folder
-/// from the directory where the build command has been invoked(output of `pwd` command).
-/// If the directory doesn't contain `Cargo.toml` file,
-/// it will try to find `Cargo.toml` in the upper directories.
+/// It stores file in the target folder where `ink_lang` is stored.
 pub(crate) fn get_locked_file(t: LockType) -> File {
-    let mut manifest_path = PathBuf::from(env::var("PWD").expect("Can't get PWD")).join("Cargo.toml");
+    const PREFIX: &str = "ink_lang=";
+    const SUFFIX: &str = "target/";
+    let target: String = env::args()
+        .find(|arg| arg.contains(PREFIX))
+        .expect("Unable to find PREFIX");
+    let target: String = target
+        .chars()
+        .skip(PREFIX.len())
+        .take(target.find(SUFFIX).expect("Unable to find debug/deps") - PREFIX.len() + SUFFIX.len())
+        .collect();
 
-    // if the current directory does not contain a Cargo.toml file, go up until you find it.
-    while !manifest_path.exists() {
-        if let Some(str) = manifest_path.as_os_str().to_str() {
-            // If `/Cargo.toml` is not exist, it means that we will do infinity while, so break it
-            assert_ne!(str, "/Cargo.toml", "Can't find Cargo.toml in directories tree");
-        }
-        // Remove Cargo.toml
-        manifest_path.pop();
-        // Remove parent folder
-        manifest_path.pop();
-        manifest_path = manifest_path.join("Cargo.toml");
-    }
+    let target_dir = Utf8PathBuf::from_str(target.as_str()).expect("Can't generate Path from target");
+    let dir = target_dir.join(TEMP_FILE);
 
-    let mut cmd = MetadataCommand::new();
-    let metadata = cmd
-        .manifest_path(manifest_path.clone())
-        .exec()
-        .expect("Error invoking `cargo metadata`");
-
-    let dir = metadata.target_directory.join(TEMP_FILE);
-
-    let file = match OpenOptions::new().read(true).write(true).create(true).open(&dir) {
-        Err(why) => panic!("Couldn't open temporary storage: {}", why),
+    let file = match OpenOptions::new().create(true).read(true).write(true).open(&dir) {
+        Err(why) => panic!("Couldn't open temporary storage {} : {}", dir, why),
         Ok(file) => file,
     };
     match t {

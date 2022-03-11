@@ -1,5 +1,5 @@
 [package]
-name = "flip_on_me"
+name = "my_flipper_guard"
 version = "1.4.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
@@ -15,16 +15,15 @@ ink_prelude = { branch = "master", git = "https://github.com/paritytech/ink", de
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-# This dependencies
-# We will do a cross contract call via `MyFlipper` wrapper imported here
-brush = { path = "../../..", default-features = false, features = ["reentrancy_guard"] }
-my_flipper_guard = { path = "../flipper", default-features = false, features = ["ink-as-dependency"] }
+# These dependencies
+flipper = { path = "../..", default-features = false }
+brush = { path = "../../../..", default-features = false }
 
 [lib]
-name = "flip_on_me"
+name = "my_flipper_guard"
 path = "lib.rs"
+
 crate-type = [
-    # Used for normal contract Wasm blobs.
     "cdylib",
 ]
 
@@ -41,9 +40,11 @@ std = [
     "scale-info",
     "scale-info/std",
 
-    # This dependencies
-    "my_flipper_guard/std",
+    # These dependencies
+    "flipper/std",
+    "brush/std",
 ]
+
 ink-as-dependency = []
 
 [profile.dev]
