@@ -20,6 +20,9 @@ use syn::{
 };
 
 pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
+    if crate::internal::skip() {
+        return (quote! {}).into()
+    }
     let attrs: proc_macro2::TokenStream = _attrs.into();
     let mut trait_item = parse_macro_input!(_input as ItemTrait);
     let trait_without_ink_attrs;
