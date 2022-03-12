@@ -47,7 +47,7 @@ impl<T: PSP22Storage + Flush> PSP22 for T {
     }
 
     default fn balance_of(&self, owner: AccountId) -> Balance {
-        self.get().balances.get(&owner).unwrap_or(0)
+        self._balance_of(&owner)
     }
 
     default fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
@@ -109,12 +109,14 @@ pub trait PSP22Internal {
 
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance);
 
+    fn _balance_of(&self, owner: &AccountId) -> Balance;
+
     fn _do_safe_transfer_check(
         &mut self,
-        from: AccountId,
-        to: AccountId,
-        value: Balance,
-        data: Vec<u8>,
+        from: &AccountId,
+        to: &AccountId,
+        value: &Balance,
+        data: &Vec<u8>,
     ) -> Result<(), PSP22Error>;
 
     fn _before_token_transfer(
@@ -151,16 +153,26 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
 
     default fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
+    default fn _balance_of(&self, owner: &AccountId) -> Balance {
+        self.get().balances.get(owner).unwrap_or(0)
+    }
+
     default fn _do_safe_transfer_check(
         &mut self,
-        from: AccountId,
-        to: AccountId,
-        value: Balance,
-        data: Vec<u8>,
+        from: &AccountId,
+        to: &AccountId,
+        value: &Balance,
+        data: &Vec<u8>,
     ) -> Result<(), PSP22Error> {
         self.flush();
-        let builder = PSP22ReceiverRef::before_received_builder(&to, Self::env().caller(), from, value, data)
-            .call_flags(CallFlags::default().set_allow_reentry(true));
+        let builder = PSP22ReceiverRef::before_received_builder(
+            to,
+            Self::env().caller(),
+            from.clone(),
+            value.clone(),
+            data.clone(),
+        )
+        .call_flags(CallFlags::default().set_allow_reentry(true));
         let result = match builder.fire() {
             Ok(result) => {
                 match result {
@@ -229,13 +241,14 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &amount)?;
 
-        self._do_safe_transfer_check(from, to, amount, data)?;
+        self._do_safe_transfer_check(&from, &to, &amount, &data)?;
         self.get_mut().balances.insert(&from, &(from_balance - amount));
-        let to_balance = self.balance_of(to);
+        let to_balance = self._balance_of(&to);
         self.get_mut().balances.insert(&to, &(to_balance + amount));
-
+        self._after_token_transfer(Some(&from), Some(&to), &amount)?;
         self._emit_transfer_event(Some(from), Some(to), amount);
-        self._after_token_transfer(Some(&from), Some(&to), &amount)
+
+        Ok(())
     }
 
     default fn _approve_from_to(
@@ -266,8 +279,10 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         new_balance += amount;
         self.get_mut().balances.insert(&account, &new_balance);
         self.get_mut().supply += amount;
+        self._after_token_transfer(None, Some(&account), &amount)?;
         self._emit_transfer_event(None, Some(account), amount);
-        self._after_token_transfer(None, Some(&account), &amount)
+
+        Ok(())
     }
 
     default fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
@@ -286,8 +301,9 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         from_balance -= amount;
         self.get_mut().balances.insert(&account, &from_balance);
         self.get_mut().supply -= amount;
+        self._after_token_transfer(Some(&account), None, &amount)?;
         self._emit_transfer_event(Some(account), None, amount);
 
-        self._after_token_transfer(Some(&account), None, &amount)
+        Ok(())
     }
 }
