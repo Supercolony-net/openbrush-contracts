@@ -290,3 +290,10 @@ pub(crate) fn extract_attr(attrs: &mut Vec<syn::Attribute>, ident: &str) -> Vec<
 pub(crate) fn new_attribute(attr_stream: TokenStream2) -> syn::Attribute {
     syn::parse2::<Attributes>(attr_stream).unwrap().attr()[0].clone()
 }
+
+pub(crate) const INK_PREFIX: &str = "ink_lang=";
+
+#[inline]
+pub(crate) fn skip() -> bool {
+    std::env::args().find(|arg| arg.contains(INK_PREFIX)).is_none()
+}

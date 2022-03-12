@@ -123,15 +123,16 @@ pub(crate) enum LockType {
 /// Function returns exclusively locked file for metadata.
 /// It stores file in the target folder where `ink_lang` is stored.
 pub(crate) fn get_locked_file(t: LockType) -> File {
-    const PREFIX: &str = "ink_lang=";
+    use crate::internal::INK_PREFIX;
     const SUFFIX: &str = "target/";
+
     let target: String = env::args()
-        .find(|arg| arg.contains(PREFIX))
-        .expect("Unable to find PREFIX");
+        .find(|arg| arg.contains(INK_PREFIX))
+        .expect(format!("Unable to find PREFIX: {:?}", env::args()).as_str());
     let target: String = target
         .chars()
-        .skip(PREFIX.len())
-        .take(target.find(SUFFIX).expect("Unable to find debug/deps") - PREFIX.len() + SUFFIX.len())
+        .skip(INK_PREFIX.len())
+        .take(target.find(SUFFIX).expect("Unable to find debug/deps") - INK_PREFIX.len() + SUFFIX.len())
         .collect();
 
     let target_dir = Utf8PathBuf::from_str(target.as_str()).expect("Can't generate Path from target");

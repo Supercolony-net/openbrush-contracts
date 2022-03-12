@@ -14,6 +14,9 @@ use quote::{
 use syn::Item;
 
 pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
+    if internal::skip() {
+        return (quote! {}).into()
+    }
     let input: TokenStream2 = ink_module.into();
     let attrs: TokenStream2 = _attrs.into();
     let mut module = syn::parse2::<syn::ItemMod>(input.clone()).expect("Can't parse contract module");
