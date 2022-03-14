@@ -100,12 +100,20 @@ fn spread_layout_struct_derive(storage_key: &TokenStream2, s: &synstructure::Str
                     ::ink_primitives::Key::from(#storage_key)
                 );
 
+                if ::ink_env::get_contract_storage::<()>(__key_ptr.key())
+                    .expect("could not properly decode storage entry")
+                    .is_none()
+                {
+                    return <Self as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr);
+                }
+
                 #pull_body
             }
             fn push_spread(&self, _: &mut ::ink_storage::traits::KeyPtr) {
                 let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
+                ::ink_env::set_contract_storage::<()>(__key_ptr.key(), &());
                 match self { #push_body }
             }
             fn clear_spread(&self, _: &mut ::ink_storage::traits::KeyPtr) {
@@ -179,6 +187,14 @@ fn spread_layout_enum_derive(storage_key: &TokenStream2, s: &synstructure::Struc
                 let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
+
+                if ::ink_env::get_contract_storage::<::core::primitive::u8>(__key_ptr.key())
+                    .expect("could not properly decode storage entry")
+                    .is_none()
+                {
+                    return <Self as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr);
+                }
+
                 match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr) {
                     #pull_body
                     _ => unreachable!("encountered invalid enum discriminant"),
@@ -234,6 +250,7 @@ fn derive_struct(storage_key: &TokenStream2, s: synstructure::Structure) -> Toke
     });
     s.gen_impl(quote! {
         gen impl ::ink_storage::traits::SpreadAllocate for @Self {
+            #[inline(never)]
             fn allocate_spread(_: &mut ::ink_primitives::KeyPtr) -> Self {
                 let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
