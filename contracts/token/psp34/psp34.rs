@@ -29,6 +29,7 @@ pub struct PSP34Data {
     pub owned_tokens_count: Mapping<AccountId, u32>,
     pub operator_approvals: Mapping<(AccountId, AccountId), bool>,
     pub total_supply: Balance,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP34Storage, PSP34Data);

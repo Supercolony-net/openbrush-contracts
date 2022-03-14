@@ -12,6 +12,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP1155MetadataD
 #[brush::storage(STORAGE_KEY)]
 pub struct PSP1155MetadataData {
     pub uri: Option<String>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP1155MetadataStorage, PSP1155MetadataData);

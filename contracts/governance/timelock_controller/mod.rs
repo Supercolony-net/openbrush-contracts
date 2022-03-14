@@ -40,6 +40,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::TimelockControll
 pub struct TimelockControllerData {
     pub min_delay: Timestamp,
     pub timestamps: Mapping<OperationId, Timestamp>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(TimelockControllerStorage, TimelockControllerData);

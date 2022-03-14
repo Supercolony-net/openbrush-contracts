@@ -14,6 +14,7 @@ pub struct PSP22MetadataData {
     pub name: Option<String>,
     pub symbol: Option<String>,
     pub decimals: u8,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);

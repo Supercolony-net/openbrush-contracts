@@ -13,6 +13,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PausableData");
 #[brush::storage(STORAGE_KEY)]
 pub struct PausableData {
     pub paused: bool,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PausableStorage, PausableData);

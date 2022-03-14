@@ -17,6 +17,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::OwnableData");
 #[brush::storage(STORAGE_KEY)]
 pub struct OwnableData {
     pub owner: AccountId,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(OwnableStorage, OwnableData);

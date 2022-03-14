@@ -15,6 +15,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::AccessControlDat
 pub struct AccessControlData {
     pub admin_roles: Mapping<RoleType, RoleType>,
     pub members: Mapping<(RoleType, AccountId), ()>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(AccessControlStorage, AccessControlData);

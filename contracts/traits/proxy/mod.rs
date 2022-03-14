@@ -11,5 +11,4 @@ pub trait Proxy: Ownable {
 
     #[ink(message)]
     fn change_delegate_code(&mut self, new_code_hash: Hash) -> Result<(), ProxyError>;
-    
 }

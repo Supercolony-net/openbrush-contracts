@@ -12,6 +12,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::ReentrancyGuardD
 #[brush::storage(STORAGE_KEY)]
 pub struct ReentrancyGuardData {
     pub status: u8,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(ReentrancyGuardStorage, ReentrancyGuardData);

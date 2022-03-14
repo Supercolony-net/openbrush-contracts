@@ -19,6 +19,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP22WrapperData
 #[brush::storage(STORAGE_KEY)]
 pub struct PSP22WrapperData {
     pub underlying: AccountId,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP22WrapperStorage, PSP22WrapperData);

@@ -22,6 +22,7 @@ pub struct PaymentSplitterData {
     pub shares: Mapping<AccountId, Balance>,
     pub released: Mapping<AccountId, Balance>,
     pub payees: Vec<AccountId>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PaymentSplitterStorage, PaymentSplitterData);
