@@ -12,16 +12,11 @@ use brush::{
 pub use derive::PSP22WrapperStorage;
 use ink_env::CallFlags;
 use ink_prelude::vec::Vec;
-use ink_storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP22WrapperData");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PSP22WrapperData {
     pub underlying: AccountId,
 }

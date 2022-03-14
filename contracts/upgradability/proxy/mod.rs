@@ -11,13 +11,11 @@ use brush::{
 
 pub use derive::ProxyStorage;
 use ink_env::call::DelegateCall;
-use ink_storage::traits::{SpreadAllocate, SpreadLayout};
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::ProxyData");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct ProxyData {
     pub forward_to: Hash,
 }

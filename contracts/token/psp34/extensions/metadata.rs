@@ -10,15 +10,10 @@ pub use derive::{
 use ink_prelude::vec::Vec;
 use ink_storage::Mapping;
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
-use ink_storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP32MetadataData");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PSP34MetadataData {
     pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>>,
 }

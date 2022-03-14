@@ -7,8 +7,7 @@ pub mod proxy {
         contracts::{
             ownable::*, 
             proxy::*
-        },
-        modifiers,
+        }
     };
     use ink_storage::traits::SpreadAllocate;
 

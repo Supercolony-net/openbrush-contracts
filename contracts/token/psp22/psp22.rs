@@ -36,6 +36,7 @@ pub struct PSP22Data {
     pub supply: Balance,
     pub balances: Mapping<AccountId, Balance>,
     pub allowances: Mapping<(AccountId, AccountId), Balance>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP22Storage, PSP22Data);

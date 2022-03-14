@@ -13,16 +13,11 @@ use brush::{
 };
 pub use derive::PSP22TokenTimelockStorage;
 use ink_prelude::vec::Vec;
-use ink_storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP22TokenTimelockData");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PSP22TokenTimelockData {
     token: AccountId,
     beneficiary: AccountId,

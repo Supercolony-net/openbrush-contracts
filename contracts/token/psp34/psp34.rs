@@ -18,8 +18,6 @@ use ink_prelude::{
 use ink_storage::Mapping;
 
 use brush::traits::Balance;
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP34Data");
 
