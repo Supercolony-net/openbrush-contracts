@@ -33,25 +33,6 @@ const patchContractMethods = (contract: Contract): Contract => {
   return contract
 }
 
-export const patchProxyContractMethods = (contract: Contract, proxy: Contract): Contract => {
-  patchProxyMethods(contract.query, proxy.query)
-  patchProxyMethods(contract.tx, proxy.tx)
-
-  for (const prop in proxy.tx) {
-    const original_tx = proxy.tx[prop];
-    proxy.tx[prop] = async function (...args: TransactionParams): Promise<TransactionResponse> {
-      return new Promise<TransactionResponse>(((resolve, reject) => {
-        proxy.query[prop](...args).then((_ => {
-          // TODO: Check output of RPC call when Redspot will process it correct
-          resolve(original_tx(...args))
-        })).catch((reason => reject(reason)))
-      }))
-    };
-  }
-
-  return proxy
-}
-
 // It removes prefix from the function and adds only name of method like a function
 // PSP22::token_name
 // query["PSP22,tokenName"]
@@ -66,17 +47,9 @@ const patchMethods = (object) => {
   }
 }
 
-const patchProxyMethods = (contract, proxy) => {
-  for (const prop in contract) {
-    if (prop.includes('::')) {
-      const selectors = prop.split('::')
-      const method = selectors[selectors.length - 1]
-      proxy[method] = contract[prop]
-    }
-    else {
-      proxy[prop] = contract[prop]
-    }
-  }
+export const setupProxy = (contract, proxy): Contract =>  {
+  const proxied_contract = new Contract(proxy.address, contract.abi, contract.api, contract.signer);
+  return patchContractMethods(proxied_contract);
 }
 
 export const setupContract = async (name, constructor, ...args) => {
