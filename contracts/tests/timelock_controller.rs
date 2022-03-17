@@ -53,10 +53,8 @@ mod timelock_controller {
     }
 
     #[ink(storage)]
-    #[derive(Default, AccessControlStorage, TimelockControllerStorage)]
+    #[derive(Default, TimelockControllerStorage)]
     pub struct TimelockControllerStruct {
-        #[AccessControlStorageField]
-        access: AccessControlData,
         #[TimelockControllerStorageField]
         timelock: TimelockControllerData,
     }
