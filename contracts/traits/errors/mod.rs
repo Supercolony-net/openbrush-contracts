@@ -3,7 +3,6 @@ mod flashloan;
 mod ownable;
 mod pausable;
 mod payment_splitter;
-mod proxy;
 mod psp1155;
 mod psp22;
 mod psp34;
@@ -18,7 +17,6 @@ pub use flashloan::{
 pub use ownable::OwnableError;
 pub use pausable::PausableError;
 pub use payment_splitter::PaymentSplitterError;
-pub use proxy::ProxyError;
 pub use psp1155::{
     PSP1155Error,
     PSP1155ReceiverError,
