@@ -25,10 +25,8 @@ mod proxy {
     const CODE_HASH_1: [u8; 32] = [1u8; 32];
 
     #[ink(storage)]
-    #[derive(Default, OwnableStorage, ProxyStorage)]
+    #[derive(Default, ProxyStorage)]
     pub struct MyProxy {
-        #[OwnableStorageField]
-        ownable: OwnableData,
         #[ProxyStorageField]
         proxy: ProxyData,
     }
@@ -120,6 +118,6 @@ mod proxy {
         change_caller(AccountId::from([0x13; 32]));
         let result = my_proxy.change_delegate_code(new_hash);
         assert!(result.is_err());
-        assert_eq!(result, Err(ProxyError::from(OwnableError::CallerIsNotOwner)));
+        assert_eq!(result, Err(OwnableError::CallerIsNotOwner));
     }
 }
