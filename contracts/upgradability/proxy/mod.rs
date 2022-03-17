@@ -4,7 +4,6 @@ pub use crate::{
 };
 use brush::{
     declare_storage_trait,
-    modifier_definition,
     modifiers,
     traits::Hash,
 };
@@ -17,31 +16,29 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::ProxyData");
 #[derive(Default, Debug)]
 #[brush::storage(STORAGE_KEY)]
 pub struct ProxyData {
+    pub ownable: OwnableData,
     pub forward_to: Hash,
 }
 
 declare_storage_trait!(ProxyStorage, ProxyData);
 
-#[modifier_definition]
-pub fn only_owner<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
-where
-    T: OwnableStorage,
-    F: FnOnce(&mut T) -> Result<R, E>,
-    E: From<OwnableError>,
-{
-    if instance.get().owner != T::env().caller() {
-        return Err(From::from(OwnableError::CallerIsNotOwner));
+impl<T: ProxyStorage> OwnableStorage for T {
+    fn get(&self) -> &OwnableData {
+        &T::get(self).ownable
     }
-    body(instance)
+
+    fn get_mut(&mut self) -> &mut OwnableData {
+        &mut T::get_mut(self).ownable
+    }
 }
 
-impl<T: OwnableStorage + ProxyStorage> Proxy for T {
+impl<T: ProxyStorage> Proxy for T {
     default fn get_delegate_code(&self) -> Hash {
         ProxyStorage::get(self).forward_to
     }
 
     #[modifiers(only_owner)]
-    default fn change_delegate_code(&mut self, new_code_hash: Hash) -> Result<(), ProxyError> {
+    default fn change_delegate_code(&mut self, new_code_hash: Hash) -> Result<(), OwnableError> {
         let old_code_hash = ProxyStorage::get(self).forward_to.clone();
         ProxyStorage::get_mut(self).forward_to = new_code_hash;
         self._emit_delegate_code_changed_event(Some(old_code_hash), Some(new_code_hash));
@@ -58,7 +55,7 @@ pub trait ProxyInternal {
 }
 
 
-impl<T: OwnableStorage + ProxyStorage> ProxyInternal for T {
+impl<T: ProxyStorage> ProxyInternal for T {
     default fn _emit_delegate_code_changed_event(
         &self,
         _previous_code_hash: Option<Hash>,

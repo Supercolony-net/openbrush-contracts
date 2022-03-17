@@ -1,4 +1,4 @@
-pub use crate::traits::{errors::ProxyError, ownable::*};
+pub use crate::traits::{errors::OwnableError, ownable::*};
 use brush::traits::Hash;
 
 #[brush::wrapper]
@@ -10,5 +10,5 @@ pub trait Proxy: Ownable {
     fn get_delegate_code(&self) -> Hash;
 
     #[ink(message)]
-    fn change_delegate_code(&mut self, new_code_hash: Hash) -> Result<(), ProxyError>;
+    fn change_delegate_code(&mut self, new_code_hash: Hash) -> Result<(), OwnableError>;
 }

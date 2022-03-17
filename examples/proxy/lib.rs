@@ -12,10 +12,8 @@ pub mod proxy {
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, OwnableStorage, ProxyStorage)]
+    #[derive(Default, SpreadAllocate, ProxyStorage)]
     pub struct ProxyStruct {
-        #[OwnableStorageField]
-        ownable: OwnableData,
         #[ProxyStorageField]
         proxy: ProxyData,
     }
