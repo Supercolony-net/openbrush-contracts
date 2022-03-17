@@ -403,4 +403,22 @@ pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
     wrapper::generate(attrs, input)
 }
 
+
+/// This macro allow you to implement SpreadLayout and derive SpreadAllocate for ContractData.
+/// 
+/// # Example:
+/// ```
+/// {
+///
+/// pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::OwnableData");
+///
+/// #[derive(Default, Debug)]
+/// #[brush::storage(STORAGE_KEY)]
+/// pub struct OwnableData {
+///    pub owner: AccountId,
+///    pub _reserved: Option<()>,
+/// }
+/// 
+/// }
+/// ```
 synstructure::decl_attribute!([storage] => storage::storage);
