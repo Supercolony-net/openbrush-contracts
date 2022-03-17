@@ -34,5 +34,6 @@ pub mod proxy {
     }
 
     impl Ownable for ProxyStruct {}
+    
     impl Proxy for ProxyStruct {}
 }

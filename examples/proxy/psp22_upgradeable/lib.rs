@@ -3,17 +3,24 @@
 
 #[brush::contract]
 pub mod my_psp22_upgradeable {
-    use brush::contracts::psp22::*;
+    use brush::contracts::{
+        psp22::*,
+        ownable::*,
+    };
     use ink_storage::traits::SpreadAllocate;
     use ink_lang as ink;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
     pub struct MyPSP22 {
+        #[OwnableStorageField]
+        ownable: OwnableData,
         #[PSP22StorageField]
         psp22: PSP22Data
     }
 
+    impl Ownable for MyPSP22 {}
+    
     impl PSP22 for MyPSP22 {}
 
     impl MyPSP22 {
