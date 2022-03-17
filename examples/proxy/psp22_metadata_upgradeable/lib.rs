@@ -24,30 +24,23 @@ pub mod my_psp22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                instance.metadata.name = name;
-                instance.metadata.symbol = symbol;
-                instance.metadata.decimals = decimal;
-                instance
-                    ._mint(instance.env().caller(), total_supply)
-                    .expect("Should mint total_supply");
+                instance.initialize(total_supply, name, symbol, decimal)
             })
         }
 
         #[ink(message)]
-        pub fn initialize(&mut self, total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Result<(), PSP22Error> {
+        pub fn initialize(&mut self, total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) {
             self.metadata.name = name;
             self.metadata.symbol = symbol;
             self.metadata.decimals = decimal;
             MyPSP22::_mint(self, self.env().caller(), total_supply).expect("Should mint");
-            Ok(())
         }
 
         #[ink(message)]
-        pub fn initialize_metadata(&mut self, name: Option<String>, symbol: Option<String>, decimal: u8) -> Result<(), PSP22Error> {
+        pub fn initialize_metadata(&mut self, name: Option<String>, symbol: Option<String>, decimal: u8) {
             self.metadata.name = name;
             self.metadata.symbol = symbol;
             self.metadata.decimals = decimal;
-            Ok(())
         }
     }
 }

@@ -20,9 +20,7 @@ pub mod my_psp22_upgradeable {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
-                instance
-                    ._mint(instance.env().caller(), total_supply)
-                    .expect("Should mint");
+                instance.initialize(total_supply)
             })
         }
         
