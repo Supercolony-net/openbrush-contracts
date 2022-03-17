@@ -35,12 +35,5 @@ pub mod my_psp22 {
             self.metadata.decimals = decimal;
             MyPSP22::_mint(self, self.env().caller(), total_supply).expect("Should mint");
         }
-
-        #[ink(message)]
-        pub fn initialize_metadata(&mut self, name: Option<String>, symbol: Option<String>, decimal: u8) {
-            self.metadata.name = name;
-            self.metadata.symbol = symbol;
-            self.metadata.decimals = decimal;
-        }
     }
 }
