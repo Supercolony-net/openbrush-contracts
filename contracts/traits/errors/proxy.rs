@@ -5,8 +5,6 @@ use ink_prelude::string::String;
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum ProxyError {
     Custom(String),
-    NewImplementationIsZero,
-    UnderlyingTransactionReverted,
 }
 
 impl From<OwnableError> for ProxyError {
