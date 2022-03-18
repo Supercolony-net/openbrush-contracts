@@ -11,8 +11,9 @@ mod psp34 {
         EmitEvent,
         Env,
     };
-    use ink_storage::traits::SpreadAllocate;
+    use ink_env::DefaultEnvironment;
     use ink_lang as ink;
+    use ink_storage::traits::SpreadAllocate;
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
@@ -33,17 +34,7 @@ mod psp34 {
         #[ink(topic)]
         to: AccountId,
         #[ink(topic)]
-        id: Id,
-    }
-
-    /// Event emitted when an operator is enabled or disabled for an owner.
-    /// The operator can manage all NFTs of the owner.
-    #[ink(event)]
-    pub struct ApprovalForAll {
-        #[ink(topic)]
-        owner: AccountId,
-        #[ink(topic)]
-        operator: AccountId,
+        id: Option<Id>,
         approved: bool,
     }
 
@@ -63,29 +54,17 @@ mod psp34 {
             self.env().emit_event(Transfer { from, to, id });
         }
 
-        fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Id) {
-            self.env().emit_event(Approval {
-                from: _from,
-                to: _to,
-                id: _id,
-            });
-        }
-
-        fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {
-            self.env().emit_event(ApprovalForAll {
-                owner: _owner,
-                operator: _operator,
-                approved: _approved,
-            });
+        fn _emit_approval_event(&self, from: AccountId, to: AccountId, id: Option<Id>, approved: bool) {
+            self.env().emit_event(Approval { from, to, id, approved });
         }
 
         fn _do_safe_transfer_check(
             &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _to: AccountId,
-            _id: Id,
-            _data: Vec<u8>,
+            _operator: &AccountId,
+            _from: &AccountId,
+            _to: &AccountId,
+            _id: &Id,
+            _data: &Vec<u8>,
         ) -> Result<(), PSP34Error> {
             Ok(())
         }
@@ -133,9 +112,11 @@ mod psp34 {
     }
 
     #[ink::test]
-    #[should_panic]
-    fn collection_id_fails() {
-        PSP34Struct::new().collection_id();
+    fn collection_id_works() {
+        assert_eq!(
+            PSP34Struct::new().collection_id(),
+            Id::Bytes(<_ as AsRef<[u8; 32]>>::as_ref(&ink_env::account_id::<DefaultEnvironment>()).to_vec())
+        );
     }
 
     #[ink::test]
@@ -202,10 +183,10 @@ mod psp34 {
         assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
 
         // Token 1 is not approved
-        assert_eq!(nft.get_approved(Id::U8(1u8)), None);
+        assert_eq!(nft.allowance(accounts.alice, accounts.bob, Some(Id::U8(1u8))), false);
 
-        assert!(nft.approve(accounts.bob, Id::U8(1u8)).is_ok());
-        assert_eq!(nft.get_approved(Id::U8(1u8)), Some(accounts.bob));
+        assert!(nft.approve(accounts.bob, Some(Id::U8(1u8)), true).is_ok());
+        assert_eq!(nft.allowance(accounts.alice, accounts.bob, Some(Id::U8(1u8))), true);
     }
 
     #[ink::test]
@@ -213,13 +194,30 @@ mod psp34 {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        assert_eq!(nft.approve(accounts.bob, Id::U8(1u8)), Err(PSP34Error::TokenNotExists));
+        assert_eq!(
+            nft.approve(accounts.bob, Some(Id::U8(1u8)), true),
+            Err(PSP34Error::TokenNotExists)
+        );
+        assert_eq!(
+            nft.approve(accounts.bob, Some(Id::U8(1u8)), false),
+            Err(PSP34Error::TokenNotExists)
+        );
 
         assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
-        assert_eq!(nft.approve(accounts.alice, Id::U8(1u8)), Err(PSP34Error::SelfApprove));
+        assert_eq!(
+            nft.approve(accounts.alice, Some(Id::U8(1u8)), true),
+            Err(PSP34Error::SelfApprove)
+        );
 
         change_caller(accounts.bob);
-        assert_eq!(nft.approve(accounts.eve, Id::U8(1u8)), Err(PSP34Error::NotApproved));
+        assert_eq!(
+            nft.approve(accounts.eve, Some(Id::U8(1u8)), true),
+            Err(PSP34Error::NotApproved)
+        );
+        assert_eq!(
+            nft.approve(accounts.eve, Some(Id::U8(1u8)), false),
+            Err(PSP34Error::NotApproved)
+        );
     }
 
     #[ink::test]
@@ -232,13 +230,11 @@ mod psp34 {
         // Token Id 1 is owned by Alice.
         assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.alice));
         // Approve token Id 1 transfer for Bob on behalf of Alice.
-        assert!(nft.approve(accounts.bob, Id::U8(1u8)).is_ok());
+        assert!(nft.approve(accounts.bob, Some(Id::U8(1u8)), true).is_ok());
         // Get contract address.
         change_caller(accounts.bob);
         // Bob transfers token Id 1 from Alice to Eve.
-        assert!(nft
-            .transfer_from(accounts.alice, accounts.eve, Id::U8(1u8), vec![])
-            .is_ok());
+        assert!(nft.transfer(accounts.eve, Id::U8(1u8), vec![]).is_ok());
         // TokenId 3 is owned by Eve.
         assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.eve));
         // Alice has one token left
@@ -256,7 +252,11 @@ mod psp34 {
         let mut nft = PSP34Struct::new();
         assert_eq!(nft.total_supply(), 0);
         assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        // 1 tokens minted in total
+        assert_eq!(nft.total_supply(), 1);
         assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
+        // 2 tokens minted in total
+        assert_eq!(nft.total_supply(), 2);
         assert!(nft._mint_to(accounts.alice, Id::U8(3u8)).is_ok());
         // 3 tokens minted in total
         assert_eq!(nft.total_supply(), 3)
@@ -272,23 +272,19 @@ mod psp34 {
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Approve token Id 1 transfer for Bob on behalf of Alice.
-        assert!(nft.set_approval_for_all(accounts.bob, true).is_ok());
+        assert!(nft.approve(accounts.bob, None, true).is_ok());
         // Bob is an approved operator for Alice
-        assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), true);
+        assert_eq!(nft.allowance(accounts.alice, accounts.bob, None), true);
 
         change_caller(accounts.bob);
         // Bob transfers token Id 1 from Alice to Eve.
-        assert!(nft
-            .transfer_from(accounts.alice, accounts.eve, Id::U8(1u8), vec![])
-            .is_ok());
+        assert!(nft.transfer(accounts.eve, Id::U8(1u8), vec![]).is_ok());
         // TokenId 1 is owned by Eve.
         assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.eve));
         // Alice owns 1 token.
         assert_eq!(nft.balance_of(accounts.alice), 1);
         // Bob transfers token Id 2 from Alice to Eve.
-        assert!(nft
-            .transfer_from(accounts.alice, accounts.eve, Id::U8(2u8), vec![])
-            .is_ok());
+        assert!(nft.transfer(accounts.eve, Id::U8(2u8), vec![]).is_ok());
         // Bob does not owns tokens.
         assert_eq!(nft.balance_of(accounts.bob), 0);
         // Eve owns 2 tokens.
@@ -296,9 +292,31 @@ mod psp34 {
 
         change_caller(accounts.alice);
         // Remove operator approval for Bob on behalf of Alice.
-        assert!(nft.set_approval_for_all(accounts.bob, false).is_ok());
+        assert!(nft.approve(accounts.bob, None, false).is_ok());
         // Bob is not an approved operator for Alice.
-        assert_eq!(nft.is_approved_for_all(accounts.alice, accounts.bob), false);
+        assert_eq!(nft.allowance(accounts.alice, accounts.bob, None), false);
+    }
+
+    #[ink::test]
+    fn operator_approve_works() {
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP34Struct::new();
+        assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        // Alice owns token.
+        assert_eq!(nft.owner_of(Id::U8(1u8)), Some(accounts.alice));
+        // Approve token Bob on behalf of Alice.
+        assert!(nft.approve(accounts.bob, None, true).is_ok());
+        // Bob is an approved operator for Alice
+        assert_eq!(nft.allowance(accounts.alice, accounts.bob, None), true);
+
+        // Eve is not approved to send token 1 from Alice
+        assert_eq!(nft.allowance(accounts.alice, accounts.eve, Some(Id::U8(1u8))), false);
+        change_caller(accounts.bob);
+        // Approve token Id 1 Eve by operator Bob.
+        assert!(nft.approve(accounts.eve, Some(Id::U8(1u8)), true).is_ok());
+        // Eve is approved to send token 1 from Alice by operator
+        assert_eq!(nft.allowance(accounts.alice, accounts.eve, Some(Id::U8(1u8))), true);
     }
 
     #[ink::test]
@@ -318,7 +336,7 @@ mod psp34 {
         change_caller(accounts.bob);
         // Eve is not an approved operator by Alice.
         assert_eq!(
-            nft.transfer_from(accounts.alice, accounts.frank, Id::U8(1u8), vec![]),
+            nft.transfer(accounts.frank, Id::U8(1u8), vec![]),
             Err(PSP34Error::NotApproved)
         );
     }
@@ -333,14 +351,12 @@ mod psp34 {
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Alice can transfer token
-        assert!(nft
-            .transfer_from(accounts.alice, accounts.bob, Id::U8(1u8), vec![])
-            .is_ok());
+        assert!(nft.transfer(accounts.bob, Id::U8(1u8), vec![]).is_ok());
         // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
-            nft.transfer_from(accounts.alice, accounts.bob, Id::U8(4u8), vec![]),
+            nft.transfer(accounts.bob, Id::U8(4u8), vec![]),
             Err(PSP34Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
@@ -355,14 +371,12 @@ mod psp34 {
         // Alice owns 2 tokens.
         assert_eq!(nft.balance_of(accounts.alice), 2);
         // Alice can transfer token
-        assert!(nft
-            .transfer_from(accounts.alice, accounts.bob, Id::U8(1u8), vec![])
-            .is_ok());
+        assert!(nft.transfer(accounts.bob, Id::U8(1u8), vec![]).is_ok());
         // Turn on error on _after_token_transfer
         nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
-            nft.transfer_from(accounts.alice, accounts.bob, Id::U8(4u8), vec![]),
+            nft.transfer(accounts.bob, Id::U8(4u8), vec![]),
             Err(PSP34Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }

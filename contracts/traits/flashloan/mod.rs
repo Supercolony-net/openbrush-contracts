@@ -11,7 +11,7 @@ use ink_prelude::vec::Vec;
 #[brush::wrapper]
 pub type FlashLenderRef = dyn FlashLender;
 
-/// TODO remove eip link and refactor this
+/// TODO remove eip link
 /// Flash Lender implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[brush::trait_definition]
 pub trait FlashLender {

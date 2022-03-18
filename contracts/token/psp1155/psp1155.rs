@@ -19,22 +19,16 @@ use ink_prelude::{
     vec,
     vec::Vec,
 };
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
-};
+use ink_storage::Mapping;
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP1155Data");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PSP1155Data {
     pub balances: Mapping<(Id, AccountId), Balance>,
     pub operator_approval: Mapping<(AccountId, AccountId), bool>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP1155Storage, PSP1155Data);
@@ -82,11 +76,12 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
-        self._do_safe_transfer_check(operator, from, to, ids_amounts.clone(), data)?;
+        self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
         self._transfer_from(from, to, id, amount)?;
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         self._emit_transfer_single_event(operator, Some(from), Some(to), id, amount);
 
-        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)
+        Ok(())
     }
 
     default fn batch_transfer_from(
@@ -101,14 +96,7 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
-        self._do_safe_transfer_check(
-            operator,
-            from,
-            to,
-            // TODO: Avoid copy of vector
-            ids_amounts.clone(),
-            data,
-        )?;
+        self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
 
         for item in ids_amounts.clone().into_iter() {
             self._transfer_from(from, to, item.0, item.1)?;
@@ -188,11 +176,11 @@ pub trait PSP1155Internal {
 
     fn _do_safe_transfer_check(
         &mut self,
-        operator: AccountId,
-        from: AccountId,
-        to: AccountId,
-        ids_amounts: Vec<(Id, Balance)>,
-        data: Vec<u8>,
+        operator: &AccountId,
+        from: &AccountId,
+        to: &AccountId,
+        ids_amounts: &Vec<(Id, Balance)>,
+        data: &Vec<u8>,
     ) -> Result<(), PSP1155Error>;
 }
 
@@ -234,13 +222,15 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
             self._increase_receiver_balance(to, id.clone(), amount.clone());
         }
 
+        self._after_token_transfer(None, Some(&to), &ids_amounts)?;
+
         if ids_amounts.len() == 1 {
             self._emit_transfer_single_event(operator, None, Some(to), ids_amounts[0].0, ids_amounts[0].1);
         } else {
-            self._emit_transfer_batch_event(operator, None, Some(to), ids_amounts.clone());
+            self._emit_transfer_batch_event(operator, None, Some(to), ids_amounts);
         }
 
-        self._after_token_transfer(None, Some(&to), &ids_amounts)
+        Ok(())
     }
 
     default fn _burn_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error> {
@@ -254,14 +244,16 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
             self._decrease_sender_balance(from, id.clone(), amount.clone())?;
         }
 
+        self._after_token_transfer(Some(&from), None, &ids_amounts)?;
+
         let operator = Self::env().caller();
         if ids_amounts.len() == 1 {
             self._emit_transfer_single_event(operator, Some(from), None, ids_amounts[0].0, ids_amounts[0].1);
         } else {
-            self._emit_transfer_batch_event(operator, Some(from), None, ids_amounts.clone());
+            self._emit_transfer_batch_event(operator, Some(from), None, ids_amounts);
         }
 
-        self._after_token_transfer(Some(&from), None, &ids_amounts)
+        Ok(())
     }
 
     default fn _transfer_guard(&self, operator: AccountId, from: AccountId, to: AccountId) -> Result<(), PSP1155Error> {
@@ -335,15 +327,21 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
 
     default fn _do_safe_transfer_check(
         &mut self,
-        operator: AccountId,
-        from: AccountId,
-        to: AccountId,
-        ids_amounts: Vec<(Id, Balance)>,
-        data: Vec<u8>,
+        operator: &AccountId,
+        from: &AccountId,
+        to: &AccountId,
+        ids_amounts: &Vec<(Id, Balance)>,
+        data: &Vec<u8>,
     ) -> Result<(), PSP1155Error> {
         self.flush();
-        let builder = PSP1155ReceiverRef::before_received_builder(&to, operator, from, ids_amounts, data)
-            .call_flags(CallFlags::default().set_allow_reentry(true));
+        let builder = PSP1155ReceiverRef::before_received_builder(
+            to,
+            operator.clone(),
+            from.clone(),
+            ids_amounts.clone(),
+            data.clone(),
+        )
+        .call_flags(CallFlags::default().set_allow_reentry(true));
         let result = match builder.fire() {
             Ok(result) => {
                 match result {

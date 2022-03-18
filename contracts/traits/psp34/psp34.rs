@@ -64,25 +64,13 @@ pub trait PSP34 {
     #[ink(message)]
     fn owner_of(&self, id: Id) -> Option<AccountId>;
 
-    /// Returns the approved account ID for this token if any.
+    /// Returns `true` if the operator is approved by the owner to withdraw `id` token.
+    /// If `id` is `None`, returns `true` if the operator is approved to withdraw all owner's tokens.
     #[ink(message)]
-    fn get_approved(&self, id: Id) -> Option<AccountId>;
+    fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> bool;
 
-    /// Returns `true` if the operator is approved by the owner.
-    #[ink(message)]
-    fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool;
-
-    /// Approves or disapproves the operator for all tokens of the caller.
-    ///
-    /// On success a `ApprovalForAll` event is emitted.
-    ///
-    /// # Errors
-    ///
-    /// Returns `SelfApprove` error if it is self approve.
-    #[ink(message)]
-    fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) -> Result<(), PSP34Error>;
-
-    /// Approves the account to transfer the specified token on behalf of the caller.
+    /// Approves `operator` to withdraw the `id` token from the caller's account.
+    /// If `id` is `None` approves or disapproves the operator for all tokens of the caller.
     ///
     /// On success a `Approval` event is emitted.
     ///
@@ -92,7 +80,7 @@ pub trait PSP34 {
     ///
     /// Returns `NotApproved` error if caller is not owner of `id`.
     #[ink(message)]
-    fn approve(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error>;
+    fn approve(&mut self, operator: AccountId, id: Option<Id>, approved: bool) -> Result<(), PSP34Error>;
 
     /// Transfer approved or owned token from caller.
     ///
@@ -107,20 +95,6 @@ pub trait PSP34 {
     /// Returns `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
     #[ink(message)]
     fn transfer(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error>;
-
-    /// Transfer approved or owned token from `from`.
-    ///
-    /// On success a `Transfer` event is emitted.
-    ///
-    /// # Errors
-    ///
-    /// Returns `TokenNotExists` error if `id` does not exist.
-    ///
-    /// Returns `NotApproved` error if `from` doesn't have allowance for transferring.
-    ///
-    /// Returns `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
-    #[ink(message)]
-    fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error>;
 
     /// Returns current NFT total supply.
     #[ink(message)]

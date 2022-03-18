@@ -43,6 +43,7 @@ payment_splitter = ["contracts/payment_splitter"]
 reentrancy_guard = ["contracts/reentrancy_guard"]
 pausable = ["contracts/pausable"]
 timelock_controller = ["contracts/timelock_controller"]
+proxy = ["contracts/proxy"]
 
 [profile.release]
 panic = "abort"

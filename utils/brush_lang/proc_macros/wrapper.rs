@@ -6,6 +6,9 @@ use quote::{
 use syn::parse_macro_input;
 
 pub(crate) fn generate(_: TokenStream, input: TokenStream) -> TokenStream {
+    if crate::internal::skip() {
+        return (quote! {}).into()
+    }
     let mut type_item = parse_macro_input!(input as syn::ItemType);
     if let syn::Type::TraitObject(traits) = &mut *type_item.ty {
         traits.bounds.iter_mut().for_each(|ty| {

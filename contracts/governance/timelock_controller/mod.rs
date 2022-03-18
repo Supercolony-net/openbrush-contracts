@@ -30,26 +30,31 @@ use ink_prelude::{
     vec,
     vec::Vec,
 };
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
-};
+use ink_storage::Mapping;
 use scale::Encode;
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::TimelockControllerData");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct TimelockControllerData {
+    pub access_control: AccessControlData,
     pub min_delay: Timestamp,
     pub timestamps: Mapping<OperationId, Timestamp>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(TimelockControllerStorage, TimelockControllerData);
+
+impl<T: TimelockControllerStorage> AccessControlStorage for T {
+    fn get(&self) -> &AccessControlData {
+        &T::get(self).access_control
+    }
+
+    fn get_mut(&mut self) -> &mut AccessControlData {
+        &mut T::get_mut(self).access_control
+    }
+}
 
 /// Modifier to make a function callable only by a certain role. In
 /// addition to checking the sender's role, zero account's role is also
@@ -74,7 +79,7 @@ pub const EXECUTOR_ROLE: RoleType = ink_lang::selector_id!("EXECUTOR_ROLE");
 
 pub const DONE_TIMESTAMP: Timestamp = 1;
 
-impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockController for T {
+impl<T: TimelockControllerStorage + Flush> TimelockController for T {
     default fn is_operation(&self, id: OperationId) -> bool {
         self.get_timestamp(id) > Timestamp::default()
     }
@@ -277,7 +282,7 @@ pub trait TimelockControllerInternal {
     fn _done_timestamp() -> Timestamp;
 }
 
-impl<T: AccessControlStorage + TimelockControllerStorage + Flush> TimelockControllerInternal for T {
+impl<T: TimelockControllerStorage + Flush> TimelockControllerInternal for T {
     default fn _emit_min_delay_change_event(&self, _old_delay: Timestamp, _new_delay: Timestamp) {}
 
     default fn _emit_call_scheduled_event(
