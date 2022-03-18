@@ -11,7 +11,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of Ownable via `brush` features.
 
 ```toml
-brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ownable", "proxy"] }
+brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["proxy"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -49,7 +49,7 @@ pub struct ProxyStruct {
 
 ## Step 4: Inherit logic
 
-Inherit implementation of the `Proxy` trait and of the `Wwnable` trait. You can customize (override) methods in this `impl` block.
+Inherit implementation of the `Proxy` trait and of the `Ownable` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
 impl Ownable for ProxyStruct {}
@@ -99,53 +99,5 @@ impl MyProxy {
 
 Generally, proxy doesn't need other functionality, but if you need something you can customize it by adding proxy logic. We will add a `proxy_function` to `ProxyStruct` implemenation.
 
-```rust
-#![cfg_attr(not(feature = "std"), no_std)]
-#![feature(min_specialization)]
-
-#[brush::contract]
-pub mod proxy {
-    use brush::{
-        contracts::{
-            ownable::*, 
-            proxy::*
-        }
-    };
-    use ink_storage::traits::SpreadAllocate;
-
-    #[ink(storage)]
-    #[derive(Default, SpreadAllocate, ProxyStorage)]
-    pub struct ProxyStruct {
-        #[ProxyStorageField]
-        proxy: ProxyData,
-    }
-
-    impl ProxyStruct {
-        #[ink(constructor)]
-        pub fn new(forward_to: Hash) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                let caller = instance.env().caller();
-                instance._init_with_forward_to(forward_to);
-                instance._init_with_owner(caller);
-            })
-        }
-        #[ink(message, payable, selector = _)]
-        pub fn forward(&self) {
-           ProxyInternal::_fallback(self);
-        }
-
-        #[ink(message)]
-        pub fn proxy_function(&mut self) {
-            todo!()
-        }
-    }
-
-    impl Ownable for ProxyStruct {}
-    
-    impl Proxy for ProxyStruct {}
-}
-
-
-```
 
 You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/proxy).

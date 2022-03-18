@@ -3,12 +3,7 @@
 
 #[brush::contract]
 pub mod proxy {
-    use brush::{
-        contracts::{
-            ownable::*, 
-            proxy::*
-        }
-    };
+    use brush::proxy::*;
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
@@ -33,7 +28,5 @@ pub mod proxy {
         }
     }
 
-    impl Ownable for ProxyStruct {}
-    
     impl Proxy for ProxyStruct {}
 }

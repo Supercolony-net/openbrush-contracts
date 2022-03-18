@@ -403,9 +403,6 @@ pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
     wrapper::generate(attrs, input)
 }
 
-
-
-
 /// That macro implemented SpreadLayout, SpreadAllcoate and StorageLayout with a specified storage key instead of the default one
 /// (All data is stored under the provided storage key).
 /// Also, that macro adds the code to initialize the structure if it wasn't initialized(In case of upgradable contract).
