@@ -6,6 +6,7 @@ mod internal;
 mod metadata;
 mod modifier_definition;
 mod modifiers;
+mod storage;
 mod trait_definition;
 mod wrapper;
 
@@ -401,3 +402,36 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
     wrapper::generate(attrs, input)
 }
+
+synstructure::decl_attribute!(
+    [storage] =>
+    /// That macro implemented `SpreadLayout`, `SpreadAllocate` and `StorageLayout` with a specified
+    /// storage key instead of the default one(All data is stored under the provided storage key).
+    ///
+    /// Also, that macro adds the code to initialize the structure if it wasn't initialized.
+    /// That macro requires one input argument - the storage key. It can be any Rust code that returns [u8; 32].
+    ///
+    /// # Example:
+    /// ```
+    /// {
+    /// use brush::traits::AccountId;
+    /// pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::OwnableData");
+    ///
+    /// #[derive(Default, Debug)]
+    /// #[brush::storage(STORAGE_KEY)]
+    /// pub struct OwnableData {
+    ///    pub owner: AccountId,
+    ///    pub _reserved: Option<()>,
+    /// }
+    ///
+    /// #[derive(Default, Debug)]
+    /// #[brush::storage(ink_lang::blake2x256!("brush::ProxyData"))]
+    /// pub struct ProxyData {
+    ///    pub forward: AccountId,
+    ///    pub _reserved: Option<()>,
+    /// }
+    ///
+    /// }
+    /// ```
+    storage::storage
+);

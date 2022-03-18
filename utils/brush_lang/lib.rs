@@ -8,6 +8,7 @@ pub use proc_macros::{
     contract,
     modifier_definition,
     modifiers,
+    storage,
     trait_definition,
     wrapper,
 };

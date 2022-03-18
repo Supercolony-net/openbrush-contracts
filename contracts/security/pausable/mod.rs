@@ -6,18 +6,14 @@ use brush::{
     traits::AccountId,
 };
 pub use derive::PausableStorage;
-use ink_storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PausableData");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PausableData {
     pub paused: bool,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PausableStorage, PausableData);

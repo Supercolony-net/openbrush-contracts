@@ -26,23 +26,17 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
-};
+use ink_storage::Mapping;
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP22Data");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PSP22Data {
     pub supply: Balance,
     pub balances: Mapping<AccountId, Balance>,
     pub allowances: Mapping<(AccountId, AccountId), Balance>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP22Storage, PSP22Data);

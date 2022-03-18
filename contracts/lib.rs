@@ -4,6 +4,7 @@
 mod access;
 mod finance;
 mod governance;
+mod upgradability;
 mod security;
 mod token;
 
@@ -12,5 +13,6 @@ pub mod traits;
 pub use access::*;
 pub use finance::*;
 pub use governance::*;
+pub use upgradability::*;
 pub use security::*;
 pub use token::*;

@@ -4,48 +4,15 @@ use brush::{
     modifier_definition,
 };
 pub use derive::ReentrancyGuardStorage;
-use ink_primitives::{
-    Key,
-    KeyPtr,
-};
-use ink_storage::traits::{
-    push_spread_root,
-    SpreadAllocate,
-    SpreadLayout,
-};
+use ink_storage::traits::push_spread_root;
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::ReentrancyGuardData");
 
-#[derive(Default, Debug, SpreadAllocate)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct ReentrancyGuardData {
     pub status: u8,
-}
-
-pub const REENTRANCY_GUARD_DATA_STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("ReentrancyGuardData");
-
-/// ReentrancyGuardData has own storage key
-impl SpreadLayout for ReentrancyGuardData {
-    const FOOTPRINT: u64 = 1;
-    const REQUIRES_DEEP_CLEAN_UP: bool = false;
-
-    fn pull_spread(_: &mut KeyPtr) -> Self {
-        let mut ptr = KeyPtr::from(Key::from(REENTRANCY_GUARD_DATA_STORAGE_KEY));
-        Self {
-            status: SpreadLayout::pull_spread(&mut ptr),
-        }
-    }
-
-    fn push_spread(&self, _: &mut KeyPtr) {
-        let mut ptr = KeyPtr::from(Key::from(REENTRANCY_GUARD_DATA_STORAGE_KEY));
-        SpreadLayout::push_spread(&self.status, &mut ptr);
-    }
-
-    fn clear_spread(&self, _: &mut KeyPtr) {
-        let mut ptr = KeyPtr::from(Key::from(REENTRANCY_GUARD_DATA_STORAGE_KEY));
-        SpreadLayout::clear_spread(&self.status, &mut ptr);
-    }
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(ReentrancyGuardStorage, ReentrancyGuardData);
@@ -76,7 +43,7 @@ where
 
     // We want to flush storage before execution of inner function,
     // because ink! doesn't do it by default and `status` will not be updated in child calls
-    push_spread_root(instance.get(), &Key::default());
+    push_spread_root(instance.get(), &Default::default());
 
     let result = body(instance);
     instance.get_mut().status = NOT_ENTERED;

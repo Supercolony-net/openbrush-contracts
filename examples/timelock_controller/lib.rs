@@ -8,10 +8,8 @@ pub mod my_timelock_controller {
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, AccessControlStorage, TimelockControllerStorage)]
+    #[derive(Default, SpreadAllocate, TimelockControllerStorage)]
     pub struct TimelockStruct {
-        #[AccessControlStorageField]
-        access: AccessControlData,
         #[TimelockControllerStorageField]
         timelock: TimelockControllerData,
     }

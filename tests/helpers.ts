@@ -47,6 +47,11 @@ const patchMethods = (object) => {
   }
 }
 
+export const setupProxy = (contract, proxy): Contract =>  {
+  const proxied_contract = new Contract(proxy.address, contract.abi, contract.api, proxy.signer);
+  return patchContractMethods(proxied_contract);
+}
+
 export const setupContract = async (name, constructor, ...args) => {
   const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
   const signers = await getSigners()

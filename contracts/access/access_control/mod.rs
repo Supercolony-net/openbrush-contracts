@@ -6,22 +6,16 @@ use brush::{
     traits::AccountId,
 };
 pub use derive::AccessControlStorage;
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
-};
+use ink_storage::Mapping;
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::AccessControlData");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct AccessControlData {
     pub admin_roles: Mapping<RoleType, RoleType>,
     pub members: Mapping<(RoleType, AccountId), ()>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(AccessControlStorage, AccessControlData);

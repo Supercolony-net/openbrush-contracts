@@ -15,26 +15,21 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
-};
+use ink_storage::Mapping;
 
 use brush::traits::Balance;
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP34Data");
+
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PSP34Data {
     pub token_owner: Mapping<Id, AccountId>,
     pub token_approvals: Mapping<Id, AccountId>,
     pub owned_tokens_count: Mapping<AccountId, u32>,
     pub operator_approvals: Mapping<(AccountId, AccountId), bool>,
     pub total_supply: Balance,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP34Storage, PSP34Data);

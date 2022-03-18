@@ -19,22 +19,16 @@ use ink_prelude::{
     vec,
     vec::Vec,
 };
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
-};
+use ink_storage::Mapping;
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP1155Data");
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
 pub struct PSP1155Data {
     pub balances: Mapping<(Id, AccountId), Balance>,
     pub operator_approval: Mapping<(AccountId, AccountId), bool>,
+    pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP1155Storage, PSP1155Data);
