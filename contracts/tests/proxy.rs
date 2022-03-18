@@ -4,8 +4,8 @@
 mod proxy {
     use brush::test_utils::change_caller;
     use contracts::{
-        ownable::*, 
-        proxy::*
+        ownable::*,
+        proxy::*,
     };
     use ink::codegen::{
         EmitEvent,
@@ -49,7 +49,7 @@ mod proxy {
         default fn _emit_delegate_code_changed_event(
             &self,
             previous_code_hash: Option<Hash>,
-            new_code_hash: Option<Hash>
+            new_code_hash: Option<Hash>,
         ) {
             self.env().emit_event(CodeHashChanged {
                 previous_code_hash,
@@ -102,7 +102,7 @@ mod proxy {
         let hash = Hash::try_from(CODE_HASH_0).unwrap();
         let new_hash = Hash::try_from(CODE_HASH_1).unwrap();
         let mut my_proxy = MyProxy::new(hash);
-        my_proxy.change_delegate_code(new_hash);
+        assert!(my_proxy.change_delegate_code(new_hash).is_ok());
         assert_eq!(my_proxy.get_delegate_code(), new_hash);
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(2, emitted_events.len());
