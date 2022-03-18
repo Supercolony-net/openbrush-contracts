@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build & Run cargo tests
-        run: cargo test --all-features --workspace --release
+        run: RUSTFLAGS="-D warnings" cargo test --all-features --workspace
   integration-tests:
     runs-on: ubuntu-latest
     container:
