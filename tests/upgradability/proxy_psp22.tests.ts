@@ -1,5 +1,5 @@
 import { consts } from '../constants'
-import { expect, setupContract, fromSigner, getSigner, setupProxy } from '../helpers'
+import { expect, setupContract, fromSigner, setupProxy } from '../helpers'
 
 describe('MY_UPGRADEABLE_PSP22', () => {
   it('MY_UPGRADEABLE_PSP22 - delegate code is my_psp22 code hash', async () => {
@@ -18,8 +18,8 @@ describe('MY_UPGRADEABLE_PSP22', () => {
   })
 
   it('MY_UPGRADEABLE_PSP22 - Assigns initial balance', async () => {
-    const { contract: psp22, abi, defaultSigner: sender } = await setupContract('my_psp22_upgradeable', 'new', '0')
-    const { contract } = await setupContract('my_proxy', 'new', (await abi).source.hash)
+    const { contract: psp22, abi } = await setupContract('my_psp22_upgradeable', 'new', '0')
+    const { contract, defaultSigner: sender } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22, contract)
     await proxy.tx.initialize(1000)
 
@@ -28,7 +28,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
   })
 
   it('MY_UPGRADEABLE_PSP22 - wrong proxy setup leads to transaction fail', async () => {
-    const { contract: psp22, abi, defaultSigner: sender } = await setupContract('my_psp22_upgradeable', 'new', '0')
+    const { contract: psp22 } = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', '')
     const proxy = setupProxy(psp22, contract)
 
@@ -36,9 +36,10 @@ describe('MY_UPGRADEABLE_PSP22', () => {
   })
 
   it('MY_UPGRADEABLE_PSP22 - Transfer adds amount to destination account', async () => {
-    const { contract: psp22, abi, accounts: [receiver], defaultSigner: sender } = await setupContract('my_psp22_upgradeable', 'new', '0')
+    const { contract: psp22, abi, accounts: [receiver] } = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22, contract)
+    
     await proxy.tx.initialize(1000)
 
     await expect(() => proxy.tx.transfer(receiver.address, 7, [])).to.changeTokenBalance(proxy, receiver, 7)
@@ -46,7 +47,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
   }) 
 
   it('MY_UPGRADEABLE_PSP22 - Transfers funds successfully if destination account is a receiver and supports transfers', async () => {
-    const { contract: psp22, abi } = await setupContract('my_psp22_upgradeable', 'new', '0')
+    const { contract: psp22, abi} = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22, contract)
     const { contract: psp22_receiver } = await setupContract('psp22_receiver', 'new')
@@ -66,7 +67,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
   })
 
   it('MY_UPGRADEABLE_PSP22 - Can not transfer above the amount', async () => {
-    const { contract: psp22, abi, accounts: [receiver] } = await setupContract('my_psp22_upgradeable', 'new', '0')
+    const { contract: psp22, abi, accounts: [receiver]} = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22, contract)
     await proxy.tx.initialize(1000)

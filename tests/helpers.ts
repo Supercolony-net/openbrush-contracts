@@ -48,7 +48,7 @@ const patchMethods = (object) => {
 }
 
 export const setupProxy = (contract, proxy): Contract =>  {
-  const proxied_contract = new Contract(proxy.address, contract.abi, contract.api, contract.signer);
+  const proxied_contract = new Contract(proxy.address, contract.abi, contract.api, proxy.signer);
   return patchContractMethods(proxied_contract);
 }
 

@@ -3,12 +3,14 @@
 
 #[brush::contract]
 pub mod my_psp22_upgradeable {
-    use brush::contracts::{
-        psp22::*,
-        ownable::*,
+    use brush::{
+        contracts::{
+            ownable::*,
+            psp22::*,
+        },
+        modifiers,
     };
     use ink_storage::traits::SpreadAllocate;
-    use ink_lang as ink;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
@@ -16,35 +18,27 @@ pub mod my_psp22_upgradeable {
         #[OwnableStorageField]
         ownable: OwnableData,
         #[PSP22StorageField]
-        psp22: PSP22Data
+        psp22: PSP22Data,
     }
 
     impl Ownable for MyPSP22 {}
-    
+
     impl PSP22 for MyPSP22 {}
 
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
-                instance.initialize(total_supply)
+                instance._init_with_owner(instance.env().caller());
+                instance.initialize(total_supply).ok().unwrap()
             })
         }
-        
+
         #[ink(message)]
-        pub fn initialize(&mut self, total_supply: Balance) {
-            PSP22Internal::_mint(self, self.env().caller(), total_supply).expect("Should mint")
+        #[modifiers(only_owner)]
+        pub fn initialize(&mut self, total_supply: Balance) -> Result<(), OwnableError> {
+            self._mint(self.owner(), total_supply).expect("Should mint");
+            Ok(())
         }
     }
-
-    #[ink::test]
-    fn total_supply_works() {
-        // Constructor works.
-        let mut psp22 = MyPSP22::new(0);
-        assert_eq!(psp22.total_supply(), 0);
-        psp22.initialize(100);
-        // Get the token total supply.
-        assert_eq!(psp22.total_supply(), 100);
-    }
 }
-
