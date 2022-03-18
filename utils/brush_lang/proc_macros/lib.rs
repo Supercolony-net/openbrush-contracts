@@ -404,8 +404,12 @@ pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 
-/// This macro allow you to implement SpreadLayout and derive SpreadAllocate for ContractData.
-/// 
+
+
+/// That macro implemented SpreadLayout, SpreadAllcoate and StorageLayout with a specified storage key instead of the default one
+/// (All data is stored under the provided storage key).
+/// Also, that macro adds the code to initialize the structure if it wasn't initialized(In case of upgradable contract).
+/// That macro requires one input argument - the storage key. It can be any Rust code that returns [u8; 32].
 /// # Example:
 /// ```
 /// {
