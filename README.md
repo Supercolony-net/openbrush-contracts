@@ -158,8 +158,9 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 ------- Release 4.0.0
 
-- [ ] Add support of upgradable contracts to ink!/contract-pallet level.
-- [ ] Create upgradable contracts.
+- [x] Add support of upgradable contracts to ink!/contract-pallet level.
+- [x] Implement `Proxy` pattern.
+- [ ] Implement `Diamond` standard.
 
 ## Installation & Testing
 To work with project you need to install ink! toolchain and NodeJS's dependencies.
@@ -193,7 +194,11 @@ After you can run tests by `yarn run test` command. It will build all contracts 
 
 ### Was it audited?
 
-Contracts in this repository have not yet been audited. But it is in plans.
+Contracts in this repository have not yet been audited.
+ink! will have soon several major changes, so it does not make sense to audit it now.
+ink! is not ready for production at the moment. It requires resolving some issues.
+
+After that, we plan to do an audit.
 
 ## License
 
