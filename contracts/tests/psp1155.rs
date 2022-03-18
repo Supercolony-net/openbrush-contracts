@@ -11,8 +11,8 @@ mod psp1155 {
         EmitEvent,
         Env,
     };
-    use ink_storage::traits::SpreadAllocate;
     use ink_lang as ink;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(event)]
     pub struct TransferSingle {
@@ -99,11 +99,11 @@ mod psp1155 {
         // Don't do cross call in test
         fn _do_safe_transfer_check(
             &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _to: AccountId,
-            _ids_amounts: Vec<(Id, Balance)>,
-            _data: Vec<u8>,
+            _operator: &AccountId,
+            _from: &AccountId,
+            _to: &AccountId,
+            _ids_amounts: &Vec<(Id, Balance)>,
+            _data: &Vec<u8>,
         ) -> Result<(), PSP1155Error> {
             Ok(())
         }
