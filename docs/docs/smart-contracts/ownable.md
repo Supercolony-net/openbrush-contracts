@@ -28,6 +28,7 @@ pub mod my_ownable {
         contracts::ownable::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -37,7 +38,7 @@ Declare storage struct and declare the field related to `OwnableStorage` trait. 
 
 ```rust
 #[ink(storage)]
-#[derive(Default, OwnableStorage)]
+#[derive(Default, SpreadAllocate, OwnableStorage)]
 pub struct MyOwnable {
     #[OwnableStorageField]
     ownable: OwnableData,
@@ -82,9 +83,11 @@ pub mod my_ownable {
         contracts::ownable::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
+
 
    #[ink(storage)]
-   #[derive(Default, OwnableStorage)]
+   #[derive(Default, SpreadAllocate, OwnableStorage)]
    pub struct MyOwnable {
       #[OwnableStorageField]
       ownable: OwnableData,

@@ -28,6 +28,7 @@ pub mod my_access_control {
         contracts::access_control::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -37,7 +38,7 @@ Declare storage struct and declare the field related to and `AccessControlStorag
 
 ```rust
 #[ink(storage)]
-#[derive(Default, AccessControlStorage)]
+#[derive(Default, SpreadAllocate, AccessControlStorage)]
 pub struct MyAccessControl {
     #[AccessControlStorageField]
     access: AccessControlData,
@@ -79,9 +80,10 @@ pub mod my_access_control {
         contracts::access_control::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, AccessControlStorage)]
+    #[derive(Default, SpreadAllocate, AccessControlStorage)]
     pub struct MyAccessControl {
         #[AccessControlStorageField]
         access: AccessControlData,
