@@ -43,7 +43,7 @@ impl<T: PSP34Storage + Flush> PSP34 for T {
     }
 
     default fn balance_of(&self, owner: AccountId) -> u32 {
-        self.get().owned_tokens_count.get(&owner).unwrap_or(0)
+        self._balance_of(&owner)
     }
 
     default fn owner_of(&self, id: Id) -> Option<AccountId> {
@@ -65,7 +65,7 @@ impl<T: PSP34Storage + Flush> PSP34 for T {
     }
 
     default fn total_supply(&self) -> Balance {
-        self.get().total_supply
+        self._total_supply()
     }
 }
 
@@ -84,10 +84,6 @@ pub trait PSP34Internal {
 
     /// Returns the owner of the token.
     fn _owner_of(&self, id: &Id) -> Option<AccountId>;
-
-    fn _allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<Id>) -> bool;
-
-    fn _check_token_exists(&self, id: &Id) -> Result<AccountId, PSP34Error>;
 
     /// Gets an operator on other Account's behalf.
     fn _transfer_token(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error>;
@@ -124,6 +120,14 @@ pub trait PSP34Internal {
     fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error>;
 
     fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP34Error>;
+
+    fn _balance_of(&self, owner: &AccountId) -> u32;
+
+    fn _total_supply(&self) -> Balance;
+
+    fn _allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<Id>) -> bool;
+
+    fn _check_token_exists(&self, id: &Id) -> Result<AccountId, PSP34Error>;
 }
 
 impl<T: PSP34Storage + Flush> PSP34Internal for T {
@@ -185,6 +189,8 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         if owner != caller && !self._allowance(&owner, &caller, &id) {
             return Err(PSP34Error::NotApproved)
         }
+
+        self.get_mut().operator_approvals.remove((&owner, &caller, &id));
 
         let id = id.unwrap();
 
@@ -294,5 +300,13 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         self._after_token_transfer(Some(&from), None, &id)?;
         self._emit_transfer_event(Some(from), None, id);
         Ok(())
+    }
+
+    fn _balance_of(&self, owner: &AccountId) -> u32 {
+        self.get().owned_tokens_count.get(owner).unwrap_or(0)
+    }
+
+    fn _total_supply(&self) -> Balance {
+        self.get().total_supply
     }
 }

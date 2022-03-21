@@ -1,7 +1,7 @@
 [package]
-name = "my_psp1155_burnable"
+name = "my_psp34_enumerable"
 version = "1.5.0"
-authors = ["Supercolony <dominik.krizo@supercolony.net>"]
+authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
@@ -16,10 +16,10 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-brush = { path = "../../..", default-features = false, features = ["psp1155"] }
+brush = { path = "../../..", default-features = false, features = ["psp34"] }
 
 [lib]
-name = "my_psp1155_burnable"
+name = "my_psp34_enumerable"
 path = "lib.rs"
 crate-type = [
     # Used for normal contract Wasm blobs.
