@@ -26,6 +26,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 pub mod my_psp22 {
     use brush::contracts::psp22::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -35,7 +36,7 @@ Declare the storage struct and declare the field related to the `PSP22Storage` t
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage)]
+#[derive(Default, SpreadAllocate, PSP22Storage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -57,11 +58,13 @@ Define constructor. Your basic version of `PSP22` contract is ready!
 ```rust
 impl MyPSP22 {
    #[ink(constructor)]
-   pub fn new(total_supply: Balance) -> Self {
-      let mut instance = Self::default();
-      instance._mint(instance.env().caller(), total_supply);
-      instance
-   }
+    pub fn new(total_supply: Balance) -> Self {
+        ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+            instance
+                ._mint(instance.env().caller(), total_supply)
+                .expect("Should mint");
+        })
+    }
 }
 ```
 
@@ -72,7 +75,7 @@ override `_before_token_transfer` method in the `PSP22` implementation(that meth
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage)]
+#[derive(Default, SpreadAllocate, PSP22Storage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
     psp22: PSP22Data,
