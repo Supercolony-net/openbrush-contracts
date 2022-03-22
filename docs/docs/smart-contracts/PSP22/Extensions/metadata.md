@@ -17,6 +17,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 pub mod my_psp22 {
     use brush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 ```
 
 ## Step 2: Define storage
@@ -25,7 +26,7 @@ Declare the storage struct and declare the field related to the `PSP22MetadataSt
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+#[derive(Default, SpreadAllocate, PSP22Storage, PSP22MetadataStorage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -39,6 +40,8 @@ pub struct MyPSP22 {
 Inherit the implementation of the `PSP22Metadata` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
+impl PSP22 for MyPSP22 {}
+
 impl PSP22Metadata for MyPSP22 {}
 ```
 
