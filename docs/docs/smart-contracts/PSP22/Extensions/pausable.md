@@ -31,6 +31,7 @@ pub mod my_psp22_pausable {
         },
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 ```
 
 ## Step 3: Define storage
@@ -39,7 +40,7 @@ Declare the storage struct and declare the fields related to the `PausableStorag
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage, PausableStorage)]
+#[derive(Default, SpreadAllocate, PSP22Storage, PausableStorage)]
 pub struct MyPSP22Pausable {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -80,9 +81,9 @@ Define constructor and add contract functions for pausing and unpausing the cont
 impl MyPSP22Pausable {
     #[ink(constructor)]
     pub fn new(total_supply: Balance) -> Self {
-        let mut instance = Self::default();
-        assert!(instance._mint(Self::env().caller(), total_supply).is_ok());
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            assert!(instance._mint(Self::env().caller(), total_supply).is_ok());
+        })
     }
 
     #[ink(message)]
