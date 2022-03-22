@@ -1,4 +1,5 @@
 mod access_control;
+mod diamond;
 mod flashloan;
 mod ownable;
 mod pausable;
@@ -10,6 +11,7 @@ mod reentrancy_guard;
 mod timelock_controller;
 
 pub use access_control::AccessControlError;
+pub use diamond::DiamondError;
 pub use flashloan::{
     FlashBorrowerError,
     FlashLenderError,

@@ -69,3 +69,7 @@ proxy = [
     "ownable",
     "derive/proxy",
 ]
+diamond = [
+    "ownable",
+    "derive/diamond",
+]

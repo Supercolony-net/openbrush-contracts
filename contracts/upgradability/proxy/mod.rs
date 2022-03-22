@@ -1,6 +1,6 @@
 pub use crate::{
     ownable::*,
-    traits::proxy::*
+    traits::proxy::*,
 };
 use brush::{
     declare_storage_trait,
@@ -24,11 +24,11 @@ declare_storage_trait!(ProxyStorage, ProxyData);
 
 impl<T: ProxyStorage> OwnableStorage for T {
     fn get(&self) -> &OwnableData {
-        &T::get(self).ownable
+        &ProxyStorage::get(self).ownable
     }
 
     fn get_mut(&mut self) -> &mut OwnableData {
-        &mut T::get_mut(self).ownable
+        &mut ProxyStorage::get_mut(self).ownable
     }
 }
 
@@ -51,15 +51,14 @@ pub trait ProxyInternal {
 
     fn _init_with_forward_to(&mut self, forward_to: Hash);
 
-    fn _fallback(&self);
+    fn _fallback(&self) -> !;
 }
-
 
 impl<T: ProxyStorage> ProxyInternal for T {
     default fn _emit_delegate_code_changed_event(
         &self,
         _previous_code_hash: Option<Hash>,
-        _new_code_hash: Option<Hash>
+        _new_code_hash: Option<Hash>,
     ) {
     }
 
@@ -68,29 +67,26 @@ impl<T: ProxyStorage> ProxyInternal for T {
         self._emit_delegate_code_changed_event(None, Some(forward_to));
     }
 
-    default fn _fallback(&self) {
+    default fn _fallback(&self) -> ! {
         ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-        .call_type(DelegateCall::new().code_hash(self.get_delegate_code()))
-        .call_flags(
-            ink_env::CallFlags::default()
+            .call_type(DelegateCall::new().code_hash(self.get_delegate_code()))
+            .call_flags(
+                ink_env::CallFlags::default()
                 // We don't plan to use the input data after the delegated call, so the 
                 // input data can be forwarded to delegated contract to reduce the gas usage.
                 .set_forward_input(true)
                 // We don't plan to return back to that contract after execution, so we 
                 // marked delegated call as "tail", to end the execution of the contract.
                 .set_tail_call(true),
-        )
-        .fire()
-        .unwrap_or_else(|err| {
-            panic!(
-                "delegate call to {:?} failed due to {:?}",
-                self.get_delegate_code(), err
             )
-        });
-    unreachable!(
-        "the forwarded call will never return since `tail_call` was set"
-    );
+            .fire()
+            .unwrap_or_else(|err| {
+                panic!(
+                    "delegate call to {:?} failed due to {:?}",
+                    self.get_delegate_code(),
+                    err
+                )
+            });
+        unreachable!("the _fallback call will never return since `tail_call` was set");
     }
 }
-
-

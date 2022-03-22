@@ -1,4 +1,5 @@
 pub mod access_control;
+pub mod diamond;
 pub mod errors;
 pub mod flashloan;
 pub mod ownable;

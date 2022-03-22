@@ -89,3 +89,6 @@ declare_derive_storage_trait!(
 // Proxy
 #[cfg(feature = "proxy")]
 declare_derive_storage_trait!(derive_proxy_storage, ProxyStorage, ProxyStorageField);
+// Diamond
+#[cfg(feature = "diamond")]
+declare_derive_storage_trait!(derive_diamond_storage, DiamondStorage, DiamondStorageField);
