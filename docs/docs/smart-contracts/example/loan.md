@@ -126,24 +126,18 @@ pub mod loan {
         psp34::extensions::metadata::*,
     };
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use brush::modifiers;
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_storage::Mapping;
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
     use lending_project::traits::loan::*;
 ```
-You can notice that we marked some imports with `#[cfg(not(feature = "ink-as-dependency"))]`.
-It is needed to remove rust's warnings when we will import `LoanContract` as `ink-as-dependency`
-into `LendingContract` for instantiation. When we are importing some contracts as
-`ink-as-dependency`, we only import the signature of methods without
-the implementation of them. It is why the imports are not used during
-`ink-as-dependency` and it is why Rust is throwing warnings.
 
 ## Define the storage
 
@@ -154,7 +148,7 @@ fields related to `Loan` itself.
 ```rust
 /// Define the storage for PSP34 data, Metadata data and Ownable data
 #[ink(storage)]
-#[derive(Default, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
+#[derive(Default, SpreadAllocate, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
 pub struct LoanContract {
     #[PSP34StorageField]
     psp34: PSP34Data,
@@ -255,10 +249,15 @@ impl LoanContract {
     /// constructor with name and symbol
     #[ink(constructor)]
     pub fn new() -> Self {
-        let mut instance = Self::default();
-        instance._init_with_metadata(Some(String::from("LoanContract NFT")), Some(String::from("L-NFT")));
-        instance._init_with_owner(Self::env().caller());
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut LoanContract| {
+            instance.last_loan_id = Id::U8(1u8);
+            instance.freed_ids = Vec::new();
+            instance._set_attribute(
+                Id::U8(1u8),
+                String::from("LoanContract NFT").into_bytes(),
+                String::from("L-NFT").into_bytes(),
+            );
+        })
     }
 
     /// internal function to update data of a loan
