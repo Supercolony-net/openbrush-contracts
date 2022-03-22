@@ -136,7 +136,7 @@ in `LendingContract`.
 impl LendingContract {
     /// constructor with name and symbol
     #[ink(constructor, payable)]
-    pub fn new(code_hash: Hash, nft_code_hash: Hash) -> Self {
+    pub fn new(shares_hash: Hash, loan_hash: Hash) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut LendingContract| {
             let caller = instance.env().caller();
             instance._init_with_admin(caller);

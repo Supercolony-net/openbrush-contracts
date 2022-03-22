@@ -39,10 +39,8 @@ Deriving these traits allows you to reuse the default implementation of `Timeloc
 
 ```rust
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, AccessControlStorage, TimelockControllerStorage)]
+#[derive(Default, SpreadAllocate, TimelockControllerStorage)]
 pub struct TimelockStruct {
-   #[AccessControlStorageField]
-   access: AccessControlData,
    #[TimelockControllerStorageField]
    timelock: TimelockControllerData,
 }
@@ -66,12 +64,12 @@ Define constructor. Your basic version of `TimelockController` contract is ready
 impl TimelockStruct {
    #[ink(constructor)]
    pub fn new(min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
-      link_lang::codegen::initialize_contract(|instance: &mut Self| {
-         let caller = instance.env().caller();
-         // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
-         // You need to call it for each trait separately, to initialize everything for these traits.
-         AccessControlInternal::_init_with_admin(instance, caller);
-         TimelockControllerInternal::_init_with_admin(instance, caller, min_delay, proposers, executors);
+      ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            let caller = instance.env().caller();
+            // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
+            // You need to call it for each trait separately, to initialize everything for these traits.
+            AccessControlInternal::_init_with_admin(instance, caller);
+            TimelockControllerInternal::_init_with_admin(instance, caller, min_delay, proposers, executors);
       })
    }
 }
