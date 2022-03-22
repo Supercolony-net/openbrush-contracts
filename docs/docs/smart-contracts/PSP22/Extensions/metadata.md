@@ -39,6 +39,8 @@ pub struct MyPSP22 {
 
 Inherit the implementation of the `PSP22Metadata` trait. You can customize (override) methods in this `impl` block.
 
+Inherit the implementation of the `PSP22` trait.
+
 ```rust
 impl PSP22 for MyPSP22 {}
 
