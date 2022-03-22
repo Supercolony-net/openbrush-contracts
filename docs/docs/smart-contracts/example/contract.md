@@ -81,7 +81,7 @@ So we will declare a struct and derive all the needed traits.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, AccessControlStorage, PausableStorage, LendingStorage)]
+#[derive(Default, SpreadAllocate, AccessControlStorage, PausableStorage, LendingStorage)]
 pub struct LendingContract {
     #[AccessControlStorageField]
     access: AccessControlData,
@@ -137,20 +137,20 @@ impl LendingContract {
     /// constructor with name and symbol
     #[ink(constructor, payable)]
     pub fn new(code_hash: Hash, nft_code_hash: Hash) -> Self {
-        let mut instance = Self::default();
-        let caller = instance.env().caller();
-        instance._init_with_admin(caller);
-        instance.grant_role(MANAGER, caller).expect("Can not set manager role");
-        instance.lending.shares_contract_code_hash = code_hash;
-        // instantiate NFT contract and store its account id
-        let nft = LoanContract::new()
-            .endowment(0)
-            .code_hash(nft_code_hash)
-            .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-            .instantiate()
-            .unwrap();
-        instance.lending.loan_account = nft.to_account_id();
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut LendingContract| {
+            let caller = instance.env().caller();
+            instance._init_with_admin(caller);
+            instance.grant_role(MANAGER, caller).expect("Can not set manager role");
+            instance.lending.shares_contract_code_hash = shares_hash;
+            // instantiate NFT contract and store its account id
+            let nft = LoanContractRef::new()
+                .endowment(0)
+                .code_hash(loan_hash)
+                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .instantiate()
+                .unwrap();
+            instance.lending.loan_account = nft.to_account_id();
+        })
     }
 }
 ```
