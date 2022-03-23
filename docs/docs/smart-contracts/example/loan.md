@@ -148,7 +148,7 @@ fields related to `Loan` itself.
 ```rust
 /// Define the storage for PSP34 data, Metadata data and Ownable data
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
+#[derive(SpreadAllocate, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
 pub struct LoanContract {
     #[PSP34StorageField]
     psp34: PSP34Data,
