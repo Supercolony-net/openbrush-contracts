@@ -1,4 +1,3 @@
-use crate::diamond::Selector;
 pub use crate::traits::{
     errors::{
         DiamondError,
@@ -11,38 +10,58 @@ use brush::traits::Hash;
 #[brush::wrapper]
 pub type DiamondRef = dyn Diamond;
 
+pub type Selector = [u8; 4];
+
 pub enum FacetCutAction {
-    Add,
-    Replace,
-    Remove,
+    Add = 0,
+    Replace = 1,
+    Remove = 2,
+    Unknown = 3,
 }
 
-// TODO: Comment
+impl From<u8> for FacetCutAction {
+    fn from(number: u8) -> Self {
+        return match number {
+            0 => FacetCutAction::Add,
+            1 => FacetCutAction::Replace,
+            2 => FacetCutAction::Remove,
+            _ => FacetCutAction::Unknown,
+        }
+    }
+}
+
+/// Struct which we use to initialize/update/remove a facet in the diamond
 #[derive(Default, Debug, Clone, PartialEq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct FacetCut {
     /// The `hash` of the code that should be executed.
     pub hash: Hash,
-    /// The selector bytes that identifies the function that should be called.
-    pub selectors: Vec<([u8; 4], FacetCutAction)>,
+    /// The selector bytes that identify the function that should be called.
+    pub selectors: Vec<([u8; 4], u8)>,
 }
 
-// TODO: Comment
+/// Struct which we use to initialize the diamond contract
 #[derive(Default, Debug, Clone, PartialEq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct InitCall {
     /// The `hash` of the code that should be executed.
     pub hash: Hash,
-    /// The selector bytes that identifies the function that should be called.
+    /// The selector bytes that identify the function that should be called.
     pub selector: Selector,
     /// The SCALE encoded parameters that are passed to the called function.
     pub input: Vec<u8>,
 }
 
-// TODO: Comment
+/// Trait to be implemented in the contract which holds the diamond storage
 #[brush::trait_definition]
 pub trait Diamond {
-    // TODO: Comment
+    /// This function is used to add, replace and remove facets from the diamond
+    ///
+    /// `cuts` vector of facet cuts to be mutated, each cut contains the code hash of the facet
+    /// as well as the selectors of functions along with the action to be performed with the
+    /// correspondent selector (see enum `FacetCutAction`)
+    /// `init` optional struct which identifies a call to be executed, this struct contains the code hash
+    /// of the executed contract, selector of the executed function and input data to be passed to the called
     #[ink(message)]
-    fn diamond_cut(&mut self, facets: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError>;
+    fn diamond_cut(&mut self, cuts: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError>;
 }
