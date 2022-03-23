@@ -92,7 +92,7 @@ pub mod my_pausable {
     impl MyFlipper {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]
