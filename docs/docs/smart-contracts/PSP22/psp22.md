@@ -87,11 +87,11 @@ impl PSP22Internal for MyPSP22 {
     // Let's override method to reject transactions to bad account
     fn _before_token_transfer(
         &mut self,
-        _from: &AccountId,
-        to: &AccountId,
+        _from: Option<&AccountId>,
+        to: Option<&AccountId>,
         _amount: &Balance,
     ) -> Result<(), PSP22Error> {
-        if to == &self.hated_account {
+        if to == Some(&self.hated_account) {
             return Err(PSP22Error::Custom(String::from("I hate this account!")))
         }
         Ok(())
@@ -103,11 +103,11 @@ impl PSP22 for MyPSP22 {}
 impl MyPSP22 {
     #[ink(constructor)]
     pub fn new(total_supply: Balance) -> Self {
-        let mut instance = Self::default();
-        instance
-            ._mint(instance.env().caller(), total_supply)
-            .expect("Should mint");
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+            instance
+                ._mint(instance.env().caller(), total_supply)
+                .expect("Should mint");
+        })
     }
 
     #[ink(message)]
