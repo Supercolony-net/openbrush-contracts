@@ -52,6 +52,8 @@ Define constructor, inherit `PSP22`, and override the basic functions for capped
 impl PSP22 for MyPSP22Capped {}
 
 impl MyPSP22Capped {
+    /// Constructor which mints `initial_supply` of the token to sender
+    /// Will set the token's cap to `cap`
     #[ink(constructor)]
     pub fn new(inital_supply: Balance, cap: Balance) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -67,7 +69,7 @@ impl MyPSP22Capped {
     }
 
     #[ink(message)]
-    /// Method to return token's cap
+    /// Returns the token's cap
     pub fn cap(&self) -> Balance {
         self.cap
     }
@@ -78,7 +80,7 @@ impl MyPSP22Capped {
         if (self.total_supply() + amount) > self.cap() {
             return Err(PSP22Error::Custom(String::from("Cap exceeded")))
         }
-        PSP22::_mint(self, account, amount)
+        PSP22Internal::_mint(self, account, amount)
     }
 
     /// Initializes the token's cap
