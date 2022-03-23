@@ -68,7 +68,7 @@ After that you can add `non_reentrant` modifier to `flip` and `call_flip_on_me` 
 impl MyFlipper {
     #[ink(constructor)]
     pub fn new() -> Self {
-        Self::default()
+        ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
     }
 
     #[ink(message)]
@@ -152,7 +152,7 @@ pub mod flip_on_me {
     impl FlipOnMe {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]
