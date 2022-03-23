@@ -71,24 +71,15 @@ pub mod shares {
         },
     };
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use brush::modifiers;
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang::codegen::Env;
 
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use lending_project::traits::shares::*;
 ```
-You can notice that we marked some imports with `#[cfg(not(feature = "ink-as-dependency"))]`.
-It is needed to remove rust's warnings when we will import `SharesContract` as `ink-as-dependency`
-into `LendingContract` for instantiation. When we are importing some contracts as 
-`ink-as-dependency`, we only import the signature of methods without 
-the implementation of them. It is why the imports are not used during 
-`ink-as-dependency` and it is why Rust is throwing warnings.
 
 ## Define the storage
 
