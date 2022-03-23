@@ -61,8 +61,8 @@ impl PSP22Internal for MyPSP22Pausable {
     #[modifiers(when_not_paused)]
     fn _before_token_transfer(
         &mut self,
-        _from: &AccountId,
-        _to: &AccountId,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
         _amount: &Balance,
     ) -> Result<(), PSP22Error> {
         // TODO logic for before token transfer
@@ -86,6 +86,7 @@ impl MyPSP22Pausable {
         })
     }
 
+    /// Function which changes state to unpaused if paused and vice versa
     #[ink(message)]
     pub fn change_state(&mut self) -> Result<(), PSP22Error> {
         if self.paused() {
