@@ -112,12 +112,12 @@ impl LendingPermissionedInternal for LendingContract {
         let (hash, _) =
             ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
         let hash = hash.as_ref();
-        let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
-            .endowment(0)
-            .code_hash(code_hash)
-            .salt_bytes(&hash[..4])
-            .instantiate()
-            .unwrap();
+        let contract = SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+                .endowment(0)
+                .code_hash(code_hash)
+                .salt_bytes(&hash[..4])
+                .instantiate()
+                .unwrap();
         contract.to_account_id()
     }
 }
