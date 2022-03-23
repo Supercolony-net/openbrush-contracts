@@ -6,6 +6,7 @@ pub use crate::traits::{
     ownable::*,
 };
 use brush::traits::Hash;
+use ink_prelude::vec::Vec;
 
 #[brush::wrapper]
 pub type DiamondRef = dyn Diamond;

@@ -1,5 +1,5 @@
 [package]
-name = "my_diamond"
+name = "my_psp22_facet"
 version = "1.5.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
@@ -16,12 +16,13 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-brush = { path = "../..", default-features = false, features = ["diamond"] }
+brush = { path = "../../..", default-features = false, features = ["psp22"] }
 
 [lib]
-name = "my_diamond"
+name = "my_psp22_facet"
 path = "lib.rs"
 crate-type = [
+    # Used for normal contract Wasm blobs.
     "cdylib",
 ]
 

@@ -12,9 +12,10 @@ use ink_env::call::{
     ExecutionInput,
     Selector as InkSelector,
 };
+use ink_prelude::vec::Vec;
+use ink_storage::Mapping;
 
 pub use derive::DiamondStorage;
-use ink_storage::Mapping;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::DiamondData");
 

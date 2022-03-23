@@ -4,6 +4,7 @@
 #[brush::contract]
 pub mod diamond {
     use brush::contracts::diamond::*;
+    use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
