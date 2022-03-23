@@ -55,14 +55,14 @@ Define constructor. Your `PSP22Metadata` contract is ready!
 impl MyPSP22 {
     #[ink(constructor)]
     pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
-        let mut instance = Self::default();
-        instance.metadata.name = name;
-        instance.metadata.symbol = symbol;
-        instance.metadata.decimals = decimal;
-        instance
-            ._mint(instance.env().caller(), total_supply)
-            .expect("Should mint total_supply");
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance.metadata.decimals = decimal;
+            instance
+                ._mint(instance.env().caller(), total_supply)
+                .expect("Should mint total_supply");
+        })
     }
 }
 ```
