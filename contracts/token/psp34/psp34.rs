@@ -195,11 +195,15 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         let id = id.unwrap();
 
         self._before_token_transfer(Some(&owner), Some(&to), &id)?;
+        
         self._remove_token(&owner, &id)?;
+        println!("_transfer_token123");
         self._do_safe_transfer_check(&caller, &owner, &to, &id, &data)?;
+        println!("_transfer_token1234");
         self._add_token(&to, &id)?;
         self._after_token_transfer(Some(&owner), Some(&to), &id)?;
         self._emit_transfer_event(Some(owner), Some(to), id);
+        
         Ok(())
     }
 
@@ -233,7 +237,10 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         let builder =
             PSP34ReceiverRef::before_received_builder(to, operator.clone(), from.clone(), id.clone(), data.clone())
                 .call_flags(CallFlags::default().set_allow_reentry(true));
-        let result = match builder.fire() {
+        println!("_do_safe_transfer_check");
+        let b = builder.fire();
+        println!("_do_safe_transfer_check");
+        let result = match b {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),

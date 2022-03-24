@@ -52,7 +52,7 @@ pub trait PSP34EnumerableInternal {
 }
 
 impl<T: PSP34Internal + PSP34EnumerableStorage> PSP34EnumerableInternal for T {
-    fn _track_id_transfer(
+    default fn _track_id_transfer(
         &mut self,
         from: Option<&AccountId>,
         to: Option<&AccountId>,
