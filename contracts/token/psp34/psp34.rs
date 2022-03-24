@@ -195,7 +195,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         let id = id.unwrap();
 
         self._before_token_transfer(Some(&owner), Some(&to), &id)?;
-        
+
         self._remove_token(&owner, &id)?;
         println!("_transfer_token123");
         self._do_safe_transfer_check(&caller, &owner, &to, &id, &data)?;
@@ -203,7 +203,7 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         self._add_token(&to, &id)?;
         self._after_token_transfer(Some(&owner), Some(&to), &id)?;
         self._emit_transfer_event(Some(owner), Some(to), id);
-        
+
         Ok(())
     }
 

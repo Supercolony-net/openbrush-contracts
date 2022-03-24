@@ -23,8 +23,8 @@ pub struct PSP34EnumerableData {
 
 declare_storage_trait!(PSP34EnumerableStorage, PSP34EnumerableData);
 
-impl<T: PSP34Storage + PSP34EnumerableStorage + Flush> PSP34Internal for T {
-    default fn _before_token_transfer(
+default impl<T: PSP34Storage + PSP34EnumerableStorage + Flush> PSP34Internal for T {
+    fn _before_token_transfer(
         &mut self,
         from: Option<&AccountId>,
         to: Option<&AccountId>,
