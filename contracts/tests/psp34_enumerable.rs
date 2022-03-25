@@ -67,10 +67,6 @@ mod psp34_enumerable {
         let mut nft = PSP34Struct::new();
         // Create token Id 1 for Alice
         assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
-        // Alice owns token 1
-        assert_eq!(nft.balance_of(accounts.alice), 1);
-        // Bob does not owns any token
-        assert_eq!(nft.balance_of(accounts.bob), 0);
         // check Alice token by index
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(Id::U8(1u8)));
         // check token by index
@@ -147,19 +143,6 @@ mod psp34_enumerable {
         let mut nft = PSP34Struct::new();
         assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
         assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
-        // Alice owns 2 tokens.
-        assert_eq!(nft.balance_of(accounts.alice), 2);
-        // Bob does not owns tokens.
-        assert_eq!(nft.balance_of(accounts.bob), 0);
-        // Eve does not owns tokens.
-        assert_eq!(nft.balance_of(accounts.eve), 0);
-        // Get contract address.
-        change_caller(accounts.bob);
-        // Eve is not an approved operator by Alice.
-        assert_eq!(
-            nft.transfer(accounts.frank, Id::U8(1u8), vec![]),
-            Err(PSP34Error::NotApproved)
-        );
         //alice still owns token id 1
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(Id::U8(1u8)));
         //alice still owns token id 2
