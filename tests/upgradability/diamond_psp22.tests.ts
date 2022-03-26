@@ -1,32 +1,45 @@
 import { consts } from '../constants'
-import { expect, setupContract, getSigner, fromSigner, setupProxy } from '../helpers'
+import { hexToU8a } from '@polkadot/util'
+import { expect, setupContract, fromSigner, setupProxy } from '../helpers'
 
 const ADD = 0
 const REPLACE = 1
 const REMOVE = 2
 
 describe('DIAMOND_PSP22', () => {
-  it('Added facet can call the contract', async () => {
+  it('We can call functions on the diamond after adding facets', async () => {
     // get abi of diamond
-    let signerAddress = '0x01e552298e47454041ea31273b4b630c64c104e4514aa3643490b8aaca9cf8ed' //(await getSigner('Alice')).address
-    const { abi: diamondAbi } = await setupContract('my_diamond', 'new', [], signerAddress, signerAddress)
+    const { abi: diamondAbi } = await setupContract('my_diamond', 'new', consts.EMPTY_ADDRESS, '')
     const diamondHash = (await diamondAbi).source.hash
 
     // abi of psp22 facet
-    const { contract: psp22Facet, abi, defaultSigner } = await setupContract('my_psp22_facet', 'new', 1000)
-    let constructor = (await abi).V3.spec.constructors[0].selector
+    const { contract: psp22Facet, abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
+
     let psp22Hash = (await abi).source.hash
     let messages = (await abi).V3.spec.messages
 
-    // initialize diamond
-    const diamondContract = await setupContract('my_diamond', 'new', [[psp22Hash, [[messages[0].selector, ADD]]]], signerAddress, diamondHash)
+    let initSelector
 
-    const proxy = setupProxy(psp22Facet, diamondContract.contract)
+    let facetCut = messages.map((message) => {
+      if (message.label == 'initialize') {
+        initSelector = message.selector
+      }
+      return [psp22Hash, [[message.selector, ADD]]]
+    })
 
-    let balance = await proxy.query.balanceOf(defaultSigner.address)
-    console.log(balance.output?.toHuman())
+    // initialize diamond contract
+    const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
 
-    let balance2 = await psp22Facet.query.balanceOf(defaultSigner.address)
-    console.log(balance2.output?.toHuman())
+    await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
+
+    // add psp22 facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [psp22Hash, initSelector, []])).to.eventually.be.fulfilled
+
+    // patch methods
+    const proxy = setupProxy(psp22Facet, diamondContract)
+
+    // we called init function which mints tokens and sets owner
+    await expect(proxy.query.balanceOf(defaultSigner.address)).to.output(1000)
+    await expect(proxy.query.owner()).to.output(defaultSigner.address)
   })
 })

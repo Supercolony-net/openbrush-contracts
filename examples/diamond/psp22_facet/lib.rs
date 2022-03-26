@@ -3,28 +3,41 @@
 
 #[brush::contract]
 pub mod my_psp22_facet {
-    use brush::contracts::psp22::*;
+    use brush::{
+        contracts::{
+            ownable::*,
+            psp22::*,
+        },
+        modifiers,
+    };
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
     pub struct PSP22Facet {
         #[PSP22StorageField]
         psp22: PSP22Data,
+        #[OwnableStorageField]
+        ownable: OwnableData,
     }
-
-    impl PSP22Internal for PSP22Facet {}
 
     impl PSP22 for PSP22Facet {}
 
+    impl Ownable for PSP22Facet {}
+
     impl PSP22Facet {
         #[ink(constructor)]
-        pub fn new(total_supply: Balance) -> Self {
+        pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut PSP22Facet| {
-                instance
-                    ._mint(instance.env().caller(), total_supply)
-                    .expect("Should mint");
+                instance._init_with_owner(instance.env().caller());
+                instance.initialize().expect("Should initialize");
             })
+        }
+
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        pub fn initialize(&mut self) -> Result<(), PSP22Error> {
+            self._mint(Self::env().caller(), 1000)
         }
     }
 }

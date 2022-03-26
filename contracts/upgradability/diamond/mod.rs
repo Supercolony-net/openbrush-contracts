@@ -139,7 +139,7 @@ impl<T: DiamondStorage> DiamondInternal for T {
             .selector_to_hash
             .get(selector)
             .ok_or(DiamondError::FunctionDoesNotExist)?
-            != code_hash
+            == code_hash
         {
             return Err(DiamondError::ReplaceExisting)
         }
