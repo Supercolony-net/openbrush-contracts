@@ -176,9 +176,12 @@ impl<T: DiamondStorage> DiamondInternal for T {
         }
 
         self.get_mut().selector_to_hash.insert(&selector, &code_hash);
-        self.get_mut().hash_to_selectors.get(&code_hash).unwrap().push(selector);
-        let selectors = self.get().hash_to_selectors.get(&code_hash).unwrap().len() as u16;
-        self.get_mut().selector_position.insert(&selector, &(selectors - 1));
+        let mut vec = self.get().hash_to_selectors.get(&code_hash).unwrap();
+        vec.push(selector);
+        self.get_mut().hash_to_selectors.insert(&code_hash, &vec);
+        self.get_mut()
+            .selector_position
+            .insert(&selector, &(vec.len() as u16 - 1));
 
         Ok(())
     }
@@ -209,27 +212,27 @@ impl<T: DiamondStorage> DiamondInternal for T {
             return Err(DiamondError::ImmutableFunction)
         }
 
-        self.get().selector_to_hash.remove(selector);
         let selector_pos = self.get().selector_position.get(&selector).unwrap();
-        self.get_mut().selector_position.remove(&selector);
+        let mut selector_vec = self.get().hash_to_selectors.get(&code_hash).unwrap();
+        let last_selector = selector_vec.pop().unwrap();
 
-        if self.get().hash_to_selectors.get(&code_hash).unwrap().len() == 1 {
-            let facet_pos = self.get().hash_position.get(&code_hash).unwrap();
-            self.get_mut().hash_position.remove(&code_hash);
+        self.get_mut().selector_to_hash.remove(selector);
+        self.get_mut().selector_position.remove(selector);
+        if selector_vec.is_empty() {
             self.get_mut().hash_to_selectors.remove(&code_hash);
+            let hash_pos = self.get().hash_position.get(&code_hash).unwrap();
+            self.get_mut().hash_position.remove(&code_hash);
             let last_hash = self.get_mut().facet_code_hashes.pop().unwrap();
-            if self.get().facet_code_hashes.len() < facet_pos as usize {
-                self.get_mut().facet_code_hashes[facet_pos as usize] = last_hash;
-                self.get_mut().hash_position.insert(&last_hash, &facet_pos);
+            if last_hash != code_hash {
+                self.get_mut().hash_position.insert(&last_hash, &hash_pos);
+                self.get_mut().facet_code_hashes[hash_pos as usize] = last_hash;
             }
         } else {
-            let last_selector = self.get_mut().hash_to_selectors.get(&code_hash).unwrap().pop().unwrap();
             if last_selector != selector {
-                let mut vec = self.get().hash_to_selectors.get(&code_hash).unwrap();
-                vec[selector_pos as usize] = last_selector;
-                self.get_mut().hash_to_selectors.insert(&code_hash, &vec);
+                selector_vec[selector_pos as usize] = last_selector;
                 self.get_mut().selector_position.insert(&last_selector, &selector_pos);
             }
+            self.get_mut().hash_to_selectors.insert(&code_hash, &selector_vec);
         }
 
         Ok(())
