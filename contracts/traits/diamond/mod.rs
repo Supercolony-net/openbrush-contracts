@@ -54,6 +54,7 @@ pub struct InitCall {
 }
 
 /// Trait to be implemented in the contract which holds the diamond storage
+/// Also implements functions of Diamond Loupe to lookup the functionality of the diamond contract
 #[brush::trait_definition]
 pub trait Diamond {
     /// This function is used to add, replace and remove facets from the diamond
@@ -65,4 +66,21 @@ pub trait Diamond {
     /// of the executed contract, selector of the executed function and input data to be passed to the called
     #[ink(message)]
     fn diamond_cut(&mut self, cuts: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError>;
+
+    /// Returns code hashes of all registered facets along with their registered function selectors
+    #[ink(message)]
+    fn facets(&self) -> Vec<(Hash, Vec<Selector>)>;
+
+    /// Returns all the function selectors supported by a specific facet
+    #[ink(message)]
+    fn facet_function_selectors(&self, facet: Hash) -> Vec<Selector>;
+
+    /// Returns all the code hashes of facets used by the diamond
+    #[ink(message)]
+    fn facet_code_hashes(&self) -> Vec<Hash>;
+
+    /// Returns the code hash of a facet which supports the given selector
+    /// Returns empty hash if selector is not found
+    #[ink(message)]
+    fn facet_code_hash(&self, selector: Selector) -> Hash;
 }

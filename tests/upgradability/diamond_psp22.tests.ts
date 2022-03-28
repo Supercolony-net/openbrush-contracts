@@ -223,16 +223,13 @@ describe('DIAMOND_PSP22', () => {
 
     // we will remove the psp22 facet
     facetCut = messages.map((message) => {
-      if (message.label == 'init_metadata') {
-        initSelector = message.selector
-      }
       return [psp22Hash, [[message.selector, REMOVE]]]
     })
 
-    // add metadata facet
+    // remove facet
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, null)).to.eventually.be.fulfilled
 
-    // if we call balance of it will return 0 because it does not exist
-    await expect(proxy.query.balanceOf(defaultSigner.address)).to.output(0)
+    // calling balance function fails because it is not registered
+    await expect(proxy.query.balanceOf(defaultSigner.address)).to.eventually.be.rejected
   })
 })
