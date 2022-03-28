@@ -43,4 +43,3 @@ std = [
     "brush/std",
 ]
 ink-as-dependency = []
-
