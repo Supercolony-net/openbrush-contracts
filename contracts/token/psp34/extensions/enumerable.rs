@@ -2,12 +2,9 @@ pub use crate::{
     psp34::*,
     traits::psp34::extensions::enumerable::*,
 };
-use brush::{
-    declare_storage_trait,
-    traits::{
-        AccountId,
-        Flush,
-    },
+use brush::traits::{
+    AccountId,
+    Flush,
 };
 pub use derive::PSP34EnumerableStorage;
 use ink_storage::Mapping;
@@ -21,16 +18,28 @@ pub struct PSP34EnumerableData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PSP34EnumerableStorage, PSP34EnumerableData);
+pub trait PSP34EnumerableStorage: PSP34Storage + ::brush::traits::InkStorage {
+    fn get(&self) -> &PSP34EnumerableData;
+    fn get_mut(&mut self) -> &mut PSP34EnumerableData;
+}
 
-default impl<T: PSP34Storage + PSP34EnumerableStorage + Flush> PSP34Internal for T {
-    fn _before_token_transfer(
+impl<T: PSP34EnumerableStorage + Flush> PSP34Transfer for T {
+    default fn _before_token_transfer(
         &mut self,
         from: Option<&AccountId>,
         to: Option<&AccountId>,
         id: &Id,
     ) -> Result<(), PSP34Error> {
         self._track_id_transfer(from, to, id)
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id,
+    ) -> Result<(), PSP34Error> {
+        Ok(())
     }
 }
 
@@ -51,7 +60,7 @@ pub trait PSP34EnumerableInternal {
     ) -> Result<(), PSP34Error>;
 }
 
-impl<T: PSP34Internal + PSP34EnumerableStorage> PSP34EnumerableInternal for T {
+impl<T: PSP34EnumerableStorage + Flush> PSP34EnumerableInternal for T {
     default fn _track_id_transfer(
         &mut self,
         from: Option<&AccountId>,
@@ -60,20 +69,26 @@ impl<T: PSP34Internal + PSP34EnumerableStorage> PSP34EnumerableInternal for T {
     ) -> Result<(), PSP34Error> {
         if from.is_none() {
             let last_free_index = self._total_supply();
-            self.get_mut().enumerable.insert(&None, id, &last_free_index);
+            PSP34EnumerableStorage::get_mut(self)
+                .enumerable
+                .insert(&None, id, &last_free_index);
         } else {
             let from = from.unwrap();
             let last_index = (self._balance_of(from) - 1) as u128;
-            self.get_mut().enumerable.remove(&Some(from.clone()), id, &last_index)?;
+            PSP34EnumerableStorage::get_mut(self)
+                .enumerable
+                .remove(&Some(from.clone()), id, &last_index)?;
         }
 
         if to.is_none() {
             let last_index = self._total_supply() - 1;
-            self.get_mut().enumerable.remove(&None, id, &last_index)?;
+            PSP34EnumerableStorage::get_mut(self)
+                .enumerable
+                .remove(&None, id, &last_index)?;
         } else {
             let to = to.unwrap();
             let last_free_index = (self._balance_of(to)) as u128;
-            self.get_mut()
+            PSP34EnumerableStorage::get_mut(self)
                 .enumerable
                 .insert(&Some(to.clone()), id, &last_free_index);
         }
@@ -82,7 +97,7 @@ impl<T: PSP34Internal + PSP34EnumerableStorage> PSP34EnumerableInternal for T {
     }
 }
 
-impl<T: PSP34Storage + PSP34EnumerableStorage + Flush> PSP34Enumerable for T {
+impl<T: PSP34EnumerableStorage + Flush> PSP34Enumerable for T {
     default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<Id, PSP34Error> {
         PSP34EnumerableStorage::get(self)
             .enumerable

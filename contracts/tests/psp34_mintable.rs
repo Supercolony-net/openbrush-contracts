@@ -20,7 +20,7 @@ mod psp34_mintable {
         return_err_on_after: bool,
     }
 
-    impl PSP34Internal for PSP34Struct {
+    impl PSP34Transfer for PSP34Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

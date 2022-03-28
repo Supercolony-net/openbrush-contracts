@@ -68,7 +68,9 @@ mod psp34 {
         ) -> Result<(), PSP34Error> {
             Ok(())
         }
+    }
 
+    impl PSP34Transfer for PSP34Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
