@@ -2,26 +2,28 @@
 #![feature(min_specialization)]
 
 #[brush::contract]
-pub mod my_psp22_facet {
+pub mod my_psp22_metadata_facet {
     use brush::{
         contracts::{
             ownable::*,
-            psp22::*,
+            psp22::extensions::metadata::*,
         },
         modifiers,
     };
+    use ink_prelude::string::String;
+
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, PSP22MetadataStorage, OwnableStorage)]
     pub struct PSP22Facet {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+        #[PSP22MetadataStorageField]
+        metadata: PSP22MetadataData,
         #[OwnableStorageField]
         ownable: OwnableData,
     }
 
-    impl PSP22 for PSP22Facet {}
+    impl PSP22Metadata for PSP22Facet {}
 
     impl Ownable for PSP22Facet {}
 
@@ -30,14 +32,17 @@ pub mod my_psp22_facet {
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut PSP22Facet| {
                 instance._init_with_owner(instance.env().caller());
-                instance.init_psp22().expect("Should initialize");
+                instance.init_metadata().expect("Can not set metadata");
             })
         }
 
         #[ink(message)]
         #[modifiers(only_owner)]
-        pub fn init_psp22(&mut self) -> Result<(), PSP22Error> {
-            self._mint(Self::env().caller(), 1000)
+        pub fn init_metadata(&mut self) -> Result<(), PSP22Error> {
+            self.metadata.name = Some(String::from("PSP22 Diamond"));
+            self.metadata.symbol = Some(String::from("PSP22D"));
+            self.metadata.decimals = 18;
+            Ok(())
         }
     }
 }
