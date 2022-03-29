@@ -1,5 +1,4 @@
 import { consts } from '../constants'
-import { hexToU8a, stringToU8a } from '@polkadot/util'
 import { expect, setupContract, fromSigner, setupProxy } from '../helpers'
 
 const ADD = 0
@@ -15,14 +14,14 @@ describe('DIAMOND_PSP22', () => {
     // abi of psp22 facet
     const { contract: psp22Facet, abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
 
-    let psp22Hash = (await abi).source.hash
-    let messages = (await abi).V3.spec.messages
+    const psp22Hash = (await abi).source.hash
+    const psp22Messages = (await abi).V3.spec.messages
 
-    let initSelector
+    let psp22Init
 
-    let facetCut = messages.map((message) => {
+    const psp22Cut = psp22Messages.map((message) => {
       if (message.label == 'init_psp22') {
-        initSelector = message.selector
+        psp22Init = message.selector
       }
       return [psp22Hash, [[message.selector, ADD]]]
     })
@@ -33,7 +32,7 @@ describe('DIAMOND_PSP22', () => {
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
 
     // add psp22 facet
-    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [psp22Hash, initSelector, []])).to.eventually.be.fulfilled
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(psp22Cut, [psp22Hash, psp22Init, []])).to.eventually.be.fulfilled
 
     // patch methods
     let proxy = setupProxy(psp22Facet, diamondContract)
@@ -45,22 +44,23 @@ describe('DIAMOND_PSP22', () => {
     // add metadata to contract
     const { contract: metadataFacet, abi: metadataAbi } = await setupContract('my_psp22_metadata_facet', 'new')
 
-    let metadataHash = (await metadataAbi).source.hash
-    messages = (await metadataAbi).V3.spec.messages
+    const metadataHash = (await metadataAbi).source.hash
+    const metadataMessages = (await metadataAbi).V3.spec.messages
+    let metadataInit
 
-    facetCut = messages
+    const metadataCut = metadataMessages
       .filter((message) => {
         return message.label != 'Ownable::owner' && message.label != 'Ownable::renounce_ownership' && message.label != 'Ownable::transfer_ownership'
       })
       .map((message) => {
         if (message.label == 'init_metadata') {
-          initSelector = message.selector
+          metadataInit = message.selector
         }
         return [metadataHash, [[message.selector, ADD]]]
       })
 
     // add metadata facet
-    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [metadataHash, initSelector, []])).to.eventually.be
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(metadataCut, [metadataHash, metadataInit, []])).to.eventually.be
       .fulfilled
 
     // patch methods
@@ -69,6 +69,32 @@ describe('DIAMOND_PSP22', () => {
     await expect(proxy.query.tokenName()).to.output('PSP22 Diamond')
     await expect(proxy.query.tokenSymbol()).to.output('PSP22D')
     await expect(proxy.query.tokenDecimals()).to.output(18)
+
+    // Test Loupe
+    let metadataSelectors = metadataMessages
+      .filter((message) => {
+        return message.label != 'Ownable::owner' && message.label != 'Ownable::renounce_ownership' && message.label != 'Ownable::transfer_ownership'
+      })
+      .map((message) => {
+        return message.selector
+      })
+
+    const psp22Selectors = psp22Messages.map((message) => {
+      return message.selector
+    })
+
+    await expect(diamondContract.query.facets()).to.output([
+      [psp22Hash, psp22Selectors],
+      [metadataHash, metadataSelectors]
+    ])
+
+    await expect(diamondContract.query.facetFunctionSelectors(metadataHash)).to.output(metadataSelectors)
+    await expect(diamondContract.query.facetFunctionSelectors(psp22Hash)).to.output(psp22Selectors)
+
+    await expect(diamondContract.query.facetCodeHashes()).to.output([psp22Hash, metadataHash])
+
+    await expect(diamondContract.query.facetCodeHash(psp22Init)).to.output(psp22Hash)
+    await expect(diamondContract.query.facetCodeHash(metadataInit)).to.output(metadataHash)
   })
 
   it('Only owner can call diamond cut', async () => {
