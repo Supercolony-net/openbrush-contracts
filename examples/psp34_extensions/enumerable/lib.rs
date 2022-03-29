@@ -27,6 +27,26 @@ pub mod my_psp34_enumerable {
 
     impl PSP34Enumerable for MyPSP34 {}
 
+    impl PSP34Transfer for MyPSP34 {
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _id: &Id,
+        ) -> Result<(), PSP34Error> {
+            self._track_id_transfer(_from, _to, _id)
+        }
+
+        fn _after_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _id: &Id,
+        ) -> Result<(), PSP34Error> {
+            Ok(())
+        }
+    }
+
     impl MyPSP34 {
         #[ink(constructor)]
         pub fn new() -> Self {
