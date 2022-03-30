@@ -3,7 +3,7 @@ import '@redspot/patract'
 import '@redspot/chai'
 import '@redspot/gas-reporter'
 const types = {
-  Id: {
+  ContractsPsp34Id: {
     _enum: {
       U8: 'u8',
       U16: 'u16',
@@ -12,7 +12,12 @@ const types = {
       U128: 'u128',
       Bytes: 'Vec<u8>'
     }
-  }
+  },
+//   Result : {
+//     _enum: {
+//         Ok : "Id"
+//     }
+//   }
 }
 
 export default {
