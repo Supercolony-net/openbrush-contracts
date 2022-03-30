@@ -10,12 +10,10 @@ pub mod proxy {
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, ProxyStorage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, ProxyStorage)]
     pub struct ProxyStruct {
         #[ProxyStorageField]
         proxy: ProxyData,
-        #[OwnableStorageField]
-        ownable: OwnableData,
     }
 
     impl ProxyStruct {
@@ -27,10 +25,9 @@ pub mod proxy {
                 instance._init_with_owner(caller);
             })
         }
-
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) {
-            self._fallback();
+            ProxyInternal::_fallback(self);
         }
     }
 
