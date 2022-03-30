@@ -16,23 +16,12 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::ProxyData");
 #[derive(Default, Debug)]
 #[brush::storage(STORAGE_KEY)]
 pub struct ProxyData {
-    pub ownable: OwnableData,
     pub forward_to: Hash,
 }
 
 declare_storage_trait!(ProxyStorage, ProxyData);
 
-impl<T: ProxyStorage> OwnableStorage for T {
-    fn get(&self) -> &OwnableData {
-        &ProxyStorage::get(self).ownable
-    }
-
-    fn get_mut(&mut self) -> &mut OwnableData {
-        &mut ProxyStorage::get_mut(self).ownable
-    }
-}
-
-impl<T: ProxyStorage> Proxy for T {
+impl<T: ProxyStorage + OwnableStorage> Proxy for T {
     default fn get_delegate_code(&self) -> Hash {
         ProxyStorage::get(self).forward_to
     }
@@ -54,7 +43,7 @@ pub trait ProxyInternal {
     fn _fallback(&self) -> !;
 }
 
-impl<T: ProxyStorage> ProxyInternal for T {
+impl<T: ProxyStorage + OwnableStorage> ProxyInternal for T {
     default fn _emit_delegate_code_changed_event(
         &self,
         _previous_code_hash: Option<Hash>,

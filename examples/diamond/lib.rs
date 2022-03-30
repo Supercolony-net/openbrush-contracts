@@ -7,10 +7,12 @@ pub mod diamond {
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, DiamondStorage)]
+    #[derive(Default, SpreadAllocate, DiamondStorage, OwnableStorage)]
     pub struct DiamondContract {
         #[DiamondStorageField]
         diamond: DiamondData,
+        #[OwnableStorageField]
+        ownable: OwnableData,
     }
 
     impl DiamondContract {
