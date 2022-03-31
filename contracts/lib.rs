@@ -1,5 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(min_specialization)]
+#![allow(incomplete_features)]
+#![feature(specialization)]
 
 mod access;
 mod finance;

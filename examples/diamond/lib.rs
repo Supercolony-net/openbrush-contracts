@@ -1,16 +1,19 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(min_specialization)]
+#![allow(incomplete_features)]
+#![feature(specialization)]
 
 #[brush::contract]
 pub mod diamond {
-    use brush::contracts::diamond::*;
+    use brush::contracts::diamond::extensions::diamond_loupe::*;
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, DiamondStorage)]
+    #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage)]
     pub struct DiamondContract {
         #[DiamondStorageField]
         diamond: DiamondData,
+        #[DiamondLoupeStorageField]
+        diamond_loupe: DiamondLoupeData,
     }
 
     impl DiamondContract {
@@ -31,4 +34,6 @@ pub mod diamond {
     impl Ownable for DiamondContract {}
 
     impl Diamond for DiamondContract {}
+
+    impl DiamondLoupe for DiamondContract {}
 }
