@@ -114,7 +114,7 @@ impl<T: PSP34EnumerableStorage + Flush> PSP34Enumerable for T {
 pub struct EnumerableMapping {
     /// Mapping from index to `Id`.
     ///
-    /// ** Note ** Owner can be `None` that means it is a contract.
+    /// ** Note ** Owner can be `None` to track existence of the token in the contract
     id_to_index: Mapping<(Option<AccountId>, Id), u128>,
     /// Mapping from owner's index to `Id`.
     ///
