@@ -37,8 +37,6 @@ pub struct DiamondData {
     pub hash_to_id: Mapping<Hash, u16>,
     // mapping of facet id to its facet
     pub id_to_hash: Mapping<u16, Hash>,
-    // mapping of selector to its position in facet selectors list
-    pub selector_position: Mapping<Selector, u16>,
     // code hash of diamond contract for immutable functions
     pub self_hash: Hash,
 }
@@ -97,11 +95,13 @@ pub trait DiamondInternal {
 
     fn _init_call(&self, call: InitCall) -> !;
 
-    fn _add_function(&mut self, code_hash: Hash, selector: Selector) -> Result<(), DiamondError>;
+    fn _handle_replace_immutable(&mut self, hash: Hash) -> Result<(), DiamondError>;
 
-    fn _replace_function(&mut self, code_hash: Hash, selector: Selector) -> Result<(), DiamondError>;
+    fn _handle_replace_existing(&mut self, facet_cut: &FacetCut) -> Result<(), DiamondError>;
 
-    fn _remove_function(&mut self, selector: Selector) -> Result<(), DiamondError>;
+    fn _handle_existing_selector(&mut self, selector: Selector);
+
+    fn _add_function(&mut self, code_hash: Hash, selector: Selector);
 
     fn _emit_diamond_cut_event(&self, diamond_cut: &Vec<FacetCut>, init: &Option<InitCall>);
 }
@@ -110,14 +110,11 @@ impl<T: DiamondStorage + Flush> DiamondInternal for T {
     fn _diamond_cut(&mut self, diamond_cut: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError> {
         for facet_cut in diamond_cut.iter() {
             let code_hash = facet_cut.hash;
+            self._handle_replace_immutable(code_hash)?;
+            self._handle_replace_existing(&facet_cut)?;
             for selector in facet_cut.selectors.iter() {
-                let action: FacetCutAction = selector.1.into();
-                match action {
-                    FacetCutAction::Add => self._add_function(code_hash, selector.0),
-                    FacetCutAction::Replace => self._replace_function(code_hash, selector.0),
-                    FacetCutAction::Remove => self._remove_function(selector.0),
-                    FacetCutAction::Unknown => Err(DiamondError::IncorrectFacetCutAction),
-                }?;
+                self._handle_existing_selector(*selector);
+                self._add_function(code_hash, *selector);
             }
         }
 
@@ -170,11 +167,48 @@ impl<T: DiamondStorage + Flush> DiamondInternal for T {
         unreachable!("the _init_call call will never return since `tail_call` was set");
     }
 
-    fn _add_function(&mut self, code_hash: Hash, selector: Selector) -> Result<(), DiamondError> {
-        if self.get().selector_to_hash.get(selector).is_some() {
-            return Err(DiamondError::FunctionAlreadyExists)
+    fn _handle_replace_immutable(&mut self, hash: Hash) -> Result<(), DiamondError> {
+        return if hash == self.get().self_hash {
+            Err(DiamondError::ImmutableFunction)
+        } else {
+            Ok(())
         }
+    }
 
+    fn _handle_replace_existing(&mut self, facet_cut: &FacetCut) -> Result<(), DiamondError> {
+        for selector in facet_cut.selectors.iter() {
+            if self
+                .get()
+                .selector_to_hash
+                .get(&selector)
+                .and_then(|hash| {
+                    if hash == facet_cut.hash {
+                        return Some(hash)
+                    };
+                    None
+                })
+                .is_some()
+            {
+                return Err(DiamondError::ReplaceExisting)
+            };
+        }
+        Ok(())
+    }
+
+    fn _handle_existing_selector(&mut self, selector: Selector) {
+        // if this selector exists it means we are replacing the facet with new facet and have to
+        // delete old facet, as some functions may have been removed
+        self.get().selector_to_hash.get(selector).and_then(|hash| {
+            let vec = self.get().hash_to_selectors.get(&hash).unwrap();
+            vec.iter().for_each(|old_selector| {
+                self.get_mut().selector_to_hash.remove(&old_selector);
+            });
+            self.get_mut().hash_to_selectors.remove(&hash);
+            Some(hash)
+        });
+    }
+
+    fn _add_function(&mut self, code_hash: Hash, selector: Selector) {
         let mut vec = self.get().hash_to_selectors.get(&code_hash).unwrap_or_else(|| {
             let hash_id = self.get().code_hashes;
             self.get_mut().hash_to_id.insert(&code_hash, &hash_id);
@@ -187,81 +221,6 @@ impl<T: DiamondStorage + Flush> DiamondInternal for T {
 
         self.get_mut().selector_to_hash.insert(&selector, &code_hash);
         self.get_mut().hash_to_selectors.insert(&code_hash, &vec);
-        self.get_mut()
-            .selector_position
-            .insert(&selector, &(vec.len() as u16 - 1));
-
-        Ok(())
-    }
-
-    fn _replace_function(&mut self, code_hash: Hash, selector: Selector) -> Result<(), DiamondError> {
-        if self
-            .get()
-            .selector_to_hash
-            .get(selector)
-            .ok_or(DiamondError::FunctionDoesNotExist)?
-            == code_hash
-        {
-            return Err(DiamondError::ReplaceExisting)
-        }
-
-        self._remove_function(selector)?;
-        self._add_function(code_hash, selector)
-    }
-
-    fn _remove_function(&mut self, selector: Selector) -> Result<(), DiamondError> {
-        let code_hash = self
-            .get()
-            .selector_to_hash
-            .get(selector)
-            .ok_or(DiamondError::FunctionDoesNotExist)?;
-
-        if code_hash == self.get().self_hash {
-            return Err(DiamondError::ImmutableFunction)
-        }
-
-        let selector_pos = self.get().selector_position.get(&selector).unwrap();
-        let mut selector_vec = self.get().hash_to_selectors.get(&code_hash).unwrap();
-        let last_selector = selector_vec.pop().unwrap();
-
-        // if the popped selector is not the one we are removing we will put it on
-        // on the place of the removed vector
-        if last_selector != selector {
-            selector_vec[selector_pos as usize] = last_selector;
-            self.get_mut().selector_position.insert(&last_selector, &selector_pos);
-        }
-
-        // if the vector of selectors is empty we can remove the hash
-        if selector_vec.is_empty() {
-            // we get id of our hash
-            let hash_id = self.get().hash_to_id.get(&code_hash).unwrap();
-            // we will decrease the count of hashes
-            let last_id = self.get().code_hashes - 1;
-            self.get_mut().code_hashes = last_id;
-            // we are removing our hash so no need to track its id
-            self.get_mut().hash_to_id.remove(&code_hash);
-            // if removed hash was not the last added hash we need to change ids
-            if hash_id != last_id {
-                // current number of hashes is the id of hash
-                let last_hash = self.get().id_to_hash.get(&last_id).unwrap();
-                // change the id of last hash to id of currently removed hash
-                self.get_mut().id_to_hash.insert(&hash_id, &last_hash);
-            } else {
-                // else we just remove the id
-                self.get_mut().id_to_hash.remove(&hash_id);
-            }
-            // remove the vector of selectors
-            self.get_mut().hash_to_selectors.remove(&code_hash);
-        } else {
-            // if the vector of selectors is not empty we did not remove it and
-            // we need to write the updated vec into storage
-            self.get_mut().hash_to_selectors.insert(&code_hash, &selector_vec);
-        }
-
-        self.get_mut().selector_to_hash.remove(&selector);
-        self.get_mut().selector_position.remove(&selector);
-
-        Ok(())
     }
 
     fn _emit_diamond_cut_event(&self, _diamond_cut: &Vec<FacetCut>, _init: &Option<InitCall>) {}

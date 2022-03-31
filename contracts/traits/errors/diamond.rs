@@ -5,11 +5,9 @@ use super::OwnableError;
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum DiamondError {
     OwnableError(OwnableError),
-    FunctionAlreadyExists,
     FunctionDoesNotExist,
     ImmutableFunction,
-    IncorrectFacetCutAction,
-    ReplaceExisting
+    ReplaceExisting,
 }
 
 impl From<OwnableError> for DiamondError {

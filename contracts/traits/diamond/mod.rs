@@ -13,24 +13,6 @@ pub type DiamondRef = dyn Diamond;
 
 pub type Selector = [u8; 4];
 
-pub enum FacetCutAction {
-    Add = 0,
-    Replace = 1,
-    Remove = 2,
-    Unknown = 3,
-}
-
-impl From<u8> for FacetCutAction {
-    fn from(number: u8) -> Self {
-        return match number {
-            0 => FacetCutAction::Add,
-            1 => FacetCutAction::Replace,
-            2 => FacetCutAction::Remove,
-            _ => FacetCutAction::Unknown,
-        }
-    }
-}
-
 /// Struct which we use to initialize/update/remove a facet in the diamond
 #[derive(Default, Debug, Clone, PartialEq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -38,7 +20,7 @@ pub struct FacetCut {
     /// The `hash` of the code that should be executed.
     pub hash: Hash,
     /// The selector bytes that identify the function that should be called.
-    pub selectors: Vec<([u8; 4], u8)>,
+    pub selectors: Vec<[u8; 4]>,
 }
 
 /// Struct which we use to initialize the diamond contract
