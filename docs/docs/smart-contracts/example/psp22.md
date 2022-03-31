@@ -56,6 +56,7 @@ pub mod token {
     use brush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
     use lending_project::traits::stable_coin::*;
+    use ink_storage::traits::SpreadAllocate;
 ```
 
 ## Define the storage
@@ -65,7 +66,7 @@ We will derive the storage traits related to `PSP-22` and `PSP-22 Metadata` and 
 ```rust
 /// Define the storage for PSP22 data and Metadata data
 #[ink(storage)]
-#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+#[derive(Default, SpreadAllocate, PSP22Storage, PSP22MetadataStorage)]
 pub struct StableCoinContract {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -94,13 +95,13 @@ impl StableCoinContract {
     /// constructor with name and symbol
     #[ink(constructor)]
     pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-        let mut instance = Self::default();
-        instance.metadata.name = name;
-        instance.metadata.symbol = symbol;
-        instance.metadata.decimals = 18;
-        let total_supply = 1_000_000 * 10_u128.pow(18);
-        assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut StableCoinContract| {
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance.metadata.decimals = 18;
+            let total_supply = 1_000_000 * 10_u128.pow(18);
+            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+        })
     }
 }
 ```
