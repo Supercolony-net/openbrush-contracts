@@ -4,7 +4,6 @@
 mod psp34_enumerable {
     use brush::test_utils::{
         accounts,
-        change_caller,
     };
     use contracts::psp34::{
         extensions::{
