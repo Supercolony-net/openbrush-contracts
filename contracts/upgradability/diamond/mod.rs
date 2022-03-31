@@ -103,7 +103,7 @@ pub trait DiamondInternal {
 
     fn _remove_function(&mut self, selector: Selector) -> Result<(), DiamondError>;
 
-    fn _emit_diamond_cut_event(&self, diamond_cut: Vec<FacetCut>, init: Option<InitCall>);
+    fn _emit_diamond_cut_event(&self, diamond_cut: &Vec<FacetCut>, init: &Option<InitCall>);
 }
 
 impl<T: DiamondStorage + Flush> DiamondInternal for T {
@@ -121,7 +121,7 @@ impl<T: DiamondStorage + Flush> DiamondInternal for T {
             }
         }
 
-        self._emit_diamond_cut_event(diamond_cut, init);
+        self._emit_diamond_cut_event(&diamond_cut, &init);
 
         if init.is_some() {
             self.flush();
@@ -264,5 +264,5 @@ impl<T: DiamondStorage + Flush> DiamondInternal for T {
         Ok(())
     }
 
-    fn _emit_diamond_cut_event(&self, diamond_cut: Vec<FacetCut>, init: Option<InitCall>) {}
+    fn _emit_diamond_cut_event(&self, _diamond_cut: &Vec<FacetCut>, _init: &Option<InitCall>) {}
 }
