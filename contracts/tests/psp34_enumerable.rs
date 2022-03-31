@@ -4,7 +4,6 @@
 mod psp34_enumerable {
     use brush::test_utils::{
         accounts,
-        change_caller,
     };
     use contracts::psp34::{
         extensions::{
@@ -13,10 +12,6 @@ mod psp34_enumerable {
             mintable::*,
         },
         Id,
-    };
-    use ink::codegen::{
-        EmitEvent,
-        Env,
     };
     use ink_env::DefaultEnvironment;
     use ink_lang as ink;
