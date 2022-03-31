@@ -107,7 +107,11 @@ mod psp1155 {
         ) -> Result<(), PSP1155Error> {
             Ok(())
         }
+    }
 
+    impl PSP1155Transfer for PSP1155Struct{}
+
+    impl PSP1155Transfer for PSP1155Struct{
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

@@ -43,6 +43,10 @@ mod psp22_burnable {
             });
         }
 
+        
+    }
+
+    impl PSP22Transfer for PSP22Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
