@@ -85,8 +85,8 @@ impl<T: DiamondStorage + Flush> Diamond for T {
         out_vec
     }
 
-    default fn facet_code_hash(&self, selector: Selector) -> Hash {
-        self.get().selector_to_hash.get(selector).unwrap_or(Default::default())
+    default fn facet_code_hash(&self, selector: Selector) -> Option<Hash> {
+        self.get().selector_to_hash.get(selector)
     }
 }
 

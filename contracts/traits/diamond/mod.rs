@@ -82,5 +82,5 @@ pub trait Diamond {
     /// Returns the code hash of a facet which supports the given selector
     /// Returns empty hash if selector is not found
     #[ink(message)]
-    fn facet_code_hash(&self, selector: Selector) -> Hash;
+    fn facet_code_hash(&self, selector: Selector) -> Option<Hash>;
 }
