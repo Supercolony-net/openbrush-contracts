@@ -98,8 +98,6 @@ impl PSP22Transfer for MyPSP22 {
     }
 }
 
-impl PSP22Internal for MyPSP22 {}
-
 impl PSP22 for MyPSP22 {}
 
 impl MyPSP22 {

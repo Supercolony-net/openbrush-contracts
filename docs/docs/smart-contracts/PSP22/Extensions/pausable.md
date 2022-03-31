@@ -70,8 +70,6 @@ impl PSP22Transfer for MyPSP22Pausable {
     }
 }
 
-impl PSP22Internal for MyPSP22Pausable {}
-
 impl Pausable for MyPSP22Pausable {}
 ```
 

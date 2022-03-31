@@ -12,12 +12,7 @@ const types = {
       U128: 'u128',
       Bytes: 'Vec<u8>'
     }
-  },
-//   Result : {
-//     _enum: {
-//         Ok : "Id"
-//     }
-//   }
+  }
 }
 
 export default {

@@ -25,8 +25,8 @@ describe('MY_PSP34_ENUMERABLE', () => {
       query
     } = await setup()
 
-    await expect(contract.tx.ownersTokenByIndex(sender.address,0)).to.eventually.be.rejected
-    await expect(contract.tx.ownersTokenByIndex(alice.address,0)).to.eventually.be.rejected
+    await expect(query.ownersTokenByIndex(sender.address,0)).to.eventually.be.rejected
+    await expect(query.ownersTokenByIndex(alice.address,0)).to.eventually.be.rejected
   })
 
   it('Enumerable works', async () => {

@@ -41,9 +41,7 @@ mod psp22_burnable {
                 to: _to,
                 value: _amount,
             });
-        }
-
-        
+        }        
     }
 
     impl PSP22Transfer for PSP22Struct {

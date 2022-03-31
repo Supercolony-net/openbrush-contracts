@@ -179,9 +179,7 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         _from: Option<AccountId>,
         _to: Option<AccountId>,
         _id: Id,
-        _amount: Balance,
-    ) {
-    }
+        _amount: Balance) {}
 
     default fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {}
 
