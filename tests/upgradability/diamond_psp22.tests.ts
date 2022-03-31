@@ -1,10 +1,6 @@
 import { consts } from '../constants'
 import { expect, setupContract, fromSigner, setupProxy } from '../helpers'
 
-const ADD = 0
-const REPLACE = 1
-const REMOVE = 2
-
 describe('DIAMOND_PSP22', () => {
   it('Adding facets works', async () => {
     // get abi of diamond
@@ -23,7 +19,7 @@ describe('DIAMOND_PSP22', () => {
       if (message.label == 'init_psp22') {
         psp22Init = message.selector
       }
-      return [psp22Hash, [[message.selector, ADD]]]
+      return [psp22Hash, [message.selector]]
     })
 
     // initialize diamond contract
@@ -56,7 +52,7 @@ describe('DIAMOND_PSP22', () => {
         if (message.label == 'init_metadata') {
           metadataInit = message.selector
         }
-        return [metadataHash, [[message.selector, ADD]]]
+        return [metadataHash, [message.selector]]
       })
 
     // add metadata facet
@@ -114,7 +110,7 @@ describe('DIAMOND_PSP22', () => {
       if (message.label == 'init_psp22') {
         initSelector = message.selector
       }
-      return [psp22Hash, [[message.selector, ADD]]]
+      return [psp22Hash, [message.selector]]
     })
 
     // initialize diamond contract
@@ -141,7 +137,7 @@ describe('DIAMOND_PSP22', () => {
       if (message.label == 'init_psp22') {
         initSelector = message.selector
       }
-      return [psp22Hash, [[message.selector, ADD]]]
+      return [psp22Hash, [message.selector]]
     })
 
     // initialize diamond contract
@@ -155,11 +151,15 @@ describe('DIAMOND_PSP22', () => {
     // we will upgrade to psp22_2
     const { contract: newPsp22, abi: newPsp22Abi } = await setupContract('my_psp22_2_facet', 'new')
 
-    psp22Hash = (await newPsp22Abi).source.hash
-    messages = (await newPsp22Abi).V3.spec.messages
+    let psp22NewHash = (await newPsp22Abi).source.hash
+    let messagesNew = (await newPsp22Abi).V3.spec.messages
 
-    facetCut = messages.map((message) => {
-      return [psp22Hash, [[message.selector, REPLACE]]]
+    facetCut = messagesNew.map((message) => {
+      return [psp22NewHash, [message.selector]]
+    })
+
+    const psp22NewSelectors = messagesNew.map((message) => {
+      return message.selector
     })
 
     // add new psp22 facet, without init function
@@ -171,6 +171,13 @@ describe('DIAMOND_PSP22', () => {
     // if we send 1000 tokens total supply will be 900
     await expect(fromSigner(proxy, defaultSigner.address).tx.transfer(alice.address, 1000, [])).to.eventually.be.fulfilled
     await expect(proxy.query.totalSupply()).to.output(900)
+
+    await expect(diamondContract.query.facetFunctionSelectors(psp22NewHash)).to.output(psp22NewSelectors)
+    await expect(diamondContract.query.facetFunctionSelectors(psp22Hash)).to.output([])
+
+    await expect(diamondContract.query.facetCodeHashes()).to.output([psp22NewHash])
+
+    await expect(diamondContract.query.facetCodeHash(initSelector)).to.output(null)
   })
 
   it('We can not replace facet with the same facet', async () => {
@@ -190,7 +197,7 @@ describe('DIAMOND_PSP22', () => {
       if (message.label == 'init_psp22') {
         initSelector = message.selector
       }
-      return [psp22Hash, [[message.selector, ADD]]]
+      return [psp22Hash, [message.selector]]
     })
 
     // initialize diamond contract
@@ -205,7 +212,7 @@ describe('DIAMOND_PSP22', () => {
       if (message.label == 'init_psp22') {
         initSelector = message.selector
       }
-      return [psp22Hash, [[message.selector, REPLACE]]]
+      return [psp22Hash, [message.selector]]
     })
 
     // replace functions
@@ -229,7 +236,7 @@ describe('DIAMOND_PSP22', () => {
       if (message.label == 'init_psp22') {
         initSelector = message.selector
       }
-      return [psp22Hash, [[message.selector, ADD]]]
+      return [psp22Hash, [message.selector]]
     })
 
     // initialize diamond contract
@@ -248,14 +255,15 @@ describe('DIAMOND_PSP22', () => {
     await expect(proxy.query.owner()).to.output(defaultSigner.address)
 
     // we will remove the psp22 facet
-    facetCut = messages.map((message) => {
-      return [psp22Hash, [[message.selector, REMOVE]]]
-    })
+    facetCut = [[psp22Hash, []]]
 
     // remove facet
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, null)).to.eventually.be.fulfilled
 
-    // calling balance function fails because it is not registered
-    // await expect(proxy.query.balanceOf(defaultSigner.address)).to.eventually.be.rejected
+    await expect(diamondContract.query.facetFunctionSelectors(psp22Hash)).to.output([])
+
+    await expect(diamondContract.query.facetCodeHashes()).to.output([])
+
+    await expect(diamondContract.query.facetCodeHash(initSelector)).to.output(null)
   })
 })

@@ -28,11 +28,6 @@ pub struct DiamondLoupeData {
 
 declare_storage_trait!(DiamondLoupeStorage, DiamondLoupeData);
 
-// pub trait DiamondLoupeStorage: DiamondStorage + ::brush::traits::InkStorage {
-//     fn get(&self) -> &DiamondLoupeData;
-//     fn get_mut(&mut self) -> &mut DiamondLoupeData;
-// }
-
 impl<T: DiamondLoupeStorage> DiamondCut for T {
     default fn _on_add_function(&mut self, code_hash: Hash) {
         let hash_id = self.get().code_hashes;
@@ -42,8 +37,9 @@ impl<T: DiamondLoupeStorage> DiamondCut for T {
     }
 
     default fn _on_remove_facet(&mut self, code_hash: Hash) {
+        let new_hash_id = self.get().code_hashes - 1;
         let removed_hash_id = self.get().hash_to_id.get(&code_hash).unwrap();
-        let last_hash = self.get().id_to_hash.get(&self.get().code_hashes).unwrap();
+        let last_hash = self.get().id_to_hash.get(&new_hash_id).unwrap();
 
         if last_hash != code_hash {
             self.get_mut().id_to_hash.insert(&removed_hash_id, &last_hash);
@@ -52,7 +48,7 @@ impl<T: DiamondLoupeStorage> DiamondCut for T {
         }
 
         self.get_mut().hash_to_id.remove(&code_hash);
-        self.get_mut().code_hashes -= 1;
+        self.get_mut().code_hashes = new_hash_id;
     }
 }
 

@@ -67,6 +67,8 @@ pub trait DiamondInternal {
 
     fn _handle_existing_selector(&mut self, selector: Selector);
 
+    fn _remove_facet(&mut self, code_hash: Hash);
+
     fn _add_function(&mut self, code_hash: Hash, selector: Selector);
 
     fn _emit_diamond_cut_event(&self, diamond_cut: &Vec<FacetCut>, init: &Option<InitCall>);
@@ -78,9 +80,14 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
             let code_hash = facet_cut.hash;
             self._handle_replace_immutable(code_hash)?;
             self._handle_replace_existing(&facet_cut)?;
-            for selector in facet_cut.selectors.iter() {
-                self._handle_existing_selector(*selector);
-                self._add_function(code_hash, *selector);
+            if facet_cut.selectors.is_empty() {
+                // means that we want to remove this facet
+                self._remove_facet(code_hash);
+            } else {
+                for selector in facet_cut.selectors.iter() {
+                    self._handle_existing_selector(*selector);
+                    self._add_function(code_hash, *selector);
+                }
             }
         }
 
@@ -165,14 +172,18 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         // if this selector exists it means we are replacing the facet with new facet and have to
         // delete old facet, as some functions may have been removed
         self.get().selector_to_hash.get(selector).and_then(|hash| {
-            let vec = self.get().hash_to_selectors.get(&hash).unwrap();
-            vec.iter().for_each(|old_selector| {
-                self.get_mut().selector_to_hash.remove(&old_selector);
-            });
-            self.get_mut().hash_to_selectors.remove(&hash);
-            self._on_remove_facet(hash);
+            self._remove_facet(hash);
             Some(hash)
         });
+    }
+
+    fn _remove_facet(&mut self, code_hash: Hash) {
+        let vec = self.get().hash_to_selectors.get(&code_hash).unwrap();
+        vec.iter().for_each(|old_selector| {
+            self.get_mut().selector_to_hash.remove(&old_selector);
+        });
+        self.get_mut().hash_to_selectors.remove(&code_hash);
+        self._on_remove_facet(code_hash);
     }
 
     default fn _add_function(&mut self, code_hash: Hash, selector: Selector) {
