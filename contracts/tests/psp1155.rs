@@ -109,8 +109,6 @@ mod psp1155 {
         }
     }
 
-    impl PSP1155Transfer for PSP1155Struct{}
-
     impl PSP1155Transfer for PSP1155Struct{
         fn _before_token_transfer(
             &mut self,
