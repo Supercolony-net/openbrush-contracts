@@ -71,7 +71,7 @@ impl MyPSP22 {
 ## Step 6: Customize your contract
 
 Customize it by adding hated account logic. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
-override `_before_token_transfer` method in the `PSP22` implementation(that methods defined in `PSP22Internal` trait), and we will add the `hated_account: AccountId` field to the structure.
+override `_before_token_transfer` method in the `PSP22` implementation(that methods defined in `PSP22Transfer` trait), and we will add the `hated_account: AccountId` field to the structure.
 
 ```rust
 #[ink(storage)]
@@ -83,7 +83,7 @@ pub struct MyPSP22 {
     hated_account: AccountId,
 }
 
-impl PSP22Internal for MyPSP22 {
+impl PSP22Transfer for MyPSP22 {
     // Let's override method to reject transactions to bad account
     fn _before_token_transfer(
         &mut self,
@@ -97,6 +97,8 @@ impl PSP22Internal for MyPSP22 {
         Ok(())
     }
 }
+
+impl PSP22Internal for MyPSP22 {}
 
 impl PSP22 for MyPSP22 {}
 

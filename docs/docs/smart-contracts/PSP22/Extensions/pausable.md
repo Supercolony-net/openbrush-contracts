@@ -56,7 +56,7 @@ Inherit the implementation of the `PSP22` and `Pausable` traits. You can customi
 ```rust
 impl PSP22 for MyPSP22Pausable {}
 
-impl PSP22Internal for MyPSP22Pausable {
+impl PSP22Transfer for MyPSP22Pausable {
     /// Return `Paused` error if the token is paused
     #[modifiers(when_not_paused)]
     fn _before_token_transfer(
@@ -69,6 +69,8 @@ impl PSP22Internal for MyPSP22Pausable {
         Ok(())
     }
 }
+
+impl PSP22Internal for MyPSP22Pausable {}
 
 impl Pausable for MyPSP22Pausable {}
 ```
