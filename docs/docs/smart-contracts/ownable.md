@@ -28,6 +28,7 @@ pub mod my_ownable {
         contracts::ownable::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -37,7 +38,7 @@ Declare storage struct and declare the field related to `OwnableStorage` trait. 
 
 ```rust
 #[ink(storage)]
-#[derive(Default, OwnableStorage)]
+#[derive(Default, SpreadAllocate, OwnableStorage)]
 pub struct MyOwnable {
     #[OwnableStorageField]
     ownable: OwnableData,
@@ -60,10 +61,10 @@ Define the constructor and initialize the owner with the contract initiator. You
 impl MyOwnable {
     #[ink(constructor)]
     pub fn new() -> Self {
-        let mut instance = Self::default();
-        let caller = instance.env().caller();
-        instance._init_with_owner(caller);
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            let caller = instance.env().caller();
+            instance._init_with_owner(caller);
+        })
     }
 }
 ```
@@ -82,9 +83,11 @@ pub mod my_ownable {
         contracts::ownable::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
+
 
    #[ink(storage)]
-   #[derive(Default, OwnableStorage)]
+   #[derive(Default, SpreadAllocate, OwnableStorage)]
    pub struct MyOwnable {
       #[OwnableStorageField]
       ownable: OwnableData,
@@ -96,10 +99,10 @@ pub mod my_ownable {
       
       #[ink(constructor)]
       pub fn new() -> Self {
-         let mut instance = Self::default();
-         let caller = instance.env().caller();
-         instance._init_with_owner(caller);
-         instance
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            let caller = instance.env().caller();
+            instance._init_with_owner(caller);
+        })
       }
 
       #[ink(message)]
