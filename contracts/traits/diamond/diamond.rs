@@ -61,9 +61,11 @@ pub struct InitCall {
 pub trait Diamond {
     /// This function is used to add, replace and remove facets from the diamond
     ///
-    /// `cuts` vector of facet cuts to be mutated, each cut contains the code hash of the facet
-    /// as well as the selectors of functions along with the action to be performed with the
-    /// correspondent selector (see enum `FacetCutAction`)
+    /// `cuts` vector of facet cuts, each cut contains the code hash of the facet
+    /// as well as the selectors of functions. 
+    /// If `cuts` is empty, we will remove this facet from diamond
+    /// If `cuts` contains a selector which already exists for a different facet we will return an error (user should remove this facet first)
+    /// If `cuts` does not contain some selectors which are already registered for this facet, those selectors will be removed from diamond
     /// `init` optional struct which identifies a call to be executed, this struct contains the code hash
     /// of the executed contract, selector of the executed function and input data to be passed to the called
     #[ink(message)]
