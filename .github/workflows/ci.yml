@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install jq
         run: |
-          apt-get install jq
+          apt-get install jq -y
       - name: Build & Run cargo tests
         run: |
           for feature in $(cargo metadata | jq -r '.packages[] | select(.name=="brush") | .features | keys | .[]')
