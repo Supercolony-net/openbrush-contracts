@@ -120,18 +120,9 @@ mod psp34_enumerable {
         change_caller(accounts.alice);
         assert!(nft.transfer(accounts.bob, Id::U8(3u8), vec![]).is_ok());
         // alice does not own token
-        assert_eq!(
-            nft.token_by_index(0u128),
-            Ok(Id::U8(1u8))
-        );
-        assert_eq!(
-            nft.token_by_index(1u128),
-            Ok(Id::U8(3u8))
-        );
-        assert_eq!(
-            nft.token_by_index(2u128),
-            Err(PSP34Error::TokenNotExists)
-        );
+        assert_eq!(nft.token_by_index(0u128), Ok(Id::U8(1u8)));
+        assert_eq!(nft.token_by_index(1u128), Ok(Id::U8(3u8)));
+        assert_eq!(nft.token_by_index(2u128), Err(PSP34Error::TokenNotExists));
     }
 
     #[ink::test]

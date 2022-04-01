@@ -181,8 +181,6 @@ pub trait PSP1155Internal {
 
     fn _decrease_sender_balance(&mut self, from: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error>;
 
-    
-
     fn _do_safe_transfer_check(
         &mut self,
         operator: &AccountId,
@@ -200,7 +198,9 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         _from: Option<AccountId>,
         _to: Option<AccountId>,
         _id: Id,
-        _amount: Balance) {}
+        _amount: Balance,
+    ) {
+    }
 
     default fn _emit_approval_for_all_event(&self, _owner: AccountId, _operator: AccountId, _approved: bool) {}
 
@@ -359,7 +359,7 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
     }
 }
 
-pub trait PSP1155Transfer{
+pub trait PSP1155Transfer {
     fn _before_token_transfer(
         &mut self,
         _from: Option<&AccountId>,
@@ -374,7 +374,7 @@ pub trait PSP1155Transfer{
         _ids: &Vec<(Id, Balance)>,
     ) -> Result<(), PSP1155Error>;
 }
-impl<T> PSP1155Transfer for T{
+impl<T> PSP1155Transfer for T {
     default fn _before_token_transfer(
         &mut self,
         _from: Option<&AccountId>,

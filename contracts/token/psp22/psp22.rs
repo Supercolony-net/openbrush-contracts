@@ -139,7 +139,7 @@ pub trait PSP22Internal {
         value: &Balance,
         data: &Vec<u8>,
     ) -> Result<(), PSP22Error>;
-    
+
     fn _transfer_from_to(
         &mut self,
         from: AccountId,

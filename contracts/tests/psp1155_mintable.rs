@@ -40,7 +40,7 @@ mod psp1155_mintable {
 
     impl PSP1155Internal for PSP1155Struct {}
 
-    impl PSP1155Transfer for PSP1155Struct{
+    impl PSP1155Transfer for PSP1155Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
