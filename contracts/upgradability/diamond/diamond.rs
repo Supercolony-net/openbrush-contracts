@@ -84,13 +84,11 @@ pub trait DiamondInternal {
 
     fn _handle_replace_immutable(&mut self, hash: Hash) -> Result<(), DiamondError>;
 
-    fn _handle_replace_existing(&mut self, facet_cut: &FacetCut) -> Result<(), DiamondError>;
-
-    fn _handle_existing_selector(&mut self, selector: Selector);
-
     fn _remove_facet(&mut self, code_hash: Hash);
 
-    fn _set_function(&mut self, code_hash: Hash, selector: Selector);
+    fn _remove_selectors(&mut self, facet_cut: &FacetCut);
+
+    fn _add_function(&mut self, code_hash: Hash, selector: Selector);
 
     fn _emit_diamond_cut_event(&self, diamond_cut: &Vec<FacetCut>, init: &Option<InitCall>);
 }
@@ -100,15 +98,23 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         for facet_cut in diamond_cut.iter() {
             let code_hash = facet_cut.hash;
             self._handle_replace_immutable(code_hash)?;
-            self._handle_replace_existing(&facet_cut)?;
             if facet_cut.selectors.is_empty() {
                 // means that we want to remove this facet
                 self._remove_facet(code_hash);
             } else {
                 for selector in facet_cut.selectors.iter() {
-                    self._handle_existing_selector(*selector);
-                    self._set_function(code_hash, *selector);
+                    let selector_hash = self.get().selector_to_hash.get(&selector);
+
+                    if selector_hash.and_then(|hash| Some(hash == code_hash)).unwrap_or(false) {
+                        continue
+                    } else if selector_hash.is_some() {
+                        return Err(DiamondError::ReplaceExisting(selector_hash.unwrap()))
+                    } else {
+                        self._add_function(code_hash, *selector);
+                    }
                 }
+
+                self._remove_selectors(facet_cut);
             }
         }
 
@@ -169,31 +175,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         }
     }
 
-    default fn _handle_replace_existing(&mut self, facet_cut: &FacetCut) -> Result<(), DiamondError> {
-        for selector in facet_cut.selectors.iter() {
-            if self
-                .get()
-                .selector_to_hash
-                .get(&selector)
-                .and_then(|hash| Some(hash == facet_cut.hash))
-                .unwrap_or(false)
-            {
-                return Err(DiamondError::ReplaceExisting)
-            };
-        }
-        Ok(())
-    }
-
-    default fn _handle_existing_selector(&mut self, selector: Selector) {
-        // if this selector exists it means we are replacing the facet with new facet and have to
-        // delete old facet, as some functions may have been removed
-        self.get().selector_to_hash.get(selector).and_then(|hash| {
-            self._remove_facet(hash);
-            Some(hash)
-        });
-    }
-
-    fn _remove_facet(&mut self, code_hash: Hash) {
+    default fn _remove_facet(&mut self, code_hash: Hash) {
         let vec = self.get().hash_to_selectors.get(&code_hash).unwrap();
         vec.iter().for_each(|old_selector| {
             self.get_mut().selector_to_hash.remove(&old_selector);
@@ -202,7 +184,22 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         self._on_remove_facet(code_hash);
     }
 
-    default fn _set_function(&mut self, code_hash: Hash, selector: Selector) {
+    default fn _remove_selectors(&mut self, facet_cut: &FacetCut) {
+        let vec = self.get().hash_to_selectors.get(&facet_cut.hash).unwrap();
+        vec.iter()
+            .filter(|old_selector| !facet_cut.selectors.contains(&old_selector))
+            .for_each(|old_selector| {
+                self.get_mut().selector_to_hash.remove(&old_selector);
+            });
+        let new_vec = vec
+            .iter()
+            .filter(|old_selector| facet_cut.selectors.contains(&old_selector))
+            .cloned()
+            .collect::<Vec<Selector>>();
+        self.get_mut().hash_to_selectors.insert(&facet_cut.hash, &new_vec);
+    }
+
+    default fn _add_function(&mut self, code_hash: Hash, selector: Selector) {
         let mut vec = self.get().hash_to_selectors.get(&code_hash).unwrap_or_else(|| {
             self._on_add_function(code_hash);
             Vec::<Selector>::new()
