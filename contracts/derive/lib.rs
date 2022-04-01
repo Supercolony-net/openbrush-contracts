@@ -56,6 +56,12 @@ declare_derive_storage_trait!(
     PSP34MetadataStorage,
     PSP34MetadataStorageField
 );
+#[cfg(feature = "psp34")]
+declare_derive_storage_trait!(
+    derive_psp34_enumerable_storage,
+    PSP34EnumerableStorage,
+    PSP34EnumerableStorageField
+);
 
 // PSP1155
 #[cfg(feature = "psp1155")]

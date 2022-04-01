@@ -16,10 +16,6 @@ brush = { tag = "v1.5.0", git = "https://github.com/Supercolony-net/openbrush-co
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
-overflow-checks = false
-
-[profile.release]
-overflow-checks = false
 ```
 
 ## Step 2: Add imports and enable unstable feature

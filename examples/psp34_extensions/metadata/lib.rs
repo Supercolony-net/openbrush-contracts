@@ -23,10 +23,6 @@ pub mod my_psp34_metadata {
 
     impl PSP34Metadata for MyPSP34 {}
 
-    impl PSP34Internal for MyPSP34 {}
-
-    impl PSP34MetadataInternal for MyPSP34 {}
-
     impl MyPSP34 {
         /// A constructor which mints the first token to the owner
         #[ink(constructor)]
