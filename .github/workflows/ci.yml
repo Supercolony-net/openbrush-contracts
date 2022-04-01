@@ -16,9 +16,12 @@ jobs:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/checkout@v2
+      - name: Install jq
+        run: |
+          apt-get install jq
       - name: Build & Run cargo tests
         run: |
-          for feature in psp22 psp34 psp1155 ownable access_control payment_splitter reentrancy_guard pausable timelock_controller proxy diamond
+          for feature in $(cargo metadata | jq -r '.packages[] | select(.name=="brush") | .features | keys | .[]')
           do
             RUSTFLAGS="-D warnings" cargo test --features $feature --workspace
           done
