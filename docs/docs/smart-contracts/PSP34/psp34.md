@@ -25,6 +25,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 #[brush::contract]
 pub mod my_psp34 {
     use brush::contracts::psp34::*;
+    use ink_storage::traits::SpreadAllocate;
 ```
 
 ## Step 3: Define storage
@@ -33,7 +34,7 @@ Declare storage struct and declare the field related to the `PSP34Storage` trait
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP34Storage)]
+#[derive(Default, SpreadAllocate, PSP34Storage)]
 pub struct MyPSP34 {
     #[PSP34StorageField]
     psp34: PSP34Data,
@@ -57,7 +58,7 @@ Define constructor. Your basic version of `PSP34` contract is ready!
 impl MyPSP34 {
     #[ink(constructor)]
     pub fn new() -> Self {
-        Self::default()
+        ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
     }
 }
 ```
@@ -68,7 +69,7 @@ Customize it by adding logic for tracking the number of minted tokens. It will c
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP34Storage)]
+#[derive(Default, SpreadAllocate, PSP34Storage)]
 pub struct MyPSP34 {
     #[PSP34StorageField]
     psp34: PSP34Data,
@@ -80,12 +81,12 @@ impl PSP34 for MyPSP34 {}
 impl MyPSP34 {
     #[ink(constructor)]
     pub fn new() -> Self {
-        Self::default()
+        ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
     }
 
     #[ink(message)]
     pub fn mint_token(&mut self) -> Result<(), PSP34Error> {
-        self._mint(Id::U8(self.next_id))?;
+        self._mint_to(Self::env().caller(), Id::U8(self.next_id))?;
         self.next_id += 1;
         Ok(())
     }

@@ -40,6 +40,7 @@ pub mod my_flipper_guard {
 
   use crate::flip_on_me::CallerOfFlip;
   use ink_env::call::FromAccountId;
+  use ink_storage::traits::SpreadAllocate;
 ```
 
 
@@ -51,7 +52,7 @@ this trait allows you to use `non_reentrant` modifier.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, ReentrancyGuardStorage)]
+#[derive(Default, SpreadAllocate, ReentrancyGuardStorage)]
 pub struct MyFlipper {
     #[ReentrancyGuardStorageField]
     guard: ReentrancyGuardData,
@@ -67,7 +68,7 @@ After that you can add `non_reentrant` modifier to `flip` and `call_flip_on_me` 
 impl MyFlipper {
     #[ink(constructor)]
     pub fn new() -> Self {
-        Self::default()
+        ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
     }
 
     #[ink(message)]
@@ -151,7 +152,7 @@ pub mod flip_on_me {
     impl FlipOnMe {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

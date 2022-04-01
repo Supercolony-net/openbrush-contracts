@@ -3,6 +3,21 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
+  rustfmt:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      options: --user root
+      credentials:
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_TOKEN }}
+      env:
+        node: /usr/local/bin/node
+        CARGO_TARGET_DIR: /usr/local/cache/target
+    steps:
+      - uses: actions/checkout@v2
+      - name: Rustfmt check
+        run: cargo fmt --all -- --check
   unit-test:
     runs-on: ubuntu-latest
     container:
@@ -16,9 +31,12 @@ jobs:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/checkout@v2
+      - name: Install jq
+        run: |
+          apt-get install jq -y
       - name: Build & Run cargo tests
         run: |
-          for feature in psp22 psp34 psp1155 ownable access_control payment_splitter reentrancy_guard pausable timelock_controller proxy diamond
+          for feature in $(cargo metadata | jq -r '.packages[] | select(.name=="brush") | .features | keys | .[]')
           do
             RUSTFLAGS="-D warnings" cargo test --features $feature --workspace
           done
