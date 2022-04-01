@@ -41,7 +41,7 @@ pub struct FacetCut {
     /// The `hash` of the code that should be executed.
     pub hash: Hash,
     /// The selector bytes that identify the function that should be called.
-    pub selectors: Vec<[u8; 4]>,
+    pub selectors: Vec<Selector>,
 }
 
 /// Struct which we use to initialize the diamond contract

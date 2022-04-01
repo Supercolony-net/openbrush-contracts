@@ -31,7 +31,7 @@ pub type DiamondLoupeRef = dyn DiamondLoupe;
 pub trait DiamondLoupe {
     /// Returns code hashes of all registered facets along with their registered function selectors
     #[ink(message)]
-    fn facets(&self) -> Vec<(Hash, Vec<Selector>)>;
+    fn facets(&self) -> Vec<FacetCut>;
 
     /// Returns all the function selectors supported by a specific facet
     #[ink(message)]
