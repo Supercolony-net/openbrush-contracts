@@ -17,6 +17,7 @@ Import **everything** from `brush::contracts::psp1155::extensions::metadata`.
 pub mod my_psp1155 {
     use brush::contracts::psp1155::extensions::metadata::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -25,7 +26,7 @@ pub mod my_psp1155 {
 Declare storage struct and declare the field related to the `PSP1155MetadataStorage` trait in addition to your `PSP1155Storage` field. Then you need to derive the `PSP1155MetadataStorage` trait and mark the corresponding field with the `#[PSP1155MetadataStorageField]` attribute. Deriving this trait allows you to reuse the `PSP1155Metadata` extension in your `PSP1155` implementation.
 
 ```rust
-#[derive(Default, PSP1155Storage, PSP1155MetadataStorage)]
+#[derive(Default, SpreadAllocate, PSP1155Storage, PSP1155MetadataStorage)]
 #[ink(storage)]
 pub struct MyPSP1155 {
     #[PSP1155StorageField]
@@ -40,6 +41,9 @@ pub struct MyPSP1155 {
 Inherit implementation of the `PSP1155Metadata` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
+
+impl PSP1155 for MyPSP1155 {}
+
 impl PSP1155Metadata for MyPSP1155 {}
 ```
 
@@ -51,9 +55,9 @@ Define constructor. Your `PSP1155Metadata` contract is ready!
 impl MyPSP1155 {
     #[ink(constructor)]
     pub fn new(uri: Option<String>) -> Self {
-        let mut instance = Self::default();
-        instance.metadata.uri = uri;
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            instance.metadata.uri = uri;
+        })
     }
 }
 ```

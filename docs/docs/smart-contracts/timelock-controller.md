@@ -26,6 +26,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 #[brush::contract]
 pub mod my_psp22_token_timelock {
     use brush::contracts::psp22::utils::token_timelock::*;
+    use ink_storage::traits::SpreadAllocate;
 ```
 
 ## Step 3: Define storage
@@ -38,10 +39,8 @@ Deriving these traits allows you to reuse the default implementation of `Timeloc
 
 ```rust
 #[ink(storage)]
-#[derive(Default, AccessControlStorage, TimelockControllerStorage)]
+#[derive(Default, SpreadAllocate, TimelockControllerStorage)]
 pub struct TimelockStruct {
-   #[AccessControlStorageField]
-   access: AccessControlData,
    #[TimelockControllerStorageField]
    timelock: TimelockControllerData,
 }
@@ -65,13 +64,13 @@ Define constructor. Your basic version of `TimelockController` contract is ready
 impl TimelockStruct {
    #[ink(constructor)]
    pub fn new(min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
-      let mut instance = Self::default();
-      let caller = instance.env().caller();
-      // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
-      // You need to call it for each trait separately, to initialize everything for these traits.
-      AccessControl::_init_with_admin(&mut instance, caller);
-      TimelockController::_init_with_admin(&mut instance, caller, min_delay, proposers, executors);
-      instance
+      ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            let caller = instance.env().caller();
+            // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
+            // You need to call it for each trait separately, to initialize everything for these traits.
+            AccessControlInternal::_init_with_admin(instance, caller);
+            TimelockControllerInternal::_init_with_admin(instance, caller, min_delay, proposers, executors);
+      })
    }
 }
 ```

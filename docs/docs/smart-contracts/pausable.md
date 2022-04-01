@@ -26,6 +26,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 #[brush::contract]
 pub mod my_pausable {
     use brush::contracts::pausable::*;
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -38,7 +39,7 @@ the default implementation of `Pausable`.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PausableStorage)]
+#[derive(Default, SpreadAllocate, PausableStorage)]
 pub struct MyFlipper {
    #[PausableStorageField]
    pause: PausableData,
@@ -78,9 +79,10 @@ Customize it by adding flipper logic. We will implement `flip` method marked wit
 #[brush::contract]
 pub mod my_pausable {
     use brush::contracts::pausable::*;
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, PausableStorage)]
+    #[derive(Default, SpreadAllocate, PausableStorage)]
     pub struct MyFlipper {
         #[PausableStorageField]
         pause: PausableData,
@@ -90,7 +92,7 @@ pub mod my_pausable {
     impl MyFlipper {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

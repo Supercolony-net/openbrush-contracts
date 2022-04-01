@@ -25,6 +25,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 #[brush::contract]
 pub mod my_psp22_wrapper {
     use brush::contracts::psp22::extensions::wrapper::*;
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -34,7 +35,7 @@ Declare storage struct and declare the fields related to `PSP22Storage` and `PSP
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22WrapperStorage, PSP22Storage)]
+#[derive(Default, SpreadAllocate, PSP22WrapperStorage, PSP22Storage)]
 pub struct MyPSP22Wrapper {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -61,9 +62,9 @@ Define constructor. Your implementation of `PSP22Wrapper` contract is ready!
 impl MyPSP22 {
    #[ink(constructor)]
    pub fn new(token_address: AccountId) -> Self {
-        let mut instance = Self::default();
-        instance.init(token_address);
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            instance._init(token_address);
+        })
     }
 }
 ```

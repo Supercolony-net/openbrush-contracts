@@ -39,6 +39,8 @@ pub mod my_proxy {
 Declare storage struct and declare the field related to `ProxyStorage` trait. Then you need to derive the `ProxyStorage` trait and mark the corresponding field with the `#[ProxyStorageField]` attribute. Deriving this trait allows you to reuse the default implementation of `Proxy`.
 
 ```rust
+use ink_storage::traits::SpreadAllocate;
+
 #[ink(storage)]
 #[derive(Default, SpreadAllocate, ProxyStorage)]
 pub struct ProxyContract {

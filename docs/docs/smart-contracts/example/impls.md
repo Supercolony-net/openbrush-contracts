@@ -200,8 +200,11 @@ use brush::{
     },
 };
 use ink_storage::{
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
     Mapping,
-    traits::SpreadLayout,
 };
 // it is public because when you will import the trait you also will import the derive for the trait
 pub use lending_project_derive::LendingStorage;
@@ -209,7 +212,7 @@ pub use lending_project_derive::LendingStorage;
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
 
-#[derive(Default, Debug, SpreadLayout)]
+#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
 /// define the struct with the data that our smart contract will be using
 /// this will isolate the logic of our smart contract from its storage
@@ -328,19 +331,19 @@ To avoid that we will import `SharesContract` into `LendingContract` and in `Len
 `_instantiate_shares_contract` method, that will instantiate `SharesCotnract`.
 ```rust
 impl LendingPermissionedInternal for LendingContract {
-  fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
+    fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
     let code_hash = self.lending.shares_contract_code_hash;
     let (hash, _) =
-            ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
+        ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
     let hash = hash.as_ref();
-    let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+    let contract = SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
             .endowment(0)
             .code_hash(code_hash)
             .salt_bytes(&hash[..4])
             .instantiate()
             .unwrap();
     contract.to_account_id()
-  }
+    }
 }
 ```
 
@@ -451,11 +454,10 @@ fn disallow_lending<T: LendingStorage>(instance: &mut T, asset_address: AccountI
           .get_mut()
           .asset_shares
           .get(&asset_address)
-          .cloned()
           .unwrap_or(ZERO_ADDRESS.into());
-  instance.get_mut().asset_shares.take(&asset_address);
-  instance.get_mut().shares_asset.take(&share_address);
-  instance.get_mut().assets_lended.take(&asset_address);
+  instance.get_mut().asset_shares.remove(&asset_address);
+  instance.get_mut().shares_asset.remove(&share_address);
+  instance.get_mut().assets_lended.remove(&asset_address);
 }
 
 /// this function will accept `asset_address` for using as collateral
@@ -510,7 +512,6 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let mapped_asset = LendingStorage::get(self)
             .assets_lended
             .get(&asset_address)
-            .cloned()
             .unwrap_or(ZERO_ADDRESS.into());
         // return error if the asset is not supported
         if mapped_asset.is_zero() {
@@ -527,7 +528,6 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let mapped_asset = LendingStorage::get(self)
             .asset_shares
             .get(&asset_address)
-            .cloned()
             .unwrap_or(ZERO_ADDRESS.into());
         // return error if the asset is not supported
         if mapped_asset.is_zero() {
@@ -540,7 +540,6 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         !LendingStorage::get(self)
             .asset_shares
             .get(&asset_address)
-            .cloned()
             .unwrap_or(ZERO_ADDRESS.into())
             .is_zero()
     }
@@ -549,7 +548,6 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         LendingStorage::get(self)
             .collateral_accepted
             .get(&asset_address)
-            .cloned()
             .unwrap_or(false)
     }
 
