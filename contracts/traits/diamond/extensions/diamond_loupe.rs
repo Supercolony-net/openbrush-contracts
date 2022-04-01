@@ -1,10 +1,9 @@
+use crate::traits::diamond::Selector;
 use brush::traits::Hash;
 use ink_prelude::vec::Vec;
 
 #[brush::wrapper]
 pub type DiamondLoupeRef = dyn DiamondLoupe;
-
-pub type Selector = [u8; 4];
 
 /// Trait which implements functions of Diamond Loupe to lookup the functionality of the diamond contract
 #[brush::trait_definition]
