@@ -74,11 +74,14 @@ impl<T: DiamondLoupeStorage> DiamondCut for T {
 }
 
 impl<T: DiamondLoupeStorage + DiamondStorage> DiamondLoupe for T {
-    default fn facets(&self) -> Vec<(Hash, Vec<Selector>)> {
+    default fn facets(&self) -> Vec<FacetCut> {
         let mut out_vec = Vec::new();
         for i in 0..DiamondLoupeStorage::get(self).code_hashes {
             let hash = DiamondLoupeStorage::get(self).id_to_hash.get(&i).unwrap();
-            out_vec.push((hash, DiamondStorage::get(self).hash_to_selectors.get(&hash).unwrap()))
+            out_vec.push(FacetCut {
+                hash,
+                selectors: DiamondStorage::get(self).hash_to_selectors.get(&hash).unwrap(),
+            })
         }
         out_vec
     }

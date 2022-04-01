@@ -107,7 +107,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
             } else {
                 for selector in facet_cut.selectors.iter() {
                     self._handle_existing_selector(*selector);
-                    self._add_function(code_hash, *selector);
+                    self._set_function(code_hash, *selector);
                 }
             }
         }
@@ -175,7 +175,8 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
                 .get()
                 .selector_to_hash
                 .get(&selector)
-                .and_then(|hash| { hash == facet_cut.hash })
+                .and_then(|hash| Some(hash == facet_cut.hash))
+                .unwrap_or(false)
             {
                 return Err(DiamondError::ReplaceExisting)
             };
@@ -201,7 +202,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         self._on_remove_facet(code_hash);
     }
 
-    default fn _add_function(&mut self, code_hash: Hash, selector: Selector) {
+    default fn _set_function(&mut self, code_hash: Hash, selector: Selector) {
         let mut vec = self.get().hash_to_selectors.get(&code_hash).unwrap_or_else(|| {
             self._on_add_function(code_hash);
             Vec::<Selector>::new()
