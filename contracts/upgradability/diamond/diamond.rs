@@ -90,7 +90,7 @@ pub trait DiamondInternal {
 
     fn _remove_facet(&mut self, code_hash: Hash);
 
-    fn _add_function(&mut self, code_hash: Hash, selector: Selector);
+    fn _set_function(&mut self, code_hash: Hash, selector: Selector);
 
     fn _emit_diamond_cut_event(&self, diamond_cut: &Vec<FacetCut>, init: &Option<InitCall>);
 }
@@ -175,13 +175,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
                 .get()
                 .selector_to_hash
                 .get(&selector)
-                .and_then(|hash| {
-                    if hash == facet_cut.hash {
-                        return Some(hash)
-                    };
-                    None
-                })
-                .is_some()
+                .and_then(|hash| { hash == facet_cut.hash })
             {
                 return Err(DiamondError::ReplaceExisting)
             };
