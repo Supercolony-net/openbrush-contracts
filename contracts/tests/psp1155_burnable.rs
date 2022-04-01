@@ -38,8 +38,6 @@ mod psp1155_burnable {
         return_err_on_after: bool,
     }
 
-    impl PSP1155Internal for PSP1155Struct {}
-
     impl PSP1155Transfer for PSP1155Struct {
         fn _before_token_transfer(
             &mut self,
