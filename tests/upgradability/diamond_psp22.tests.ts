@@ -1,6 +1,18 @@
 import { consts } from '../constants'
 import { expect, setupContract, fromSigner, setupProxy } from '../helpers'
 
+const getSelectorsFromMessages = (messages) => {
+  return messages.map((message) => {
+    return message.selector
+  })
+}
+
+const getSelectorByName = (messages, name) => {
+  return messages.filter((message) => {
+    return message.label == name
+  })[0].selector
+}
+
 describe('DIAMOND_PSP22', () => {
   it('Adding facets works', async () => {
     // get abi of diamond
@@ -13,14 +25,9 @@ describe('DIAMOND_PSP22', () => {
     const psp22Hash = (await abi).source.hash
     const psp22Messages = (await abi).V3.spec.messages
 
-    let psp22Init
-
-    const psp22Cut = psp22Messages.map((message) => {
-      if (message.label == 'init_psp22') {
-        psp22Init = message.selector
-      }
-      return [psp22Hash, [message.selector]]
-    })
+    const psp22Init = getSelectorByName(psp22Messages, 'init_psp22')
+    const psp22Selectors = getSelectorsFromMessages(psp22Messages)
+    const psp22Cut = [[psp22Hash, psp22Selectors]]
 
     // initialize diamond contract
     const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
@@ -42,18 +49,15 @@ describe('DIAMOND_PSP22', () => {
 
     const metadataHash = (await metadataAbi).source.hash
     const metadataMessages = (await metadataAbi).V3.spec.messages
-    let metadataInit
 
-    const metadataCut = metadataMessages
-      .filter((message) => {
+    const metadataInit = getSelectorByName(metadataMessages, 'init_metadata')
+    const metadataSelectors = getSelectorsFromMessages(
+      metadataMessages.filter((message) => {
         return message.label != 'Ownable::owner' && message.label != 'Ownable::renounce_ownership' && message.label != 'Ownable::transfer_ownership'
       })
-      .map((message) => {
-        if (message.label == 'init_metadata') {
-          metadataInit = message.selector
-        }
-        return [metadataHash, [message.selector]]
-      })
+    )
+
+    const metadataCut = [[metadataHash, metadataSelectors]]
 
     // add metadata facet
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(metadataCut, [metadataHash, metadataInit, []])).to.eventually.be
@@ -67,17 +71,6 @@ describe('DIAMOND_PSP22', () => {
     await expect(proxy.query.tokenDecimals()).to.output(18)
 
     // Test Loupe
-    let metadataSelectors = metadataMessages
-      .filter((message) => {
-        return message.label != 'Ownable::owner' && message.label != 'Ownable::renounce_ownership' && message.label != 'Ownable::transfer_ownership'
-      })
-      .map((message) => {
-        return message.selector
-      })
-
-    const psp22Selectors = psp22Messages.map((message) => {
-      return message.selector
-    })
 
     await expect(diamondContract.query.facets()).to.output([
       [psp22Hash, psp22Selectors],
@@ -104,14 +97,9 @@ describe('DIAMOND_PSP22', () => {
     let psp22Hash = (await abi).source.hash
     let messages = (await abi).V3.spec.messages
 
-    let initSelector
-
-    let facetCut = messages.map((message) => {
-      if (message.label == 'init_psp22') {
-        initSelector = message.selector
-      }
-      return [psp22Hash, [message.selector]]
-    })
+    const initSelector = getSelectorByName(messages, 'init_psp22')
+    const psp22Selectors = getSelectorsFromMessages(messages)
+    const facetCut = [[psp22Hash, psp22Selectors]]
 
     // initialize diamond contract
     const { contract: diamondContract, defaultSigner: wrongSigner } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
@@ -128,17 +116,12 @@ describe('DIAMOND_PSP22', () => {
     // abi of psp22 facet
     const { abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
 
-    let psp22Hash = (await abi).source.hash
-    let messages = (await abi).V3.spec.messages
+    const psp22Hash = (await abi).source.hash
+    const messages = (await abi).V3.spec.messages
 
-    let initSelector
-
-    let facetCut = messages.map((message) => {
-      if (message.label == 'init_psp22') {
-        initSelector = message.selector
-      }
-      return [psp22Hash, [message.selector]]
-    })
+    const initSelector = getSelectorByName(messages, 'init_psp22')
+    const psp22Selectors = getSelectorsFromMessages(messages)
+    const facetCut = [[psp22Hash, psp22Selectors]]
 
     // initialize diamond contract
     const { contract: diamondContract, alice } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
@@ -151,19 +134,18 @@ describe('DIAMOND_PSP22', () => {
     // we will upgrade to psp22_2
     const { contract: newPsp22, abi: newPsp22Abi } = await setupContract('my_psp22_2_facet', 'new')
 
+    // first we need to remove psp22 and replace with psp22_2
+    const facetCutRemove = [[psp22Hash, []]]
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCutRemove, null)).to.eventually.be.fulfilled
+
     let psp22NewHash = (await newPsp22Abi).source.hash
     let messagesNew = (await newPsp22Abi).V3.spec.messages
 
-    facetCut = messagesNew.map((message) => {
-      return [psp22NewHash, [message.selector]]
-    })
-
-    const psp22NewSelectors = messagesNew.map((message) => {
-      return message.selector
-    })
+    const psp22NewSelectors = getSelectorsFromMessages(messagesNew)
+    const facetCutNew = [[psp22NewHash, psp22NewSelectors]]
 
     // add new psp22 facet, without init function
-    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, null)).to.eventually.be.fulfilled
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCutNew, null)).to.eventually.be.fulfilled
 
     // patch methods
     let proxy = setupProxy(newPsp22, diamondContract)
@@ -180,7 +162,7 @@ describe('DIAMOND_PSP22', () => {
     await expect(diamondContract.query.facetCodeHash(initSelector)).to.output(null)
   })
 
-  it('We can not replace facet with the same facet', async () => {
+  it('Can not replace existing selector', async () => {
     // get abi of diamond
     const { abi: diamondAbi } = await setupContract('my_diamond', 'new', consts.EMPTY_ADDRESS, '')
     const diamondHash = (await diamondAbi).source.hash
@@ -188,17 +170,12 @@ describe('DIAMOND_PSP22', () => {
     // abi of psp22 facet
     const { abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
 
-    let psp22Hash = (await abi).source.hash
-    let messages = (await abi).V3.spec.messages
+    const psp22Hash = (await abi).source.hash
+    const messages = (await abi).V3.spec.messages
 
-    let initSelector
-
-    let facetCut = messages.map((message) => {
-      if (message.label == 'init_psp22') {
-        initSelector = message.selector
-      }
-      return [psp22Hash, [message.selector]]
-    })
+    const initSelector = getSelectorByName(messages, 'init_psp22')
+    const psp22Selectors = getSelectorsFromMessages(messages)
+    const facetCut = [[psp22Hash, psp22Selectors]]
 
     // initialize diamond contract
     const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
@@ -208,15 +185,15 @@ describe('DIAMOND_PSP22', () => {
     // add psp22 facet
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [psp22Hash, initSelector, []])).to.eventually.be.fulfilled
 
-    facetCut = messages.map((message) => {
-      if (message.label == 'init_psp22') {
-        initSelector = message.selector
-      }
-      return [psp22Hash, [message.selector]]
-    })
+    const { abi: newPsp22Abi } = await setupContract('my_psp22_2_facet', 'new')
+    const hashReplace = (await newPsp22Abi).source.hash
+    const messagesReplace = (await newPsp22Abi).V3.spec.messages
+
+    const replaceSelector = getSelectorByName(messagesReplace, 'PSP22::transfer_from')
+    const facetCutReplace = [[hashReplace, [replaceSelector]]]
 
     // replace functions
-    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, null)).to.eventually.be.rejected
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCutReplace, null)).to.eventually.be.rejected
   })
 
   it('Removing facets works', async () => {
@@ -230,14 +207,9 @@ describe('DIAMOND_PSP22', () => {
     let psp22Hash = (await abi).source.hash
     let messages = (await abi).V3.spec.messages
 
-    let initSelector
-
-    let facetCut = messages.map((message) => {
-      if (message.label == 'init_psp22') {
-        initSelector = message.selector
-      }
-      return [psp22Hash, [message.selector]]
-    })
+    const initSelector = getSelectorByName(messages, 'init_psp22')
+    const psp22Selectors = getSelectorsFromMessages(messages)
+    const facetCut = [[psp22Hash, psp22Selectors]]
 
     // initialize diamond contract
     const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
@@ -255,10 +227,10 @@ describe('DIAMOND_PSP22', () => {
     await expect(proxy.query.owner()).to.output(defaultSigner.address)
 
     // we will remove the psp22 facet
-    facetCut = [[psp22Hash, []]]
+    const facetCutRemove = [[psp22Hash, []]]
 
     // remove facet
-    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, null)).to.eventually.be.fulfilled
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCutRemove, null)).to.eventually.be.fulfilled
 
     await expect(diamondContract.query.facetFunctionSelectors(psp22Hash)).to.output([])
 

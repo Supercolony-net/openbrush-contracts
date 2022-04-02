@@ -185,17 +185,15 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
     }
 
     default fn _remove_selectors(&mut self, facet_cut: &FacetCut) {
-        let vec = self.get().hash_to_selectors.get(&facet_cut.hash).unwrap();
-        vec.iter()
-            .filter(|old_selector| !facet_cut.selectors.contains(&old_selector))
-            .for_each(|old_selector| {
-                self.get_mut().selector_to_hash.remove(&old_selector);
-            });
-        let new_vec = vec
-            .iter()
-            .filter(|old_selector| facet_cut.selectors.contains(&old_selector))
-            .cloned()
-            .collect::<Vec<Selector>>();
+        let selectors = self.get().hash_to_selectors.get(&facet_cut.hash).unwrap();
+        let mut new_vec = Vec::<Selector>::new();
+        for selector in selectors.iter() {
+            if facet_cut.selectors.contains(&selector) {
+                new_vec.push(*selector);
+            } else {
+                self.get_mut().selector_to_hash.remove(&selector);
+            }
+        }
         self.get_mut().hash_to_selectors.insert(&facet_cut.hash, &new_vec);
     }
 
