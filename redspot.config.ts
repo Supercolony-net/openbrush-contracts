@@ -12,6 +12,10 @@ const types = {
       U128: 'u128',
       Bytes: 'Vec<u8>'
     }
+  },
+  ContractsDiamondFacetCut: {
+    hash: '[u8; 32]',
+    selectors: 'Vec<[u8; 4]>'
   }
 }
 

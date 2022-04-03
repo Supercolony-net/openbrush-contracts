@@ -73,8 +73,8 @@ describe('DIAMOND_PSP22', () => {
     // Test Loupe
 
     await expect(diamondContract.query.facets()).to.output([
-      [psp22Hash, psp22Selectors],
-      [metadataHash, metadataSelectors]
+        { hash: psp22Hash, selectors: psp22Selectors },
+        { hash: metadataHash, selectors: metadataSelectors },
     ])
 
     await expect(diamondContract.query.facetFunctionSelectors(metadataHash)).to.output(metadataSelectors)

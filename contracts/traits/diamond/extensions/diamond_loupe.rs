@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use crate::traits::diamond::Selector;
+pub use crate::traits::diamond::*;
 use brush::traits::Hash;
 use ink_prelude::vec::Vec;
 
@@ -31,7 +31,7 @@ pub type DiamondLoupeRef = dyn DiamondLoupe;
 pub trait DiamondLoupe {
     /// Returns code hashes of all registered facets along with their registered function selectors
     #[ink(message)]
-    fn facets(&self) -> Vec<(Hash, Vec<Selector>)>;
+    fn facets(&self) -> Vec<FacetCut>;
 
     /// Returns all the function selectors supported by a specific facet
     #[ink(message)]
