@@ -181,20 +181,6 @@ pub trait PSP1155Internal {
 
     fn _decrease_sender_balance(&mut self, from: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error>;
 
-    fn _before_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _ids: &Vec<(Id, Balance)>,
-    ) -> Result<(), PSP1155Error>;
-
-    fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _ids: &Vec<(Id, Balance)>,
-    ) -> Result<(), PSP1155Error>;
-
     fn _do_safe_transfer_check(
         &mut self,
         operator: &AccountId,
@@ -328,24 +314,6 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         Ok(())
     }
 
-    default fn _before_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _ids: &Vec<(Id, Balance)>,
-    ) -> Result<(), PSP1155Error> {
-        Ok(())
-    }
-
-    default fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _ids: &Vec<(Id, Balance)>,
-    ) -> Result<(), PSP1155Error> {
-        Ok(())
-    }
-
     default fn _do_safe_transfer_check(
         &mut self,
         operator: &AccountId,
@@ -388,5 +356,40 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         };
         self.load();
         result
+    }
+}
+
+pub trait PSP1155Transfer {
+    fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error>;
+}
+impl<T> PSP1155Transfer for T {
+    default fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error> {
+        Ok(())
     }
 }

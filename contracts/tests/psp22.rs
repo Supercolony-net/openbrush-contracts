@@ -94,7 +94,9 @@ mod psp22 {
         ) -> Result<(), PSP22Error> {
             Ok(())
         }
+    }
 
+    impl PSP22Transfer for PSP22Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

@@ -66,7 +66,9 @@ mod psp22_mintable {
 
         // Override these functions with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
         fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
+    }
 
+    impl PSP22Transfer for PSP22Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
