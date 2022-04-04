@@ -73,8 +73,8 @@ describe('DIAMOND_PSP22', () => {
     // Test Loupe
 
     await expect(diamondContract.query.facets()).to.output([
-        { hash: psp22Hash, selectors: psp22Selectors },
-        { hash: metadataHash, selectors: metadataSelectors },
+      { hash: psp22Hash, selectors: psp22Selectors },
+      { hash: metadataHash, selectors: metadataSelectors }
     ])
 
     await expect(diamondContract.query.facetFunctionSelectors(metadataHash)).to.output(metadataSelectors)
@@ -237,5 +237,119 @@ describe('DIAMOND_PSP22', () => {
     await expect(diamondContract.query.facetCodeHashes()).to.output([])
 
     await expect(diamondContract.query.facetCodeHash(initSelector)).to.output(null)
+  })
+
+  it('Removing last facet will leave us first facet', async () => {
+    // get abi of diamond
+    const { abi: diamondAbi } = await setupContract('my_diamond', 'new', consts.EMPTY_ADDRESS, '')
+    const diamondHash = (await diamondAbi).source.hash
+
+    // abi of psp22 facet
+    const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
+
+    let psp22Hash = (await abi).source.hash
+    let messages = (await abi).V3.spec.messages
+
+    const initSelector = getSelectorByName(messages, 'init_psp22')
+    const psp22Selectors = getSelectorsFromMessages(messages)
+    const facetCut = [[psp22Hash, psp22Selectors]]
+
+    // initialize diamond contract
+    const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
+
+    await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
+
+    // add psp22 facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [psp22Hash, initSelector, []])).to.eventually.be.fulfilled
+
+    // add metadata facet
+    const { abi: metadataAbi } = await setupContract('my_psp22_metadata_facet', 'new')
+
+    const metadataHash = (await metadataAbi).source.hash
+    const metadataMessages = (await metadataAbi).V3.spec.messages
+
+    const metadataInit = getSelectorByName(metadataMessages, 'init_metadata')
+    const metadataSelectors = getSelectorsFromMessages(
+      metadataMessages.filter((message) => {
+        return message.label != 'Ownable::owner' && message.label != 'Ownable::renounce_ownership' && message.label != 'Ownable::transfer_ownership'
+      })
+    )
+
+    const metadataCut = [[metadataHash, metadataSelectors]]
+
+    // add metadata facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(metadataCut, [metadataHash, metadataInit, []])).to.eventually.be
+      .fulfilled
+
+    // we will remove the metadata facet
+    const facetCutRemove = [[metadataHash, []]]
+
+    // remove facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCutRemove, null)).to.eventually.be.fulfilled
+
+    await expect(diamondContract.query.facetCodeHashes()).to.output([psp22Hash])
+
+    await expect(diamondContract.query.facetFunctionSelectors(psp22Hash)).to.output(psp22Selectors)
+    await expect(diamondContract.query.facetCodeHash(initSelector)).to.output(psp22Hash)
+
+    await expect(diamondContract.query.facetFunctionSelectors(metadataHash)).to.output([])
+    await expect(diamondContract.query.facetCodeHash(metadataInit)).to.output(null)
+  })
+
+  it('Removing first facet will leave us last facet', async () => {
+    // get abi of diamond
+    const { abi: diamondAbi } = await setupContract('my_diamond', 'new', consts.EMPTY_ADDRESS, '')
+    const diamondHash = (await diamondAbi).source.hash
+
+    // abi of psp22 facet
+    const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
+
+    let psp22Hash = (await abi).source.hash
+    let messages = (await abi).V3.spec.messages
+
+    const initSelector = getSelectorByName(messages, 'init_psp22')
+    const psp22Selectors = getSelectorsFromMessages(messages)
+    const facetCut = [[psp22Hash, psp22Selectors]]
+
+    // initialize diamond contract
+    const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
+
+    await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
+
+    // add psp22 facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [psp22Hash, initSelector, []])).to.eventually.be.fulfilled
+
+    // add metadata facet
+    const { abi: metadataAbi } = await setupContract('my_psp22_metadata_facet', 'new')
+
+    const metadataHash = (await metadataAbi).source.hash
+    const metadataMessages = (await metadataAbi).V3.spec.messages
+
+    const metadataInit = getSelectorByName(metadataMessages, 'init_metadata')
+    const metadataSelectors = getSelectorsFromMessages(
+      metadataMessages.filter((message) => {
+        return message.label != 'Ownable::owner' && message.label != 'Ownable::renounce_ownership' && message.label != 'Ownable::transfer_ownership'
+      })
+    )
+
+    const metadataCut = [[metadataHash, metadataSelectors]]
+
+    // add metadata facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(metadataCut, [metadataHash, metadataInit, []])).to.eventually.be
+      .fulfilled
+
+    // we will remove the psp22 facet
+    const facetCutRemove = [[psp22Hash, []]]
+
+    // remove facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCutRemove, null)).to.eventually.be.fulfilled
+
+    await expect(diamondContract.query.facetCodeHashes()).to.output([metadataHash])
+
+    await expect(diamondContract.query.facetFunctionSelectors(psp22Hash)).to.output([])
+    await expect(diamondContract.query.facetCodeHash(initSelector)).to.output(null)
+
+    await expect(diamondContract.query.facetFunctionSelectors(metadataHash)).to.output(metadataSelectors)
+    await expect(diamondContract.query.facetCodeHash(metadataInit)).to.output(metadataHash)
   })
 })

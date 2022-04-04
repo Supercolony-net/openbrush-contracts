@@ -88,8 +88,6 @@ pub trait DiamondInternal {
 
     fn _remove_selectors(&mut self, facet_cut: &FacetCut);
 
-    fn _add_function(&mut self, code_hash: Hash, selector: Selector);
-
     fn _emit_diamond_cut_event(&self, diamond_cut: &Vec<FacetCut>, init: &Option<InitCall>);
 }
 
@@ -106,14 +104,25 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
                     let selector_hash = self.get().selector_to_hash.get(&selector);
 
                     if selector_hash.and_then(|hash| Some(hash == code_hash)).unwrap_or(false) {
+                        // selector already registered to this hash -> no action
                         continue
                     } else if selector_hash.is_some() {
+                        // selector already registered to another hash -> error
                         return Err(DiamondError::ReplaceExisting(selector_hash.unwrap()))
                     } else {
-                        self._add_function(code_hash, *selector);
+                        // map selector to its facet
+                        self.get_mut().selector_to_hash.insert(&selector, &code_hash);
                     }
                 }
 
+                if self.get().hash_to_selectors.get(&code_hash).is_none() {
+                    self._on_add_facet(code_hash);
+                }
+                // map this code hash to its selectors
+                self.get_mut()
+                    .hash_to_selectors
+                    .insert(&code_hash, &facet_cut.selectors);
+                // remove selectors from this facet which may be registered but will not be used anymore
                 self._remove_selectors(facet_cut);
             }
         }
@@ -193,29 +202,17 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         }
     }
 
-    default fn _add_function(&mut self, code_hash: Hash, selector: Selector) {
-        let mut vec = self.get().hash_to_selectors.get(&code_hash).unwrap_or_else(|| {
-            self._on_add_function(code_hash);
-            Vec::<Selector>::new()
-        });
-
-        vec.push(selector);
-
-        self.get_mut().selector_to_hash.insert(&selector, &code_hash);
-        self.get_mut().hash_to_selectors.insert(&code_hash, &vec);
-    }
-
-    fn _emit_diamond_cut_event(&self, _diamond_cut: &Vec<FacetCut>, _init: &Option<InitCall>) {}
+    default fn _emit_diamond_cut_event(&self, _diamond_cut: &Vec<FacetCut>, _init: &Option<InitCall>) {}
 }
 
 pub trait DiamondCut {
-    fn _on_add_function(&mut self, code_hash: Hash);
+    fn _on_add_facet(&mut self, code_hash: Hash);
 
     fn _on_remove_facet(&mut self, code_hash: Hash);
 }
 
 impl<T> DiamondCut for T {
-    default fn _on_add_function(&mut self, _code_hash: Hash) {}
+    default fn _on_add_facet(&mut self, _code_hash: Hash) {}
 
     default fn _on_remove_facet(&mut self, _code_hash: Hash) {}
 }

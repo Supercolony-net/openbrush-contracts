@@ -50,7 +50,7 @@ pub struct DiamondLoupeData {
 declare_storage_trait!(DiamondLoupeStorage, DiamondLoupeData);
 
 impl<T: DiamondLoupeStorage> DiamondCut for T {
-    default fn _on_add_function(&mut self, code_hash: Hash) {
+    default fn _on_add_facet(&mut self, code_hash: Hash) {
         let hash_id = self.get().code_hashes;
         self.get_mut().hash_to_id.insert(&code_hash, &hash_id);
         self.get_mut().id_to_hash.insert(&hash_id, &code_hash);
@@ -64,6 +64,8 @@ impl<T: DiamondLoupeStorage> DiamondCut for T {
 
         if last_hash != code_hash {
             self.get_mut().id_to_hash.insert(&removed_hash_id, &last_hash);
+            self.get_mut().hash_to_id.insert(&last_hash, &removed_hash_id);
+            self.get_mut().id_to_hash.remove(&new_hash_id);
         } else {
             self.get_mut().id_to_hash.remove(&removed_hash_id);
         }
