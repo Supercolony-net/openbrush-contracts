@@ -20,7 +20,7 @@ describe('DIAMOND_PSP22', () => {
     const diamondHash = (await diamondAbi).source.hash
 
     // abi of psp22 facet
-    const { contract: psp22Facet, abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
+    const { contract: psp22Facet, abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
     const psp22Hash = (await abi).source.hash
     const psp22Messages = (await abi).V3.spec.messages
@@ -92,7 +92,7 @@ describe('DIAMOND_PSP22', () => {
     const diamondHash = (await diamondAbi).source.hash
 
     // abi of psp22 facet
-    const { abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
+    const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
     let psp22Hash = (await abi).source.hash
     let messages = (await abi).V3.spec.messages
@@ -114,7 +114,7 @@ describe('DIAMOND_PSP22', () => {
     const diamondHash = (await diamondAbi).source.hash
 
     // abi of psp22 facet
-    const { abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
+    const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
     const psp22Hash = (await abi).source.hash
     const messages = (await abi).V3.spec.messages
@@ -132,7 +132,7 @@ describe('DIAMOND_PSP22', () => {
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [psp22Hash, initSelector, []])).to.eventually.be.fulfilled
 
     // we will upgrade to psp22_2
-    const { contract: newPsp22, abi: newPsp22Abi } = await setupContract('my_psp22_2_facet', 'new')
+    const { contract: newPsp22, abi: newPsp22Abi } = await setupContract('my_psp22_facet_v2', 'new')
 
     // first we need to remove psp22 and replace with psp22_2
     const facetCutRemove = [[psp22Hash, []]]
@@ -168,7 +168,7 @@ describe('DIAMOND_PSP22', () => {
     const diamondHash = (await diamondAbi).source.hash
 
     // abi of psp22 facet
-    const { abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
+    const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
     const psp22Hash = (await abi).source.hash
     const messages = (await abi).V3.spec.messages
@@ -185,7 +185,7 @@ describe('DIAMOND_PSP22', () => {
     // add psp22 facet
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [psp22Hash, initSelector, []])).to.eventually.be.fulfilled
 
-    const { abi: newPsp22Abi } = await setupContract('my_psp22_2_facet', 'new')
+    const { abi: newPsp22Abi } = await setupContract('my_psp22_facet_v2', 'new')
     const hashReplace = (await newPsp22Abi).source.hash
     const messagesReplace = (await newPsp22Abi).V3.spec.messages
 
@@ -202,7 +202,7 @@ describe('DIAMOND_PSP22', () => {
     const diamondHash = (await diamondAbi).source.hash
 
     // abi of psp22 facet
-    const { contract: psp22Facet, abi, defaultSigner } = await setupContract('my_psp22_facet', 'new')
+    const { contract: psp22Facet, abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
     let psp22Hash = (await abi).source.hash
     let messages = (await abi).V3.spec.messages
