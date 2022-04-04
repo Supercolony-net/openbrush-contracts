@@ -43,7 +43,7 @@ pub mod my_psp22_facet_v2 {
     impl PSP22FacetV2 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut PSP22Facet2| {
+            ink_lang::codegen::initialize_contract(|instance: &mut PSP22FacetV2| {
                 instance._init_with_owner(instance.env().caller());
             })
         }

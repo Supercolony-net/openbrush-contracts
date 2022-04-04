@@ -28,7 +28,7 @@ pub mod my_psp22_facet_v1 {
     impl PSP22FacetV1 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut PSP22Facet| {
+            ink_lang::codegen::initialize_contract(|instance: &mut PSP22FacetV1| {
                 instance._init_with_owner(instance.env().caller());
                 instance.init_psp22().expect("Should initialize");
             })
