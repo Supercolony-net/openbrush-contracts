@@ -12,7 +12,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of Pausable via `brush` features.
 
 ```toml
-brush = { tag = "v1.5.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["pausable"] }
+brush = { tag = "v1.6.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["pausable"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature

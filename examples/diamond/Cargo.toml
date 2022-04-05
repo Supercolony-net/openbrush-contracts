@@ -1,6 +1,6 @@
 [package]
 name = "my_diamond"
-version = "1.5.0"
+version = "1.6.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
