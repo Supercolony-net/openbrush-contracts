@@ -139,7 +139,8 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 - [x] Agnostic traits.
 - [x] Wrapper around the trait definition to do a cross-contract calls.
 - [ ] PSPs for NFT and multi-token.
-- [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
+- [x] Add extension: ERC721Enumerable.
+- [ ] Add extension: AccessControlEnumerable.
 - [ ] Refactor NFT and multi-token according to final decisions in PSPs.
 
 ------- Release 2.0.0 - Production ready
@@ -160,7 +161,7 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 - [x] Add support of upgradable contracts to ink!/contract-pallet level.
 - [x] Implement `Proxy` pattern.
-- [ ] Implement `Diamond` standard.
+- [x] Implement `Diamond` standard.
 
 ## Installation & Testing
 To work with project you need to install ink! toolchain and NodeJS's dependencies.
