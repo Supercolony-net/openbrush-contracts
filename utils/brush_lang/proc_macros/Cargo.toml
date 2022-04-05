@@ -1,6 +1,6 @@
 [package]
 name = "proc_macros"
-version = "1.5.0"
+version = "1.6.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
