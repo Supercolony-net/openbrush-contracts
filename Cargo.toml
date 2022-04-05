@@ -44,6 +44,7 @@ reentrancy_guard = ["contracts/reentrancy_guard"]
 pausable = ["contracts/pausable"]
 timelock_controller = ["contracts/timelock_controller"]
 proxy = ["contracts/proxy"]
+diamond = ["contracts/diamond"]
 
 [profile.release]
 panic = "abort"

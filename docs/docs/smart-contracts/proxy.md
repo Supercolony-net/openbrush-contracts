@@ -23,7 +23,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 #![feature(min_specialization)]
 
 #[brush::contract]
-pub mod my_ownable {
+pub mod my_proxy {
     use brush::{
         contracts::{
             ownable::*,
@@ -43,7 +43,7 @@ use ink_storage::traits::SpreadAllocate;
 
 #[ink(storage)]
 #[derive(Default, SpreadAllocate, ProxyStorage)]
-pub struct ProxyStruct {
+pub struct ProxyContract {
     #[ProxyStorageField]
     proxy: ProxyData,
 }
@@ -54,9 +54,9 @@ pub struct ProxyStruct {
 Inherit implementation of the `Proxy` trait and of the `Ownable` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
-impl Ownable for ProxyStruct {}
+impl Ownable for ProxyContract {}
 
-impl Proxy for ProxyStruct {}
+impl Proxy for ProxyContract {}
 ```
 
 ## Step 5: Define constructor
@@ -64,7 +64,7 @@ impl Proxy for ProxyStruct {}
 Define the constructor and initialize the owner with the contract initiator. Your basic version of `Proxy` contract is ready!
 
 ```rust
-impl MyProxy {
+impl ProxyContract {
     #[ink(constructor)]
     pub fn new(forward_to: Hash) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -81,7 +81,7 @@ impl MyProxy {
 Define the forward function to make delegate calls of upgradeable contract through proxy contract.
 
 ```rust
-impl MyProxy {
+impl ProxyContract {
     #[ink(constructor)]
     pub fn new(forward_to: Hash) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -99,7 +99,7 @@ impl MyProxy {
 ```
 ## Step 6: Customize your contract
 
-Generally, proxy doesn't need other functionality, but if you need something you can customize it by adding proxy logic. We will add a `proxy_function` to `ProxyStruct` implemenation.
+Generally, proxy doesn't need other functionality, but if you need something you can customize it by adding proxy logic. We will add a `proxy_function` to `ProxyContract` implemenation.
 
 
 You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/proxy).

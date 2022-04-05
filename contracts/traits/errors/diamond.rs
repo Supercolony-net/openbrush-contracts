@@ -18,7 +18,22 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#[cfg(feature = "diamond")]
-pub mod diamond;
-#[cfg(feature = "proxy")]
-pub mod proxy;
+
+use super::OwnableError;
+use brush::traits::Hash;
+
+/// The Diamond error type. Contract will throw one of this errors.
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub enum DiamondError {
+    OwnableError(OwnableError),
+    FunctionDoesNotExist,
+    ImmutableFunction,
+    ReplaceExisting(Hash),
+}
+
+impl From<OwnableError> for DiamondError {
+    fn from(error: OwnableError) -> Self {
+        DiamondError::OwnableError(error)
+    }
+}

@@ -45,11 +45,11 @@ declare_storage_trait!(ProxyStorage, ProxyData);
 
 impl<T: ProxyStorage> OwnableStorage for T {
     fn get(&self) -> &OwnableData {
-        &T::get(self).ownable
+        &ProxyStorage::get(self).ownable
     }
 
     fn get_mut(&mut self) -> &mut OwnableData {
-        &mut T::get_mut(self).ownable
+        &mut ProxyStorage::get_mut(self).ownable
     }
 }
 
@@ -72,7 +72,7 @@ pub trait ProxyInternal {
 
     fn _init_with_forward_to(&mut self, forward_to: Hash);
 
-    fn _fallback(&self);
+    fn _fallback(&self) -> !;
 }
 
 impl<T: ProxyStorage> ProxyInternal for T {
@@ -88,7 +88,7 @@ impl<T: ProxyStorage> ProxyInternal for T {
         self._emit_delegate_code_changed_event(None, Some(forward_to));
     }
 
-    default fn _fallback(&self) {
+    default fn _fallback(&self) -> ! {
         ink_env::call::build_call::<ink_env::DefaultEnvironment>()
             .call_type(DelegateCall::new().code_hash(self.get_delegate_code()))
             .call_flags(
@@ -108,6 +108,6 @@ impl<T: ProxyStorage> ProxyInternal for T {
                     err
                 )
             });
-        unreachable!("the forwarded call will never return since `tail_call` was set");
+        unreachable!("the _fallback call will never return since `tail_call` was set");
     }
 }

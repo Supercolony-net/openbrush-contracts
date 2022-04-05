@@ -20,6 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub mod access_control;
+pub mod diamond;
 pub mod errors;
 pub mod flashloan;
 pub mod ownable;
