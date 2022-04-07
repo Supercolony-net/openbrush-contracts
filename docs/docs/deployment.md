@@ -26,7 +26,7 @@ Clone repository [openbrush](https://github.com/Supercolony-net/openbrush-contra
 
 - build ink! contract using: 
 ```
-cargo contract build
+cargo +nightly contract build
 ```
 
 You will find 3 files in folder ./openbrush/examples/psp22/target/ink
@@ -136,7 +136,7 @@ Now we can instantiate contract
 ![image info](pictures/the-instantiation-will-be-successful.jpeg)
 
 ### Deploy to Shibuya
-Build smart contract the same way as for [local node](https://github.com/Supercolony-net/openbrush-contracts/blob/feature/deployment-docs/docs/docs/deployment.md#build)
+- Build smart contract the same way as for [local node](https://github.com/Supercolony-net/openbrush-contracts/blob/feature/deployment-docs/docs/docs/deployment.md#build)
 
 - Go to [polkadot.js.org](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.shibuya.astar.network#/explorer)
 
@@ -185,7 +185,7 @@ Next, let’s change the smart contract state by sending a transaction that call
 
 ![image info](pictures/sign-transfer-trx.jpeg)
 
-As expected, the value that was stored in the smart contract changed from 0to 1 after the **transfer()** transaction is successfully executed
+As expected, the value that was stored in the smart contract changed from **0** to **1** after the **transfer()** transaction is successfully executed
 
 ![image info](pictures/read-balance-of.jpeg)
 
