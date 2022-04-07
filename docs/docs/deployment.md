@@ -22,9 +22,9 @@ Clone repository [openbrush](https://github.com/Supercolony-net/openbrush-contra
 
 ### Build
 
-## navigate to ./openbrush/examples/psp22
+# navigate to ./openbrush/examples/psp22
 
-## build ink! contract using: 
+# build ink! contract using: 
 ```
 cargo contract build
 ```
