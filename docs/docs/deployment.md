@@ -60,7 +60,7 @@ Select any existing account, including a predefined account such as alice
 
 - Type a descriptive Name for the smart contract
 
-Browse and select or drag and drop the my_psp22.contract file that contains the bundled Wasm blob and metadata into the upload section.
+- Browse and select or drag and drop the my_psp22.contract file that contains the bundled Wasm blob and metadata into the upload section.
 
 ![image info](pictures/upload-and-instantiate-contract.jpeg)
 
@@ -135,10 +135,12 @@ The number **1002** is the parachain id of **Canvas on Rococo**, by supplying it
 Now we can instantiate contract
 ![image info](pictures/the-instantiation-will-be-successful.jpeg)
 
-### Deploy smart contract to Shibuya
-Go to [polkadot.js.org](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.shibuya.astar.network#/explorer)
+### Deploy to Shibuya
+Build smart contract the same way as for [local node](https://github.com/Supercolony-net/openbrush-contracts/blob/feature/deployment-docs/docs/docs/deployment.md#build)
 
-## Switch network
+- Go to [polkadot.js.org](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.shibuya.astar.network#/explorer)
+
+- Switch network
 
 ![image info](pictures/switch-network.jpeg)
 
@@ -164,7 +166,6 @@ Under the Developer tab, select Contracts then click on the **Upload & deploy co
 
 ![image info](pictures/sign-the-transaction-deploy.jpeg)
 
-Congratulations, you deployed your first L1 Smart Contract!
 You can see MY PSP22 smart contract deployed to Shibuya network
 
 ![image info](pictures/shibuya-deployed-contract.jpeg)
@@ -180,13 +181,15 @@ Next, let’s change the smart contract state by sending a transaction that call
 
 ![image info](pictures/call-contract-transfer.jpeg)
 
-Sign the transaction
+- Sign the transaction
 
 ![image info](pictures/sign-transfer-trx.jpeg)
 
 As expected, the value that was stored in the smart contract changed from 0to 1 after the **transfer()** transaction is successfully executed
 
 ![image info](pictures/read-balance-of.jpeg)
+
+Congratulations, you deployed and test your first L1 Smart Contract! 
 
 
 
