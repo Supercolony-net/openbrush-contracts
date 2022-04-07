@@ -22,9 +22,9 @@ Clone repository [openbrush](https://github.com/Supercolony-net/openbrush-contra
 
 ### Build
 
-navigate to ./openbrush/examples/psp22
+## navigate to ./openbrush/examples/psp22
 
-build ink! contract using: 
+## build ink! contract using: 
 ```
 cargo contract build
 ```
@@ -38,32 +38,33 @@ You will find 3 files in folder ./openbrush/examples/psp22/target/ink
 
 ### Deployment on local network
 
-Run local substrate node
+## Run local substrate node
 ```
 substrate-contracts-node --dev
 ```
-Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser :
-Verify that you are connected to the Local Node.
+## Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser :
+
+## Verify that you are connected to the Local Node.
 
 ![image info](pictures/select-local-network.jpeg)
 
-Click **Upload New Contract Code**.
+## Click **Upload New Contract Code**.
 
 ![image info](pictures/add-new-contract.jpeg)
 
-Select an Account to use to create a contract instance.
+## Select an Account to use to create a contract instance.
 
 Select any existing account, including a predefined account such as alice
 
 ![image info](pictures/set-instantiate-account.jpeg)
 
-Type a descriptive Name for the smart contract
+## Type a descriptive Name for the smart contract
 
 Browse and select or drag and drop the my_psp22.contract file that contains the bundled Wasm blob and metadata into the upload section.
 
 ![image info](pictures/upload-and-instantiate-contract.jpeg)
 
-Click **Next** to continue.
+## Click **Next** to continue.
 
 After you upload the smart contract and click **Next**, the Contracts UI displays information about the content of the smart contract.
 To create the instance:
@@ -72,12 +73,12 @@ Review and accept the default Max Gas Allowed of 200000.
 
 ![image info](pictures/initialize-contract.jpeg)
 
-Click **Next**.
+## Click **Next**.
 The transaction is now queued. If you needed to make changes, you could click Go Back to modify the input.
 
 ![image info](pictures/upload.jpeg)
 
-Click **Upload and Instantiate**.
+## Click **Upload and Instantiate**.
 
 Depending on the account you used, you might be prompted for the account password. If you used a predefined account, you won’t need to provide a password.
 
@@ -90,43 +91,46 @@ To test the **totalSupply()** function:
 
 Select any account from the Account list.
 
-This contract doesn’t place restrictions on who is allowed to send the totalSupply() request.
+This contract doesn’t place restrictions on who is allowed to send the **totalSupply()** request.
 
-Click **Read**.
-Verify that the value 1000 is returned in the Call Results.
+## Click **Read**.
+Verify that the value **1000** is returned in the Call Results.
 
 ![image info](pictures/read-total-supply.jpeg)
 
 ### Deploy to Canvas
 
-Canvas - parachain on Rococo ‒ a testnet for Polkadot and Kusama parachains.
-As a first step, you should create an account. See here for a detailed guide.
-https://wiki.polkadot.network/docs/learn-account-generation
+**Canvas** - parachain on **Rococo** ‒ a testnet for **Polkadot and Kusama parachains**.
+As a first step, you should create an account. [See here for a detailed guide.](https://wiki.polkadot.network/docs/learn-account-generation)
+
 
 As a second step, you have to get ROC testnet tokens through the [Rococo Faucet](https://wiki.polkadot.network/docs/learn-DOT#getting-rococo-tokens). This is a chat room in which you need to write:
+
+```
 !drip YOUR_SS_58_ADDRESS:1002
+```
 
 send message to [#rococo-faucet:matrix.org](https://matrix.to/#/#rococo-faucet:matrix.org)
 
-The number 1002 is the parachain id of Canvas on Rococo, by supplying it the faucet will teleport ROC tokens directly to your account on the parachain
+The number **1002** is the parachain id of **Canvas on Rococo**, by supplying it the faucet will teleport ROC tokens directly to your account on the parachain
 
 ![image info](pictures/supercolony-wallet-roc.jpeg)
 
-Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser :
-Verify that you are connected to the Canvas Node.
+## Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser.
+
+## Verify that you are connected to the **Canvas Node**.
 
 ![image info](pictures/set-canvas-network.jpeg)
 
-Upload my_psp22.contract file the same way as to local node
-but we need some ROC tokens
+## Upload my_psp22.contract file the same way as to local node but we need some ROC tokens
 
 ![image info](pictures/storage-deposit-limit-exchausted.jpeg)
 
-Use wallet which contains ROC tokens
+## Use wallet which contains ROC tokens
 
 ![image info](pictures/select-wallet-with-roc.jpeg)
 
-Click **Next**
+## Click **Next**
 
 Now we can instantiate contract
 ![image info](pictures/the-instantiation-will-be-successful.jpeg)
@@ -134,29 +138,29 @@ Now we can instantiate contract
 ### Deploy smart contract to Shibuya
 Go to [polkadot.js.org](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.shibuya.astar.network#/explorer)
 
-Switch network
+## Switch network
 
 ![image info](pictures/switch-network.jpeg)
 
-Select 'Shibuya' network
+## Select 'Shibuya' network
 
 ![image info](pictures/select-shibuya.jpeg)
 
-Deploying the smart contract:
+## Deploying the smart contract:
 
 Under the Developer tab, select Contracts then click on the **Upload & deploy code** button. Look for your metadata.json and my_psp22.wasm
 
 ![image info](pictures/upload-deploy-code-to-shibuya.jpeg)
 
-Set value for deployment contructor:
+## Set value for deployment contructor:
 
 ![image info](pictures/upload-deploy-code-to-shibuya-2.jpeg)
 
-Click **Deploy**.
+## Click **Deploy**.
 
 ![image info](pictures/shibuya-sign-and-submit.jpeg)
 
-Finally, click on the **Sign and Submit** button to deploy your contract.
+## Finally, click on the **Sign and Submit** button to deploy your contract.
 
 ![image info](pictures/sign-the-transaction-deploy.jpeg)
 
@@ -165,7 +169,7 @@ You can see MY PSP22 smart contract deployed to Shibuya network
 
 ![image info](pictures/shibuya-deployed-contract.jpeg)
 
-We use “messages” to communicate with smart contracts. 
+We use **“messages”** to communicate with smart contracts. 
 There are 2 types of messages:
 - messages that change a smart contract’s state should be sent as transactions
 - messages that don’t change a state can be made by using RPC calls
@@ -176,7 +180,7 @@ Next, let’s change the smart contract state by sending a transaction that call
 
 ![image info](pictures/call-contract-transfer.jpeg)
 
-Sign the transaction
+## Sign the transaction
 
 ![image info](pictures/sign-transfer-trx.jpeg)
 
