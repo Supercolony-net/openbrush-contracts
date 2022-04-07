@@ -132,7 +132,7 @@ The number **1002** is the parachain id of **Canvas on Rococo**, by supplying it
 
 - Click **Next**
 
-Now we can instantiate contract
+- Now we can instantiate contract. Click **Next**
 ![image info](pictures/the-instantiation-will-be-successful.jpeg)
 
 ### Deploy to Shibuya
