@@ -20,7 +20,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 ### Clone
 Clone repository [openbrush](https://github.com/Supercolony-net/openbrush-contracts.git)
 
-### Build
+### Build [PSP22](https://github.com/w3f/PSPs/blob/master/PSPs/psp-22.md)
 
 - navigate to ./openbrush/examples/psp22
 
@@ -28,6 +28,7 @@ Clone repository [openbrush](https://github.com/Supercolony-net/openbrush-contra
 ```
 cargo +nightly contract build
 ```
+Once the compilation is completed, a target folder is created. In this folder, under the ink subdirectory, you will be able to see a my_psp22.wasm file and a metadata.json file. my_psp22.wasm is your contract that has been compiled to web assembly and the metadata.json is a JSON abstraction of your contract.
 
 You will find 3 files in folder ./openbrush/examples/psp22/target/ink
   - my_psp22.contract (code + metadata)
@@ -44,7 +45,7 @@ substrate-contracts-node --dev
 ```
 - Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser :
 
-- Verify that you are connected to the Local Node.
+- Verify that you are connected to the [Local Node](https://github.com/substrate-developer-hub/substrate-node-template).
 
 ![image info](pictures/select-local-network.jpeg)
 
