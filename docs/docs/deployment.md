@@ -20,7 +20,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 
 Clone repository [openbrush](https://github.com/Supercolony-net/openbrush-contracts.git)
 
-### Build [PSP22](https://github.com/w3f/PSPs/blob/master/PSPs/psp-22.md)
+### Build
 
 - navigate to `./openbrush/examples/psp22`
 - build ink! contract using:
@@ -146,13 +146,12 @@ Please note that Shiden has its real economic value. So you need to pay in SDN, 
 
 * **Shibuya**:
   Shibuya is the test network of Shiden and is connected to our own Relaychain. So Shibuya behaves almost the same as Shiden. Any new features are tested on Shibuya first and then deployed on Shiden. SBY, the native token of Shibuya, has no economic value and is available through our [faucet](https://docs.astar.network/integration/testnet-faucet). The best practice is to testing smart contract on Shibuya before deploying it on Shiden to check whether your smart contract works well or not.
-  
 * **Astar local Network**:
   Here is [tutorial](https://docs.astar.network/tutorial/develop-and-deploy-your-first-smart-contract-on-aster-shiden-evm/running-local-network) how to run local network
 
 ### Deploy to Shibuya
 
-- Build smart contract the same way as for [local node](#build)
+- Build smart contract the same way as for [local node](#Build)
 - Create an **Astar** [wallet](https://docs.astar.network/stake2earn-festival/how-to-make-a-kusama-polkadot-address#recommend-polkadot-.js-browser-plugin)
 - **Faucet**. get free **SBY** [token](https://docs.astar.network/integration/testnet-faucet)
 - Go to [polkadot.js.org](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.shibuya.astar.network#/explorer)
