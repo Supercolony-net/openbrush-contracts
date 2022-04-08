@@ -138,6 +138,10 @@ The number **1002** is the parachain id of **Canvas on Rococo**, by supplying it
 ### Deploy to Shibuya
 - Build smart contract the same way as for [local node](https://github.com/Supercolony-net/openbrush-contracts/blob/feature/deployment-docs/docs/docs/deployment.md#build)
 
+- Create an **Astar** [wallet](https://docs.astar.network/stake2earn-festival/how-to-make-a-kusama-polkadot-address#recommend-polkadot-.js-browser-plugin)
+
+- **Faucet**. get free **SBY** [token](https://docs.astar.network/integration/testnet-faucet) 
+
 - Go to [polkadot.js.org](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.shibuya.astar.network#/explorer)
 
 - Switch network
