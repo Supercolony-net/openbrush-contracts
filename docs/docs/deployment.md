@@ -16,6 +16,18 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 * [Edgeware](https://edgewa.re)
 * [Astar](https://astar.network/)
 
+### Overview
+-  [Clone](#Clone)
+-  Here you can find how to [Build](#Build) **ink!** smart contract
+-  Let's [deploy to local network](#Deployment-on-local-network)
+-  You can manuly [call](#Call-the-smart-contract) our deployed contract
+-  [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/)
+-  How to deploy ink! smart contract to [canvas](###Deploy-to-Canvas)
+-  How to get free `ROC` token using [faucet](#Rococo-Faucet) to deploy contract to Canvas network
+- [Astar](#Astar) - [WASM](https://webassembly.org/) + [EVM](https://ethereum.org/en/developers/docs/evm/) Hub on [Polkadot](https://polkadot.network/). More info about astar [here](https://docs.astar.network/)
+- You can deploy **ink!** smart contract to [Shibuya](#Deploy-to-Shibuya) (astar test network). How to get free `SBY` using [faucet](https://docs.astar.network/integration/testnet-faucet)
+
+
 ### Clone
 
 Clone repository [openbrush](https://github.com/Supercolony-net/openbrush-contracts.git)
@@ -37,12 +49,9 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 - `my_psp22.wasm` (the contract’s code)
 - `metadata.json` (the contract’s metadata)
 
-![image info](pictures/files.jpeg)
-
 ### Deployment on local network
 
 - Run local substrate node
-
 ```
 substrate-contracts-node --dev
 ```
@@ -102,7 +111,7 @@ This contract doesn’t place restrictions on who is allowed to send the `totalS
 
 ![image info](pictures/read-total-supply.jpeg)
 
-### Deploy to Canvas
+### Rococo Faucet
 
 **Canvas** - parachain on **Rococo** ‒ a testnet for **Polkadot and Kusama parachains**.
 As a first step, you should create an account. [See here for a detailed guide.](https://wiki.polkadot.network/docs/learn-account-generation)
@@ -116,6 +125,8 @@ send message to [#rococo-faucet:matrix.org](https://matrix.to/#/#rococo-faucet:m
 The number `1002` is the parachain id of **Canvas on Rococo**, by supplying it the faucet will teleport `ROC` tokens directly to your account on the parachain
 
 ![image info](pictures/supercolony-wallet-roc.jpeg)
+
+### Deploy to Canvas
 
 - Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser.
 - Verify that you are connected to the **Canvas Node**.
@@ -135,7 +146,10 @@ The number `1002` is the parachain id of **Canvas on Rococo**, by supplying it t
 
   ![image info](pictures/the-instantiation-will-be-successful.jpeg)
 
-### [Astar](https://docs.astar.network/)
+### Astar
+
+* **Astar** - Astar is a multi-chain smart contract platform that supports multiple
+  blockchains and virtual machines.   
 
 * **Astar/Shiden Network Family:**
   Before starting the deployment, it's important to understand Astar/Shiden Network family. You should change the network based on what you want to do. Currently, there are 3 networks available, **Shiden**, **Shibuya**, and **Local** network. All networks support own standard Substrate RPC and EVM RPC.
