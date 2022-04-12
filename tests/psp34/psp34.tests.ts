@@ -208,4 +208,45 @@ describe('MY_PSP34', () => {
     await expect(query.balanceOf(sender.address)).to.have.output(1)
   })
 
+  it('Can mint any Id', async () => {
+    const {
+      contract,
+      accounts: [alice],
+      defaultSigner: sender,
+      query,
+      tx
+    } = await setup()
+
+    await expect(query.balanceOf(sender.address)).to.have.output(0)
+    await expect(query.ownerOf({ "u8": 123 })).to.have.output(null)
+    await expect(tx.mint({ "u8": 123 })).to.be.fulfilled
+    await expect(query.ownerOf({ "u8": 123 })).to.have.output(sender.address)
+
+    await expect(query.balanceOf(sender.address)).to.have.output(1)
+    await expect(query.ownerOf({ "u16": 123 })).to.have.output(null)
+    await expect(tx.mint({ "u16": 123 })).to.be.fulfilled
+    await expect(query.ownerOf({ "u16": 123 })).to.have.output(sender.address)
+
+    await expect(query.balanceOf(sender.address)).to.have.output(2)
+    await expect(query.ownerOf({ "u32": 123 })).to.have.output(null)
+    await expect(tx.mint({ "u32": 123 })).to.be.fulfilled
+    await expect(query.ownerOf({ "u32": 123 })).to.have.output(sender.address)
+
+    await expect(query.balanceOf(sender.address)).to.have.output(3)
+    await expect(query.ownerOf({ "u64": 123 })).to.have.output(null)
+    await expect(tx.mint({ "u64": 123 })).to.be.fulfilled
+    await expect(query.ownerOf({ "u64": 123 })).to.have.output(sender.address)
+
+    await expect(query.balanceOf(sender.address)).to.have.output(4)
+    await expect(query.ownerOf({ "u128": 123 })).to.have.output(null)
+    await expect(tx.mint({ "u128": 123 })).to.be.fulfilled
+    await expect(query.ownerOf({ "u128": 123 })).to.have.output(sender.address)
+
+    await expect(query.balanceOf(sender.address)).to.have.output(5)
+    await expect(query.ownerOf({ "bytes": [123] })).to.have.output(null)
+    await expect(tx.mint({ "bytes": [123] })).to.be.fulfilled
+    await expect(query.ownerOf({ "bytes": [123] })).to.have.output(sender.address)
+
+    await expect(query.balanceOf(sender.address)).to.have.output(6)
+  })
 })

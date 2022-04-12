@@ -28,5 +28,10 @@ pub mod my_psp34 {
             self.next_id += 1;
             Ok(())
         }
+
+        #[ink(message)]
+        pub fn mint(&mut self, id: Id) -> Result<(), PSP34Error> {
+            self._mint_to(Self::env().caller(), id)
+        }
     }
 }
