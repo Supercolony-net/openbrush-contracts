@@ -191,3 +191,177 @@ mod rand_extension {
         }
     }
 }
+
+
+
+// use frame_support::log::{
+//     error,
+//     trace,
+// };
+
+// use pallet_contracts::chain_extension::{
+//     ChainExtension,
+//     Environment,
+//     Ext,
+//     InitState,
+//     RetVal,
+//     SysConfig,
+//     UncheckedFrom,
+// };
+
+// use sp_runtime::DispatchError;
+
+// /// Contract extension for `FetchRandom`
+
+// use sp_runtime::MultiAddress;
+// pub struct PalletAssetsExtention;
+
+// // struct Origin{}
+
+// #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode,  MaxEncodedLen)]
+// enum OriginType{
+// 	Caller, 
+// 	Address
+// }
+// #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
+// struct CreateAsset{
+// 	origin_type: OriginType,
+// 	asset_id : u32, 
+// 	admin_address : [u8; 32], 
+// 	min_balance : u128
+// }
+
+// // impl MaxEncodedLen for CreateInput{ }
+
+// impl ChainExtension<Runtime> for PalletAssetsExtention {
+	
+
+//     fn call<E: Ext>(
+//         func_id: u32,
+//         mut env: Environment<E, InitState>,
+//     ) -> Result<RetVal, DispatchError>
+//     where
+//         <E::T as SysConfig>::AccountId:
+//             UncheckedFrom<<E::T as SysConfig>::Hash> + AsRef<[u8]>,
+//     {
+// 		// fn get_origin<E : Ext>(account : &<<E as Ext>::T as SysConfig>::AccountId) -> sp_core::crypto::AccountId32 
+// 		// where <<E as Ext>::T as SysConfig>::AccountId: AsRef<[u8]>
+// 		// {
+// 		// 	let mut account_ref : &[u8] = account.as_ref();
+// 		// 	let account_id = AccountId::decode(&mut account_ref).unwrap();
+// 		// 	account_id
+// 		// }
+
+//         match func_id {
+//             1101 => {
+// 				let ext = env.ext();
+// 				let address : &<<E as Ext>::T as SysConfig>::AccountId = ext.address();
+// 				let caller = ext.caller();
+// 				let mut caller_ref = caller.as_ref();
+// 				let caller_accountId = AccountId::decode(&mut caller_ref).unwrap();
+
+// 				use frame_support::dispatch::DispatchError;
+// 				use frame_support::dispatch::DispatchResult;
+				
+// 				let mut address_ref = caller.as_ref();
+// 				let address_account = AccountId::decode(&mut address_ref).unwrap();
+// 				let create_result = pallet_assets::Pallet::<Runtime>::
+// 				create(Origin::signed(caller_accountId.clone()), 1, MultiAddress::Id(address_account.clone()), 1);
+// 				match create_result {
+// 					DispatchResult::Ok(_) => error!("OK"),
+// 					DispatchResult::Err(e) => error!("{:#?}", e)
+// 				}
+// 				//enum (caller, address_account)
+// 				//asset id
+// 				let mint_result = 
+// 				pallet_assets::Pallet::<Runtime>::
+// 				mint(Origin::signed(caller_accountId), 1, MultiAddress::Id(address_account), 10);
+// 				match mint_result {
+// 					DispatchResult::Ok(_) => error!("OK"),
+// 					DispatchResult::Err(e) => error!("{:#?}", e)
+// 				}
+
+// 				let r = pallet_assets::Pallet::<Runtime>::total_supply(1);
+// 				error!("total_supply: {:}", r);
+// 				//return Err(DispatchError::Other("Unimplemented func_id"))
+//                 let mut env = env.buf_in_buf_out();
+//                 let arg: [u8; 32] = env.read_as()?;
+//                 // let random_seed = crate::RandomnessCollectiveFlip::random(&arg).0;
+//                 // let random_slice = random_seed.encode();
+//                 // trace!(
+//                 //     target: "runtime",
+//                 //     "[ChainExtension]|call|func_id:{:}",
+//                 //     func_id
+//                 // );
+//                 env.write(&arg, false, None).map_err(|_| {
+//                     DispatchError::Other("ChainExtension failed to call random")
+//                 })?;
+//             }
+
+// 			//create
+// 			1102 => {
+				
+// 				let ext = env.ext();
+// 				let address  = ext.address();
+// 				let caller = ext.caller();
+// 				let mut caller_ref = caller.as_ref();
+// 				let mut address_ref = address.as_ref();
+// 				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
+// 				let address_account = AccountId::decode(&mut address_ref).unwrap();
+				
+
+// 				use frame_support::dispatch::DispatchResult;
+// 				//enum (caller, address_account)
+// 				//asset id
+
+//                 let mut env = env.buf_in_buf_out();
+//                 let create_asset: CreateAsset = env.read_as()?;
+
+// 				let origin_address = match create_asset.origin_type {
+// 					OriginType::Caller => {
+// 						caller_account
+// 					},
+// 					OriginType::Address => {
+// 						address_account
+// 					},
+// 				};
+
+// 				let mut vec = &create_asset.admin_address.to_vec()[..];
+// 				let admin_address = AccountId::decode(&mut vec).unwrap();
+// 				let create_result = pallet_assets::Pallet::<Runtime>::
+// 				create(Origin::signed(origin_address), 
+// 				create_asset.asset_id, 
+// 				MultiAddress::Id(admin_address), 
+// 				create_asset.min_balance);
+
+// 				match create_result {
+// 					DispatchResult::Ok(_) => error!("OK"),
+// 					DispatchResult::Err(e) => error!("{:#?}", e)
+// 				}
+//                 // let random_seed = crate::RandomnessCollectiveFlip::random(&arg).0;
+//                 // let random_slice = random_seed.encode();
+//                 // trace!(
+//                 //     target: "runtime",
+//                 //     "[ChainExtension]|call|func_id:{:}",
+//                 //     func_id
+//                 // );
+// 				error!("{:#?}", create_asset);
+// 				let b = [1u8;32];
+//                 env.write(&b, false, None).map_err(|_| {
+//                     DispatchError::Other("ChainExtension failed to call random")
+//                 })?;
+//             }
+
+			
+//             _ => {
+//                 error!("Called an unregistered `func_id`: {:}", func_id);
+//                 return Err(DispatchError::Other("Unimplemented func_id"))
+//             }
+//         }
+//         Ok(RetVal::Converging(0))
+//     }
+
+//     fn enabled() -> bool {
+//         true
+//     }
+// }
