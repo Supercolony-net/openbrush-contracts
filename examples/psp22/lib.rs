@@ -18,8 +18,28 @@ pub trait FetchRandom {
     fn fetch_random(subject: [u8; 32]) -> [u8; 32];
 
     #[ink(extension = 1102, returns_result = false)]
-    fn create(subject: CreateAsset) -> [u8; 32];
+    fn create(subject: PalletAssetRequest) -> [u8; 32];
 
+    #[ink(extension = 1103, returns_result = false)]
+    fn mint(subject: PalletAssetRequest) -> [u8; 32];
+
+    #[ink(extension = 1104, returns_result = false)]
+    fn burn(subject: PalletAssetRequest) -> [u8; 32];
+
+    #[ink(extension = 1105, returns_result = false)]
+    fn transfer(subject: PalletAssetRequest) -> [u8; 32];
+
+    #[ink(extension = 1106, returns_result = false)]
+    fn balance(subject: PalletAssetBalanceRequest) -> [u8; 32];
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub enum RequestType{
+	Create, 
+	Mint,
+	Burn,
+	Transfer,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -30,11 +50,19 @@ pub enum OriginType{
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
-pub struct CreateAsset{
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct PalletAssetRequest{
 	origin_type: OriginType,
 	asset_id : u32, 
-	admin_address : [u8; 32], 
-	min_balance : u128
+	target_address : [u8; 32], 
+	amount : u128
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct PalletAssetBalanceRequest{
+	asset_id : u32, 
+	address : [u8; 32], 
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -73,8 +101,7 @@ impl Environment for CustomEnvironment {
 #[ink::contract(env = crate::CustomEnvironment)]
 mod rand_extension {
     use super::RandomReadErr;
-    use crate::CreateAsset;
-    use crate::OriginType;
+    use crate::*;
 
     /// Defines the storage of our contract.
     ///
@@ -126,14 +153,45 @@ mod rand_extension {
             asset_id : u32, 
             admin_address : [u8; 32], 
             min_balance : u128) -> Result<(), RandomReadErr> {
-            // Get the on-chain random seed
-            let input = CreateAsset{origin_type, asset_id, admin_address, min_balance};
-            let new_random = self.env().extension().create(input)?;
-            // self.value = new_random;
-            // Emit the `RandomUpdated` event when the random seed
-            // is successfully fetched.
-            // self.env().emit_event(RandomUpdated { new: new_random });
+            // // create asset on-chain
+            // let input = CreateAsset{origin_type, asset_id, admin_address, min_balance};
+            // let new_random = self.env().extension().create(input)?;
+            // is successfully minted.
+            // self.env().emit_event();
             Ok(())
+        }
+
+        #[ink(message)]
+        pub fn pallet_asset(&mut self, 
+            asset_request: PalletAssetRequest, reqeust_type : RequestType) -> Result<(), RandomReadErr> {
+            // mint asset on-chain
+            match reqeust_type{
+                RequestType::Create => {
+                    self.env().extension().create(asset_request)?;
+                }
+                RequestType::Mint => {
+                    self.env().extension().mint(asset_request)?;
+                }
+                RequestType::Burn => {
+                    self.env().extension().burn(asset_request)?;
+                }
+                RequestType::Transfer => {
+                    self.env().extension().transfer(asset_request)?;
+                }
+            }
+            // is successfully minted.
+            // self.env().emit_event();
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn balance_pallet_asset(&mut self, 
+            asset_request: PalletAssetBalanceRequest) -> Result<[u8;32], RandomReadErr> {
+            // mint asset on-chain
+            let balance = self.env().extension().balance(asset_request)?;
+            // is successfully minted.
+            // self.env().emit_event();
+            Ok(balance)
         }
 
         /// Simply returns the current value.
