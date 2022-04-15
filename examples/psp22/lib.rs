@@ -30,7 +30,7 @@ pub trait FetchRandom {
     fn transfer(subject: PalletAssetRequest) -> [u8; 32];
 
     #[ink(extension = 1106, returns_result = false)]
-    fn balance(subject: PalletAssetBalanceRequest) -> [u8; 32];
+    fn balance(subject: PalletAssetBalanceRequest) -> [u8; 16];
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -186,9 +186,10 @@ mod rand_extension {
 
         #[ink(message)]
         pub fn balance_pallet_asset(&mut self, 
-            asset_request: PalletAssetBalanceRequest) -> Result<[u8;32], RandomReadErr> {
+            asset_request: PalletAssetBalanceRequest) -> Result<u128, RandomReadErr> {
             // mint asset on-chain
-            let balance = self.env().extension().balance(asset_request)?;
+            let balance_bytes = self.env().extension().balance(asset_request)?;
+            let balance = u128::from_be_bytes(balance_bytes);
             // is successfully minted.
             // self.env().emit_event();
             Ok(balance)
@@ -250,8 +251,6 @@ mod rand_extension {
     }
 }
 
-
-
 // use frame_support::log::{
 //     error,
 //     trace,
@@ -282,11 +281,17 @@ mod rand_extension {
 // 	Address
 // }
 // #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
-// struct CreateAsset{
+// struct PalletAssetRequest{
 // 	origin_type: OriginType,
 // 	asset_id : u32, 
-// 	admin_address : [u8; 32], 
-// 	min_balance : u128
+// 	target_address : [u8; 32], 
+// 	amount : u128
+// }
+
+// #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
+// struct PalletAssetBalanceRequest{
+// 	asset_id : u32, 
+// 	address : [u8; 32], 
 // }
 
 // // impl MaxEncodedLen for CreateInput{ }
@@ -369,11 +374,9 @@ mod rand_extension {
 				
 
 // 				use frame_support::dispatch::DispatchResult;
-// 				//enum (caller, address_account)
-// 				//asset id
 
 //                 let mut env = env.buf_in_buf_out();
-//                 let create_asset: CreateAsset = env.read_as()?;
+//                 let create_asset: PalletAssetRequest = env.read_as()?;
 
 // 				let origin_address = match create_asset.origin_type {
 // 					OriginType::Caller => {
@@ -384,27 +387,208 @@ mod rand_extension {
 // 					},
 // 				};
 
-// 				let mut vec = &create_asset.admin_address.to_vec()[..];
+// 				let mut vec = &create_asset.target_address.to_vec()[..];
 // 				let admin_address = AccountId::decode(&mut vec).unwrap();
 // 				let create_result = pallet_assets::Pallet::<Runtime>::
 // 				create(Origin::signed(origin_address), 
 // 				create_asset.asset_id, 
 // 				MultiAddress::Id(admin_address), 
-// 				create_asset.min_balance);
+// 				create_asset.amount);
+
 
 // 				match create_result {
-// 					DispatchResult::Ok(_) => error!("OK"),
-// 					DispatchResult::Err(e) => error!("{:#?}", e)
+// 					DispatchResult::Ok(_) => trace!("OK"),
+// 					DispatchResult::Err(e) => {
+// 						error!("{:#?}", e);
+// 						return Err(e);
+// 					}
 // 				}
-//                 // let random_seed = crate::RandomnessCollectiveFlip::random(&arg).0;
-//                 // let random_slice = random_seed.encode();
-//                 // trace!(
-//                 //     target: "runtime",
-//                 //     "[ChainExtension]|call|func_id:{:}",
-//                 //     func_id
-//                 // );
-// 				error!("{:#?}", create_asset);
+// 				trace!("{:#?}", create_asset);
 // 				let b = [1u8;32];
+// 				//write buffer as responce for smart contract
+//                 env.write(&b, false, None).map_err(|_| {
+//                     DispatchError::Other("ChainExtension failed to call random")
+//                 })?;
+//             }
+
+// 			//mint
+// 			1103 => {
+				
+// 				let ext = env.ext();
+// 				let address  = ext.address();
+// 				let caller = ext.caller();
+// 				let mut caller_ref = caller.as_ref();
+// 				let mut address_ref = address.as_ref();
+// 				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
+// 				let address_account = AccountId::decode(&mut address_ref).unwrap();
+				
+
+// 				use frame_support::dispatch::DispatchResult;
+
+//                 let mut env = env.buf_in_buf_out();
+//                 let mint_asset_request: PalletAssetRequest = env.read_as()?;
+
+// 				let origin_address = match mint_asset_request.origin_type {
+// 					OriginType::Caller => {
+// 						caller_account
+// 					},
+// 					OriginType::Address => {
+// 						address_account
+// 					},
+// 				};
+
+// 				let mut vec = &mint_asset_request.target_address.to_vec()[..];
+// 				let beneficiary_address = AccountId::decode(&mut vec).unwrap();
+// 				let mint_result = pallet_assets::Pallet::<Runtime>::
+// 				mint(Origin::signed(origin_address),
+// 				mint_asset_request.asset_id, 
+// 				MultiAddress::Id(beneficiary_address), 
+// 				mint_asset_request.amount);
+
+
+// 				match mint_result {
+// 					DispatchResult::Ok(_) => trace!("OK"),
+// 					DispatchResult::Err(e) => {
+// 						error!("{:#?}", e);
+// 						return Err(e);
+// 					}
+// 				}
+// 				trace!("{:#?}", mint_asset_request);
+// 				let b = [1u8;32];
+// 				//write buffer as responce for smart contract
+//                 env.write(&b, false, None).map_err(|_| {
+//                     DispatchError::Other("ChainExtension failed to call random")
+//                 })?;
+//             }
+
+// 			//burn
+// 			1104 => {
+				
+// 				let ext = env.ext();
+// 				let address  = ext.address();
+// 				let caller = ext.caller();
+// 				let mut caller_ref = caller.as_ref();
+// 				let mut address_ref = address.as_ref();
+// 				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
+// 				let address_account = AccountId::decode(&mut address_ref).unwrap();
+				
+
+// 				use frame_support::dispatch::DispatchResult;
+
+//                 let mut env = env.buf_in_buf_out();
+//                 let burn_asset_request: PalletAssetRequest = env.read_as()?;
+
+// 				let origin_address = match burn_asset_request.origin_type {
+// 					OriginType::Caller => {
+// 						caller_account
+// 					},
+// 					OriginType::Address => {
+// 						address_account
+// 					},
+// 				};
+
+// 				let mut vec = &burn_asset_request.target_address.to_vec()[..];
+// 				let who_address = AccountId::decode(&mut vec).unwrap();
+// 				let burn_result = pallet_assets::Pallet::<Runtime>::
+// 				burn(Origin::signed(origin_address),
+// 				burn_asset_request.asset_id, 
+// 				MultiAddress::Id(who_address), 
+// 				burn_asset_request.amount);
+
+
+// 				match burn_result {
+// 					DispatchResult::Ok(_) => trace!("OK"),
+// 					DispatchResult::Err(e) => {
+// 						error!("{:#?}", e);
+// 						return Err(e);
+// 					}
+// 				}
+// 				trace!("{:#?}", burn_asset_request);
+// 				let b = [1u8;32];
+// 				//write buffer as responce for smart contract
+//                 env.write(&b, false, None).map_err(|_| {
+//                     DispatchError::Other("ChainExtension failed to call random")
+//                 })?;
+//             }
+
+// 			//transfer
+// 			1105 => {
+				
+// 				let ext = env.ext();
+// 				let address  = ext.address();
+// 				let caller = ext.caller();
+// 				let mut caller_ref = caller.as_ref();
+// 				let mut address_ref = address.as_ref();
+// 				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
+// 				let address_account = AccountId::decode(&mut address_ref).unwrap();
+				
+
+// 				use frame_support::dispatch::DispatchResult;
+
+//                 let mut env = env.buf_in_buf_out();
+//                 let transfer_asset_request: PalletAssetRequest = env.read_as()?;
+
+// 				let origin_address = match transfer_asset_request.origin_type {
+// 					OriginType::Caller => {
+// 						caller_account
+// 					},
+// 					OriginType::Address => {
+// 						address_account
+// 					},
+// 				};
+
+// 				let mut vec = &transfer_asset_request.target_address.to_vec()[..];
+// 				let target_address = AccountId::decode(&mut vec).unwrap();
+// 				let tranfer_result = pallet_assets::Pallet::<Runtime>::
+// 				transfer(Origin::signed(origin_address),
+// 				transfer_asset_request.asset_id, 
+// 				MultiAddress::Id(target_address), 
+// 				transfer_asset_request.amount);
+
+
+// 				match tranfer_result {
+// 					DispatchResult::Ok(_) => trace!("OK"),
+// 					DispatchResult::Err(e) => {
+// 						error!("{:#?}", e);
+// 						return Err(e);
+// 					}
+// 				}
+// 				trace!("{:#?}", transfer_asset_request);
+// 				let b = [1u8;32];
+// 				//write buffer as responce for smart contract
+//                 env.write(&b, false, None).map_err(|_| {
+//                     DispatchError::Other("ChainExtension failed to call random")
+//                 })?;
+//             }
+			
+// 			//balance
+// 			1106 => {
+				
+// 				let ext = env.ext();
+// 				let address  = ext.address();
+// 				let caller = ext.caller();
+// 				let mut caller_ref = caller.as_ref();
+// 				let mut address_ref = address.as_ref();
+// 				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
+// 				let address_account = AccountId::decode(&mut address_ref).unwrap();
+				
+
+// 				use frame_support::dispatch::DispatchResult;
+
+//                 let mut env = env.buf_in_buf_out();
+//                 let balance_asset_request: PalletAssetBalanceRequest = env.read_as()?;
+
+				
+// 				let mut vec = &balance_asset_request.target_address.to_vec()[..];
+// 				let balance_of_address = AccountId::decode(&mut vec).unwrap();
+// 				let balance_result : Balance = pallet_assets::Pallet::<Runtime>::
+// 				balance(balance_asset_request.asset_id,balance_of_address);
+
+// 				trace!("OK! balance_of : {:#?}", balance_result);
+// 				trace!("{:#?}", balance_asset_request);
+				
+// 				let b = balance_result.as_ref();
+// 				//write buffer as responce for smart contract
 //                 env.write(&b, false, None).map_err(|_| {
 //                     DispatchError::Other("ChainExtension failed to call random")
 //                 })?;
