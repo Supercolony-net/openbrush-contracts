@@ -10,27 +10,27 @@ use ink_lang as ink;
 /// Here we define the operations to interact with the Substrate runtime.
 #[ink::chain_extension]
 pub trait FetchRandom {
-    type ErrorCode = RandomReadErr;
+    type ErrorCode = PalletAssetErr;
 
     /// Note: this gives the operation a corresponding `func_id` (1101 in this case),
     /// and the chain-side chain extension will get the `func_id` to do further operations.
-    #[ink(extension = 1101, returns_result = false)]
-    fn fetch_random(subject: [u8; 32]) -> [u8; 32];
+    #[ink(extension = 1101, returns_result = true)]
+    fn fetch_random(subject: [u8; 32]) -> Result<[u8; 32], PalletAssetErr>;
 
-    #[ink(extension = 1102, returns_result = false)]
-    fn create(subject: PalletAssetRequest) -> [u8; 32];
+    #[ink(extension = 1102, returns_result = true)]
+    fn create(subject: PalletAssetRequest) ->  Result<[u8; 32], PalletAssetErr>;
 
-    #[ink(extension = 1103, returns_result = false)]
-    fn mint(subject: PalletAssetRequest) -> [u8; 32];
+    #[ink(extension = 1103, returns_result = true)]
+    fn mint(subject: PalletAssetRequest) ->  Result<[u8; 32], PalletAssetErr>;
 
-    #[ink(extension = 1104, returns_result = false)]
-    fn burn(subject: PalletAssetRequest) -> [u8; 32];
+    #[ink(extension = 1104, returns_result = true)]
+    fn burn(subject: PalletAssetRequest) ->  Result<[u8; 32], PalletAssetErr>;
 
-    #[ink(extension = 1105, returns_result = false)]
-    fn transfer(subject: PalletAssetRequest) -> [u8; 32];
+    #[ink(extension = 1105, returns_result = true)]
+    fn transfer(subject: PalletAssetRequest) ->  Result<[u8; 32], PalletAssetErr>;
 
-    #[ink(extension = 1106, returns_result = false)]
-    fn balance(subject: PalletAssetBalanceRequest) -> [u8; 16];
+    #[ink(extension = 1106, returns_result = true)]
+    fn balance(subject: PalletAssetBalanceRequest) ->  Result<u128, PalletAssetErr>;
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -67,17 +67,56 @@ pub struct PalletAssetBalanceRequest{
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum RandomReadErr {
-    FailGetRandomSource,
+pub enum PalletAssetErr {
+    Other,
+    CannotLookup,
+    BadOrigin,
+    Module,
+    ConsumerRemaining,
+    NoProviders,
+    TooManyConsumers,
+    Token,
+    Arithmetic,
 }
+/*
+fn get_error_code(dispatch_error : DispatchError) -> u32{
+            match dispatch_error{
+                DispatchError::Other(_) => 10,
+                DispatchError::CannotLookup => 20,
+                DispatchError::BadOrigin => 30,
+                DispatchError::Module(e) => 40,
+                DispatchError::ConsumerRemaining => 50,
+                DispatchError::NoProviders => 60,
+                DispatchError::TooManyConsumers => 70,
+                DispatchError::Token(_) => 80,
+                DispatchError::Arithmetic(e) => 90,
+                _ => 100
+            }
+        }
+*/
 
-impl ink_env::chain_extension::FromStatusCode for RandomReadErr {
+impl ink_env::chain_extension::FromStatusCode for PalletAssetErr {
     fn from_status_code(status_code: u32) -> Result<(), Self> {
         match status_code {
             0 => Ok(()),
-            1 => Err(Self::FailGetRandomSource),
+            10 => Err(Self::Other),
+            20 => Err(Self::CannotLookup),
+            30 => Err(Self::BadOrigin),
+            40 => Err(Self::Module),
+            50 => Err(Self::ConsumerRemaining),
+            60 => Err(Self::NoProviders),
+            70 => Err(Self::TooManyConsumers),
+            80 => Err(Self::Token),
+            90 => Err(Self::Arithmetic),
+
             _ => panic!("encountered unknown status code"),
         }
+    }
+}
+
+impl From<scale::Error> for PalletAssetErr {
+    fn from(_: scale::Error) -> Self {
+        panic!("encountered unexpected invalid SCALE encoding")
     }
 }
 
@@ -100,7 +139,7 @@ impl Environment for CustomEnvironment {
 
 #[ink::contract(env = crate::CustomEnvironment)]
 mod rand_extension {
-    use super::RandomReadErr;
+    use super::PalletAssetErr;
     use crate::*;
 
     /// Defines the storage of our contract.
@@ -137,7 +176,7 @@ mod rand_extension {
         /// random source. Then, update the current `value` stored in this contract with the
         /// new random value.
         #[ink(message)]
-        pub fn update(&mut self, subject: [u8; 32]) -> Result<(), RandomReadErr> {
+        pub fn update(&mut self, subject: [u8; 32]) -> Result<(), PalletAssetErr> {
             // Get the on-chain random seed
             let new_random = self.env().extension().fetch_random(subject)?;
             self.value = new_random;
@@ -152,7 +191,7 @@ mod rand_extension {
             origin_type: OriginType,
             asset_id : u32, 
             admin_address : [u8; 32], 
-            min_balance : u128) -> Result<(), RandomReadErr> {
+            min_balance : u128) -> Result<(), PalletAssetErr> {
             // // create asset on-chain
             // let input = CreateAsset{origin_type, asset_id, admin_address, min_balance};
             // let new_random = self.env().extension().create(input)?;
@@ -163,7 +202,7 @@ mod rand_extension {
 
         #[ink(message)]
         pub fn pallet_asset(&mut self, 
-            asset_request: PalletAssetRequest, reqeust_type : RequestType) -> Result<(), RandomReadErr> {
+            asset_request: PalletAssetRequest, reqeust_type : RequestType) -> Result<(), PalletAssetErr> {
             // mint asset on-chain
             let caller = self.env().caller();
             let r = caller.as_ref();
@@ -189,11 +228,11 @@ mod rand_extension {
         }
 
         #[ink(message)]
-        pub fn balance_pallet_asset(&mut self, 
+        pub fn balance_pallet_asset(&self, 
             asset_request: PalletAssetBalanceRequest) -> u128 {
             // mint asset on-chain
-            let balance_bytes = self.env().extension().balance(asset_request).unwrap();
-            let balance = u128::from_be_bytes(balance_bytes);
+            let balance = self.env().extension().balance(asset_request).unwrap();
+            // let balance = u128::from_be_bytes(balance_bytes).unwrap();
             // is successfully minted.
             // self.env().emit_event();
             balance
@@ -235,7 +274,7 @@ mod rand_extension {
                 /// Returns an error code and may fill the `output` buffer with a
                 /// SCALE encoded result. The error code is taken from the
                 /// `ink_env::chain_extension::FromStatusCode` implementation for
-                /// `RandomReadErr`.
+                /// `PalletAssetErr`.
                 fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
                     let ret: [u8; 32] = [1; 32];
                     scale::Encode::encode_to(&ret, output);
