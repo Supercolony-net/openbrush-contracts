@@ -324,6 +324,7 @@ enum OriginType{
 	Caller, 
 	Address
 }
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
 struct PalletAssetRequest{
 	origin_type: OriginType,
@@ -361,6 +362,7 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 
         match func_id {
             1101 => {
+
 				let ext = env.ext();
 				let address : &<<E as Ext>::T as SysConfig>::AccountId = ext.address();
 				let caller = ext.caller();
@@ -407,7 +409,6 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 
 			//create
 			1102 => {
-				
 				let ext = env.ext();
 				let address  = ext.address();
 				let caller = ext.caller();
@@ -439,25 +440,29 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 				MultiAddress::Id(admin_address), 
 				create_asset.amount);
 
-
+				trace!("{:#?}", create_asset);
+				trace!("{:#?}", create_result);
 				match create_result {
-					DispatchResult::Ok(_) => trace!("OK"),
+					DispatchResult::Ok(_) => {
+						trace!("OK");
+						// //write buffer as responce for smart contract
+						// let b = [1u8;32];
+						// env.write(&b, false, None).map_err(|_| {
+						// 	DispatchError::Other("ChainExtension failed to call random")
+						// })?;
+					}
 					DispatchResult::Err(e) => {
+						error!("ERROR");
 						error!("{:#?}", e);
-						return Err(e);
+						return Ok(RetVal::Converging(get_error_code(e)));
+						// return Err(e);
 					}
 				}
-				trace!("{:#?}", create_asset);
-				let b = [1u8;32];
-				//write buffer as responce for smart contract
-                env.write(&b, false, None).map_err(|_| {
-                    DispatchError::Other("ChainExtension failed to call random")
-                })?;
+				
             }
 
 			//mint
 			1103 => {
-				
 				let ext = env.ext();
 				let address  = ext.address();
 				let caller = ext.caller();
@@ -489,25 +494,28 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 				MultiAddress::Id(beneficiary_address), 
 				mint_asset_request.amount);
 
-
+				trace!("{:#?}", mint_asset_request);
+				trace!("{:#?}", mint_result);
 				match mint_result {
-					DispatchResult::Ok(_) => trace!("OK"),
+					DispatchResult::Ok(_) => {
+						trace!("OK")
+						//write buffer as responce for smart contract
+						// let b = [1u8;32];
+						// env.write(&b, false, None).map_err(|_| {
+						// 	DispatchError::Other("ChainExtension failed to call random")
+						// })?;
+					},
 					DispatchResult::Err(e) => {
+						error!("ERROR");
 						error!("{:#?}", e);
-						return Err(e);
+						return Ok(RetVal::Converging(get_error_code(e)));
+						// return Err(e);
 					}
 				}
-				trace!("{:#?}", mint_asset_request);
-				let b = [1u8;32];
-				//write buffer as responce for smart contract
-                env.write(&b, false, None).map_err(|_| {
-                    DispatchError::Other("ChainExtension failed to call random")
-                })?;
             }
 
 			//burn
 			1104 => {
-				
 				let ext = env.ext();
 				let address  = ext.address();
 				let caller = ext.caller();
@@ -539,25 +547,28 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 				MultiAddress::Id(who_address), 
 				burn_asset_request.amount);
 
-
+				trace!("{:#?}", burn_asset_request);
+				trace!("{:#?}", burn_result);
 				match burn_result {
-					DispatchResult::Ok(_) => trace!("OK"),
+					DispatchResult::Ok(_) => {
+						trace!("OK")
+						//write buffer as responce for smart contract
+						// let b = [1u8;32];
+						// env.write(&b, false, None).map_err(|_| {
+						// 	DispatchError::Other("ChainExtension failed to call random")
+						// })?;
+					}
 					DispatchResult::Err(e) => {
+						error!("ERROR");
 						error!("{:#?}", e);
-						return Err(e);
+						return Ok(RetVal::Converging(get_error_code(e)));
+						// return Err(e);
 					}
 				}
-				trace!("{:#?}", burn_asset_request);
-				let b = [1u8;32];
-				//write buffer as responce for smart contract
-                env.write(&b, false, None).map_err(|_| {
-                    DispatchError::Other("ChainExtension failed to call random")
-                })?;
             }
 
 			//transfer
 			1105 => {
-				
 				let ext = env.ext();
 				let address  = ext.address();
 				let caller = ext.caller();
@@ -589,25 +600,28 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 				MultiAddress::Id(target_address), 
 				transfer_asset_request.amount);
 
-
+				trace!("{:#?}", transfer_asset_request);
+				trace!("{:#?}", tranfer_result);
 				match tranfer_result {
-					DispatchResult::Ok(_) => trace!("OK"),
+					DispatchResult::Ok(_) => {
+						trace!("OK")
+						//write buffer as responce for smart contract
+						// let b = [1u8;32];
+						// env.write(&b, false, None).map_err(|_| {
+						// 	DispatchError::Other("ChainExtension failed to call random")
+						// })?;
+					}
 					DispatchResult::Err(e) => {
+						error!("ERROR");
 						error!("{:#?}", e);
-						return Err(e);
+						return Ok(RetVal::Converging(get_error_code(e)));
+						// return Err(e);
 					}
 				}
-				trace!("{:#?}", transfer_asset_request);
-				let b = [1u8;32];
-				//write buffer as responce for smart contract
-                env.write(&b, false, None).map_err(|_| {
-                    DispatchError::Other("ChainExtension failed to call random")
-                })?;
             }
 			
 			//balance
 			1106 => {
-				
 				let ext = env.ext();
 				let address  = ext.address();
 				let caller = ext.caller();
@@ -644,6 +658,22 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
                 return Err(DispatchError::Other("Unimplemented func_id"))
             }
         }
+
+		fn get_error_code(dispatch_error : DispatchError) -> u32{
+            match dispatch_error{
+                DispatchError::Other(_) => 10,
+                DispatchError::CannotLookup => 20,
+                DispatchError::BadOrigin => 30,
+                DispatchError::Module(e) => 40,
+                DispatchError::ConsumerRemaining => 50,
+                DispatchError::NoProviders => 60,
+                DispatchError::TooManyConsumers => 70,
+                DispatchError::Token(_) => 80,
+                DispatchError::Arithmetic(e) => 90,
+                _ => 100
+            }
+        }
+
         Ok(RetVal::Converging(0))
     }
 
