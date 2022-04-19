@@ -192,7 +192,7 @@ mod rand_extension {
         // }
 
         #[ink(message)]
-        pub fn pallet_asset(&self, 
+        pub fn pallet_asset(&mut self, 
             asset_request: PalletAssetRequest, reqeust_type : RequestType) -> Result<(), PalletAssetErr> {
             // mint asset on-chain
             let caller = self.env().caller();
