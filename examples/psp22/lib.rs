@@ -68,17 +68,63 @@ pub struct PalletAssetBalanceRequest{
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum PalletAssetErr {
+    /// Some error occurred.
     Other,
-    CannotLookup,
-    BadOrigin,
-    Module,
-    ConsumerRemaining,
-    NoProviders,
-    TooManyConsumers,
-    Token,
-    Arithmetic,
+    /// Failed to lookup some data.
+	CannotLookup,
+	/// A bad origin.
+	BadOrigin,
+	/// A custom error in a module.
+	Module,
+	/// At least one consumer is remaining so the account cannot be destroyed.
+	ConsumerRemaining,
+	/// There are no providers so the account cannot be created.
+	NoProviders,
+	/// There are too many consumers so the account cannot be created.
+	TooManyConsumers,
+	/// An error to do with tokens.
+	Token(PalletAssetTokenErr),
+	/// An arithmetic error.
+	Arithmetic(PalletAssetArithmeticErr),
+	//unknown error
     Unknown,
 }
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub enum PalletAssetArithmeticErr {
+	/// Underflow.
+	Underflow,
+	/// Overflow.
+	Overflow,
+	/// Division by zero.
+	DivisionByZero,
+	//unknown error
+    Unknown,
+
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub enum PalletAssetTokenErr {
+	/// Funds are unavailable.
+	NoFunds,
+	/// Account that must exist would die.
+	WouldDie,
+	/// Account cannot exist with the funds that would be given.
+	BelowMinimum,
+	/// Account cannot be created.
+	CannotCreate,
+	/// The asset in question is unknown.
+	UnknownAsset,
+	/// Funds exist but are frozen.
+	Frozen,
+	/// Operation is not supported by the asset.
+	Unsupported,
+	//unknown error
+    Unknown,
+}
+
 /*
 fn get_error_code(dispatch_error : DispatchError) -> u32{
             match dispatch_error{
@@ -222,7 +268,6 @@ mod rand_extension {
             asset_request: PalletAssetBalanceRequest) -> u128 {
             // mint asset on-chain
             let balance = self.env().extension().balance(asset_request).unwrap();
-            // let balance = u128::from_be_bytes(balance_bytes).unwrap();
             // is successfully minted.
             // self.env().emit_event();
             balance
@@ -285,6 +330,7 @@ mod rand_extension {
 }
 
 /*
+
 use frame_support::log::{
     error,
     trace,
@@ -301,8 +347,8 @@ use pallet_contracts::chain_extension::{
 };
 
 use sp_runtime::DispatchError;
-
-/// Contract extension for `FetchRandom`
+use sp_runtime::TokenError;
+use sp_runtime::ArithmeticError;
 
 use sp_runtime::MultiAddress;
 pub struct PalletAssetsExtention;
@@ -329,10 +375,110 @@ struct PalletAssetBalanceRequest{
 	address : [u8; 32], 
 }
 
-// impl MaxEncodedLen for CreateInput{ }
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
+pub enum PalletAssetErr {
+	/// Some error occurred.
+    Other,
+    /// Failed to lookup some data.
+	CannotLookup,
+	/// A bad origin.
+	BadOrigin,
+	/// A custom error in a module.
+	Module,
+	/// At least one consumer is remaining so the account cannot be destroyed.
+	ConsumerRemaining,
+	/// There are no providers so the account cannot be created.
+	NoProviders,
+	/// There are too many consumers so the account cannot be created.
+	TooManyConsumers,
+	/// An error to do with tokens.
+	Token(PalletAssetTokenErr),
+	/// An arithmetic error.
+	Arithmetic(PalletAssetArithmeticErr),
+	//unknown error
+    Unknown,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
+pub enum PalletAssetArithmeticErr {
+	/// Underflow.
+	Underflow,
+	/// Overflow.
+	Overflow,
+	/// Division by zero.
+	DivisionByZero,
+	//unknown error
+    Unknown,
+
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
+pub enum PalletAssetTokenErr {
+	/// Funds are unavailable.
+	NoFunds,
+	/// Account that must exist would die.
+	WouldDie,
+	/// Account cannot exist with the funds that would be given.
+	BelowMinimum,
+	/// Account cannot be created.
+	CannotCreate,
+	/// The asset in question is unknown.
+	UnknownAsset,
+	/// Funds exist but are frozen.
+	Frozen,
+	/// Operation is not supported by the asset.
+	Unsupported,
+	//unknown error
+    Unknown,
+}
+
+impl From<DispatchError> for PalletAssetErr {
+    fn from(e: DispatchError) -> Self {
+        match e{
+			DispatchError::Other(_) => PalletAssetErr::Other,
+			DispatchError::CannotLookup => PalletAssetErr::CannotLookup,
+			DispatchError::BadOrigin => PalletAssetErr::BadOrigin,
+			DispatchError::Module(_) => PalletAssetErr::Module,
+			DispatchError::ConsumerRemaining => PalletAssetErr::ConsumerRemaining,
+			DispatchError::NoProviders => PalletAssetErr::NoProviders,
+			DispatchError::TooManyConsumers => PalletAssetErr::TooManyConsumers,
+			DispatchError::Token(token_err) => PalletAssetErr::Token(PalletAssetTokenErr::from(token_err)),
+			DispatchError::Arithmetic(arithmetic_error) => PalletAssetErr::Arithmetic(PalletAssetArithmeticErr::from(arithmetic_error)),
+			_ => PalletAssetErr::Unknown,
+		}
+    }
+}
+
+impl From<ArithmeticError> for PalletAssetArithmeticErr {
+    fn from(e: ArithmeticError) -> Self {
+        match e{
+			ArithmeticError::Underflow => PalletAssetArithmeticErr::Underflow,
+			ArithmeticError::Overflow => PalletAssetArithmeticErr::Overflow,
+			ArithmeticError::DivisionByZero => PalletAssetArithmeticErr::DivisionByZero,
+			_ => PalletAssetArithmeticErr::Unknown,
+		}
+    }
+}
+
+impl From<TokenError> for PalletAssetTokenErr {
+    fn from(e: TokenError) -> Self {
+        match e{
+			TokenError::NoFunds => PalletAssetTokenErr::NoFunds,
+			TokenError::WouldDie => PalletAssetTokenErr::WouldDie,
+			TokenError::BelowMinimum => PalletAssetTokenErr::BelowMinimum,
+			TokenError::CannotCreate => PalletAssetTokenErr::CannotCreate,
+			TokenError::UnknownAsset => PalletAssetTokenErr::UnknownAsset,
+			TokenError::Frozen => PalletAssetTokenErr::Frozen,
+			TokenError::Unsupported => PalletAssetTokenErr::Unsupported,
+			_ => PalletAssetTokenErr::Unknown,
+		}
+    }
+}
+
+
+
 
 impl ChainExtension<Runtime> for PalletAssetsExtention {
-	
 
     fn call<E: Ext>(
         func_id: u32,
@@ -342,17 +488,11 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
         <E::T as SysConfig>::AccountId:
             UncheckedFrom<<E::T as SysConfig>::Hash> + AsRef<[u8]>,
     {
-		// fn get_origin<E : Ext>(account : &<<E as Ext>::T as SysConfig>::AccountId) -> sp_core::crypto::AccountId32 
-		// where <<E as Ext>::T as SysConfig>::AccountId: AsRef<[u8]>
-		// {
-		// 	let mut account_ref : &[u8] = account.as_ref();
-		// 	let account_id = AccountId::decode(&mut account_ref).unwrap();
-		// 	account_id
-		// }
-
         match func_id {
-            1101 => {
 
+			//create
+
+			1101 => {
 				let ext = env.ext();
 				let address : &<<E as Ext>::T as SysConfig>::AccountId = ext.address();
 				let caller = ext.caller();
@@ -397,389 +537,7 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
                 })?;
             }
 
-			//create
-			1102 => {
-				let ext = env.ext();
-				let address  = ext.address();
-				let caller = ext.caller();
-				let mut caller_ref = caller.as_ref();
-				let mut address_ref = address.as_ref();
-				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
-				let address_account = AccountId::decode(&mut address_ref).unwrap();
-				
-
-				use frame_support::dispatch::DispatchResult;
-
-                let mut env = env.buf_in_buf_out();
-                let create_asset: PalletAssetRequest = env.read_as()?;
-
-				let origin_address = match create_asset.origin_type {
-					OriginType::Caller => {
-						caller_account
-					},
-					OriginType::Address => {
-						address_account
-					},
-				};
-
-				let mut vec = &create_asset.target_address.to_vec()[..];
-				let admin_address = AccountId::decode(&mut vec).unwrap();
-				let create_result = pallet_assets::Pallet::<Runtime>::
-				create(Origin::signed(origin_address), 
-				create_asset.asset_id, 
-				MultiAddress::Id(admin_address), 
-				create_asset.amount);
-
-				trace!("{:#?}", create_asset);
-				trace!("{:#?}", create_result);
-				match create_result {
-					DispatchResult::Ok(_) => {
-						trace!("OK");
-						// //write buffer as responce for smart contract
-						// let b = [1u8;32];
-						// env.write(&b, false, None).map_err(|_| {
-						// 	DispatchError::Other("ChainExtension failed to call random")
-						// })?;
-					}
-					DispatchResult::Err(e) => {
-						error!("ERROR");
-						error!("{:#?}", e);
-						return Ok(RetVal::Converging(get_error_code(e)));
-						// return Err(e);
-					}
-				}
-				
-            }
-
-			//mint
-			1103 => {
-				let ext = env.ext();
-				let address  = ext.address();
-				let caller = ext.caller();
-				let mut caller_ref = caller.as_ref();
-				let mut address_ref = address.as_ref();
-				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
-				let address_account = AccountId::decode(&mut address_ref).unwrap();
-				
-
-				use frame_support::dispatch::DispatchResult;
-
-                let mut env = env.buf_in_buf_out();
-                let mint_asset_request: PalletAssetRequest = env.read_as()?;
-
-				let origin_address = match mint_asset_request.origin_type {
-					OriginType::Caller => {
-						caller_account
-					},
-					OriginType::Address => {
-						address_account
-					},
-				};
-
-				let mut vec = &mint_asset_request.target_address.to_vec()[..];
-				let beneficiary_address = AccountId::decode(&mut vec).unwrap();
-				let mint_result = pallet_assets::Pallet::<Runtime>::
-				mint(Origin::signed(origin_address),
-				mint_asset_request.asset_id, 
-				MultiAddress::Id(beneficiary_address), 
-				mint_asset_request.amount);
-
-				trace!("{:#?}", mint_asset_request);
-				trace!("{:#?}", mint_result);
-				match mint_result {
-					DispatchResult::Ok(_) => {
-						trace!("OK")
-						//write buffer as responce for smart contract
-						// let b = [1u8;32];
-						// env.write(&b, false, None).map_err(|_| {
-						// 	DispatchError::Other("ChainExtension failed to call random")
-						// })?;
-					},
-					DispatchResult::Err(e) => {
-						error!("ERROR");
-						error!("{:#?}", e);
-						return Ok(RetVal::Converging(get_error_code(e)));
-						// return Err(e);
-					}
-				}
-            }
-
-			//burn
-			1104 => {
-				let ext = env.ext();
-				let address  = ext.address();
-				let caller = ext.caller();
-				let mut caller_ref = caller.as_ref();
-				let mut address_ref = address.as_ref();
-				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
-				let address_account = AccountId::decode(&mut address_ref).unwrap();
-				
-
-				use frame_support::dispatch::DispatchResult;
-
-                let mut env = env.buf_in_buf_out();
-                let burn_asset_request: PalletAssetRequest = env.read_as()?;
-
-				let origin_address = match burn_asset_request.origin_type {
-					OriginType::Caller => {
-						caller_account
-					},
-					OriginType::Address => {
-						address_account
-					},
-				};
-
-				let mut vec = &burn_asset_request.target_address.to_vec()[..];
-				let who_address = AccountId::decode(&mut vec).unwrap();
-				let burn_result = pallet_assets::Pallet::<Runtime>::
-				burn(Origin::signed(origin_address),
-				burn_asset_request.asset_id, 
-				MultiAddress::Id(who_address), 
-				burn_asset_request.amount);
-
-				trace!("{:#?}", burn_asset_request);
-				trace!("{:#?}", burn_result);
-				match burn_result {
-					DispatchResult::Ok(_) => {
-						trace!("OK")
-						//write buffer as responce for smart contract
-						// let b = [1u8;32];
-						// env.write(&b, false, None).map_err(|_| {
-						// 	DispatchError::Other("ChainExtension failed to call random")
-						// })?;
-					}
-					DispatchResult::Err(e) => {
-						error!("ERROR");
-						error!("{:#?}", e);
-						return Ok(RetVal::Converging(get_error_code(e)));
-						// return Err(e);
-					}
-				}
-            }
-
-			//transfer
-			1105 => {
-				let ext = env.ext();
-				let address  = ext.address();
-				let caller = ext.caller();
-				let mut caller_ref = caller.as_ref();
-				let mut address_ref = address.as_ref();
-				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
-				let address_account = AccountId::decode(&mut address_ref).unwrap();
-				
-
-				use frame_support::dispatch::DispatchResult;
-
-                let mut env = env.buf_in_buf_out();
-                let transfer_asset_request: PalletAssetRequest = env.read_as()?;
-
-				let origin_address = match transfer_asset_request.origin_type {
-					OriginType::Caller => {
-						caller_account
-					},
-					OriginType::Address => {
-						address_account
-					},
-				};
-
-				let mut vec = &transfer_asset_request.target_address.to_vec()[..];
-				let target_address = AccountId::decode(&mut vec).unwrap();
-				let tranfer_result = pallet_assets::Pallet::<Runtime>::
-				transfer(Origin::signed(origin_address),
-				transfer_asset_request.asset_id, 
-				MultiAddress::Id(target_address), 
-				transfer_asset_request.amount);
-
-				trace!("{:#?}", transfer_asset_request);
-				trace!("{:#?}", tranfer_result);
-				match tranfer_result {
-					DispatchResult::Ok(_) => {
-						trace!("OK")
-						//write buffer as responce for smart contract
-						// let b = [1u8;32];
-						// env.write(&b, false, None).map_err(|_| {
-						// 	DispatchError::Other("ChainExtension failed to call random")
-						// })?;
-					}
-					DispatchResult::Err(e) => {
-						error!("ERROR");
-						error!("{:#?}", e);
-						return Ok(RetVal::Converging(get_error_code(e)));
-						// return Err(e);
-					}
-				}
-            }
-			
-			//balance
-			1106 => {
-				let ext = env.ext();
-				let address  = ext.address();
-				let caller = ext.caller();
-				let mut caller_ref = caller.as_ref();
-				let mut address_ref = address.as_ref();
-				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
-				let address_account = AccountId::decode(&mut address_ref).unwrap();
-				
-
-				use frame_support::dispatch::DispatchResult;
-
-                let mut env = env.buf_in_buf_out();
-                let balance_asset_request: PalletAssetBalanceRequest = env.read_as()?;
-
-				
-				let mut vec = &balance_asset_request.address.to_vec()[..];
-				let balance_of_address = AccountId::decode(&mut vec).unwrap();
-				let balance_result : Balance = pallet_assets::Pallet::<Runtime>::
-				balance(balance_asset_request.asset_id,balance_of_address);
-
-				trace!("OK! balance_of : {:#?}", balance_result);
-				trace!("{:#?}", balance_asset_request);
-				
-				let b = balance_result.to_be_bytes();
-				//write buffer as responce for smart contract
-                env.write(&b, false, None).map_err(|_| {
-                    DispatchError::Other("ChainExtension failed to call random")
-                })?;
-            }
-
-			
-            _ => {
-                error!("Called an unregistered `func_id`: {:}", func_id);
-                return Err(DispatchError::Other("Unimplemented func_id"))
-            }
-        }
-
-		fn get_error_code(dispatch_error : DispatchError) -> u32{
-            match dispatch_error{
-                DispatchError::Other(_) => 10,
-                DispatchError::CannotLookup => 20,
-                DispatchError::BadOrigin => 30,
-                DispatchError::Module(e) => 40,
-                DispatchError::ConsumerRemaining => 50,
-                DispatchError::NoProviders => 60,
-                DispatchError::TooManyConsumers => 70,
-                DispatchError::Token(_) => 80,
-                DispatchError::Arithmetic(e) => 90,
-                _ => 100
-            }
-        }
-
-        Ok(RetVal::Converging(0))
-    }
-
-    fn enabled() -> bool {
-        true
-    }
-}
-*/
-
-/* ____________________________________________________________________________________________________________ */
-
-
-/*
-
-use frame_support::log::{
-    error,
-    trace,
-};
-
-use pallet_contracts::chain_extension::{
-    ChainExtension,
-    Environment,
-    Ext,
-    InitState,
-    RetVal,
-    SysConfig,
-    UncheckedFrom,
-};
-
-use sp_runtime::DispatchError;
-
-/// Contract extension for `FetchRandom`
-
-use sp_runtime::MultiAddress;
-pub struct PalletAssetsExtention;
-
-// struct Origin{}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode,  MaxEncodedLen)]
-enum OriginType{
-	Caller, 
-	Address
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
-struct PalletAssetRequest{
-	origin_type: OriginType,
-	asset_id : u32, 
-	target_address : [u8; 32], 
-	amount : u128
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
-struct PalletAssetBalanceRequest{
-	asset_id : u32, 
-	address : [u8; 32], 
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
-pub enum PalletAssetErr {
-    Other,
-    CannotLookup,
-    BadOrigin,
-    Module,
-    ConsumerRemaining,
-    NoProviders,
-    TooManyConsumers,
-    Token,
-    Arithmetic,
-    Unknown,
-}
-
-impl From<DispatchError> for PalletAssetErr {
-    fn from(e: DispatchError) -> Self {
-        match e{
-			DispatchError::Other(_) => PalletAssetErr::Other,
-			DispatchError::CannotLookup => PalletAssetErr::CannotLookup,
-			DispatchError::BadOrigin => PalletAssetErr::BadOrigin,
-			DispatchError::Module(_) => PalletAssetErr::Module,
-			DispatchError::ConsumerRemaining => PalletAssetErr::ConsumerRemaining,
-			DispatchError::NoProviders => PalletAssetErr::NoProviders,
-			DispatchError::TooManyConsumers => PalletAssetErr::TooManyConsumers,
-			DispatchError::Token(_) => PalletAssetErr::Token,
-			DispatchError::Arithmetic(_) => PalletAssetErr::Arithmetic,
-			_ => PalletAssetErr::Unknown,
-		}
-    }
-}
-
-
-
-
-impl ChainExtension<Runtime> for PalletAssetsExtention {
-
-    fn call<E: Ext>(
-        func_id: u32,
-        mut env: Environment<E, InitState>,
-    ) -> Result<RetVal, DispatchError>
-    where
-        <E::T as SysConfig>::AccountId:
-            UncheckedFrom<<E::T as SysConfig>::Hash> + AsRef<[u8]>,
-    {
-		// fn get_origin<E : Ext>(account : &<<E as Ext>::T as SysConfig>::AccountId) -> sp_core::crypto::AccountId32 
-		// where <<E as Ext>::T as SysConfig>::AccountId: AsRef<[u8]>
-		// {
-		// 	let mut account_ref : &[u8] = account.as_ref();
-		// 	let account_id = AccountId::decode(&mut account_ref).unwrap();
-		// 	account_id
-		// }
-
-		
-
-        match func_id {
-
-			//create
-			1101 => {
+			1100 => {
 				let ext = env.ext();
 				let mut env = env.buf_in_buf_out();
 				error!("ERROR test");
