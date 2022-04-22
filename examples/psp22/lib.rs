@@ -248,7 +248,7 @@ impl Environment for CustomEnvironment {
     type ChainExtension = PalletAssetExtension;
 }
 
-#[ink::contract(env = crate::CustomEnvironment)]
+#[brush::contract(env = crate::CustomEnvironment)]
 mod rand_extension {
     use brush::contracts::psp22::*;
     use ink_prelude::string::String;
