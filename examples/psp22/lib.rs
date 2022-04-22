@@ -249,7 +249,7 @@ impl Environment for CustomEnvironment {
 }
 
 #[brush::contract(env = crate::CustomEnvironment)]
-mod rand_extension {
+mod my_psp22 {
     use brush::contracts::psp22::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
@@ -265,23 +265,23 @@ mod rand_extension {
     }
 
 	// TODO use PSP22Transfer
-    // impl PSP22Transfer for MyPSP22{
-    //     // Let's override method to reject transactions to bad account
-    //     fn _before_token_transfer(
-    //         &mut self,
-    //         _from: Option<&AccountId>,
-    //         to: Option<&AccountId>,
-    //         _amount: &Balance,
-    //     ) -> Result<(), PSP22Error> {
-    //         if to == Some(&self.hated_account) {
-    //             return Err(PSP22Error::Custom(String::from("I hate this account!")))
-    //         }
-    //         Ok(())
-    //     }
-    // }
+    impl PSP22Transfer for MyPSP22{
+        // Let's override method to reject transactions to bad account
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            if to == Some(&self.hated_account) {
+                return Err(PSP22Error::Custom(String::from("I hate this account!")))
+            }
+            Ok(())
+        }
+    }
 
 	// TODO use PSP22
-    // impl PSP22 for MyPSP22 {}
+    impl PSP22 for MyPSP22 {}
 
     impl MyPSP22 {
         #[ink(constructor)]
