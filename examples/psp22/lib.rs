@@ -265,7 +265,6 @@ mod my_psp22 {
         hated_account: AccountId,
     }
 
-	// TODO use PSP22Transfer
     impl PSP22Transfer for MyPSP22{
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
@@ -281,7 +280,6 @@ mod my_psp22 {
         }
     }
 
-	// TODO use PSP22
     impl PSP22 for MyPSP22 {}
 
     impl MyPSP22 {
