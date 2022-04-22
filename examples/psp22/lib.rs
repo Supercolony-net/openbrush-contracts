@@ -24,9 +24,6 @@ use ink_lang as ink;
 //     #[ink(extension = 1106, returns_result = false)]
 //     fn balance(subject: PalletAssetBalanceRequest) ->  u128;
 // }
-
-pub enum PalletAssetExtension {}
-
 use ink_lang::ChainExtensionInstance;
 pub struct PalletAsset;
 
@@ -176,22 +173,6 @@ impl From<scale::Error> for PalletAssetErr {
     fn from(_: scale::Error) -> Self {
         panic!("encountered unexpected invalid SCALE encoding")
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum CustomEnvironment {}
-
-impl Environment for CustomEnvironment {
-    const MAX_EVENT_TOPICS: usize = <ink_env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
-
-    type AccountId = <ink_env::DefaultEnvironment as Environment>::AccountId;
-    type Balance = <ink_env::DefaultEnvironment as Environment>::Balance;
-    type Hash = <ink_env::DefaultEnvironment as Environment>::Hash;
-    type BlockNumber = <ink_env::DefaultEnvironment as Environment>::BlockNumber;
-    type Timestamp = <ink_env::DefaultEnvironment as Environment>::Timestamp;
-
-    type ChainExtension = PalletAssetExtension;
 }
 
 // #[brush::contract(env = crate::CustomEnvironment)]
