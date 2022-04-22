@@ -4,10 +4,6 @@
 use ink_env::Environment;
 use ink_lang as ink;
 
-/// This is an example of how an ink! contract may call the Substrate
-/// runtime function `RandomnessCollectiveFlip::random_seed`. See the
-/// file `runtime/chain-extension-example.rs` for that implementation.
-///
 /// Here we define the operations to interact with the Substrate runtime.
 // #[ink::chain_extension]
 // pub trait PalletAssetExtension {
@@ -30,98 +26,49 @@ use ink_lang as ink;
 // }
 
 pub enum PalletAssetExtension {}
-const _: () = {
-    #[allow(non_camel_case_types)]
-    struct __ink_Private;
-    #[allow(non_camel_case_types)]
-    pub struct __ink_PalletAssetExtensionInstance {
-        __ink_private: __ink_Private,
-    }
-    impl __ink_PalletAssetExtensionInstance {
-        #[inline]
-        pub fn create(
-            self,
-            subject: PalletAssetRequest,
-        ) -> ::core::result::Result<Result<(), PalletAssetErr>, PalletAssetErr> {
-            ::ink_env::chain_extension::ChainExtensionMethod::build(1102u32)
-                .input::<PalletAssetRequest>()
-                .output::<Result<(), PalletAssetErr>>()
-                .handle_error_code::<PalletAssetErr>()
-                .call(&subject)
-        }
-        #[inline]
-        pub fn mint(
-            self,
-            subject: PalletAssetRequest,
-        ) -> ::core::result::Result<Result<(), PalletAssetErr>, PalletAssetErr> {
-            ::ink_env::chain_extension::ChainExtensionMethod::build(1103u32)
-                .input::<PalletAssetRequest>()
-                .output::<Result<(), PalletAssetErr>>()
-                .handle_error_code::<PalletAssetErr>()
-                .call(&subject)
-        }
-        #[inline]
-        pub fn burn(
-            self,
-            subject: PalletAssetRequest,
-        ) -> ::core::result::Result<Result<(), PalletAssetErr>, PalletAssetErr> {
-            ::ink_env::chain_extension::ChainExtensionMethod::build(1104u32)
-                .input::<PalletAssetRequest>()
-                .output::<Result<(), PalletAssetErr>>()
-                .handle_error_code::<PalletAssetErr>()
-                .call(&subject)
-        }
-        #[inline]
-        pub fn transfer(
-            self,
-            subject: PalletAssetRequest,
-        ) -> ::core::result::Result<Result<(), PalletAssetErr>, PalletAssetErr> {
-            ::ink_env::chain_extension::ChainExtensionMethod::build(1105u32)
-                .input::<PalletAssetRequest>()
-                .output::<Result<(), PalletAssetErr>>()
-                .handle_error_code::<PalletAssetErr>()
-                .call(&subject)
-        }
-        #[inline]
-        pub fn balance(
-            self,
-            subject: PalletAssetBalanceRequest,
-        ) -> ::core::result::Result<u128, PalletAssetErr> {
-            ::ink_env::chain_extension::ChainExtensionMethod::build(1106u32)
-                .input::<PalletAssetBalanceRequest>()
-                .output::<u128>()
-                .handle_error_code::<PalletAssetErr>()
-                .call(&subject)
-        }
-    }
-    impl ::ink_lang::ChainExtensionInstance for PalletAssetExtension {
-        type Instance = __ink_PalletAssetExtensionInstance;
-        fn instantiate() -> Self::Instance {
-            Self::Instance {
-                __ink_private: __ink_Private,
-            }
-        }
-    }
-};
 
 use ink_lang::ChainExtensionInstance;
 pub struct PalletAsset;
 
 impl PalletAsset {
     fn create(subject : PalletAssetRequest) -> Result<(), PalletAssetErr> {
-        PalletAssetExtension::instantiate().create(subject)?
+		::ink_env::chain_extension::ChainExtensionMethod::build(1102u32)
+                .input::<PalletAssetRequest>()
+                .output::<Result<(), PalletAssetErr>>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)?
     }
 
 	fn mint(subject : PalletAssetRequest) -> Result<(), PalletAssetErr> {
-        PalletAssetExtension::instantiate().mint(subject)?
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1103u32)
+                .input::<PalletAssetRequest>()
+                .output::<Result<(), PalletAssetErr>>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)?
     }
 
 	fn burn(subject : PalletAssetRequest) -> Result<(), PalletAssetErr> {
-        PalletAssetExtension::instantiate().burn(subject)?
+		::ink_env::chain_extension::ChainExtensionMethod::build(1104u32)
+                .input::<PalletAssetRequest>()
+                .output::<Result<(), PalletAssetErr>>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)?
     }
 
 	fn transfer(subject : PalletAssetRequest) -> Result<(), PalletAssetErr> {
-        PalletAssetExtension::instantiate().burn(subject)?
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1105u32)
+                .input::<PalletAssetRequest>()
+                .output::<Result<(), PalletAssetErr>>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)?
+    }
+
+	fn balance(subject : PalletAssetBalanceRequest) -> Result<u128, PalletAssetErr> {
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1106u32)
+                .input::<PalletAssetBalanceRequest>()
+                .output::<u128>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)
     }
 }
 
@@ -249,7 +196,8 @@ impl Environment for CustomEnvironment {
     type ChainExtension = PalletAssetExtension;
 }
 
-#[brush::contract(env = crate::CustomEnvironment)]
+// #[brush::contract(env = crate::CustomEnvironment)]
+#[brush::contract]
 mod my_psp22 {
     use brush::contracts::psp22::*;
     use ink_prelude::string::String;
@@ -325,7 +273,7 @@ mod my_psp22 {
         pub fn balance_pallet_asset(&self, 
             asset_request: PalletAssetBalanceRequest) -> u128 {
             // mint asset on-chain
-            let balance = self.env().extension().balance(asset_request).unwrap();
+            let balance = PalletAsset::balance(asset_request).unwrap();
             // is successfully minted.
             // self.env().emit_event();
             balance
@@ -339,44 +287,28 @@ mod my_psp22 {
         use super::*;
         use ink_lang as ink;
 
-        /// We test if the default constructor does its job.
         #[ink::test]
-        fn default_works() {
-            let rand_extension = RandExtension::default();
-            assert_eq!(rand_extension.get(), [0; 32]);
-        }
-
-        #[ink::test]
-        fn chain_extension_works() {
+        fn chain_extension_balance_works() {
             // given
-            struct MockedExtension;
-            impl ink_env::test::ChainExtension for MockedExtension {
+            struct MockedBalanceExtension;
+            impl ink_env::test::ChainExtension for MockedBalanceExtension {
                 /// The static function id of the chain extension.
                 fn func_id(&self) -> u32 {
-                    1101
+                    1106
                 }
 
-                /// The chain extension is called with the given input.
-                ///
-                /// Returns an error code and may fill the `output` buffer with a
-                /// SCALE encoded result. The error code is taken from the
-                /// `ink_env::chain_extension::FromStatusCode` implementation for
-                /// `PalletAssetErr`.
                 fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
-                    let ret: [u8; 32] = [1; 32];
-                    scale::Encode::encode_to(&ret, output);
+					let b : u128 = 99;
+                    scale::Encode::encode_to(&b, output);
                     0
                 }
             }
-            ink_env::test::register_chain_extension(MockedExtension);
-            let mut rand_extension = RandExtension::default();
-            assert_eq!(rand_extension.get(), [0; 32]);
-
-            // when
-            rand_extension.update([0_u8; 32]).expect("update must work");
-
-            // then
-            assert_eq!(rand_extension.get(), [1; 32]);
+            ink_env::test::register_chain_extension(MockedBalanceExtension);
+            let mut my_psp22 = MyPSP22::new(100);
+			let b = PalletAssetBalanceRequest{asset_id : 1, address : [1;32]};
+			let balance = my_psp22.balance_pallet_asset(b);
+			println!("Eee {}", balance);
+            assert_eq!(balance, 99);
         }
     }
 }
