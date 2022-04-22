@@ -268,15 +268,15 @@ mod my_psp22 {
                     0
                 }
             }
+			//arrange
             ink_env::test::register_chain_extension(MockedBalanceExtension);
             let mut my_psp22 = MyPSP22::new(100);
             let b = PalletAssetBalanceRequest {
                 asset_id: 1,
                 address: [1; 32],
             };
-            let balance = my_psp22.balance_pallet_asset(b.asset_id, b.address);
-            println!("Eee {}", balance);
-            assert_eq!(balance, 99);
+			//assert
+            assert_eq!(my_psp22.balance_pallet_asset(b.asset_id, b.address), 99);
         }
     }
 
