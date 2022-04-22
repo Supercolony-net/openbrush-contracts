@@ -8,29 +8,126 @@ use ink_lang as ink;
 /// file `runtime/chain-extension-example.rs` for that implementation.
 ///
 /// Here we define the operations to interact with the Substrate runtime.
-#[ink::chain_extension]
-pub trait FetchRandom {
-    type ErrorCode = PalletAssetErr;
+// #[ink::chain_extension]
+// // pub trait FetchRandom {
+// pub trait PalletAssetExtension {
+//     type ErrorCode = PalletAssetErr;
 
-    /// Note: this gives the operation a corresponding `func_id` (1101 in this case),
-    /// and the chain-side chain extension will get the `func_id` to do further operations.
-    #[ink(extension = 1101, returns_result = false)]
-    fn fetch_random(subject: u8) -> Result<u8, PalletAssetErr>;
+//     #[ink(extension = 1102, returns_result = false)]
+//     fn create(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
 
-    #[ink(extension = 1102, returns_result = false)]
-    fn create(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+//     #[ink(extension = 1103, returns_result = false)]
+//     fn mint(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
 
-    #[ink(extension = 1103, returns_result = false)]
-    fn mint(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+//     #[ink(extension = 1104, returns_result = false)]
+//     fn burn(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
 
-    #[ink(extension = 1104, returns_result = false)]
-    fn burn(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+//     #[ink(extension = 1105, returns_result = false)]
+//     fn transfer(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
 
-    #[ink(extension = 1105, returns_result = false)]
-    fn transfer(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+//     #[ink(extension = 1106, returns_result = false)]
+//     fn balance(subject: PalletAssetBalanceRequest) ->  u128;
+// }
 
-    #[ink(extension = 1106, returns_result = false)]
-    fn balance(subject: PalletAssetBalanceRequest) ->  u128;
+/// This is an example of how an ink! contract may call the Substrate
+/// runtime function `RandomnessCollectiveFlip::random_seed`. See the
+/// file `runtime/chain-extension-example.rs` for that implementation.
+///
+/// Here we define the operations to interact with the Substrate runtime.
+pub enum PalletAssetExtension {}
+const _: () = {
+    #[allow(non_camel_case_types)]
+    struct __ink_Private;
+    #[allow(non_camel_case_types)]
+    pub struct __ink_PalletAssetExtensionInstance {
+        __ink_private: __ink_Private,
+    }
+    impl __ink_PalletAssetExtensionInstance {
+        #[inline]
+        pub fn create(
+            self,
+            subject: PalletAssetRequest,
+        ) -> ::core::result::Result<Result<(), PalletAssetErr>, PalletAssetErr> {
+            ::ink_env::chain_extension::ChainExtensionMethod::build(1102u32)
+                .input::<PalletAssetRequest>()
+                .output::<Result<(), PalletAssetErr>>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)
+        }
+        #[inline]
+        pub fn mint(
+            self,
+            subject: PalletAssetRequest,
+        ) -> ::core::result::Result<Result<(), PalletAssetErr>, PalletAssetErr> {
+            ::ink_env::chain_extension::ChainExtensionMethod::build(1103u32)
+                .input::<PalletAssetRequest>()
+                .output::<Result<(), PalletAssetErr>>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)
+        }
+        #[inline]
+        pub fn burn(
+            self,
+            subject: PalletAssetRequest,
+        ) -> ::core::result::Result<Result<(), PalletAssetErr>, PalletAssetErr> {
+            ::ink_env::chain_extension::ChainExtensionMethod::build(1104u32)
+                .input::<PalletAssetRequest>()
+                .output::<Result<(), PalletAssetErr>>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)
+        }
+        #[inline]
+        pub fn transfer(
+            self,
+            subject: PalletAssetRequest,
+        ) -> ::core::result::Result<Result<(), PalletAssetErr>, PalletAssetErr> {
+            ::ink_env::chain_extension::ChainExtensionMethod::build(1105u32)
+                .input::<PalletAssetRequest>()
+                .output::<Result<(), PalletAssetErr>>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)
+        }
+        #[inline]
+        pub fn balance(
+            self,
+            subject: PalletAssetBalanceRequest,
+        ) -> ::core::result::Result<u128, PalletAssetErr> {
+            ::ink_env::chain_extension::ChainExtensionMethod::build(1106u32)
+                .input::<PalletAssetBalanceRequest>()
+                .output::<u128>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&subject)
+        }
+    }
+    impl ::ink_lang::ChainExtensionInstance for PalletAssetExtension {
+        type Instance = __ink_PalletAssetExtensionInstance;
+        fn instantiate() -> Self::Instance {
+            Self::Instance {
+                __ink_private: __ink_Private,
+            }
+        }
+    }
+};
+
+use ink_lang::ChainExtensionInstance;
+pub struct PalletAsset;
+
+impl PalletAsset {
+    fn create(subject : PalletAssetRequest) -> Result<(), PalletAssetErr> {
+        PalletAssetExtension::instantiate().create(subject)?
+    }
+
+	fn mint(subject : PalletAssetRequest) -> Result<(), PalletAssetErr> {
+        PalletAssetExtension::instantiate().mint(subject)?
+    }
+
+	fn burn(subject : PalletAssetRequest) -> Result<(), PalletAssetErr> {
+        PalletAssetExtension::instantiate().burn(subject)?
+    }
+
+	fn transfer(subject : PalletAssetRequest) -> Result<(), PalletAssetErr> {
+        PalletAssetExtension::instantiate().burn(subject)?
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -125,23 +222,6 @@ pub enum PalletAssetTokenErr {
     Unknown,
 }
 
-/*
-fn get_error_code(dispatch_error : DispatchError) -> u32{
-            match dispatch_error{
-                DispatchError::Other(_) => 10,
-                DispatchError::CannotLookup => 20,
-                DispatchError::BadOrigin => 30,
-                DispatchError::Module(e) => 40,
-                DispatchError::ConsumerRemaining => 50,
-                DispatchError::NoProviders => 60,
-                DispatchError::TooManyConsumers => 70,
-                DispatchError::Token(_) => 80,
-                DispatchError::Arithmetic(e) => 90,
-                _ => 100
-            }
-        }
-*/
-
 impl ink_env::chain_extension::FromStatusCode for PalletAssetErr {
     fn from_status_code(status_code: u32) -> Result<(), Self> {
         match status_code {
@@ -171,7 +251,7 @@ impl Environment for CustomEnvironment {
     type BlockNumber = <ink_env::DefaultEnvironment as Environment>::BlockNumber;
     type Timestamp = <ink_env::DefaultEnvironment as Environment>::Timestamp;
 
-    type ChainExtension = FetchRandom;
+    type ChainExtension = PalletAssetExtension;
 }
 
 #[ink::contract(env = crate::CustomEnvironment)]
@@ -183,10 +263,7 @@ mod rand_extension {
     ///
     /// Here we store the random seed fetched from the chain.
     #[ink(storage)]
-    pub struct RandExtension {
-        /// Stores a single `bool` value on the storage.
-        value: [u8; 32],
-    }
+    pub struct RandExtension {}
 
     #[ink(event)]
     pub struct RandomUpdated {
@@ -197,8 +274,8 @@ mod rand_extension {
     impl RandExtension {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(init_value: [u8; 32]) -> Self {
-            Self { value: init_value }
+        pub fn new() -> Self {
+            Self { }
         }
 
         /// Constructor that initializes the `bool` value to `false`.
@@ -206,36 +283,8 @@ mod rand_extension {
         /// Constructors may delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
-            Self::new(Default::default())
+            Self::new()
         }
-
-        /// Seed a random value by passing some known argument `subject` to the runtime's
-        /// random source. Then, update the current `value` stored in this contract with the
-        /// new random value.
-        // #[ink(message)]
-        // pub fn update(&self, subject: u8) -> Result<u8, PalletAssetErr> {
-        //     // Get the on-chain random seed
-        //     let new_random = self.env().extension().fetch_random(subject);
-        //     match new_random {
-        //         Ok(_) => Ok(1),
-        //         Err(_) => Err(PalletAssetErr::Other)
-        //     }
-            
-        // }
-
-        // #[ink(message)]
-        // pub fn create_pallet_asset(&mut self, 
-        //     origin_type: OriginType,
-        //     asset_id : u32, 
-        //     admin_address : [u8; 32], 
-        //     min_balance : u128) -> Result<(), PalletAssetErr> {
-        //     // // create asset on-chain
-        //     // let input = CreateAsset{origin_type, asset_id, admin_address, min_balance};
-        //     // let new_random = self.env().extension().create(input)?;
-        //     // is successfully minted.
-        //     // self.env().emit_event();
-        //     Ok(())
-        // }
 
         #[ink(message)]
         pub fn pallet_asset(&mut self, 
@@ -271,12 +320,6 @@ mod rand_extension {
             // is successfully minted.
             // self.env().emit_event();
             balance
-        }
-
-        /// Simply returns the current value.
-        #[ink(message)]
-        pub fn get(&self) -> [u8; 32] {
-            self.value
         }
     }
 
