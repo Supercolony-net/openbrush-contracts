@@ -4,31 +4,12 @@
 use ink_env::Environment;
 use ink_lang as ink;
 
-/// Here we define the operations to interact with the Substrate runtime.
-// #[ink::chain_extension]
-// pub trait PalletAssetExtension {
-//     type ErrorCode = PalletAssetErr;
-
-//     #[ink(extension = 1102, returns_result = false)]
-//     fn create(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
-
-//     #[ink(extension = 1103, returns_result = false)]
-//     fn mint(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
-
-//     #[ink(extension = 1104, returns_result = false)]
-//     fn burn(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
-
-//     #[ink(extension = 1105, returns_result = false)]
-//     fn transfer(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
-
-//     #[ink(extension = 1106, returns_result = false)]
-//     fn balance(subject: PalletAssetBalanceRequest) ->  u128;
-// }
 use ink_lang::ChainExtensionInstance;
 pub struct PalletAsset;
 
 impl PalletAsset {
-    fn create(subject: PalletAssetRequest) -> Result<(), PalletAssetErr> {
+    fn create(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], min_balance : u128 ) -> Result<(), PalletAssetErr> {
+		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount : min_balance };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1102u32)
             .input::<PalletAssetRequest>()
             .output::<Result<(), PalletAssetErr>>()
@@ -36,7 +17,8 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-    fn mint(subject: PalletAssetRequest) -> Result<(), PalletAssetErr> {
+    fn mint(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], amount : u128) -> Result<(), PalletAssetErr> {
+		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1103u32)
             .input::<PalletAssetRequest>()
             .output::<Result<(), PalletAssetErr>>()
@@ -44,7 +26,8 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-    fn burn(subject: PalletAssetRequest) -> Result<(), PalletAssetErr> {
+    fn burn(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], amount : u128) -> Result<(), PalletAssetErr> {
+		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1104u32)
             .input::<PalletAssetRequest>()
             .output::<Result<(), PalletAssetErr>>()
@@ -52,7 +35,8 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-    fn transfer(subject: PalletAssetRequest) -> Result<(), PalletAssetErr> {
+    fn transfer(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], amount : u128) -> Result<(), PalletAssetErr> {
+		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1105u32)
             .input::<PalletAssetRequest>()
             .output::<Result<(), PalletAssetErr>>()
@@ -60,7 +44,8 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-    fn balance(subject: PalletAssetBalanceRequest) -> Result<u128, PalletAssetErr> {
+    fn balance(asset_id : u32, address : [u8; 32]) -> Result<u128, PalletAssetErr> {
+		let subject = PalletAssetBalanceRequest{ asset_id, address };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1106u32)
             .input::<PalletAssetBalanceRequest>()
             .output::<u128>()
@@ -232,19 +217,19 @@ mod my_psp22 {
             asset_request.target_address = *r;
             match reqeust_type {
                 RequestType::Create => {
-                    PalletAsset::create(asset_request)
+                    PalletAsset::create(asset_request.origin_type, asset_request.asset_id, asset_request.target_address, asset_request.amount)
                     // self.env().extension().create(asset_request)?
                 }
                 RequestType::Mint => {
-                    PalletAsset::mint(asset_request)
+                    PalletAsset::mint(asset_request.origin_type, asset_request.asset_id, asset_request.target_address, asset_request.amount)
                     // self.env().extension().mint(asset_request)?
                 }
                 RequestType::Burn => {
-                    PalletAsset::burn(asset_request)
+                    PalletAsset::burn(asset_request.origin_type, asset_request.asset_id, asset_request.target_address, asset_request.amount)
                     // self.env().extension().burn(asset_request)?
                 }
                 RequestType::Transfer => {
-                    PalletAsset::transfer(asset_request)
+                    PalletAsset::transfer(asset_request.origin_type, asset_request.asset_id, asset_request.target_address, asset_request.amount)
                     // self.env().extension().transfer(asset_request)?
                 }
             }
@@ -253,7 +238,7 @@ mod my_psp22 {
         #[ink(message)]
         pub fn balance_pallet_asset(&self, asset_request: PalletAssetBalanceRequest) -> u128 {
             // mint asset on-chain
-            let balance = PalletAsset::balance(asset_request).unwrap();
+            let balance = PalletAsset::balance(asset_request.asset_id, asset_request.address).unwrap();
             // is successfully minted.
             // self.env().emit_event();
             balance
@@ -289,11 +274,34 @@ mod my_psp22 {
                 asset_id: 1,
                 address: [1; 32],
             };
-            let balance = my_psp22.balance_pallet_asset(b);
+            let balance = my_psp22.balance_pallet_asset(b.asset_id, b.address);
             println!("Eee {}", balance);
             assert_eq!(balance, 99);
         }
     }
+
+	/*
+		// Here we define the operations to interact with the Substrate runtime.
+		#[ink::chain_extension]
+		pub trait PalletAssetExtension {
+			type ErrorCode = PalletAssetErr;
+
+			#[ink(extension = 1102, returns_result = false)]
+			fn create(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+
+			#[ink(extension = 1103, returns_result = false)]
+			fn mint(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+
+			#[ink(extension = 1104, returns_result = false)]
+			fn burn(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+
+			#[ink(extension = 1105, returns_result = false)]
+			fn transfer(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+
+			#[ink(extension = 1106, returns_result = false)]
+			fn balance(subject: PalletAssetBalanceRequest) ->  u128;
+		}		
+	*/
 }
 
 // use frame_support::log::{
