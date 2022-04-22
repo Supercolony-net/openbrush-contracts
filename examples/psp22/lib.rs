@@ -9,7 +9,6 @@ use ink_lang as ink;
 ///
 /// Here we define the operations to interact with the Substrate runtime.
 // #[ink::chain_extension]
-// // pub trait FetchRandom {
 // pub trait PalletAssetExtension {
 //     type ErrorCode = PalletAssetErr;
 
@@ -29,11 +28,6 @@ use ink_lang as ink;
 //     fn balance(subject: PalletAssetBalanceRequest) ->  u128;
 // }
 
-/// This is an example of how an ink! contract may call the Substrate
-/// runtime function `RandomnessCollectiveFlip::random_seed`. See the
-/// file `runtime/chain-extension-example.rs` for that implementation.
-///
-/// Here we define the operations to interact with the Substrate runtime.
 pub enum PalletAssetExtension {}
 const _: () = {
     #[allow(non_camel_case_types)]
@@ -256,37 +250,50 @@ impl Environment for CustomEnvironment {
 
 #[ink::contract(env = crate::CustomEnvironment)]
 mod rand_extension {
-    use super::PalletAssetErr;
-    use crate::*;
+    use brush::contracts::psp22::*;
+    use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
+	use crate::*;
 
-    /// Defines the storage of our contract.
-    ///
-    /// Here we store the random seed fetched from the chain.
     #[ink(storage)]
-    pub struct RandExtension {}
-
-    #[ink(event)]
-    pub struct RandomUpdated {
-        #[ink(topic)]
-        new: [u8; 32],
+    #[derive(Default, SpreadAllocate, PSP22Storage)]
+    pub struct MyPSP22 {
+        #[PSP22StorageField]
+        psp22: PSP22Data,
+        // fields for hater logic
+        hated_account: AccountId,
     }
 
-    impl RandExtension {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
+	// TODO use PSP22Transfer
+    // impl PSP22Transfer for MyPSP22{
+    //     // Let's override method to reject transactions to bad account
+    //     fn _before_token_transfer(
+    //         &mut self,
+    //         _from: Option<&AccountId>,
+    //         to: Option<&AccountId>,
+    //         _amount: &Balance,
+    //     ) -> Result<(), PSP22Error> {
+    //         if to == Some(&self.hated_account) {
+    //             return Err(PSP22Error::Custom(String::from("I hate this account!")))
+    //         }
+    //         Ok(())
+    //     }
+    // }
+
+	// TODO use PSP22
+    // impl PSP22 for MyPSP22 {}
+
+    impl MyPSP22 {
         #[ink(constructor)]
-        pub fn new() -> Self {
-            Self { }
+        pub fn new(total_supply: Balance) -> Self {
+            ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+                instance
+                    ._mint(instance.env().caller(), total_supply)
+                    .expect("Should mint");
+            })
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors may delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new()
-        }
-
-        #[ink(message)]
+		#[ink(message)]
         pub fn pallet_asset(&mut self, 
             asset_request: PalletAssetRequest, reqeust_type : RequestType) -> Result<(), PalletAssetErr> {
             // mint asset on-chain
@@ -296,23 +303,26 @@ mod rand_extension {
             asset_request.target_address = *r;
             match reqeust_type{
                 RequestType::Create => {
-                    self.env().extension().create(asset_request)?
+					PalletAsset::create(asset_request)
+                    // self.env().extension().create(asset_request)?
                 }
                 RequestType::Mint => {
-                    self.env().extension().mint(asset_request)?
+					PalletAsset::mint(asset_request)
+                    // self.env().extension().mint(asset_request)?
                 }
                 RequestType::Burn => {
-                    self.env().extension().burn(asset_request)?
+					PalletAsset::burn(asset_request)
+                    // self.env().extension().burn(asset_request)?
                 }
                 RequestType::Transfer => {
-                    self.env().extension().transfer(asset_request)?
+					PalletAsset::transfer(asset_request)
+                    // self.env().extension().transfer(asset_request)?
                 }
             }
         }
 
-        
 
-        #[ink(message)]
+		#[ink(message)]
         pub fn balance_pallet_asset(&self, 
             asset_request: PalletAssetBalanceRequest) -> u128 {
             // mint asset on-chain
