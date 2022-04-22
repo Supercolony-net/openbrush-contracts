@@ -95,8 +95,8 @@ impl Environment for CustomEnvironment {
     type ChainExtension = FetchRandom;
 }
 
-#[ink::contract(env = crate::CustomEnvironment)]
-// #[brush::contract]
+// #[ink::contract(env = crate::CustomEnvironment)]
+#[brush::contract(env = crate::CustomEnvironment)]
 pub mod my_psp22 {
     use brush::contracts::psp22::*;
     use ink_prelude::string::String;
