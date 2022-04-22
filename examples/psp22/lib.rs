@@ -1,6 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
+use ink_env::Environment;
+use ink_lang as ink;
+
 pub enum FetchRandom {}
 const _: () = {
     #[allow(non_camel_case_types)]
@@ -93,11 +96,13 @@ impl Environment for CustomEnvironment {
 }
 
 #[ink::contract(env = crate::CustomEnvironment)]
-#[brush::contract]
+// #[brush::contract]
 pub mod my_psp22 {
     use brush::contracts::psp22::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
+	use crate::RandomReadErr;
+	use crate::PalletAsset;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP22Storage)]
@@ -146,10 +151,10 @@ pub mod my_psp22 {
             }
         }
 
-        // #[ink(message)]
-        // pub fn set_hated_account(&mut self, hated: AccountId) {
-        //     self.hated_account = hated;
-        // }
+        #[ink(message)]
+        pub fn set_hated_account(&mut self, hated: AccountId) {
+            self.hated_account = hated;
+        }
 
         // #[ink(message)]
         // pub fn get_hated_account(&self) -> AccountId {
@@ -161,8 +166,7 @@ pub mod my_psp22 {
 
 // #![cfg_attr(not(feature = "std"), no_std)]
 
-// use ink_env::Environment;
-// use ink_lang as ink;
+
 
 // /// This is an example of how an ink! contract may call the Substrate
 // /// runtime function `RandomnessCollectiveFlip::random_seed`. See the
