@@ -4,6 +4,7 @@
 #[brush::contract]
 pub mod diamond_caller {
     use brush::contracts::psp22::*;
+    use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
@@ -20,6 +21,11 @@ pub mod diamond_caller {
         #[ink(message)]
         pub fn balance_of(&mut self, token: AccountId, account: AccountId) -> Balance {
             PSP22Ref::balance_of(&token, account)
+        }
+
+        #[ink(message)]
+        pub fn transfer(&mut self, token: AccountId, to: AccountId, value: Balance) -> Result<(), PSP22Error> {
+            PSP22Ref::transfer_from(&token, Self::env().caller(), to, value, Vec::<u8>::new())
         }
     }
 }
