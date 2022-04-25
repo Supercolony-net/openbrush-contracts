@@ -107,6 +107,14 @@ impl PalletAsset {
             .handle_error_code::<PalletAssetErr>()
             .call(&subject)
     }
+
+	fn total_supply(asset_id: u32) -> Result<u128, PalletAssetErr> {
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1107u32)
+            .input::<u32>()
+            .output::<u128>()
+			.handle_error_code::<PalletAssetErr>()
+            .call(&asset_id)
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -274,6 +282,17 @@ mod my_psp22 {
                 Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
                 Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
             }
+        }
+
+		#[ink(message)]
+        fn total_supply(&self) -> Balance {
+			// PalletAsset::balance(self.asset_id, *owner.as_ref()).unwrap()
+			PalletAsset::total_supply(self.asset_id).unwrap()
+        }
+
+		#[ink(message)]
+        fn balance_of(&self, owner: AccountId) -> Balance {
+            PalletAsset::balance(self.asset_id, *owner.as_ref()).unwrap()
         }
     }
 
