@@ -3,12 +3,24 @@
 
 use ink_env::Environment;
 use ink_lang as ink;
+use ink_prelude::string::String;
 
 use ink_lang::ChainExtensionInstance;
+use brush::{
+	contracts::{
+		psp22::extensions::{
+			burnable::*,
+			metadata::*,
+			mintable::*,
+		},
+	},
+	modifiers,
+};
+use brush::contracts::psp22::PSP22Error;
 pub struct PalletAsset;
 
 impl PalletAsset {
-    fn create(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], min_balance : u128 ) -> Result<(), PalletAssetErr> {
+    fn create(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], min_balance : u128) -> Result<(), PalletAssetErr> {
 		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount : min_balance };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1102u32)
             .input::<PalletAssetRequest>()
@@ -145,6 +157,23 @@ pub enum PalletAssetTokenErr {
     Unknown,
 }
 
+impl From<PalletAssetErr> for PSP22Error{
+	fn from (e : PalletAssetErr) -> PSP22Error{
+		match e{
+			PalletAssetErr::Other => PSP22Error::Custom(String::from("psp22 error")),
+			PalletAssetErr::CannotLookup => PSP22Error::Custom(String::from("CannotLookup")),
+			PalletAssetErr::BadOrigin => PSP22Error::Custom(String::from("BadOrigin")),
+			PalletAssetErr::Module => PSP22Error::Custom(String::from("Module")),
+			PalletAssetErr::ConsumerRemaining => PSP22Error::Custom(String::from("ConsumerRemaining")),
+			PalletAssetErr::NoProviders => PSP22Error::Custom(String::from("NoProviders")),
+			PalletAssetErr::TooManyConsumers => PSP22Error::Custom(String::from("TooManyConsumers")),
+			PalletAssetErr::Token(token_err) => PSP22Error::Custom(String::from("Token")),
+			PalletAssetErr::Arithmetic(arithmetic_error) => PSP22Error::Custom(String::from("Arithmetic")),
+			_ => PSP22Error::Custom(String::from("Unnown")),
+		}
+	}
+}
+
 impl ink_env::chain_extension::FromStatusCode for PalletAssetErr {
     fn from_status_code(status_code: u32) -> Result<(), Self> {
         match status_code {
@@ -175,6 +204,8 @@ mod my_psp22 {
         psp22: PSP22Data,
         // fields for hater logic
         hated_account: AccountId,
+		origin_type : u8,
+		asset_id : u32
     }
 
     impl PSP22Transfer for MyPSP22 {
@@ -194,15 +225,35 @@ mod my_psp22 {
 
     impl PSP22 for MyPSP22 {}
 
+	impl PSP22Mintable for MyPSP22 {
+		#[ink(message)]
+		fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+			let origin = if self.origin_type == 0  { OriginType::Caller } else { OriginType::Address } ;
+			let mint_result = PalletAsset::mint(origin, self.asset_id, *account.as_ref(), amount.into());
+			match mint_result{
+				Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+				Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e))
+			}
+		}
+	}
+
     impl MyPSP22 {
         #[ink(constructor)]
-        pub fn new(total_supply: Balance) -> Self {
+        pub fn new(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], min_balance : u128) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
-                instance
-                    ._mint(instance.env().caller(), total_supply)
-                    .expect("Should mint");
+				instance.origin_type = if origin_type == OriginType::Caller { 0 } else { 1 } ;
+				instance.asset_id = asset_id;
+
+				PalletAsset::create(origin_type, asset_id, target_address, min_balance);
             })
         }
+
+		//0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
+		#[ink(message)]
+        pub fn get_address(&self) -> [u8; 32]{
+			let caller = self.env().caller();
+			*caller.as_ref()
+		}
 
         #[ink(message)]
         pub fn pallet_asset(
