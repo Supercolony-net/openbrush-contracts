@@ -3,7 +3,7 @@
 
 use ink_env::Environment;
 use ink_lang as ink;
-use ink_prelude::string::String;
+use ink_prelude::{string::String, vec::Vec};
 
 use ink_lang::ChainExtensionInstance;
 use brush::{
@@ -202,8 +202,6 @@ mod my_psp22 {
     pub struct MyPSP22 {
         #[PSP22StorageField]
         psp22: PSP22Data,
-        // fields for hater logic
-        hated_account: AccountId,
 		origin_type : u8,
 		asset_id : u32
     }
@@ -216,14 +214,22 @@ mod my_psp22 {
             to: Option<&AccountId>,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
-            if to == Some(&self.hated_account) {
-                return Err(PSP22Error::Custom(String::from("I hate this account!")))
-            }
+            
             Ok(())
         }
     }
 
-    impl PSP22 for MyPSP22 {}
+    impl PSP22 for MyPSP22 {
+		#[ink(message)]
+		fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
+			let origin = if self.origin_type == 0  { OriginType::Caller } else { OriginType::Address } ;
+			let mint_result = PalletAsset::transfer(origin, self.asset_id, *to.as_ref(), value.into());
+			match mint_result{
+				Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+				Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e))
+			}
+		}
+	}
 
 	impl PSP22Mintable for MyPSP22 {
 		#[ink(message)]
@@ -231,6 +237,18 @@ mod my_psp22 {
 			let origin = if self.origin_type == 0  { OriginType::Caller } else { OriginType::Address } ;
 			let mint_result = PalletAsset::mint(origin, self.asset_id, *account.as_ref(), amount.into());
 			match mint_result{
+				Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+				Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e))
+			}
+		}
+	}
+
+	impl PSP22Burnable for MyPSP22 {
+		#[ink(message)]
+		fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+			let origin = if self.origin_type == 0  { OriginType::Caller } else { OriginType::Address } ;
+			let burn_result = PalletAsset::burn(origin, self.asset_id, *account.as_ref(), amount.into());
+			match burn_result{
 				Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
 				Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e))
 			}
@@ -248,7 +266,7 @@ mod my_psp22 {
             })
         }
 
-		//0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
+		//	0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
 		#[ink(message)]
         pub fn get_address(&self) -> [u8; 32]{
 			let caller = self.env().caller();
