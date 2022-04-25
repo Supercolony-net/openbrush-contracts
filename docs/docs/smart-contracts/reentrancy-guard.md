@@ -176,7 +176,7 @@ To do a cross-contract call to `MyFlipper` you need to import the `MyFlipper` co
 [dependencies]
 ink_primitives = { tag = "v3.0.0", git = "https://github.com/paritytech/ink", default-features = false }
 ink_metadata = { tag = "v3.0.0", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.0", git = "https://github.com/paritytech/ink", default-features = false }
+ink_env = { tag = "v3.0.0", git = "https://github.com/paritytech/ink", default-features = false, features = ["ink-debug"] }
 ink_storage = { tag = "v3.0.0", git = "https://github.com/paritytech/ink", default-features = false }
 ink_lang = { tag = "v3.0.0", git = "https://github.com/paritytech/ink", default-features = false }
 ink_prelude = { tag = "v3.0.0", git = "https://github.com/paritytech/ink", default-features = false }

@@ -125,6 +125,7 @@ fn spread_layout_struct_derive(storage_key: &TokenStream2, s: &synstructure::Str
                     .expect("could not properly decode storage entry")
                     .is_none()
                 {
+                    ::ink_env::debug_println!("Create!!! {:?}", __key_ptr.key());
                     return <Self as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr);
                 }
 
@@ -139,6 +140,7 @@ fn spread_layout_struct_derive(storage_key: &TokenStream2, s: &synstructure::Str
                     .expect("could not properly decode storage entry")
                     .is_none()
                 {
+                    ::ink_env::debug_println!("Setting!!! {:?}", __key_ptr.key());
                     ::ink_env::set_contract_storage::<()>(__key_ptr.key(), &());
                 }
                 match self { #push_body }
