@@ -134,7 +134,13 @@ fn spread_layout_struct_derive(storage_key: &TokenStream2, s: &synstructure::Str
                 let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
-                ::ink_env::set_contract_storage::<()>(__key_ptr.key(), &());
+
+                if ::ink_env::get_contract_storage::<()>(__key_ptr.key())
+                    .expect("could not properly decode storage entry")
+                    .is_none()
+                {
+                    ::ink_env::set_contract_storage::<()>(__key_ptr.key(), &());
+                }
                 match self { #push_body }
             }
             fn clear_spread(&self, _: &mut ::ink_storage::traits::KeyPtr) {

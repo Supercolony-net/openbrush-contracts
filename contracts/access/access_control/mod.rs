@@ -109,7 +109,7 @@ pub trait AccessControlInternal {
 
     fn _init_with_admin(&mut self, admin: AccountId);
 
-    fn _setup_role(&mut self, role: RoleType, admin: AccountId);
+    fn _setup_role(&mut self, role: RoleType, member: AccountId);
 
     fn _do_revoke_role(&mut self, role: RoleType, account: AccountId);
 
@@ -142,11 +142,11 @@ impl<T: AccessControlStorage> AccessControlInternal for T {
         self._setup_role(Self::_default_admin(), admin);
     }
 
-    default fn _setup_role(&mut self, role: RoleType, admin: AccountId) {
-        if !has_role(self, &role, &admin) {
-            self.get_mut().members.insert((&role, &admin), &());
+    default fn _setup_role(&mut self, role: RoleType, member: AccountId) {
+        if !has_role(self, &role, &member) {
+            self.get_mut().members.insert((&role, &member), &());
 
-            self._emit_role_granted(role, admin, None);
+            self._emit_role_granted(role, member, None);
         }
     }
 
