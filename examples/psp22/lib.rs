@@ -115,6 +115,46 @@ impl PalletAsset {
 			.handle_error_code::<PalletAssetErr>()
             .call(&asset_id)
     }
+
+	fn approve_transfer(
+        origin_type: OriginType,
+        asset_id: u32,
+        target_address: [u8; 32],
+        amount: u128,
+    ) -> Result<(), PalletAssetErr> {
+        let subject = PalletAssetRequest {
+            origin_type,
+            asset_id,
+            target_address,
+            amount,
+        };
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1108u32)
+            .input::<PalletAssetRequest>()
+            .output::<Result<(), PalletAssetErr>>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&subject)?
+    }
+
+	fn transfer_approved(
+        origin_type: OriginType,
+        asset_id: u32,
+		owner: [u8; 32],
+        target_address: [u8; 32],
+        amount: u128,
+    ) -> Result<(), PalletAssetErr> {
+        let subject = PalletAssetRequest {
+            origin_type,
+            asset_id,
+            target_address,
+            amount,
+        };
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1109u32)
+            .input::<([u8; 32], PalletAssetRequest)>()
+            .output::<Result<(), PalletAssetErr>>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&(owner, subject))?
+    }
+	
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -208,6 +248,16 @@ pub enum PalletAssetTokenErr {
     Unknown,
 }
 
+impl From<u8> for OriginType{
+	fn from(origin: u8) -> OriginType {
+		if origin == 0 {
+			OriginType::Caller
+		} else {
+			OriginType::Address
+		}
+	}
+}
+
 impl From<PalletAssetErr> for PSP22Error {
     fn from(e: PalletAssetErr) -> PSP22Error {
         match e {
@@ -239,6 +289,7 @@ impl From<scale::Error> for PalletAssetErr {
         panic!("encountered unexpected invalid SCALE encoding")
     }
 }
+
 
 // #[brush::contract(env = crate::CustomEnvironment)]
 #[brush::contract]
@@ -272,11 +323,7 @@ mod my_psp22 {
     impl PSP22 for MyPSP22 {
         #[ink(message)]
         fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
-            let origin = if self.origin_type == 0 {
-                OriginType::Caller
-            } else {
-                OriginType::Address
-            };
+            let origin : OriginType = self.origin_type.into();
             let mint_result = PalletAsset::transfer(origin, self.asset_id, *to.as_ref(), value.into());
             match mint_result {
                 Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
@@ -294,6 +341,34 @@ mod my_psp22 {
         fn balance_of(&self, owner: AccountId) -> Balance {
             PalletAsset::balance(self.asset_id, *owner.as_ref()).unwrap()
         }
+
+        #[ink(message)]
+		fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
+			let origin : OriginType = self.origin_type.into();
+
+			let approve_transfer_result = PalletAsset::approve_transfer(origin, self.asset_id, *spender.as_ref(), value.into());
+			match approve_transfer_result {
+                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+            }
+		}
+
+		#[ink(message)]
+		fn transfer_from(
+			&mut self,
+			from: AccountId,
+			to: AccountId,
+			value: Balance,
+			data: Vec<u8>,
+		) -> Result<(), PSP22Error> {
+			let origin : OriginType = self.origin_type.into();
+
+			let transfer_approved_result = PalletAsset::transfer_approved(origin, self.asset_id, *from.as_ref(), *to.as_ref(), value.into());
+			match transfer_approved_result {
+                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+            }
+		}
     }
 
     impl PSP22Mintable for MyPSP22 {
