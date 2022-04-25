@@ -1020,6 +1020,123 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
                 })?;
 			}
 
+			//approve_transfer
+			1108 => {
+				let ext = env.ext();
+				let address  = ext.address();
+				let caller = ext.caller();
+				let mut caller_ref = caller.as_ref();
+				let mut address_ref = address.as_ref();
+				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
+				let address_account = AccountId::decode(&mut address_ref).unwrap();
+				
+
+				use frame_support::dispatch::DispatchResult;
+
+                let mut env = env.buf_in_buf_out();
+                let approve_transfer_request: PalletAssetRequest = env.read_as()?;
+
+				let origin_address = match approve_transfer_request.origin_type {
+					OriginType::Caller => {
+						caller_account
+					},
+					OriginType::Address => {
+						address_account
+					},
+				};
+
+				let mut vec = &approve_transfer_request.target_address.to_vec()[..];
+				let target_address = AccountId::decode(&mut vec).unwrap();
+				let approve_transfer_result = pallet_assets::Pallet::<Runtime>::
+				approve_transfer(Origin::signed(origin_address),
+				approve_transfer_request.asset_id, 
+				MultiAddress::Id(target_address), 
+				approve_transfer_request.amount);
+
+				trace!("{:#?}", approve_transfer_request);
+				trace!("{:#?}", approve_transfer_result);
+				match approve_transfer_result {
+					DispatchResult::Ok(_) => {
+						error!("OK approve_transfer")
+						//write buffer as responce for smart contract
+						// let b = [1u8;32];
+						// env.write(&b, false, None).map_err(|_| {
+						// 	DispatchError::Other("ChainExtension failed to call random")
+						// })?;
+					}
+					DispatchResult::Err(e) => {
+						error!("ERROR approve_transfer");
+						error!("{:#?}", e);
+						let err = Result::<(),PalletAssetErr>::Err(PalletAssetErr::from(e));
+						env.write(err.encode().as_ref(), false, None).map_err(|_| {
+							DispatchError::Other("ChainExtension failed to call 'approve transfer'")
+						})?;
+					}
+				}
+            }
+
+			//transfer_approved
+			1109 => {
+				let ext = env.ext();
+				let address  = ext.address();
+				let caller = ext.caller();
+				let mut caller_ref = caller.as_ref();
+				let mut address_ref = address.as_ref();
+				let caller_account = AccountId::decode(&mut caller_ref).unwrap();
+				let address_account = AccountId::decode(&mut address_ref).unwrap();
+				
+
+				use frame_support::dispatch::DispatchResult;
+
+                let mut env = env.buf_in_buf_out();
+                let approve_transfer_request: ([u8; 32], PalletAssetRequest) = env.read_as()?;
+				let owner = approve_transfer_request.0;
+				let transfer_approved_request = approve_transfer_request.1;
+
+				let origin_address = match transfer_approved_request.origin_type {
+					OriginType::Caller => {
+						caller_account
+					},
+					OriginType::Address => {
+						address_account
+					},
+				};
+
+				let mut vec = &owner.to_vec()[..];
+				let owner_address = AccountId::decode(&mut vec).unwrap();
+
+				let mut vec = &transfer_approved_request.target_address.to_vec()[..];
+				let target_address = AccountId::decode(&mut vec).unwrap();
+				
+				let transfer_approved_result = pallet_assets::Pallet::<Runtime>::
+				transfer_approved(Origin::signed(origin_address), 
+				transfer_approved_request.asset_id, 
+				MultiAddress::Id(owner_address),
+				MultiAddress::Id(target_address), 
+				transfer_approved_request.amount);
+
+				trace!("{:#?}", transfer_approved_request);
+				trace!("{:#?}", transfer_approved_result);
+				match transfer_approved_result {
+					DispatchResult::Ok(_) => {
+						error!("OK transfer_approved")
+						//write buffer as responce for smart contract
+						// let b = [1u8;32];
+						// env.write(&b, false, None).map_err(|_| {
+						// 	DispatchError::Other("ChainExtension failed to call random")
+						// })?;
+					}
+					DispatchResult::Err(e) => {
+						error!("ERROR transfer_approved");
+						error!("{:#?}", e);
+						let err = Result::<(),PalletAssetErr>::Err(PalletAssetErr::from(e));
+						env.write(err.encode().as_ref(), false, None).map_err(|_| {
+							DispatchError::Other("ChainExtension failed to call 'transfer approved'")
+						})?;
+					}
+				}
+            }
+
 			
             _ => {
                 error!("Called an unregistered `func_id`: {:}", func_id);
