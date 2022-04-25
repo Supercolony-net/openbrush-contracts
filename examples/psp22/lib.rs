@@ -3,25 +3,38 @@
 
 use ink_env::Environment;
 use ink_lang as ink;
-use ink_prelude::{string::String, vec::Vec};
-
-use ink_lang::ChainExtensionInstance;
-use brush::{
-	contracts::{
-		psp22::extensions::{
-			burnable::*,
-			metadata::*,
-			mintable::*,
-		},
-	},
-	modifiers,
+use ink_prelude::{
+    string::String,
+    vec::Vec,
 };
-use brush::contracts::psp22::PSP22Error;
+
+use brush::{
+    contracts::psp22::{
+        extensions::{
+            burnable::*,
+            metadata::*,
+            mintable::*,
+        },
+        PSP22Error,
+    },
+    modifiers,
+};
+use ink_lang::ChainExtensionInstance;
 pub struct PalletAsset;
 
 impl PalletAsset {
-    fn create(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], min_balance : u128) -> Result<(), PalletAssetErr> {
-		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount : min_balance };
+    fn create(
+        origin_type: OriginType,
+        asset_id: u32,
+        target_address: [u8; 32],
+        min_balance: u128,
+    ) -> Result<(), PalletAssetErr> {
+        let subject = PalletAssetRequest {
+            origin_type,
+            asset_id,
+            target_address,
+            amount: min_balance,
+        };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1102u32)
             .input::<PalletAssetRequest>()
             .output::<Result<(), PalletAssetErr>>()
@@ -29,8 +42,18 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-    fn mint(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], amount : u128) -> Result<(), PalletAssetErr> {
-		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount };
+    fn mint(
+        origin_type: OriginType,
+        asset_id: u32,
+        target_address: [u8; 32],
+        amount: u128,
+    ) -> Result<(), PalletAssetErr> {
+        let subject = PalletAssetRequest {
+            origin_type,
+            asset_id,
+            target_address,
+            amount,
+        };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1103u32)
             .input::<PalletAssetRequest>()
             .output::<Result<(), PalletAssetErr>>()
@@ -38,8 +61,18 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-    fn burn(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], amount : u128) -> Result<(), PalletAssetErr> {
-		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount };
+    fn burn(
+        origin_type: OriginType,
+        asset_id: u32,
+        target_address: [u8; 32],
+        amount: u128,
+    ) -> Result<(), PalletAssetErr> {
+        let subject = PalletAssetRequest {
+            origin_type,
+            asset_id,
+            target_address,
+            amount,
+        };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1104u32)
             .input::<PalletAssetRequest>()
             .output::<Result<(), PalletAssetErr>>()
@@ -47,8 +80,18 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-    fn transfer(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], amount : u128) -> Result<(), PalletAssetErr> {
-		let subject = PalletAssetRequest{origin_type, asset_id, target_address, amount };
+    fn transfer(
+        origin_type: OriginType,
+        asset_id: u32,
+        target_address: [u8; 32],
+        amount: u128,
+    ) -> Result<(), PalletAssetErr> {
+        let subject = PalletAssetRequest {
+            origin_type,
+            asset_id,
+            target_address,
+            amount,
+        };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1105u32)
             .input::<PalletAssetRequest>()
             .output::<Result<(), PalletAssetErr>>()
@@ -56,8 +99,8 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-    fn balance(asset_id : u32, address : [u8; 32]) -> Result<u128, PalletAssetErr> {
-		let subject = PalletAssetBalanceRequest{ asset_id, address };
+    fn balance(asset_id: u32, address: [u8; 32]) -> Result<u128, PalletAssetErr> {
+        let subject = PalletAssetBalanceRequest { asset_id, address };
         ::ink_env::chain_extension::ChainExtensionMethod::build(1106u32)
             .input::<PalletAssetBalanceRequest>()
             .output::<u128>()
@@ -157,21 +200,21 @@ pub enum PalletAssetTokenErr {
     Unknown,
 }
 
-impl From<PalletAssetErr> for PSP22Error{
-	fn from (e : PalletAssetErr) -> PSP22Error{
-		match e{
-			PalletAssetErr::Other => PSP22Error::Custom(String::from("psp22 error")),
-			PalletAssetErr::CannotLookup => PSP22Error::Custom(String::from("CannotLookup")),
-			PalletAssetErr::BadOrigin => PSP22Error::Custom(String::from("BadOrigin")),
-			PalletAssetErr::Module => PSP22Error::Custom(String::from("Module")),
-			PalletAssetErr::ConsumerRemaining => PSP22Error::Custom(String::from("ConsumerRemaining")),
-			PalletAssetErr::NoProviders => PSP22Error::Custom(String::from("NoProviders")),
-			PalletAssetErr::TooManyConsumers => PSP22Error::Custom(String::from("TooManyConsumers")),
-			PalletAssetErr::Token(token_err) => PSP22Error::Custom(String::from("Token")),
-			PalletAssetErr::Arithmetic(arithmetic_error) => PSP22Error::Custom(String::from("Arithmetic")),
-			_ => PSP22Error::Custom(String::from("Unnown")),
-		}
-	}
+impl From<PalletAssetErr> for PSP22Error {
+    fn from(e: PalletAssetErr) -> PSP22Error {
+        match e {
+            PalletAssetErr::Other => PSP22Error::Custom(String::from("psp22 error")),
+            PalletAssetErr::CannotLookup => PSP22Error::Custom(String::from("CannotLookup")),
+            PalletAssetErr::BadOrigin => PSP22Error::Custom(String::from("BadOrigin")),
+            PalletAssetErr::Module => PSP22Error::Custom(String::from("Module")),
+            PalletAssetErr::ConsumerRemaining => PSP22Error::Custom(String::from("ConsumerRemaining")),
+            PalletAssetErr::NoProviders => PSP22Error::Custom(String::from("NoProviders")),
+            PalletAssetErr::TooManyConsumers => PSP22Error::Custom(String::from("TooManyConsumers")),
+            PalletAssetErr::Token(token_err) => PSP22Error::Custom(String::from("Token")),
+            PalletAssetErr::Arithmetic(arithmetic_error) => PSP22Error::Custom(String::from("Arithmetic")),
+            _ => PSP22Error::Custom(String::from("Unnown")),
+        }
+    }
 }
 
 impl ink_env::chain_extension::FromStatusCode for PalletAssetErr {
@@ -202,8 +245,8 @@ mod my_psp22 {
     pub struct MyPSP22 {
         #[PSP22StorageField]
         psp22: PSP22Data,
-		origin_type : u8,
-		asset_id : u32
+        origin_type: u8,
+        asset_id: u32,
     }
 
     impl PSP22Transfer for MyPSP22 {
@@ -214,64 +257,75 @@ mod my_psp22 {
             to: Option<&AccountId>,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
-            
             Ok(())
         }
     }
 
     impl PSP22 for MyPSP22 {
-		#[ink(message)]
-		fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
-			let origin = if self.origin_type == 0  { OriginType::Caller } else { OriginType::Address } ;
-			let mint_result = PalletAsset::transfer(origin, self.asset_id, *to.as_ref(), value.into());
-			match mint_result{
-				Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
-				Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e))
-			}
-		}
-	}
+        #[ink(message)]
+        fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
+            let origin = if self.origin_type == 0 {
+                OriginType::Caller
+            } else {
+                OriginType::Address
+            };
+            let mint_result = PalletAsset::transfer(origin, self.asset_id, *to.as_ref(), value.into());
+            match mint_result {
+                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+            }
+        }
+    }
 
-	impl PSP22Mintable for MyPSP22 {
-		#[ink(message)]
-		fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-			let origin = if self.origin_type == 0  { OriginType::Caller } else { OriginType::Address } ;
-			let mint_result = PalletAsset::mint(origin, self.asset_id, *account.as_ref(), amount.into());
-			match mint_result{
-				Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
-				Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e))
-			}
-		}
-	}
+    impl PSP22Mintable for MyPSP22 {
+        #[ink(message)]
+        fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            let origin = if self.origin_type == 0 {
+                OriginType::Caller
+            } else {
+                OriginType::Address
+            };
+            let mint_result = PalletAsset::mint(origin, self.asset_id, *account.as_ref(), amount.into());
+            match mint_result {
+                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+            }
+        }
+    }
 
-	impl PSP22Burnable for MyPSP22 {
-		#[ink(message)]
-		fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-			let origin = if self.origin_type == 0  { OriginType::Caller } else { OriginType::Address } ;
-			let burn_result = PalletAsset::burn(origin, self.asset_id, *account.as_ref(), amount.into());
-			match burn_result{
-				Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
-				Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e))
-			}
-		}
-	}
+    impl PSP22Burnable for MyPSP22 {
+        #[ink(message)]
+        fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            let origin = if self.origin_type == 0 {
+                OriginType::Caller
+            } else {
+                OriginType::Address
+            };
+            let burn_result = PalletAsset::burn(origin, self.asset_id, *account.as_ref(), amount.into());
+            match burn_result {
+                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+            }
+        }
+    }
 
     impl MyPSP22 {
         #[ink(constructor)]
-        pub fn new(origin_type: OriginType, asset_id : u32, target_address : [u8; 32], min_balance : u128) -> Self {
+        pub fn new(origin_type: OriginType, asset_id: u32, target_address: [u8; 32], min_balance: u128) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
-				instance.origin_type = if origin_type == OriginType::Caller { 0 } else { 1 } ;
-				instance.asset_id = asset_id;
+                instance.origin_type = if origin_type == OriginType::Caller { 0 } else { 1 };
+                instance.asset_id = asset_id;
 
-				PalletAsset::create(origin_type, asset_id, target_address, min_balance);
+                PalletAsset::create(origin_type, asset_id, target_address, min_balance);
             })
         }
 
-		//	0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
-		#[ink(message)]
-        pub fn get_address(&self) -> [u8; 32]{
-			let caller = self.env().caller();
-			*caller.as_ref()
-		}
+        // 	0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
+        #[ink(message)]
+        pub fn get_address(&self) -> [u8; 32] {
+            let caller = self.env().caller();
+            *caller.as_ref()
+        }
 
         #[ink(message)]
         pub fn pallet_asset(
@@ -286,19 +340,39 @@ mod my_psp22 {
             asset_request.target_address = *r;
             match reqeust_type {
                 RequestType::Create => {
-                    PalletAsset::create(asset_request.origin_type, asset_request.asset_id, asset_request.target_address, asset_request.amount)
+                    PalletAsset::create(
+                        asset_request.origin_type,
+                        asset_request.asset_id,
+                        asset_request.target_address,
+                        asset_request.amount,
+                    )
                     // self.env().extension().create(asset_request)?
                 }
                 RequestType::Mint => {
-                    PalletAsset::mint(asset_request.origin_type, asset_request.asset_id, asset_request.target_address, asset_request.amount)
+                    PalletAsset::mint(
+                        asset_request.origin_type,
+                        asset_request.asset_id,
+                        asset_request.target_address,
+                        asset_request.amount,
+                    )
                     // self.env().extension().mint(asset_request)?
                 }
                 RequestType::Burn => {
-                    PalletAsset::burn(asset_request.origin_type, asset_request.asset_id, asset_request.target_address, asset_request.amount)
+                    PalletAsset::burn(
+                        asset_request.origin_type,
+                        asset_request.asset_id,
+                        asset_request.target_address,
+                        asset_request.amount,
+                    )
                     // self.env().extension().burn(asset_request)?
                 }
                 RequestType::Transfer => {
-                    PalletAsset::transfer(asset_request.origin_type, asset_request.asset_id, asset_request.target_address, asset_request.amount)
+                    PalletAsset::transfer(
+                        asset_request.origin_type,
+                        asset_request.asset_id,
+                        asset_request.target_address,
+                        asset_request.amount,
+                    )
                     // self.env().extension().transfer(asset_request)?
                 }
             }
@@ -337,40 +411,38 @@ mod my_psp22 {
                     0
                 }
             }
-			//arrange
+            // arrange
             ink_env::test::register_chain_extension(MockedBalanceExtension);
             let mut my_psp22 = MyPSP22::new(100);
             let b = PalletAssetBalanceRequest {
                 asset_id: 1,
                 address: [1; 32],
             };
-			//assert
+            // assert
             assert_eq!(my_psp22.balance_pallet_asset(b.asset_id, b.address), 99);
         }
     }
 
-	/*
-		// Here we define the operations to interact with the Substrate runtime.
-		#[ink::chain_extension]
-		pub trait PalletAssetExtension {
-			type ErrorCode = PalletAssetErr;
-
-			#[ink(extension = 1102, returns_result = false)]
-			fn create(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
-
-			#[ink(extension = 1103, returns_result = false)]
-			fn mint(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
-
-			#[ink(extension = 1104, returns_result = false)]
-			fn burn(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
-
-			#[ink(extension = 1105, returns_result = false)]
-			fn transfer(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
-
-			#[ink(extension = 1106, returns_result = false)]
-			fn balance(subject: PalletAssetBalanceRequest) ->  u128;
-		}		
-	*/
+    // Here we define the operations to interact with the Substrate runtime.
+    // #[ink::chain_extension]
+    // pub trait PalletAssetExtension {
+    // type ErrorCode = PalletAssetErr;
+    //
+    // #[ink(extension = 1102, returns_result = false)]
+    // fn create(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+    //
+    // #[ink(extension = 1103, returns_result = false)]
+    // fn mint(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+    //
+    // #[ink(extension = 1104, returns_result = false)]
+    // fn burn(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+    //
+    // #[ink(extension = 1105, returns_result = false)]
+    // fn transfer(subject: PalletAssetRequest) ->  Result<(), PalletAssetErr>;
+    //
+    // #[ink(extension = 1106, returns_result = false)]
+    // fn balance(subject: PalletAssetBalanceRequest) ->  u128;
+    // }
 }
 
 // use frame_support::log::{
