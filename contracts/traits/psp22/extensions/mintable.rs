@@ -27,6 +27,9 @@ use brush::traits::{
     Balance,
 };
 
+// #[brush::wrapper]
+// pub type PSP22AssetMintableRef = dyn PSP22AssetMintable;
+
 #[brush::wrapper]
 pub type PSP22MintableRef = dyn PSP22Mintable;
 
@@ -38,3 +41,11 @@ pub trait PSP22Mintable {
     #[ink(message)]
     fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
+
+
+
+#[brush::trait_definition]
+pub trait PSP22AssetMintable {
+    #[ink(message)]
+    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
+ }
