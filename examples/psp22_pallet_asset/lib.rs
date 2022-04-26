@@ -490,31 +490,60 @@ mod my_psp22 {
         use ink_lang as ink;
 
         #[ink::test]
-        fn chain_extension_balance_works() {
+        fn init_works() {
             // given
-            struct MockedBalanceExtension;
-            impl ink_env::test::ChainExtension for MockedBalanceExtension {
+            struct CreateAssetExtension;
+            impl ink_env::test::ChainExtension for CreateAssetExtension {
                 /// The static function id of the chain extension.
                 fn func_id(&self) -> u32 {
-                    1106
+                    1102
                 }
 
                 fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
-                    let b: u128 = 99;
-                    scale::Encode::encode_to(&b, output);
+                    let mut input = _input;
+                    // let r :Result<PalletAssetRequest, scale::Error> = scale::Decode::decode(&mut input);
+                    // assert!(r.is_err());
+
+                    let create_result = Result::<(), PalletAssetErr>::Ok(());
+                    // let create_result = Result::<(), PalletAssetErr>::Err(PalletAssetErr::Other);
+                    scale::Encode::encode_to(&create_result, output);
                     0
                 }
             }
             // arrange
-            ink_env::test::register_chain_extension(MockedBalanceExtension);
-            let mut my_psp22 = MyPSP22::new(100);
-            let b = PalletAssetBalanceRequest {
-                asset_id: 1,
-                address: [1; 32],
-            };
+            ink_env::test::register_chain_extension(CreateAssetExtension);
+            // origin_type: OriginType, asset_id: u32, target_address: [u8; 32], min_balance: u128
+            let mut my_psp22 = MyPSP22::new(OriginType::Caller, 10, [1u8;32],1);
             // assert
-            assert_eq!(my_psp22.balance_pallet_asset(b.asset_id, b.address), 99);
+            // assert_eq!(my_psp22.balance_pallet_asset(b.asset_id, b.address), 99);
         }
+
+        // #[ink::test]
+        // fn chain_extension_balance_works() {
+        //     // given
+        //     struct MockedBalanceExtension;
+        //     impl ink_env::test::ChainExtension for MockedBalanceExtension {
+        //         /// The static function id of the chain extension.
+        //         fn func_id(&self) -> u32 {
+        //             1106
+        //         }
+
+        //         fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
+        //             let b: u128 = 99;
+        //             scale::Encode::encode_to(&b, output);
+        //             0
+        //         }
+        //     }
+        //     // arrange
+        //     ink_env::test::register_chain_extension(MockedBalanceExtension);
+        //     let mut my_psp22 = MyPSP22::new(100);
+        //     let b = PalletAssetBalanceRequest {
+        //         asset_id: 1,
+        //         address: [1; 32],
+        //     };
+        //     // assert
+        //     assert_eq!(my_psp22.balance_pallet_asset(b.asset_id, b.address), 99);
+        // }
     }
 
     // Here we define the operations to interact with the Substrate runtime.
