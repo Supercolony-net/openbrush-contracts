@@ -28,6 +28,10 @@ use brush_derive::declare_derive_storage_trait;
 // PSP22
 #[cfg(feature = "psp22")]
 declare_derive_storage_trait!(derive_psp22_storage, PSP22Storage, PSP22StorageField);
+
+#[cfg(feature = "psp22")]
+declare_derive_storage_trait!(derive_psp22asset_storage, PSP22AssetStorage, PSP22AssetStorageField);
+
 #[cfg(feature = "psp22")]
 declare_derive_storage_trait!(
     derive_psp22metadata_storage,

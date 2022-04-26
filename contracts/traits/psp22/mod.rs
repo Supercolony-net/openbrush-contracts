@@ -22,6 +22,7 @@
 mod psp22;
 
 pub use psp22::*;
+pub mod psp22asset;
 
 pub mod extensions {
     pub mod burnable;

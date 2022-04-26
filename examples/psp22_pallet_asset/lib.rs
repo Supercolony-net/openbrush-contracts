@@ -22,118 +22,125 @@ use brush::{
 };
 use ink_lang::ChainExtensionInstance;
 use crate::pallet_assets::*;
+use brush::contracts::psp22::psp22_pallet_asset::*;
+    use brush::contracts::psp22::*;
+    use brush::contracts::traits::psp22::psp22asset::PSP22Asset;
 
 // #[brush::contract(env = crate::CustomEnvironment)]
 #[brush::contract]
 mod my_psp22 {
     use crate::*;
-    use brush::contracts::psp22::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
+    use brush::contracts::psp22::psp22_pallet_asset::*;
+    use brush::contracts::psp22::*;
+    use brush::contracts::traits::psp22::psp22asset::*;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22AssetStorage)]
     pub struct MyPSP22 {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+        #[PSP22AssetStorageField]
+        psp22: PSP22AssetData,
         origin_type: u8,
         asset_id: u32,
     }
 
-    impl PSP22Transfer for MyPSP22 {
-        // Let's override method to reject transactions to bad account
-        fn _before_token_transfer(
-            &mut self,
-            _from: Option<&AccountId>,
-            to: Option<&AccountId>,
-            _amount: &Balance,
-        ) -> Result<(), PSP22Error> {
-            Ok(())
-        }
-    }
+    impl PSP22Asset for MyPSP22{}
 
-    impl PSP22 for MyPSP22 {
-        #[ink(message)]
-        fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
-            let origin : OriginType = self.origin_type.into();
-            let mint_result = PalletAsset::transfer(origin, self.asset_id, *to.as_ref(), value.into());
-            match mint_result {
-                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
-                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
-            }
-        }
+    // impl PSP22Transfer for MyPSP22 {
+    //     // Let's override method to reject transactions to bad account
+    //     fn _before_token_transfer(
+    //         &mut self,
+    //         _from: Option<&AccountId>,
+    //         to: Option<&AccountId>,
+    //         _amount: &Balance,
+    //     ) -> Result<(), PSP22Error> {
+    //         Ok(())
+    //     }
+    // }
 
-		#[ink(message)]
-        fn total_supply(&self) -> Balance {
-			// PalletAsset::balance(self.asset_id, *owner.as_ref()).unwrap()
-			PalletAsset::total_supply(self.asset_id).unwrap()
-        }
+    // impl PSP22 for MyPSP22 {
+    //     #[ink(message)]
+    //     fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
+    //         let origin : OriginType = self.origin_type.into();
+    //         let mint_result = PalletAsset::transfer(origin, self.asset_id, *to.as_ref(), value.into());
+    //         match mint_result {
+    //             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+    //             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+    //         }
+    //     }
 
-		#[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> Balance {
-            PalletAsset::balance(self.asset_id, *owner.as_ref()).unwrap()
-        }
+	// 	#[ink(message)]
+    //     fn total_supply(&self) -> Balance {
+	// 		// PalletAsset::balance(self.asset_id, *owner.as_ref()).unwrap()
+	// 		PalletAsset::total_supply(self.asset_id).unwrap()
+    //     }
 
-        #[ink(message)]
-		fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
-			let origin : OriginType = self.origin_type.into();
+	// 	#[ink(message)]
+    //     fn balance_of(&self, owner: AccountId) -> Balance {
+    //         PalletAsset::balance(self.asset_id, *owner.as_ref()).unwrap()
+    //     }
 
-			let approve_transfer_result = PalletAsset::approve_transfer(origin, self.asset_id, *spender.as_ref(), value.into());
-			match approve_transfer_result {
-                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
-                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
-            }
-		}
+    //     #[ink(message)]
+	// 	fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
+	// 		let origin : OriginType = self.origin_type.into();
 
-		#[ink(message)]
-		fn transfer_from(
-			&mut self,
-			from: AccountId,
-			to: AccountId,
-			value: Balance,
-			data: Vec<u8>,
-		) -> Result<(), PSP22Error> {
-			let origin : OriginType = self.origin_type.into();
+	// 		let approve_transfer_result = PalletAsset::approve_transfer(origin, self.asset_id, *spender.as_ref(), value.into());
+	// 		match approve_transfer_result {
+    //             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+    //             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+    //         }
+	// 	}
 
-			let transfer_approved_result = PalletAsset::transfer_approved(origin, self.asset_id, *from.as_ref(), *to.as_ref(), value.into());
-			match transfer_approved_result {
-                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
-                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
-            }
-		}
-    }
+	// 	#[ink(message)]
+	// 	fn transfer_from(
+	// 		&mut self,
+	// 		from: AccountId,
+	// 		to: AccountId,
+	// 		value: Balance,
+	// 		data: Vec<u8>,
+	// 	) -> Result<(), PSP22Error> {
+	// 		let origin : OriginType = self.origin_type.into();
 
-    impl PSP22Mintable for MyPSP22 {
-        #[ink(message)]
-        fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            let origin = if self.origin_type == 0 {
-                OriginType::Caller
-            } else {
-                OriginType::Address
-            };
-            let mint_result = PalletAsset::mint(origin, self.asset_id, *account.as_ref(), amount.into());
-            match mint_result {
-                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
-                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
-            }
-        }
-    }
+	// 		let transfer_approved_result = PalletAsset::transfer_approved(origin, self.asset_id, *from.as_ref(), *to.as_ref(), value.into());
+	// 		match transfer_approved_result {
+    //             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+    //             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+    //         }
+	// 	}
+    // }
 
-    impl PSP22Burnable for MyPSP22 {
-        #[ink(message)]
-        fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            let origin = if self.origin_type == 0 {
-                OriginType::Caller
-            } else {
-                OriginType::Address
-            };
-            let burn_result = PalletAsset::burn(origin, self.asset_id, *account.as_ref(), amount.into());
-            match burn_result {
-                Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
-                Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
-            }
-        }
-    }
+    // impl PSP22Mintable for MyPSP22 {
+    //     #[ink(message)]
+    //     fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+    //         let origin = if self.origin_type == 0 {
+    //             OriginType::Caller
+    //         } else {
+    //             OriginType::Address
+    //         };
+    //         let mint_result = PalletAsset::mint(origin, self.asset_id, *account.as_ref(), amount.into());
+    //         match mint_result {
+    //             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+    //             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+    //         }
+    //     }
+    // }
+
+    // impl PSP22Burnable for MyPSP22 {
+    //     #[ink(message)]
+    //     fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+    //         let origin = if self.origin_type == 0 {
+    //             OriginType::Caller
+    //         } else {
+    //             OriginType::Address
+    //         };
+    //         let burn_result = PalletAsset::burn(origin, self.asset_id, *account.as_ref(), amount.into());
+    //         match burn_result {
+    //             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+    //             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+    //         }
+    //     }
+    // }
 
     impl MyPSP22 {
         #[ink(constructor)]
