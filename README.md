@@ -179,7 +179,7 @@ $ yarn build:release
 
 ### Tests
 
-You can run unit tests by `RUSTFLAGS="-D warnings" cargo test --all-features --workspace` command from the root of the directory.
+You can run unit tests by `RUSTFLAGS="-D warnings" cargo test --all-features --workspace -- --test-threads=10` command from the root of the directory.
 
 To run integration test you need to start the node with contract-pallet.
 - [Setup and start the node with contract-pallet](https://github.com/paritytech/substrate-contracts-node)
