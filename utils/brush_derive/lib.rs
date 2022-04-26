@@ -35,7 +35,7 @@ macro_rules! declare_derive_storage_trait {
     ($derive_name:ident,$trait_name:ident,$trait_field_specifier:ident) => {
         #[proc_macro_derive($trait_name, attributes($trait_field_specifier))]
         pub fn $derive_name(_item: proc_macro::TokenStream) -> proc_macro::TokenStream {
-            let derive = syn::parse_macro_input!(_item as syn::DeriveInput);
+            let derive = ::syn::parse_macro_input!(_item as ::syn::DeriveInput);
             const TRAIT_NAME: &'static str = stringify!($trait_name);
             const FIELD_SETTER: &'static str = stringify!($trait_field_specifier);
 
@@ -43,8 +43,8 @@ macro_rules! declare_derive_storage_trait {
 
             let field_ident;
             let field_ty;
-            if let syn::Data::Struct(data) = &derive.data {
-                if let syn::Fields::Named(named_fields) = &data.fields {
+            if let ::syn::Data::Struct(data) = &derive.data {
+                if let ::syn::Fields::Named(named_fields) = &data.fields {
                     let field = named_fields
                         .named
                         .iter()

@@ -24,7 +24,6 @@ pub use crate::{
     traits::proxy::*,
 };
 use brush::{
-    declare_storage_trait,
     modifiers,
     traits::Hash,
 };
@@ -41,8 +40,12 @@ pub struct ProxyData {
     pub forward_to: Hash,
 }
 
-declare_storage_trait!(ProxyStorage, ProxyData);
+pub trait ProxyStorage: OwnableStorage + ::brush::traits::InkStorage {
+    fn get(&self) -> &ProxyData;
+    fn get_mut(&mut self) -> &mut ProxyData;
+}
 
+#[cfg(not(feature = "diamond"))]
 impl<T: ProxyStorage> OwnableStorage for T {
     fn get(&self) -> &OwnableData {
         &ProxyStorage::get(self).ownable

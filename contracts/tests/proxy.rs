@@ -52,6 +52,16 @@ mod proxy {
         proxy: ProxyData,
     }
 
+    impl OwnableStorage for MyProxy {
+        fn get(&self) -> &OwnableData {
+            &self.proxy.ownable
+        }
+
+        fn get_mut(&mut self) -> &mut OwnableData {
+            &mut self.proxy.ownable
+        }
+    }
+
     type Event = <MyProxy as ::ink_lang::reflect::ContractEventBase>::Type;
 
     impl MyProxy {

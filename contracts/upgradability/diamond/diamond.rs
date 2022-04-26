@@ -24,7 +24,6 @@ pub use crate::{
     traits::diamond::*,
 };
 use brush::{
-    declare_storage_trait,
     modifiers,
     traits::{
         Flush,
@@ -56,8 +55,12 @@ pub struct DiamondData {
     pub self_hash: Hash,
 }
 
-declare_storage_trait!(DiamondStorage, DiamondData);
+pub trait DiamondStorage: OwnableStorage + ::brush::traits::InkStorage {
+    fn get(&self) -> &DiamondData;
+    fn get_mut(&mut self) -> &mut DiamondData;
+}
 
+#[cfg(not(feature = "proxy"))]
 impl<T: DiamondStorage> OwnableStorage for T {
     fn get(&self) -> &OwnableData {
         &DiamondStorage::get(self).ownable
@@ -101,7 +104,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
                 self._remove_facet(code_hash);
             } else {
                 for selector in facet_cut.selectors.iter() {
-                    let selector_hash = self.get().selector_to_hash.get(&selector);
+                    let selector_hash = DiamondStorage::get(self).selector_to_hash.get(&selector);
 
                     if selector_hash.and_then(|hash| Some(hash == code_hash)).unwrap_or(false) {
                         // selector already registered to this hash -> no action
@@ -111,15 +114,17 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
                         return Err(DiamondError::ReplaceExisting(selector_hash.unwrap()))
                     } else {
                         // map selector to its facet
-                        self.get_mut().selector_to_hash.insert(&selector, &code_hash);
+                        DiamondStorage::get_mut(self)
+                            .selector_to_hash
+                            .insert(&selector, &code_hash);
                     }
                 }
 
-                if self.get().hash_to_selectors.get(&code_hash).is_none() {
+                if DiamondStorage::get(self).hash_to_selectors.get(&code_hash).is_none() {
                     self._on_add_facet(code_hash);
                 }
                 // map this code hash to its selectors
-                self.get_mut()
+                DiamondStorage::get_mut(self)
                     .hash_to_selectors
                     .insert(&code_hash, &facet_cut.selectors);
                 // remove selectors from this facet which may be registered but will not be used anymore
@@ -140,7 +145,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
     default fn _fallback(&self) -> ! {
         let selector = ink_env::decode_input::<Selector>().unwrap_or_else(|_| panic!("Calldata error"));
 
-        let delegate_code = self.get().selector_to_hash.get(selector);
+        let delegate_code = DiamondStorage::get(self).selector_to_hash.get(selector);
 
         if delegate_code.is_none() {
             panic!("Function is not registered");
@@ -177,7 +182,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
     }
 
     default fn _handle_replace_immutable(&mut self, hash: Hash) -> Result<(), DiamondError> {
-        return if hash == self.get().self_hash {
+        return if hash == DiamondStorage::get(self).self_hash {
             Err(DiamondError::ImmutableFunction)
         } else {
             Ok(())
@@ -185,19 +190,22 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
     }
 
     default fn _remove_facet(&mut self, code_hash: Hash) {
-        let vec = self.get().hash_to_selectors.get(&code_hash).unwrap();
+        let vec = DiamondStorage::get(self).hash_to_selectors.get(&code_hash).unwrap();
         vec.iter().for_each(|old_selector| {
-            self.get_mut().selector_to_hash.remove(&old_selector);
+            DiamondStorage::get_mut(self).selector_to_hash.remove(&old_selector);
         });
-        self.get_mut().hash_to_selectors.remove(&code_hash);
+        DiamondStorage::get_mut(self).hash_to_selectors.remove(&code_hash);
         self._on_remove_facet(code_hash);
     }
 
     default fn _remove_selectors(&mut self, facet_cut: &FacetCut) {
-        let selectors = self.get().hash_to_selectors.get(&facet_cut.hash).unwrap();
+        let selectors = DiamondStorage::get(self)
+            .hash_to_selectors
+            .get(&facet_cut.hash)
+            .unwrap();
         for selector in selectors.iter() {
             if !facet_cut.selectors.contains(&selector) {
-                self.get_mut().selector_to_hash.remove(&selector);
+                DiamondStorage::get_mut(self).selector_to_hash.remove(&selector);
             }
         }
     }
