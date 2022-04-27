@@ -352,4 +352,42 @@ describe('DIAMOND_PSP22', () => {
     await expect(diamondContract.query.facetFunctionSelectors(metadataHash)).to.output(metadataSelectors)
     await expect(diamondContract.query.facetCodeHash(metadataInit)).to.output(metadataHash)
   })
+
+  it('Can call facet function via PSP22Ref', async () => {
+    // get abi of diamond
+    const { abi: diamondAbi } = await setupContract('my_diamond', 'new', consts.EMPTY_ADDRESS, '')
+    const diamondHash = (await diamondAbi).source.hash
+
+    // abi of psp22 facet
+    const { contract: psp22Facet, abi, defaultSigner, alice } = await setupContract('my_psp22_facet_v1', 'new')
+
+    const psp22Hash = (await abi).source.hash
+    const psp22Messages = (await abi).V3.spec.messages
+
+    const psp22Init = getSelectorByName(psp22Messages, 'init_psp22')
+    const psp22Selectors = getSelectorsFromMessages(psp22Messages)
+    const psp22Cut = [[psp22Hash, psp22Selectors]]
+
+    // initialize diamond contract
+    const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address, diamondHash)
+    let proxy = setupProxy(psp22Facet, diamondContract)
+
+    // add psp22 facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(psp22Cut, [psp22Hash, psp22Init, []])).to.eventually.be.fulfilled
+
+    // we will instantiate the caller contract with which we try to call PSP22Ref on the diamond contract
+    const { contract: diamondCaller } = await setupContract('diamond_caller', 'new')
+
+    await expect(diamondCaller.query.balanceOf(diamondContract.address, defaultSigner.address)).to.output(1000)
+
+    // we will give allowance to caller contract
+    await expect(fromSigner(proxy, defaultSigner.address).tx.approve(diamondCaller.address, 1000)).to.eventually.be.fulfilled
+    // calling transfer via diamondCaller should transfer balance
+    await expect(fromSigner(diamondCaller, defaultSigner.address).tx.transfer(diamondContract.address, alice.address, 1000)).to.eventually.be
+      .fulfilled
+
+    // calling diamondCaller.balanceOf should give us the right balance
+    await expect(diamondCaller.query.balanceOf(diamondContract.address, defaultSigner.address)).to.output(0)
+    await expect(diamondCaller.query.balanceOf(diamondContract.address, alice.address)).to.output(1000)
+  })
 })
