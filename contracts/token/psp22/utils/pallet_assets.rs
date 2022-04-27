@@ -164,6 +164,43 @@ impl PalletAsset {
             .handle_error_code::<PalletAssetErr>()
             .call(&(owner, subject))?
     }
+
+    pub fn allowance(asset_id: u32, owner: [u8; 32], spender: [u8; 32]) -> Result<u128, PalletAssetErr> {
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1110u32)
+            .input::<(u32, [u8; 32], [u8; 32])>()
+            .output::<u128>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&(asset_id, owner, spender))
+    }
+
+    // increase or decrease
+    pub fn change_allowance(
+        asset_id: u32,
+        owner: [u8; 32],
+        delegate: [u8; 32],
+        delta_value: u128,
+        is_increase: bool,
+    ) -> Result<(), PalletAssetErr> {
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1111u32)
+            .input::<(u32, [u8; 32], [u8; 32], u128, bool)>()
+            .output::<Result<(), PalletAssetErr>>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&(asset_id, owner, delegate, delta_value, is_increase))?
+    }
+
+    pub fn set_metadata(
+        origin_type: OriginType,
+        asset_id: u32,
+        name: [u8; 32],
+        symbol: [u8; 32],
+        decimals: u8,
+    ) -> Result<(), PalletAssetErr> {
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1112u32)
+            .input::<(OriginType, u32, [u8; 32], [u8; 32], u8)>()
+            .output::<Result<(), PalletAssetErr>>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&(origin_type, asset_id, name, symbol, decimals))?
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]

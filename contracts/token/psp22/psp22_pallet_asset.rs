@@ -77,8 +77,7 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
     }
 
     default fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        unimplemented!()
-        // self.get().allowances.get((&owner, &spender)).unwrap_or(0)
+        PalletAsset::allowance(self.get().asset_id, *owner.as_ref(), *spender.as_ref()).unwrap()
     }
 
     default fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
@@ -86,8 +85,8 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
         // self._transfer_from_to(from, to, value, data)?;
         // Ok(())
         let origin: OriginType = self.get().origin_type.into();
-        let mint_result = PalletAsset::transfer(origin, self.get().asset_id, *to.as_ref(), value.into());
-        match mint_result {
+        let result = PalletAsset::transfer(origin, self.get().asset_id, *to.as_ref(), value.into());
+        match result {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
         }
@@ -100,8 +99,8 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
         value: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
-        let caller = Self::env().caller();
-        let allowance = self.allowance(from, caller);
+        // let caller = Self::env().caller();
+        // let allowance = self.allowance(from, caller);
         // if allowance < value {
         //     return Err(PSP22Error::InsufficientAllowance)
         // }
@@ -132,23 +131,35 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
     }
 
     default fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
-        unimplemented!()
-        // let owner = Self::env().caller();
-        // self._approve_from_to(owner, spender, self.allowance(owner, spender) + delta_value)?;
-        // Ok(())
+        let owner = Self::env().caller();
+        let result = PalletAsset::change_allowance(
+            self.get().asset_id,
+            *owner.as_ref(),
+            *spender.as_ref(),
+            delta_value,
+            true,
+        );
+
+        match result {
+            Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+            Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+        }
     }
 
     default fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
-        unimplemented!()
-        // let owner = Self::env().caller();
-        // let allowance = self.allowance(owner, spender);
+        let owner = Self::env().caller();
+        let result = PalletAsset::change_allowance(
+            self.get().asset_id,
+            *owner.as_ref(),
+            *spender.as_ref(),
+            delta_value,
+            false,
+        );
 
-        // if allowance < delta_value {
-        //     return Err(PSP22Error::InsufficientAllowance)
-        // }
-
-        // self._approve_from_to(owner, spender, allowance - delta_value)?;
-        // Ok(())
+        match result {
+            Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+            Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+        }
     }
 }
 

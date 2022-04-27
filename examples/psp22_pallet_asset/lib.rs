@@ -927,6 +927,44 @@ mod my_psp22 {
 // }
 // }
 //
+// allowance
+// 1110 => {
+// let ext = env.ext();
+// let address  = ext.address();
+// let caller = ext.caller();
+// let mut caller_ref = caller.as_ref();
+// let mut address_ref = address.as_ref();
+// let caller_account = AccountId::decode(&mut caller_ref).unwrap();
+// let address_account = AccountId::decode(&mut address_ref).unwrap();
+//
+//
+// use frame_support::dispatch::DispatchResult;
+//
+// let mut env = env.buf_in_buf_out();
+// let allowance_request: (u32, [u8; 32], [u8; 32]) = env.read_as()?;
+// let asset_id = allowance_request.0;
+//
+// let owner = allowance_request.1;
+// let delegate = allowance_request.2;
+//
+// let mut vec = &owner.to_vec()[..];
+// let owner_address = AccountId::decode(&mut vec).unwrap();
+//
+// let mut vec = &delegate.to_vec()[..];
+// let delegate_address = AccountId::decode(&mut vec).unwrap();
+//
+// use crate::sp_api_hidden_includes_construct_runtime::hidden_include::traits::fungibles::approvals::Inspect;
+// let allowance :u128 = Assets::allowance(asset_id, &owner_address, &delegate_address);
+//
+// trace!("{:#?}", allowance_request);
+// trace!("{:#?}", allowance);
+// let b = allowance.to_be_bytes();
+// write buffer as responce for smart contract
+// env.write(&b, false, None).map_err(|_| {
+// DispatchError::Other("ChainExtension failed to call balance")
+// })?;
+// }
+//
 //
 // _ => {
 // error!("Called an unregistered `func_id`: {:}", func_id);
@@ -945,4 +983,3 @@ mod my_psp22 {
 // true
 // }
 // }
-//
