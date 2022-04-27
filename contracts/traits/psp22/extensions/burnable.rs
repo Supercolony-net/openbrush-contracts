@@ -39,3 +39,13 @@ pub trait PSP22Burnable {
     #[ink(message)]
     fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
+
+#[brush::trait_definition]
+pub trait PSP22AssetBurnable {
+    /// Destroys `amount` tokens from `account`, deducting from the caller's
+    /// allowance.
+    ///
+    /// See [`PSP22::_burn_from`].
+    #[ink(message)]
+    fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
+}

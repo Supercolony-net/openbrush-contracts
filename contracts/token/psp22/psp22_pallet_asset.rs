@@ -29,6 +29,7 @@ pub use crate::traits::{
 use crate::psp22::utils::pallet_assets::*;
 pub use crate::traits::psp22::psp22asset::*;
 use crate::traits::psp22::extensions::mintable::*;
+use crate::traits::psp22::extensions::burnable::*;
 use brush::{
     declare_storage_trait,
     traits::{
@@ -146,6 +147,16 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
 impl<T: PSP22AssetStorage + Flush> PSP22AssetMintable for T {
     default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>{
         let mint_result = PalletAsset::mint(self.get().origin_type.into(), self.get().asset_id, *account.as_ref(), amount.into());
+        match mint_result {
+            Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+            Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+        }
+    }
+}
+
+impl<T: PSP22AssetStorage + Flush> PSP22AssetBurnable for T {
+    default fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>{
+        let mint_result = PalletAsset::burn(self.get().origin_type.into(), self.get().asset_id, *account.as_ref(), amount.into());
         match mint_result {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),

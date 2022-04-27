@@ -41,11 +41,13 @@ mod my_psp22 {
     pub struct MyPSP22 {
         #[PSP22AssetStorageField]
         psp22: PSP22AssetData,
-        origin_type: u8,
-        asset_id: u32,
     }
 
     impl PSP22Asset for MyPSP22{}
+
+    impl PSP22AssetMintable for MyPSP22{}
+    impl PSP22AssetBurnable for MyPSP22{}
+
 
     // impl PSP22Transfer for MyPSP22 {
     //     // Let's override method to reject transactions to bad account
@@ -146,8 +148,8 @@ mod my_psp22 {
         #[ink(constructor)]
         pub fn new(origin_type: OriginType, asset_id: u32, target_address: [u8; 32], min_balance: u128) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
-                instance.origin_type = if origin_type == OriginType::Caller { 0 } else { 1 };
-                instance.asset_id = asset_id;
+                instance.psp22.origin_type = if origin_type == OriginType::Caller { 0 } else { 1 };
+                instance.psp22.asset_id = asset_id;
 
                 PalletAsset::create(origin_type, asset_id, target_address, min_balance);
             })
