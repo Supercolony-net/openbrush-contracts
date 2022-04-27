@@ -20,7 +20,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// Extension of [`PSP22`] which allows the beneficiary to extract tokens after given time
-
 use ink_env::Environment;
 use ink_lang as ink;
 use ink_prelude::{
@@ -28,8 +27,8 @@ use ink_prelude::{
     vec::Vec,
 };
 
-use ink_lang::ChainExtensionInstance;
 use crate::traits::psp22::PSP22Error;
+use ink_lang::ChainExtensionInstance;
 
 pub struct PalletAsset;
 
@@ -119,15 +118,15 @@ impl PalletAsset {
             .call(&subject)
     }
 
-	pub fn total_supply(asset_id: u32) -> Result<u128, PalletAssetErr> {
+    pub fn total_supply(asset_id: u32) -> Result<u128, PalletAssetErr> {
         ::ink_env::chain_extension::ChainExtensionMethod::build(1107u32)
             .input::<u32>()
             .output::<u128>()
-			.handle_error_code::<PalletAssetErr>()
+            .handle_error_code::<PalletAssetErr>()
             .call(&asset_id)
     }
 
-	pub fn approve_transfer(
+    pub fn approve_transfer(
         origin_type: OriginType,
         asset_id: u32,
         target_address: [u8; 32],
@@ -146,10 +145,10 @@ impl PalletAsset {
             .call(&subject)?
     }
 
-	pub fn transfer_approved(
+    pub fn transfer_approved(
         origin_type: OriginType,
         asset_id: u32,
-		owner: [u8; 32],
+        owner: [u8; 32],
         target_address: [u8; 32],
         amount: u128,
     ) -> Result<(), PalletAssetErr> {
@@ -165,7 +164,6 @@ impl PalletAsset {
             .handle_error_code::<PalletAssetErr>()
             .call(&(owner, subject))?
     }
-	
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -259,14 +257,14 @@ pub enum PalletAssetTokenErr {
     Unknown,
 }
 
-impl From<u8> for OriginType{
-	fn from(origin: u8) -> OriginType {
-		if origin == 0 {
-			OriginType::Caller
-		} else {
-			OriginType::Address
-		}
-	}
+impl From<u8> for OriginType {
+    fn from(origin: u8) -> OriginType {
+        if origin == 0 {
+            OriginType::Caller
+        } else {
+            OriginType::Address
+        }
+    }
 }
 
 impl From<PalletAssetErr> for PSP22Error {

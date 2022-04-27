@@ -24,12 +24,18 @@ pub use crate::traits::{
         PSP22Error,
         PSP22ReceiverError,
     },
-    psp22::*,
+    psp22::{
+        psp22asset::*,
+        *,
+    },
 };
-use crate::psp22::utils::pallet_assets::*;
-pub use crate::traits::psp22::psp22asset::*;
-use crate::traits::psp22::extensions::mintable::*;
-use crate::traits::psp22::extensions::burnable::*;
+use crate::{
+    psp22::utils::pallet_assets::*,
+    traits::psp22::extensions::{
+        burnable::*,
+        mintable::*,
+    },
+};
 use brush::{
     declare_storage_trait,
     traits::{
@@ -79,7 +85,7 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
         // let from = Self::env().caller();
         // self._transfer_from_to(from, to, value, data)?;
         // Ok(())
-        let origin : OriginType = self.get().origin_type.into();
+        let origin: OriginType = self.get().origin_type.into();
         let mint_result = PalletAsset::transfer(origin, self.get().asset_id, *to.as_ref(), value.into());
         match mint_result {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
@@ -103,8 +109,9 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
         // self._transfer_from_to(from, to, value, data)?;
         // self._approve_from_to(from, caller, allowance - value)?;
         // Ok(())
-        let origin : OriginType = self.get().origin_type.into();
-        let transfer_approved_result = PalletAsset::transfer_approved(origin, self.get().asset_id, *from.as_ref(), *to.as_ref(), value.into());
+        let origin: OriginType = self.get().origin_type.into();
+        let transfer_approved_result =
+            PalletAsset::transfer_approved(origin, self.get().asset_id, *from.as_ref(), *to.as_ref(), value.into());
         match transfer_approved_result {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
@@ -115,8 +122,9 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
         // let owner = Self::env().caller();
         // self._approve_from_to(owner, spender, value)?;
         // Ok(())
-        let origin : OriginType = self.get().origin_type.into();
-        let approve_transfer_result = PalletAsset::approve_transfer(origin, self.get().asset_id, *spender.as_ref(), value.into());
+        let origin: OriginType = self.get().origin_type.into();
+        let approve_transfer_result =
+            PalletAsset::approve_transfer(origin, self.get().asset_id, *spender.as_ref(), value.into());
         match approve_transfer_result {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
@@ -145,8 +153,13 @@ impl<T: PSP22AssetStorage + Flush> PSP22Asset for T {
 }
 
 impl<T: PSP22AssetStorage + Flush> PSP22AssetMintable for T {
-    default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>{
-        let mint_result = PalletAsset::mint(self.get().origin_type.into(), self.get().asset_id, *account.as_ref(), amount.into());
+    default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        let mint_result = PalletAsset::mint(
+            self.get().origin_type.into(),
+            self.get().asset_id,
+            *account.as_ref(),
+            amount.into(),
+        );
         match mint_result {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
@@ -155,8 +168,13 @@ impl<T: PSP22AssetStorage + Flush> PSP22AssetMintable for T {
 }
 
 impl<T: PSP22AssetStorage + Flush> PSP22AssetBurnable for T {
-    default fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>{
-        let mint_result = PalletAsset::burn(self.get().origin_type.into(), self.get().asset_id, *account.as_ref(), amount.into());
+    default fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        let mint_result = PalletAsset::burn(
+            self.get().origin_type.into(),
+            self.get().asset_id,
+            *account.as_ref(),
+            amount.into(),
+        );
         match mint_result {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
@@ -193,15 +211,27 @@ pub trait PSP22AssetInternal {
 
     // fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
-    fn _create(&mut self, origin_type: OriginType, asset_id : u32, account: [u8; 32], min_balance: Balance) -> Result<(), PSP22Error>;
-
+    fn _create(
+        &mut self,
+        origin_type: OriginType,
+        asset_id: u32,
+        account: [u8; 32],
+        min_balance: Balance,
+    ) -> Result<(), PSP22Error>;
 }
 
 impl<T: PSP22AssetStorage + Flush> PSP22AssetInternal for T {
-    default fn _create(&mut self, origin_type: OriginType, asset_id : u32, account: [u8; 32], min_balance: Balance) -> Result<(), PSP22Error>{
+    default fn _create(
+        &mut self,
+        origin_type: OriginType,
+        asset_id: u32,
+        account: [u8; 32],
+        min_balance: Balance,
+    ) -> Result<(), PSP22Error> {
         self.get_mut().origin_type = if origin_type == OriginType::Caller { 0 } else { 1 };
         self.get_mut().asset_id = asset_id;
-        let create_result = PalletAsset::create(self.get().origin_type.into(), self.get().asset_id, account, min_balance);
+        let create_result =
+            PalletAsset::create(self.get().origin_type.into(), self.get().asset_id, account, min_balance);
         match create_result {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),

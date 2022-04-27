@@ -33,6 +33,6 @@ pub mod extensions {
 }
 
 pub mod utils {
-    pub mod token_timelock;
     pub mod pallet_assets;
+    pub mod token_timelock;
 }

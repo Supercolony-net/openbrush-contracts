@@ -42,10 +42,8 @@ pub trait PSP22Mintable {
     fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
 
-
-
 #[brush::trait_definition]
 pub trait PSP22AssetMintable {
     #[ink(message)]
     fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
- }
+}
