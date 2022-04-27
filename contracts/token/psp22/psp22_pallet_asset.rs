@@ -209,38 +209,38 @@ impl<T: PSP22AssetStorage + Flush> PSP22AssetInternal for T {
     }
 }
 
-// pub trait PSP22Transfer {
-//     fn _before_token_transfer(
-//         &mut self,
-//         _from: Option<&AccountId>,
-//         _to: Option<&AccountId>,
-//         _amount: &Balance,
-//     ) -> Result<(), PSP22Error>;
+pub trait PSP22AssetTransfer {
+    fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error>;
 
-//     fn _after_token_transfer(
-//         &mut self,
-//         _from: Option<&AccountId>,
-//         _to: Option<&AccountId>,
-//         _amount: &Balance,
-//     ) -> Result<(), PSP22Error>;
-// }
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error>;
+}
 
-// impl<T> PSP22Transfer for T {
-//     default fn _before_token_transfer(
-//         &mut self,
-//         _from: Option<&AccountId>,
-//         _to: Option<&AccountId>,
-//         _amount: &Balance,
-//     ) -> Result<(), PSP22Error> {
-//         Ok(())
-//     }
+impl<T> PSP22AssetTransfer for T {
+    default fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error> {
+        Ok(())
+    }
 
-//     default fn _after_token_transfer(
-//         &mut self,
-//         _from: Option<&AccountId>,
-//         _to: Option<&AccountId>,
-//         _amount: &Balance,
-//     ) -> Result<(), PSP22Error> {
-//         Ok(())
-//     }
-// }
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error> {
+        Ok(())
+    }
+}
