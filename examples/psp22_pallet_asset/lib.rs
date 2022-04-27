@@ -148,10 +148,7 @@ mod my_psp22 {
         #[ink(constructor)]
         pub fn new(origin_type: OriginType, asset_id: u32, target_address: [u8; 32], min_balance: u128) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
-                instance.psp22.origin_type = if origin_type == OriginType::Caller { 0 } else { 1 };
-                instance.psp22.asset_id = asset_id;
-
-                PalletAsset::create(origin_type, asset_id, target_address, min_balance);
+                instance._create(origin_type, asset_id, target_address, min_balance);
             })
         }
 
