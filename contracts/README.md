@@ -4,6 +4,6 @@
 Anyone can import the trait and use it to do cross-contract calls without
 knowing the implementation of the contract.
 
-That folder contains the implementation of popular contracts.
-Anyone can re-use the implementation if import the `brush` crate, enable
-feature of the contract, and implement all required traits.
+This folder contains the implementation of popular contracts.
+Anyone can re-use the implementation after importing the `brush` crate, enabling
+the desired feature(s) of the contract, and implementing all required traits.
