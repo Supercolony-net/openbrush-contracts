@@ -57,11 +57,11 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
     }
 
     let receiver;
-    if let syn::FnArg::Receiver(rec) = impl_item.sig.inputs.first().unwrap() {
+    if let syn::FnArg::Receiver(rec) = impl_item.sig.inputs.first().expect("Expect at least one argument") {
         receiver = rec;
     } else {
         return (quote_spanned! {
-            impl_item.sig.inputs.first().unwrap().span() =>
+            impl_item.sig.inputs.first().expect("Expect at least one argument").span() =>
                 compile_error!("First argument in method must be `self`.");
         })
         .into()
@@ -104,7 +104,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
                         #method(self, #body_ident)
                     }
                 })
-                .unwrap();
+                .expect("Unable to parse Path meta block");
             }
             NestedMeta::List(meta_list) => {
                 let method = meta_list.path.clone();
@@ -118,14 +118,14 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
                 });
 
                 let stmts = final_block.stmts;
-                block = syn::parse2::<syn::Block>(quote! {
+                let body = quote! {
                     {
                         #(#cloned_variables_definitions)*
                         #(#stmts)*
                         #method(self, #body_ident #(, #cloned_variables_idents )*)
                     }
-                })
-                .unwrap();
+                };
+                block = syn::parse2::<syn::Block>(body).expect("Unable to parse List meta block");
             }
         }
     }
@@ -140,7 +140,7 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
 }
 
 fn replace_self(block: syn::Block) -> syn::Block {
-    syn::parse2::<syn::Block>(recursive_replace_self(block.to_token_stream())).unwrap()
+    syn::parse2::<syn::Block>(recursive_replace_self(block.to_token_stream())).expect("Recursion was successful")
 }
 
 fn recursive_replace_self(token_stream: TokenStream2) -> TokenStream2 {
@@ -182,7 +182,7 @@ fn put_into_closure(receiver: &syn::Receiver, block: syn::Block, index: u8) -> (
             let mut #body_ident = |#instance_ident: #reference Self| #block;
         }
     })
-    .unwrap();
+    .expect("Unable to parse final_block");
 
     (final_block, body_ident)
 }

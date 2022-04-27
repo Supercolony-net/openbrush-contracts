@@ -22,10 +22,9 @@
 use crate::{
     internal,
     internal::*,
-    metadata,
+    metadata::LockedTrait,
     trait_definition,
 };
-use fs2::FileExt;
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
@@ -55,11 +54,7 @@ pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStr
     // After, we can consume all other stuff.
     items = consume_traits(items);
 
-    let locked_file = metadata::get_locked_file(crate::metadata::LockType::Shared);
-    let metadata = metadata::Metadata::load(&locked_file);
-    locked_file.unlock().expect("Can't remove shared lock");
-
-    let generated_items = generate_impls(items, &metadata);
+    let generated_items = generate_impls(items);
 
     module.content = Some((braces.clone(), generated_items));
 
@@ -99,14 +94,16 @@ fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {
     result
 }
 
-fn generate_impls(mut items: Vec<syn::Item>, metadata: &metadata::Metadata) -> Vec<syn::Item> {
+fn generate_impls(mut items: Vec<syn::Item>) -> Vec<syn::Item> {
     let mut generated_items: Vec<syn::Item> = vec![];
     items.iter_mut().for_each(|mut item| {
         if let Item::Impl(item_impl) = &mut item {
             if let Some((_, trait_path, _)) = item_impl.trait_.clone() {
                 let trait_ident = trait_path.segments.last().expect("Trait path is empty").ident.clone();
-                if metadata.external_traits.contains_key(&trait_ident.to_string()) {
-                    let mut generated_impls = internal::impl_external_trait(item_impl.clone(), &trait_path, &metadata);
+                let trait_lock = LockedTrait::new(trait_ident.to_string());
+                if let Some(trait_definition) = &trait_lock.trait_definition {
+                    let mut generated_impls =
+                        internal::impl_external_trait(item_impl.clone(), &trait_path, trait_definition);
                     generated_items.append(&mut generated_impls);
                     return
                 }

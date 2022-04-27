@@ -31,15 +31,9 @@ jobs:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/checkout@v2
-      - name: Install jq
-        run: |
-          apt-get install jq -y
       - name: Build & Run cargo tests
         run: |
-          for feature in $(cargo metadata | jq -r '.packages[] | select(.name=="brush") | .features | keys | .[]')
-          do
-            RUSTFLAGS="-D warnings" cargo test --features $feature --workspace
-          done
+          RUSTFLAGS="-D warnings" cargo test --all-features --workspace -- --test-threads=10
   integration-tests:
     runs-on: ubuntu-latest
     container:

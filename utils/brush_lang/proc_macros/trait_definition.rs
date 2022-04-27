@@ -25,7 +25,10 @@ use crate::{
         is_attr,
         remove_attr,
     },
-    metadata,
+    metadata::{
+        LockedTrait,
+        TraitDefinition,
+    },
 };
 use heck::CamelCase as _;
 use proc_macro::TokenStream;
@@ -59,14 +62,12 @@ pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream 
 
     if contains_ink.is_some() {
         add_selectors_attribute(&mut trait_item);
-        // Save trait definition with generics and default methods to metadata.
-        let locked_file = metadata::get_locked_file(crate::metadata::LockType::Exclusive);
-        let mut metadata = metadata::Metadata::load(&locked_file);
-        metadata.external_traits.insert(
-            trait_item.ident.to_string(),
-            trait_item.clone().into_token_stream().to_string(),
-        );
-        metadata.save_and_unlock(locked_file);
+        // Brackets to force the unlock of the file after the update of the trait definition
+        {
+            // Save trait definition with generics and default methods to metadata.
+            let mut trait_lock = LockedTrait::new(trait_item.ident.to_string());
+            trait_lock.trait_definition = Some(TraitDefinition::new(trait_item.clone()));
+        }
 
         trait_without_ink_attrs = remove_ink_attrs(trait_item.clone());
         let ink_trait = transform_to_ink_trait(trait_item.clone());

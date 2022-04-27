@@ -217,7 +217,7 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn once<BodyFn: FnOnce(&mut Contract)>(instance: &mut Contract, body: BodyFn, _example_data: u8) {
+/// fn once<BodyFn: FnOnce(&mut Contract)>(instance: &mut Contract, body: BodyFn, _example_data1: u8, _example_data2: u8) {
 ///     assert!(!instance.initialized, "Contract is already initialized");
 ///     body(instance);
 ///     instance.initialized = true;
@@ -251,10 +251,10 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
-///     println!("B before {}", data);
+/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data1: u8, data2: u8) -> &'static str {
+///     println!("B before {} {}", data1, data2);
 ///     let result = body(instance);
-///     println!("B after {}", data);
+///     println!("B after {} {}", data1, data2);
 ///     result
 /// }
 ///
@@ -271,7 +271,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// struct Contract {}
 ///
 /// impl Contract {
-///     #[brush::modifiers(A, B(_data), C)]
+///     #[brush::modifiers(A, B(_data, 13), C)]
 ///     fn main_logic(&self, _data: u8) -> &'static str {
 ///         return "Return value";
 ///     }
@@ -288,10 +288,10 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
-///     println!("B before {}", data);
+/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data1: u8, data2: u8) -> &'static str {
+///     println!("B before {} {}", data1, data2);
 ///     let result = body(instance);
-///     println!("B after {}", data);
+///     println!("B after {} {}", data1, data2);
 ///     result
 /// }
 ///
@@ -311,11 +311,12 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///     fn main_logic(&self, _data: u8) -> &'static str {
 ///         let mut __brush_body_2 = |__brush_instance_modifier: &Self| {
 ///             let __brush_cloned_0 = _data.clone();
+///             let __brush_cloned_1 = 13.clone();
 ///             let mut __brush_body_1 = |__brush_instance_modifier: &Self| {
 ///                 let mut __brush_body_0 = |__brush_instance_modifier: &Self| return "Return value";;
 ///                 C(__brush_instance_modifier, __brush_body_0)
 ///             };
-///             B(__brush_instance_modifier, __brush_body_1, __brush_cloned_0)
+///             B(__brush_instance_modifier, __brush_body_1, __brush_cloned_0, __brush_cloned_1)
 ///         };
 ///         A(self, __brush_body_2)
 ///     }

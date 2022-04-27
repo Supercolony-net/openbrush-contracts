@@ -21,6 +21,7 @@
 
 extern crate proc_macro;
 
+use crate::metadata::TraitDefinition;
 use heck::CamelCase as _;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
@@ -38,14 +39,12 @@ use syn::{
     ItemImpl,
 };
 
-use crate::metadata::Metadata;
-
 pub(crate) const BRUSH_PREFIX: &'static str = "__brush";
 
 pub(crate) struct MetaList {
     pub path: syn::Path,
     pub _paren_token: syn::token::Paren,
-    pub nested: syn::punctuated::Punctuated<TokenStream2, syn::Token![,]>,
+    pub nested: syn::punctuated::Punctuated<syn::Expr, syn::Token![,]>,
 }
 
 // Like Path::parse_mod_style but accepts keywords in the path.
@@ -78,7 +77,7 @@ fn parse_meta_list_after_path(path: syn::Path, input: ParseStream) -> syn::Resul
     Ok(MetaList {
         path,
         _paren_token: parenthesized!(content in input),
-        nested: content.parse_terminated(TokenStream2::parse)?,
+        nested: content.parse_terminated(syn::Expr::parse)?,
     })
 }
 
@@ -156,7 +155,7 @@ impl Attributes {
 pub(crate) fn impl_external_trait(
     mut impl_item: syn::ItemImpl,
     trait_path: &syn::Path,
-    metadata: &Metadata,
+    trait_def: &TraitDefinition,
 ) -> Vec<syn::Item> {
     let trait_ident = trait_path.segments.last().expect("Trait path is empty").ident.clone();
     let namespace_ident = format_ident!("{}_external", trait_ident.to_string().to_lowercase());
@@ -167,62 +166,57 @@ pub(crate) fn impl_external_trait(
         .insert(trait_path.segments.len() - 1, syn::PathSegment::from(namespace_ident));
     let impl_ink_attrs = extract_attr(&mut impl_item.attrs, "ink");
     let mut ink_methods: HashMap<String, syn::TraitItemMethod> = HashMap::new();
-    metadata
-        .external_traits
-        .get(&trait_ident.to_string())
-        .methods()
-        .iter()
-        .for_each(|method| {
-            if is_attr(&method.attrs, "ink") {
-                let mut method = method.clone();
+    trait_def.methods().iter().for_each(|method| {
+        if is_attr(&method.attrs, "ink") {
+            let mut method = method.clone();
 
-                for (i, fn_arg) in method.sig.inputs.iter_mut().enumerate() {
-                    if let syn::FnArg::Typed(pat) = fn_arg {
-                        let type_ident = format_ident!("{}Input{}", method.sig.ident.to_string().to_camel_case(), i);
-                        let mut type_path = trait_path.clone();
-                        type_path.segments.pop();
-                        type_path.segments.push(syn::PathSegment::from(type_ident));
-                        *pat.ty.as_mut() = syn::parse2(quote! {
-                            #type_path
-                        })
-                        .unwrap();
-                    }
-                }
-
-                if let syn::ReturnType::Type(_, t) = &mut method.sig.output {
-                    let type_ident = format_ident!("{}Output", method.sig.ident.to_string().to_camel_case());
+            for (i, fn_arg) in method.sig.inputs.iter_mut().enumerate() {
+                if let syn::FnArg::Typed(pat) = fn_arg {
+                    let type_ident = format_ident!("{}Input{}", method.sig.ident.to_string().to_camel_case(), i);
                     let mut type_path = trait_path.clone();
                     type_path.segments.pop();
                     type_path.segments.push(syn::PathSegment::from(type_ident));
-                    *t = syn::parse2(quote! {
+                    *pat.ty.as_mut() = syn::parse2(quote! {
                         #type_path
                     })
                     .unwrap();
                 }
-
-                let original_name = method.sig.ident.clone();
-                let inputs_params = method.sig.inputs.iter().filter_map(|fn_arg| {
-                    if let syn::FnArg::Typed(pat_type) = fn_arg {
-                        Some(pat_type.pat.clone())
-                    } else {
-                        None
-                    }
-                });
-
-                method.default = Some(
-                    syn::parse2(quote! {
-                        {
-                            #original_trait_path::#original_name(self #(, #inputs_params )* )
-                        }
-                    })
-                    .unwrap(),
-                );
-                let mut attrs = method.attrs.clone();
-                method.attrs = extract_attr(&mut attrs, "doc");
-                method.attrs = extract_attr(&mut attrs, "ink");
-                ink_methods.insert(method.sig.ident.to_string(), method);
             }
-        });
+
+            if let syn::ReturnType::Type(_, t) = &mut method.sig.output {
+                let type_ident = format_ident!("{}Output", method.sig.ident.to_string().to_camel_case());
+                let mut type_path = trait_path.clone();
+                type_path.segments.pop();
+                type_path.segments.push(syn::PathSegment::from(type_ident));
+                *t = syn::parse2(quote! {
+                    #type_path
+                })
+                .unwrap();
+            }
+
+            let original_name = method.sig.ident.clone();
+            let inputs_params = method.sig.inputs.iter().filter_map(|fn_arg| {
+                if let syn::FnArg::Typed(pat_type) = fn_arg {
+                    Some(pat_type.pat.clone())
+                } else {
+                    None
+                }
+            });
+
+            method.default = Some(
+                syn::parse2(quote! {
+                    {
+                        #original_trait_path::#original_name(self #(, #inputs_params )* )
+                    }
+                })
+                .unwrap(),
+            );
+            let mut attrs = method.attrs.clone();
+            method.attrs = extract_attr(&mut attrs, "doc");
+            method.attrs = extract_attr(&mut attrs, "ink");
+            ink_methods.insert(method.sig.ident.to_string(), method);
+        }
+    });
 
     if ink_methods.is_empty() {
         return vec![syn::Item::from(impl_item)]
