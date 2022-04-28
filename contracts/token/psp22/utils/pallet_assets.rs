@@ -191,12 +191,12 @@ impl PalletAsset {
     pub fn set_metadata(
         origin_type: OriginType,
         asset_id: u32,
-        name: [u8; 32],
-        symbol: [u8; 32],
+        name: Vec<u8>,
+        symbol: Vec<u8>,
         decimals: u8,
     ) -> Result<(), PalletAssetErr> {
         ::ink_env::chain_extension::ChainExtensionMethod::build(1112u32)
-            .input::<(OriginType, u32, [u8; 32], [u8; 32], u8)>()
+            .input::<(OriginType, u32, Vec<u8>, Vec<u8>, u8)>()
             .output::<Result<(), PalletAssetErr>>()
             .handle_error_code::<PalletAssetErr>()
             .call(&(origin_type, asset_id, name, symbol, decimals))?
