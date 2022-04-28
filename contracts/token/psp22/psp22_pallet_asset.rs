@@ -34,6 +34,7 @@ use crate::{
     traits::psp22::extensions::{
         burnable::*,
         mintable::*,
+        metadata::*
     },
 };
 use brush::{
@@ -247,6 +248,35 @@ impl<T: PSP22AssetStorage + Flush> PSP22AssetInternal for T {
             Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
             Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
         }
+    }
+}
+
+impl<T: PSP22AssetStorage> PSP22AssetMetadata for T {
+    default fn token_name(&self) -> Option<String> {
+        // self.get().name.clone()
+        unimplemented!()
+    }
+
+    default fn token_symbol(&self) -> Option<String> {
+        // self.get().symbol.clone()
+        unimplemented!()
+    }
+
+    default fn token_decimals(&self) -> u8 {
+        // self.get().decimals.clone()
+        unimplemented!()
+    }
+}
+
+
+pub trait PSP22AssetMetadataInternal {
+    fn _set_metadata(&self, name : Option<String>, symbol : Option<String>, decimals : u8)-> Result<(), PSP22Error>;
+}
+
+impl<T: PSP22AssetStorage> PSP22AssetMetadataInternal for T{
+    default fn _set_metadata(&self, name : Option<String>, symbol : Option<String>, decimals : u8)-> Result<(), PSP22Error> {
+        unimplemented!()
+        // PalletAsset::_set_metadata(self.get().asset_id, vec![1u8;1], vec![1u8;1], decimals).unwrap()
     }
 }
 
