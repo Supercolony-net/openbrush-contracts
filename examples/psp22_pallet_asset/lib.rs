@@ -171,9 +171,12 @@ mod my_psp22 {
 
     impl MyPSP22 {
         #[ink(constructor)]
-        pub fn new(origin_type: OriginType, asset_id: u32, target_address: [u8; 32], min_balance: u128) -> Self {
+        pub fn new(origin_type: OriginType, asset_id: u32, target_address: [u8; 32], min_balance: u128,
+            name : Option<String>, symbol : Option<String>, decimals : u8
+        ) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
                 instance._create(origin_type, asset_id, target_address, min_balance);
+                // instance._set_metadata(name, symbol, decimals);
             })
         }
 
