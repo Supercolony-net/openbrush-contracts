@@ -34,7 +34,7 @@ use brush::{
         psp22::{
             extensions::{
                 burnable::*,
-                metadata::*,
+                metadata_asset::*,
                 mintable::*,
             },
             psp22_pallet_asset::*,
@@ -63,16 +63,21 @@ mod my_psp22 {
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22AssetStorage)]
+    #[derive(Default, SpreadAllocate, PSP22AssetStorage, PSP22AssetMetadataStorage)]
     pub struct MyPSP22 {
         #[PSP22AssetStorageField]
         psp22: PSP22AssetData,
+        #[PSP22AssetMetadataStorageField]
+        metadata: PSP22AssetMetadataData,
     }
 
     impl PSP22Asset for MyPSP22 {}
 
     impl PSP22AssetMintable for MyPSP22 {}
+
     impl PSP22AssetBurnable for MyPSP22 {}
+
+    impl PSP22AssetMetadata for MyPSP22 {}
 
     // impl PSP22Transfer for MyPSP22 {
     //     // Let's override method to reject transactions to bad account

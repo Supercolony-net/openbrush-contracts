@@ -28,6 +28,7 @@ pub mod extensions {
     pub mod burnable;
     pub mod flashmint;
     pub mod metadata;
+    pub mod metadata_asset;
     pub mod mintable;
     pub mod wrapper;
 }

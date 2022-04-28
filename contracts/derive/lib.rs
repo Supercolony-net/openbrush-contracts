@@ -38,6 +38,14 @@ declare_derive_storage_trait!(
     PSP22MetadataStorage,
     PSP22MetadataStorageField
 );
+
+#[cfg(feature = "psp22")]
+declare_derive_storage_trait!(
+    derive_psp22assetmetadata_storage,
+    PSP22AssetMetadataStorage,
+    PSP22AssetMetadataStorageField
+);
+
 #[cfg(feature = "psp22")]
 declare_derive_storage_trait!(
     derive_psp22wrapper_storage,

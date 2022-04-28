@@ -39,3 +39,19 @@ pub trait PSP22Metadata {
     #[ink(message)]
     fn token_decimals(&self) -> u8;
 }
+
+/// Trait that contains metadata
+#[brush::trait_definition]
+pub trait PSP22AssetMetadata {
+    /// Returns the token name.
+    #[ink(message)]
+    fn token_name(&self) -> Option<String>;
+
+    /// Returns the token symbol.
+    #[ink(message)]
+    fn token_symbol(&self) -> Option<String>;
+
+    /// Returns the token decimals.
+    #[ink(message)]
+    fn token_decimals(&self) -> u8;
+}
