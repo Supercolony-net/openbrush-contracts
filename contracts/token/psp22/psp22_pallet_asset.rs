@@ -56,6 +56,7 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::Mapping;
+use ink_prelude::vec;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP22AssetData");
 
