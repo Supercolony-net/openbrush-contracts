@@ -273,10 +273,22 @@ pub trait PSP22AssetMetadataInternal {
     fn _set_metadata(&self, name : Option<String>, symbol : Option<String>, decimals : u8)-> Result<(), PSP22Error>;
 }
 
-impl<T: PSP22AssetStorage> PSP22AssetMetadataInternal for T{
+impl<T: PSP22AssetStorage> PSP22AssetMetadataInternal for T {
     default fn _set_metadata(&self, name : Option<String>, symbol : Option<String>, decimals : u8)-> Result<(), PSP22Error> {
-        unimplemented!()
-        // PalletAsset::_set_metadata(self.get().asset_id, vec![1u8;1], vec![1u8;1], decimals).unwrap()
+        let origin: OriginType = self.get().origin_type.into();
+        let name_vec = match name {
+            Some(s) => s.as_bytes().to_vec(),
+            None => vec![]
+        };
+        let symbol_vec = match symbol {
+            Some(s) => s.as_bytes().to_vec(),
+            None => vec![]
+        };
+        let result = PalletAsset::set_metadata(origin, self.get().asset_id, name_vec, symbol_vec, decimals);
+        match result {
+            Result::<(), PalletAssetErr>::Ok(_) => Result::<(), PSP22Error>::Ok(()),
+            Result::<(), PalletAssetErr>::Err(e) => Result::<(), PSP22Error>::Err(PSP22Error::from(e)),
+        }
     }
 }
 
