@@ -176,15 +176,25 @@ mod my_psp22 {
         ) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
                 instance._create(origin_type, asset_id, target_address, min_balance);
-                // instance._set_metadata(name, symbol, decimals);
+                instance._set_metadata(name, symbol, decimals);
             })
         }
 
-        // 	0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
+        // 	    0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
         #[ink(message)]
         pub fn get_address(&self) -> [u8; 32] {
             let caller = self.env().caller();
             *caller.as_ref()
+        }
+
+        #[ink(message)]
+        pub fn set_metadata(&self, name : Option<String>, symbol : Option<String>, decimals : u8) -> Result<(), PSP22Error> {
+            self._set_metadata(name, symbol, decimals)
+        }
+
+        #[ink(message)]
+        pub fn token_name(&self) -> Result<Vec<u8>, PalletAssetErr> {
+            PalletAsset::metadata_name(self.get().asset_id)
         }
 
         #[ink(message)]
