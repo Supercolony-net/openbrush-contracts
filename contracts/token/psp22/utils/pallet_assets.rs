@@ -209,6 +209,22 @@ impl PalletAsset {
             .handle_error_code::<PalletAssetErr>()
             .call(&asset_id)
     }
+
+    pub fn metadata_symbol(asset_id: u32) -> Result<Vec<u8>, PalletAssetErr> {
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1114u32)
+            .input::<u32>()
+            .output::<Vec<u8>>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&asset_id)
+    }
+
+    pub fn metadata_decimals(asset_id: u32) -> Result<u8, PalletAssetErr> {
+        ::ink_env::chain_extension::ChainExtensionMethod::build(1115u32)
+            .input::<u32>()
+            .output::<u8>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&asset_id)
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]

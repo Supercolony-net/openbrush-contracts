@@ -254,20 +254,19 @@ impl<T: PSP22AssetStorage + Flush> PSP22AssetInternal for T {
 
 impl<T: PSP22AssetStorage> PSP22AssetMetadata for T {
     default fn token_name(&self) -> Option<String> {
-        // self.get().name.clone()
-        let name_vec = PalletAsset::metadata_name(self.get().asset_id).unwrap();
-        let name = String::from_utf8(name_vec).unwrap();
+        let name_vec = PalletAsset::metadata_name(self.get().asset_id).unwrap_or_default();
+        let name = String::from_utf8(name_vec).unwrap_or_default();
         Some(name)
     }
 
     default fn token_symbol(&self) -> Option<String> {
-        // self.get().symbol.clone()
-        unimplemented!()
+        let name_vec = PalletAsset::metadata_symbol(self.get().asset_id).unwrap_or_default();
+        let name = String::from_utf8(name_vec).unwrap_or_default();
+        Some(name)
     }
 
     default fn token_decimals(&self) -> u8 {
-        // self.get().decimals.clone()
-        unimplemented!()
+        PalletAsset::metadata_decimals(self.get().asset_id).unwrap()
     }
 }
 
