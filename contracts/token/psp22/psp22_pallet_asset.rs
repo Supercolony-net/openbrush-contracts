@@ -33,8 +33,8 @@ use crate::{
     psp22::utils::pallet_assets::*,
     traits::psp22::extensions::{
         burnable::*,
+        metadata::*,
         mintable::*,
-        metadata::*
     },
 };
 use brush::{
@@ -53,10 +53,10 @@ use ink_env::{
 };
 use ink_prelude::{
     string::String,
+    vec,
     vec::Vec,
 };
 use ink_storage::Mapping;
-use ink_prelude::vec;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP22AssetData");
 
@@ -270,21 +270,25 @@ impl<T: PSP22AssetStorage> PSP22AssetMetadata for T {
     }
 }
 
-
 pub trait PSP22AssetMetadataInternal {
-    fn _set_metadata(&self, name : Option<String>, symbol : Option<String>, decimals : u8)-> Result<(), PSP22Error>;
+    fn _set_metadata(&self, name: Option<String>, symbol: Option<String>, decimals: u8) -> Result<(), PSP22Error>;
 }
 
 impl<T: PSP22AssetStorage> PSP22AssetMetadataInternal for T {
-    default fn _set_metadata(&self, name : Option<String>, symbol : Option<String>, decimals : u8)-> Result<(), PSP22Error> {
+    default fn _set_metadata(
+        &self,
+        name: Option<String>,
+        symbol: Option<String>,
+        decimals: u8,
+    ) -> Result<(), PSP22Error> {
         let origin: OriginType = self.get().origin_type.into();
         let name_vec = match name {
             Some(s) => s.as_bytes().to_vec(),
-            None => vec![]
+            None => vec![],
         };
         let symbol_vec = match symbol {
             Some(s) => s.as_bytes().to_vec(),
-            None => vec![]
+            None => vec![],
         };
         let result = PalletAsset::set_metadata(origin, self.get().asset_id, name_vec, symbol_vec, decimals);
         match result {
