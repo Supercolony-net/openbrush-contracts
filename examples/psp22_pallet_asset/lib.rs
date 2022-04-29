@@ -193,8 +193,10 @@ mod my_psp22 {
         }
 
         #[ink(message)]
-        pub fn token_name(&self) -> Result<Vec<u8>, PalletAssetErr> {
-            PalletAsset::metadata_name(self.get().asset_id)
+        pub fn token_name(&self) -> String {
+            let v = PalletAsset::metadata_name(self.get().asset_id).unwrap();
+            let name = String::from_utf8(v).unwrap();
+            name
         }
 
         #[ink(message)]
