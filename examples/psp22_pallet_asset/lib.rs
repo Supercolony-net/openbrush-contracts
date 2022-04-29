@@ -345,6 +345,7 @@ mod my_psp22 {
 }
 
 /*
+
 use frame_support::log::{
     error,
     trace,
@@ -1044,7 +1045,8 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 
 
                 let mut env = env.buf_in_buf_out();
-                let input: (OriginType, u32, [u8;32], [u8;32], u8) = env.read_as()?;
+                // let input: (OriginType, u32, [u8;32], [u8;32], u8) = env.read_as()?;
+                let input: (OriginType, u32, Vec<u8>, Vec<u8>, u8) = env.read_as_unbounded(env.in_len())?;
 				let (origin_type, asset_id, name, symbol, decimals) = input;
 
 				let origin_address = match origin_type {
@@ -1055,16 +1057,23 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 						address_account
 					},
 				};
+				error!("name metadata input {:#?}", name.clone());
+				error!("symbol metadata input {:#?}", symbol.clone());
+				error!("decimals metadata input {}", decimals);
 
 				let result = pallet_assets::Pallet::<Runtime>::
-				set_metadata(Origin::signed(origin_address),asset_id,name.to_vec(), symbol.to_vec(), decimals);
+				set_metadata(Origin::signed(origin_address),asset_id,name, symbol, decimals);
 				
 				error!("set_metadata : {:#?}", result);
 				// error!("set_metadata input {:#?}", input);
 				
 				match result {
 					DispatchResult::Ok(_) => {
-						error!("OK set_metadata")
+						error!("OK set_metadata");
+						let ok = Result::<(),PalletAssetErr>::Ok(());
+						env.write(ok.encode().as_ref(), false, None).map_err(|_| {
+							DispatchError::Other("ChainExtension failed to call 'set_metadata'")
+						})?;
 					}
 					DispatchResult::Err(e) => {
 						error!("ERROR set_metadata");
@@ -1076,6 +1085,27 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
 					}
 				}
 			}
+
+			//get asset metadata name
+			1113 => {
+				error!("name metadata");
+				// use frame_support::traits::tokens::fungibles::metadata::Inspect;
+
+                let mut env = env.buf_in_buf_out();
+                // let input: (OriginType, u32, [u8;32], [u8;32], u8) = env.read_as()?;
+                let asset_id: u32 = env.read_as()?;
+				use crate::sp_api_hidden_includes_construct_runtime::hidden_include::traits::fungibles::metadata::Inspect;
+            	let name = Assets::name(asset_id);
+
+				error!("asset_id : {}", asset_id);
+				error!("name : {:#?}", name);
+                env.write(&name[..], false, None).map_err(|_| {
+                    DispatchError::Other("ChainExtension failed to call balance")
+                })?;
+			}
+
+			
+
 			
             _ => {
                 error!("Called an unregistered `func_id`: {:}", func_id);
@@ -1096,4 +1126,6 @@ impl ChainExtension<Runtime> for PalletAssetsExtention {
         true
     }
 }
+
+
  */
