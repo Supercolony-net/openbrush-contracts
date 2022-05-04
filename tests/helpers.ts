@@ -84,10 +84,7 @@ export const setupContractPalletAssets = async (name, constructor, ...args) => {
   
   const defaultSigner = await createSignerFromAccountName('Alice')
   // const defaultSigner = await getRandomSigner(await createSignerFromAccountName('Alice'), one.muln(10))
-  console.log("defaultSigner");
-  console.log(defaultSigner.address);
-  console.log("defaultSigner");
-  const alice = await getRandomSigner(await createSignerFromAccountName('Alice'), one.muln(10))
+  const alice = await createSignerFromAccountName('Alice')
 
   const contractFactory = await getContractFactory(name, defaultSigner)
   const contract = await contractFactory.deploy(constructor, ...args)
