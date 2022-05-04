@@ -6,10 +6,11 @@ import { KeyringPair } from '@polkadot/keyring/types'
 import { buildTx } from '@redspot/patract/buildTx'
 import { Keyring } from '@polkadot/keyring'
 import { TransactionParams, TransactionResponse } from "@redspot/patract/types";
+import { LocalKeyringPair } from 'redspot/types/provider';
 
 
 const { getContractFactory, getRandomSigner } = patract
-const { api, getSigners, getAddresses } = network
+const { api, getSigners, getAddresses, createSigner } = network
 
 
 export { expect } from './setup/chai'
@@ -55,6 +56,7 @@ export const setupProxy = (contract, proxy): Contract =>  {
 export const setupContract = async (name, constructor, ...args) => {
   const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
   const signers = await getSigners()
+  
   const defaultSigner = await getRandomSigner(signers[0], one.muln(10))
   const alice = await getRandomSigner(signers[1], one.muln(10))
 
@@ -76,6 +78,38 @@ export const setupContract = async (name, constructor, ...args) => {
   }
 }
 
+export const setupContractPalletAssets = async (name, constructor, ...args) => {
+  const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
+  const signers = await getSigners()
+  
+  const defaultSigner = await createSignerFromAccountName('Alice')
+  // const defaultSigner = await getRandomSigner(await createSignerFromAccountName('Alice'), one.muln(10))
+  console.log("defaultSigner");
+  console.log(defaultSigner.address);
+  console.log("defaultSigner");
+  const alice = await getRandomSigner(await createSignerFromAccountName('Alice'), one.muln(10))
+
+  const contractFactory = await getContractFactory(name, defaultSigner)
+  const contract = await contractFactory.deploy(constructor, ...args)
+  const abi = artifacts.readArtifact(name)
+  patchContractMethods(contract)
+
+  return {
+    defaultSigner,
+    alice,
+    accounts: [alice, await getRandomSigner(), await getRandomSigner()],
+    contractFactory,
+    contract,
+    abi,
+    one,
+    query: contract.query,
+    tx: contract.tx
+  }
+}
+
+
+
+
 export const addPairWithAmount = async (pair: KeyringPair): Promise<KeyringPair> => {
   const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
   const redspotPair = network.addPair(pair)
@@ -88,6 +122,13 @@ export const getSigner = async (account: string) => {
   return signer
 }
 
+export const getSignerSr25519 = async (account: string) => {
+  const s = new Keyring({ type: 'sr25519' }).createFromUri(`//${account}`)
+  console.log(s.address);
+  const signer = await addPairWithAmount(s)
+  return signer
+}
+
 export const fromSigner = (contract: Contract, address: string): Contract => {
   return patchContractMethods(contract.connect(address))
 }
@@ -95,5 +136,12 @@ export const fromSigner = (contract: Contract, address: string): Contract => {
 export const bnArg = (value: number | string | number[] | Uint8Array | Buffer | BN, len = 32) => {
   return new BN(value, undefined, 'le').toArray('le', len)
 }
+
+export const createSignerFromAccountName = async (account: string) => {
+  const signer = await getSignerSr25519(account);
+  return createSigner(signer)
+}
+
+
 
 export const oneDay = () => (24 * 60 * 60 * 1000)

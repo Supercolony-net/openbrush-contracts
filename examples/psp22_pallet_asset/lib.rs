@@ -49,7 +49,7 @@ use brush::{
 use ink_lang::ChainExtensionInstance;
 
 #[brush::contract]
-mod my_psp22 {
+mod my_psp22_pallet_asset {
     use crate::*;
     use brush::contracts::{
         psp22::{
@@ -83,11 +83,11 @@ mod my_psp22 {
             min_balance: u128,
             name: Option<String>,
             symbol: Option<String>,
-            decimals: u8,
+            decimals: u8
         ) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
-                instance._create(origin_type, asset_id, target_address, min_balance);
-                instance._set_metadata(name, symbol, decimals);
+                instance._create(origin_type, asset_id, target_address, min_balance).expect("should create");
+                instance._set_metadata(name, symbol, decimals).expect("should set metadata");
             })
         }
 
