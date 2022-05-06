@@ -121,7 +121,6 @@ export const getSigner = async (account: string) => {
 
 export const getSignerSr25519 = async (account: string) => {
   const s = new Keyring({ type: 'sr25519' }).createFromUri(`//${account}`)
-  console.log(s.address);
   const signer = await addPairWithAmount(s)
   return signer
 }

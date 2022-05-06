@@ -25,63 +25,28 @@ async function setup() {
     await expect(query.balanceOf(sender.address)).to.have.output(0)
   })
 
-  // it('Transfer adds amount to destination account', async () => {
-  //   const {
-  //     contract,
-  //     accounts: [receiver]
-  //   } = await setup()
+  it(`Transfer should succeed`, async () => {
+    const { query, tx, contract, accounts: [alice, bob, eve] } = await setup();
 
-  //   await expect(() => contract.tx.transfer(receiver.address, 7, [])).to.changeTokenBalance(contract, receiver, 7)
-  //   await expect(() => contract.tx.transfer(receiver.address, 7, [])).to.changeTokenBalances(contract, [contract.signer, receiver], [-7, 7])
-  // })
+    await expect(contract.tx.mint(alice.address, 1000)).to.eventually.be.fulfilled
+    // Arrange - Create a signers, transfer tokens to them
+    await tx.transfer(eve.address, 10, []);
+    await tx.transfer(bob.address, 5, []);
 
-  // it('Transfers funds successfully if destination account is a receiver and supports transfers', async () => {
-  //   const { tx } = await setup()
+    // Assert - ensure tokens was not burnt from the accounts
+    await expect(query.balanceOf(eve.address)).to.have.output(10);
+    await expect(query.balanceOf(bob.address)).to.have.output(5);
+  })
 
-  //   const { contract } = await setup_receiver()
+  it(`Transfer approve succeed`, async () => {
+    const { query, tx, contract, accounts: [alice, bob, eve] } = await setup();
 
-  //   await expect(tx.transfer(contract.address, 7, [])).to.eventually.be.fulfilled
-  // })
+    await expect(contract.tx.mint(alice.address, 1000)).to.eventually.be.fulfilled
+    // Arrange - Create a signers, transfer tokens to them
+    await tx.approve(bob.address, 500, []);
+    
+    // Assert - ensure tokens was not burnt from the accounts
+    await expect(query.allowance(alice.address, bob.address)).to.have.output(500);
+  })
 
-  // it('Transfers funds successfully if destination account is a receiver a contract but not PSP22Receiver', async () => {
-  //   const { tx } = await setup()
-
-  //   const { contract } = await setup()
-
-  //   await expect(tx.transfer(contract.address, 7, [])).to.eventually.be.fulfilled
-  // })
-
-  // it('Can not transfer above the amount', async () => {
-  //   const {
-  //     contract,
-  //     accounts: [receiver]
-  //   } = await setup()
-
-  //   await expect(contract.tx.transfer(receiver.address, 1007, [])).to.eventually.be.rejected
-  // })
-
-  // it('Can not transfer to hated account', async () => {
-  //   const {
-  //     query,
-  //     tx,
-  //     accounts: [hated_account]
-  //   } = await setup()
-
-  //   // Check that we can transfer money while account is not hated
-  //   await expect(tx.transfer(hated_account.address, 10, [])).to.eventually.be.fulfilled
-  //   let result = await query.balanceOf(hated_account.address)
-  //   expect(result.output).to.equal(10)
-  //   await expect(query.getHatedAccount()).to.have.output(consts.EMPTY_ADDRESS)
-
-  //   // Hate account
-  //   await expect(tx.setHatedAccount(hated_account.address)).to.eventually.be.ok
-  //   await expect(query.getHatedAccount()).to.have.output(hated_account.address)
-
-  //   // Transfer must fail
-  //   await expect(tx.transfer(hated_account.address, 10, [])).to.eventually.be.rejected
-
-  //   // Amount of tokens must be the same
-  //   result = await query.balanceOf(hated_account.address)
-  //   expect(result.output).to.equal(10)
-  // })
 })
