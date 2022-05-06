@@ -97,8 +97,9 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
+        self._decrease_sender_balance(from, id, amount)?;
         self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
-        self._transfer_from(from, to, id, amount)?;
+        self._increase_receiver_balance(to, id, amount);
         self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         self._emit_transfer_single_event(operator, Some(from), Some(to), id, amount);
 
@@ -117,15 +118,20 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
+        for item in ids_amounts.clone().into_iter() {
+            self._decrease_sender_balance(from, item.0, item.1)?;
+        }
+
         self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
 
         for item in ids_amounts.clone().into_iter() {
-            self._transfer_from(from, to, item.0, item.1)?;
+            self._increase_receiver_balance(to, item.0, item.1);
         }
 
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         self._emit_transfer_batch_event(operator, Some(from), Some(to), ids_amounts.clone());
 
-        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)
+        Ok(())
     }
 }
 
@@ -170,8 +176,6 @@ pub trait PSP1155Internal {
     fn _burn_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP1155Error>;
 
     fn _transfer_guard(&self, operator: AccountId, from: AccountId, to: AccountId) -> Result<(), PSP1155Error>;
-
-    fn _transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error>;
 
     fn _balance_of_or_zero(&self, owner: AccountId, id: Id) -> Balance;
 
@@ -271,18 +275,6 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         if from != operator && !self._is_approved_for_all(from, operator) {
             return Err(PSP1155Error::NotAllowed)
         }
-        Ok(())
-    }
-
-    default fn _transfer_from(
-        &mut self,
-        from: AccountId,
-        to: AccountId,
-        id: Id,
-        amount: Balance,
-    ) -> Result<(), PSP1155Error> {
-        self._decrease_sender_balance(from, id, amount)?;
-        self._increase_receiver_balance(to, id, amount);
         Ok(())
     }
 

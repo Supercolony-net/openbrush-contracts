@@ -344,7 +344,7 @@ mod psp1155 {
         );
 
         assert!(nft
-            .batch_transfer_from(accounts.alice, accounts.bob, ids_amount.clone(), vec![],)
+            .batch_transfer_from(accounts.alice, accounts.bob, ids_amount.clone(), vec![])
             .is_ok());
 
         assert_eq!(

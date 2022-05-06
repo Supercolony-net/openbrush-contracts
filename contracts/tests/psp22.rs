@@ -240,7 +240,7 @@ mod psp22 {
         assert_eq!(emitted_events.len(), 2);
         // Check first transfer event related to PSP-20 instantiation.
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
-        // Check the second transfer event relating to the actual trasfer.
+        // Check the second transfer event relating to the actual transfer.
         assert_transfer_event(
             &emitted_events[1],
             Some(AccountId::from([0x01; 32])),
@@ -304,9 +304,10 @@ mod psp22 {
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 4);
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
-        // The second event `emitted_events[1]` is an Approve event that we skip checking.
+        // The second and third events (`emitted_events[1]` and `emitted_events[2]`) are an Approve event
+        // that we skip checking.
         assert_transfer_event(
-            &emitted_events[2],
+            &emitted_events[3],
             Some(AccountId::from([0x01; 32])),
             Some(AccountId::from([0x05; 32])),
             10,
