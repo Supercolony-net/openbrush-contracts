@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { expect, fromSigner, setupContract, getSigner, setupContractPalletAssets } from '../../helpers';
+import { expect, fromSigner, setupContract, getSigner, setupContractPalletAssets, aliceAddress } from '../../helpers';
 
 describe('MY_PSP22_ASSET_BURNABLE', () => {
 
@@ -11,7 +11,7 @@ describe('MY_PSP22_ASSET_BURNABLE', () => {
         return setupContractPalletAssets('my_psp22_pallet_asset', 'new', 
         'caller', 
         random_asset_id,
-        '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
+        aliceAddress,
         '1',
         'name',
         'symbol',
