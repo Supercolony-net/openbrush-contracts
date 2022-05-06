@@ -18,7 +18,7 @@ describe('MY_PSP22_ASSET_MINTABLE', () => {
         'symbol',
         '12'
         )
-      }
+    }
 
     it('Assigns initial balance', async () => {
         const { query, defaultSigner: sender } = await setup()

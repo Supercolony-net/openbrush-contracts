@@ -2,16 +2,20 @@ import { consts } from '../constants'
 import { expect, setupContractPalletAssets, setupContract } from '../helpers'
 
 describe('MY_PSP22_ASSET', () => {
-  async function setup() {
-    return setupContract('my_psp22_pallet_asset', 'new', 
+  function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
+async function setup() {
+    const random_asset_id = getRandomInt(10000).toString();
+    return setupContractPalletAssets('my_psp22_pallet_asset', 'new', 
     'caller', 
-    '1', 
+    random_asset_id,
     '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
     '1',
     'name',
     'symbol',
     '12'
-
     )
   }
 
