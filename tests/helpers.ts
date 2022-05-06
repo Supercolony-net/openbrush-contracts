@@ -94,7 +94,7 @@ export const setupContractPalletAssets = async (name, constructor, ...args) => {
   return {
     defaultSigner,
     alice,
-    accounts: [alice, await getRandomSigner(), await getRandomSigner()],
+    accounts: [alice, await createSignerFromAccountName('Bob'), await createSignerFromAccountName('Eve')],
     contractFactory,
     contract,
     abi,
