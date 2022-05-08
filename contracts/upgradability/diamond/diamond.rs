@@ -123,12 +123,12 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
                 if DiamondStorage::get(self).hash_to_selectors.get(&code_hash).is_none() {
                     self._on_add_facet(code_hash);
                 }
+                // remove selectors from this facet which may be registered but will not be used anymore
+                self._remove_selectors(facet_cut);
                 // map this code hash to its selectors
                 DiamondStorage::get_mut(self)
                     .hash_to_selectors
                     .insert(&code_hash, &facet_cut.selectors);
-                // remove selectors from this facet which may be registered but will not be used anymore
-                self._remove_selectors(facet_cut);
             }
         }
 
