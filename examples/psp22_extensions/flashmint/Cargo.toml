@@ -46,3 +46,6 @@ ink-as-dependency = []
 
 [profile.dev]
 codegen-units = 16
+
+[profile.release]
+overflow-checks = false

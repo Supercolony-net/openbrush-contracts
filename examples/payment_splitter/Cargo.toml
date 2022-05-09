@@ -18,10 +18,6 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 # These dependencies
 brush = { path = "../..", default-features = false, features = ["payment_splitter"] }
 
-# payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
-[profile.dev]
-codegen-units = 16
-
 [lib]
 name = "my_payment_splitter"
 path = "lib.rs"
@@ -46,3 +42,9 @@ std = [
     "brush/std",
 ]
 ink-as-dependency = []
+
+[profile.dev]
+codegen-units = 16
+
+[profile.release]
+overflow-checks = false
