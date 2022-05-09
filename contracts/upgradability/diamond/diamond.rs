@@ -202,7 +202,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         let selectors = DiamondStorage::get(self)
             .hash_to_selectors
             .get(&facet_cut.hash)
-            .unwrap();
+            .unwrap_or(Vec::<Selector>::new());
         for selector in selectors.iter() {
             if !facet_cut.selectors.contains(&selector) {
                 DiamondStorage::get_mut(self).selector_to_hash.remove(&selector);
