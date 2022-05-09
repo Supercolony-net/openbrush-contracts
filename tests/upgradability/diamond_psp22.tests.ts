@@ -388,4 +388,20 @@ describe('DIAMOND_PSP22', () => {
     await expect(fromSigner(proxy, defaultSigner.address).tx.initPsp22()).to.eventually.be.rejected
     await expect(diamondContract.query.facetFunctionSelectors(psp22Hash)).to.output(filteredSelectors)
   })
+
+  it('Can not perform diamond cut with empty hash', async () => {
+    // abi of psp22 facet
+    const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
+
+    const psp22Messages = (await abi).V3.spec.messages
+
+    const psp22Selectors = getSelectorsFromMessages(psp22Messages)
+    const psp22Cut = [[null, psp22Selectors]]
+
+    // initialize diamond contract
+    const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address)
+
+    // add psp22 facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(psp22Cut, null)).to.eventually.be.rejected
+  })
 })
