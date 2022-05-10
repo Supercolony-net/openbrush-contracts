@@ -30,10 +30,13 @@ use brush::{
         Hash,
     },
 };
-use ink_env::call::{
-    DelegateCall,
-    ExecutionInput,
-    Selector as InkSelector,
+use ink_env::{
+    call::{
+        DelegateCall,
+        ExecutionInput,
+        Selector as InkSelector,
+    },
+    Clear,
 };
 use ink_prelude::vec::Vec;
 use ink_storage::Mapping;
@@ -51,8 +54,6 @@ pub struct DiamondData {
     pub selector_to_hash: Mapping<Selector, Hash>,
     // facet mapped to all functions it supports
     pub hash_to_selectors: Mapping<Hash, Vec<Selector>>,
-    // code hash of diamond contract for immutable functions
-    pub self_hash: Hash,
 }
 
 pub trait DiamondStorage: OwnableStorage + ::brush::traits::InkStorage {
@@ -85,8 +86,6 @@ pub trait DiamondInternal {
 
     fn _init_call(&self, call: InitCall) -> !;
 
-    fn _handle_replace_immutable(&mut self, hash: Hash) -> Result<(), DiamondError>;
-
     fn _remove_facet(&mut self, code_hash: Hash);
 
     fn _remove_selectors(&mut self, facet_cut: &FacetCut);
@@ -98,7 +97,9 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
     default fn _diamond_cut(&mut self, diamond_cut: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError> {
         for facet_cut in diamond_cut.iter() {
             let code_hash = facet_cut.hash;
-            self._handle_replace_immutable(code_hash)?;
+            if code_hash.is_clear() {
+                return Err(DiamondError::EmptyCodeHash)
+            }
             if facet_cut.selectors.is_empty() {
                 // means that we want to remove this facet
                 self._remove_facet(code_hash);
@@ -123,12 +124,12 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
                 if DiamondStorage::get(self).hash_to_selectors.get(&code_hash).is_none() {
                     self._on_add_facet(code_hash);
                 }
+                // remove selectors from this facet which may be registered but will not be used anymore
+                self._remove_selectors(facet_cut);
                 // map this code hash to its selectors
                 DiamondStorage::get_mut(self)
                     .hash_to_selectors
                     .insert(&code_hash, &facet_cut.selectors);
-                // remove selectors from this facet which may be registered but will not be used anymore
-                self._remove_selectors(facet_cut);
             }
         }
 
@@ -181,14 +182,6 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         unreachable!("the _init_call call will never return since `tail_call` was set");
     }
 
-    default fn _handle_replace_immutable(&mut self, hash: Hash) -> Result<(), DiamondError> {
-        return if hash == DiamondStorage::get(self).self_hash {
-            Err(DiamondError::ImmutableFunction)
-        } else {
-            Ok(())
-        }
-    }
-
     default fn _remove_facet(&mut self, code_hash: Hash) {
         let vec = DiamondStorage::get(self).hash_to_selectors.get(&code_hash).unwrap();
         vec.iter().for_each(|old_selector| {
@@ -202,7 +195,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
         let selectors = DiamondStorage::get(self)
             .hash_to_selectors
             .get(&facet_cut.hash)
-            .unwrap();
+            .unwrap_or(Vec::<Selector>::new());
         for selector in selectors.iter() {
             if !facet_cut.selectors.contains(&selector) {
                 DiamondStorage::get_mut(self).selector_to_hash.remove(&selector);
