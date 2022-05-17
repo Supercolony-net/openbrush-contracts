@@ -162,6 +162,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
         Ok(())
     }
 
+    #[ink(message)]
     default fn _release_all(&mut self) -> Result<(), PaymentSplitterError> {
         let payees = self.get().payees.clone();
 
