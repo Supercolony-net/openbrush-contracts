@@ -19,9 +19,23 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#[cfg(feature = "psp35")]
-pub mod psp35;
-#[cfg(feature = "psp22")]
-pub mod psp22;
-#[cfg(feature = "psp34")]
-pub mod psp34;
+/// Extension of [`PSP1155`] that allows minting of new tokens
+use crate::traits::psp35::Id;
+use crate::traits::psp35::PSP35Error;
+use brush::traits::{
+    AccountId,
+    Balance,
+};
+use ink_prelude::vec::Vec;
+
+#[brush::wrapper]
+pub type PSP35MintableRef = dyn PSP35Mintable;
+
+#[brush::trait_definition]
+pub trait PSP35Mintable {
+    /// Mints `amount` tokens of token type `id` to `to`
+    ///
+    /// See [`PSP1155::_mint_to`].
+    #[ink(message)]
+    fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error>;
+}

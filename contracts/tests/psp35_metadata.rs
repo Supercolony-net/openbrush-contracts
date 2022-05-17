@@ -19,9 +19,39 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#![feature(min_specialization)]
 #[cfg(feature = "psp35")]
-pub mod psp35;
-#[cfg(feature = "psp22")]
-pub mod psp22;
-#[cfg(feature = "psp34")]
-pub mod psp34;
+#[brush::contract]
+mod psp35_metadata {
+    use contracts::psp35::extensions::metadata::*;
+    use ink_lang as ink;
+
+    #[derive(Default, PSP35Storage, PSP35MetadataStorage)]
+    #[ink(storage)]
+    pub struct PSP35Struct {
+        #[PSP35StorageField]
+        psp35: PSP35Data,
+        #[PSP35MetadataStorageField]
+        metadata: PSP35MetadataData,
+    }
+
+    impl PSP35 for PSP35Struct {}
+
+    impl PSP35Metadata for PSP35Struct {}
+
+    impl PSP35Struct {
+        #[ink(constructor)]
+        pub fn new(uri: Option<String>) -> Self {
+            let mut instance = Self::default();
+            instance.metadata.uri = uri;
+            instance
+        }
+    }
+
+    #[ink::test]
+    fn metadata_works() {
+        let nft = PSP35Struct::new(Some(String::from("https://www.supercolony.net/")));
+
+        assert_eq!(nft.uri([0; 32]), Some(String::from("https://www.supercolony.net/")));
+    }
+}
