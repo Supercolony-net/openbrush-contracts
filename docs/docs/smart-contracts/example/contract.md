@@ -21,12 +21,12 @@ authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_primitives = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
@@ -81,7 +81,7 @@ So we will declare a struct and derive all the needed traits.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, AccessControlStorage, PausableStorage, LendingStorage)]
+#[derive(Default, SpreadAllocate, AccessControlStorage, PausableStorage, LendingStorage)]
 pub struct LendingContract {
     #[AccessControlStorageField]
     access: AccessControlData,
@@ -112,12 +112,12 @@ impl LendingPermissionedInternal for LendingContract {
         let (hash, _) =
             ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
         let hash = hash.as_ref();
-        let contract = SharesContract::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
-            .endowment(0)
-            .code_hash(code_hash)
-            .salt_bytes(&hash[..4])
-            .instantiate()
-            .unwrap();
+        let contract = SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+                .endowment(0)
+                .code_hash(code_hash)
+                .salt_bytes(&hash[..4])
+                .instantiate()
+                .unwrap();
         contract.to_account_id()
     }
 }
@@ -136,21 +136,21 @@ in `LendingContract`.
 impl LendingContract {
     /// constructor with name and symbol
     #[ink(constructor, payable)]
-    pub fn new(code_hash: Hash, nft_code_hash: Hash) -> Self {
-        let mut instance = Self::default();
-        let caller = instance.env().caller();
-        instance._init_with_admin(caller);
-        instance.grant_role(MANAGER, caller).expect("Can not set manager role");
-        instance.lending.shares_contract_code_hash = code_hash;
-        // instantiate NFT contract and store its account id
-        let nft = LoanContract::new()
-            .endowment(0)
-            .code_hash(nft_code_hash)
-            .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-            .instantiate()
-            .unwrap();
-        instance.lending.loan_account = nft.to_account_id();
-        instance
+    pub fn new(shares_hash: Hash, loan_hash: Hash) -> Self {
+        ink_lang::codegen::initialize_contract(|instance: &mut LendingContract| {
+            let caller = instance.env().caller();
+            instance._init_with_admin(caller);
+            instance.grant_role(MANAGER, caller).expect("Can not set manager role");
+            instance.lending.shares_contract_code_hash = shares_hash;
+            // instantiate NFT contract and store its account id
+            let nft = LoanContractRef::new()
+                .endowment(0)
+                .code_hash(loan_hash)
+                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .instantiate()
+                .unwrap();
+            instance.lending.loan_account = nft.to_account_id();
+        })
     }
 }
 ```

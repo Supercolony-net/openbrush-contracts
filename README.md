@@ -139,7 +139,8 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 - [x] Agnostic traits.
 - [x] Wrapper around the trait definition to do a cross-contract calls.
 - [ ] PSPs for NFT and multi-token.
-- [ ] Add extensions: AccessControlEnumerable, ERC721Enumerable.
+- [x] Add extension: ERC721Enumerable.
+- [ ] Add extension: AccessControlEnumerable.
 - [ ] Refactor NFT and multi-token according to final decisions in PSPs.
 
 ------- Release 2.0.0 - Production ready
@@ -158,8 +159,9 @@ this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
 
 ------- Release 4.0.0
 
-- [ ] Add support of upgradable contracts to ink!/contract-pallet level.
-- [ ] Create upgradable contracts.
+- [x] Add support of upgradable contracts to ink!/contract-pallet level.
+- [x] Implement `Proxy` pattern.
+- [x] Implement `Diamond` standard.
 
 ## Installation & Testing
 To work with project you need to install ink! toolchain and NodeJS's dependencies.
@@ -177,7 +179,7 @@ $ yarn build:release
 
 ### Tests
 
-You can run unit tests by `cargo test --all-features --workspace` command from the root of the directory.
+You can run unit tests by `RUSTFLAGS="-D warnings" cargo test --all-features --workspace -- --test-threads=10` command from the root of the directory.
 
 To run integration test you need to start the node with contract-pallet.
 - [Setup and start the node with contract-pallet](https://github.com/paritytech/substrate-contracts-node)
@@ -193,7 +195,11 @@ After you can run tests by `yarn run test` command. It will build all contracts 
 
 ### Was it audited?
 
-Contracts in this repository have not yet been audited. But it is in plans.
+Contracts in this repository have not yet been audited.
+ink! will have soon several major changes, so it does not make sense to audit it now.
+ink! is not ready for production at the moment. It requires resolving some issues.
+
+After that, we plan to do an audit.
 
 ## License
 

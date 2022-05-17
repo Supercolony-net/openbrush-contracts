@@ -1,3 +1,24 @@
+// Copyright (c) 2012-2022 Supercolony
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the"Software"),
+// to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 #![feature(drain_filter)]
 extern crate proc_macro;
 
@@ -196,7 +217,7 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn once<BodyFn: FnOnce(&mut Contract)>(instance: &mut Contract, body: BodyFn, _example_data: u8) {
+/// fn once<BodyFn: FnOnce(&mut Contract)>(instance: &mut Contract, body: BodyFn, _example_data1: u8, _example_data2: u8) {
 ///     assert!(!instance.initialized, "Contract is already initialized");
 ///     body(instance);
 ///     instance.initialized = true;
@@ -230,10 +251,10 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
-///     println!("B before {}", data);
+/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data1: u8, data2: u8) -> &'static str {
+///     println!("B before {} {}", data1, data2);
 ///     let result = body(instance);
-///     println!("B after {}", data);
+///     println!("B after {} {}", data1, data2);
 ///     result
 /// }
 ///
@@ -250,7 +271,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// struct Contract {}
 ///
 /// impl Contract {
-///     #[brush::modifiers(A, B(_data), C)]
+///     #[brush::modifiers(A, B(_data, 13), C)]
 ///     fn main_logic(&self, _data: u8) -> &'static str {
 ///         return "Return value";
 ///     }
@@ -267,10 +288,10 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// }
 ///
 /// #[brush::modifier_definition]
-/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data: u8) -> &'static str {
-///     println!("B before {}", data);
+/// fn B<T, F: FnOnce(&T) -> &'static str>(instance: &T, body: F, data1: u8, data2: u8) -> &'static str {
+///     println!("B before {} {}", data1, data2);
 ///     let result = body(instance);
-///     println!("B after {}", data);
+///     println!("B after {} {}", data1, data2);
 ///     result
 /// }
 ///
@@ -290,11 +311,12 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 ///     fn main_logic(&self, _data: u8) -> &'static str {
 ///         let mut __brush_body_2 = |__brush_instance_modifier: &Self| {
 ///             let __brush_cloned_0 = _data.clone();
+///             let __brush_cloned_1 = 13.clone();
 ///             let mut __brush_body_1 = |__brush_instance_modifier: &Self| {
 ///                 let mut __brush_body_0 = |__brush_instance_modifier: &Self| return "Return value";;
 ///                 C(__brush_instance_modifier, __brush_body_0)
 ///             };
-///             B(__brush_instance_modifier, __brush_body_1, __brush_cloned_0)
+///             B(__brush_instance_modifier, __brush_body_1, __brush_cloned_0, __brush_cloned_1)
 ///         };
 ///         A(self, __brush_body_2)
 ///     }

@@ -1,6 +1,6 @@
 [package]
 name = "derive"
-version = "1.4.0"
+version = "1.6.1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -28,3 +28,4 @@ reentrancy_guard = []
 pausable = []
 timelock_controller = []
 proxy = []
+diamond = []

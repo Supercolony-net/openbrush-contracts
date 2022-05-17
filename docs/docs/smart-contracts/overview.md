@@ -5,25 +5,25 @@ title: Overview
 
 This doc contains description of how the OpenBrush library can be imported and used. 
 
-The OpenBrush is using ink! from the `master` branch at the moment.
+The OpenBrush is using ink! stable release `v3.0.0` branch at the moment.
 So you should use the same version of the ink! across your project.
 
 #### The default `toml` of your project with OpenBrush:
 ```toml
 [dependencies]
 # Import of all ink! crates
-ink_primitives = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_primitives = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]

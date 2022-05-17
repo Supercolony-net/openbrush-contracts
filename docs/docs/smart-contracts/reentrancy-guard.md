@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 title: Reentrancy Guard
 ---
 
@@ -20,7 +20,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of Reentrancy Guard via `brush` features.
 
 ```toml
-brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["reentrancy_guard"] }
+brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["reentrancy_guard"] }
 ```
 
 ### Step 2: Add imports
@@ -40,6 +40,7 @@ pub mod my_flipper_guard {
 
   use crate::flip_on_me::CallerOfFlip;
   use ink_env::call::FromAccountId;
+  use ink_storage::traits::SpreadAllocate;
 ```
 
 
@@ -51,7 +52,7 @@ this trait allows you to use `non_reentrant` modifier.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, ReentrancyGuardStorage)]
+#[derive(Default, SpreadAllocate, ReentrancyGuardStorage)]
 pub struct MyFlipper {
     #[ReentrancyGuardStorageField]
     guard: ReentrancyGuardData,
@@ -67,7 +68,7 @@ After that you can add `non_reentrant` modifier to `flip` and `call_flip_on_me` 
 impl MyFlipper {
     #[ink(constructor)]
     pub fn new() -> Self {
-        Self::default()
+        ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
     }
 
     #[ink(message)]
@@ -151,7 +152,7 @@ pub mod flip_on_me {
     impl FlipOnMe {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self::default()
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]
@@ -173,12 +174,12 @@ To do a cross-contract call to `MyFlipper` you need to import the `MyFlipper` co
 
 ```toml
 [dependencies]
-ink_primitives = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_primitives = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }

@@ -1,16 +1,16 @@
 [package]
 name = "flipper"
-version = "1.4.0"
+version = "1.6.1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { branch = "master", git = "https://github.com/paritytech/ink", default-features = false }
+ink_primitives = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_metadata = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_env = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_storage = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_lang = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
@@ -47,7 +47,3 @@ ink-as-dependency = []
 
 [profile.dev]
 codegen-units = 16
-overflow-checks = false
-
-[profile.release]
-overflow-checks = false

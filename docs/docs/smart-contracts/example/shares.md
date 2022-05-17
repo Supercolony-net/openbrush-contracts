@@ -71,23 +71,15 @@ pub mod shares {
         },
     };
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use brush::modifiers;
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang::codegen::Env;
 
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 
-    #[cfg(not(feature = "ink-as-dependency"))]
     use lending_project::traits::shares::*;
 ```
-You can notice that we marked some imports with `#[cfg(not(feature = "ink-as-dependency"))]`.
-It is needed to remove rust's warnings when we will import `SharesContract` as `ink-as-dependency`
-into `LendingContract` for instantiation. When we are importing some contracts as 
-`ink-as-dependency`, we only import the signature of methods without 
-the implementation of them. It is why the imports are not used during 
-`ink-as-dependency` and it is why Rust is throwing warnings.
 
 ## Define the storage
 
@@ -97,7 +89,7 @@ and declare the field related to this trait.
 ```rust
 /// Define the storage for PSP22 data, Metadata data and Ownable data
 #[ink(storage)]
-#[derive(Default, PSP22Storage, OwnableStorage, PSP22MetadataStorage)]
+#[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage, PSP22MetadataStorage)]
 pub struct SharesContract {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -179,13 +171,13 @@ impl SharesContract {
     /// constructor with name and symbol
     #[ink(constructor)]
     pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-        let mut instance = Self::default();
-        let caller = instance.env().caller();
-        instance.metadata.name = name;
-        instance.metadata.symbol = symbol;
-        instance.metadata.decimals = 18;
-        instance._init_with_owner(caller);
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut SharesContract| {
+            let caller = instance.env().caller();
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance.metadata.decimals = 18;
+            instance._init_with_owner(caller);
+        })
     }
 }
 ```

@@ -11,7 +11,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of PSP34 via `brush` features.
 
 ```toml
-brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp34"] }
+brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp34"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -26,6 +26,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 pub mod my_psp34_metadata {
     use brush::contracts::psp34::extensions::metadata::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -35,7 +36,7 @@ Declare storage struct and declare the field related to the `PSP34MetadataStorag
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP34Storage, PSP34MetadataStorage)]
+#[derive(Default, SpreadAllocate, PSP34Storage, PSP34MetadataStorage)]
 pub struct MyPSP34 {
     #[PSP34StorageField]
     psp34: PSP34Data,
@@ -49,6 +50,7 @@ pub struct MyPSP34 {
 Inherit implementation of the `PSP34Metadata` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
+impl PSP34 for MyPSP34 {}
 impl PSP34Metadata for MyPSP34 {}
 // Optionally you can add more default implementations
 impl PSP34Internal for MyPSP34 {}
@@ -63,10 +65,10 @@ Define constructor. Your `PSP34Metadata` contract is ready!
 impl MyPSP34 {
     #[ink(constructor)]
     pub fn new(id: Id, name: String, symbol: String) -> Self {
-        let mut instance = Self::default();
-        instance._set_attribute(id.clone(), String::from("name").into_bytes(), name.into_bytes());
-        instance._set_attribute(id, String::from("symbol").into_bytes(), symbol.into_bytes());
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            instance._set_attribute(id.clone(), String::from("name").into_bytes(), name.into_bytes());
+            instance._set_attribute(id, String::from("symbol").into_bytes(), symbol.into_bytes());
+        }
     }
 }
 ```

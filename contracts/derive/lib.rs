@@ -1,3 +1,24 @@
+// Copyright (c) 2012-2022 Supercolony
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the"Software"),
+// to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 extern crate proc_macro;
 
@@ -34,6 +55,12 @@ declare_derive_storage_trait!(
     derive_psp34_metadata_storage,
     PSP34MetadataStorage,
     PSP34MetadataStorageField
+);
+#[cfg(feature = "psp34")]
+declare_derive_storage_trait!(
+    derive_psp34_enumerable_storage,
+    PSP34EnumerableStorage,
+    PSP34EnumerableStorageField
 );
 
 // PSP1155
@@ -89,3 +116,12 @@ declare_derive_storage_trait!(
 // Proxy
 #[cfg(feature = "proxy")]
 declare_derive_storage_trait!(derive_proxy_storage, ProxyStorage, ProxyStorageField);
+// Diamond
+#[cfg(feature = "diamond")]
+declare_derive_storage_trait!(derive_diamond_storage, DiamondStorage, DiamondStorageField);
+#[cfg(feature = "diamond")]
+declare_derive_storage_trait!(
+    derive_diamond_loupe_storage,
+    DiamondLoupeStorage,
+    DiamondLoupeStorageField
+);

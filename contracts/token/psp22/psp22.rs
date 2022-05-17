@@ -1,3 +1,24 @@
+// Copyright (c) 2012-2022 Supercolony
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the"Software"),
+// to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 pub use crate::traits::{
     errors::{
         PSP22Error,
@@ -74,8 +95,8 @@ impl<T: PSP22Storage + Flush> PSP22 for T {
             return Err(PSP22Error::InsufficientAllowance)
         }
 
-        self._transfer_from_to(from, to, value, data)?;
         self._approve_from_to(from, caller, allowance - value)?;
+        self._transfer_from_to(from, to, value, data)?;
         Ok(())
     }
 
@@ -117,20 +138,6 @@ pub trait PSP22Internal {
         to: &AccountId,
         value: &Balance,
         data: &Vec<u8>,
-    ) -> Result<(), PSP22Error>;
-
-    fn _before_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _amount: &Balance,
-    ) -> Result<(), PSP22Error>;
-
-    fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _amount: &Balance,
     ) -> Result<(), PSP22Error>;
 
     fn _transfer_from_to(
@@ -201,24 +208,6 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         Ok(())
     }
 
-    default fn _before_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _amount: &Balance,
-    ) -> Result<(), PSP22Error> {
-        Ok(())
-    }
-
-    default fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _amount: &Balance,
-    ) -> Result<(), PSP22Error> {
-        Ok(())
-    }
-
     default fn _transfer_from_to(
         &mut self,
         from: AccountId,
@@ -241,10 +230,13 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &amount)?;
 
-        self._do_safe_transfer_check(&from, &to, &amount, &data)?;
         self.get_mut().balances.insert(&from, &(from_balance - amount));
+
+        self._do_safe_transfer_check(&from, &to, &amount, &data)?;
+
         let to_balance = self._balance_of(&to);
         self.get_mut().balances.insert(&to, &(to_balance + amount));
+
         self._after_token_transfer(Some(&from), Some(&to), &amount)?;
         self._emit_transfer_event(Some(from), Some(to), amount);
 
@@ -304,6 +296,42 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
         self._after_token_transfer(Some(&account), None, &amount)?;
         self._emit_transfer_event(Some(account), None, amount);
 
+        Ok(())
+    }
+}
+
+pub trait PSP22Transfer {
+    fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error>;
+}
+
+impl<T> PSP22Transfer for T {
+    default fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _amount: &Balance,
+    ) -> Result<(), PSP22Error> {
         Ok(())
     }
 }

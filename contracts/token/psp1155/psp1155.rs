@@ -1,3 +1,24 @@
+// Copyright (c) 2012-2022 Supercolony
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the"Software"),
+// to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 pub use crate::traits::psp1155::*;
 use brush::{
     declare_storage_trait,
@@ -76,8 +97,9 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
+        self._decrease_sender_balance(from, id, amount)?;
         self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
-        self._transfer_from(from, to, id, amount)?;
+        self._increase_receiver_balance(to, id, amount);
         self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         self._emit_transfer_single_event(operator, Some(from), Some(to), id, amount);
 
@@ -96,15 +118,20 @@ impl<T: PSP1155Storage + Flush> PSP1155 for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
+        for item in ids_amounts.clone().into_iter() {
+            self._decrease_sender_balance(from, item.0, item.1)?;
+        }
+
         self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
 
         for item in ids_amounts.clone().into_iter() {
-            self._transfer_from(from, to, item.0, item.1)?;
+            self._increase_receiver_balance(to, item.0, item.1);
         }
 
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         self._emit_transfer_batch_event(operator, Some(from), Some(to), ids_amounts.clone());
 
-        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)
+        Ok(())
     }
 }
 
@@ -150,8 +177,6 @@ pub trait PSP1155Internal {
 
     fn _transfer_guard(&self, operator: AccountId, from: AccountId, to: AccountId) -> Result<(), PSP1155Error>;
 
-    fn _transfer_from(&mut self, from: AccountId, to: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error>;
-
     fn _balance_of_or_zero(&self, owner: AccountId, id: Id) -> Balance;
 
     fn _is_approved_for_all(&self, account: AccountId, operator: AccountId) -> bool;
@@ -159,20 +184,6 @@ pub trait PSP1155Internal {
     fn _increase_receiver_balance(&mut self, to: AccountId, id: Id, amount: Balance);
 
     fn _decrease_sender_balance(&mut self, from: AccountId, id: Id, amount: Balance) -> Result<(), PSP1155Error>;
-
-    fn _before_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _ids: &Vec<(Id, Balance)>,
-    ) -> Result<(), PSP1155Error>;
-
-    fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _ids: &Vec<(Id, Balance)>,
-    ) -> Result<(), PSP1155Error>;
 
     fn _do_safe_transfer_check(
         &mut self,
@@ -267,18 +278,6 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         Ok(())
     }
 
-    default fn _transfer_from(
-        &mut self,
-        from: AccountId,
-        to: AccountId,
-        id: Id,
-        amount: Balance,
-    ) -> Result<(), PSP1155Error> {
-        self._decrease_sender_balance(from, id, amount)?;
-        self._increase_receiver_balance(to, id, amount);
-        Ok(())
-    }
-
     default fn _balance_of_or_zero(&self, owner: AccountId, id: Id) -> Balance {
         self.get().balances.get((&id, &owner)).unwrap_or(0)
     }
@@ -304,24 +303,6 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         }
 
         self.get_mut().balances.insert((&id, &from), &(balance - amount));
-        Ok(())
-    }
-
-    default fn _before_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _ids: &Vec<(Id, Balance)>,
-    ) -> Result<(), PSP1155Error> {
-        Ok(())
-    }
-
-    default fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _ids: &Vec<(Id, Balance)>,
-    ) -> Result<(), PSP1155Error> {
         Ok(())
     }
 
@@ -367,5 +348,40 @@ impl<T: PSP1155Storage + Flush> PSP1155Internal for T {
         };
         self.load();
         result
+    }
+}
+
+pub trait PSP1155Transfer {
+    fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error>;
+}
+impl<T> PSP1155Transfer for T {
+    default fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP1155Error> {
+        Ok(())
     }
 }

@@ -1,3 +1,24 @@
+// Copyright (c) 2012-2022 Supercolony
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the"Software"),
+// to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 pub use crate::traits::psp34::*;
 use brush::{
     declare_storage_trait,
@@ -43,7 +64,7 @@ impl<T: PSP34Storage + Flush> PSP34 for T {
     }
 
     default fn balance_of(&self, owner: AccountId) -> u32 {
-        self.get().owned_tokens_count.get(&owner).unwrap_or(0)
+        self._balance_of(&owner)
     }
 
     default fn owner_of(&self, id: Id) -> Option<AccountId> {
@@ -65,7 +86,7 @@ impl<T: PSP34Storage + Flush> PSP34 for T {
     }
 
     default fn total_supply(&self) -> Balance {
-        self.get().total_supply
+        self._total_supply()
     }
 }
 
@@ -85,27 +106,8 @@ pub trait PSP34Internal {
     /// Returns the owner of the token.
     fn _owner_of(&self, id: &Id) -> Option<AccountId>;
 
-    fn _allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<Id>) -> bool;
-
-    fn _check_token_exists(&self, id: &Id) -> Result<AccountId, PSP34Error>;
-
     /// Gets an operator on other Account's behalf.
     fn _transfer_token(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error>;
-
-    /// Transfers token `id` `from` the sender to the `to` AccountId.
-    fn _before_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _id: &Id,
-    ) -> Result<(), PSP34Error>;
-
-    fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _id: &Id,
-    ) -> Result<(), PSP34Error>;
 
     /// Child contract can override that if they don't want to do a cross call
     fn _do_safe_transfer_check(
@@ -124,6 +126,14 @@ pub trait PSP34Internal {
     fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error>;
 
     fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP34Error>;
+
+    fn _balance_of(&self, owner: &AccountId) -> u32;
+
+    fn _total_supply(&self) -> Balance;
+
+    fn _allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<Id>) -> bool;
+
+    fn _check_token_exists(&self, id: &Id) -> Result<AccountId, PSP34Error>;
 }
 
 impl<T: PSP34Storage + Flush> PSP34Internal for T {
@@ -180,38 +190,22 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
     default fn _transfer_token(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error> {
         let owner = self._check_token_exists(&id)?;
         let caller = Self::env().caller();
-        let id = Some(id);
+        let id_opt = Some(id.clone());
 
-        if owner != caller && !self._allowance(&owner, &caller, &id) {
+        if owner != caller && !self._allowance(&owner, &caller, &id_opt) {
             return Err(PSP34Error::NotApproved)
         }
 
-        let id = id.unwrap();
-
         self._before_token_transfer(Some(&owner), Some(&to), &id)?;
+
+        self.get_mut().operator_approvals.remove((&owner, &caller, &id_opt));
         self._remove_token(&owner, &id)?;
+
         self._do_safe_transfer_check(&caller, &owner, &to, &id, &data)?;
         self._add_token(&to, &id)?;
         self._after_token_transfer(Some(&owner), Some(&to), &id)?;
         self._emit_transfer_event(Some(owner), Some(to), id);
-        Ok(())
-    }
 
-    default fn _before_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _id: &Id,
-    ) -> Result<(), PSP34Error> {
-        Ok(())
-    }
-
-    default fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _id: &Id,
-    ) -> Result<(), PSP34Error> {
         Ok(())
     }
 
@@ -227,7 +221,8 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         let builder =
             PSP34ReceiverRef::before_received_builder(to, operator.clone(), from.clone(), id.clone(), data.clone())
                 .call_flags(CallFlags::default().set_allow_reentry(true));
-        let result = match builder.fire() {
+        let b = builder.fire();
+        let result = match b {
             Ok(result) => {
                 match result {
                     Ok(_) => Ok(()),
@@ -293,6 +288,50 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         self._remove_token(&from, &id)?;
         self._after_token_transfer(Some(&from), None, &id)?;
         self._emit_transfer_event(Some(from), None, id);
+        Ok(())
+    }
+
+    default fn _balance_of(&self, owner: &AccountId) -> u32 {
+        self.get().owned_tokens_count.get(owner).unwrap_or(0)
+    }
+
+    default fn _total_supply(&self) -> Balance {
+        self.get().total_supply
+    }
+}
+
+pub trait PSP34Transfer {
+    fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id,
+    ) -> Result<(), PSP34Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id,
+    ) -> Result<(), PSP34Error>;
+}
+
+impl<T> PSP34Transfer for T {
+    default fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id,
+    ) -> Result<(), PSP34Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _id: &Id,
+    ) -> Result<(), PSP34Error> {
         Ok(())
     }
 }

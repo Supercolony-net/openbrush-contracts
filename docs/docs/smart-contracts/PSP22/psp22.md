@@ -11,7 +11,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of PSP22 via `brush` features.
 
 ```toml
-brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22"] }
+brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -26,6 +26,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 pub mod my_psp22 {
     use brush::contracts::psp22::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -35,7 +36,7 @@ Declare the storage struct and declare the field related to the `PSP22Storage` t
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage)]
+#[derive(Default, SpreadAllocate, PSP22Storage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -57,22 +58,24 @@ Define constructor. Your basic version of `PSP22` contract is ready!
 ```rust
 impl MyPSP22 {
    #[ink(constructor)]
-   pub fn new(total_supply: Balance) -> Self {
-      let mut instance = Self::default();
-      instance._mint(instance.env().caller(), total_supply);
-      instance
-   }
+    pub fn new(total_supply: Balance) -> Self {
+        ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+            instance
+                ._mint(instance.env().caller(), total_supply)
+                .expect("Should mint");
+        })
+    }
 }
 ```
 
 ## Step 6: Customize your contract
 
 Customize it by adding hated account logic. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
-override `_before_token_transfer` method in the `PSP22` implementation(that methods defined in `PSP22Internal` trait), and we will add the `hated_account: AccountId` field to the structure.
+override `_before_token_transfer` method in the `PSP22` implementation(that methods defined in `PSP22Transfer` trait), and we will add the `hated_account: AccountId` field to the structure.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage)]
+#[derive(Default, SpreadAllocate, PSP22Storage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -80,15 +83,15 @@ pub struct MyPSP22 {
     hated_account: AccountId,
 }
 
-impl PSP22Internal for MyPSP22 {
+impl PSP22Transfer for MyPSP22 {
     // Let's override method to reject transactions to bad account
     fn _before_token_transfer(
         &mut self,
-        _from: &AccountId,
-        to: &AccountId,
+        _from: Option<&AccountId>,
+        to: Option<&AccountId>,
         _amount: &Balance,
     ) -> Result<(), PSP22Error> {
-        if to == &self.hated_account {
+        if to == Some(&self.hated_account) {
             return Err(PSP22Error::Custom(String::from("I hate this account!")))
         }
         Ok(())
@@ -100,11 +103,11 @@ impl PSP22 for MyPSP22 {}
 impl MyPSP22 {
     #[ink(constructor)]
     pub fn new(total_supply: Balance) -> Self {
-        let mut instance = Self::default();
-        instance
-            ._mint(instance.env().caller(), total_supply)
-            .expect("Should mint");
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+            instance
+                ._mint(instance.env().caller(), total_supply)
+                .expect("Should mint");
+        })
     }
 
     #[ink(message)]

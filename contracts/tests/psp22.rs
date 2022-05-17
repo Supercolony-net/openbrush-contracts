@@ -1,3 +1,24 @@
+// Copyright (c) 2012-2022 Supercolony
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the"Software"),
+// to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 #![feature(min_specialization)]
 #[cfg(feature = "psp22")]
 #[brush::contract]
@@ -73,7 +94,9 @@ mod psp22 {
         ) -> Result<(), PSP22Error> {
             Ok(())
         }
+    }
 
+    impl PSP22Transfer for PSP22Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
@@ -217,7 +240,7 @@ mod psp22 {
         assert_eq!(emitted_events.len(), 2);
         // Check first transfer event related to PSP-20 instantiation.
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
-        // Check the second transfer event relating to the actual trasfer.
+        // Check the second transfer event relating to the actual transfer.
         assert_transfer_event(
             &emitted_events[1],
             Some(AccountId::from([0x01; 32])),
@@ -281,9 +304,10 @@ mod psp22 {
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 4);
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
-        // The second event `emitted_events[1]` is an Approve event that we skip checking.
+        // The second and third events (`emitted_events[1]` and `emitted_events[2]`) are an Approve event
+        // that we skip checking.
         assert_transfer_event(
-            &emitted_events[2],
+            &emitted_events[3],
             Some(AccountId::from([0x01; 32])),
             Some(AccountId::from([0x05; 32])),
             10,

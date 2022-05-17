@@ -11,7 +11,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of Access Control via `brush` features.
 
 ```toml
-brush = { tag = "v1.4.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["access_control"] }
+brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["access_control"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -28,6 +28,7 @@ pub mod my_access_control {
         contracts::access_control::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
@@ -37,7 +38,7 @@ Declare storage struct and declare the field related to and `AccessControlStorag
 
 ```rust
 #[ink(storage)]
-#[derive(Default, AccessControlStorage)]
+#[derive(Default, SpreadAllocate, AccessControlStorage)]
 pub struct MyAccessControl {
     #[AccessControlStorageField]
     access: AccessControlData,
@@ -60,7 +61,8 @@ Define constructor. Your basic version of `AccessControl` contract is ready!
 impl MyAccessControl {
     #[ink(constructor)]
     pub fn new() -> Self {
-        Self::default()
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        })
     }
 }
 ```
@@ -79,9 +81,10 @@ pub mod my_access_control {
         contracts::access_control::*,
         modifiers,
     };
+    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, AccessControlStorage)]
+    #[derive(Default, SpreadAllocate, AccessControlStorage)]
     pub struct MyAccessControl {
         #[AccessControlStorageField]
         access: AccessControlData,
@@ -98,12 +101,12 @@ pub mod my_access_control {
     impl MyAccessControl {
         #[ink(constructor)]
         pub fn new() -> Self {
-            let mut instance = Self::default();
-            let caller = instance.env().caller();
-            instance._init_with_admin(caller);
-            // We grant counter role to caller in constructor, so they can increase the count
-            instance.grant_role(CALLER, caller).expect("Should grant the role");
-            instance
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                let caller = instance.env().caller();
+                instance._init_with_admin(caller);
+                // We grant counter role to caller in constructor, so they can increase the count
+                instance.grant_role(CALLER, caller).expect("Should grant the role");
+            })
         }
 
         #[ink(message)]

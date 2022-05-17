@@ -17,6 +17,7 @@ Use `brush::contract` macro instead of `ink::contract`. Import **everything** fr
 pub mod my_psp22 {
     use brush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
 ```
 
 ## Step 2: Define storage
@@ -25,7 +26,7 @@ Declare the storage struct and declare the field related to the `PSP22MetadataSt
 
 ```rust
 #[ink(storage)]
-#[derive(Default, PSP22Storage, PSP22MetadataStorage)]
+#[derive(Default, SpreadAllocate, PSP22Storage, PSP22MetadataStorage)]
 pub struct MyPSP22 {
     #[PSP22StorageField]
     psp22: PSP22Data,
@@ -38,7 +39,11 @@ pub struct MyPSP22 {
 
 Inherit the implementation of the `PSP22Metadata` trait. You can customize (override) methods in this `impl` block.
 
+Inherit the implementation of the `PSP22` trait.
+
 ```rust
+impl PSP22 for MyPSP22 {}
+
 impl PSP22Metadata for MyPSP22 {}
 ```
 
@@ -50,14 +55,14 @@ Define constructor. Your `PSP22Metadata` contract is ready!
 impl MyPSP22 {
     #[ink(constructor)]
     pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
-        let mut instance = Self::default();
-        instance.metadata.name = name;
-        instance.metadata.symbol = symbol;
-        instance.metadata.decimals = decimal;
-        instance
-            ._mint(instance.env().caller(), total_supply)
-            .expect("Should mint total_supply");
-        instance
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance.metadata.decimals = decimal;
+            instance
+                ._mint(instance.env().caller(), total_supply)
+                .expect("Should mint total_supply");
+        })
     }
 }
 ```
