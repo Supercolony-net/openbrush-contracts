@@ -21,6 +21,13 @@ pub mod my_payment_splitter {
                 instance._init(payees_and_shares).expect("Should init");
             })
         }
+
+        /// Payout all payees at once.
+        /// Delete this method if you don't want this functionality in your version of the payment splitter.
+        #[ink(message)]
+        pub fn release_all(&mut self) -> Result<(), PaymentSplitterError> {
+            self._release_all()
+        }
     }
 
     impl PaymentSplitter for SplitterStruct {}
