@@ -36,7 +36,7 @@ std = [
 ]
 psp22 = ["contracts/psp22"]
 psp34 = ["contracts/psp34"]
-psp1155 = ["contracts/psp1155"]
+psp35 = ["contracts/psp35"]
 ownable = ["contracts/ownable"]
 access_control = ["contracts/access_control"]
 payment_splitter = ["contracts/payment_splitter"]
