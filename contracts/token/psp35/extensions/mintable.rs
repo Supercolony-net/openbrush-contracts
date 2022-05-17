@@ -19,9 +19,19 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#[cfg(feature = "psp35")]
-pub mod psp35;
-#[cfg(feature = "psp22")]
-pub mod psp22;
-#[cfg(feature = "psp34")]
-pub mod psp34;
+pub use crate::{
+    psp35::*,
+    traits::psp35::extensions::mintable::*,
+};
+use brush::traits::{
+    AccountId,
+    Balance,
+    InkStorage,
+};
+use ink_prelude::vec::Vec;
+
+impl<T: PSP35Internal + InkStorage> PSP35Mintable for T {
+    default fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
+        self._mint_to(to, ids_amounts)
+    }
+}

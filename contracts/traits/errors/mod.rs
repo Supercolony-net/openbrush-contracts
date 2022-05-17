@@ -25,7 +25,7 @@ mod flashloan;
 mod ownable;
 mod pausable;
 mod payment_splitter;
-mod psp1155;
+mod psp35;
 mod psp22;
 mod psp34;
 mod reentrancy_guard;
@@ -40,9 +40,9 @@ pub use flashloan::{
 pub use ownable::OwnableError;
 pub use pausable::PausableError;
 pub use payment_splitter::PaymentSplitterError;
-pub use psp1155::{
-    PSP1155Error,
-    PSP1155ReceiverError,
+pub use psp35::{
+    PSP35Error,
+    PSP35ReceiverError,
 };
 pub use psp22::{
     PSP22Error,

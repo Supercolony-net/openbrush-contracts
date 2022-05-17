@@ -19,9 +19,27 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#[cfg(feature = "psp35")]
-pub mod psp35;
-#[cfg(feature = "psp22")]
-pub mod psp22;
-#[cfg(feature = "psp34")]
-pub mod psp34;
+pub use crate::{
+    psp35::*,
+    traits::psp35::extensions::metadata::*,
+};
+use brush::declare_storage_trait;
+pub use derive::PSP35MetadataStorage;
+use ink_prelude::string::String;
+
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP35MetadataData");
+
+#[derive(Default, Debug)]
+#[brush::storage(STORAGE_KEY)]
+pub struct PSP35MetadataData {
+    pub uri: Option<String>,
+    pub _reserved: Option<()>,
+}
+
+declare_storage_trait!(PSP35MetadataStorage, PSP35MetadataData);
+
+impl<T: PSP35MetadataStorage> PSP35Metadata for T {
+    default fn uri(&self, _id: Id) -> Option<String> {
+        self.get().uri.clone()
+    }
+}
