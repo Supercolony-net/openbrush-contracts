@@ -22,7 +22,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 -  Let's [deploy to local network](#Deployment-on-local-network)
 -  You can manuly [call](#Call-the-smart-contract) our deployed contract
 -  [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/)
--  How to deploy ink! smart contract to [canvas](###Deploy-to-Canvas)
+-  How to deploy ink! smart contract to [canvas](#Deploy-to-Canvas)
 -  How to get free `ROC` token using [faucet](#Rococo-Faucet) to deploy contract to Canvas network
 - [Astar](#Astar) - [WASM](https://webassembly.org/) + [EVM](https://ethereum.org/en/developers/docs/evm/) Hub on [Polkadot](https://polkadot.network/). More info about astar [here](https://docs.astar.network/)
 - You can deploy **ink!** smart contract to [Shibuya](#Deploy-to-Shibuya) (astar test network). How to get free `SBY` using [faucet](https://docs.astar.network/integration/testnet-faucet)
