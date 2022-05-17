@@ -95,8 +95,8 @@ impl<T: PSP22Storage + Flush> PSP22 for T {
             return Err(PSP22Error::InsufficientAllowance)
         }
 
-        self._transfer_from_to(from, to, value, data)?;
         self._approve_from_to(from, caller, allowance - value)?;
+        self._transfer_from_to(from, to, value, data)?;
         Ok(())
     }
 
@@ -230,10 +230,13 @@ impl<T: PSP22Storage + Flush> PSP22Internal for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &amount)?;
 
-        self._do_safe_transfer_check(&from, &to, &amount, &data)?;
         self.get_mut().balances.insert(&from, &(from_balance - amount));
+
+        self._do_safe_transfer_check(&from, &to, &amount, &data)?;
+
         let to_balance = self._balance_of(&to);
         self.get_mut().balances.insert(&to, &(to_balance + amount));
+
         self._after_token_transfer(Some(&from), Some(&to), &amount)?;
         self._emit_transfer_event(Some(from), Some(to), amount);
 

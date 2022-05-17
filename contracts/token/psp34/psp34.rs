@@ -190,19 +190,17 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
     default fn _transfer_token(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error> {
         let owner = self._check_token_exists(&id)?;
         let caller = Self::env().caller();
-        let id = Some(id);
+        let id_opt = Some(id.clone());
 
-        if owner != caller && !self._allowance(&owner, &caller, &id) {
+        if owner != caller && !self._allowance(&owner, &caller, &id_opt) {
             return Err(PSP34Error::NotApproved)
         }
 
-        self.get_mut().operator_approvals.remove((&owner, &caller, &id));
-
-        let id = id.unwrap();
-
         self._before_token_transfer(Some(&owner), Some(&to), &id)?;
 
+        self.get_mut().operator_approvals.remove((&owner, &caller, &id_opt));
         self._remove_token(&owner, &id)?;
+
         self._do_safe_transfer_check(&caller, &owner, &to, &id, &data)?;
         self._add_token(&to, &id)?;
         self._after_token_transfer(Some(&owner), Some(&to), &id)?;

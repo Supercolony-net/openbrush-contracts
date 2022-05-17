@@ -17,10 +17,9 @@ pub mod diamond {
 
     impl DiamondContract {
         #[ink(constructor)]
-        pub fn new(owner: AccountId, diamond_hash: Hash) -> Self {
+        pub fn new(owner: AccountId) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
                 instance._init_with_owner(owner);
-                instance.diamond.self_hash = diamond_hash;
             })
         }
 

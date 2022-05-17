@@ -88,6 +88,10 @@ impl<T: PSP34EnumerableStorage + Flush> PSP34EnumerableInternal for T {
         to: Option<&AccountId>,
         id: &Id,
     ) -> Result<(), PSP34Error> {
+        if from == to {
+            return Ok(())
+        }
+
         if from.is_none() {
             let last_free_index = self._total_supply();
             PSP34EnumerableStorage::get_mut(self)

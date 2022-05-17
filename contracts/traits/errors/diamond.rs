@@ -28,7 +28,7 @@ use brush::traits::Hash;
 pub enum DiamondError {
     OwnableError(OwnableError),
     FunctionDoesNotExist,
-    ImmutableFunction,
+    EmptyCodeHash,
     ReplaceExisting(Hash),
 }
 

@@ -13,7 +13,7 @@ exclude = [
 
 [package]
 name = "brush"
-version = "1.6.0"
+version = "1.6.1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
@@ -49,7 +49,6 @@ diamond = ["contracts/diamond"]
 [profile.release]
 panic = "abort"
 lto = true
-overflow-checks = false
 
 [profile.dev]
 panic = "abort"

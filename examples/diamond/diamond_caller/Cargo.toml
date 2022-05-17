@@ -1,6 +1,6 @@
 [package]
 name = "diamond_caller"
-version = "1.6.0"
+version = "1.6.1"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
@@ -43,9 +43,3 @@ std = [
     "brush/std",
 ]
 ink-as-dependency = []
-
-[profile.dev]
-overflow-checks = false
-
-[profile.release]
-overflow-checks = false

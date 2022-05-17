@@ -107,19 +107,25 @@ mod psp34_enumerable {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP34Struct::new();
-        // Create token Id 1 for Alice
+        // Create token Id 1 and Id 2 for Alice
         assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
+        assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // check Alice token by index
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(Id::U8(1u8)));
         // act. transfer token from alice to bob
         assert!(nft.transfer(accounts.bob, Id::U8(1u8), vec![]).is_ok());
         // bob owns token
         assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Ok(Id::U8(1u8)));
-        // alice does not own token
+        // alice does not own token Id 1
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(Id::U8(2u8)));
         assert_eq!(
-            nft.owners_token_by_index(accounts.alice, 0u128),
+            nft.owners_token_by_index(accounts.alice, 1u128),
             Err(PSP34Error::TokenNotExists)
         );
+        // act. transfer token from alice to alice
+        assert!(nft.transfer(accounts.alice, Id::U8(2u8), vec![]).is_ok());
+        // check Alice token by index
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(Id::U8(2u8)));
     }
 
     #[ink::test]
