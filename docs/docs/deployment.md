@@ -17,16 +17,16 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 * [Astar](https://astar.network/)
 
 ### Overview
--  [Clone](#Clone)
--  Here you can find how to [Build](#Build) **ink!** smart contract
--  Let's [deploy to local network](#Deployment-on-local-network)
--  You can manuly [call](#Call-the-smart-contract) our deployed contract
--  [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/)
--  How to deploy ink! smart contract to [canvas](#Deploy-to-Canvas)
--  How to get free `ROC` token using [faucet](#Rococo-Faucet) to deploy contract to Canvas network
+
+- [Clone](#Clone)
+- Here you can find how to [Build](#Build) **ink!** smart contract
+- Let's [deploy to local network](#Deployment-on-local-network)
+- You can manuly [call](#Call-the-smart-contract) our deployed contract
+- [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/)
+- How to deploy ink! smart contract to [canvas](#Deploy-to-Canvas)
+- How to get free `ROC` token using [faucet](#Rococo-Faucet) to deploy contract to Canvas network
 - [Astar](#Astar) - [WASM](https://webassembly.org/) + [EVM](https://ethereum.org/en/developers/docs/evm/) Hub on [Polkadot](https://polkadot.network/). More info about astar [here](https://docs.astar.network/)
 - You can deploy **ink!** smart contract to [Shibuya](#Deploy-to-Shibuya) (astar test network). How to get free `SBY` using [faucet](https://docs.astar.network/integration/testnet-faucet)
-
 
 ### Clone
 
@@ -52,6 +52,7 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 ### Deployment on local network
 
 - Run local substrate node
+
 ```
 substrate-contracts-node --dev
 ```
@@ -59,22 +60,23 @@ substrate-contracts-node --dev
 - Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser :
 - Verify that you are connected to the [Local Node](https://github.com/substrate-developer-hub/substrate-node-template).
 
-![image info](pictures/select-local-network.jpeg)
+![](assets/20220517_155803_BA129B19-8126-4EF3-96CD-9236F6003ACC_4_5005_c.jpeg)
 
-- Click **Upload New Contract Code**.
+- Click Contracts![](assets/20220517_170451_89DDED5E-6EE9-464B-9268-18ED92B971F5_1_105_c.jpeg)
+- Click **Upload & deploy code**.
 
-![image info](pictures/add-new-contract.jpeg)
+![](assets/20220517_170719_607B15AC-1B65-4C17-91B0-80545B66C126_1_105_c.jpeg)
 
 - Select an Account to use to create a contract instance.
 
 Select any existing account, including a predefined account such as alice
 
-![image info](pictures/set-instantiate-account.jpeg)
+![](assets/20220517_170757_6C81387B-26B1-46BC-AC49-5CC7BB045DAA.jpeg)
 
 - Type a descriptive Name for the smart contract
-- Browse and select or drag and drop the my_psp22.contract file that contains the bundled Wasm blob and metadata into the upload section.
+- Browse and select or drag and drop the `my_psp22.contract` file that contains the bundled Wasm blob and metadata into the upload section.
 
-![image info](pictures/upload-and-instantiate-contract.jpeg)
+![](assets/20220517_170933_9CE916F4-0CF4-4072-BCFC-7D5C9C4E0428.jpeg)
 
 - Click **Next** to continue.
 
@@ -83,33 +85,33 @@ To create the instance:
 Review and accept the default Deployment Constructor options for the initial version of the smart contract.
 Review and accept the default Max Gas Allowed of `200000`.
 
-![image info](pictures/initialize-contract.jpeg)
+![](assets/20220517_170947_99457671-4E0A-4D25-B417-E09CFD13995D_4_5005_c.jpeg)
 
-- Click **Next**.
+- Click **Deploy**.
   The transaction is now queued. If you needed to make changes, you could click Go Back to modify the input.
 
-![image info](pictures/upload.jpeg)
+![](assets/20220517_171005_09708827-B03E-42AA-B692-42C4CB93DC82.jpeg)
 
-- Click **Upload and Instantiate**.
+- Click **Sign and Submit**.
 
 Depending on the account you used, you might be prompted for the account password. If you used a predefined account, you won’t need to provide a password.
 
-![image info](pictures/uploaded.jpeg)
+![](assets/20220517_171116_46FC3350-1029-40D6-BD0B-EEB8F24A28D7_1_105_c.jpeg)
 
 ### Call the smart contract
 
 Now that your contract has been deployed on the blockchain, you can interact with it. The default flipper smart contract has  functions — `totalSupply()` and `balanceOf()` — and you can use the Contracts UI to try them out.
 
-To test the `totalSupply()` function:
+To test the `balanceOf()` function:
 
 Select any account from the Account list.
 
-This contract doesn’t place restrictions on who is allowed to send the `totalSupply()` request.
+This contract doesn’t place restrictions on who is allowed to send the `balanceOf()` request.
 
 - Click **Read**.
-  Verify that the value `1000` is returned in the Call Results.
+  Verify that the value `1,000,000,000,000,000` is returned in the Call Results.
 
-![image info](pictures/read-total-supply.jpeg)
+![](assets/20220517_171218_B695795E-34C8-4E02-A22D-D778E2A21804.jpeg)
 
 ### Rococo Faucet
 
@@ -131,26 +133,15 @@ The number `1002` is the parachain id of **Canvas on Rococo**, by supplying it t
 - Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser.
 - Verify that you are connected to the **Canvas Node**.
 
-![image info](pictures/set-canvas-network.jpeg)
+![](assets/20220517_171302_1AAD3BAA-2485-40F5-8590-52F02688DE48_4_5005_c.jpeg)
 
 - Upload `my_psp22.contract` file the same way as to local node but we need some `ROC` tokens
-
-![image info](pictures/storage-deposit-limit-exchausted.jpeg)
-
 - Use wallet which contains `ROC` tokens
-
-![image info](pictures/select-wallet-with-roc.jpeg)
-
-- Click **Next**
-- Now we can instantiate contract. Click **Next**
-
-  ![image info](pictures/the-instantiation-will-be-successful.jpeg)
 
 ### Astar
 
 * **Astar** - Astar is a multi-chain smart contract platform that supports multiple
-  blockchains and virtual machines.   
-
+  blockchains and virtual machines.
 * **Astar/Shiden Network Family:**
   Before starting the deployment, it's important to understand Astar/Shiden Network family. You should change the network based on what you want to do. Currently, there are 3 networks available, **Shiden**, **Shibuya**, and **Local** network. All networks support own standard Substrate RPC and EVM RPC.
 * **Astar and Shiden**:
