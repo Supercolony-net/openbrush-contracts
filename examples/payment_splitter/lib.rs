@@ -26,6 +26,7 @@ pub mod my_payment_splitter {
         /// Delete this method if you don't want this functionality in your version of the payment splitter.
         #[ink(message)]
         pub fn release_all(&mut self) -> Result<(), PaymentSplitterError> {
+            // `_release_all()` is an internal method defined by the `PaymentSplitterInternal` trait
             self._release_all()
         }
     }
