@@ -76,7 +76,7 @@ Select any existing account, including a predefined account such as alice
 - Type a descriptive Name for the smart contract
 - Browse and select or drag and drop the `my_psp22.contract` file that contains the bundled Wasm blob and metadata into the upload section.
 
-![](assets/20220517_170933_9CE916F4-0CF4-4072-BCFC-7D5C9C4E0428.jpeg)
+![](assets/20220517_173306_9CE916F4-0CF4-4072-BCFC-7D5C9C4E0428.jpeg)
 
 - Click **Next** to continue.
 
