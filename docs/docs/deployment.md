@@ -60,23 +60,23 @@ substrate-contracts-node --dev
 - Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser :
 - Verify that you are connected to the [Local Node](https://github.com/substrate-developer-hub/substrate-node-template).
 
-![](assets/20220517_155803_BA129B19-8126-4EF3-96CD-9236F6003ACC_4_5005_c.jpeg)
+![](assets/switch_local_node.jpeg)
 
-- Click Contracts![](assets/20220517_170451_89DDED5E-6EE9-464B-9268-18ED92B971F5_1_105_c.jpeg)
+- Click Contracts![](assets/developer_contracts.jpeg)
 - Click **Upload & deploy code**.
 
-![](assets/20220517_170719_607B15AC-1B65-4C17-91B0-80545B66C126_1_105_c.jpeg)
+![](assets/click_upload_and_deploy.jpeg)
 
 - Select an Account to use to create a contract instance.
 
 Select any existing account, including a predefined account such as alice
 
-![](assets/20220517_170757_6C81387B-26B1-46BC-AC49-5CC7BB045DAA.jpeg)
+![](assets/choose_acc_to_deploy.jpeg)
 
 - Type a descriptive Name for the smart contract
 - Browse and select or drag and drop the `my_psp22.contract` file that contains the bundled Wasm blob and metadata into the upload section.
 
-![](assets/20220517_173306_9CE916F4-0CF4-4072-BCFC-7D5C9C4E0428.jpeg)
+![](assets/upload_and_deploy_code.jpeg)
 
 - Click **Next** to continue.
 
@@ -85,18 +85,18 @@ To create the instance:
 Review and accept the default Deployment Constructor options for the initial version of the smart contract.
 Review and accept the default Max Gas Allowed of `200000`.
 
-![](assets/20220517_170947_99457671-4E0A-4D25-B417-E09CFD13995D_4_5005_c.jpeg)
+![](assets/contract_init_constructor.jpeg)
 
 - Click **Deploy**.
   The transaction is now queued. If you needed to make changes, you could click Go Back to modify the input.
 
-![](assets/20220517_171005_09708827-B03E-42AA-B692-42C4CB93DC82.jpeg)
+![](assets/auth_transaction.jpeg)
 
 - Click **Sign and Submit**.
 
 Depending on the account you used, you might be prompted for the account password. If you used a predefined account, you won’t need to provide a password.
 
-![](assets/20220517_171116_46FC3350-1029-40D6-BD0B-EEB8F24A28D7_1_105_c.jpeg)
+![](assets/explore_contract.jpeg)
 
 ### Call the smart contract
 
@@ -111,7 +111,7 @@ This contract doesn’t place restrictions on who is allowed to send the `balanc
 - Click **Read**.
   Verify that the value `1,000,000,000,000,000` is returned in the Call Results.
 
-![](assets/20220517_171218_B695795E-34C8-4E02-A22D-D778E2A21804.jpeg)
+![](assets/call_contract.jpeg)
 
 ### Rococo Faucet
 
@@ -133,7 +133,7 @@ The number `1002` is the parachain id of **Canvas on Rococo**, by supplying it t
 - Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser.
 - Verify that you are connected to the **Canvas Node**.
 
-![](assets/20220517_171302_1AAD3BAA-2485-40F5-8590-52F02688DE48_4_5005_c.jpeg)
+![](assets/switch_canvas.jpeg)
 
 - Upload `my_psp22.contract` file the same way as to local node but we need some `ROC` tokens
 - Use wallet which contains `ROC` tokens
