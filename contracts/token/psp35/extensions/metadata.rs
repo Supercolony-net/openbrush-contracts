@@ -25,22 +25,21 @@ pub use crate::{
 };
 use brush::declare_storage_trait;
 pub use derive::PSP35MetadataStorage;
-use ink_prelude::vec::Vec;
-use ink_storage::Mapping;
+use ink_prelude::string::String;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP35MetadataData");
 
 #[derive(Default, Debug)]
 #[brush::storage(STORAGE_KEY)]
 pub struct PSP35MetadataData {
-    pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>>,
+    pub uri: Option<String>,
     pub _reserved: Option<()>,
 }
 
 declare_storage_trait!(PSP35MetadataStorage, PSP35MetadataData);
 
 impl<T: PSP35MetadataStorage> PSP35Metadata for T {
-    default fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>> {
-        self.get().attributes.get(&(id, key))
+    default fn uri(&self, _id: Id) -> Option<String> {
+        self.get().uri.clone()
     }
 }

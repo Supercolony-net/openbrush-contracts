@@ -19,23 +19,39 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// Extension of [`PSP1155`] that allows token holders to destroy their tokens
-use crate::traits::psp35::Id;
-use crate::traits::psp35::PSP35Error;
-use brush::traits::{
-    AccountId,
-    Balance,
+mod access_control;
+mod diamond;
+mod flashloan;
+mod ownable;
+mod pausable;
+mod payment_splitter;
+mod psp35;
+mod psp22;
+mod psp34;
+mod reentrancy_guard;
+mod timelock_controller;
+
+pub use access_control::AccessControlError;
+pub use diamond::DiamondError;
+pub use flashloan::{
+    FlashBorrowerError,
+    FlashLenderError,
 };
-use ink_prelude::vec::Vec;
-
-#[brush::wrapper]
-pub type PSP35BurnableRef = dyn PSP35Burnable;
-
-#[brush::trait_definition]
-pub trait PSP35Burnable {
-    /// Destroys `amount` tokens of token type `id` from `from`
-    ///
-    /// See [`PSP1155::_burn_from`].
-    #[ink(message)]
-    fn burn(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error>;
-}
+pub use ownable::OwnableError;
+pub use pausable::PausableError;
+pub use payment_splitter::PaymentSplitterError;
+pub use psp35::{
+    PSP35Error,
+    PSP35ReceiverError,
+};
+pub use psp22::{
+    PSP22Error,
+    PSP22ReceiverError,
+    PSP22TokenTimelockError,
+};
+pub use psp34::{
+    PSP34Error,
+    PSP34ReceiverError,
+};
+pub use reentrancy_guard::ReentrancyGuardError;
+pub use timelock_controller::TimelockControllerError;

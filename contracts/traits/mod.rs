@@ -19,23 +19,15 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// Extension of [`PSP1155`] that allows token holders to destroy their tokens
-use crate::traits::psp35::Id;
-use crate::traits::psp35::PSP35Error;
-use brush::traits::{
-    AccountId,
-    Balance,
-};
-use ink_prelude::vec::Vec;
-
-#[brush::wrapper]
-pub type PSP35BurnableRef = dyn PSP35Burnable;
-
-#[brush::trait_definition]
-pub trait PSP35Burnable {
-    /// Destroys `amount` tokens of token type `id` from `from`
-    ///
-    /// See [`PSP1155::_burn_from`].
-    #[ink(message)]
-    fn burn(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error>;
-}
+pub mod access_control;
+pub mod diamond;
+pub mod errors;
+pub mod flashloan;
+pub mod ownable;
+pub mod pausable;
+pub mod payment_splitter;
+pub mod proxy;
+pub mod psp35;
+pub mod psp22;
+pub mod psp34;
+pub mod timelock_controller;

@@ -41,22 +41,25 @@ pub type PSP35Ref = dyn PSP35;
 pub trait PSP35 {
     /// Returns the amount of tokens of token type `id` owned by `account`.
     #[ink(message)]
-    fn balance_of(&self, owner: AccountId, id: Id) -> Balance;
+    fn balance_of(&self, account: AccountId, id: Id) -> Balance;
 
+    /// Batched version of {balance_of}.
     #[ink(message)]
-    fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance;
+    fn balance_of_batch(&self, accounts_ids: Vec<(AccountId, Id)>) -> Vec<Balance>;
 
-    /// Allows `operator` to withdraw  the `id` token from the caller's account
-    /// multiple times, up to the `value` amount.
-    /// If this function is called again it overwrites the current allowance with `value`
-    /// If `id` is `None` approves or disapproves the operator for all tokens of the caller.
+    /// Grants or revokes permission to `operator` to transfer the caller's tokens, according to `approved`
     ///
-    /// An `Approval` event is emitted.
+    /// On success a `ApprovalForAll` event is emitted.
+    ///
+    /// # Errors
+    ///
+    /// Returns with `NotAllowed` error if it is self approve.
     #[ink(message)]
-    fn approve(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
+    fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) -> Result<(), PSP35Error>;
 
+    /// Returns true if `operator` is approved to transfer ``account``'s tokens.
     #[ink(message)]
-    fn transfer(&mut self, to: AccountId, id: Id, value: Balance, data: Vec<u8>) -> Result<(), PSP35Error>;
+    fn is_approved_for_all(&self, account: AccountId, operator: AccountId) -> bool;
 
     /// Transfers `amount` tokens of token type `id` from `from` to `to`. Also some `data` can be passed.
     ///
@@ -78,6 +81,18 @@ pub trait PSP35 {
         to: AccountId,
         id: Id,
         amount: Balance,
+        data: Vec<u8>,
+    ) -> Result<(), PSP35Error>;
+
+    /// Batched version of {safe_transfer_from}.
+    ///
+    /// On success a `TransferBatch` event is emitted.
+    #[ink(message)]
+    fn batch_transfer_from(
+        &mut self,
+        from: AccountId,
+        to: AccountId,
+        ids_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP35Error>;
 }
@@ -103,7 +118,7 @@ pub trait PSP35Receiver {
         &mut self,
         operator: AccountId,
         from: AccountId,
-        ids_amounts: Vec<(Id, Balance)>,
+        ids_to_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP35ReceiverError>;
 }

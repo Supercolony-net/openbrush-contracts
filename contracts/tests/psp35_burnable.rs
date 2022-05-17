@@ -38,9 +38,6 @@ mod psp35_burnable {
         return_err_on_after: bool,
     }
 
-    impl PSP35Burnable for PSP35Struct {}
-    impl PSP35 for PSP35Struct {}
-
     impl PSP35Transfer for PSP35Struct {
         fn _before_token_transfer(
             &mut self,
@@ -66,6 +63,9 @@ mod psp35_burnable {
             Ok(())
         }
     }
+
+    impl PSP35Burnable for PSP35Struct {}
+    impl PSP35 for PSP35Struct {}
 
     impl PSP35Struct {
         #[ink(constructor)]
@@ -130,12 +130,30 @@ mod psp35_burnable {
         assert!(nft.mint(accounts.alice, token_id, 2).is_ok());
         // Alice can burn tokens
         assert!(nft.burn(accounts.alice, vec![(token_id, 1)]).is_ok());
-        // Turn on error on before_received
+        // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
-        // Alice gets an error on before_received
+        // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, vec![(token_id, 1)]),
             Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
+        );
+    }
+
+    #[ink::test]
+    fn after_token_transfer_should_fail_burn() {
+        let accounts = accounts();
+        let token_id = [1; 32];
+        // Create a new contract instance.
+        let mut nft = PSP35Struct::new();
+        assert!(nft.mint(accounts.alice, token_id, 2).is_ok());
+        // Alice can burn tokens
+        assert!(nft.burn(accounts.alice, vec![(token_id, 1)]).is_ok());
+        // Turn on error on _after_token_transfer
+        nft.change_state_err_on_after();
+        // Alice gets an error on _after_token_transfer
+        assert_eq!(
+            nft.burn(accounts.alice, vec![(token_id, 1)]),
+            Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }
 }

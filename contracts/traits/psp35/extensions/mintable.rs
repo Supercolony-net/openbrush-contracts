@@ -19,11 +19,9 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// Extension of [`PSP35`] that allows minting of new tokens
-use crate::traits::psp35::{
-    Id,
-    PSP35Error,
-};
+/// Extension of [`PSP1155`] that allows minting of new tokens
+use crate::traits::psp35::Id;
+use crate::traits::psp35::PSP35Error;
 use brush::traits::{
     AccountId,
     Balance,
@@ -37,7 +35,7 @@ pub type PSP35MintableRef = dyn PSP35Mintable;
 pub trait PSP35Mintable {
     /// Mints `amount` tokens of token type `id` to `to`
     ///
-    /// See [`PSP35::_mint_to`].
+    /// See [`PSP1155::_mint_to`].
     #[ink(message)]
     fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error>;
 }
