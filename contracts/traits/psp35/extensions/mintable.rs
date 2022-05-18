@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// Extension of [`PSP1155`] that allows minting of new tokens
+/// Extension of [`PSP35`] that allows minting of new tokens
 use crate::traits::psp35::Id;
 use crate::traits::psp35::PSP35Error;
 use brush::traits::{
