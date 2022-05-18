@@ -68,7 +68,64 @@ mod diamond {
     #[ink::test]
     fn constructor_works() {
         let accounts = setup();
-        let instance = DiamondContract::new(accounts.alice);
-        assert_eq!(instance.owner(), accounts.alice);
+        let diamond = DiamondContract::new(accounts.alice);
+        assert_eq!(diamond.owner(), accounts.alice);
+    }
+
+    #[ink::test]
+    fn facets_empty_works() {
+        let accounts = setup();
+        let diamond = DiamondContract::new(accounts.alice);
+        
+        assert_eq!(diamond.facets(), vec![]);
+    }
+
+    #[ink::test]
+    fn facets_not_empty_works() {
+        let accounts = setup();
+        let mut diamond = DiamondContract::new(accounts.alice);
+
+        let facet_cut = FacetCut {hash : [1u8;32].into() , selectors : vec![[0u8 ; 4]]};
+        diamond.diamond_cut(vec![facet_cut.clone()], Option::None);
+        
+        assert_eq!(diamond.facets(), vec![facet_cut]);
+    }
+
+    #[ink::test]
+    fn facet_function_selectors_works() {
+        let accounts = setup();
+        let mut diamond = DiamondContract::new(accounts.alice);
+
+        let facet_cut = FacetCut {hash : [1u8;32].into() , selectors : vec![[0u8 ; 4]]};
+        let selectors : Vec<Selector> = vec![];
+        assert_eq!(diamond.facet_function_selectors(facet_cut.hash), selectors);
+        diamond.diamond_cut(vec![facet_cut.clone()], Option::None);
+        
+        assert_eq!(diamond.facet_function_selectors(facet_cut.hash), facet_cut.selectors);
+    }
+
+    #[ink::test]
+    fn facet_code_hashes_works() {
+        let accounts = setup();
+        let mut diamond = DiamondContract::new(accounts.alice);
+
+        let facet_cut = FacetCut {hash : [1u8;32].into() , selectors : vec![[0u8 ; 4]]};
+        assert_eq!(diamond.facet_code_hashes(), vec![]);
+        diamond.diamond_cut(vec![facet_cut.clone()], Option::None);
+        
+        assert_eq!(diamond.facet_code_hashes(), vec![facet_cut.hash]);
+    }
+
+    #[ink::test]
+    fn facet_code_hash_works() {
+        let accounts = setup();
+        let mut diamond = DiamondContract::new(accounts.alice);
+
+        let facet_cut = FacetCut {hash : [1u8;32].into() , selectors : vec![[0u8 ; 4]]};
+        assert_eq!(diamond.facet_code_hash(facet_cut.selectors[0]), Option::None);
+
+        diamond.diamond_cut(vec![facet_cut.clone()], Option::None);
+        
+        assert_eq!(diamond.facet_code_hash(facet_cut.selectors[0]), Option::Some(facet_cut.hash));
     }
 }
