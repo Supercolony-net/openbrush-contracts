@@ -25,7 +25,7 @@ pub use crate::{
 };
 use brush::declare_storage_trait;
 pub use derive::PSP35MetadataStorage;
-use ink_prelude::string::String;
+use ink_prelude::vec::Vec;
 use ink_storage::Mapping;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP35MetadataData");
