@@ -8,9 +8,6 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      credentials:
-        username: ${{ secrets.GHCR_USERNAME }}
-        password: ${{ secrets.GHCR_TOKEN }}
       env:
         node: /usr/local/bin/node
         CARGO_TARGET_DIR: /usr/local/cache/target
@@ -23,9 +20,6 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      credentials:
-        username: ${{ secrets.GHCR_USERNAME }}
-        password: ${{ secrets.GHCR_TOKEN }}
       env:
         node: /usr/local/bin/node
         CARGO_TARGET_DIR: /usr/local/cache/target
@@ -39,9 +33,6 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      credentials:
-        username: ${{ secrets.GHCR_USERNAME }}
-        password: ${{ secrets.GHCR_TOKEN }}
       env:
         node: /usr/local/bin/node
         CARGO_TARGET_DIR: /usr/local/cache/target
