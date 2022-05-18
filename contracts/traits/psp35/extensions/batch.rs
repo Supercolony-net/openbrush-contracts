@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// Extension of [`PSP35`] that allows token holders to destroy their tokens
+/// Extension of [`PSP35`] that allows token holders to transfer a batch of tokens
 use crate::traits::psp35::Id;
 use crate::traits::psp35::PSP35Error;
 use brush::traits::{
@@ -34,10 +34,15 @@ pub type PSP35BatchRef = dyn PSP35Batch;
 #[brush::trait_definition]
 pub trait PSP35Batch {
     #[ink(message)]
-    fn transfer(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>, data: Vec<u8>) -> Result<(), PSP35Error>;
+    fn transfer_batch(
+        &mut self,
+        to: AccountId,
+        ids_amounts: Vec<(Id, Balance)>,
+        data: Vec<u8>,
+    ) -> Result<(), PSP35Error>;
 
     #[ink(message)]
-    fn transfer_from(
+    fn transfer_batch_from(
         &mut self,
         from: AccountId,
         to: AccountId,

@@ -41,17 +41,17 @@ mod psp35_metadata {
 
     impl PSP35Struct {
         #[ink(constructor)]
-        pub fn new(uri: Option<String>) -> Self {
+        pub fn new(id: Id, key: Vec<u8>, attribute: Vec<u8>) -> Self {
             let mut instance = Self::default();
-            instance.metadata.uri = uri;
+            instance.metadata.attributes.insert(&(id, key), &attribute);
             instance
         }
     }
 
     #[ink::test]
     fn metadata_works() {
-        let nft = PSP35Struct::new(Some(String::from("https://www.supercolony.net/")));
+        let nft = PSP35Struct::new([0; 32], vec![0u8, 0u8], vec![1u8, 0u8]);
 
-        assert_eq!(nft.uri([0; 32]), Some(String::from("https://www.supercolony.net/")));
+        assert_eq!(nft.get_attribute([0; 32], vec![0u8, 0u8]), Some(vec![1u8, 0u8]));
     }
 }
