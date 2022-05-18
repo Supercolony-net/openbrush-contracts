@@ -53,10 +53,10 @@ pub trait PSP35 {
     ///
     /// An `Approval` event is emitted.
     #[ink(message)]
-    fn approve(&self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
+    fn approve(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
 
     #[ink(message)]
-    fn transfer(&self, to: AccountId, id: Id, value: Balance, data: Vec<u8>) -> Result<(), PSP35Error>;
+    fn transfer(&mut self, to: AccountId, id: Id, value: Balance, data: Vec<u8>) -> Result<(), PSP35Error>;
 
     /// Transfers `amount` tokens of token type `id` from `from` to `to`. Also some `data` can be passed.
     ///

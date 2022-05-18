@@ -27,11 +27,10 @@ use brush::{
         AccountIdExt,
         Balance,
         Flush,
-        Timestamp,
     },
 };
 use core::result::Result;
-pub use derive::PSP1155Storage;
+pub use derive::PSP35Storage;
 use ink_env::{
     CallFlags,
     Error as EnvError,
@@ -49,7 +48,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP35Data");
 #[brush::storage(STORAGE_KEY)]
 pub struct PSP35Data {
     pub balances: Mapping<(Id, AccountId), Balance>,
-    pub operator_approval: Mapping<(AccountId, AccountId, Id), Balance>,
+    pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance>,
     pub _reserved: Option<()>,
 }
 
@@ -281,10 +280,10 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
     default fn _get_allowance(&self, account: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
         let approval_for_all = self
             .get()
-            .operator_approval
+            .operator_approvals
             .get(&(account, operator, None))
             .unwrap_or(0);
-        let approval_for_token = self.get().operator_approval.get(&(account, operator, id)).unwrap_or(0);
+        let approval_for_token = self.get().operator_approvals.get(&(account, operator, id)).unwrap_or(0);
 
         return if approval_for_all != 0 {
             approval_for_all
@@ -305,7 +304,9 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
             None => (None, Balance::MAX),
         };
 
-        self.get_mut().operator_approval.insert(&(caller, operator, id), &value);
+        self.get_mut()
+            .operator_approvals
+            .insert(&(caller, operator, id), &value);
 
         self._emit_approval_event(caller, operator, id, value);
 
@@ -322,8 +323,8 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         let new_allowance = self._get_allowance(caller, operator, Some(id)) + value;
 
         self.get_mut()
-            .operator_approval
-            .insert(&(caller, operator, id), &new_allowance);
+            .operator_approvals
+            .insert(&(caller, operator, Some(id)), &new_allowance);
 
         Ok(())
     }
@@ -342,8 +343,8 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         }
 
         self.get_mut()
-            .operator_approval
-            .insert(&(caller, operator, id), &(initial_allowance - value));
+            .operator_approvals
+            .insert(&(caller, operator, Some(id)), &(initial_allowance - value));
 
         Ok(())
     }
@@ -357,6 +358,8 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         data: Vec<u8>,
     ) -> Result<(), PSP35Error> {
         let ids_amounts = vec![(id, value)];
+        let operator = Self::env().caller();
+
         self._decrease_sender_balance(from, id, value)?;
         self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
         self._increase_receiver_balance(to, id, value);
