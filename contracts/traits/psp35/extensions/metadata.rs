@@ -21,7 +21,7 @@
 
 /// Metadata for PSP35
 pub use crate::traits::psp35::Id;
-use ink_prelude::string::String;
+use ink_prelude::vec::Vec;
 
 #[brush::wrapper]
 pub type PSP35MetadataRef = dyn PSP35Metadata;

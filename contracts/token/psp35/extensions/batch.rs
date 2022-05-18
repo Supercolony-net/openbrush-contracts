@@ -29,6 +29,8 @@ use brush::traits::{
     InkStorage,
 };
 
+use ink_prelude::vec::Vec;
+
 impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
     default fn transfer(
         &mut self,
