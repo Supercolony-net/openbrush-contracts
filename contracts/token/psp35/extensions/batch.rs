@@ -32,7 +32,7 @@ use brush::traits::{
 use ink_prelude::vec::Vec;
 
 impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
-    default fn transfer(
+    default fn transfer_batch(
         &mut self,
         to: AccountId,
         ids_amounts: Vec<(Id, Balance)>,
@@ -49,7 +49,7 @@ impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
         Ok(())
     }
 
-    default fn transfer_from(
+    default fn transfer_batch_from(
         &mut self,
         from: AccountId,
         to: AccountId,
