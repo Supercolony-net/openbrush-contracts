@@ -26,4 +26,5 @@ pub mod extensions {
     pub mod burnable;
     pub mod metadata;
     pub mod mintable;
+    pub mod batch;
 }
