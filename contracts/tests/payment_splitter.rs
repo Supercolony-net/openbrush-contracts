@@ -28,7 +28,10 @@ mod payment_splitter {
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
 
-    use ink::codegen::{EmitEvent, Env};
+    use ink::codegen::{
+        EmitEvent,
+        Env,
+    };
 
     #[ink(event)]
     pub struct PayeeAdded {

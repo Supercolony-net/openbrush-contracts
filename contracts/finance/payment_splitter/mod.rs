@@ -22,7 +22,12 @@
 pub use crate::traits::payment_splitter::*;
 use brush::{
     declare_storage_trait,
-    traits::{AccountId, AccountIdExt, Balance, ZERO_ADDRESS},
+    traits::{
+        AccountId,
+        AccountIdExt,
+        Balance,
+        ZERO_ADDRESS,
+    },
 };
 pub use derive::PaymentSplitterStorage;
 use ink_prelude::vec::Vec;
@@ -74,7 +79,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
 
     default fn release(&mut self, account: AccountId) -> Result<(), PaymentSplitterError> {
         if !self.get().shares.get(&account).is_some() {
-            return Err(PaymentSplitterError::AccountHasNoShares);
+            return Err(PaymentSplitterError::AccountHasNoShares)
         }
 
         let balance = Self::env().balance();
@@ -86,7 +91,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
         let payment = total_received * shares / total_shares - released;
 
         if payment == 0 {
-            return Err(PaymentSplitterError::AccountIsNotDuePayment);
+            return Err(PaymentSplitterError::AccountIsNotDuePayment)
         }
 
         self.get_mut().released.insert(&account, &(released + payment));
@@ -94,7 +99,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitter for T {
 
         let transfer_result = Self::env().transfer(account.clone(), payment);
         if transfer_result.is_err() {
-            return Err(PaymentSplitterError::TransferFailed);
+            return Err(PaymentSplitterError::TransferFailed)
         }
         self._emit_payment_released_event(account, payment);
         Ok(())
@@ -135,7 +140,7 @@ impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
 
     default fn _init(&mut self, payees_and_shares: Vec<(AccountId, Balance)>) -> Result<(), PaymentSplitterError> {
         if payees_and_shares.is_empty() {
-            return Err(PaymentSplitterError::NoPayees);
+            return Err(PaymentSplitterError::NoPayees)
         }
 
         for (payee, share) in payees_and_shares.into_iter() {
@@ -146,13 +151,13 @@ impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
 
     default fn _add_payee(&mut self, payee: AccountId, share: Balance) -> Result<(), PaymentSplitterError> {
         if payee.is_zero() {
-            return Err(PaymentSplitterError::AccountZeroAddress);
+            return Err(PaymentSplitterError::AccountZeroAddress)
         }
         if share == 0 {
-            return Err(PaymentSplitterError::SharesAreZero);
+            return Err(PaymentSplitterError::SharesAreZero)
         }
         if self.get().shares.get(&payee).is_some() {
-            return Err(PaymentSplitterError::AlreadyHasShares);
+            return Err(PaymentSplitterError::AlreadyHasShares)
         }
 
         self.get_mut().payees.push(payee.clone());
