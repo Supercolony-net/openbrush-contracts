@@ -222,11 +222,11 @@ mod psp35_batch {
         assert!(nft.approve(accounts.bob, Some((token_id_2, 10))).is_ok());
 
         assert_eq!(
-            nft.transfer_batch_from(accounts.bob, accounts.alice, ids_amounts.clone()),
+            nft.transfer_batch_from(accounts.bob, accounts.alice, ids_amounts.clone(), vec![]),
             Err(PSP35Error::NotAllowed)
         );
 
-        assert!(nft.approve(accounts.alice, accounts.bob, Some((token_id_1, 1))).is_ok());
+        assert!(nft.approve(accounts.bob, Some((token_id_1, 1))).is_ok());
 
         assert!(nft
             .transfer_batch_from(
@@ -287,7 +287,7 @@ mod psp35_batch {
         assert_transfer_event(emmited_event, None, Some(accounts.alice), token_id_2, token_2_amount);
 
         let emmited_event = events_iter.next().unwrap();
-        assert_approval_event(emmited_event, accounts.alice, accounts.bob, true);
+        assert_approval_event(emmited_event, accounts.alice, accounts.bob, None, Balance::MAX);
 
         let emmited_event = events_iter.next().unwrap();
         assert_transfer_batch_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
