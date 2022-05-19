@@ -188,7 +188,7 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
     ) {
     }
 
-    fn _emit_transfer_batch_event(
+    default fn _emit_transfer_batch_event(
         &self,
         _from: Option<AccountId>,
         _to: Option<AccountId>,

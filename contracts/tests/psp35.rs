@@ -320,7 +320,7 @@ mod psp35 {
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
         assert!(nft.mint(accounts.alice, token_id, mint_amount).is_ok());
-        assert!(nft.approve(accounts.bob, token_id, mint_amount).is_ok());
+        assert!(nft.approve(accounts.bob, Some((token_id, mint_amount))).is_ok());
 
         change_caller(accounts.bob);
         assert!(nft
@@ -337,7 +337,7 @@ mod psp35 {
         assert_transfer_event(emmited_event, None, Some(accounts.alice), token_id, 1);
 
         let emmited_event = events_iter.next().unwrap();
-        assert_approval_event(emmited_event, accounts.alice, accounts.bob, token_id, 2);
+        assert_approval_event(emmited_event, accounts.alice, accounts.bob, Some(token_id), 2);
 
         let emmited_event = events_iter.next().unwrap();
         assert_transfer_event(emmited_event, Some(accounts.alice), Some(accounts.bob), token_id, 1);
@@ -411,7 +411,7 @@ mod psp35 {
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
         assert!(nft.mint(accounts.alice, token_id, mint_amount).is_ok());
-        assert!(nft.approve(accounts.bob, token_id, mint_amount).is_ok());
+        assert!(nft.approve(accounts.bob, Some((token_id, mint_amount))).is_ok());
 
         change_caller(accounts.bob);
         assert!(nft.transfer(accounts.bob, token_id, 1, vec![]).is_ok());
@@ -426,7 +426,7 @@ mod psp35 {
         assert_transfer_event(emmited_event, None, Some(accounts.alice), token_id, 1);
 
         let emmited_event = events_iter.next().unwrap();
-        assert_approval_event(emmited_event, accounts.alice, accounts.bob, token_id, 2);
+        assert_approval_event(emmited_event, accounts.alice, accounts.bob, Some(token_id), 2);
 
         let emmited_event = events_iter.next().unwrap();
         assert_transfer_event(emmited_event, Some(accounts.alice), Some(accounts.bob), token_id, 1);
