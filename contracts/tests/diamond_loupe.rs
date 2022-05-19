@@ -23,16 +23,10 @@
 #[cfg(feature = "diamond")]
 #[brush::contract]
 mod diamond {
-    use brush::test_utils::{
-        accounts,
-        change_caller,
-    };
-    use contracts::{
-        diamond::{
-            extensions::diamond_loupe::*,
-            *,
-        },
-        ownable::*,
+    use brush::test_utils::accounts;
+    use contracts::diamond::{
+        extensions::diamond_loupe::*,
+        *,
     };
     use ink_env::{
         test::DefaultAccounts,
@@ -101,6 +95,22 @@ mod diamond {
         );
         // assert
         assert_eq!(diamond.facets(), vec![facet_cut]);
+    }
+
+    #[ink::test]
+    fn hash_is_clear_should_fails() {
+        let accounts = setup();
+        let mut diamond = DiamondContract::new(accounts.alice);
+
+        let facet_cut = FacetCut {
+            hash: [0u8; 32].into(),
+            selectors: vec![[0u8; 4]],
+        };
+        // assert
+        assert_eq!(
+            diamond.diamond_cut(vec![facet_cut.clone()], Option::None),
+            Result::Err(DiamondError::EmptyCodeHash)
+        );
     }
 
     #[ink::test]
