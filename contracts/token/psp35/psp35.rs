@@ -70,11 +70,11 @@ impl<T: PSP35Storage + Flush> PSP35 for T {
 
     default fn transfer(&mut self, to: AccountId, id: Id, value: Balance, data: Vec<u8>) -> Result<(), PSP35Error> {
         let caller = Self::env().caller();
+        let ids_amounts = vec![(id, value)];
 
-        self.before_received(caller, caller, vec![(id, value)], data.clone())?;
+        self._before_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
         self._transfer_token(caller, to, id, value, data)?;
-
-        self._emit_transfer_event(Some(caller), Some(to), id, value);
+        self._after_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
         Ok(())
     }
 
@@ -87,12 +87,13 @@ impl<T: PSP35Storage + Flush> PSP35 for T {
         data: Vec<u8>,
     ) -> Result<(), PSP35Error> {
         let operator = Self::env().caller();
+        let ids_amounts = vec![(id, value)];
 
         self._transfer_guard(operator, from, to, id, value)?;
-        self.before_received(operator, from, vec![(id, value)], data.clone())?;
+        self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
+        self._decrease_allowance(from, operator, id, value)?;
         self._transfer_token(from, to, id, value, data)?;
-
-        self._emit_transfer_event(Some(from), Some(to), id, value);
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         Ok(())
     }
 }
@@ -108,6 +109,8 @@ pub trait PSP35Internal {
     );
 
     fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, value: Balance);
+
+    fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>);
 
     /// Creates `amount` tokens of token type `id` to `to`.
     ///
@@ -148,9 +151,13 @@ pub trait PSP35Internal {
 
     fn _approve_for(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
 
-    fn _increase_allowance(&mut self, operator: AccountId, id: Id, value: Balance) -> Result<(), PSP35Error>;
-
-    fn _decrease_allowance(&mut self, operator: AccountId, id: Id, value: Balance) -> Result<(), PSP35Error>;
+    fn _decrease_allowance(
+        &mut self,
+        owner: AccountId,
+        operator: AccountId,
+        id: Id,
+        value: Balance,
+    ) -> Result<(), PSP35Error>;
 
     fn _transfer_token(
         &mut self,
@@ -191,9 +198,9 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
 
     default fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, _value: Balance) {}
 
-    default fn _mint_to(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
-        let operator = Self::env().caller();
+    default fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>) {}
 
+    default fn _mint_to(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
         if to.is_zero() {
             return Err(PSP35Error::TransferToZeroAddress)
         }
@@ -201,11 +208,13 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
             return Ok(())
         }
 
-        self.before_received(operator, [0; 32].into(), ids_amounts.clone(), Vec::new())?;
+        self._before_token_transfer(None, Some(&to), &ids_amounts)?;
 
         for (id, amount) in ids_amounts.iter() {
             self._increase_receiver_balance(to, id.clone(), amount.clone());
         }
+
+        self._after_token_transfer(None, Some(&to), &ids_amounts)?;
 
         if ids_amounts.len() == 1 {
             self._emit_transfer_event(None, Some(to), ids_amounts[0].0, ids_amounts[0].1);
@@ -217,9 +226,7 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
     }
 
     default fn _burn_from(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
-        let operator = Self::env().caller();
-
-        self.before_received(operator, from, ids_amounts.clone(), Vec::new())?;
+        self._before_token_transfer(Some(&from), None, &ids_amounts)?;
 
         if ids_amounts.is_empty() {
             return Ok(())
@@ -228,6 +235,8 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         for (id, amount) in ids_amounts.iter() {
             self._decrease_sender_balance(from, id.clone(), amount.clone())?;
         }
+
+        self._after_token_transfer(Some(&from), None, &ids_amounts)?;
 
         if ids_amounts.len() == 1 {
             self._emit_transfer_event(Some(from), None, ids_amounts[0].0, ids_amounts[0].1);
@@ -277,13 +286,9 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         Ok(())
     }
 
-    default fn _get_allowance(&self, account: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
-        let approval_for_all = self
-            .get()
-            .operator_approvals
-            .get(&(account, operator, None))
-            .unwrap_or(0);
-        let approval_for_token = self.get().operator_approvals.get(&(account, operator, id)).unwrap_or(0);
+    default fn _get_allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
+        let approval_for_all = self.get().operator_approvals.get(&(owner, operator, None)).unwrap_or(0);
+        let approval_for_token = self.get().operator_approvals.get(&(owner, operator, id)).unwrap_or(0);
 
         return if approval_for_all != 0 {
             approval_for_all
@@ -313,30 +318,14 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         Ok(())
     }
 
-    fn _increase_allowance(&mut self, operator: AccountId, id: Id, value: Balance) -> Result<(), PSP35Error> {
-        let caller = Self::env().caller();
-
-        if caller == operator {
-            return Err(PSP35Error::NotAllowed)
-        }
-
-        let new_allowance = self._get_allowance(caller, operator, Some(id)) + value;
-
-        self.get_mut()
-            .operator_approvals
-            .insert(&(caller, operator, Some(id)), &new_allowance);
-
-        Ok(())
-    }
-
-    fn _decrease_allowance(&mut self, operator: AccountId, id: Id, value: Balance) -> Result<(), PSP35Error> {
-        let caller = Self::env().caller();
-
-        if caller == operator {
-            return Err(PSP35Error::NotAllowed)
-        }
-
-        let initial_allowance = self._get_allowance(caller, operator, Some(id));
+    fn _decrease_allowance(
+        &mut self,
+        owner: AccountId,
+        operator: AccountId,
+        id: Id,
+        value: Balance,
+    ) -> Result<(), PSP35Error> {
+        let initial_allowance = self._get_allowance(owner, operator, Some(id));
 
         if initial_allowance < value {
             return Err(PSP35Error::InsufficientBalance)
@@ -344,7 +333,7 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
 
         self.get_mut()
             .operator_approvals
-            .insert(&(caller, operator, Some(id)), &(initial_allowance - value));
+            .insert(&(owner, operator, Some(id)), &(initial_allowance - value));
 
         Ok(())
     }
@@ -363,6 +352,8 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         self._decrease_sender_balance(from, id, value)?;
         self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
         self._increase_receiver_balance(to, id, value);
+
+        self._emit_transfer_event(Some(from), Some(to), id, value);
 
         Ok(())
     }
@@ -412,16 +403,6 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
     }
 }
 
-pub trait PSP35Receiver {
-    fn before_received(
-        &mut self,
-        _operator: AccountId,
-        _from: AccountId,
-        _ids_amounts: Vec<(Id, Balance)>,
-        _data: Vec<u8>,
-    ) -> Result<(), PSP35Error>;
-}
-
 impl<T> PSP35Receiver for T {
     fn before_received(
         &mut self,
@@ -429,6 +410,42 @@ impl<T> PSP35Receiver for T {
         _from: AccountId,
         _ids_amounts: Vec<(Id, Balance)>,
         _data: Vec<u8>,
+    ) -> Result<(), PSP35ReceiverError> {
+        Ok(())
+    }
+}
+
+pub trait PSP35Transfer {
+    fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP35Error>;
+
+    fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP35Error>;
+}
+
+impl<T> PSP35Transfer for T {
+    default fn _before_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
+    ) -> Result<(), PSP35Error> {
+        Ok(())
+    }
+
+    default fn _after_token_transfer(
+        &mut self,
+        _from: Option<&AccountId>,
+        _to: Option<&AccountId>,
+        _ids: &Vec<(Id, Balance)>,
     ) -> Result<(), PSP35Error> {
         Ok(())
     }
