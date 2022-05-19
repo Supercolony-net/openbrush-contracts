@@ -21,7 +21,7 @@
 
 pub use crate::{
     psp35::*,
-    traits::psp35::extensions::batch::PSP35Batch,
+    traits::psp35::extensions::batch::*,
 };
 use brush::traits::{
     AccountId,
@@ -40,9 +40,11 @@ impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
     ) -> Result<(), PSP35Error> {
         let caller = Self::env().caller();
 
+        self._before_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
         for item in ids_amounts.clone().into_iter() {
             self._transfer_token(caller, to, item.0, item.1, data.clone())?;
         }
+        self._after_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
 
         self._emit_transfer_batch_event(Some(caller), Some(to), ids_amounts);
 
@@ -61,9 +63,15 @@ impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
         for item in ids_amounts.clone().into_iter() {
             self._transfer_guard(operator, from, to, item.0, item.1)?;
         }
+
+        self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
+
         for item in ids_amounts.clone().into_iter() {
+            self._decrease_allowance(from, operator, item.0, item.1)?;
             self._transfer_token(from, to, item.0, item.1, data.clone())?;
         }
+
+        self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
         self._emit_transfer_batch_event(Some(from), Some(to), ids_amounts);
 
