@@ -34,9 +34,10 @@ mod psp35_mintable {
         psp35: PSP35Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
-        // field for testing _after_token_transfer
-        return_err_on_after: bool,
     }
+
+    impl PSP35Mintable for PSP35Struct {}
+    impl PSP35 for PSP35Struct {}
 
     impl PSP35Transfer for PSP35Struct {
         fn _before_token_transfer(
@@ -50,22 +51,7 @@ mod psp35_mintable {
             }
             Ok(())
         }
-
-        fn _after_token_transfer(
-            &mut self,
-            _from: Option<&AccountId>,
-            _to: Option<&AccountId>,
-            _ids: &Vec<(Id, Balance)>,
-        ) -> Result<(), PSP35Error> {
-            if self.return_err_on_after {
-                return Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
-            }
-            Ok(())
-        }
     }
-
-    impl PSP35Mintable for PSP35Struct {}
-    impl PSP35 for PSP35Struct {}
 
     impl PSP35Struct {
         #[ink(constructor)]
@@ -75,10 +61,6 @@ mod psp35_mintable {
 
         pub fn change_state_err_on_before(&mut self) {
             self.return_err_on_before = !self.return_err_on_before;
-        }
-
-        pub fn change_state_err_on_after(&mut self) {
-            self.return_err_on_after = !self.return_err_on_after;
         }
     }
 
@@ -115,25 +97,7 @@ mod psp35_mintable {
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.mint(accounts.alice, vec![(token_id, amount)]),
-            Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
-        );
-    }
-
-    #[ink::test]
-    fn after_token_transfer_should_fail_mint() {
-        let token_id = [1; 32];
-        let amount = 1;
-        let accounts = accounts();
-        let mut nft = PSP35Struct::new();
-        // Can mint
-        assert!(nft.mint(accounts.alice, vec![(token_id, amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id), amount);
-        // Turn on error on _after_token_transfer
-        nft.change_state_err_on_after();
-        // Alice gets an error on _after_token_transfer
-        assert_eq!(
-            nft.mint(accounts.alice, vec![(token_id, amount)]),
-            Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
+            Err(PSP35Error::Custom(String::from("Error on before_received")))
         );
     }
 }
