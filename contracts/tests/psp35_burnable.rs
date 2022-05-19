@@ -78,6 +78,10 @@ mod psp35_burnable {
             self._mint_to(acc, vec![(id, amount)])
         }
 
+        pub fn change_state_err_on_before(&mut self) {
+            self.return_err_on_before = !self.return_err_on_before;
+        }
+
         pub fn change_state_err_on_after(&mut self) {
             self.return_err_on_after = !self.return_err_on_after;
         }
