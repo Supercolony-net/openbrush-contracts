@@ -132,7 +132,10 @@ default fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> 
     // if the asset is not accepted by the contract, this function will return an error
     let total_asset = self.total_asset(asset_address)?;
     // transfer the assets from user to the contract|
-    PSP22Ref::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
+    PSP22Ref::transfer_from_builder(&asset_address, lender, contract, amount, Vec::<u8>::new())
+        .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+        .fire()
+        .unwrap()?;
     // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
     let new_shares = if total_asset == 0 {
         amount
@@ -220,7 +223,10 @@ default fn borrow_assets(
         return Err(LendingError::InsufficientBalanceInContract)
     }
     // we will transfer the collateral to the contract
-    PSP22Ref::transfer_from(&collateral_address, borrower, contract, amount, Vec::<u8>::new())?;
+    PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
+        .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+        .fire()
+        .unwrap()?;
     // create loan info
     let loan_info = LoanInfo {
         borrower,
