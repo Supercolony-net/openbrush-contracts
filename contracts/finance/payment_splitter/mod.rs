@@ -168,9 +168,10 @@ impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
     }
 
     default fn _release_all(&mut self) -> Result<(), PaymentSplitterError> {
-        let payees = self.get().payees.clone();
+        let len = self.get().payees.len();
 
-        for account in payees.into_iter() {
+        for i in 0..len {
+            let account = self.get().payees[i];
             self.release(account)?;
         }
 
