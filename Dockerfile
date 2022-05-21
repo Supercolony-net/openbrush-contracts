@@ -17,8 +17,12 @@ RUN rustup target add wasm32-unknown-unknown
 
 RUN cargo install cargo-dylint dylint-link
 
+RUN git clone https://github.com/paritytech/substrate-contracts-node.git && \
+    cd substrate-contracts-node && \
+    git checkout v0.15.1 && \
+    cargo install --path ./node/ --locked
+
 # While Redspot didn't merge `--skip-linting` https://github.com/patractlabs/redspot/pull/181
 # we will use our version of `cargo-contract` without linting
 # RUN cargo install --force cargo-contract && \
-RUN cargo install cargo-contract --git https://github.com/Supercolony-net/cargo-contract --force && \
-    cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --tag v0.15.1 --force --locked
+RUN cargo install cargo-contract --git https://github.com/Supercolony-net/cargo-contract --force
