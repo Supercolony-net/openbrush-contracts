@@ -180,6 +180,10 @@ mod psp35_batch {
             .batch_transfer_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![])
             .is_ok());
 
+        println!("{:?}", &result);
+
+        assert!(result.is_ok());
+
         assert_eq!(nft.balance_of(accounts.bob, token_id_1), amounts[0]);
         assert_eq!(nft.balance_of(accounts.bob, token_id_2), amounts[1]);
 
