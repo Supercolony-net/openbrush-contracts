@@ -20,7 +20,7 @@ RUN cargo install cargo-dylint dylint-link
 RUN git clone https://github.com/paritytech/substrate-contracts-node.git && \
     cd substrate-contracts-node && \
     git checkout v0.15.1 && \
-    cargo install --path ./node/ --locked
+    WASM_BUILD_WORKSPACE_HINT=$PWD cargo install --path ./node/ --locked
 
 # While Redspot didn't merge `--skip-linting` https://github.com/patractlabs/redspot/pull/181
 # we will use our version of `cargo-contract` without linting
