@@ -135,7 +135,7 @@ mod psp35_burnable {
         // Alice gets an error on before_received
         assert_eq!(
             nft.burn(accounts.alice, vec![(token_id, 1)]),
-            Err(PSP35Error::Custom(String::from("Error on before_received")))
+            Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 }

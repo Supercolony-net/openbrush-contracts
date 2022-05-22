@@ -260,7 +260,6 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         }
 
         let id_opt = Some(id);
-
         if from != operator && self._get_allowance(from, operator, id_opt) < value {
             return Err(PSP35Error::NotAllowed)
         }
@@ -278,7 +277,9 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
 
     default fn _decrease_sender_balance(&mut self, from: AccountId, id: Id, amount: Balance) -> Result<(), PSP35Error> {
         let balance = self.balance_of(from, id);
+
         if balance < amount {
+            println!("!!!!!!! {} {}", balance, amount);
             return Err(PSP35Error::InsufficientBalance)
         }
 
@@ -309,9 +310,13 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
             None => (None, Balance::MAX),
         };
 
-        self.get_mut()
-            .operator_approvals
-            .insert(&(caller, operator, id), &value);
+        if value == 0 {
+            self.get_mut().operator_approvals.remove(&(caller, operator, id));
+        } else {
+            self.get_mut()
+                .operator_approvals
+                .insert(&(caller, operator, id), &value);
+        }
 
         self._emit_approval_event(caller, operator, id, value);
 
@@ -325,6 +330,10 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         id: Id,
         value: Balance,
     ) -> Result<(), PSP35Error> {
+        if owner == operator {
+            return Ok(())
+        }
+
         let initial_allowance = self._get_allowance(owner, operator, Some(id));
 
         if initial_allowance < value {
@@ -352,9 +361,6 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         self._decrease_sender_balance(from, id, value)?;
         self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
         self._increase_receiver_balance(to, id, value);
-
-        self._emit_transfer_event(Some(from), Some(to), id, value);
-
         Ok(())
     }
 
