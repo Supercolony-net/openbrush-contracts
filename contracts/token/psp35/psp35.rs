@@ -75,6 +75,7 @@ impl<T: PSP35Storage + Flush> PSP35 for T {
         self._before_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
         self._transfer_token(caller, to, id, value, data)?;
         self._after_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
+        self._emit_transfer_event(Some(caller), Some(to), id, value);
         Ok(())
     }
 
@@ -94,6 +95,7 @@ impl<T: PSP35Storage + Flush> PSP35 for T {
         self._decrease_allowance(from, operator, id, value)?;
         self._transfer_token(from, to, id, value, data)?;
         self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
+        self._emit_transfer_event(Some(from), Some(to), id, value);
         Ok(())
     }
 }
