@@ -97,7 +97,7 @@ mod psp35_mintable {
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.mint(accounts.alice, vec![(token_id, amount)]),
-            Err(PSP35Error::Custom(String::from("Error on before_received")))
+            Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 }
