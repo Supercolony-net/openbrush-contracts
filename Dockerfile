@@ -8,7 +8,7 @@ RUN apt-get update && \
 
 RUN npm install -g n && \
     npm install -g yarn && \
-    n stable
+    n 15.8.0
 
 RUN curl -sSf https://sh.rustup.rs/ | sh -s -- --default-toolchain nightly -y
 
