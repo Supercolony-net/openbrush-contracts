@@ -281,7 +281,6 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         let balance = self.balance_of(from, id);
 
         if balance < amount {
-            println!("!!!!!!! {} {}", balance, amount);
             return Err(PSP35Error::InsufficientBalance)
         }
 
@@ -408,18 +407,6 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         };
         self.load();
         result
-    }
-}
-
-impl<T> PSP35Receiver for T {
-    fn before_received(
-        &mut self,
-        _operator: AccountId,
-        _from: AccountId,
-        _ids_amounts: Vec<(Id, Balance)>,
-        _data: Vec<u8>,
-    ) -> Result<(), PSP35ReceiverError> {
-        Ok(())
     }
 }
 
