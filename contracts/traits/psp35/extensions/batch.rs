@@ -34,7 +34,7 @@ pub type PSP35BatchRef = dyn PSP35Batch;
 #[brush::trait_definition]
 pub trait PSP35Batch {
     #[ink(message)]
-    fn transfer_batch(
+    fn batch_transfer(
         &mut self,
         to: AccountId,
         ids_amounts: Vec<(Id, Balance)>,
@@ -42,7 +42,7 @@ pub trait PSP35Batch {
     ) -> Result<(), PSP35Error>;
 
     #[ink(message)]
-    fn transfer_batch_from(
+    fn batch_transfer_from(
         &mut self,
         from: AccountId,
         to: AccountId,

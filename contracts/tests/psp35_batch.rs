@@ -33,6 +33,7 @@ mod psp35_batch {
         Env,
     };
     use ink_lang as ink;
+    use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(event)]
@@ -126,7 +127,7 @@ mod psp35_batch {
     type Event = <PSP35Struct as ::ink_lang::reflect::ContractEventBase>::Type;
 
     #[ink::test]
-    fn transfer_batch() {
+    fn batch_transfer() {
         let token_id1 = [1; 32];
         let token_id2 = [2; 32];
         let id_1_amount = 1;
@@ -137,7 +138,7 @@ mod psp35_batch {
         let mut nft = PSP35Struct::new();
         assert!(nft.mint(accounts.alice, ids_amounts.clone()).is_ok());
 
-        assert!(nft.transfer_batch(accounts.bob, ids_amounts.clone(), vec![]).is_ok());
+        assert!(nft.batch_transfer(accounts.bob, ids_amounts.clone(), vec![]).is_ok());
 
         assert_eq!(nft.balance_of(accounts.alice, token_id1), 0);
         assert_eq!(nft.balance_of(accounts.alice, token_id2), 0);
@@ -148,10 +149,10 @@ mod psp35_batch {
         // EVENTS ASSERTS
         let mut events_iter = ink_env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
-        assert_transfer_batch_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
+        assert_batch_transfer_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
 
         let emmited_event = events_iter.next().unwrap();
-        assert_transfer_batch_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
+        assert_batch_transfer_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
 
         assert_eq!(ink_env::test::recorded_events().count(), 2);
     }
@@ -175,31 +176,19 @@ mod psp35_batch {
         assert_eq!(nft.balance_of(accounts.alice, token_id_1), amounts[0]);
         assert_eq!(nft.balance_of(accounts.alice, token_id_2), amounts[1]);
 
-        let result = nft.transfer_batch_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![]);
-
-        println!("{:?}", &result);
-
-        assert!(result.is_ok());
+        assert!(nft
+            .batch_transfer_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![])
+            .is_ok());
 
         assert_eq!(nft.balance_of(accounts.bob, token_id_1), amounts[0]);
         assert_eq!(nft.balance_of(accounts.bob, token_id_2), amounts[1]);
 
         assert_eq!(nft.balance_of(accounts.alice, token_id_1), 0);
         assert_eq!(nft.balance_of(accounts.alice, token_id_2), 0);
-
-        // EVENTS ASSERTS
-        let mut events_iter = ink_env::test::recorded_events();
-        let emmited_event = events_iter.next().unwrap();
-        assert_transfer_batch_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
-
-        let emmited_event = events_iter.next().unwrap();
-        assert_transfer_batch_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
-
-        assert_eq!(ink_env::test::recorded_events().count(), 2);
     }
 
     #[ink::test]
-    fn transfer_batch_from_insufficient_balance() {
+    fn batch_transfer_from_insufficient_balance() {
         let token_id_1 = [1; 32];
         let token_id_2 = [2; 32];
         let token_1_amount = 1;
@@ -210,7 +199,7 @@ mod psp35_batch {
         let mut nft = PSP35Struct::new();
         assert!(nft.mint(accounts.alice, ids_amounts.clone()).is_ok());
         assert_eq!(
-            nft.transfer_batch_from(
+            nft.batch_transfer_from(
                 accounts.alice,
                 accounts.bob,
                 ids_amounts
@@ -228,7 +217,7 @@ mod psp35_batch {
     }
 
     #[ink::test]
-    fn transfer_batch_from_no_approve() {
+    fn batch_transfer_from_no_approve() {
         let token_id_1 = [1; 32];
         let token_id_2 = [2; 32];
         let token_1_amount = 1;
@@ -240,13 +229,13 @@ mod psp35_batch {
         assert!(nft.mint(accounts.bob, ids_amounts.clone()).is_ok());
 
         assert_eq!(
-            nft.transfer_batch_from(accounts.bob, accounts.alice, ids_amounts, vec![]),
+            nft.batch_transfer_from(accounts.bob, accounts.alice, ids_amounts, vec![]),
             Err(PSP35Error::NotAllowed)
         );
     }
 
     #[ink::test]
-    fn transfer_from_batch_with_approve() {
+    fn batch_transfer_with_approve() {
         let token_id_1 = [1; 32];
         let token_id_2 = [2; 32];
         let token_1_amount = 1;
@@ -261,7 +250,7 @@ mod psp35_batch {
 
         change_caller(accounts.bob);
         assert!(nft
-            .transfer_batch_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![])
+            .batch_transfer_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![])
             .is_ok());
 
         assert_eq!(nft.balance_of(accounts.bob, token_id_1), amounts[0]);
@@ -272,18 +261,18 @@ mod psp35_batch {
         // EVENTS ASSERTS
         let mut events_iter = ink_env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
-        assert_transfer_batch_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
+        assert_batch_transfer_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
 
         let emmited_event = events_iter.next().unwrap();
         assert_approval_event(emmited_event, accounts.alice, accounts.bob, None, Balance::MAX);
 
         let emmited_event = events_iter.next().unwrap();
-        assert_transfer_batch_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
+        assert_batch_transfer_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
 
         assert_eq!(ink_env::test::recorded_events().count(), 3);
     }
 
-    fn assert_transfer_batch_event(
+    fn assert_batch_transfer_event(
         event: ink_env::test::EmittedEvent,
         expected_from: Option<AccountId>,
         expected_to: Option<AccountId>,
