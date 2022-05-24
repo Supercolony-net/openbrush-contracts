@@ -5,7 +5,7 @@ import { expect } from './setup/chai'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { buildTx } from '@redspot/patract/buildTx'
 import { Keyring } from '@polkadot/keyring'
-import { TransactionParams, TransactionResponse } from "@redspot/patract/types";
+import { TransactionParams, TransactionResponse } from '@redspot/patract/types'
 
 
 const { getContractFactory, getRandomSigner } = patract

@@ -1,5 +1,5 @@
 [package]
-name = "psp1155_receiver"
+name = "psp35_receiver"
 version = "1.6.1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
@@ -16,10 +16,10 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-brush = { path = "../..", default-features = false, features = ["psp1155"] }
+brush = { path = "../..", default-features = false, features = ["psp35"] }
 
 [lib]
-name = "psp1155_receiver"
+name = "psp35_receiver"
 path = "lib.rs"
 crate-type = [
     "cdylib",
