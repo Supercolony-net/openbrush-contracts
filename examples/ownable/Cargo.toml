@@ -16,7 +16,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-brush = { path = "../..", default-features = false, features = ["ownable", "psp1155"] }
+brush = { path = "../..", default-features = false, features = ["ownable", "psp35"] }
 
 [lib]
 name = "my_ownable"

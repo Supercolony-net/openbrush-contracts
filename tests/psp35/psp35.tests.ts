@@ -1,196 +1,181 @@
 import { bnArg, expect, setupContract, fromSigner } from '../helpers'
 
 describe('MY_PSP35', () => {
-    async function setup() {
-        return setupContract('my_psp35', 'new')
-    }
+  async function setup() {
+    return setupContract('my_psp35', 'new')
+  }
 
-    async function setup_receiver() {
-        return setupContract('psp35_receiver', 'new')
-    }
+  async function setup_receiver() {
+    return setupContract('psp35_receiver', 'new')
+  }
 
-    it('Balance of works', async () => {
-        const { query, defaultSigner: sender, tx } = await setup()
+  it('Balance of works', async () => {
+    const { query, defaultSigner: sender, tx } = await setup()
 
-        await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(0)
-        await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
-        await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
-    })
+    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(0)
+    await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
+  })
 
-    it('PSP 35 - contract(not receiver) can accept the transfer', async () => {
-        const { tx, query, defaultSigner: sender } = await setup()
+  it('Allowance works', async () => {
+    const { query, defaultSigner: sender, accounts: [alice], tx } = await setup()
+    await expect(query.allowance(sender.address, alice.address, bnArg(0))).to.have.output(0)
+    await expect(tx.approve(alice.address, [bnArg(0), 10])).to.be.fulfilled
+    await expect(query.allowance(sender.address, alice.address, bnArg(0))).to.have.output(10)
+  })
 
-        const { contract } = await setup()
+  it('PSP 35 - contract(not receiver) can accept the transfer', async () => {
+    const { tx, query, defaultSigner: sender } = await setup()
 
-        // Arrange
-        await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
-        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
+    const { contract } = await setup()
 
-        // Assert - Sender can send token to receiver
-        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.fulfilled
-        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([1, 0])
-    })
+    // Arrange
+    await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+    await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(0)
+    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
 
-    it('PSP 35 - receiver can accept the transfer', async () => {
-        const { tx, query, defaultSigner: sender } = await setup()
+    // Assert - Sender can send token to receiver
+    await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.fulfilled
+    await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(1)
+    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(0)
+  })
 
-        const { contract } = await setup_receiver()
+  it('PSP 35 - receiver can accept the transfer', async () => {
+    const { tx, query, defaultSigner: sender } = await setup()
 
-        // Arrange
-        await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
-        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
+    const { contract } = await setup_receiver()
 
-        // Assert - Sender can send token to receiver
-        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.fulfilled
-        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([1, 0])
-    })
+    // Arrange
+    await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+    await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(0)
+    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
 
-    it('PSP 35 - receiver can reject the transfer', async () => {
-        const { tx, query, defaultSigner: sender } = await setup()
 
-        const { contract } = await setup_receiver()
+    // Assert - Sender can send token to receiver
+    await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.fulfilled
+    await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(1)
+    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(0)
+  })
 
-        // Arrange
-        await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
-        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
+  it('PSP 35 - receiver can reject the transfer', async () => {
+    const { tx, query, defaultSigner: sender } = await setup()
 
-        // Act - Receiver wants to reject the next transfer
-        await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
+    const { contract } = await setup_receiver()
 
-        // Assert - Sender cannot send token to receiver
-        await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.rejected
-        await expect(query.balanceOfBatch([[contract.address, bnArg(0)], [sender.address, bnArg(0)]])).to.have.output([0, 1])
-    })
+    // Arrange
+    await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+    await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(0)
+    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
 
-    it('Balance of batch works', async () => {
-        const { query, defaultSigner: sender, tx } = await setup()
 
-        let token1 = bnArg(0)
-        let token2 = bnArg(1)
-        let token1Amount = 1
-        let token2Amount = 20
-        await expect(tx.mintTokens(token1, token1Amount)).to.be.fulfilled
-        await expect(tx.mintTokens(token2, token2Amount)).to.be.fulfilled
+    // Act - Receiver wants to reject the next transfer
+    await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
 
-        await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2]]))
-            .to.have.output([token1Amount, token2Amount])
-    })
+    // Assert - Sender cannot send token to receiver
+    await expect(tx.transferFrom(sender.address, contract.address, bnArg(0), 1, 'data')).to.eventually.be.rejected
+    await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(0)
+    await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
+  })
 
-    it('Set approval works', async () => {
-        const { contract, query, defaultSigner: sender, accounts: [alice] } = await setup()
+  it('Approve works', async () => {
+    const { contract, query, defaultSigner: sender, accounts: [alice] } = await setup()
 
-        await expect(query.isApprovedForAll(sender.address, alice.address))
-            .to.have.output(false)
+    const tokenId = bnArg(0)
+    const tokenAmount = 20
 
-        await contract.tx.setApprovalForAll(alice.address, true)
-        await expect(query.isApprovedForAll(sender.address, alice.address))
-            .to.have.output(true)
+    await expect(query.allowance(sender.address, alice.address, tokenId))
+      .to.have.output(0)
 
-        await expect(contract.tx.setApprovalForAll(alice.address, false)).to.be.fulfilled
-        await expect(query.isApprovedForAll(sender.address, alice.address))
-            .to.have.output(false)
-    })
+    await expect(contract.tx.approve(alice.address, [tokenId, tokenAmount])).to.be.fulfilled
+    await expect(query.allowance(sender.address, alice.address, tokenId))
+      .to.have.output(tokenAmount)
 
-    it('Transfer from single works', async () => {
-        const { contract, query, defaultSigner: sender, accounts: [alice], tx } = await setup()
+    await expect(contract.tx.approve(alice.address, null)).to.be.fulfilled
+    await expect(query.allowance(sender.address, alice.address, tokenId))
+      .to.have.output('340282366920938463463374607431768211455')
+  })
 
-        let tokenId = bnArg(0)
-        let tokenId2 = bnArg(1)
-        let transferAmount = 1
-        let token2Amount = 10
-        await expect(tx.mintTokens(tokenId, transferAmount)).to.be.fulfilled
-        await expect(tx.mintTokens(tokenId2, token2Amount)).to.be.fulfilled
+  it('Transfer works', async () => {
+    const { contract, query, defaultSigner: sender, accounts: [alice], tx } = await setup()
 
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
-        await contract.tx.transferFrom(sender.address, alice.address, tokenId2, token2Amount, [])
-        await expect(query.balanceOfBatch([[sender.address, tokenId], [sender.address, tokenId2], [alice.address, tokenId], [alice.address, tokenId2]]))
-            .to.have.output([transferAmount, 0, 0, token2Amount])
+    const tokenId1 = bnArg(0)
+    const tokenId2 = bnArg(1)
+    const token1Amount = 1
+    const token2Amount = 10
+    await expect(tx.mintTokens(tokenId1, token1Amount)).to.be.fulfilled
+    await expect(tx.mintTokens(tokenId2, token2Amount)).to.be.fulfilled
 
-        await contract.tx.transferFrom(sender.address, alice.address, tokenId, transferAmount, [])
-        await contract.tx.transferFrom(alice.address, sender.address, tokenId2, transferAmount, [])
+    await expect(contract.tx.transfer(alice.address, tokenId2, token2Amount, [])).to.be.fulfilled
 
-        await expect(query.balanceOfBatch([[sender.address, tokenId], [sender.address, tokenId2], [alice.address, tokenId], [alice.address, tokenId2]]))
-            .to.have.output([0, transferAmount, transferAmount, token2Amount - transferAmount])
-    })
+    await expect(query.balanceOf(sender.address, tokenId1)).to.have.output(token1Amount)
+    await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(0)
+    await expect(query.balanceOf(alice.address, tokenId1)).to.have.output(0)
+    await expect(query.balanceOf(alice.address, tokenId2)).to.have.output(token2Amount)
 
-    it('Transfer from batch works', async () => {
-        const { contract, query, defaultSigner: sender, accounts: [alice], tx } = await setup()
+    await expect(contract.tx.transfer(alice.address, tokenId1, token1Amount, [])).to.be.fulfilled
+    await expect(fromSigner(contract, alice.address).tx.transfer(sender.address, tokenId2, token1Amount, [])).to.be.fulfilled
 
-        let token1 = bnArg(0)
-        let token2 = bnArg(1)
-        let amount1 = 1
-        let amount2 = 20
-        await expect(tx.mintTokens(token1, amount1)).to.be.fulfilled
-        await expect(tx.mintTokens(token2, amount2)).to.be.fulfilled
+    await expect(query.balanceOf(sender.address, tokenId1)).to.have.output(0)
+    await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(token1Amount)
+    await expect(query.balanceOf(alice.address, tokenId1)).to.have.output(token1Amount)
+    await expect(query.balanceOf(alice.address, tokenId2)).to.have.output(token2Amount - token1Amount)
+  })
 
-        await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2], [alice.address, token1], [alice.address, token2]]))
-            .to.have.output([amount1, amount2, 0, 0])
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
+  it('Transfer from works', async () => {
+    const { contract, query, defaultSigner: sender, accounts: [alice], tx } = await setup()
 
-        await expect(contract.tx.batchTransferFrom(sender.address, alice.address, [[token1, amount1], [token2, amount2]], []))
-            .to.eventually.be.fulfilled
-        await expect(contract.tx.batchTransferFrom(alice.address, sender.address, [[token1, amount1], [token2, amount2]], []))
-            .to.eventually.be.fulfilled
+    const tokenId1 = bnArg(0)
+    const tokenId2 = bnArg(1)
+    const token1Amount = 1
+    const token2Amount = 10
+    await expect(tx.mintTokens(tokenId1, token1Amount)).to.be.fulfilled
+    await expect(tx.mintTokens(tokenId2, token2Amount)).to.be.fulfilled
 
-        await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2], [alice.address, token1], [alice.address, token2]]))
-            .to.have.output([amount1, amount2, 0, 0])
-    })
+    await expect(fromSigner(contract, alice.address).tx.approve(sender.address, null)).to.be.fulfilled
+    await expect(contract.tx.transferFrom(sender.address, alice.address, tokenId2, token2Amount, [])).to.be.fulfilled
 
-    it('Transfer from single insufficient balance should fail', async () => {
-        const { contract, defaultSigner: sender, query, accounts: [alice], tx } = await setup()
+    await expect(query.balanceOf(sender.address, tokenId1)).to.have.output(token1Amount)
+    await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(0)
+    await expect(query.balanceOf(alice.address, tokenId1)).to.have.output(0)
+    await expect(query.balanceOf(alice.address, tokenId2)).to.have.output(token2Amount)
 
-        let tokenId = bnArg(0)
-        let tokenAmount = 1
-        await expect(tx.mintTokens(tokenId, tokenAmount)).to.be.fulfilled
+    await expect(contract.tx.transferFrom(sender.address, alice.address, tokenId1, token1Amount, [])).to.be.fulfilled
+    await expect(contract.tx.transferFrom(alice.address, sender.address, tokenId2, token1Amount, [])).to.be.fulfilled
 
-        await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
-        await fromSigner(contract, alice.address).tx.setApprovalForAll(sender.address, true)
+    await expect(query.balanceOf(sender.address, tokenId1)).to.have.output(0)
+    await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(token1Amount)
+    await expect(query.balanceOf(alice.address, tokenId1)).to.have.output(token1Amount)
+    await expect(query.balanceOf(alice.address, tokenId2)).to.have.output(token2Amount - token1Amount)
+  })
 
-        await expect(contract.tx.transferFrom(sender.address, alice.address, tokenId, tokenAmount + 1, []))
-            .to.eventually.be.rejected
+  it('Transfer from insufficient balance should fail', async () => {
+    const { contract, defaultSigner: sender, query, accounts: [alice], tx } = await setup()
 
-        await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
-    })
+    const tokenId = bnArg(0)
+    const tokenAmount = 1
+    await expect(tx.mintTokens(tokenId, tokenAmount)).to.be.fulfilled
 
-    it('Transfer from single without allowance should fail', async () => {
-        const { contract, defaultSigner: sender, accounts: [alice], query, tx } = await setup()
+    await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
+    await fromSigner(contract, alice.address).tx.approve(sender.address, [tokenId, tokenAmount])
 
-        let tokenId = bnArg(0)
-        let tokenAmount = 1
-        await expect(tx.mintTokens(tokenId, tokenAmount)).to.be.fulfilled
+    await expect(contract.tx.transferFrom(sender.address, alice.address, tokenId, tokenAmount + 1, []))
+      .to.eventually.be.rejected
 
-        await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
+    await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
+  })
 
-        await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, tokenId, tokenAmount, []))
-            .to.eventually.be.rejected
+  it('Transfer from without allowance should fail', async () => {
+    const { contract, defaultSigner: sender, accounts: [alice], query, tx } = await setup()
 
-        await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
-    })
+    const tokenId = bnArg(0)
+    const tokenAmount = 1
+    await expect(tx.mintTokens(tokenId, tokenAmount)).to.be.fulfilled
 
-    it('Transfer from batch insufficient balance should fail', async () => {
-        const { contract, defaultSigner: sender, accounts: [alice], query, tx } = await setup()
+    await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
 
-        let token1 = bnArg(0)
-        let token2 = bnArg(1)
-        let amount1 = 1
-        let amount2 = 20
-        await expect(tx.mintTokens(token1, amount1)).to.be.fulfilled
-        await expect(tx.mintTokens(token2, amount2)).to.be.fulfilled
+    await expect(fromSigner(contract, alice.address).tx.transferFrom(sender.address, alice.address, tokenId, tokenAmount, []))
+      .to.eventually.be.rejected
 
-        await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2]]))
-            .to.have.output([amount1, amount2])
-        await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
-            .to.have.output([0, 0])
-        await contract.tx.setApprovalForAll(alice.address, true)
-
-        await expect(
-            fromSigner(contract, alice.address)
-                .tx.batchTransferFrom(sender.address, alice.address, [[token1, amount1 + 1], [token2, amount2]], [])
-        ).to.eventually.be.rejected
-
-        await expect(query.balanceOfBatch([[sender.address, token1], [sender.address, token2]]))
-            .to.have.output([amount1, amount2])
-        await expect(query.balanceOfBatch([[alice.address, token1], [alice.address, token2]]))
-            .to.have.output([0, 0])
-    })
+    await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
+  })
 })

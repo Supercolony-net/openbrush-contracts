@@ -1,20 +1,20 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[brush::contract]
-pub mod erc1155_receiver {
-    use brush::contracts::traits::psp1155::*;
+pub mod psp35_receiver {
+    use brush::contracts::traits::psp35::*;
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
 
     #[ink(storage)]
-    pub struct PSP1155ReceiverStruct {
+    pub struct PSP35ReceiverStruct {
         call_counter: u64,
         revert_next_transfer: bool,
     }
 
-    impl PSP1155ReceiverStruct {
+    impl PSP35ReceiverStruct {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
@@ -34,7 +34,7 @@ pub mod erc1155_receiver {
         }
     }
 
-    impl PSP1155Receiver for PSP1155ReceiverStruct {
+    impl PSP35Receiver for PSP35ReceiverStruct {
         #[ink(message)]
         fn before_received(
             &mut self,
@@ -42,10 +42,10 @@ pub mod erc1155_receiver {
             _from: AccountId,
             _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
-        ) -> Result<(), PSP1155ReceiverError> {
+        ) -> Result<(), PSP35ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP1155ReceiverError::TransferRejected(String::from(
+                return Err(PSP35ReceiverError::TransferRejected(String::from(
                     "I should reject next transfer",
                 )))
             }
