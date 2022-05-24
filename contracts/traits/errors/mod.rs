@@ -25,9 +25,9 @@ mod flashloan;
 mod ownable;
 mod pausable;
 mod payment_splitter;
-mod psp35;
 mod psp22;
 mod psp34;
+mod psp35;
 mod reentrancy_guard;
 mod timelock_controller;
 
@@ -40,10 +40,6 @@ pub use flashloan::{
 pub use ownable::OwnableError;
 pub use pausable::PausableError;
 pub use payment_splitter::PaymentSplitterError;
-pub use psp35::{
-    PSP35Error,
-    PSP35ReceiverError,
-};
 pub use psp22::{
     PSP22Error,
     PSP22ReceiverError,
@@ -52,6 +48,10 @@ pub use psp22::{
 pub use psp34::{
     PSP34Error,
     PSP34ReceiverError,
+};
+pub use psp35::{
+    PSP35Error,
+    PSP35ReceiverError,
 };
 pub use reentrancy_guard::ReentrancyGuardError;
 pub use timelock_controller::TimelockControllerError;
