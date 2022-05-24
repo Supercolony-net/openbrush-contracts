@@ -19,9 +19,9 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#[cfg(feature = "psp35")]
-pub mod psp35;
 #[cfg(feature = "psp22")]
 pub mod psp22;
 #[cfg(feature = "psp34")]
 pub mod psp34;
+#[cfg(feature = "psp35")]
+pub mod psp35;
