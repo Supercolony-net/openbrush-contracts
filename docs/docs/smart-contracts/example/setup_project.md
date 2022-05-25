@@ -40,7 +40,7 @@ Based on the rules above the structure will look like the following:
 ├── traits
 │   ├── lending.rs
 │   ├── loan.rs
-│   ├── psp35
+│   ├── mod.rs
 │   ├── shares.rs
 │   └── stable_coin.rs
 ├── impls
@@ -48,8 +48,8 @@ Based on the rules above the structure will look like the following:
 │   │   ├── data.rs
 │   │   ├── lending.rs
 │   │   ├── lending_permissioned.rs
-│   │   └── psp35
-│   └── psp35
+│   │   └── mod.rs
+│   └── mod.rs
 ├── derive
 │   ├── Cargo.toml
 │   └── lib.rs
