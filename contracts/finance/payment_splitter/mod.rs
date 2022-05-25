@@ -126,6 +126,9 @@ pub trait PaymentSplitterInternal {
     fn _init(&mut self, payees_and_shares: Vec<(AccountId, Balance)>) -> Result<(), PaymentSplitterError>;
 
     fn _add_payee(&mut self, payee: AccountId, share: Balance) -> Result<(), PaymentSplitterError>;
+
+    /// Calls the `release` method for each `AccountId` in the `payees` vec.
+    fn _release_all(&mut self) -> Result<(), PaymentSplitterError>;
 }
 
 impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
@@ -161,6 +164,17 @@ impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
         self.get_mut().shares.insert(&payee, &share);
         self.get_mut().total_shares += share;
         self._emit_payee_added_event(payee, share);
+        Ok(())
+    }
+
+    default fn _release_all(&mut self) -> Result<(), PaymentSplitterError> {
+        let len = self.get().payees.len();
+
+        for i in 0..len {
+            let account = self.get().payees[i];
+            self.release(account)?;
+        }
+
         Ok(())
     }
 }

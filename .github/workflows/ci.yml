@@ -8,11 +8,7 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      credentials:
-        username: ${{ secrets.GHCR_USERNAME }}
-        password: ${{ secrets.GHCR_TOKEN }}
       env:
-        node: /usr/local/bin/node
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/checkout@v2
@@ -23,32 +19,26 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      credentials:
-        username: ${{ secrets.GHCR_USERNAME }}
-        password: ${{ secrets.GHCR_TOKEN }}
       env:
-        node: /usr/local/bin/node
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/checkout@v2
       - name: Build & Run cargo tests
         run: |
-          RUSTFLAGS="-D warnings" cargo test --all-features --workspace -- --test-threads=10
+          cargo test --all-features --workspace -- --test-threads=10
   integration-tests:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      credentials:
-        username: ${{ secrets.GHCR_USERNAME }}
-        password: ${{ secrets.GHCR_TOKEN }}
       env:
-        node: /usr/local/bin/node
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/checkout@v2
       - name: Yarn install dependencies
-        run: yarn
+        run: |
+          yarn
+          yarn add ts-node
       - name: Redspot Сompile
         run: |
           chown -R root .

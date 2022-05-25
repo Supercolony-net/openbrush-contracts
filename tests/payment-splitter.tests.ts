@@ -49,4 +49,26 @@ describe('MY_PAYMENT_SPLITTER', () => {
     expect(ianReleased).to.equal(totalReleased * IAN_SHARE / (KAYNE_SHARE + IAN_SHARE))
     expect(ianReleased + kayneReleased).to.equal(totalReleased)
   })
+
+  it('PAYMENT SPLITTER - release a native token using releaseAll function', async () => {
+    // Arrange - Create a contract
+    const { contract, kayne, ian } = await setup()
+
+    // Act - Send native token and release them
+    await expect(contract.contract.query.totalReleased()).to.have.output(0)
+    await expect(contract.contract.tx.receive({ value: 1000000000000 })).to.eventually.be.fulfilled
+    await expect(contract.contract.tx.releaseAll()).to.eventually.be.fulfilled
+
+    // Assert - Ian must hold more tokens than kayne
+    // @ts-ignore
+    let totalReleased = Number.parseInt((await contract.contract.query.totalReleased()).output)
+    // @ts-ignore
+    let kayneReleased = Number.parseInt((await contract.contract.query.released(kayne.address)).output)
+    // @ts-ignore
+    let ianReleased = Number.parseInt((await contract.contract.query.released(ian.address)).output)
+    expect(ianReleased > kayneReleased).to.true
+    expect(kayneReleased).to.equal(totalReleased * KAYNE_SHARE / (KAYNE_SHARE + IAN_SHARE))
+    expect(ianReleased).to.equal(totalReleased * IAN_SHARE / (KAYNE_SHARE + IAN_SHARE))
+    expect(ianReleased + kayneReleased).to.equal(totalReleased)
+  })
 })

@@ -1,6 +1,6 @@
 [package]
 name = "brush_derive"
-version = "1.6.1"
+version = "1.7.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 

@@ -12,7 +12,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of Payment Splitter via `brush` features.
 
 ```toml
-brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["payment_splitter"] }
+brush = { tag = "v1.7.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["payment_splitter"] }
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
@@ -73,3 +73,26 @@ impl SplitterStruct {
 ```
 
 You can check an example of the usage of [PaymentSplitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/payment_splitter).
+
+## Step 6 (Optional): Customize your contract
+
+The `PaymentSplitter` trait defines and has default implementations for the core payment splitter functions. Additional functionality with *some* predefined functions is available through the `PaymentSplitterInternal` trait (`openbrush-contracts/contracts/finance/payment_splitter/mod.rs`). Likely the most common function to use from this internal trait will be `_release_all`. This allows you to payout all `payees` stored in the contract at once. To add this function to your contract, simply define a new publicly dispatchable function (i.e. `#[ink(message)]`) called `release_all` and have it call the internal `_release_all` function using `self`.
+
+```rust
+impl SplitterStruct {
+        #[ink(constructor)]
+        pub fn new(payees_and_shares: Vec<(AccountId, Balance)>) -> Self {
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                instance._init(payees_and_shares).expect("Should init");
+            })
+        }
+
+        /// Payout all payees at once.
+        #[ink(message)]
+        pub fn release_all(&mut self) -> Result<(), PaymentSplitterError> {
+            // `_release_all()` is an internal method defined by the `PaymentSplitterInternal` trait
+            self._release_all()
+        }
+    }
+```
+The `_add_payee` function is also available in the `PaymentSplitterInternal` trait and can be added to your contract in the same way as `_release_all`.
