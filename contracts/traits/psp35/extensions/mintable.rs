@@ -35,7 +35,7 @@ pub type PSP35MintableRef = dyn PSP35Mintable;
 pub trait PSP35Mintable {
     /// Mints `amount` tokens of token type `id` to `to`
     ///
-    /// See [`PSP1155::_mint_to`].
+    /// See [`PSP35::_mint_to`].
     #[ink(message)]
     fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error>;
 }
