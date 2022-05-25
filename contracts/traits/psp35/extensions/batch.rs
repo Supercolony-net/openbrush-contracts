@@ -19,9 +19,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// Extension of [`PSP35`] that allows token holders to transfer a batch of tokens
-use crate::traits::psp35::Id;
-use crate::traits::psp35::PSP35Error;
+/// Extension of [`PSP35`] that allows to transfer a batch of tokens
+use crate::traits::psp35::{
+    Id,
+    PSP35Error,
+};
 use brush::traits::{
     AccountId,
     Balance,
