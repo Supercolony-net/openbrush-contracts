@@ -261,8 +261,7 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
             return Err(PSP35Error::TransferToZeroAddress)
         }
 
-        let id_opt = Some(id);
-        if from != operator && self._get_allowance(from, operator, id_opt) < value {
+        if from != operator && self._get_allowance(from, operator, Some(id)) < value {
             return Err(PSP35Error::NotAllowed)
         }
         Ok(())
@@ -289,13 +288,9 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
     }
 
     default fn _get_allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
-        let approval_for_all = self.get().operator_approvals.get(&(owner, operator, None)).unwrap_or(0);
-        let approval_for_token = self.get().operator_approvals.get(&(owner, operator, id)).unwrap_or(0);
-
-        return if approval_for_all != 0 {
-            approval_for_all
-        } else {
-            approval_for_token
+        return match self.get().operator_approvals.get(&(owner, operator, None)) {
+            None => self.get().operator_approvals.get(&(owner, operator, id)).unwrap_or(0),
+            Some(value) => value,
         }
     }
 
@@ -303,7 +298,7 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         let caller = Self::env().caller();
 
         if caller == operator {
-            return Err(PSP35Error::NotAllowed)
+            return Ok(())
         }
 
         let (id, value) = match token {
@@ -356,11 +351,8 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         value: Balance,
         data: Vec<u8>,
     ) -> Result<(), PSP35Error> {
-        let ids_amounts = vec![(id, value)];
-        let operator = Self::env().caller();
-
         self._decrease_sender_balance(from, id, value)?;
-        self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
+        self._do_safe_transfer_check(&Self::env().caller(), &from, &to, &vec![(id, value)], &data)?;
         self._increase_receiver_balance(to, id, value);
         Ok(())
     }
