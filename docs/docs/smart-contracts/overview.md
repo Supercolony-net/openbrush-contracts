@@ -80,10 +80,10 @@ Also, that doc contains links to the examples of how to reuse and customize the 
   * [PSP34Burnable](PSP34/Extensions/burnable.md): destruction of own tokens.
 * [PSP35](PSP35/psp35.md) is an example of how you can reuse the implementation of
   [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35). You also can find examples of how to reuse extensions.
-  * [PSP35Metadata](docs/smart-contracts/PSP35/Extensions/metadata.md): metadata for PSP35.
-  * [PSP35Mintable](docs/smart-contracts/PSP35/Extensions/mintable.md): creation of new tokens.
-  * [PSP35Burnable](docs/smart-contracts/PSP35/Extensions/burnable.md): destruction of own tokens.
-  * [PSP35Batch](docs/smart-contracts/PSP35/Extensions/batch.md): transfer a batch of tokens
+  * [PSP35Metadata](PSP35/Extensions/metadata.md): metadata for PSP35.
+  * [PSP35Mintable](PSP35/Extensions/mintable.md): creation of new tokens.
+  * [PSP35Burnable](PSP35/Extensions/burnable.md): destruction of own tokens.
+  * [PSP35Batch](PSP35/Extensions/batch.md): transfer a batch of tokens
 * [Access Control](access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/access/access_control) and
   [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) together to provide rights to mint and burn NFT tokens.
