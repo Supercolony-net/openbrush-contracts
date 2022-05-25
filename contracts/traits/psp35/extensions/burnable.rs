@@ -35,7 +35,7 @@ pub type PSP35BurnableRef = dyn PSP35Burnable;
 pub trait PSP35Burnable {
     /// Destroys `amount` tokens of token type `id` from `from`
     ///
-    /// See [`PSP1155::_burn_from`].
+    /// See [`PSP35::_burn_from`].
     #[ink(message)]
     fn burn(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error>;
 }
