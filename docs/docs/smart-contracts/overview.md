@@ -78,11 +78,11 @@ Also, that doc contains links to the examples of how to reuse and customize the 
   * [PSP34Metadata](PSP34/Extensions/metadata.md): metadata for PSP34.
   * [PSP34Mintable](PSP34/Extensions/mintable.md): creation of new tokens.
   * [PSP34Burnable](PSP34/Extensions/burnable.md): destruction of own tokens.
-* [PSP1155](PSP1155/psp1155.md) is an example of how you can reuse the implementation of
-  [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp1155). You also can find examples of how to reuse extensions.
-  * [PSP1155Metadata](PSP1155/Extensions/metadata.md): metadata for PSP1155.
-  * [PSP1155Mintable](PSP1155/Extensions/mintable.md): creation of new tokens.
-  * [PSP1155Burnable](PSP1155/Extensions/burnable.md): destruction of own tokens.
+* [PSP1155](PSP35/psp35.md) is an example of how you can reuse the implementation of
+  [psp1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155). You also can find examples of how to reuse extensions.
+  * [PSP1155Metadata](docs/smart-contracts/PSP35/Extensions/metadata.md): metadata for PSP1155.
+  * [PSP1155Mintable](docs/smart-contracts/PSP35/Extensions/mintable.md): creation of new tokens.
+  * [PSP1155Burnable](docs/smart-contracts/PSP35/Extensions/burnable.md): destruction of own tokens.
 * [Access Control](access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/access/access_control) and
   [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) together to provide rights to mint and burn NFT tokens.
