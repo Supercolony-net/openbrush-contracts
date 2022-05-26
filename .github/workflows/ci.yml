@@ -49,5 +49,6 @@ jobs:
         run: |
           substrate-contracts-node --tmp --dev & P1=$!
           yarn test:mocha & P2=$!
+          yarn test:mocha & P2=$!
           wait $P2
           kill $P1
