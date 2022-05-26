@@ -47,8 +47,6 @@ jobs:
       - name: Run Test Mocha
         run: |
           substrate-contracts-node --tmp --dev -lerror,runtime::contracts=debug,info,error,warning & P1=$!
-          yarn test:mocha || true
-          yarn test:mocha & P3=$!
+          yarn test:mocha || yarn test:mocha & P2=$!
           wait $P2
-          wait $P3
           kill $P1
