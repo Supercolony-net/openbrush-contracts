@@ -27,7 +27,7 @@
     "build:release": "npx redspot compile --release",
     "build": "npx redspot compile",
     "test:redspot": "npx redspot test",
-    "test:mocha": "mocha --require @babel/register --require ts-node/register --require ./tests/setup/hooks.ts --recursive ./tests --extension \".ts\" --exit --timeout 20000",
+    "test:mocha": "mocha --require @babel/register --require ts-node/register --require ./tests/setup/hooks.ts --recursive ./tests --extension \".ts\" --exit --timeout 60000",
     "test": "yarn build:release && yarn test:mocha"
   }
 }
