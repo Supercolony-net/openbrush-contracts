@@ -20,8 +20,10 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// Extension of [`PSP35`] that allows minting of new tokens
-use crate::traits::psp35::Id;
-use crate::traits::psp35::PSP35Error;
+use crate::traits::psp35::{
+    Id,
+    PSP35Error,
+};
 use brush::traits::{
     AccountId,
     Balance,
