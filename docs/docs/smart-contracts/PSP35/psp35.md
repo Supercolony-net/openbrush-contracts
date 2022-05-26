@@ -81,8 +81,8 @@ If someone tries to mint token with denied id, we will reject transaction.
 #[derive(Default, SpreadAllocate, PSP35Storage)]
 #[ink(storage)]
 pub struct MyPSP35 {
-    #[PSP25StorageField]
-    psp25: PSP35Data,
+    #[PSP35StorageField]
+    psp35: PSP35Data,
     denied_ids: Mapping<Id, ()>,
 }
 
