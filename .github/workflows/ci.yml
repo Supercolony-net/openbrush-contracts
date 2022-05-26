@@ -51,4 +51,5 @@ jobs:
           yarn test:mocha & P2=$!
           yarn test:mocha & P2=$!
           wait $P2
+          wait $P3
           kill $P1
