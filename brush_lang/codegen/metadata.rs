@@ -21,7 +21,7 @@
 
 use cargo_metadata::camino::Utf8PathBuf;
 use fs2::FileExt;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::TokenStream;
 use quote::ToTokens;
 use serde_json;
 use std::{
@@ -79,7 +79,7 @@ impl LockedTrait {
         let reader = BufReader::new(&file);
         let token_string: String = serde_json::from_reader(reader).unwrap_or_default();
 
-        let stream = TokenStream2::from_str(token_string.as_str()).unwrap_or_default();
+        let stream = TokenStream::from_str(token_string.as_str()).unwrap_or_default();
         let trait_item = syn::parse2::<ItemTrait>(stream).map_or(None, |item| Some(item));
         let trait_definition;
 

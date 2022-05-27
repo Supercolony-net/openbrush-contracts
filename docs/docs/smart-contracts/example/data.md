@@ -142,7 +142,7 @@ In the `Cargo.toml` of the derive folder you need to import `brush_derive` depen
 syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
-brush_derive = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts"}
+brush = { version = "1.8.0", default-features = false }
 
 [lib]
 name = "point_derive"

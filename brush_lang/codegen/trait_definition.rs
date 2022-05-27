@@ -31,7 +31,7 @@ use crate::{
     },
 };
 use heck::CamelCase as _;
-use proc_macro::TokenStream;
+use proc_macro2::TokenStream;
 use quote::{
     format_ident,
     quote,
@@ -39,16 +39,16 @@ use quote::{
 };
 use std::collections::HashMap;
 use syn::{
-    parse_macro_input,
+    parse2,
     ItemTrait,
 };
 
-pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
+pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
     if crate::internal::skip() {
         return (quote! {}).into()
     }
     let attrs: proc_macro2::TokenStream = _attrs.into();
-    let mut trait_item = parse_macro_input!(_input as ItemTrait);
+    let mut trait_item: ItemTrait = parse2(_input).unwrap();
     let trait_without_ink_attrs;
     let ink_code;
 

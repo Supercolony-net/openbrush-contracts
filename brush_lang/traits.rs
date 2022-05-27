@@ -33,7 +33,6 @@ pub type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 pub type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 pub type EnvAccess = ::ink_lang::EnvAccess<'static, DefaultEnvironment>;
 
-#[crate::trait_definition]
 pub trait InkStorage: Sized {
     fn env() -> EnvAccess {
         Default::default()
@@ -55,7 +54,6 @@ impl AccountIdExt for AccountId {
 }
 
 /// This trait is automatically implemented for storage.
-#[crate::trait_definition]
 pub trait Flush: ::ink_storage::traits::SpreadLayout + InkStorage {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate a key of each field.

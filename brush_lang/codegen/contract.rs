@@ -25,20 +25,19 @@ use crate::{
     metadata::LockedTrait,
     trait_definition,
 };
-use proc_macro::TokenStream;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::TokenStream;
 use quote::{
     quote,
     ToTokens,
 };
 use syn::Item;
 
-pub(crate) fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
+pub fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
     if internal::skip() {
         return (quote! {}).into()
     }
-    let input: TokenStream2 = ink_module.into();
-    let attrs: TokenStream2 = _attrs.into();
+    let input: TokenStream = ink_module.into();
+    let attrs: TokenStream = _attrs.into();
     let mut module = syn::parse2::<syn::ItemMod>(input.clone()).expect("Can't parse contract module");
     let (braces, mut items) = match module.content {
         Some((brace, items)) => (brace, items),
@@ -72,7 +71,7 @@ fn consume_traits(items: Vec<syn::Item>) -> Vec<syn::Item> {
             if is_attr(&item_trait.attrs, "trait_definition") {
                 item_trait.attrs = remove_attr(&item_trait.attrs, "trait_definition");
 
-                let stream: TokenStream2 =
+                let stream: TokenStream =
                     trait_definition::generate(TokenStream::new(), item_trait.to_token_stream().into()).into();
                 let mod_item = syn::parse2::<syn::ItemMod>(quote! {
                     mod jora {

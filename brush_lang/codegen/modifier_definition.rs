@@ -19,20 +19,20 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use proc_macro::TokenStream;
+use proc_macro2::TokenStream;
 use quote::{
     quote,
     quote_spanned,
     ToTokens,
 };
 use syn::{
-    parse_macro_input,
+    parse2,
     spanned::Spanned,
     ItemFn,
 };
 
-pub(crate) fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
-    let fn_item = parse_macro_input!(_input as ItemFn);
+pub fn generate(_: TokenStream, _input: TokenStream) -> TokenStream {
+    let fn_item: ItemFn = parse2(_input).unwrap();
 
     if fn_item.sig.inputs.len() < 2 {
         return (quote_spanned! {

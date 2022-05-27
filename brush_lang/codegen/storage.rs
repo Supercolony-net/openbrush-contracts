@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::TokenStream;
 use quote::{
     quote,
     ToTokens,
@@ -36,7 +36,7 @@ use quote::{
 /// ```no_compile
 /// max(a, b) = [a, b][(a < b) as usize]
 /// ```
-fn max_n(args: &[TokenStream2]) -> TokenStream2 {
+fn max_n(args: &[TokenStream]) -> TokenStream {
     match args.split_first() {
         Some((head, rest)) => {
             let rest = max_n(rest);
@@ -49,7 +49,7 @@ fn max_n(args: &[TokenStream2]) -> TokenStream2 {
 }
 
 /// Generates the tokens for the `SpreadLayout` footprint of some type.
-fn footprint(s: &synstructure::Structure) -> TokenStream2 {
+fn footprint(s: &synstructure::Structure) -> TokenStream {
     let variant_footprints = s
         .variants()
         .iter()
@@ -69,7 +69,7 @@ fn footprint(s: &synstructure::Structure) -> TokenStream2 {
 }
 
 /// Generates the tokens for the `SpreadLayout` `REQUIRES_DEEP_CLEAN_UP` constant for the given structure.
-fn requires_deep_clean_up(s: &synstructure::Structure) -> TokenStream2 {
+fn requires_deep_clean_up(s: &synstructure::Structure) -> TokenStream {
     s.variants()
         .iter()
         .map(|variant| {
@@ -89,7 +89,7 @@ fn requires_deep_clean_up(s: &synstructure::Structure) -> TokenStream2 {
 }
 
 /// `SpreadLayout` derive implementation for `struct` types.
-fn spread_layout_struct_derive(storage_key: &TokenStream2, s: &synstructure::Structure) -> TokenStream2 {
+fn spread_layout_struct_derive(storage_key: &TokenStream, s: &synstructure::Structure) -> TokenStream {
     assert!(s.variants().len() == 1, "can only operate on structs");
     let footprint_body = footprint(s);
     let requires_deep_clean_up_body = requires_deep_clean_up(s);
@@ -148,7 +148,7 @@ fn spread_layout_struct_derive(storage_key: &TokenStream2, s: &synstructure::Str
 }
 
 /// `SpreadLayout` derive implementation for `enum` types.
-fn spread_layout_enum_derive(storage_key: &TokenStream2, s: &synstructure::Structure) -> TokenStream2 {
+fn spread_layout_enum_derive(storage_key: &TokenStream, s: &synstructure::Structure) -> TokenStream {
     assert!(
         !s.variants().is_empty(),
         "encountered invalid empty enum type deriving SpreadLayout trait"
@@ -244,7 +244,7 @@ fn spread_layout_enum_derive(storage_key: &TokenStream2, s: &synstructure::Struc
 }
 
 /// Derives `ink_storage`'s `SpreadAllocate` trait for the given type.
-pub fn spread_allocate_derive(storage_key: &TokenStream2, mut s: synstructure::Structure) -> TokenStream2 {
+pub fn spread_allocate_derive(storage_key: &TokenStream, mut s: synstructure::Structure) -> TokenStream {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::Generics)
         .underscore_const(true);
@@ -260,7 +260,7 @@ pub fn spread_allocate_derive(storage_key: &TokenStream2, mut s: synstructure::S
 }
 
 /// Derives `ink_storage`'s `SpreadAllocate` trait for the given `struct`.
-fn derive_struct(storage_key: &TokenStream2, s: synstructure::Structure) -> TokenStream2 {
+fn derive_struct(storage_key: &TokenStream, s: synstructure::Structure) -> TokenStream {
     assert!(s.variants().len() == 1, "can only operate on structs");
     let variant = &s.variants()[0];
     let allocate_body = variant.construct(|field, _index| {
@@ -282,7 +282,7 @@ fn derive_struct(storage_key: &TokenStream2, s: synstructure::Structure) -> Toke
     })
 }
 
-pub fn spread_layout_derive(storage_key: &TokenStream2, mut s: synstructure::Structure) -> TokenStream2 {
+pub fn spread_layout_derive(storage_key: &TokenStream, mut s: synstructure::Structure) -> TokenStream {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::None)
         .underscore_const(true);
@@ -295,7 +295,7 @@ pub fn spread_layout_derive(storage_key: &TokenStream2, mut s: synstructure::Str
     }
 }
 
-fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Item = TokenStream2> + 'a {
+fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Item = TokenStream> + 'a {
     variant.ast().fields.iter().map(|field| {
         let ident = match field.ident.as_ref() {
             Some(ident) => {
@@ -314,7 +314,7 @@ fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Ite
     })
 }
 
-fn storage_layout_struct(storage_key: &TokenStream2, s: &synstructure::Structure) -> TokenStream2 {
+fn storage_layout_struct(storage_key: &TokenStream, s: &synstructure::Structure) -> TokenStream {
     assert!(matches!(s.ast().data, syn::Data::Struct(_)), "s must be a struct item");
     assert!(s.variants().len() == 1, "structs must have at most one variant");
     let variant: &synstructure::VariantInfo = &s.variants()[0];
@@ -335,7 +335,7 @@ fn storage_layout_struct(storage_key: &TokenStream2, s: &synstructure::Structure
     })
 }
 
-fn storage_layout_enum(storage_key: &TokenStream2, s: &synstructure::Structure) -> TokenStream2 {
+fn storage_layout_enum(storage_key: &TokenStream, s: &synstructure::Structure) -> TokenStream {
     assert!(matches!(s.ast().data, syn::Data::Enum(_)), "s must be an enum item");
     let variant_layouts = s.variants().iter().enumerate().map(|(n, variant)| {
         let discriminant = variant
@@ -379,7 +379,7 @@ fn storage_layout_enum(storage_key: &TokenStream2, s: &synstructure::Structure) 
     })
 }
 
-pub fn storage_layout_derive(storage_key: &TokenStream2, mut s: synstructure::Structure) -> TokenStream2 {
+pub fn storage_layout_derive(storage_key: &TokenStream, mut s: synstructure::Structure) -> TokenStream {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::Generics)
         .underscore_const(true);
@@ -390,7 +390,7 @@ pub fn storage_layout_derive(storage_key: &TokenStream2, mut s: synstructure::St
     }
 }
 
-pub fn storage(attrs: TokenStream2, s: synstructure::Structure) -> TokenStream2 {
+pub fn storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
     let storage_key = attrs;
 
     let spread_layout = spread_layout_derive(&storage_key, s.clone());

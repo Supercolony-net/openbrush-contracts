@@ -24,9 +24,8 @@ use crate::internal::{
     NestedMeta,
     BRUSH_PREFIX,
 };
-use proc_macro::TokenStream;
 use proc_macro2::{
-    TokenStream as TokenStream2,
+    TokenStream,
     TokenTree,
 };
 use quote::{
@@ -36,15 +35,15 @@ use quote::{
     ToTokens,
 };
 use syn::{
-    parse_macro_input,
+    parse2,
     spanned::Spanned,
     ImplItemMethod,
 };
 
 const INSTANCE: &'static str = "__brush_instance_modifier";
 
-pub(crate) fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
-    let modifiers = parse_macro_input!(_attrs as AttributeArgs);
+pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
+    let modifiers: AttributeArgs = parse2(_attrs).unwrap();
     let mut impl_item =
         syn::parse2::<ImplItemMethod>(_input.into()).expect("Can't parse input of `modifiers` macro like a method.");
 
@@ -143,7 +142,7 @@ fn replace_self(block: syn::Block) -> syn::Block {
     syn::parse2::<syn::Block>(recursive_replace_self(block.to_token_stream())).expect("Recursion was successful")
 }
 
-fn recursive_replace_self(token_stream: TokenStream2) -> TokenStream2 {
+fn recursive_replace_self(token_stream: TokenStream) -> TokenStream {
     token_stream
         .into_iter()
         .map(|token| {

@@ -1,6 +1,6 @@
 [package]
 name = "derive"
-version = "1.7.1"
+version = "1.8.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -8,7 +8,7 @@ edition = "2021"
 syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
-brush_derive = { path = "../../utils/brush_derive" }
+brush_lang = { path = "../../brush_lang" }
 
 [lib]
 name = "derive"

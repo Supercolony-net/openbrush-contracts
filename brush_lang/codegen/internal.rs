@@ -23,7 +23,7 @@ extern crate proc_macro;
 
 use crate::metadata::TraitDefinition;
 use heck::CamelCase as _;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::TokenStream;
 use quote::{
     format_ident,
     quote,
@@ -304,7 +304,7 @@ pub(crate) fn extract_attr(attrs: &mut Vec<syn::Attribute>, ident: &str) -> Vec<
 }
 
 #[inline]
-pub(crate) fn new_attribute(attr_stream: TokenStream2) -> syn::Attribute {
+pub(crate) fn new_attribute(attr_stream: TokenStream) -> syn::Attribute {
     syn::parse2::<Attributes>(attr_stream).unwrap().attr()[0].clone()
 }
 

@@ -1,6 +1,6 @@
 [package]
 name = "lending_contract"
-version = "1.7.1"
+version = "1.8.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 

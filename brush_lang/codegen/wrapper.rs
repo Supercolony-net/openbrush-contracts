@@ -19,18 +19,18 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use proc_macro::TokenStream;
+use proc_macro2::TokenStream;
 use quote::{
     format_ident,
     quote,
 };
-use syn::parse_macro_input;
+use syn::parse2;
 
-pub(crate) fn generate(_: TokenStream, input: TokenStream) -> TokenStream {
+pub fn generate(_: TokenStream, input: TokenStream) -> TokenStream {
     if crate::internal::skip() {
         return (quote! {}).into()
     }
-    let mut type_item = parse_macro_input!(input as syn::ItemType);
+    let mut type_item: syn::ItemType = parse2(input).unwrap();
     if let syn::Type::TraitObject(traits) = &mut *type_item.ty {
         traits.bounds.iter_mut().for_each(|ty| {
             if let syn::TypeParamBound::Trait(t) = ty {

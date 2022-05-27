@@ -19,19 +19,18 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#![feature(drain_filter)]
-extern crate proc_macro;
-
-mod contract;
-mod internal;
-mod metadata;
-mod modifier_definition;
-mod modifiers;
-mod storage;
-mod trait_definition;
-mod wrapper;
+#![cfg_attr(not(feature = "std"), no_std)]
 
 use proc_macro::TokenStream;
+
+use brush_lang_codegen::{
+    contract,
+    modifier_definition,
+    modifiers,
+    storage,
+    trait_definition,
+    wrapper,
+};
 
 /// Entry point for use brush's macros in ink! smart contracts.
 ///
@@ -43,7 +42,7 @@ use proc_macro::TokenStream;
 /// This macro consumes impl section for traits defined with [`#[brush::trait_definition]`](`macro@crate::trait_definition`).
 #[proc_macro_attribute]
 pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
-    contract::generate(_attrs, ink_module)
+    contract::generate(_attrs.into(), ink_module.into()).into()
 }
 
 /// Defines extensible trait in the scope of brush::contract.
@@ -194,7 +193,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro_attribute]
 pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
-    trait_definition::generate(_attrs, _input)
+    trait_definition::generate(_attrs.into(), _input.into()).into()
 }
 
 /// This macro only checks that some free-standing function satisfies a set of rules.
@@ -225,7 +224,7 @@ pub fn trait_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream
 /// ```
 #[proc_macro_attribute]
 pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
-    modifier_definition::generate(_attrs, _input)
+    modifier_definition::generate(_attrs.into(), _input.into()).into()
 }
 
 /// Macro calls every modifier function by passing self and the code of function's body.
@@ -358,7 +357,7 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// ```
 #[proc_macro_attribute]
 pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
-    modifiers::generate(_attrs, method)
+    modifiers::generate(_attrs.into(), method.into()).into()
 }
 
 /// This macro allows you to define a wrapper type for traits defined via
@@ -422,7 +421,7 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro_attribute]
 pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
-    wrapper::generate(attrs, input)
+    wrapper::generate(attrs.into(), input.into()).into()
 }
 
 synstructure::decl_attribute!(

@@ -1,6 +1,6 @@
 [package]
 name = "lending_project_derive"
-version = "1.7.1"
+version = "1.8.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
@@ -10,9 +10,9 @@ quote = "1.0"
 proc-macro2 = "1"
 
 # In you code you can import `brush_derive` with the next line
-#brush_derive = { tag = "v1.2.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+#brush = { version = "1.8.0", default-features = false }
 
-brush_derive = { path = "../../utils/brush_derive" }
+brush = { package = "brush_lang", path = "../../brush_lang" }
 
 [lib]
 name = "lending_project_derive"
