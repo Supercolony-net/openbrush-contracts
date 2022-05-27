@@ -13,14 +13,14 @@ describe('MY_PSP35', () => {
     const { query, defaultSigner: sender, tx } = await setup()
 
     await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(0)
-    await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+    await expect(tx.mintTokens(bnArg(0), 1)).to.eventually.be.fulfilled
     await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
   })
 
   it('Allowance works', async () => {
     const { query, defaultSigner: sender, accounts: [alice], tx } = await setup()
     await expect(query.allowance(sender.address, alice.address, bnArg(0))).to.have.output(0)
-    await expect(tx.approve(alice.address, [bnArg(0), 10])).to.be.fulfilled
+    await expect(tx.approve(alice.address, [bnArg(0), 10])).to.eventually.be.fulfilled
     await expect(query.allowance(sender.address, alice.address, bnArg(0))).to.have.output(10)
   })
 
@@ -30,7 +30,7 @@ describe('MY_PSP35', () => {
     const { contract } = await setup()
 
     // Arrange
-    await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+    await expect(tx.mintTokens(bnArg(0), 1)).to.eventually.be.fulfilled
     await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(0)
     await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
 
@@ -46,7 +46,7 @@ describe('MY_PSP35', () => {
     const { contract } = await setup_receiver()
 
     // Arrange
-    await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+    await expect(tx.mintTokens(bnArg(0), 1)).to.eventually.be.fulfilled
     await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(0)
     await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
 
@@ -63,7 +63,7 @@ describe('MY_PSP35', () => {
     const { contract } = await setup_receiver()
 
     // Arrange
-    await expect(tx.mintTokens(bnArg(0), 1)).to.be.fulfilled
+    await expect(tx.mintTokens(bnArg(0), 1)).to.eventually.be.fulfilled
     await expect(query.balanceOf(contract.address, bnArg(0))).to.have.output(0)
     await expect(query.balanceOf(sender.address, bnArg(0))).to.have.output(1)
 
@@ -86,11 +86,11 @@ describe('MY_PSP35', () => {
     await expect(query.allowance(sender.address, alice.address, tokenId))
       .to.have.output(0)
 
-    await expect(contract.tx.approve(alice.address, [tokenId, tokenAmount])).to.be.fulfilled
+    await expect(contract.tx.approve(alice.address, [tokenId, tokenAmount])).to.eventually.be.fulfilled
     await expect(query.allowance(sender.address, alice.address, tokenId))
       .to.have.output(tokenAmount)
 
-    await expect(contract.tx.approve(alice.address, null)).to.be.fulfilled
+    await expect(contract.tx.approve(alice.address, null)).to.eventually.be.fulfilled
     await expect(query.allowance(sender.address, alice.address, tokenId))
       .to.have.output('340282366920938463463374607431768211455')
   })
@@ -102,18 +102,18 @@ describe('MY_PSP35', () => {
     const tokenId2 = bnArg(1)
     const token1Amount = 1
     const token2Amount = 10
-    await expect(tx.mintTokens(tokenId1, token1Amount)).to.be.fulfilled
-    await expect(tx.mintTokens(tokenId2, token2Amount)).to.be.fulfilled
+    await expect(tx.mintTokens(tokenId1, token1Amount)).to.eventually.be.fulfilled
+    await expect(tx.mintTokens(tokenId2, token2Amount)).to.eventually.be.fulfilled
 
-    await expect(contract.tx.transfer(alice.address, tokenId2, token2Amount, [])).to.be.fulfilled
+    await expect(contract.tx.transfer(alice.address, tokenId2, token2Amount, [])).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, tokenId1)).to.have.output(token1Amount)
     await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(0)
     await expect(query.balanceOf(alice.address, tokenId1)).to.have.output(0)
     await expect(query.balanceOf(alice.address, tokenId2)).to.have.output(token2Amount)
 
-    await expect(contract.tx.transfer(alice.address, tokenId1, token1Amount, [])).to.be.fulfilled
-    await expect(fromSigner(contract, alice.address).tx.transfer(sender.address, tokenId2, token1Amount, [])).to.be.fulfilled
+    await expect(contract.tx.transfer(alice.address, tokenId1, token1Amount, [])).to.eventually.be.fulfilled
+    await expect(fromSigner(contract, alice.address).tx.transfer(sender.address, tokenId2, token1Amount, [])).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, tokenId1)).to.have.output(0)
     await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(token1Amount)
@@ -128,19 +128,19 @@ describe('MY_PSP35', () => {
     const tokenId2 = bnArg(1)
     const token1Amount = 1
     const token2Amount = 10
-    await expect(tx.mintTokens(tokenId1, token1Amount)).to.be.fulfilled
-    await expect(tx.mintTokens(tokenId2, token2Amount)).to.be.fulfilled
+    await expect(tx.mintTokens(tokenId1, token1Amount)).to.eventually.be.fulfilled
+    await expect(tx.mintTokens(tokenId2, token2Amount)).to.eventually.be.fulfilled
 
-    await expect(fromSigner(contract, alice.address).tx.approve(sender.address, null)).to.be.fulfilled
-    await expect(contract.tx.transferFrom(sender.address, alice.address, tokenId2, token2Amount, [])).to.be.fulfilled
+    await expect(fromSigner(contract, alice.address).tx.approve(sender.address, null)).to.eventually.be.fulfilled
+    await expect(contract.tx.transferFrom(sender.address, alice.address, tokenId2, token2Amount, [])).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, tokenId1)).to.have.output(token1Amount)
     await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(0)
     await expect(query.balanceOf(alice.address, tokenId1)).to.have.output(0)
     await expect(query.balanceOf(alice.address, tokenId2)).to.have.output(token2Amount)
 
-    await expect(contract.tx.transferFrom(sender.address, alice.address, tokenId1, token1Amount, [])).to.be.fulfilled
-    await expect(contract.tx.transferFrom(alice.address, sender.address, tokenId2, token1Amount, [])).to.be.fulfilled
+    await expect(contract.tx.transferFrom(sender.address, alice.address, tokenId1, token1Amount, [])).to.eventually.be.fulfilled
+    await expect(contract.tx.transferFrom(alice.address, sender.address, tokenId2, token1Amount, [])).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, tokenId1)).to.have.output(0)
     await expect(query.balanceOf(sender.address, tokenId2)).to.have.output(token1Amount)
@@ -153,7 +153,7 @@ describe('MY_PSP35', () => {
 
     const tokenId = bnArg(0)
     const tokenAmount = 1
-    await expect(tx.mintTokens(tokenId, tokenAmount)).to.be.fulfilled
+    await expect(tx.mintTokens(tokenId, tokenAmount)).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
     await fromSigner(contract, alice.address).tx.approve(sender.address, [tokenId, tokenAmount])
@@ -169,7 +169,7 @@ describe('MY_PSP35', () => {
 
     const tokenId = bnArg(0)
     const tokenAmount = 1
-    await expect(tx.mintTokens(tokenId, tokenAmount)).to.be.fulfilled
+    await expect(tx.mintTokens(tokenId, tokenAmount)).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, tokenId)).to.have.output(tokenAmount)
 
