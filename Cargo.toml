@@ -17,8 +17,8 @@ authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
 [dependencies]
-contracts = { path = "./contracts", default-features = false }
-brush_lang = { path = "./brush_lang", default-features = false }
+contracts = { version = "1.8.0", path = "./contracts", default-features = false }
+brush_lang = { version = "1.8.0", path = "./brush_lang", default-features = false }
 
 [lib]
 name = "brush"

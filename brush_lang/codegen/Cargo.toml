@@ -4,6 +4,15 @@ version = "1.8.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
+license = "MIT"
+repository = "https://github.com/Supercolony-net/openbrush-contracts"
+documentation = "https://docs.openbrush.io"
+homepage = "https://supercolony.net"
+description = "Brush codegeneration with new features for the ink!."
+keywords = ["wasm", "supercolony", "webassembly", "blockchain", "edsl", "library", "ink"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "./**/*.rs"]
+
 [dependencies]
 syn = { version = "1", features = ["parsing", "full", "visit", "extra-traits"] }
 quote = "1"
