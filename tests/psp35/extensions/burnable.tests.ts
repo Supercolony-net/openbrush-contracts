@@ -39,8 +39,8 @@ describe('MY_PSP35_BURNABLE', () => {
     await expect(query.balanceOf(alice.address, token1)).to.have.output(0)
     await expect(query.balanceOf(alice.address, token2)).to.have.output(amount2)
 
-    await contract.tx.burn(sender.address, [[token1, amount1], [token2, amount2]])
-    await contract.tx.burn(alice.address, [[token1, 0], [token2, amount2]])
+    await expect(contract.tx.burn(sender.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
+    await expect(contract.tx.burn(alice.address, [[token1, 0], [token2, amount2]])).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, token1)).to.have.output(0)
     await expect(query.balanceOf(sender.address, token2)).to.have.output(0)

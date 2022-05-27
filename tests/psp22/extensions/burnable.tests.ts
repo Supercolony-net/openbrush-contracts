@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { expect, fromSigner, setupContract, getSigner } from '../../helpers';
+import exp from 'constants'
 
 describe('MY_PSP22_BURNABLE', () => {
     async function setup() {
@@ -19,10 +20,10 @@ describe('MY_PSP22_BURNABLE', () => {
         await expect(query.balanceOf(sender.address)).to.have.output(1000);
 
         // Act - Burn sender's tokens
-        await contract.tx.burn(sender.address, 10)
+        await expect(contract.tx.burn(sender.address, 10)).to.eventually.be.fulfilled
 
         // Assert - Ensure sender balance is now 990
-        await expect(query.balanceOf(sender.address)).to.have.output(990);
+        await expect(query.balanceOf(sender.address)).to.have.output(990)
     })
 
     it('Can burn without allowance', async () => {
@@ -46,7 +47,7 @@ describe('MY_PSP22_BURNABLE', () => {
         await expect(query.totalSupply()).to.have.output(1000)
 
         // Act - Burn token from owner
-        await contract.tx.burn(sender.address, 1)
+        await expect(contract.tx.burn(sender.address, 1)).to.eventually.be.fulfilled
 
         // Assert - Ensure sender balance is now 999
         await expect(query.totalSupply()).to.have.output(999)
@@ -56,13 +57,13 @@ describe('MY_PSP22_BURNABLE', () => {
         const { query, tx, accounts: [alice] } = await setup();
 
         // Arrange - Transfer tokens to Alice
-        await tx.transfer(alice.address, 10, []);
+        await expect(tx.transfer(alice.address, 10, [])).to.eventually.be.fulfilled
 
         // Act - burn from Alice address
-        await tx.burn(alice.address, 10)
+        await expect(tx.burn(alice.address, 10)).to.eventually.be.fulfilled
 
         // Assert - ensure needed amount was burnt
-        await expect(query.balanceOf(alice.address)).to.have.output(0);
+        await expect(query.balanceOf(alice.address)).to.have.output(0)
     })
 
     it('Can burn from many', async () => {
@@ -71,15 +72,15 @@ describe('MY_PSP22_BURNABLE', () => {
         // Arrange - Create a signers, transfer tokens to them
         const alice = await getSigner('Alice')
         const bob = await getSigner('Bob')
-        await tx.transfer(alice.address, 10, []);
-        await tx.transfer(bob.address, 10, []);
+        await expect(tx.transfer(alice.address, 10, [])).to.eventually.be.fulfilled
+        await expect(tx.transfer(bob.address, 10, [])).to.eventually.be.fulfilled
 
         // Act - burn tokens from Alice and Bob
-        await contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])
+        await expect(contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])).to.eventually.be.fulfilled
 
         // Assert - ensure needed amount was burnt
-        await expect(query.balanceOf(alice.address)).to.have.output(0);
-        await expect(query.balanceOf(bob.address)).to.have.output(0);
+        await expect(query.balanceOf(alice.address)).to.have.output(0)
+        await expect(query.balanceOf(bob.address)).to.have.output(0)
     })
 
     it(`Fails if one of the account's balance exceeds amount to burn`, async () => {
@@ -88,8 +89,8 @@ describe('MY_PSP22_BURNABLE', () => {
         // Arrange - Create a signers, transfer tokens to them
         const alice = await getSigner('Alice')
         const bob = await getSigner('Bob')
-        await tx.transfer(alice.address, 10, []);
-        await tx.transfer(bob.address, 5, []);
+        await expect(tx.transfer(alice.address, 10, [])).to.eventually.be.fulfilled
+        await expect(tx.transfer(bob.address, 5, [])).to.eventually.be.fulfilled
 
         // Act - burn tokens from Alice and Bob but burnt from Bob more than he own
         await expect(contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])).to.eventually.be.rejected
