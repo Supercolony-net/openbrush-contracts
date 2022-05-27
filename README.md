@@ -95,8 +95,7 @@ but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/
 * [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
 * [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
 
-The upgradable contract will be available after resolving of
-this [issue](https://github.com/Supercolony-net/openbrush-contracts/issues/7)
+All contracts are upgradable by default. It will be refactored after [Storage rework](https://github.com/paritytech/ink/pull/1217) in ink!.
 
 ## Roadmap 🚗
 

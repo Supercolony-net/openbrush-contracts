@@ -11,7 +11,7 @@ Include `brush` as dependency in the cargo file or you can use [default `Cargo.t
 After you need to enable default implementation of Diamond Standard via `brush` features.
 
 ```toml
-brush = { tag = "v1.7.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["diamond"] }
+brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["diamond"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
