@@ -12,18 +12,18 @@ So you should use the same version of the ink! across your project.
 ```toml
 [dependencies]
 # Import of all ink! crates
-ink_primitives = { version = "3.1.0", default-features = false }
-ink_metadata = { version = "3.1.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.1.0", default-features = false }
-ink_storage = { version = "3.1.0", default-features = false }
-ink_lang = { version = "3.1.0", default-features = false }
-ink_prelude = { version = "3.1.0", default-features = false }
+ink_primitives = { version = "3.2.0", default-features = false }
+ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.2.0", default-features = false }
+ink_storage = { version = "3.2.0", default-features = false }
+ink_lang = { version = "3.2.0", default-features = false }
+ink_prelude = { version = "3.2.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-brush = { tag = "v1.7.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
 
 [features]
 default = ["std"]

@@ -1,6 +1,6 @@
 [package]
 name = "proc_macros"
-version = "1.7.0"
+version = "1.7.1"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -15,16 +15,16 @@ cargo_metadata = "0.13.1"
 unwrap = "1.2.1"
 blake2 = "0.9"
 heck = "0.3.1"
-ink_lang_ir = { version = "3.1.0", default-features = false }
+ink_lang_ir = { version = "3.2.0", default-features = false }
 synstructure = "0.12"
 
 [dev-dependencies]
-ink_primitives = { version = "3.1.0", default-features = false }
-ink_metadata = { version = "3.1.0", default-features = false, features = ["derive"] }
-ink_env = { version = "3.1.0", default-features = false }
-ink_lang = { version = "3.1.0", default-features = false }
-ink_storage = { version = "3.1.0", default-features = false }
-ink_prelude = { version = "3.1.0", default-features = false }
+ink_primitives = { version = "3.2.0", default-features = false }
+ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"] }
+ink_env = { version = "3.2.0", default-features = false }
+ink_lang = { version = "3.2.0", default-features = false }
+ink_storage = { version = "3.2.0", default-features = false }
+ink_prelude = { version = "3.2.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"] }
