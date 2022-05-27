@@ -34,7 +34,7 @@ describe('MY_PSP22_FLASHMINT', () => {
     await expect(flashmintContract.tx.flashloan(receiverContract.address, flashmintContract.address, sendAmount, []))
       .to.eventually.be.fulfilled
 
-    // reciver should have the fee deducted
+    // receiver should have the fee deducted
     await expect(flashmintQuery.balanceOf(receiverContract.address))
       .to.have.output(sendAmount - fee)
     // one token should be burned
