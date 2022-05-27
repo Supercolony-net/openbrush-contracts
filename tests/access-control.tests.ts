@@ -95,11 +95,11 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Grant Alice minter role
-    await tx.grantRole(Roles.Minter, alice.address)
+    await expect(tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
 
     // Act - Revoke Alice minter role
-    await tx.revokeRole(Roles.Minter, alice.address)
+    await expect(tx.revokeRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
 
     // Assert - Alice don't have minter role
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
@@ -113,11 +113,11 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Grant Alice minter role
-    await contract.tx.grantRole(Roles.Minter, alice.address)
+    await expect(contract.tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
 
     // Act - Alice renounce his minter role
-    await fromSigner(contract, alice.address).tx.renounceRole(Roles.Minter, alice.address)
+    await expect(fromSigner(contract, alice.address).tx.renounceRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
 
     // Assert - Alice don't have minter role
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
