@@ -212,8 +212,10 @@ pub(crate) fn impl_external_trait(
                 .unwrap(),
             );
             let mut attrs = method.attrs.clone();
-            method.attrs = extract_attr(&mut attrs, "doc");
-            method.attrs = extract_attr(&mut attrs, "ink");
+            method.attrs = [extract_attr(&mut attrs, "doc"), extract_attr(&mut attrs, "ink")]
+                .into_iter()
+                .flatten()
+                .collect();
             ink_methods.insert(method.sig.ident.to_string(), method);
         }
     });
