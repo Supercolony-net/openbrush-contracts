@@ -47,8 +47,8 @@ describe('MY_PSP34_ENUMERABLE', () => {
       'u8' : 2
     }
 
-    await contract.tx.mint(alice.address, psp34_id1)
-    await contract.tx.mint(alice.address, psp34_id2)
+    await expect(contract.tx.mint(alice.address, psp34_id1)).to.eventually.be.fulfilled
+    await expect(contract.tx.mint(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
     expect(result((await query.tokenByIndex(0)).output?.toString()).ok.u8).equal(1)
     expect(result((await query.tokenByIndex(1)).output?.toString()).ok.u8).equal(2)
@@ -75,13 +75,13 @@ describe('MY_PSP34_ENUMERABLE', () => {
       'u8' : 2
     }
     
-    await contract.tx.mint(alice.address, psp34_id1)
-    await contract.tx.mint(alice.address, psp34_id2)
+    await expect(contract.tx.mint(alice.address, psp34_id1)).to.eventually.be.fulfilled
+    await expect(contract.tx.mint(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
     expect(result((await query.tokenByIndex(0)).output?.toString()).ok.u8).equal(1)
     expect(result((await query.tokenByIndex(1)).output?.toString()).ok.u8).equal(2)
 
-    await contract.tx.burn(alice.address, psp34_id2)
+    await expect(contract.tx.burn(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
     await expect(contract.tx.ownersTokenByIndex(alice.address,0)).to.eventually.be.fulfilled
     await expect(contract.tx.ownersTokenByIndex(alice.address,1)).to.eventually.be.rejected
