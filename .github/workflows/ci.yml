@@ -37,6 +37,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Yarn install dependencies
         run: |
+          n v14.18.1
           yarn
           yarn add ts-node
       - name: Redspot Сompile
@@ -46,7 +47,7 @@ jobs:
           yarn build:release
       - name: Run Test Mocha
         run: |
-          substrate-contracts-node --tmp --dev -lerror,runtime::contracts=debug,info,error,warning & P1=$!
+          substrate-contracts-node --tmp --dev & P1=$!
           yarn test:mocha & P2=$!
           wait $P2
           kill $P1
