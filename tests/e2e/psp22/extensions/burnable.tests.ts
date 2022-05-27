@@ -9,7 +9,7 @@ describe('MY_PSP22_BURNABLE', () => {
     it('Assigns initial balance', async () => {
         const { query, defaultSigner: sender } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1000)
+        expect(query.balanceOf(sender.address)).to.have.output(1000)
     })
 
     it('Can burn', async () => {
