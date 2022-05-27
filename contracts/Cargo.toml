@@ -15,8 +15,8 @@ ink_prelude = { version = "3.2.0", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-derive = { path = "./derive" }
-brush = { package = "brush_lang", path = "../brush_lang", default-features = false }
+derive = { version = "1.8.0", path = "./derive" }
+brush = { version = "1.8.0", package = "brush_lang", path = "../brush_lang", default-features = false }
 
 [lib]
 name = "contracts"
