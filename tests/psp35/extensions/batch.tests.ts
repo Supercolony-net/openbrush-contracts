@@ -5,10 +5,6 @@ describe('MY_PSP35_BATCH', () => {
     return setupContract('my_psp35_batch', 'new')
   }
 
-  // async function setup_receiver() {
-  //   return setupContract('psp35_receiver', 'new')
-  // }
-
   it('Batch Transfer should work', async () =>{
     const { defaultSigner: sender, accounts: [alice], query, tx } = await setup()
 
