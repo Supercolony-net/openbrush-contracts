@@ -46,7 +46,7 @@ describe('MY_OWNABLE', () => {
     await expect(query.balanceOf(alice.address, bnArg(1))).to.have.output(0)
 
     // Act - transfer ownership to Alice
-    await expect(tx.transferOwnership(alice.address)).to.be.fulfilled
+    await expect(tx.transferOwnership(alice.address)).to.eventually.be.fulfilled
     await expect(query.owner()).to.have.output(alice.address)
 
     // Assert - Alice can mint a token
