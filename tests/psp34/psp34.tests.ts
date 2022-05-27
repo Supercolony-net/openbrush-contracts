@@ -47,7 +47,7 @@ describe('MY_PSP34', () => {
     await expect(query.balanceOf(sender.address)).to.have.output(1)
     await expect(query.balanceOf(alice.address)).to.have.output(0)
 
-    await contract.tx.transfer(alice.address, 0, [])
+    await expect(contract.tx.transfer(alice.address, 0, [])).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address)).to.have.output(0)
     await expect(query.balanceOf(alice.address)).to.have.output(1)
