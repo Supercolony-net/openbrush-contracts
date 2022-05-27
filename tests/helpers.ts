@@ -19,7 +19,7 @@ const patchContractMethods = (contract: Contract): Contract => {
   patchMethods(contract.tx)
 
   for (const prop in contract.tx) {
-    const original_tx = contract.tx[prop];
+    const original_tx = contract.tx[prop]
     contract.tx[prop] = async function (...args: TransactionParams): Promise<TransactionResponse> {
       return new Promise<TransactionResponse>(((resolve, reject) => {
         contract.query[prop](...args).then((_ => {
@@ -27,7 +27,7 @@ const patchContractMethods = (contract: Contract): Contract => {
           resolve(original_tx(...args))
         })).catch((reason => reject(reason)))
       }))
-    };
+    }
   }
 
   return contract
@@ -48,8 +48,8 @@ const patchMethods = (object) => {
 }
 
 export const setupProxy = (contract, proxy): Contract =>  {
-  const proxied_contract = new Contract(proxy.address, contract.abi, contract.api, proxy.signer);
-  return patchContractMethods(proxied_contract);
+  const proxied_contract = new Contract(proxy.address, contract.abi, contract.api, proxy.signer)
+  return patchContractMethods(proxied_contract)
 }
 
 export const setupContract = async (name, constructor, ...args) => {

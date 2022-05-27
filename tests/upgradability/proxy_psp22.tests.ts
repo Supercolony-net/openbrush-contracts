@@ -91,11 +91,11 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     await expect(contract.query.getDelegateCode()).to.have.output(hash)
 
     const proxy_metadata = setupProxy(psp22_metadata, contract)
-    await proxy_metadata.tx.initialize(0,"COLONY", "COL", 18)
+    await proxy_metadata.tx.initialize(0,'COLONY', 'COL', 18)
 
     await expect(proxy_metadata.query.totalSupply()).to.have.output(1000)
-    await expect(proxy_metadata.query.tokenName()).to.have.output("COLONY")
-    await expect(proxy_metadata.query.tokenSymbol()).to.have.output("COL")
+    await expect(proxy_metadata.query.tokenName()).to.have.output('COLONY')
+    await expect(proxy_metadata.query.tokenSymbol()).to.have.output('COL')
     await expect(proxy_metadata.query.tokenDecimals()).to.have.output(18)
     await expect(proxy_metadata.query.balanceOf(receiver.address)).to.have.output(100)
   })
