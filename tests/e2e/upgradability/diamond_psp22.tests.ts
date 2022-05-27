@@ -86,8 +86,8 @@ describe('DIAMOND_PSP22', () => {
     // abi of psp22 facet
     const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
-    let psp22Hash = (await abi).source.hash
-    let messages = (await abi).V3.spec.messages
+    const psp22Hash = (await abi).source.hash
+    const messages = (await abi).V3.spec.messages
 
     const initSelector = getSelectorByName(messages, 'init_psp22')
     const psp22Selectors = getSelectorsFromMessages(messages)
@@ -126,8 +126,8 @@ describe('DIAMOND_PSP22', () => {
     const facetCutRemove = [[psp22Hash, []]]
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCutRemove, null)).to.eventually.be.fulfilled
 
-    let psp22NewHash = (await newPsp22Abi).source.hash
-    let messagesNew = (await newPsp22Abi).V3.spec.messages
+    const psp22NewHash = (await newPsp22Abi).source.hash
+    const messagesNew = (await newPsp22Abi).V3.spec.messages
 
     const psp22NewSelectors = getSelectorsFromMessages(messagesNew)
     const facetCutNew = [[psp22NewHash, psp22NewSelectors]]
@@ -136,7 +136,7 @@ describe('DIAMOND_PSP22', () => {
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCutNew, null)).to.eventually.be.fulfilled
 
     // patch methods
-    let proxy = setupProxy(newPsp22, diamondContract)
+    const proxy = setupProxy(newPsp22, diamondContract)
 
     // if we send 1000 tokens total supply will be 900
     await expect(fromSigner(proxy, defaultSigner.address).tx.transfer(alice.address, 1000, [])).to.eventually.be.fulfilled
@@ -184,8 +184,8 @@ describe('DIAMOND_PSP22', () => {
     // abi of psp22 facet
     const { contract: psp22Facet, abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
-    let psp22Hash = (await abi).source.hash
-    let messages = (await abi).V3.spec.messages
+    const psp22Hash = (await abi).source.hash
+    const messages = (await abi).V3.spec.messages
 
     const initSelector = getSelectorByName(messages, 'init_psp22')
     const psp22Selectors = getSelectorsFromMessages(messages)
@@ -200,7 +200,7 @@ describe('DIAMOND_PSP22', () => {
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(facetCut, [psp22Hash, initSelector, []])).to.eventually.be.fulfilled
 
     // patch methods
-    let proxy = setupProxy(psp22Facet, diamondContract)
+    const proxy = setupProxy(psp22Facet, diamondContract)
 
     // we called init function which mints tokens and sets owner
     await expect(proxy.query.balanceOf(defaultSigner.address)).to.output(1000)
@@ -223,8 +223,8 @@ describe('DIAMOND_PSP22', () => {
     // abi of psp22 facet
     const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
-    let psp22Hash = (await abi).source.hash
-    let messages = (await abi).V3.spec.messages
+    const psp22Hash = (await abi).source.hash
+    const messages = (await abi).V3.spec.messages
 
     const initSelector = getSelectorByName(messages, 'init_psp22')
     const psp22Selectors = getSelectorsFromMessages(messages)
@@ -276,8 +276,8 @@ describe('DIAMOND_PSP22', () => {
     // abi of psp22 facet
     const { abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
 
-    let psp22Hash = (await abi).source.hash
-    let messages = (await abi).V3.spec.messages
+    const psp22Hash = (await abi).source.hash
+    const messages = (await abi).V3.spec.messages
 
     const initSelector = getSelectorByName(messages, 'init_psp22')
     const psp22Selectors = getSelectorsFromMessages(messages)
@@ -338,7 +338,7 @@ describe('DIAMOND_PSP22', () => {
 
     // initialize diamond contract
     const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address)
-    let proxy = setupProxy(psp22Facet, diamondContract)
+    const proxy = setupProxy(psp22Facet, diamondContract)
 
     // add psp22 facet
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(psp22Cut, [psp22Hash, psp22Init, []])).to.eventually.be.fulfilled
@@ -372,7 +372,7 @@ describe('DIAMOND_PSP22', () => {
 
     // initialize diamond contract
     const { contract: diamondContract } = await setupContract('my_diamond', 'new', defaultSigner.address)
-    let proxy = setupProxy(psp22Facet, diamondContract)
+    const proxy = setupProxy(psp22Facet, diamondContract)
 
     // add psp22 facet
     await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(psp22Cut, [psp22Hash, psp22Init, []])).to.eventually.be.fulfilled

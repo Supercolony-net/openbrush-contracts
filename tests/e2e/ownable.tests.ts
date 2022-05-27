@@ -38,7 +38,7 @@ describe('MY_OWNABLE', () => {
       accounts: [alice]
     } = await setup()
 
-    let ids_amounts = [[bnArg(1), 123]];
+    const ids_amounts = [[bnArg(1), 123]]
 
     // Arrange - Alice is not the owner hence minting should fail
     await expect(query.owner()).to.have.output(sender.address)
