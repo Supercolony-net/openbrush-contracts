@@ -5,11 +5,11 @@ const { api } = network
 
 describe('TOKEN_TIMELOCK', () => {
   async function setup() {
-    let psp22 = await setupContract('my_psp22', 'new', '1000')
+    const psp22 = await setupContract('my_psp22', 'new', '1000')
     const beneficiary = psp22.defaultSigner
     // @ts-ignore
-    let releaseTime = (await api.query.timestamp.now()).toNumber() + oneDay()
-    let timelock = await setupContract('my_psp22_token_timelock', 'new', psp22.contract.address, beneficiary.address, releaseTime)
+    const releaseTime = (await api.query.timestamp.now()).toNumber() + oneDay()
+    const timelock = await setupContract('my_psp22_token_timelock', 'new', psp22.contract.address, beneficiary.address, releaseTime)
     return { psp22, timelock, beneficiary, releaseTime }
   }
 
