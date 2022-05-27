@@ -8,7 +8,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { query } = await setupContract('my_proxy', 'new', hash)
 
     // Assert - contract hash is my_psp22 contract hash
-    await expect(query.getDelegateCode()).to.have.output(hash)
+    await expect(query.getDelegateCode()).to.eventually.have.property('output').to.equal(hash)
   })
 
   it('MY_UPGRADEABLE_PSP22 - only owner can change delegate code', async () => {
@@ -23,8 +23,8 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const proxy = setupProxy(psp22, contract)
     await proxy.tx.initialize(1000)
 
-    await expect(proxy.query.totalSupply()).to.have.output(1000)
-    await expect(proxy.query.balanceOf(sender.address)).to.have.output(1000)
+    expect(proxy.query.totalSupply()).to.eventually.have.property('output').to.equal(1000)
+    await expect(proxy.query.balanceOf(sender.address)).to.eventually.have.property('output').to.equal(1000)
   })
 
   it('MY_UPGRADEABLE_PSP22 - wrong proxy setup leads to transaction fail', async () => {
@@ -81,22 +81,22 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const proxy = setupProxy(psp22, contract)
     await proxy.tx.initialize(1000)
 
-    await expect(proxy.query.totalSupply()).to.have.output(1000)
-    await expect(proxy.tx.transfer(receiver.address, 100, [])).to.eventually.be.fulfilled
+    expect(proxy.query.totalSupply()).to.eventually.have.property('output').to.equal(1000)
+    expect(proxy.tx.transfer(receiver.address, 100, [])).to.eventually.be.fulfilled
 
     const {contract: psp22_metadata, abi: abi_psp22_metadata} = await setupContract('my_psp22_metadata_upgradeable', 'new', '0', '', '', '0')
     const hash = (await abi_psp22_metadata).source.hash
 
     await expect(contract.tx.changeDelegateCode(hash)).to.eventually.be.fulfilled
-    await expect(contract.query.getDelegateCode()).to.have.output(hash)
+    await expect(contract.query.getDelegateCode()).to.eventually.have.property('output').to.equal(hash)
 
     const proxy_metadata = setupProxy(psp22_metadata, contract)
     await proxy_metadata.tx.initialize(0,'COLONY', 'COL', 18)
 
-    await expect(proxy_metadata.query.totalSupply()).to.have.output(1000)
-    await expect(proxy_metadata.query.tokenName()).to.have.output('COLONY')
-    await expect(proxy_metadata.query.tokenSymbol()).to.have.output('COL')
-    await expect(proxy_metadata.query.tokenDecimals()).to.have.output(18)
-    await expect(proxy_metadata.query.balanceOf(receiver.address)).to.have.output(100)
+    await expect(proxy_metadata.query.totalSupply()).to.eventually.have.property('output').to.equal(1000)
+    await expect(proxy_metadata.query.tokenName()).to.eventually.have.property('output').to.equal('COLONY')
+    await expect(proxy_metadata.query.tokenSymbol()).to.eventually.have.property('output').to.equal('COL')
+    await expect(proxy_metadata.query.tokenDecimals()).to.eventually.have.property('output').to.equal(18)
+    await expect(proxy_metadata.query.balanceOf(receiver.address)).to.eventually.have.property('output').to.equal(100)
   })
 })
