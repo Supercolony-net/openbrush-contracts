@@ -60,7 +60,7 @@ export const setupContract = async (name, constructor, ...args) => {
 
   const contractFactory = await getContractFactory(name, defaultSigner)
   const contract = await contractFactory.deploy(constructor, ...args)
-  const abi = artifacts.readArtifact(name)
+  const abi = await artifacts.readArtifact(name)
   patchContractMethods(contract)
 
   return {
