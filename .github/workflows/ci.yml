@@ -49,6 +49,6 @@ jobs:
         run: |
           for test in tests/**/*.ts; do
             substrate-contracts-node --tmp --dev & P1=$!;
-            mocha --require @babel/register --require ts-node/register --recursive ./$test --extension ".ts" --exit --timeout 20000;
+            yarn test:mocha-single ./$test;
             kill $P1;
           done
