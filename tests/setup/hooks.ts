@@ -3,7 +3,7 @@ import { network } from 'redspot'
 const { api } = network
 
 export const mochaHooks = {
-  afterAll: () => {
+  afterEach: () => {
     api.disconnect()
   }
 }
