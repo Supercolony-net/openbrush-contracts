@@ -1,10 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_mintable {
-    use brush::contracts::psp22::extensions::mintable::*;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp22::extensions::mintable::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP22Storage)]

@@ -17,7 +17,7 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 
 # These dependencies
 lending_project = { path = "../..", default-features = false }
-brush = { path = "../../..", default-features = false, features = ["psp22"] }
+openbrush = { path = "../../..", default-features = false, features = ["psp22"] }
 
 [lib]
 name = "stable_coin_contract"
@@ -41,7 +41,7 @@ std = [
 
     # These dependencies
     "lending_project/std",
-    "brush/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []
 

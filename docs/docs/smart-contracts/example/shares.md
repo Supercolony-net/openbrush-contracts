@@ -18,7 +18,7 @@ In the implementation of the contract, we will implement that trait to be sure t
 `SharesRef` can be used by other developers to do a cross contract call to `SharesContract`.
 
 ```rust
-use brush::contracts::traits::{
+use openbrush::contracts::traits::{
     ownable::*,
     psp22::{
         extensions::{
@@ -30,10 +30,10 @@ use brush::contracts::traits::{
     },
 };
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type SharesRef = dyn PSP22 + PSP22Mintable + PSP22Burnable + PSP22Metadata + Ownable;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Shares: PSP22 + PSP22Mintable + PSP22Burnable + PSP22Metadata + Ownable {}
 ```
 
@@ -60,9 +60,9 @@ we also need these imports:
 /// This contract will be used to represent the shares of a user
 /// and other instance of this contract will be used to represent
 /// the amount of borrowed tokens
-#[brush::contract]
+#[openbrush::contract]
 pub mod shares {
-    use brush::contracts::{
+    use openbrush::contracts::{
         ownable::*,
         psp22::extensions::{
             burnable::*,
@@ -71,7 +71,7 @@ pub mod shares {
         },
     };
 
-    use brush::modifiers;
+    use openbrush::modifiers;
 
     use ink_lang::codegen::Env;
 

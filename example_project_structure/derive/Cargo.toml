@@ -9,10 +9,10 @@ syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
 
-# In you code you can import `brush_derive` with the next line
-#brush = { version = "1.8.0", default-features = false }
+# In you code you can import `openbrush_derive` with the next line
+#openbrush = { version = "1.8.0", default-features = false }
 
-brush = { package = "brush_lang", path = "../../brush_lang" }
+openbrush = { package = "openbrush_lang", path = "../../lang" }
 
 [lib]
 name = "lending_project_derive"

@@ -8,11 +8,11 @@ This example shows how you can reuse the implementation of
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Payment Splitter via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Payment Splitter via `openbrush` features.
 
 ```toml
-brush = { version = "1.8.0", default-features = false, features = ["payment_splitter"] }
+openbrush = { version = "1.8.0", default-features = false, features = ["payment_splitter"] }
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
@@ -20,15 +20,15 @@ brush = { version = "1.8.0", default-features = false, features = ["payment_spli
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::payment_splitter`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::payment_splitter`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_payment_splitter {
-    use brush::contracts::payment_splitter::*;
+    use openbrush::contracts::payment_splitter::*;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
 ```

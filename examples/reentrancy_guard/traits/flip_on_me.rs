@@ -1,13 +1,13 @@
-pub use brush::contracts::reentrancy_guard::*;
-use brush::traits::{
+pub use openbrush::contracts::reentrancy_guard::*;
+use openbrush::traits::{
     AccountId,
     InkStorage,
 };
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type FlipOnMeRef = dyn FlipOnMe;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait FlipOnMe: InkStorage {
     #[ink(message)]
     fn flip_on_me(&mut self) -> Result<(), ReentrancyGuardError> {

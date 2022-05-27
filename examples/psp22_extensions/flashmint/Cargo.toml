@@ -16,7 +16,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies]
-brush = { path = "../../..", default-features = false, features = ["psp22"] }
+openbrush = { path = "../../..", default-features = false, features = ["psp22"] }
 
 [lib]
 name = "my_psp22_flashmint"
@@ -40,7 +40,7 @@ std = [
     "scale-info/std",
 
     # These dependencies
-    "brush/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []
 

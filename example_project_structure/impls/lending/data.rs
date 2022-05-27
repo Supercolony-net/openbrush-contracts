@@ -1,7 +1,14 @@
 // importing everything publicly from traits allows you to import every stuff related to lending
 // by one import
 pub use crate::traits::lending::*;
-use brush::{
+use ink_storage::{
+    traits::{
+        SpreadAllocate,
+        SpreadLayout,
+    },
+    Mapping,
+};
+use openbrush::{
     declare_storage_trait,
     traits::{
         AccountId,
@@ -10,13 +17,6 @@ use brush::{
         Hash,
         ZERO_ADDRESS,
     },
-};
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
 };
 // it is public because when you will import the trait you also will import the derive for the trait
 pub use lending_project_derive::LendingStorage;

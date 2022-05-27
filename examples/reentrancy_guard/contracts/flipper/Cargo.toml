@@ -17,7 +17,7 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 
 # These dependencies
 flipper = { path = "../..", default-features = false }
-brush = { path = "../../../..", default-features = false }
+openbrush = { path = "../../../..", default-features = false }
 
 [lib]
 name = "my_flipper_guard"
@@ -42,7 +42,7 @@ std = [
 
     # These dependencies
     "flipper/std",
-    "brush/std",
+    "openbrush/std",
 ]
 
 ink-as-dependency = []

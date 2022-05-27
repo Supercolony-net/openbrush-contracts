@@ -23,7 +23,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-brush = { version = "1.8.0", default-features = false }
+openbrush = { version = "1.8.0", default-features = false }
 
 [features]
 default = ["std"]
@@ -39,14 +39,14 @@ std = [
   "scale-info/std",
 
   # Brush dependency
-  "brush/std",
+  "openbrush/std",
 ]
 ink-as-dependency = []
 ```
 
 To avoid unexpected compilation errors better to always import all ink! crates.
 
-By default, the `brush` crate provides [macros](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_lang/proc_macros/lib.rs)
+By default, the `openbrush` crate provides [macros](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/proc_macros/lib.rs)
 for simplification of the development and [traits](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/traits) of 
 contracts(you can implement them by yourself, and you can use them for a cross-contract calls). 
 

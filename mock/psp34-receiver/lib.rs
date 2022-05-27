@@ -1,8 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod erc721_receiver {
-    use brush::contracts::traits::psp34::*;
+    use openbrush::contracts::traits::psp34::*;
     use ink_prelude::{
         string::String,
         vec::Vec,

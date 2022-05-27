@@ -7,10 +7,10 @@ This example shows how you can reuse the implementation of [PSP1155](https://git
 
 ## How to use this extension
 
-For your smart contract to use this extension, you only need to implement the `PSP1155Burnable` trait in your `PSP1155` smart contract. Add import for `brush::contracts::psp1155::extensions::burnable::*`, inherit the implementation for `PSP1155Burnable` trait, where you can also customize (override) the original functions from `PSP1155Burnable`.
+For your smart contract to use this extension, you only need to implement the `PSP1155Burnable` trait in your `PSP1155` smart contract. Add import for `openbrush::contracts::psp1155::extensions::burnable::*`, inherit the implementation for `PSP1155Burnable` trait, where you can also customize (override) the original functions from `PSP1155Burnable`.
 
 ```rust
-use brush::contracts::psp1155::extensions::burnable::*;
+use openbrush::contracts::psp1155::extensions::burnable::*;
 
 impl PSP1155Burnable for MyPSP1155 {}
 ```

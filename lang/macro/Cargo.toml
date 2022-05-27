@@ -1,0 +1,44 @@
+[package]
+name = "openbrush_lang_macro"
+version = "1.8.0"
+authors = ["Supercolony <green.baneling@supercolony.net>"]
+edition = "2021"
+
+license = "MIT"
+repository = "https://github.com/Supercolony-net/openbrush-contracts"
+documentation = "https://docs.openbrush.io"
+homepage = "https://supercolony.net"
+description = "OpenBrush macros to extend functionality of the ink!."
+keywords = ["wasm", "supercolony", "smart-contracts", "blockchain", "ink"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs"]
+
+[dependencies]
+openbrush_lang_codegen = { version = "1.8.0", path = "../codegen", default-features = false }
+syn = "1"
+proc-macro2 = "1"
+synstructure = "0.12"
+
+[dev-dependencies]
+ink_primitives = { version = "3.2.0", default-features = false }
+ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"] }
+ink_env = { version = "3.2.0", default-features = false }
+ink_lang = { version = "3.2.0", default-features = false }
+ink_storage = { version = "3.2.0", default-features = false }
+ink_prelude = { version = "3.2.0", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"] }
+
+openbrush = { package = "openbrush_lang", path = "..", default-features = false }
+
+[lib]
+name = "openbrush_lang_macro"
+path = "src/lib.rs"
+proc-macro = true
+
+[features]
+default = ["std"]
+std = [
+    "openbrush_lang_codegen/std",
+]

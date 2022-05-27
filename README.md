@@ -53,18 +53,18 @@ to call methods of that trait from some contract in the network
 (do a cross contract call).
 
 ```rust
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Trait1 {
     #[ink(message)]
     fn foo(&mut self) -> bool;
 }
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 type Trait1Ref = dyn Trait1;
 
 {
     // It should be `AccountId` of some contract in the network
-    let callee: brush::traits::AccountId = [1; 32].into();
+    let callee: openbrush::traits::AccountId = [1; 32].into();
     // This code will execute a cross contract call to `callee` contract
     let result_of_foo: bool = Trait1Ref::foo(&callee);
 }
@@ -110,8 +110,8 @@ All contracts are upgradable by default. It will be refactored after [Storage re
 ------- Release 0.2.0
 
 - [x] Remove the boilerplate to make the internal implementation external.
-- - [x] Implement `brush::contract` macro to consume all brush's stuff before ink!.
-- - [x] Implement `brush::trait_definition` which stores definition of trait and allow to use it in `brush::contract` macro.
+- - [x] Implement `openbrush::contract` macro to consume all openbrush's stuff before ink!.
+- - [x] Implement `openbrush::trait_definition` which stores definition of trait and allow to use it in `openbrush::contract` macro.
 - - [x] Implement `impl_trait!` macro which reuse internal implementation in external impl section.
 - [x] Refactor examples and tests with new macros.
 - [x] Decide how to handle errors and implement it in library (Decided to use `panic!` and `assert!`).
@@ -188,7 +188,7 @@ After you can run tests by `yarn run test` command. It will build all contracts 
 ## History behind
 
 - [OpenZeppelin in ink!](https://medium.com/supercolony/ink-has-most-of-the-features-required-for-usage-however-the-usability-of-ink-is-low-95f4bc974e22)
-- [Openbrush was born](https://supercolony.medium.com/openbrush-an-early-alpha-of-our-openzeppelin-library-for-ink-a0c3f4f9432)
+- [Openopenbrush was born](https://supercolony.medium.com/openbrush-an-early-alpha-of-our-openzeppelin-library-for-ink-a0c3f4f9432)
 
 ## FAQ
 

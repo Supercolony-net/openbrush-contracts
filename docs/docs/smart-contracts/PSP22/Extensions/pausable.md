@@ -7,24 +7,24 @@ This example shows how you can implement a [PSP22](https://github.com/Supercolon
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of PSP22 and Pausable via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of PSP22 and Pausable via `openbrush` features.
 
 ```toml
-brush = { version = "1.8.0", default-features = false, features = ["psp22", "pausable"] }
+openbrush = { version = "1.8.0", default-features = false, features = ["psp22", "pausable"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp22` and `brush::contracts::pausable`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::psp22` and `openbrush::contracts::pausable`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_pausable {
-    use brush::{
+    use openbrush::{
         contracts::{
             pausable::*,
             psp22::*,

@@ -1,9 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_capped {
-    use brush::contracts::psp22::*;
+    use openbrush::contracts::psp22::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
 

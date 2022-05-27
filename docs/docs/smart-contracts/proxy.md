@@ -7,24 +7,24 @@ This example shows how you can use the implementation of [proxy](https://github.
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Proxy via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Proxy via `openbrush` features.
 
 ```toml
-brush = { version = "1.8.0", default-features = false, features = ["proxy"] }
+openbrush = { version = "1.8.0", default-features = false, features = ["proxy"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::ownable` and `brush::contracts::proxy`
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::ownable` and `openbrush::contracts::proxy`
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_proxy {
-    use brush::{
+    use openbrush::{
         contracts::{
             ownable::*,
             proxy::*,

@@ -35,7 +35,7 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
 loan_contract = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
 lending_project = { path = "../..", default-features = false }
-brush = { path = "../../..", default-features = false, features = ["psp22", "psp34", "pausable", "access_control"] }
+openbrush = { path = "../../..", default-features = false, features = ["psp22", "psp34", "pausable", "access_control"] }
 
 [lib]
 name = "lending_contract"
@@ -60,7 +60,7 @@ std = [
     # These dependencies
     "loan_contract/std",
     "shares_contract/std",
-    "brush/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []
 

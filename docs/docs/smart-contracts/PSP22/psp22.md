@@ -7,24 +7,24 @@ This example shows how you can reuse the implementation of [PSP22](https://githu
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of PSP22 via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of PSP22 via `openbrush` features.
 
 ```toml
-brush = { version = "1.8.0", default-features = false, features = ["psp22"] }
+openbrush = { version = "1.8.0", default-features = false, features = ["psp22"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp22`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::psp22`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22 {
-    use brush::contracts::psp22::*;
+    use openbrush::contracts::psp22::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
 ...

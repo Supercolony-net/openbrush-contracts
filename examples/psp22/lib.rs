@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22 {
-    use brush::contracts::psp22::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp22::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP22Storage)]

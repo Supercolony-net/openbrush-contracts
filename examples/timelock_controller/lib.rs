@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_timelock_controller {
-    use brush::contracts::timelock_controller::*;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::timelock_controller::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, TimelockControllerStorage)]

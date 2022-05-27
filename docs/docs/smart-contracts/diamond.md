@@ -7,24 +7,24 @@ This example shows how you can use the implementation of [diamond standard](http
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Diamond Standard via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Diamond Standard via `openbrush` features.
 
 ```toml
-brush = { version = "1.8.0", default-features = false, features = ["diamond"] }
+openbrush = { version = "1.8.0", default-features = false, features = ["diamond"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::ownable` and `brush::contracts::diamond`
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::ownable` and `openbrush::contracts::diamond`
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_diamond {
-    use brush::{
+    use openbrush::{
         contracts::{
             ownable::*,
             diamond::*,

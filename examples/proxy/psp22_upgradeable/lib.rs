@@ -1,16 +1,16 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_upgradeable {
-    use brush::{
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
         contracts::{
             ownable::*,
             psp22::*,
         },
         modifiers,
     };
-    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]

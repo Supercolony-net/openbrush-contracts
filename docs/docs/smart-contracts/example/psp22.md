@@ -20,15 +20,15 @@ we will implement that trait to be sure that all super traits are also implement
 `StableCoinRef` can be used by other developers to do a cross contract call to `StableCoinContract`.
 
 ```rust
-use brush::contracts::traits::psp22::{
+use openbrush::contracts::traits::psp22::{
     extensions::metadata::*,
     *,
 };
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type StableCoinRef = dyn PSP22 + PSP22Metadata;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait StableCoin: PSP22 + PSP22Metadata {}
 ```
 
@@ -43,7 +43,7 @@ it here to keep it simple.
 
 We want a basic [PSP-22](/smart-contracts/PSP22/psp22) token with metadata, 
 so we will add the [PSP-22 Metadata](/smart-contracts/PSP22/extensions/metadata) 
-extension to our contract. We will add a `brush::contract` macro to our contract 
+extension to our contract. We will add a `openbrush::contract` macro to our contract 
 and add some imports:
 
 ```rust
@@ -51,9 +51,9 @@ and add some imports:
 #![feature(min_specialization)]
 
 /// This is a simple `PSP-22` which will be used as a stable coin and a collateral token in our lending contract
-#[brush::contract]
+#[openbrush::contract]
 pub mod token {
-    use brush::contracts::psp22::extensions::metadata::*;
+    use openbrush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
     use lending_project::traits::stable_coin::*;
     use ink_storage::traits::SpreadAllocate;

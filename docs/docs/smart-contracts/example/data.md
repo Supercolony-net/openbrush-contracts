@@ -103,22 +103,22 @@ impl Point for PointContract {}
 ## Macros from OpenBrush
 
 Some macros from OpenBrush allows to remove boilerplate code and simplify the development:
-- [`declare_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_lang/macros.rs#L9)
+- [`declare_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/lang/macros.rs#L9)
 macro define the storage like described in the [Storage trait](/smart-contracts/example/data#storage-trait)
 ```rust
-use brush::declare_storage_trait;
+use openbrush::declare_storage_trait;
 declare_storage_trait!(PointStorage, PointData);
 ```
-- [`impl_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_lang/macros.rs#L27)
+- [`impl_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/lang/macros.rs#L27)
 macro implements the storage trait for the contract and return the field from that contract of the data type
 ```rust
-use brush::impl_storage_trait;
+use openbrush::impl_storage_trait;
 impl_storage_trait!(PointStorage, PointContract, point, PointData);
 ```
 - Also, if you are familiar with [derive](https://doc.rust-lang.org/rust-by-example/trait/derive.html) macro:
 
 You can create a derive macro for your storage trait by yourself with 
-[`declare_derive_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_derive/lib.rs#L11)
+[`declare_derive_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/src/derive.rs)
 from OpenBrush.
 To define a derive macro you need a separate directory(let's call it `derive`). 
 This directory contains the standard stuff of a Cargo folder - `.gitignore`, `Cargo.toml`, and the `lib.rs` file,
@@ -130,19 +130,19 @@ look like this:
 
 extern crate proc_macro;
 
-use brush_derive::declare_derive_storage_trait;
+use openbrush::declare_derive_storage_trait;
 
 declare_derive_storage_trait!(derive_point_storage, PointStorage, PointStorageField);
 ```
 
-In the `Cargo.toml` of the derive folder you need to import `brush_derive` dependencies:
+In the `Cargo.toml` of the derive folder you need to import `openbrush` dependencies:
 
 ```toml
 [dependencies]
 syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
-brush = { version = "1.8.0", default-features = false }
+openbrush = { version = "1.8.0", default-features = false }
 
 [lib]
 name = "point_derive"

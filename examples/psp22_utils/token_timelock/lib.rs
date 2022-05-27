@@ -1,10 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_token_timelock {
-    use brush::contracts::psp22::utils::token_timelock::*;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp22::utils::token_timelock::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP22TokenTimelockStorage)]

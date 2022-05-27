@@ -1,9 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_pausable {
-    use brush::{
+    use openbrush::{
         contracts::{
             pausable::*,
             psp22::*,

@@ -1,8 +1,18 @@
 [package]
-name = "contracts"
+name = "openbrush_contracts"
 version = "1.8.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
+
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Supercolony-net/openbrush-contracts"
+documentation = "https://docs.openbrush.io"
+homepage = "https://supercolony.net"
+description = "Reusable implementations of contracts and traits for interaction with them."
+keywords = ["wasm", "supercolony", "smart-contracts", "blockchain", "ink"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
 ink_primitives = { version = "3.2.0", default-features = false }
@@ -15,12 +25,12 @@ ink_prelude = { version = "3.2.0", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-derive = { version = "1.8.0", path = "./derive" }
-brush = { version = "1.8.0", package = "brush_lang", path = "../brush_lang", default-features = false }
+derive = { package = "openbrush_contracts_derive", version = "1.8.0", path = "derive" }
+openbrush = { version = "1.8.0", package = "openbrush_lang", path = "../lang", default-features = false }
 
 [lib]
-name = "contracts"
-path = "lib.rs"
+name = "openbrush_contracts"
+path = "src/lib.rs"
 crate-type = [
     "rlib",
 ]
@@ -35,7 +45,7 @@ std = [
     "scale/std",
     "scale-info/std",
 
-    "brush/std",
+    "openbrush/std",
 ]
 psp22 = [
     "derive/psp22",

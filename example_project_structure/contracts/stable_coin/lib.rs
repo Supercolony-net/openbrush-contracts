@@ -2,12 +2,12 @@
 #![feature(min_specialization)]
 
 /// This is a simple `PSP-22` which will be used as a stable coin and a collateral token in our lending contract
-#[brush::contract]
+#[openbrush::contract]
 pub mod token {
-    use brush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
-    use lending_project::traits::stable_coin::*;
     use ink_storage::traits::SpreadAllocate;
+    use lending_project::traits::stable_coin::*;
+    use openbrush::contracts::psp22::extensions::metadata::*;
 
     /// Define the storage for PSP22 data and Metadata data
     #[ink(storage)]

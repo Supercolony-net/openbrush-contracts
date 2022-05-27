@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "contracts",
-    "brush_lang",
+    "lang",
 ]
 
 exclude = [
@@ -11,17 +11,27 @@ exclude = [
 ]
 
 [package]
-name = "brush"
+name = "openbrush"
 version = "1.8.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Supercolony-net/openbrush-contracts"
+documentation = "https://docs.openbrush.io"
+homepage = "https://supercolony.net"
+description = "OpenBrush library for smart contract development on ink!."
+keywords = ["wasm", "supercolony", "smart-contracts", "blockchain", "ink"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "lib.rs"]
+
 [dependencies]
-contracts = { version = "1.8.0", path = "./contracts", default-features = false }
-brush_lang = { version = "1.8.0", path = "./brush_lang", default-features = false }
+openbrush_contracts = { version = "1.8.0", path = "contracts", default-features = false }
+openbrush_lang = { version = "1.8.0", path = "lang", default-features = false }
 
 [lib]
-name = "brush"
+name = "openbrush"
 path = "lib.rs"
 crate-type = [
     "rlib",
@@ -30,20 +40,20 @@ crate-type = [
 [features]
 default = ["std"]
 std = [
-    "contracts/std",
-    "brush_lang/std",
+    "openbrush_contracts/std",
+    "openbrush_lang/std",
 ]
-psp22 = ["contracts/psp22"]
-psp34 = ["contracts/psp34"]
-psp1155 = ["contracts/psp1155"]
-ownable = ["contracts/ownable"]
-access_control = ["contracts/access_control"]
-payment_splitter = ["contracts/payment_splitter"]
-reentrancy_guard = ["contracts/reentrancy_guard"]
-pausable = ["contracts/pausable"]
-timelock_controller = ["contracts/timelock_controller"]
-proxy = ["contracts/proxy"]
-diamond = ["contracts/diamond"]
+psp22 = ["openbrush_contracts/psp22"]
+psp34 = ["openbrush_contracts/psp34"]
+psp1155 = ["openbrush_contracts/psp1155"]
+ownable = ["openbrush_contracts/ownable"]
+access_control = ["openbrush_contracts/access_control"]
+payment_splitter = ["openbrush_contracts/payment_splitter"]
+reentrancy_guard = ["openbrush_contracts/reentrancy_guard"]
+pausable = ["openbrush_contracts/pausable"]
+timelock_controller = ["openbrush_contracts/timelock_controller"]
+proxy = ["openbrush_contracts/proxy"]
+diamond = ["openbrush_contracts/diamond"]
 
 [profile.release]
 panic = "abort"

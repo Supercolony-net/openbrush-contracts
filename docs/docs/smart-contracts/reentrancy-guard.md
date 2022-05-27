@@ -16,24 +16,24 @@ modifier to prevent reentrancy into certain functions. In this example we will c
 
 ### Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Reentrancy Guard via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Reentrancy Guard via `openbrush` features.
 
 ```toml
-brush = { version = "1.8.0", default-features = false, features = ["reentrancy_guard"] }
+openbrush = { version = "1.8.0", default-features = false, features = ["reentrancy_guard"] }
 ```
 
 ### Step 2: Add imports
 
-To declare the contract, you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-from `brush::contracts::reentrancy_guard`.
+To declare the contract, you need to use `openbrush::contract` macro instead of `ink::contract`. Import **everything**
+from `openbrush::contracts::reentrancy_guard`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_flipper_guard {
-  use brush::{
+  use openbrush::{
     contracts::reentrancy_guard::*,
     modifiers,
   };
@@ -77,7 +77,7 @@ impl MyFlipper {
     }
 
     #[ink(message)]
-    #[brush::modifiers(non_reentrant)]
+    #[openbrush::modifiers(non_reentrant)]
     pub fn flip(&mut self) {
         self.value = !self.value;
     }

@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp1155 {
-    use brush::contracts::psp1155::extensions::burnable::*;
     use ink_prelude::vec;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp1155::extensions::burnable::*;
 
     #[derive(Default, SpreadAllocate, PSP1155Storage)]
     #[ink(storage)]

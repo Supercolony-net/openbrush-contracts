@@ -1,9 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_access_control {
-    use brush::{
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
         contracts::{
             access_control::*,
             psp34::extensions::{
@@ -13,7 +14,6 @@ pub mod my_access_control {
         },
         modifiers,
     };
-    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP34Storage, AccessControlStorage)]

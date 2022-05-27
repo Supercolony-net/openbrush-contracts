@@ -8,24 +8,24 @@ This example shows how you can reuse the implementation of
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Pausable via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Pausable via `openbrush` features.
 
 ```toml
-brush = { version = "1.8.0", default-features = false, features = ["pausable"] }
+openbrush = { version = "1.8.0", default-features = false, features = ["pausable"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::pausable`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::pausable`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_pausable {
-    use brush::contracts::pausable::*;
+    use openbrush::contracts::pausable::*;
     use ink_storage::traits::SpreadAllocate;
 ...
 ```
@@ -76,9 +76,9 @@ Customize it by adding flipper logic. We will implement `flip` method marked wit
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_pausable {
-    use brush::contracts::pausable::*;
+    use openbrush::contracts::pausable::*;
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
@@ -96,7 +96,7 @@ pub mod my_pausable {
         }
 
         #[ink(message)]
-        #[brush::modifiers(when_not_paused)]
+        #[openbrush::modifiers(when_not_paused)]
         pub fn flip(&mut self) -> Result<(), PausableError> {
             self.flipped = !self.flipped;
             Ok(())
