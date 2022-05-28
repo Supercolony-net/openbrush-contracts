@@ -14,10 +14,9 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: '16.x'
       - name: Test Build
         run: |
-          n v16.15.0
           cd docs
           if [ -e yarn.lock ]; then
             yarn install --frozen-lockfile
@@ -34,7 +33,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: '16.x'
       - uses: webfactory/ssh-agent@v0.5.0
         with:
           ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
@@ -43,7 +42,6 @@ jobs:
           USE_SSH: true
           GIT_USER: git
         run: |
-          n v16.15.0
           cd docs
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
