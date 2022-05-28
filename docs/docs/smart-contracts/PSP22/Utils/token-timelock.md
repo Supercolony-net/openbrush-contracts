@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP22 Token Timelock
 ---
 
-This example shows how you can reuse the implementation of [PSP22 Token Timelock](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/utils/token_timelock.rs) utility for [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22). This contract will lock user's `PSP22` tokens until the time specified, when they can withdraw them.
+This example shows how you can reuse the implementation of [PSP22 Token Timelock](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22/src/utils/token_timelock.rs) utility for [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22). This contract will lock user's `PSP22` tokens until the time specified, when they can withdraw them.
 
 ## Step 1: Include dependencies
 
@@ -65,6 +65,6 @@ impl MyPSP22TokenTimelock {
 }
 ```
 
-You can check an example of the usage of [PSP22 Token Timelock](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_utils/token_timelock).
+You can check an example of the usage of [PSP22 Token Timelock](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_utils/token_timelock).
 
-You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

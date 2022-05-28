@@ -4,7 +4,7 @@ title: Payment Splitter
 ---
 
 This example shows how you can reuse the implementation of
-[payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment_splitter).
+[payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/finance/payment_splitter).
 
 ## Step 1: Include dependencies
 
@@ -72,7 +72,7 @@ impl SplitterStruct {
 }
 ```
 
-You can check an example of the usage of [PaymentSplitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/payment_splitter).
+You can check an example of the usage of [PaymentSplitter](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/payment_splitter).
 
 ## Step 6 (Optional): Customize your contract
 

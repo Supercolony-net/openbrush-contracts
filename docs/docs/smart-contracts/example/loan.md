@@ -3,7 +3,7 @@ sidebar_position: 5
 title: Loan contract
 ---
 
-In our project we will also implement [PSP-34](/smart-contracts/PSP34/psp34) 
+In our project we will also implement [PSP-34](/smart-contracts/PSP34) 
 token. This token will represent a loan of a user who borrowed some assets. 
 Upon borrowing assets the contract will mint an NFT to them, which will hold 
 the information about their loan, namely the user who borrowed the assets, 
@@ -103,7 +103,7 @@ pub trait Loan: PSP34 + PSP34Metadata + Ownable {
 
 ## Add dependencies
 
-In addition to the dependencies imported in the [PSP-34](/smart-contracts/PSP34/psp34)
+In addition to the dependencies imported in the [PSP-34](/smart-contracts/PSP34)
 documentation, we will also add the `ownable` dependency the same way as in the
 [ownable](/smart-contracts/ownable) documentation. We will be using `LoanContract`
 as a dependency in our lending contract to instantiate it. So we need to also add
@@ -111,7 +111,7 @@ the `"rlib"` crate type to have the ability to import the `LoanContract` as a de
 
 ## Implement the contract
 
-We want a basic [PSP-34](/smart-contracts/PSP34/psp34) token with metadata and ownable extensions, 
+We want a basic [PSP-34](/smart-contracts/PSP34) token with metadata and ownable extensions, 
 so we will add these to our contract. We will add a `openbrush::contract` macro to our contract and add some imports:
 
 ```rust

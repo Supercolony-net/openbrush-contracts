@@ -3,7 +3,7 @@ sidebar_position: 2
 title: Access Control
 ---
 
-This example shows how you can use the implementation of [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access_control) to provide rights for usage of specific smart contract functions.
+This example shows how you can use the implementation of [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/access/access_control) to provide rights for usage of specific smart contract functions.
 
 ## Step 1: Include dependencies
 
@@ -118,4 +118,4 @@ pub mod my_access_control {
 }
 ```
 
-You can check an example of the usage of [Access Control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/access_control).
+You can check an example of the usage of [Access Control](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/access_control).

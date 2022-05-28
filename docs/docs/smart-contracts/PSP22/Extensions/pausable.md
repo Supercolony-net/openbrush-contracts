@@ -3,7 +3,7 @@ sidebar_position: 6
 title: PSP22 Pausable
 ---
 
-This example shows how you can implement a [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) contract with a [Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/pausable) extension. See an example of [PSP22Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/pausable) implementation.
+This example shows how you can implement a [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22) contract with a [Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/security/pausable) extension. See an example of [PSP22Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/pausable) implementation.
 
 ## Step 1: Include dependencies
 
@@ -98,6 +98,6 @@ impl MyPSP22Pausable {
 }
 ```
 
-You can check an implementation example of [PSP22 Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/pausable).
+You can check an implementation example of [PSP22 Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/pausable).
 
-You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

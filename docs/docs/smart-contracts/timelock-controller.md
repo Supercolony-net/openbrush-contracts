@@ -4,7 +4,7 @@ title: Timelock Controller
 ---
 
 This example shows how you can reuse the implementation of
-[timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock_controller).
+[timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/governance/timelock_controller).
 
 ## Step 1: Include dependencies
 
@@ -75,4 +75,4 @@ impl TimelockStruct {
 }
 ```
 
-You can check an example of the usage of [TimelockController](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/timelock_controller).
+You can check an example of the usage of [TimelockController](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/timelock_controller).

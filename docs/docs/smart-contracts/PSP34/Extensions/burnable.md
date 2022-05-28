@@ -3,7 +3,7 @@ sidebar_position: 3
 title: PSP34 Burnable
 ---
 
-This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp34) token with [PSP34Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp34/src/extensions/burnable.rs) extension.
+This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp34) token with [PSP34Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp34/src/extensions/burnable.rs) extension.
 
 ## How to use this extension
 
@@ -16,6 +16,6 @@ impl PSP34Burnable for MyPSP34 {}
 ```
 
 And that's it! Your `PSP34` is now extended by the `PSP34Burnable` extension and ready to use its functions!
-You can check an example of the usage of [PSP34 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp34_extensions/burnable).
+You can check an example of the usage of [PSP34 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp34_extensions/burnable).
 
-You can also check the documentation for the basic implementation of [PSP34](/smart-contracts/PSP34/psp34).
+You can also check the documentation for the basic implementation of [PSP34](/smart-contracts/PSP34).

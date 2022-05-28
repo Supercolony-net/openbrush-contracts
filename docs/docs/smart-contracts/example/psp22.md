@@ -3,11 +3,11 @@ sidebar_position: 3
 title: Implement PSP-22 contract
 ---
 
-First, we will cover the implementation of [PSP-22](/smart-contracts/PSP22/psp22) 
+First, we will cover the implementation of [PSP-22](/smart-contracts/PSP22) 
 token used by our smart contract, which will represent the stable coin that we will be 
-lending and another [PSP-22](/smart-contracts/PSP22/psp22) token which we will be 
+lending and another [PSP-22](/smart-contracts/PSP22) token which we will be 
 using as collateral. These are used just to test our example, you will not be creating 
-an actual [PSP-22](/smart-contracts/PSP22/psp22) implementation of stable coin or collateral 
+an actual [PSP-22](/smart-contracts/PSP22) implementation of stable coin or collateral 
 token in your lending protocol, but this will also showcase how to implement 
 a basic implementation of a fungible token with OpenBrush.
 
@@ -34,14 +34,14 @@ pub trait StableCoin: PSP22 + PSP22Metadata {}
 
 ## Add dependencies
 
-First we will add the dependencies used in our [PSP-22](/smart-contracts/PSP22/psp22)
+First we will add the dependencies used in our [PSP-22](/smart-contracts/PSP22)
 contract to the `Cargo.toml` file. You will import the same dependencies as in 
-the [PSP-22](/smart-contracts/PSP22/psp22) documentation, so we will not show 
+the [PSP-22](/smart-contracts/PSP22) documentation, so we will not show 
 it here to keep it simple.
 
 ## Implement the contract
 
-We want a basic [PSP-22](/smart-contracts/PSP22/psp22) token with metadata, 
+We want a basic [PSP-22](/smart-contracts/PSP22) token with metadata, 
 so we will add the [PSP-22 Metadata](/smart-contracts/PSP22/extensions/metadata) 
 extension to our contract. We will add a `openbrush::contract` macro to our contract 
 and add some imports:

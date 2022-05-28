@@ -103,13 +103,13 @@ impl Point for PointContract {}
 ## Macros from OpenBrush
 
 Some macros from OpenBrush allows to remove boilerplate code and simplify the development:
-- [`declare_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/lang/macros.rs#L9)
+- [`declare_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/macro/src/lib.rs)
 macro define the storage like described in the [Storage trait](/smart-contracts/example/data#storage-trait)
 ```rust
 use openbrush::declare_storage_trait;
 declare_storage_trait!(PointStorage, PointData);
 ```
-- [`impl_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/lang/macros.rs#L27)
+- [`impl_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/macro/src/lib.rs)
 macro implements the storage trait for the contract and return the field from that contract of the data type
 ```rust
 use openbrush::impl_storage_trait;

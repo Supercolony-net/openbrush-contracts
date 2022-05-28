@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP22
 ---
 
-This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token. Also, this example shows how you can customize the logic, for example, to reject transferring tokens to `hated_account`.
+This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22) token. Also, this example shows how you can customize the logic, for example, to reject transferring tokens to `hated_account`.
 
 ## Step 1: Include dependencies
 
@@ -122,7 +122,7 @@ impl MyPSP22 {
 }
 ```
 
-You can check an example of the usage of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22).
+You can check an example of the usage of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22).
 
 Also you can use extensions for PSP22 token:
 

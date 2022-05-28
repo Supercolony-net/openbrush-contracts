@@ -3,7 +3,7 @@ sidebar_position: 7
 title: PSP22 Capped
 ---
 
-This example shows how you can implement a [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) contract with a supply cap, analogue to [ERC20Capped](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/extensions/ERC20Capped.sol).
+This example shows how you can implement a [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22) contract with a supply cap, analogue to [ERC20Capped](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/extensions/ERC20Capped.sol).
 
 ## Step 1: Include dependencies
 
@@ -94,6 +94,6 @@ impl MyPSP22Capped {
 }
 ```
 
-You can check an implementation example of [PSP22 Capped](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/capped).
+You can check an implementation example of [PSP22 Capped](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/capped).
 
-You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).
