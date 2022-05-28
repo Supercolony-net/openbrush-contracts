@@ -17,6 +17,7 @@ jobs:
           node-version: '12.x'
       - name: Test Build
         run: |
+          n v16.15.0
           cd docs
           if [ -e yarn.lock ]; then
             yarn install --frozen-lockfile
@@ -42,6 +43,7 @@ jobs:
           USE_SSH: true
           GIT_USER: git
         run: |
+          n v16.15.0
           cd docs
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
