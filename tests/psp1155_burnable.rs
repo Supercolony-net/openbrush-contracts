@@ -23,9 +23,11 @@
 #[cfg(feature = "psp1155")]
 #[openbrush::contract]
 mod psp1155_burnable {
-    use openbrush::test_utils::accounts;
-    use openbrush::contracts::psp1155::extensions::burnable::*;
     use ink_lang as ink;
+    use openbrush::{
+        contracts::psp1155::extensions::burnable::*,
+        test_utils::accounts,
+    };
 
     #[derive(Default, PSP1155Storage)]
     #[ink(storage)]

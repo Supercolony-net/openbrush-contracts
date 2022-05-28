@@ -21,5 +21,5 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub use openbrush_contracts as contracts;
 pub use openbrush_lang::*;
-pub use openbrush_contracts as contract;

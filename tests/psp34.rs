@@ -23,11 +23,6 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34 {
-    use openbrush::test_utils::{
-        accounts,
-        change_caller,
-    };
-    use openbrush::contracts::psp34::*;
     use ink::codegen::{
         EmitEvent,
         Env,
@@ -35,6 +30,13 @@ mod psp34 {
     use ink_env::DefaultEnvironment;
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::psp34::*,
+        test_utils::{
+            accounts,
+            change_caller,
+        },
+    };
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]

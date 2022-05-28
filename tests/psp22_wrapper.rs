@@ -23,9 +23,11 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_wrapper {
-    use openbrush::test_utils::accounts;
-    use openbrush::contracts::psp22::extensions::wrapper::*;
     use ink_lang as ink;
+    use openbrush::{
+        contracts::psp22::extensions::wrapper::*,
+        test_utils::accounts,
+    };
 
     #[ink(storage)]
     #[derive(Default, PSP22Storage, PSP22WrapperStorage)]

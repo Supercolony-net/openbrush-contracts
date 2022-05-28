@@ -23,8 +23,8 @@
 #[cfg(feature = "psp1155")]
 #[openbrush::contract]
 mod psp1155_metadata {
-    use openbrush::contracts::psp1155::extensions::metadata::*;
     use ink_lang as ink;
+    use openbrush::contracts::psp1155::extensions::metadata::*;
 
     #[derive(Default, PSP1155Storage, PSP1155MetadataStorage)]
     #[ink(storage)]

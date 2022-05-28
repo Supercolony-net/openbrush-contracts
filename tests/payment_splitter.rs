@@ -23,10 +23,12 @@
 #[cfg(feature = "payment_splitter")]
 #[openbrush::contract]
 mod payment_splitter {
-    use openbrush::test_utils::accounts;
-    use openbrush::contracts::payment_splitter::*;
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::payment_splitter::*,
+        test_utils::accounts,
+    };
 
     use ink::codegen::{
         EmitEvent,

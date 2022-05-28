@@ -23,9 +23,11 @@
 #[cfg(feature = "psp1155")]
 #[openbrush::contract]
 mod psp1155_mintable {
-    use openbrush::test_utils::accounts;
-    use openbrush::contracts::psp1155::extensions::mintable::*;
     use ink_lang as ink;
+    use openbrush::{
+        contracts::psp1155::extensions::mintable::*,
+        test_utils::accounts,
+    };
 
     #[derive(Default, PSP1155Storage)]
     #[ink(storage)]

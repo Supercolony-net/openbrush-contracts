@@ -23,9 +23,9 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_metadata {
+    use ink_lang as ink;
     /// Imports all the definitions from the outer scope so we can use them here.
     use openbrush::contracts::psp22::extensions::metadata::*;
-    use ink_lang as ink;
 
     /// A simple PSP-20 contract.
     #[ink(storage)]

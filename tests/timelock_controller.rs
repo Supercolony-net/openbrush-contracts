@@ -24,13 +24,15 @@
 #[openbrush::contract]
 mod timelock_controller {
     use ::ink_env::DefaultEnvironment;
-    use openbrush::test_utils::{
-        accounts,
-        change_caller,
-    };
-    use openbrush::contracts::timelock_controller::*;
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
+    use openbrush::{
+        contracts::timelock_controller::*,
+        test_utils::{
+            accounts,
+            change_caller,
+        },
+    };
 
     use ink::codegen::{
         EmitEvent,

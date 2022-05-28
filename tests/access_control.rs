@@ -24,13 +24,15 @@
 #[openbrush::contract]
 mod access_control {
     use ::ink_env::DefaultEnvironment;
-    use openbrush::test_utils::{
-        accounts,
-        change_caller,
-    };
-    use openbrush::contracts::access_control::*;
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
+    use openbrush::{
+        contracts::access_control::*,
+        test_utils::{
+            accounts,
+            change_caller,
+        },
+    };
 
     use ink::codegen::{
         EmitEvent,

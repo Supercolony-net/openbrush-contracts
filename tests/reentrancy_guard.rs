@@ -23,8 +23,8 @@
 #[cfg(feature = "reentrancy_guard")]
 #[openbrush::contract]
 mod reentrancy_guard {
-    use openbrush::contracts::reentrancy_guard::*;
     use ink_lang as ink;
+    use openbrush::contracts::reentrancy_guard::*;
 
     #[ink(storage)]
     #[derive(Default, ReentrancyGuardStorage)]

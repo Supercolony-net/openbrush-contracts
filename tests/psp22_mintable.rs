@@ -23,13 +23,15 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_mintable {
-    use openbrush::test_utils::*;
-    use openbrush::contracts::psp22::extensions::mintable::*;
     use ink::codegen::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
+    use openbrush::{
+        contracts::psp22::extensions::mintable::*,
+        test_utils::*,
+    };
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]

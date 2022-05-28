@@ -23,17 +23,19 @@
 #[cfg(feature = "psp1155")]
 #[openbrush::contract]
 mod psp1155 {
-    use openbrush::test_utils::{
-        accounts,
-        change_caller,
-    };
-    use openbrush::contracts::psp1155::*;
     use ink::codegen::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::psp1155::*,
+        test_utils::{
+            accounts,
+            change_caller,
+        },
+    };
 
     #[ink(event)]
     pub struct TransferSingle {

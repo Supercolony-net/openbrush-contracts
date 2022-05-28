@@ -23,16 +23,19 @@
 #[cfg(feature = "proxy")]
 #[openbrush::contract]
 mod proxy {
-    use openbrush::test_utils::change_caller;
-    use openbrush::contracts::{
-        ownable::*,
-        proxy::*,
-    };
+    use core::convert::TryFrom;
     use ink::codegen::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
+    use openbrush::{
+        contracts::{
+            ownable::*,
+            proxy::*,
+        },
+        test_utils::change_caller,
+    };
 
     #[ink(event)]
     pub struct CodeHashChanged {

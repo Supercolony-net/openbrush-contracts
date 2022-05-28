@@ -23,12 +23,14 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34_mintable {
-    use openbrush::test_utils::accounts;
-    use openbrush::contracts::psp34::{
-        extensions::mintable::*,
-        Id,
-    };
     use ink_lang as ink;
+    use openbrush::{
+        contracts::psp34::{
+            extensions::mintable::*,
+            Id,
+        },
+        test_utils::accounts,
+    };
 
     #[derive(Default, PSP34Storage)]
     #[ink(storage)]

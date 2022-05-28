@@ -23,9 +23,11 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_timelock {
-    use openbrush::test_utils::accounts;
-    use openbrush::contracts::psp22::utils::token_timelock::*;
     use ink_lang as ink;
+    use openbrush::{
+        contracts::psp22::utils::token_timelock::*,
+        test_utils::accounts,
+    };
 
     #[ink(storage)]
     #[derive(Default, PSP22TokenTimelockStorage)]

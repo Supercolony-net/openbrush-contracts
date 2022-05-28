@@ -24,10 +24,12 @@
 #[openbrush::contract]
 mod pausable {
     use ::ink_env::DefaultEnvironment;
-    use openbrush::test_utils::accounts;
-    use openbrush::contracts::pausable::*;
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
+    use openbrush::{
+        contracts::pausable::*,
+        test_utils::accounts,
+    };
 
     use ink::codegen::{
         EmitEvent,

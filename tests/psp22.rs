@@ -23,13 +23,15 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22 {
-    use openbrush::test_utils::*;
-    use openbrush::contracts::psp22::*;
     use ink::codegen::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
+    use openbrush::{
+        contracts::psp22::*,
+        test_utils::*,
+    };
     use std::panic;
 
     /// Event emitted when a token transfer occurs.

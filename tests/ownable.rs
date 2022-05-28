@@ -23,16 +23,16 @@
 #[cfg(feature = "ownable")]
 #[openbrush::contract]
 mod ownable {
-    use openbrush::{
-        test_utils::change_caller,
-        traits::AccountIdExt,
-    };
-    use openbrush::contracts::ownable::*;
     use ink::codegen::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
+    use openbrush::{
+        contracts::ownable::*,
+        test_utils::change_caller,
+        traits::AccountIdExt,
+    };
 
     #[ink(event)]
     pub struct OwnershipTransferred {

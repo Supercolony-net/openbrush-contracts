@@ -23,9 +23,9 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34_metadata {
-    use openbrush::contracts::psp34::extensions::metadata::*;
     use ink_lang as ink;
     use ink_prelude::string::String;
+    use openbrush::contracts::psp34::extensions::metadata::*;
 
     #[derive(Default, PSP34Storage, PSP34MetadataStorage)]
     #[ink(storage)]

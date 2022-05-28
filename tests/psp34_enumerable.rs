@@ -23,20 +23,22 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34_enumerable {
-    use openbrush::test_utils::{
-        accounts,
-        change_caller,
-    };
-    use openbrush::contracts::psp34::{
-        extensions::{
-            burnable::*,
-            enumerable::*,
-            mintable::*,
-        },
-        Id,
-    };
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::psp34::{
+            extensions::{
+                burnable::*,
+                enumerable::*,
+                mintable::*,
+            },
+            Id,
+        },
+        test_utils::{
+            accounts,
+            change_caller,
+        },
+    };
 
     #[derive(Default, SpreadAllocate, PSP34Storage, PSP34EnumerableStorage)]
     #[ink(storage)]

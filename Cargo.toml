@@ -24,15 +24,25 @@ homepage = "https://supercolony.net"
 description = "OpenBrush library for smart contract development on ink!."
 keywords = ["wasm", "supercolony", "smart-contracts", "blockchain", "ink"]
 categories = ["no-std", "embedded"]
-include = ["Cargo.toml", "lib.rs"]
+include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
+ink_primitives = { version = "3.2.0", default-features = false }
+ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.2.0", default-features = false }
+ink_storage = { version = "3.2.0", default-features = false }
+ink_lang = { version = "3.2.0", default-features = false }
+ink_prelude = { version = "3.2.0", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+
 openbrush_contracts = { version = "1.8.0", path = "contracts", default-features = false }
 openbrush_lang = { version = "1.8.0", path = "lang", default-features = false }
 
 [lib]
 name = "openbrush"
-path = "lib.rs"
+path = "src/lib.rs"
 crate-type = [
     "rlib",
 ]
@@ -40,6 +50,13 @@ crate-type = [
 [features]
 default = ["std"]
 std = [
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info/std",
+
     "openbrush_contracts/std",
     "openbrush_lang/std",
 ]
