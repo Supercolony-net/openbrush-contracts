@@ -10,7 +10,7 @@ quote = "1.0"
 proc-macro2 = "1"
 
 # In you code you can import `openbrush_derive` with the next line
-#openbrush = { version = "1.8.0", default-features = false }
+#openbrush = { version = "~1.8.0", default-features = false }
 
 openbrush = { package = "openbrush_lang", path = "../../lang" }
 

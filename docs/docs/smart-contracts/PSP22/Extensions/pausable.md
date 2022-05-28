@@ -11,7 +11,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of PSP22 and Pausable via `openbrush` features.
 
 ```toml
-openbrush = { version = "1.8.0", default-features = false, features = ["psp22", "pausable"] }
+openbrush = { version = "~1.8.0", default-features = false, features = ["psp22", "pausable"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
