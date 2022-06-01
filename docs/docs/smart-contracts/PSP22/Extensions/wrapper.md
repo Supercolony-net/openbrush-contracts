@@ -3,7 +3,7 @@ sidebar_position: 4
 title: PSP22 Wrapper
 ---
 
-This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22) token with [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22/extensions/wrapper.rs) extension, which allows you to wrap your `PSP22` token in a `PSP22Wrapper` token which can be used for example for governance.
+This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22) token with [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22/extensions/wrapper.rs) extension, which allows you to wrap your `PSP22` token in a `PSP22Wrapper` token which can be used for example for governance.
 
 ## Step 1: Include dependencies
 
@@ -69,6 +69,6 @@ impl MyPSP22 {
 }
 ```
 
-You can check an example of the usage of [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/wrapper).
+You can check an example of the usage of [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/wrapper).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).
