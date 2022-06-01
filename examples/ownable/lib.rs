@@ -1,9 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod ownable {
-    use brush::{
+    use ink_prelude::vec::Vec;
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
         contracts::{
             ownable::*,
             psp1155::extensions::{
@@ -13,8 +15,6 @@ pub mod ownable {
         },
         modifiers,
     };
-    use ink_prelude::vec::Vec;
-    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP1155Storage, OwnableStorage)]

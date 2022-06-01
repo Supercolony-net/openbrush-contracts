@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_payment_splitter {
-    use brush::contracts::payment_splitter::*;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::payment_splitter::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PaymentSplitterStorage)]

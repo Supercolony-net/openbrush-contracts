@@ -1,10 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp34 {
-    use brush::contracts::psp34::*;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp34::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP34Storage)]

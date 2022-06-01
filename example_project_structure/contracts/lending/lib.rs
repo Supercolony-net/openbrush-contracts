@@ -35,17 +35,17 @@
 /// 8. Pause the contract
 /// Users with the manager role can pause the contract. If the contract is paused, no borrowing or lending can be performed
 /// Users can still repay their loans, liquidate loans or withdraw their deposits
-#[brush::contract]
+#[openbrush::contract]
 pub mod lending {
-    use brush::contracts::{
-        access_control::*,
-        pausable::*,
-    };
     use ink_lang::ToAccountId;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::impls::lending::*;
     use loan_contract::loan::LoanContractRef;
+    use openbrush::contracts::{
+        access_control::*,
+        pausable::*,
+    };
     use shares_contract::shares::SharesContractRef;
 
     #[ink(storage)]

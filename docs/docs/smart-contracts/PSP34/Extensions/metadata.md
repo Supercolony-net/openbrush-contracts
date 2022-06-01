@@ -3,28 +3,28 @@ sidebar_position: 1
 title: PSP34 Metadata
 ---
 
-This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp34) token with [PSP34Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp34/src/extensions/metadata.rs) extension.
+This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp34) token with [PSP34Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp34/src/extensions/metadata.rs) extension.
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of PSP34 via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of PSP34 via `openbrush` features.
 
 ```toml
-brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp34"] }
+openbrush = { version = "~1.8.0", default-features = false, features = ["psp34"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp34::extensions::metadata`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::psp34::extensions::metadata`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp34_metadata {
-    use brush::contracts::psp34::extensions::metadata::*;
+    use openbrush::contracts::psp34::extensions::metadata::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
 ...
@@ -73,6 +73,6 @@ impl MyPSP34 {
 }
 ```
 
-You can check an example of the usage of [PSP34 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp34_extensions/metadata).
+You can check an example of the usage of [PSP34 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp34_extensions/metadata).
 
-You can also check the documentation for the basic implementation of [PSP34](/smart-contracts/PSP34/psp34).
+You can also check the documentation for the basic implementation of [PSP34](/smart-contracts/PSP34).

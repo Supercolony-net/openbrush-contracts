@@ -3,7 +3,7 @@ sidebar_position: 5
 title: Loan contract
 ---
 
-In our project we will also implement [PSP-34](/smart-contracts/PSP34/psp34) 
+In our project we will also implement [PSP-34](/smart-contracts/PSP34) 
 token. This token will represent a loan of a user who borrowed some assets. 
 Upon borrowing assets the contract will mint an NFT to them, which will hold 
 the information about their loan, namely the user who borrowed the assets, 
@@ -33,7 +33,7 @@ so it is defined in the `traits` instead of the body of the contract).
 `LoanRef` can be used by other developers to do a cross contract call to `LoanContract`.
 
 ```rust
-use brush::{
+use openbrush::{
     contracts::traits::{
         ownable::*,
         psp34::{
@@ -68,10 +68,10 @@ pub struct LoanInfo {
     pub liquidated: bool,
 }
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LoanRef = dyn Loan + PSP34 + PSP34Metadata + Ownable;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Loan: PSP34 + PSP34Metadata + Ownable {
     /// This function initalizes data of a loan and mint token inside it
     #[ink(message)]
@@ -103,7 +103,7 @@ pub trait Loan: PSP34 + PSP34Metadata + Ownable {
 
 ## Add dependencies
 
-In addition to the dependencies imported in the [PSP-34](/smart-contracts/PSP34/psp34)
+In addition to the dependencies imported in the [PSP-34](/smart-contracts/PSP34)
 documentation, we will also add the `ownable` dependency the same way as in the
 [ownable](/smart-contracts/ownable) documentation. We will be using `LoanContract`
 as a dependency in our lending contract to instantiate it. So we need to also add
@@ -111,22 +111,22 @@ the `"rlib"` crate type to have the ability to import the `LoanContract` as a de
 
 ## Implement the contract
 
-We want a basic [PSP-34](/smart-contracts/PSP34/psp34) token with metadata and ownable extensions, 
-so we will add these to our contract. We will add a `brush::contract` macro to our contract and add some imports:
+We want a basic [PSP-34](/smart-contracts/PSP34) token with metadata and ownable extensions, 
+so we will add these to our contract. We will add a `openbrush::contract` macro to our contract and add some imports:
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
 /// This contract will represent the loan of a user
-#[brush::contract]
+#[openbrush::contract]
 pub mod loan {
-    use brush::contracts::{
+    use openbrush::contracts::{
         ownable::*,
         psp34::extensions::metadata::*,
     };
 
-    use brush::modifiers;
+    use openbrush::modifiers;
 
     use ink_prelude::{
         string::String,

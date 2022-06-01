@@ -1,4 +1,4 @@
-use brush::{
+use openbrush::{
     contracts::traits::{
         access_control::*,
         pausable::*,
@@ -15,13 +15,13 @@ use brush::{
 };
 
 /// Combination of all traits of the contract to simplify calls to the contract
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingContractRef = dyn Lending + LendingPermissioned + AccessControl + Pausable;
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingRef = dyn Lending;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Lending {
     /// This function will return the total amount of assets available to borrow
     /// along with amount of the same asset borrowed
@@ -115,10 +115,10 @@ pub trait Lending {
     fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError>;
 }
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingPermissionedRef = dyn LendingPermissioned;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait LendingPermissioned {
     /// This function will allow an asset to be accepted by the contract
     /// It will also create the contracts for the shares token and lended reserves token

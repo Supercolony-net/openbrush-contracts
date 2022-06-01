@@ -21,12 +21,12 @@ authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { version = "3.2.0", default-features = false }
-ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.2.0", default-features = false }
-ink_storage = { version = "3.2.0", default-features = false }
-ink_lang = { version = "3.2.0", default-features = false }
-ink_prelude = { version = "3.2.0", default-features = false }
+ink_primitives = { version = "~3.2.0", default-features = false }
+ink_metadata = { version = "~3.2.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.2.0", default-features = false }
+ink_storage = { version = "~3.2.0", default-features = false }
+ink_lang = { version = "~3.2.0", default-features = false }
+ink_prelude = { version = "~3.2.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
@@ -35,7 +35,7 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
 loan_contract = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
 lending_project = { path = "../..", default-features = false }
-brush = { path = "../../..", default-features = false, features = ["psp22", "psp34", "pausable", "access_control"] }
+openbrush = { path = "../../..", default-features = false, features = ["psp22", "psp34", "pausable", "access_control"] }
 
 [lib]
 name = "lending_contract"
@@ -60,7 +60,7 @@ std = [
     # These dependencies
     "loan_contract/std",
     "shares_contract/std",
-    "brush/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []
 

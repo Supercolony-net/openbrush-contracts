@@ -3,19 +3,19 @@ sidebar_position: 1
 title: PSP22 Metadata
 ---
 
-This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with the [PSP22Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/src/extensions/metadata.rs) extension.
+This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22) token with the [PSP22Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22/src/extensions/metadata.rs) extension.
 
 ## Step 1: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp22::extensions::metadata`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::psp22::extensions::metadata`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22 {
-    use brush::contracts::psp22::extensions::metadata::*;
+    use openbrush::contracts::psp22::extensions::metadata::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
 ```
@@ -67,6 +67,6 @@ impl MyPSP22 {
 }
 ```
 
-You can check an example of the usage of [PSP22 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/metadata).
+You can check an example of the usage of [PSP22 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/metadata).
 
-You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

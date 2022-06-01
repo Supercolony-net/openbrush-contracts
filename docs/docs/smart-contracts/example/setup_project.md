@@ -20,7 +20,7 @@ If the contract contains several simple functions, better to implement
 them in the body of the contract. But if the contract contains a lot of logic
 and methods, better to move(and maybe split on parts) the implementation to that directory.
 Better to store the implementation of one contract in its own directory and not mix it with others.
-- `derive` - is optional directory. OpenBrush provides the [macro](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_derive/lib.rs#L11) 
+- `derive` - is optional directory. OpenBrush provides the [macro](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/src/derive.rs) 
 to define a procedure derive macro of the storage trait. 
 That derive can be used to implement the storage trait for the data structure 
 in two lines(more details about it later). 

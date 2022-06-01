@@ -3,7 +3,7 @@ sidebar_position: 5
 title: Reentrancy Guard
 ---
 
-This example shows how you can use the [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy_guard)
+This example shows how you can use the [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/security/reentrancy_guard)
 modifier to prevent reentrancy into certain functions. In this example we will create two contracts:
 
 - `my_flipper_guard` - this contract is the simple version of [flipper](https://github.com/paritytech/ink/tree/master/examples/flipper),
@@ -16,24 +16,24 @@ modifier to prevent reentrancy into certain functions. In this example we will c
 
 ### Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Reentrancy Guard via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Reentrancy Guard via `openbrush` features.
 
 ```toml
-brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["reentrancy_guard"] }
+openbrush = { version = "~1.8.0", default-features = false, features = ["reentrancy_guard"] }
 ```
 
 ### Step 2: Add imports
 
-To declare the contract, you need to use `brush::contract` macro instead of `ink::contract`. Import **everything**
-from `brush::contracts::reentrancy_guard`.
+To declare the contract, you need to use `openbrush::contract` macro instead of `ink::contract`. Import **everything**
+from `openbrush::contracts::reentrancy_guard`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_flipper_guard {
-  use brush::{
+  use openbrush::{
     contracts::reentrancy_guard::*,
     modifiers,
   };
@@ -77,7 +77,7 @@ impl MyFlipper {
     }
 
     #[ink(message)]
-    #[brush::modifiers(non_reentrant)]
+    #[openbrush::modifiers(non_reentrant)]
     pub fn flip(&mut self) {
         self.value = !self.value;
     }
@@ -174,12 +174,12 @@ To do a cross-contract call to `MyFlipper` you need to import the `MyFlipper` co
 
 ```toml
 [dependencies]
-ink_primitives = { version = "3.2.0", default-features = false }
-ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.2.0", default-features = false }
-ink_storage = { version = "3.2.0", default-features = false }
-ink_lang = { version = "3.2.0", default-features = false }
-ink_prelude = { version = "3.2.0", default-features = false }
+ink_primitives = { version = "~3.2.0", default-features = false }
+ink_metadata = { version = "~3.2.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.2.0", default-features = false }
+ink_storage = { version = "~3.2.0", default-features = false }
+ink_lang = { version = "~3.2.0", default-features = false }
+ink_prelude = { version = "~3.2.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
@@ -205,7 +205,7 @@ std = [
 ]
 ```
 
-You can check an example of the usage of [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/reentrancy_guard).
+You can check an example of the usage of [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/reentrancy_guard).
 
 ## Testing
 

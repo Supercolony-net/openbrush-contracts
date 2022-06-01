@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_burnable {
-    use brush::contracts::psp22::extensions::burnable::*;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp22::extensions::burnable::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP22Storage)]

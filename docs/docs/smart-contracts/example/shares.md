@@ -3,7 +3,7 @@ sidebar_position: 4
 title: Shares contract
 ---
 
-Similarly, we will implement another [PSP-22](/smart-contracts/PSP22/psp22) token 
+Similarly, we will implement another [PSP-22](/smart-contracts/PSP22) token 
 which will represent the ownership of assets available by the smart contract 
 to be lent. In this token, we will need [PSP-22 Metadata](/smart-contracts/PSP22/extensions/metadata) 
 and we will also need to mint and burn this token. We only want our contract(lending contract) to 
@@ -18,7 +18,7 @@ In the implementation of the contract, we will implement that trait to be sure t
 `SharesRef` can be used by other developers to do a cross contract call to `SharesContract`.
 
 ```rust
-use brush::contracts::traits::{
+use openbrush::contracts::traits::{
     ownable::*,
     psp22::{
         extensions::{
@@ -30,16 +30,16 @@ use brush::contracts::traits::{
     },
 };
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type SharesRef = dyn PSP22 + PSP22Mintable + PSP22Burnable + PSP22Metadata + Ownable;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Shares: PSP22 + PSP22Mintable + PSP22Burnable + PSP22Metadata + Ownable {}
 ```
 
 ## Add dependencies
 
-In addition to the dependencies imported in the [PSP-22](/smart-contracts/PSP22/psp22)
+In addition to the dependencies imported in the [PSP-22](/smart-contracts/PSP22)
 documentation, we will also add the `ownable` dependency the same way as in the
 [ownable](/smart-contracts/ownable) documentation. We will be using `SharesContract`
 as a dependency in our lending contract to instantiate it. So we need to also add
@@ -60,9 +60,9 @@ we also need these imports:
 /// This contract will be used to represent the shares of a user
 /// and other instance of this contract will be used to represent
 /// the amount of borrowed tokens
-#[brush::contract]
+#[openbrush::contract]
 pub mod shares {
-    use brush::contracts::{
+    use openbrush::contracts::{
         ownable::*,
         psp22::extensions::{
             burnable::*,
@@ -71,7 +71,7 @@ pub mod shares {
         },
     };
 
-    use brush::modifiers;
+    use openbrush::modifiers;
 
     use ink_lang::codegen::Env;
 

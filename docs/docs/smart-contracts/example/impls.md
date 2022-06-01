@@ -24,7 +24,7 @@ We plan that `LendingContract` also will implement `AccessControl` and `Pausable
 That wrapper describes all methods available in the `LendingContract`.
 
 ```rust
-use brush::{
+use openbrush::{
   contracts::traits::{
     access_control::*,
     pausable::*,
@@ -41,13 +41,13 @@ use brush::{
 };
 
 /// Combination of all traits of the contract to simplify calls to the contract
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingContractRef = dyn Lending + LendingPermissioned + AccessControl + Pausable;
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingRef = dyn Lending;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Lending {
   /// This function will return the total amount of assets available to borrow
   /// along with amount of the same asset borrowed
@@ -141,10 +141,10 @@ pub trait Lending {
   fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError>;
 }
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingPermissionedRef = dyn LendingPermissioned;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait LendingPermissioned {
   /// This function will allow an asset to be accepted by the contract
   /// It will also create the contracts for the shares token and lended reserves token
@@ -189,7 +189,7 @@ it will be enough for us. We will store prices info in our data struct.
 // importing everything publicly from traits allows you to import every stuff related to lending
 // by one import
 pub use crate::traits::lending::*;
-use brush::{
+use openbrush::{
     declare_storage_trait,
     traits::{
         AccountId,
@@ -312,7 +312,7 @@ Derive macro for `LendingStorage` is created by the [description](/smart-contrac
 
 The all methods in `LendingPermissioned` are restricted and requires `#[modifiers(only_role(MANAGER))]`.
 That means that only accounts with `MANAGER` role can execute these methods.
-Usage of `only_role` modifier from [access_control](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/access/access_control/mod.rs#L30)
+Usage of `only_role` modifier from [access_control](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/access/access_control/mod.rs#L30)
 requires that the contract should implement `AccessControlStorage`.
 For that we also require the same restriction on the generic type.
 
@@ -320,7 +320,7 @@ In the implementation of `LendingPermissioned`, we want to use methods from
 `Lending`. For that, the set of restrictions for generic in the `Lending` implementation
 should be a subset(<=) of restrictions for generic in the `LendingPermissioned` implementation.
 The `Lending` implementation requires `LendingStorage` and `PausableStorage` to use `when_paused` 
-modifier from [pausable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/security/pausable/mod.rs#L24).
+modifier from [pausable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/security/pausable/mod.rs#L24).
 So we should have the same restriction in our generic implementation.
 
 In the logic of the trait `LendingPermissioned` we need to instantiate 
@@ -354,7 +354,7 @@ by `LendingStorage`, `AccessControlStorage`, `PausableStorage`, `LendingPermissi
 That allows us to use methods from these traits and define the implementation.
 ```rust
 pub use super::data::*;
-use brush::{
+use openbrush::{
   contracts::{
     access_control::*,
     pausable::PausableStorage,
@@ -471,7 +471,7 @@ fn set_collateral_accepted<T: LendingStorage>(instance: &mut T, asset_address: A
 The same logic is used during definition of the implementation for `Lending` trait.
 
 The `PausableStorage` restriction is required to use `when_paused`, `when_not_paused` modifiers 
-from [pausable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/security/pausable/mod.rs#L24).
+from [pausable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/security/pausable/mod.rs#L24).
 
 ```rust
 // importing everything publicly from traits allows you to import every stuff related to lending
@@ -485,7 +485,7 @@ use crate::traits::{
     },
     shares::SharesRef,
 };
-use brush::{
+use openbrush::{
     contracts::{
         pausable::*,
         traits::{

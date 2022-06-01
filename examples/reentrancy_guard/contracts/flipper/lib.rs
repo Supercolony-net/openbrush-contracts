@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_flipper_guard {
     use flipper::traits::flipper::*;
     use ink_storage::traits::SpreadAllocate;
