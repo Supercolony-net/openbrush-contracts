@@ -3,28 +3,28 @@ sidebar_position: 4
 title: PSP22 Wrapper
 ---
 
-This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22) token with [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22/extensions/wrapper.rs) extension, which allows you to wrap your `PSP22` token in a `PSP22Wrapper` token which can be used for example for governance.
+This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22) token with [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22/extensions/wrapper.rs) extension, which allows you to wrap your `PSP22` token in a `PSP22Wrapper` token which can be used for example for governance.
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of PSP22 via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of PSP22 via `openbrush` features.
 
 ```toml
-brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22"] }
+openbrush = { version = "~1.8.0", default-features = false, features = ["psp22"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp22::extensions::wrapper`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::psp22::extensions::wrapper`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_wrapper {
-    use brush::contracts::psp22::extensions::wrapper::*;
+    use openbrush::contracts::psp22::extensions::wrapper::*;
     use ink_storage::traits::SpreadAllocate;
 ...
 ```
@@ -69,6 +69,6 @@ impl MyPSP22 {
 }
 ```
 
-You can check an example of the usage of [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/wrapper).
+You can check an example of the usage of [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/wrapper).
 
-You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22/psp22).
+You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

@@ -1,8 +1,7 @@
 [workspace]
 members = [
     "contracts",
-    "utils/brush_lang",
-    "utils/brush_derive",
+    "lang",
 ]
 
 exclude = [
@@ -12,18 +11,38 @@ exclude = [
 ]
 
 [package]
-name = "brush"
-version = "1.7.1"
+name = "openbrush"
+version = "1.8.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Supercolony-net/openbrush-contracts"
+documentation = "https://docs.openbrush.io"
+homepage = "https://supercolony.net"
+description = "OpenBrush library for smart contract development on ink!."
+keywords = ["wasm", "supercolony", "smart-contracts", "blockchain", "ink"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs"]
+
 [dependencies]
-contracts = { path = "./contracts", default-features = false }
-brush_lang = { path = "./utils/brush_lang", default-features = false }
+ink_primitives = { version = "~3.2.0", default-features = false }
+ink_metadata = { version = "~3.2.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.2.0", default-features = false }
+ink_storage = { version = "~3.2.0", default-features = false }
+ink_lang = { version = "~3.2.0", default-features = false }
+ink_prelude = { version = "~3.2.0", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+
+openbrush_contracts = { version = "~1.8.0", path = "contracts", default-features = false }
+openbrush_lang = { version = "~1.8.0", path = "lang", default-features = false }
 
 [lib]
-name = "brush"
-path = "lib.rs"
+name = "openbrush"
+path = "src/lib.rs"
 crate-type = [
     "rlib",
 ]
@@ -31,8 +50,15 @@ crate-type = [
 [features]
 default = ["std"]
 std = [
-    "contracts/std",
-    "brush_lang/std",
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info/std",
+
+    "openbrush_contracts/std",
+    "openbrush_lang/std",
 ]
 psp22 = ["contracts/psp22"]
 psp34 = ["contracts/psp34"]

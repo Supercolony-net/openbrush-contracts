@@ -1,10 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod diamond {
-    use brush::contracts::diamond::extensions::diamond_loupe::*;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::diamond::extensions::diamond_loupe::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage)]

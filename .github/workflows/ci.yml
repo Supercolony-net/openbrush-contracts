@@ -47,7 +47,8 @@ jobs:
           yarn build:release
       - name: Run Test Mocha
         run: |
-          substrate-contracts-node --tmp --dev -lerror,runtime::contracts=debug,info,error,warning & P1=$!
-          yarn test:mocha & P2=$!
-          wait $P2
-          kill $P1
+          for test in tests/**/*.ts; do
+            substrate-contracts-node --tmp --dev & P1=$!;
+            yarn test:mocha-single ./$test;
+            kill $P1;
+          done

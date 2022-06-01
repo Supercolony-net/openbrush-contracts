@@ -12,18 +12,18 @@ So you should use the same version of the ink! across your project.
 ```toml
 [dependencies]
 # Import of all ink! crates
-ink_primitives = { version = "3.2.0", default-features = false }
-ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.2.0", default-features = false }
-ink_storage = { version = "3.2.0", default-features = false }
-ink_lang = { version = "3.2.0", default-features = false }
-ink_prelude = { version = "3.2.0", default-features = false }
+ink_primitives = { version = "~3.2.0", default-features = false }
+ink_metadata = { version = "~3.2.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.2.0", default-features = false }
+ink_storage = { version = "~3.2.0", default-features = false }
+ink_lang = { version = "~3.2.0", default-features = false }
+ink_prelude = { version = "~3.2.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false }
+openbrush = { version = "~1.8.0", default-features = false }
 
 [features]
 default = ["std"]
@@ -39,15 +39,15 @@ std = [
   "scale-info/std",
 
   # Brush dependency
-  "brush/std",
+  "openbrush/std",
 ]
 ink-as-dependency = []
 ```
 
 To avoid unexpected compilation errors better to always import all ink! crates.
 
-By default, the `brush` crate provides [macros](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_lang/proc_macros/lib.rs)
-for simplification of the development and [traits](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/traits) of 
+By default, the `openbrush` crate provides [macros](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/macro/lib.rs)
+for simplification of the development and [traits](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/traits) of 
 contracts(you can implement them by yourself, and you can use them for a cross-contract calls). 
 
 The OpenBrush also provides the default implementation of traits that can be enabled via crate features. 
@@ -64,7 +64,7 @@ You can enable it by adding `#![feature(min_specialization)]` at the top of your
 Also, that doc contains links to the examples of how to reuse and customize the default implementation of traits.
 
 * [PSP22](PSP22/psp22.md) is an example of how you can reuse the implementation of
-  [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp22). You also can find examples of how to reuse extensions.
+  [psp22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22). You also can find examples of how to reuse extensions.
   * [PSP22Metadata](PSP22/Extensions/metadata.md): metadata for PSP22.
   * [PSP22Mintable](PSP22/Extensions/mintable.md): creation of new tokens.
   * [PSP22Burnable](PSP22/Extensions/burnable.md): destruction of own tokens.
@@ -74,7 +74,7 @@ Also, that doc contains links to the examples of how to reuse and customize the 
   * [PSP22Capped](PSP22/Extensions/capped.md): extension which adds a cap for total supply of PSP22 tokens.
   * [PSP22TokenTimelock](PSP22/Utils/token-timelock.md): Utility which allows token holders to lock their tokens for a specified amount of time.
 * [PSP34](PSP34/psp34.md) is an example of how you can reuse the implementation of
-  [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp34). You also can find examples of how to reuse extensions.
+  [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp34). You also can find examples of how to reuse extensions.
   * [PSP34Metadata](PSP34/Extensions/metadata.md): metadata for PSP34.
   * [PSP34Mintable](PSP34/Extensions/mintable.md): creation of new tokens.
   * [PSP34Burnable](PSP34/Extensions/burnable.md): destruction of own tokens.
@@ -85,20 +85,20 @@ Also, that doc contains links to the examples of how to reuse and customize the 
   * [PSP35Burnable](PSP35/Extensions/burnable.md): destruction of own tokens.
   * [PSP35Batch](PSP35/Extensions/batch.md): batch transferring of tokens
 * [Access Control](access-control.md) shows how you can use the implementation of
-  [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access_control) and
-  [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp34) together to provide rights to mint and burn NFT tokens.
+  [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/access/access_control) and
+  [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp34) together to provide rights to mint and burn NFT tokens.
 * [Ownable](ownable.md) shows how you can use the implementation of
   [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
   [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) together to provide rights to mint and burn tokens.
 * [ReentrancyGuard](reentrancy-guard.md) shows how you can use the implementation of
-  [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/reentrancy_guard)
+  [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/security/reentrancy_guard)
   modifier to prevent reentrancy during certain functions.
 * [Pausable](pausable.md) shows how you can use the implementation of
-  [pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/security/pausable)
+  [pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/security/pausable)
   contract and modifiers.
 * [TimelockController](timelock-controller.md) shows how you can use the implementation of
-  [timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock_controller)
+  [timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/governance/timelock_controller)
   to execute a transaction with some delay via governance.
 * [PaymentSplitter](payment-splitter.md) shows how you can use the implementation of
-  [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/finance/payment_splitter)
+  [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/finance/payment_splitter)
   to split received native tokens between participants of the contract.

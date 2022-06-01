@@ -2,18 +2,18 @@
 #![feature(min_specialization)]
 
 /// This contract will represent the loan of a user
-#[brush::contract]
+#[openbrush::contract]
 pub mod loan {
-    use brush::contracts::{
-        ownable::*,
-        psp34::extensions::metadata::*,
-    };
     use ink_storage::{
         traits::SpreadAllocate,
         Mapping,
     };
+    use openbrush::contracts::{
+        ownable::*,
+        psp34::extensions::metadata::*,
+    };
 
-    use brush::modifiers;
+    use openbrush::modifiers;
 
     use ink_prelude::{
         string::String,

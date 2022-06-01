@@ -9,7 +9,8 @@ use crate::traits::{
     },
     shares::SharesRef,
 };
-use brush::{
+use ink_prelude::vec::Vec;
+use openbrush::{
     contracts::{
         pausable::*,
         traits::{
@@ -26,7 +27,6 @@ use brush::{
         ZERO_ADDRESS,
     },
 };
-use ink_prelude::vec::Vec;
 
 pub const YEAR: Timestamp = 60 * 60 * 24 * 365;
 

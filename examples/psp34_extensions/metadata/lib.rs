@@ -1,9 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp34_metadata {
-    use brush::contracts::psp34::extensions::metadata::*;
+    use openbrush::contracts::psp34::extensions::metadata::*;
     use ink_prelude::{
         string::String,
         vec::Vec,

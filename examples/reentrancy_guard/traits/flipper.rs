@@ -1,5 +1,5 @@
-pub use brush::contracts::reentrancy_guard::*;
-use brush::{
+pub use openbrush::contracts::reentrancy_guard::*;
+use openbrush::{
     modifiers,
     traits::AccountId,
 };
@@ -9,10 +9,10 @@ pub trait FlipperStorage {
     fn value_mut(&mut self) -> &mut bool;
 }
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type FlipperRef = dyn Flipper;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Flipper: FlipperStorage + ReentrancyGuardStorage {
     #[ink(message)]
     fn get_value(&self) -> bool {
@@ -20,7 +20,7 @@ pub trait Flipper: FlipperStorage + ReentrancyGuardStorage {
     }
 
     #[ink(message)]
-    #[brush::modifiers(non_reentrant)]
+    #[openbrush::modifiers(non_reentrant)]
     fn flip(&mut self) -> Result<(), ReentrancyGuardError> {
         *self.value_mut() = !self.value().clone();
         Ok(())

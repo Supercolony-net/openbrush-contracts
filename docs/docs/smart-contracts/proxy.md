@@ -3,28 +3,28 @@ sidebar_position: 3
 title: Proxy
 ---
 
-This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/upgradability/proxy) to to implement proxy pattern for upgradeable contracts.
+This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/upgradability/proxy) to to implement proxy pattern for upgradeable contracts.
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Proxy via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Proxy via `openbrush` features.
 
 ```toml
-brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["proxy"] }
+openbrush = { version = "~1.8.0", default-features = false, features = ["proxy"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::ownable` and `brush::contracts::proxy`
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::ownable` and `openbrush::contracts::proxy`
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_proxy {
-    use brush::{
+    use openbrush::{
         contracts::{
             ownable::*,
             proxy::*,
@@ -102,4 +102,4 @@ impl ProxyContract {
 Generally, proxy doesn't need other functionality, but if you need something you can customize it by adding proxy logic. We will add a `proxy_function` to `ProxyContract` implemenation.
 
 
-You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/proxy).
+You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/proxy).

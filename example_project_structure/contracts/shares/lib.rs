@@ -4,9 +4,12 @@
 /// This contract will be used to represent the shares of a user
 /// and other instance of this contract will be used to represent
 /// the amount of borrowed tokens
-#[brush::contract]
+#[openbrush::contract]
 pub mod shares {
-    use brush::{
+    use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
+    use lending_project::traits::shares::*;
+    use openbrush::{
         contracts::{
             ownable::*,
             psp22::extensions::{
@@ -17,9 +20,6 @@ pub mod shares {
         },
         modifiers,
     };
-    use ink_prelude::string::String;
-    use ink_storage::traits::SpreadAllocate;
-    use lending_project::traits::shares::*;
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data
     #[ink(storage)]

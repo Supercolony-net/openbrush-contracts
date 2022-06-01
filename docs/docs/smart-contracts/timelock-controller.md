@@ -4,28 +4,28 @@ title: Timelock Controller
 ---
 
 This example shows how you can reuse the implementation of
-[timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/governance/timelock_controller).
+[timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/governance/timelock_controller).
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Timelock Controller via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Timelock Controller via `openbrush` features.
 
 ```toml
-brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["timelock_controller"] }
+openbrush = { version = "~1.8.0", default-features = false, features = ["timelock_controller"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp22::utils::token_timelock`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::psp22::utils::token_timelock`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_token_timelock {
-    use brush::contracts::psp22::utils::token_timelock::*;
+    use openbrush::contracts::psp22::utils::token_timelock::*;
     use ink_storage::traits::SpreadAllocate;
 ```
 
@@ -75,4 +75,4 @@ impl TimelockStruct {
 }
 ```
 
-You can check an example of the usage of [TimelockController](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/timelock_controller).
+You can check an example of the usage of [TimelockController](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/timelock_controller).

@@ -3,28 +3,28 @@ sidebar_position: 2
 title: Access Control
 ---
 
-This example shows how you can use the implementation of [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/access_control) to provide rights for usage of specific smart contract functions.
+This example shows how you can use the implementation of [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/access/access_control) to provide rights for usage of specific smart contract functions.
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Access Control via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Access Control via `openbrush` features.
 
 ```toml
-brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["access_control"] }
+openbrush = { version = "~1.8.0", default-features = false, features = ["access_control"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::access_control`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::access_control`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_access_control {
-    use brush::{
+    use openbrush::{
         contracts::access_control::*,
         modifiers,
     };
@@ -75,9 +75,9 @@ Customize it by adding access control logic. We will add a `restricted_function`
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_access_control {
-    use brush::{
+    use openbrush::{
         contracts::access_control::*,
         modifiers,
     };
@@ -118,4 +118,4 @@ pub mod my_access_control {
 }
 ```
 
-You can check an example of the usage of [Access Control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/access_control).
+You can check an example of the usage of [Access Control](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/access_control).

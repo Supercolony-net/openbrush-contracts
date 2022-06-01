@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod flip_on_me {
     use flipper::traits::flip_on_me::*;
     use ink_storage::traits::SpreadAllocate;

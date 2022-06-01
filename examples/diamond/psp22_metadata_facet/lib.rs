@@ -1,16 +1,16 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_metadata_facet {
-    use brush::{
+    use ink_prelude::string::String;
+    use openbrush::{
         contracts::{
             ownable::*,
             psp22::extensions::metadata::*,
         },
         modifiers,
     };
-    use ink_prelude::string::String;
 
     use ink_storage::traits::SpreadAllocate;
 

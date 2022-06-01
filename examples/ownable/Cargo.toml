@@ -1,16 +1,16 @@
 [package]
 name = "my_ownable"
-version = "1.7.1"
+version = "1.8.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { version = "3.2.0", default-features = false }
-ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.2.0", default-features = false }
-ink_storage = { version = "3.2.0", default-features = false }
-ink_lang = { version = "3.2.0", default-features = false }
-ink_prelude = { version = "3.2.0", default-features = false }
+ink_primitives = { version = "~3.2.0", default-features = false }
+ink_metadata = { version = "~3.2.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.2.0", default-features = false }
+ink_storage = { version = "~3.2.0", default-features = false }
+ink_lang = { version = "~3.2.0", default-features = false }
+ink_prelude = { version = "~3.2.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
@@ -39,7 +39,7 @@ std = [
     "scale-info/std",
 
     # These dependencies
-    "brush/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []
 

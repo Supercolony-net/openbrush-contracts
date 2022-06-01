@@ -1,14 +1,14 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp34_enumerable {
-    use brush::contracts::psp34::extensions::{
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp34::extensions::{
         burnable::*,
         enumerable::*,
         mintable::*,
     };
-    use ink_storage::traits::SpreadAllocate;
 
     #[derive(Default, SpreadAllocate, PSP34Storage, PSP34EnumerableStorage)]
     #[ink(storage)]
@@ -26,8 +26,6 @@ pub mod my_psp34_enumerable {
     impl PSP34Burnable for MyPSP34 {}
 
     impl PSP34Enumerable for MyPSP34 {}
-
-    
 
     impl MyPSP34 {
         #[ink(constructor)]

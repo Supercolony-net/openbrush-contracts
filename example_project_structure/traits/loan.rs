@@ -1,4 +1,8 @@
-use brush::{
+use ink_storage::traits::{
+    PackedLayout,
+    SpreadLayout,
+};
+use openbrush::{
     contracts::traits::{
         ownable::*,
         psp34::{
@@ -11,10 +15,6 @@ use brush::{
         Balance,
         Timestamp,
     },
-};
-use ink_storage::traits::{
-    PackedLayout,
-    SpreadLayout,
 };
 
 #[cfg(feature = "std")]
@@ -33,10 +33,10 @@ pub struct LoanInfo {
     pub liquidated: bool,
 }
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LoanRef = dyn Loan + PSP34 + PSP34Metadata + Ownable;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Loan: PSP34 + PSP34Metadata + Ownable {
     /// This function initalizes data of a loan and mint token inside it
     #[ink(message)]

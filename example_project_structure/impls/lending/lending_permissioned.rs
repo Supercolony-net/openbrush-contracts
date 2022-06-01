@@ -1,5 +1,5 @@
 pub use super::data::*;
-use brush::{
+use openbrush::{
     contracts::{
         access_control::*,
         pausable::PausableStorage,

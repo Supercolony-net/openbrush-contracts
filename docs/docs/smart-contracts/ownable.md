@@ -3,28 +3,28 @@ sidebar_position: 3
 title: Ownable
 ---
 
-This example shows how you can use the implementation of [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) to provide `only owner` rights for contract's functions.
+This example shows how you can use the implementation of [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/access/ownable) to provide `only owner` rights for contract's functions.
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Ownable via `brush` features.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of Ownable via `openbrush` features.
 
 ```toml
-brush = { tag = "v1.7.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ownable"] }
+openbrush = { version = "~1.8.0", default-features = false, features = ["ownable"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::ownable`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::ownable`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_ownable {
-    use brush::{
+    use openbrush::{
         contracts::ownable::*,
         modifiers,
     };
@@ -77,9 +77,9 @@ Customize it by adding ownable logic. We will add a `owner_function` to `MyOwnab
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_ownable {
-    use brush::{
+    use openbrush::{
         contracts::ownable::*,
         modifiers,
     };
@@ -115,4 +115,4 @@ pub mod my_ownable {
 
 ```
 
-You can check an example of the usage of [Ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/ownable).
+You can check an example of the usage of [Ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/ownable).
