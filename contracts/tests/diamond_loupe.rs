@@ -175,7 +175,7 @@ mod diamond {
 
     #[ink::test]
     fn facets_add_selectors_works() {
-        //arrange
+        // arrange
         let accounts = setup();
         let mut diamond = DiamondContract::new(accounts.alice);
 
@@ -187,26 +187,26 @@ mod diamond {
             diamond.diamond_cut(vec![facet_cut.clone()], Option::None),
             Result::Ok(())
         );
-        facet_cut.selectors.push([2u8;4]);
-        //act
+        facet_cut.selectors.push([2u8; 4]);
+        // act
         assert_eq!(
             diamond.diamond_cut(vec![facet_cut.clone()], Option::None),
             Result::Ok(())
         );
-        //assert
+        // assert
         assert_eq!(diamond.facets()[0].selectors.len(), 2);
         assert_eq!(diamond.facets(), vec![facet_cut.clone()]);
     }
 
     #[ink::test]
     fn facets_remove_selectors_works() {
-        //arrange
+        // arrange
         let accounts = setup();
         let mut diamond = DiamondContract::new(accounts.alice);
 
         let mut facet_cut = FacetCut {
             hash: [1u8; 32].into(),
-            selectors: vec![[1u8; 4], [2u8;4], [3u8; 4]],
+            selectors: vec![[1u8; 4], [2u8; 4], [3u8; 4]],
         };
         assert_eq!(
             diamond.diamond_cut(vec![facet_cut.clone()], Option::None),
@@ -219,37 +219,37 @@ mod diamond {
             diamond.diamond_cut(vec![facet_cut.clone()], Option::None),
             Result::Ok(())
         );
-        //assert
+        // assert
         assert_eq!(diamond.facets()[0].selectors.len(), 2);
         assert_eq!(diamond.facets(), vec![facet_cut.clone()]);
     }
 
     #[ink::test]
     fn facets_edit_selectors_works() {
-        //arrange
+        // arrange
         let accounts = setup();
         let mut diamond = DiamondContract::new(accounts.alice);
 
         let mut facet_cut = FacetCut {
             hash: [1u8; 32].into(),
-            selectors: vec![[1u8; 4], [2u8;4], [3u8; 4]],
+            selectors: vec![[1u8; 4], [2u8; 4], [3u8; 4]],
         };
-        
+
         assert_eq!(
             diamond.diamond_cut(vec![facet_cut.clone()], Option::None),
             Result::Ok(())
         );
         assert_eq!(diamond.facets()[0].selectors.len(), 3);
         // act
-        facet_cut.selectors[2] = [4u8;4];
+        facet_cut.selectors[2] = [4u8; 4];
         assert_eq!(
             diamond.diamond_cut(vec![facet_cut.clone()], Option::None),
             Result::Ok(())
         );
-        //assert
+        // assert
         assert_eq!(diamond.facets()[0].selectors.len(), 3);
         assert_eq!(diamond.facets(), vec![facet_cut.clone()]);
-        assert_eq!(diamond.facets()[0].selectors[2], [4u8;4]);
+        assert_eq!(diamond.facets()[0].selectors[2], [4u8; 4]);
     }
 
     #[ink::test]
@@ -267,16 +267,13 @@ mod diamond {
             Result::Ok(())
         );
         assert_eq!(diamond.facets().len(), 1);
-        //act
+        // act
         let facet_cut_new = FacetCut {
             hash: [2u8; 32].into(),
             selectors: vec![[2u8; 4]],
         };
         let v = vec![facet_cut, facet_cut_new];
-        assert_eq!(
-            diamond.diamond_cut(v.clone(), Option::None),
-            Result::Ok(())
-        );
+        assert_eq!(diamond.diamond_cut(v.clone(), Option::None), Result::Ok(()));
         // assert
         assert_eq!(diamond.facets().len(), 2);
         assert_eq!(diamond.facets(), v);
@@ -284,7 +281,7 @@ mod diamond {
 
     #[ink::test]
     fn facets_add_facetcut_should_fail_replace_existing() {
-        //arrange
+        // arrange
         let accounts = setup();
         let mut diamond = DiamondContract::new(accounts.alice);
 
@@ -303,13 +300,10 @@ mod diamond {
             selectors: vec![[1u8; 4]],
         };
         let v = vec![facet_cut.clone(), facet_cut_new];
-        //act
+        // act
         let result = diamond.diamond_cut(v.clone(), Option::None);
         // assert
-        assert_eq!(
-            result,
-            Err(DiamondError::ReplaceExisting([1u8; 32].into()))
-        );
+        assert_eq!(result, Err(DiamondError::ReplaceExisting([1u8; 32].into())));
         assert_eq!(diamond.facets().len(), 1);
         assert_eq!(diamond.facets(), vec![facet_cut]);
     }
@@ -329,18 +323,12 @@ mod diamond {
         };
         let mut v = vec![facet_cut.clone(), facet_cut_new.clone()];
         assert_eq!(diamond.facets().len(), 0);
-        assert_eq!(
-            diamond.diamond_cut(v.clone(), Option::None),
-            Result::Ok(())
-        );
+        assert_eq!(diamond.diamond_cut(v.clone(), Option::None), Result::Ok(()));
         assert_eq!(diamond.facets().len(), 2);
         facet_cut_new.selectors = vec![[5u8; 4], [6u8; 4]];
         v[1] = facet_cut_new;
-        //act
-        assert_eq!(
-            diamond.diamond_cut(v.clone(), Option::None),
-            Result::Ok(())
-        );
+        // act
+        assert_eq!(diamond.diamond_cut(v.clone(), Option::None), Result::Ok(()));
         // assert
         assert_eq!(diamond.facets().len(), 2);
         assert_eq!(diamond.facets(), v);
@@ -361,21 +349,13 @@ mod diamond {
         };
         let mut v = vec![facet_cut.clone(), facet_cut_new];
         assert_eq!(diamond.facets().len(), 0);
-        assert_eq!(
-            diamond.diamond_cut(v.clone(), Option::None),
-            Result::Ok(())
-        );
+        assert_eq!(diamond.diamond_cut(v.clone(), Option::None), Result::Ok(()));
         assert_eq!(diamond.facets().len(), 2);
-        //act
+        // act
         v[1].selectors = vec![];
-        assert_eq!(
-            diamond.diamond_cut(v, Option::None),
-            Result::Ok(())
-        );
+        assert_eq!(diamond.diamond_cut(v, Option::None), Result::Ok(()));
         // assert
         assert_eq!(diamond.facets().len(), 1);
         assert_eq!(diamond.facets(), vec![facet_cut]);
     }
-
-    
 }
