@@ -314,5 +314,68 @@ mod diamond {
         assert_eq!(diamond.facets(), vec![facet_cut]);
     }
 
+    #[ink::test]
+    fn facets_edit_facetcut_works() {
+        let accounts = setup();
+        let mut diamond = DiamondContract::new(accounts.alice);
+
+        let facet_cut = FacetCut {
+            hash: [1u8; 32].into(),
+            selectors: vec![[1u8; 4]],
+        };
+        let mut facet_cut_new = FacetCut {
+            hash: [2u8; 32].into(),
+            selectors: vec![[2u8; 4]],
+        };
+        let mut v = vec![facet_cut.clone(), facet_cut_new.clone()];
+        assert_eq!(diamond.facets().len(), 0);
+        assert_eq!(
+            diamond.diamond_cut(v.clone(), Option::None),
+            Result::Ok(())
+        );
+        assert_eq!(diamond.facets().len(), 2);
+        facet_cut_new.selectors = vec![[5u8; 4], [6u8; 4]];
+        v[1] = facet_cut_new;
+        //act
+        assert_eq!(
+            diamond.diamond_cut(v.clone(), Option::None),
+            Result::Ok(())
+        );
+        // assert
+        assert_eq!(diamond.facets().len(), 2);
+        assert_eq!(diamond.facets(), v);
+    }
+
+    #[ink::test]
+    fn facets_remove_facetcut_works() {
+        let accounts = setup();
+        let mut diamond = DiamondContract::new(accounts.alice);
+
+        let facet_cut = FacetCut {
+            hash: [1u8; 32].into(),
+            selectors: vec![[1u8; 4]],
+        };
+        let facet_cut_new = FacetCut {
+            hash: [2u8; 32].into(),
+            selectors: vec![[2u8; 4]],
+        };
+        let mut v = vec![facet_cut.clone(), facet_cut_new];
+        assert_eq!(diamond.facets().len(), 0);
+        assert_eq!(
+            diamond.diamond_cut(v.clone(), Option::None),
+            Result::Ok(())
+        );
+        assert_eq!(diamond.facets().len(), 2);
+        //act
+        v[1].selectors = vec![];
+        assert_eq!(
+            diamond.diamond_cut(v, Option::None),
+            Result::Ok(())
+        );
+        // assert
+        assert_eq!(diamond.facets().len(), 1);
+        assert_eq!(diamond.facets(), vec![facet_cut]);
+    }
+
     
 }
