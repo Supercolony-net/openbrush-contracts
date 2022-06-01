@@ -23,7 +23,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-openbrush = { version = "~1.8.0", default-features = false }
+openbrush = { version = "~2.0.0", default-features = false }
 
 [features]
 default = ["std"]

@@ -20,7 +20,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of Reentrancy Guard via `openbrush` features.
 
 ```toml
-openbrush = { version = "~1.8.0", default-features = false, features = ["reentrancy_guard"] }
+openbrush = { version = "~2.0.0", default-features = false, features = ["reentrancy_guard"] }
 ```
 
 ### Step 2: Add imports

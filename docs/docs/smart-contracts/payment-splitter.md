@@ -12,7 +12,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of Payment Splitter via `openbrush` features.
 
 ```toml
-openbrush = { version = "~1.8.0", default-features = false, features = ["payment_splitter"] }
+openbrush = { version = "~2.0.0", default-features = false, features = ["payment_splitter"] }
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
