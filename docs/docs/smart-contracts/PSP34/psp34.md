@@ -93,7 +93,7 @@ impl MyPSP34 {
 }
 ```
 
-You can check an example of the usage of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp34).
+You can check an example of the usage of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp34).
 Also you can use extensions for psp34 token:
 
 [PSP34Metadata](/smart-contracts/PSP34/extensions/metadata): metadata for PSP34.

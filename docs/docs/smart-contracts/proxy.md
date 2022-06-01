@@ -102,4 +102,4 @@ impl ProxyContract {
 Generally, proxy doesn't need other functionality, but if you need something you can customize it by adding proxy logic. We will add a `proxy_function` to `ProxyContract` implemenation.
 
 
-You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/proxy).
+You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/proxy).

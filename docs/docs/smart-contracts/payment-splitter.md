@@ -72,7 +72,7 @@ impl SplitterStruct {
 }
 ```
 
-You can check an example of the usage of [PaymentSplitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/payment_splitter).
+You can check an example of the usage of [PaymentSplitter](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/payment_splitter).
 
 ## Step 6 (Optional): Customize your contract
 

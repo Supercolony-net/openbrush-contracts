@@ -115,4 +115,4 @@ pub mod my_ownable {
 
 ```
 
-You can check an example of the usage of [Ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/ownable).
+You can check an example of the usage of [Ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/ownable).

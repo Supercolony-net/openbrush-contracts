@@ -65,6 +65,6 @@ impl MyPSP22TokenTimelock {
 }
 ```
 
-You can check an example of the usage of [PSP22 Token Timelock](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_utils/token_timelock).
+You can check an example of the usage of [PSP22 Token Timelock](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_utils/token_timelock).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

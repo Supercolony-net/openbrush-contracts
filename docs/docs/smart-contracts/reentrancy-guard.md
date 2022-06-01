@@ -205,7 +205,7 @@ std = [
 ]
 ```
 
-You can check an example of the usage of [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/reentrancy_guard).
+You can check an example of the usage of [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/reentrancy_guard).
 
 ## Testing
 

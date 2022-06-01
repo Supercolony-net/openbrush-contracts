@@ -69,6 +69,6 @@ impl MyPSP22 {
 }
 ```
 
-You can check an example of the usage of [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/wrapper).
+You can check an example of the usage of [PSP22 Wrapper](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/wrapper).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

@@ -67,6 +67,6 @@ impl MyPSP22 {
 }
 ```
 
-You can check an example of the usage of [PSP22 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/metadata).
+You can check an example of the usage of [PSP22 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

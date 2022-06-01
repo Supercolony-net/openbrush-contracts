@@ -16,6 +16,6 @@ impl PSP34Mintable for MyPSP34 {}
 ```
 
 And that's it! Your `PSP34` is now extended by the `PSP34Mintable` extension and ready to use its functions!
-You can check an example of the usage of [PSP34 Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp34_extensions/mintable).
+You can check an example of the usage of [PSP34 Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp34_extensions/mintable).
 
 You can also check the documentation for the basic implementation of [PSP34](/smart-contracts/PSP34).
