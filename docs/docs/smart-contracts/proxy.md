@@ -3,7 +3,7 @@ sidebar_position: 3
 title: Proxy
 ---
 
-This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/upgradability/proxy) to to implement proxy pattern for upgradeable contracts.
+This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/proxy) to to implement proxy pattern for upgradeable contracts.
 
 ## Step 1: Include dependencies
 
@@ -11,7 +11,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of Proxy via `openbrush` features.
 
 ```toml
-openbrush = { version = "~1.8.0", default-features = false, features = ["proxy"] }
+openbrush = { version = "~2.0.0", default-features = false, features = ["proxy"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -102,4 +102,4 @@ impl ProxyContract {
 Generally, proxy doesn't need other functionality, but if you need something you can customize it by adding proxy logic. We will add a `proxy_function` to `ProxyContract` implemenation.
 
 
-You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/proxy).
+You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/proxy).

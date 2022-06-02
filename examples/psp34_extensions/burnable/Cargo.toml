@@ -1,6 +1,6 @@
 [package]
 name = "my_psp34_burnable"
-version = "1.8.0"
+version = "2.0.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 

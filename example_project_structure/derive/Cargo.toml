@@ -1,6 +1,6 @@
 [package]
 name = "lending_project_derive"
-version = "1.8.0"
+version = "2.0.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
@@ -10,7 +10,7 @@ quote = "1.0"
 proc-macro2 = "1"
 
 # In you code you can import `openbrush_derive` with the next line
-#openbrush = { version = "~1.8.0", default-features = false }
+#openbrush = { version = "~2.0.0", default-features = false }
 
 openbrush = { package = "openbrush_lang", path = "../../lang" }
 

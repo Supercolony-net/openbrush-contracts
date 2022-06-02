@@ -1,11 +1,11 @@
-cargo publish --package openbrush_lang_codegen --keep-going
+cargo publish --manifest-path lang/codegen/Cargo.toml --keep-going
 sleep 5
-cargo publish --package openbrush_lang_macro --keep-going
+cargo publish --manifest-path lang/macro/Cargo.toml --keep-going
 sleep 5
-cargo publish --package openbrush_lang --keep-going
+cargo publish --manifest-path lang/Cargo.toml --keep-going
 sleep 5
-cargo publish --package openbrush_contracts_derive --keep-going
+cargo publish --manifest-path contracts/derive/Cargo.toml --keep-going
 sleep 5
-cargo publish --package openbrush_contracts --keep-going
+cargo publish --manifest-path contracts/Cargo.toml --keep-going
 sleep 5
-cargo publish --package openbrush --keep-going
+cargo publish --manifest-path Cargo.toml --keep-going

@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP1155 Metadata
 ---
 
-This example shows how you can reuse the implementation of [PSP1155](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp1155) token with [PSP1155Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp1155/src/extensions/metadata.rs) extension.
+This example shows how you can reuse the implementation of [PSP1155](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp1155) token with [PSP1155Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp1155/src/extensions/metadata.rs) extension.
 
 ## Step 1: Add imports and enable unstable feature
 
@@ -61,6 +61,6 @@ impl MyPSP1155 {
     }
 }
 ```
-You can check an example of the usage of [PSP1155 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp1155_extensions/metadata).
+You can check an example of the usage of [PSP1155 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp1155_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP1155](/smart-contracts/PSP1155).

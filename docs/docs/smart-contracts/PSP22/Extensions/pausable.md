@@ -3,7 +3,7 @@ sidebar_position: 6
 title: PSP22 Pausable
 ---
 
-This example shows how you can implement a [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp22) contract with a [Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/security/pausable) extension. See an example of [PSP22Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/pausable) implementation.
+This example shows how you can implement a [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22) contract with a [Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/security/pausable) extension. See an example of [PSP22Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/pausable) implementation.
 
 ## Step 1: Include dependencies
 
@@ -11,7 +11,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of PSP22 and Pausable via `openbrush` features.
 
 ```toml
-openbrush = { version = "~1.8.0", default-features = false, features = ["psp22", "pausable"] }
+openbrush = { version = "~2.0.0", default-features = false, features = ["psp22", "pausable"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -98,6 +98,6 @@ impl MyPSP22Pausable {
 }
 ```
 
-You can check an implementation example of [PSP22 Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/pausable).
+You can check an implementation example of [PSP22 Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/pausable).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

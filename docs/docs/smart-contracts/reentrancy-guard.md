@@ -3,7 +3,7 @@ sidebar_position: 5
 title: Reentrancy Guard
 ---
 
-This example shows how you can use the [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/security/reentrancy_guard)
+This example shows how you can use the [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/security/reentrancy_guard)
 modifier to prevent reentrancy into certain functions. In this example we will create two contracts:
 
 - `my_flipper_guard` - this contract is the simple version of [flipper](https://github.com/paritytech/ink/tree/master/examples/flipper),
@@ -20,7 +20,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of Reentrancy Guard via `openbrush` features.
 
 ```toml
-openbrush = { version = "~1.8.0", default-features = false, features = ["reentrancy_guard"] }
+openbrush = { version = "~2.0.0", default-features = false, features = ["reentrancy_guard"] }
 ```
 
 ### Step 2: Add imports
@@ -205,7 +205,7 @@ std = [
 ]
 ```
 
-You can check an example of the usage of [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/reentrancy_guard).
+You can check an example of the usage of [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/reentrancy_guard).
 
 ## Testing
 

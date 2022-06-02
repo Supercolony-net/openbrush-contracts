@@ -4,7 +4,7 @@ title: Timelock Controller
 ---
 
 This example shows how you can reuse the implementation of
-[timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/governance/timelock_controller).
+[timelock-controller](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/governance/timelock_controller).
 
 ## Step 1: Include dependencies
 
@@ -12,7 +12,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of Timelock Controller via `openbrush` features.
 
 ```toml
-openbrush = { version = "~1.8.0", default-features = false, features = ["timelock_controller"] }
+openbrush = { version = "~2.0.0", default-features = false, features = ["timelock_controller"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -75,4 +75,4 @@ impl TimelockStruct {
 }
 ```
 
-You can check an example of the usage of [TimelockController](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/timelock_controller).
+You can check an example of the usage of [TimelockController](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/timelock_controller).

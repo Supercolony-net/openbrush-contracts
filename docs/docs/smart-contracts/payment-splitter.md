@@ -4,7 +4,7 @@ title: Payment Splitter
 ---
 
 This example shows how you can reuse the implementation of
-[payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/finance/payment_splitter).
+[payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/finance/payment_splitter).
 
 ## Step 1: Include dependencies
 
@@ -12,7 +12,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of Payment Splitter via `openbrush` features.
 
 ```toml
-openbrush = { version = "~1.8.0", default-features = false, features = ["payment_splitter"] }
+openbrush = { version = "~2.0.0", default-features = false, features = ["payment_splitter"] }
 
 # payment-splitter uses dividing inside, so your version of rust can require you to disable check overflow.
 [profile.dev]
@@ -72,7 +72,7 @@ impl SplitterStruct {
 }
 ```
 
-You can check an example of the usage of [PaymentSplitter](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/payment_splitter).
+You can check an example of the usage of [PaymentSplitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/payment_splitter).
 
 ## Step 6 (Optional): Customize your contract
 

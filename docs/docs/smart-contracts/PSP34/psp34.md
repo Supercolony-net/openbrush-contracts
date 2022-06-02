@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP34
 ---
 
-This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/master/contracts/src/token/psp34) token. Also, this example shows how you can customize the logic, for example, to track the number of tokens minted with `next_id`, increasing it with each new token minted, securing a unique id for each token.
+This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token. Also, this example shows how you can customize the logic, for example, to track the number of tokens minted with `next_id`, increasing it with each new token minted, securing a unique id for each token.
 
 ## Step 1: Include dependencies
 
@@ -11,7 +11,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of PSP34 via `openbrush` features.
 
 ```toml
-openbrush = { version = "~1.8.0", default-features = false, features = ["psp34"] }
+openbrush = { version = "~2.0.0", default-features = false, features = ["psp34"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -93,7 +93,7 @@ impl MyPSP34 {
 }
 ```
 
-You can check an example of the usage of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp34).
+You can check an example of the usage of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp34).
 Also you can use extensions for psp34 token:
 
 [PSP34Metadata](/smart-contracts/PSP34/extensions/metadata): metadata for PSP34.

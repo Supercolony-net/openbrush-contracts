@@ -142,7 +142,7 @@ In the `Cargo.toml` of the derive folder you need to import `openbrush` dependen
 syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
-openbrush = { version = "~1.8.0", default-features = false }
+openbrush = { version = "~2.0.0", default-features = false }
 
 [lib]
 name = "point_derive"
