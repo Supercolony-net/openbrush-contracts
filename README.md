@@ -123,6 +123,12 @@ but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/
 
 ## Roadmap 🚗
 
+OpenBrush participates in the Web3 Grants, you can find the roadmap there:
+- [Grant I](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush.md#current-work---scope-of-this-grant)
+- [Grant II](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up.md#current-work---scope-of-this-grant)
+- [Grant III](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up-2.md#current-work---scope-of-this-grant)
+
+More common roadmap of tasks:
 - [x] Implement fungible, non-fungible, and multi tokens.
 - [x] Implement AccessControl and Ownable.
 - [x] Add examples of how to reuse ERC20, ERC721, AccessControl implementations.
@@ -154,6 +160,7 @@ but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/
 - [x] Add support of upgradable contracts to ink!/contract-pallet level.
 - [x] Implement `Proxy` pattern.
 - [x] Implement `Diamond` standard.
+- [x] Publish `openbrush` into [crates.io](https://crates.io/crates/openbrush)
 - [ ] Add documentation for upgradable contracts(blocked until [resolving](https://github.com/paritytech/ink/pull/1217)).
 - [ ] Add extension: `AccessControlEnumerable`.
 - [ ] Add extension: `PSP35Enumerable`.
