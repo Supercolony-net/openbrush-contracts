@@ -1,6 +1,6 @@
 [package]
 name = "psp35_receiver"
-version = "1.7.0"
+version = "2.0.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -16,7 +16,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-brush = { path = "../..", default-features = false, features = ["psp35"] }
+openbrush = { path = "../..", default-features = false, features = ["psp35"] }
 
 [lib]
 name = "psp35_receiver"
@@ -37,7 +37,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-    "brush/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []
 

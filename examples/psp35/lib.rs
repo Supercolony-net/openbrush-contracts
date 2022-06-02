@@ -1,9 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp35 {
-    use brush::contracts::psp35::*;
     use ink_prelude::{
         string::String,
         vec,
@@ -12,6 +11,7 @@ pub mod my_psp35 {
         traits::SpreadAllocate,
         Mapping,
     };
+    use openbrush::contracts::psp35::*;
 
     #[derive(Default, SpreadAllocate, PSP35Storage)]
     #[ink(storage)]

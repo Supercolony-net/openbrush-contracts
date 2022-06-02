@@ -21,11 +21,11 @@
 
 #![feature(min_specialization)]
 #[cfg(feature = "psp35")]
-#[brush::contract]
+#[openbrush::contract]
 mod psp35_mintable {
-    use brush::test_utils::accounts;
-    use contracts::psp35::extensions::mintable::*;
     use ink_lang as ink;
+    use openbrush::test_utils::accounts;
+    use openbrush_contracts::psp35::extensions::mintable::*;
 
     #[derive(Default, PSP35Storage)]
     #[ink(storage)]

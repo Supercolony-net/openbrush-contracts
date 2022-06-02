@@ -24,16 +24,16 @@ use crate::traits::psp35::{
     Id,
     PSP35Error,
 };
-use brush::traits::{
+use ink_prelude::vec::Vec;
+use openbrush::traits::{
     AccountId,
     Balance,
 };
-use ink_prelude::vec::Vec;
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type PSP35BurnableRef = dyn PSP35Burnable;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait PSP35Burnable {
     /// Destroys `amount` tokens of token type `id` from `from`
     ///

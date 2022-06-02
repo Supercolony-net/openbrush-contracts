@@ -21,13 +21,8 @@
 
 #![feature(min_specialization)]
 #[cfg(feature = "psp35")]
-#[brush::contract]
+#[openbrush::contract]
 mod psp35_batch {
-    use brush::test_utils::{
-        accounts,
-        change_caller,
-    };
-    use contracts::psp35::extensions::batch::*;
     use ink::codegen::{
         EmitEvent,
         Env,
@@ -35,6 +30,11 @@ mod psp35_batch {
     use ink_lang as ink;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::test_utils::{
+        accounts,
+        change_caller,
+    };
+    use openbrush_contracts::psp35::extensions::batch::*;
 
     #[ink(event)]
     pub struct Transfer {

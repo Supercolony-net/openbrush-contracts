@@ -23,21 +23,21 @@ pub use crate::traits::errors::{
     PSP35Error,
     PSP35ReceiverError,
 };
-use brush::traits::{
+use ink_prelude::vec::Vec;
+use openbrush::traits::{
     AccountId,
     Balance,
 };
-use ink_prelude::vec::Vec;
 
 pub type Id = [u8; 32];
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type PSP35Ref = dyn PSP35;
 
 /// Contract module which provides a basic implementation of multiple token types.
 /// A single deployed contract may include any combination of fungible tokens,
 /// non-fungible tokens or other configurations (e.g. semi-fungible tokens).
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait PSP35 {
     /// Returns the amount of tokens of token type `id` owned by `account`.
     #[ink(message)]
@@ -82,13 +82,13 @@ pub trait PSP35 {
     ) -> Result<(), PSP35Error>;
 }
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type PSP35ReceiverRef = dyn PSP35Receiver;
 
 /// PSP35Receiver is a trait for any contract that wants to support safe transfers from a PSP35
 /// multi token smart contract to avoid unexpected tokens in the balance of contract.
 /// This method is called before a transfer to ensure the recipient of the tokens acknowledges the receipt.
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait PSP35Receiver {
     /// Ensures that the smart contract allows reception of PSP35 token(s).
     /// Returns `Ok(())` if the contract allows the reception of the token(s) and Error `TransferRejected(String))` otherwise.

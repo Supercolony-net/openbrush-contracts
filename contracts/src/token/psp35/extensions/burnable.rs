@@ -23,12 +23,12 @@ pub use crate::{
     psp35::*,
     traits::psp35::extensions::burnable::*,
 };
-use brush::traits::{
+use ink_prelude::vec::Vec;
+use openbrush::traits::{
     AccountId,
     Balance,
     InkStorage,
 };
-use ink_prelude::vec::Vec;
 
 impl<T: PSP35Internal + InkStorage> PSP35Burnable for T {
     default fn burn(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {

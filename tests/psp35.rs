@@ -21,19 +21,19 @@
 
 #![feature(min_specialization)]
 #[cfg(feature = "psp35")]
-#[brush::contract]
+#[openbrush::contract]
 mod psp35 {
-    use brush::test_utils::{
-        accounts,
-        change_caller,
-    };
-    use contracts::psp35::*;
     use ink::codegen::{
         EmitEvent,
         Env,
     };
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::test_utils::{
+        accounts,
+        change_caller,
+    };
+    use openbrush_contracts::psp35::*;
 
     #[ink(event)]
     pub struct Approval {

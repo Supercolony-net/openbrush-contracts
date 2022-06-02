@@ -23,10 +23,10 @@
 pub use crate::traits::psp35::Id;
 use ink_prelude::vec::Vec;
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type PSP35MetadataRef = dyn PSP35Metadata;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait PSP35Metadata {
     #[ink(message)]
     fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>>;

@@ -21,10 +21,10 @@
 
 #![feature(min_specialization)]
 #[cfg(feature = "psp35")]
-#[brush::contract]
+#[openbrush::contract]
 mod psp35_metadata {
-    use contracts::psp35::extensions::metadata::*;
     use ink_lang as ink;
+    use openbrush_contracts::psp35::extensions::metadata::*;
 
     #[derive(Default, PSP35Storage, PSP35MetadataStorage)]
     #[ink(storage)]

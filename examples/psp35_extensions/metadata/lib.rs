@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp35 {
-    use brush::contracts::psp35::extensions::metadata::*;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp35::extensions::metadata::*;
 
     #[derive(Default, SpreadAllocate, PSP35Storage, PSP35MetadataStorage)]
     #[ink(storage)]

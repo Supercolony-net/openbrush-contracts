@@ -23,12 +23,12 @@ pub use crate::{
     psp35::*,
     traits::psp35::extensions::mintable::*,
 };
-use brush::traits::{
+use ink_prelude::vec::Vec;
+use openbrush::traits::{
     AccountId,
     Balance,
     InkStorage,
 };
-use ink_prelude::vec::Vec;
 
 impl<T: PSP35Internal + InkStorage> PSP35Mintable for T {
     default fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {

@@ -23,7 +23,7 @@ pub use crate::{
     psp35::*,
     traits::psp35::extensions::batch::*,
 };
-use brush::traits::{
+use openbrush::traits::{
     AccountId,
     Balance,
     InkStorage,

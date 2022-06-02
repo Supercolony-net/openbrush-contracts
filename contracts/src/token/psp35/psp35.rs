@@ -20,15 +20,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::traits::psp35::*;
-use brush::{
-    declare_storage_trait,
-    traits::{
-        AccountId,
-        AccountIdExt,
-        Balance,
-        Flush,
-    },
-};
 use core::result::Result;
 pub use derive::PSP35Storage;
 use ink_env::{
@@ -41,11 +32,20 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_storage::Mapping;
+use openbrush::{
+    declare_storage_trait,
+    traits::{
+        AccountId,
+        AccountIdExt,
+        Balance,
+        Flush,
+    },
+};
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("brush::PSP35Data");
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Data");
 
 #[derive(Default, Debug)]
-#[brush::storage(STORAGE_KEY)]
+#[openbrush::storage(STORAGE_KEY)]
 pub struct PSP35Data {
     pub balances: Mapping<(Id, AccountId), Balance>,
     pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance>,
