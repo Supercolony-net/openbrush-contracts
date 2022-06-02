@@ -47,7 +47,7 @@ jobs:
           yarn build:release
       - name: Run Test Mocha
         run: |
-          for test in tests/**/*.ts; do
+          for test in $(find tests -type f -regex ".*\.ts"); do
             substrate-contracts-node --tmp --dev & P1=$!;
             yarn test:mocha-single ./$test;
             kill $P1;
