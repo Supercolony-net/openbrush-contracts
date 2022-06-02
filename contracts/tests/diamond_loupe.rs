@@ -35,14 +35,12 @@ mod diamond {
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage)]
     pub struct DiamondContract {
         #[DiamondStorageField]
         diamond: DiamondData,
         #[DiamondLoupeStorageField]
         diamond_loupe: DiamondLoupeData,
-        #[OwnableStorageField]
-        ownable: OwnableData,
     }
     impl DiamondContract {
         #[ink(constructor)]
