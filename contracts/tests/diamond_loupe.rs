@@ -42,6 +42,17 @@ mod diamond {
         #[DiamondLoupeStorageField]
         diamond_loupe: DiamondLoupeData,
     }
+
+    impl OwnableStorage for DiamondContract {
+        fn get(&self) -> &OwnableData {
+            &self.diamond.ownable
+        }
+
+        fn get_mut(&mut self) -> &mut OwnableData {
+            &mut self.diamond.ownable
+        }
+    }
+
     impl DiamondContract {
         #[ink(constructor)]
         pub fn new(owner: AccountId) -> Self {
