@@ -53,13 +53,13 @@ export const setupProxy = (contract, proxy): Contract =>  {
 }
 
 function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 export const setupContract = async (name, constructor, ...args) => {
-  await api.disconnect();
-  await timeout(100);
-  await api.connect();
+  await api.disconnect()
+  await timeout(100)
+  await api.connect()
   const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
   const signers = await getSigners()
   const defaultSigner = await getRandomSigner(signers[0], one.muln(10))

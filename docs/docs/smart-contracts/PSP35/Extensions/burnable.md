@@ -18,4 +18,4 @@ impl PSP35Burnable for MyPSP35 {}
 And that's it! Your `PSP35` is now extended by the `PSP35Burnable` extension and ready to use its functions!
 You can check an example of the usage of [PSP35 Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp35_extensions/burnable).
 
-You can also check the documentation for the basic implementation of [PSP35](/smart-contracts/PSP35/psp35).
+You can also check the documentation for the basic implementation of [PSP35](/smart-contracts/PSP35).

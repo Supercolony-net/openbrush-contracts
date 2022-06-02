@@ -63,4 +63,4 @@ impl MyPSP35 {
 ```
 You can check an example of the usage of [PSP35 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp35_extensions/metadata).
 
-You can also check the documentation for the basic implementation of [PSP35](/smart-contracts/PSP35/psp35).
+You can also check the documentation for the basic implementation of [PSP35](/smart-contracts/PSP35).
