@@ -87,18 +87,18 @@ pub trait PSP35EnumerableInternal {
         amount: &Balance,
     ) -> Result<(), PSP35Error>;
 
-    fn _amount_of_tokens(&self, owner: Option<&AccountId>) -> u128;
+    fn _amount_of_tokens(&self, owner: &Option<AccountId>) -> u128;
 
     fn _increase_token_balance(
         &mut self,
-        owner: Option<&AccountId>,
+        owner: &Option<AccountId>,
         id: &Id,
         amount: &Balance,
     ) -> Result<(), PSP35Error>;
 
     fn _decrease_token_balance(
         &mut self,
-        owner: Option<&AccountId>,
+        owner: &Option<AccountId>,
         id: &Id,
         amount: &Balance,
     ) -> Result<(), PSP35Error>;
@@ -117,21 +117,23 @@ impl<T: PSP35EnumerableStorage + Flush> PSP35EnumerableInternal for T {
         }
 
         if from.is_none() {
-            self._increase_token_balance(from, id, amount)?;
+            self._increase_token_balance(&None, id, amount)?;
         } else {
-            self._decrease_token_balance(from, id, amount)?;
+            let from = from.unwrap();
+            self._decrease_token_balance(&Some(from.clone()), id, amount)?;
         }
 
         if to.is_none() {
-            self._decrease_token_balance(to, id, amount)?;
+            self._decrease_token_balance(&None, id, amount)?;
         } else {
-            self._increase_token_balance(to, id, amount)?;
+            let to = to.unwrap();
+            self._increase_token_balance(&Some(to.clone()), id, amount)?;
         }
 
         Ok(())
     }
 
-    fn _amount_of_tokens(&self, owner: Option<&AccountId>) -> u128 {
+    fn _amount_of_tokens(&self, owner: &Option<AccountId>) -> u128 {
         PSP35EnumerableStorage::get(self)
             .amount_of_tokens
             .get(owner)
@@ -140,30 +142,30 @@ impl<T: PSP35EnumerableStorage + Flush> PSP35EnumerableInternal for T {
 
     fn _increase_token_balance(
         &mut self,
-        owner: Option<&AccountId>,
+        owner: &Option<AccountId>,
         id: &Id,
         amount: &Balance,
     ) -> Result<(), PSP35Error> {
-        let index = PSP35EnumerableStorage::get(self).enumerable.get_index_by_id(&owner, id);
+        let index = PSP35EnumerableStorage::get(self).enumerable.get_index_by_id(owner, &id);
 
         if index.is_some() {
             let index = index.unwrap();
             let initial_balance = PSP35EnumerableStorage::get(self)
                 .enumerable
-                .get_balance_by_index(&owner, index)?;
+                .get_balance_by_index(owner, &index)?;
 
             PSP35EnumerableStorage::get_mut(self)
                 .enumerable
-                .insert(&owner, id, initial_balance + amount, index);
+                .insert(owner, &id, &(initial_balance + amount), &index);
         } else {
             let last_free_index = self._amount_of_tokens(owner);
             PSP35EnumerableStorage::get_mut(self)
                 .enumerable
-                .insert(&owner, id, amount, last_free_index);
+                .insert(owner, &id, &amount, &last_free_index);
 
             PSP35EnumerableStorage::get_mut(self)
                 .amount_of_tokens
-                .insert(&owner, last_free_index + 1);
+                .insert(owner, &(last_free_index + 1));
         }
 
         Ok(())
@@ -171,7 +173,7 @@ impl<T: PSP35EnumerableStorage + Flush> PSP35EnumerableInternal for T {
 
     fn _decrease_token_balance(
         &mut self,
-        owner: Option<&AccountId>,
+        owner: &Option<AccountId>,
         id: &Id,
         amount: &Balance,
     ) -> Result<(), PSP35Error> {
@@ -181,32 +183,33 @@ impl<T: PSP35EnumerableStorage + Flush> PSP35EnumerableInternal for T {
             return Err(PSP35Error::TokenNotExists)
         }
 
+        let index = index.unwrap();
+
         let initial_balance = PSP35EnumerableStorage::get(self)
             .enumerable
-            .get_balance_by_index(&owner, index)?;
+            .get_balance_by_index(owner, &index)?;
 
-        if initial_balance < amount {
+        if initial_balance < *amount {
             return Err(PSP35Error::InsufficientBalance)
         }
 
-        if initial_balance > amount {
-            let index = index.unwrap();
+        if initial_balance > *amount {
             let initial_balance = PSP35EnumerableStorage::get(self)
                 .enumerable
-                .get_balance_by_index(&owner, index)?;
+                .get_balance_by_index(owner, &index)?;
 
             PSP35EnumerableStorage::get_mut(self)
                 .enumerable
-                .insert(&owner, id, initial_balance - amount, index);
+                .insert(owner, &id, &(initial_balance - amount), &index);
         } else {
             let last_index = self._amount_of_tokens(&owner) - 1;
             PSP35EnumerableStorage::get_mut(self)
                 .enumerable
-                .remove(&owner, id, last_index);
+                .remove(owner, &id, &last_index)?;
 
             PSP35EnumerableStorage::get_mut(self)
                 .amount_of_tokens
-                .insert(&owner, last_index);
+                .insert(&owner, &last_index);
         }
 
         Ok(())
@@ -241,7 +244,7 @@ pub struct EnumerableMapping {
 impl EnumerableMapping {
     pub fn insert(&mut self, owner: &Option<AccountId>, id: &Id, amount: &Balance, index: &u128) {
         self.id_to_index.insert((owner, id), index);
-        self.index_to_id.insert((owner, index), &(id, amount));
+        self.index_to_id.insert((owner, index), &(id.clone(), amount.clone()));
     }
 
     pub fn remove(&mut self, owner: &Option<AccountId>, id: &Id, last_index: &u128) -> Result<(), PSP35Error> {
@@ -264,11 +267,21 @@ impl EnumerableMapping {
     }
 
     pub fn get_id_by_index(&self, owner: &Option<AccountId>, index: &u128) -> Result<Id, PSP35Error> {
-        self.index_to_id.get((owner, index)).0.ok_or(PSP35Error::TokenNotExists)
+        let id = self
+            .index_to_id
+            .get((owner, index))
+            .ok_or(PSP35Error::TokenNotExists)?
+            .0;
+        Ok(id)
     }
 
     pub fn get_balance_by_index(&self, owner: &Option<AccountId>, index: &u128) -> Result<Balance, PSP35Error> {
-        self.index_to_id.get((owner, index)).1.ok_or(PSP35Error::TokenNotExists)
+        let balance = self
+            .index_to_id
+            .get((owner, index))
+            .ok_or(PSP35Error::TokenNotExists)?
+            .1;
+        Ok(balance)
     }
 
     pub fn get_index_by_id(&self, owner: &Option<AccountId>, id: &Id) -> Option<u128> {

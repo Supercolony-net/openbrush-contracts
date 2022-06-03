@@ -14,9 +14,9 @@ pub mod my_psp35_enumerable {
     #[derive(Default, SpreadAllocate, PSP35Storage, PSP35EnumerableStorage)]
     #[ink(storage)]
     pub struct MyPSP35 {
-        #[PSP34StorageField]
+        #[PSP35StorageField]
         psp35: PSP35Data,
-        #[PSP34EnumerableStorageField]
+        #[PSP35EnumerableStorageField]
         metadata: PSP35EnumerableData,
     }
 
