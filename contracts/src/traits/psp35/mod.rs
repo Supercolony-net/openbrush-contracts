@@ -25,6 +25,7 @@ pub use psp35::*;
 pub mod extensions {
     pub mod batch;
     pub mod burnable;
+    pub mod enumerable;
     pub mod metadata;
     pub mod mintable;
 }
