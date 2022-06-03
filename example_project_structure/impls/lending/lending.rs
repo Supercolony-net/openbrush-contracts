@@ -292,4 +292,10 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         }
         Ok(())
     }
+
+    
+    // default fn get_shares_address(&self, asset_address: AccountId) -> Option<AccountId>{
+    //     let shares_asset = get_asset_from_shares(self, asset_address);
+    //     shares_asset.ok()
+    // }
 }

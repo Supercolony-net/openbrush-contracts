@@ -113,6 +113,10 @@ pub trait Lending {
     /// Returns `CanNotBeLiquidated` error if the price of collateral is not below the liquidation price
     #[ink(message)]
     fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError>;
+
+    // //This function return shares asset by asset address
+    // #[ink(message)]
+    // fn get_shares_address(&self, asset_address: AccountId) -> Option<AccountId>;
 }
 
 #[openbrush::wrapper]
