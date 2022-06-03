@@ -34,6 +34,7 @@ mod diamond {
     };
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush_contracts::diamond::FacetCut;
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage)]
     pub struct DiamondContract {
@@ -349,7 +350,7 @@ mod diamond {
         let mut diamond = DiamondContract::new(accounts.alice);
 
         let facet_cut = FacetCut {
-            hash: [1u8; 32].into(),
+            hash: [3u8; 32].into(),
             selectors: vec![[1u8; 4]],
         };
         let facet_cut_new = FacetCut {
