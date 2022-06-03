@@ -21,19 +21,23 @@
 
 #![feature(min_specialization)]
 #[cfg(feature = "diamond")]
-#[brush::contract]
+#[openbrush::contract]
 mod diamond {
-    use brush::test_utils::accounts;
-    use contracts::diamond::{
-        extensions::diamond_loupe::*,
-        *,
-    };
     use ink_env::{
         test::DefaultAccounts,
         DefaultEnvironment,
     };
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::diamond::{
+            extensions::diamond_loupe::*,
+            FacetCut,
+            *,
+        },
+        test_utils::accounts,
+    };
+
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage)]
     pub struct DiamondContract {
