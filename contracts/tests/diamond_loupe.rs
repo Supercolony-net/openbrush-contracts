@@ -34,7 +34,6 @@ mod diamond {
     };
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush_contracts::diamond::FacetCut;
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage)]
     pub struct DiamondContract {
