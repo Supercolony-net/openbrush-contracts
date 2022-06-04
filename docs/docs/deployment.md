@@ -13,24 +13,25 @@ about how it works you can find on [official wiki](https://wiki.polkadot.network
 
 The list of standalone blockchain/parachains that support ink! smart contracts:
 
-* [Edgeware](https://edgewa.re)
 * [Astar](https://astar.network/)
 
 ### Overview
 
-- [Clone](#Clone)
-- Here you can find how to [Build](#Build) **ink!** smart contract
+- To deploy contract you should build your own contract or get some example from [Openbrush](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples). You have to choose substrate network to deploy your contract.
+  There are several option you have:
+
+  - Local substrate node with pallet contracts.
+  - `Canvas` network
+  - Astar testnet `Shibuya`
+  - Astar canary network `Shiden`
+  - `Astar` main network (will support pallet contracts in near futures)
+  - Other networks which supports pallet contracts
+- Here you can find how to [Build](https://ink.substrate.io/cargo-contract-cli/#usage) **ink!** smart contract
 - Let's [deploy to local network](#Deployment-on-local-network)
 - You can manuly [call](#Call-the-smart-contract) our deployed contract
-- [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/)
-- How to deploy ink! smart contract to [canvas](#Deploy-to-Canvas)
-- How to get free `ROC` token using [faucet](#Rococo-Faucet) to deploy contract to Canvas network
+- [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/). You need to get free `ROC` token using [faucet](#Rococo-Faucet) to deploy contract to Canvas network. Finally deploy your ink! smart contract to [canvas](#Deploy-to-Canvas)
 - [Astar](#Astar) - [WASM](https://webassembly.org/) + [EVM](https://ethereum.org/en/developers/docs/evm/) Hub on [Polkadot](https://polkadot.network/). More info about astar [here](https://docs.astar.network/)
 - You can deploy **ink!** smart contract to [Shibuya](#Deploy-to-Shibuya) (astar test network). How to get free `SBY` using [faucet](https://docs.astar.network/integration/testnet-faucet)
-
-### Clone
-
-Clone repository [openbrush](https://github.com/Supercolony-net/openbrush-contracts.git)
 
 ### Build
 
@@ -51,16 +52,24 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 
 ### Deployment on local network
 
+- Install contracts node:
+
+```
+cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked
+```
+
+or follow the steps below to get started with the [Substrate Node Template](https://github.com/substrate-developer-hub/substrate-node-template)
+
 - Run local substrate node
 
 ```
 substrate-contracts-node --dev
 ```
 
-- Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser :
+- Navigate to the [Polkadot.js.org](https://polkadot.js.org) in a web browser :
 - Verify that you are connected to the [Local Node](https://github.com/substrate-developer-hub/substrate-node-template).
 
-![](assets/switch_local_node.jpeg)
+![](assets/20220604_183027_go-to-polkadot.gif)
 
 - Click Contracts![](assets/developer_contracts.jpeg)
 - Click **Upload & deploy code**.
