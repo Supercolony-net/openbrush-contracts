@@ -26,6 +26,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
   - Astar canary network `Shiden`
   - `Astar` main network (will support pallet contracts in near futures)
   - Other networks which supports pallet contracts
+- Be sure that you have installed `polkadot.js.org` wallet extenstion for your browser
 - Here you can find how to [Build](https://ink.substrate.io/cargo-contract-cli/#usage) **ink!** smart contract
 - Let's [deploy to local network](#Deployment-on-local-network)
 - You can manuly [call](#Call-the-smart-contract) our deployed contract
@@ -50,6 +51,13 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 - `my_psp22.wasm` (the contract’s code)
 - `metadata.json` (the contract’s metadata)
 
+### Install `polkadot.js.org` extention for your browser and create account
+
+- Navigate to [Polkadot.js.org](https://polkadot.js.org/extension/) extention tab and install to your browser. You need wallet extention to sign and submit transaction for deployment contract and manual testing via UI
+- Create or import polkadot account. You need account and some tokens on that account to deploy and test contracts on test network like `Canvas`, `Shibuya` or main network like `Shiden` and `Astar` in near futures. How to get free tokens for test net you will find [there](#Rococo-Faucet)
+
+![](assets/20220605_155001_create-wallet.gif)
+
 ### Deployment on local network
 
 - Install contracts node:
@@ -73,7 +81,7 @@ substrate-contracts-node --dev
 
 - Upload and deploy contract
 
-  Click Developer -> Contracts -> Upload & deploy code. Specify the user account to use for deployment. Any fees will be deducted from deployment account. Upload `.contract` file. .contract file contains the `ABI` for the `WASM` code. The `ABI` is required and stored for future operations such as sending messages. Type a descriptive name for the smart contract. Set value `1000` for `totalSupply` when initialize the contract using constructor. And finally click `Sign and Submit` transaction.![](assets/20220605_122254_upload-contract.gif)
+  Click `Developer` -> `Contracts` -> `Upload & deploy` code. Specify the user account to use for deployment. Any fees will be deducted from deployment account. Upload `.contract`file. .contract file contains the`ABI`for the`WASM`code. The`ABI`is required and stored for future operations such as sending messages. Type a descriptive name for the smart contract. Set value`1000`for`totalSupply`when initialize the contract using constructor. And finally click`Sign and Submit` transaction.![](assets/20220605_122254_upload-contract.gif)
 
 The Polkadot UI displays information about the content of the smart contract.
 
@@ -150,13 +158,9 @@ There are 2 types of messages:
 - messages that change a smart contract’s state should be sent as transactions
 - messages that don’t change a state can be made by using RPC calls
 
-![image info](pictures/contract-messages.jpeg)
-
 Next, let’s change the smart contract state by sending a transaction that calls the `transfer()` function.
 
 ![](assets/20220605_132803_transfer-shibuya.gif)
-
-
 
 As expected, the value that was stored in the smart contract changed from `0` to `1` after the `transfer()` transaction is successfully executed
 
