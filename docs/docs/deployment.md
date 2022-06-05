@@ -71,41 +71,13 @@ substrate-contracts-node --dev
 
 ![](assets/20220604_183027_go-to-polkadot.gif)
 
-- Click Contracts![](assets/developer_contracts.jpeg)
-- Click **Upload & deploy code**.
+- Upload and deploy contract
 
-![](assets/click_upload_and_deploy.jpeg)
+  Click Developer -> Contracts -> Upload & deploy code. Specify the user account to use for deployment. Any fees will be deducted from deployment account. Upload `.contract` file. .contract file contains the `ABI` for the `WASM` code. The `ABI` is required and stored for future operations such as sending messages. Type a descriptive name for the smart contract. Set value `1000` for `totalSupply` when initialize the contract using constructor. And finally click `Sign and Submit` transaction.![](assets/20220605_122254_upload-contract.gif)
 
-- Select an Account to use to create a contract instance.
-
-Select any existing account, including a predefined account such as alice
-
-![](assets/choose_acc_to_deploy.jpeg)
-
-- Type a descriptive Name for the smart contract
-- Browse and select or drag and drop the `my_psp22.contract` file that contains the bundled Wasm blob and metadata into the upload section.
-
-![](assets/upload_and_deploy_code.jpeg)
-
-- Click **Next** to continue.
-
-After you upload the smart contract and click **Next**, the Contracts UI displays information about the content of the smart contract.
-To create the instance:
-Review and accept the default Deployment Constructor options for the initial version of the smart contract.
-Review and accept the default Max Gas Allowed of `200000`.
-
-![](assets/contract_init_constructor.jpeg)
-
-- Click **Deploy**.
-  The transaction is now queued. If you needed to make changes, you could click Go Back to modify the input.
-
-![](assets/auth_transaction.jpeg)
-
-- Click **Sign and Submit**.
+The Polkadot UI displays information about the content of the smart contract.
 
 Depending on the account you used, you might be prompted for the account password. If you used a predefined account, you won’t need to provide a password.
-
-![](assets/explore_contract.jpeg)
 
 ### Call the smart contract
 
@@ -120,7 +92,7 @@ This contract doesn’t place restrictions on who is allowed to send the `balanc
 - Click **Read**.
   Verify that the value `1,000,000,000,000,000` is returned in the Call Results.
 
-![](assets/call_contract.jpeg)
+![](assets/20220605_124705_balance-of.gif)
 
 ### Rococo Faucet
 
@@ -135,14 +107,12 @@ send message to [#rococo-faucet:matrix.org](https://matrix.to/#/#rococo-faucet:m
 
 The number `1002` is the parachain id of **Canvas on Rococo**, by supplying it the faucet will teleport `ROC` tokens directly to your account on the parachain
 
-![image info](pictures/supercolony-wallet-roc.jpeg)
-
 ### Deploy to Canvas
 
-- Navigate to the [Contracts UI](https://paritytech.github.io/contracts-ui) in a web browser.
-- Verify that you are connected to the **Canvas Node**.
+- Navigate to the [Polkadot.js.org](https://polkadot.js.org/appshttps://paritytech.github.io/contracts-u) in a web browser.
+- Verify that you are connected to the **Contracts Node**.
 
-![](assets/switch_canvas.jpeg)
+![](assets/20220605_125943_contracts-node.gif)
 
 - Upload `my_psp22.contract` file the same way as to local node but we need some `ROC` tokens
 - Use wallet which contains `ROC` tokens
@@ -169,37 +139,12 @@ Please note that Shiden has its real economic value. So you need to pay in SDN, 
 - Create an **Astar** [wallet](https://docs.astar.network/stake2earn-festival/how-to-make-a-kusama-polkadot-address#recommend-polkadot-.js-browser-plugin)
 - **Faucet**. get free **SBY** [token](https://docs.astar.network/integration/testnet-faucet)
 - Go to [polkadot.js.org](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.shibuya.astar.network#/explorer)
-- Switch network
+- Switch network and deploy
 
-![image info](pictures/switch-network.jpeg)
-
-- Select **Shibuya** network
-
-![image info](pictures/select-shibuya.jpeg)
-
-- Deploying the smart contract:
-
-Under the Developer tab, select Contracts then click on the **Upload & deploy code** button. Look for your `metadata.json` and `my_psp22.wasm`
-
-![image info](pictures/upload-deploy-code-to-shibuya.jpeg)
-
-- Set value for deployment contructor:
-
-![image info](pictures/upload-deploy-code-to-shibuya-2.jpeg)
-
-- Click **Deploy**.
-
-![image info](pictures/shibuya-sign-and-submit.jpeg)
-
-- Finally, click on the **Sign and Submit** button to deploy your contract.
-
-![image info](pictures/sign-the-transaction-deploy.jpeg)
-
-You can see MY PSP22 smart contract deployed to Shibuya network
-
-![image info](pictures/shibuya-deployed-contract.jpeg)
+![](assets/20220605_132655_shibuya_testnet.gif)
 
 We use **“messages”** to communicate with smart contracts.
+
 There are 2 types of messages:
 
 - messages that change a smart contract’s state should be sent as transactions
@@ -209,14 +154,12 @@ There are 2 types of messages:
 
 Next, let’s change the smart contract state by sending a transaction that calls the `transfer()` function.
 
-![image info](pictures/call-contract-transfer.jpeg)
+![](assets/20220605_132803_transfer-shibuya.gif)
 
-- Sign the transaction
 
-![image info](pictures/sign-transfer-trx.jpeg)
 
 As expected, the value that was stored in the smart contract changed from `0` to `1` after the `transfer()` transaction is successfully executed
 
-![image info](pictures/read-balance-of.jpeg)
+![](assets/20220605_133034_check-balance-of-shibuya.gif)
 
 Congratulations, you deployed and test your first L1 Smart Contract to **Shibuya** network!
