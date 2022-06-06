@@ -22,10 +22,7 @@
 /// Extension of [`PSP35`] that adds enumerability of all the token ids in the contract as well
 /// as all token ids owned by each account.
 pub use crate::traits::psp35::*;
-use openbrush::traits::{
-    AccountId,
-    Balance,
-};
+use openbrush::traits::AccountId;
 
 #[openbrush::wrapper]
 pub type PSP35EnumerableRef = dyn PSP35Enumerable + PSP35;
@@ -35,10 +32,10 @@ pub trait PSP35Enumerable: PSP35 {
     /// Returns a token `Id` owned by `owner` at a given `index` of its token list.
     /// Use along with `balance_of` to enumerate all of ``owner``'s tokens.
     #[ink(message)]
-    fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<(Id, Balance), PSP35Error>;
+    fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<Id, PSP35Error>;
 
     /// Returns a token `Id` at a given `index` of all the tokens stored by the contract.
     /// Use along with `total_supply` to enumerate all tokens.
     #[ink(message)]
-    fn token_by_index(&self, index: u128) -> Result<(Id, Balance), PSP35Error>;
+    fn token_by_index(&self, index: u128) -> Result<Id, PSP35Error>;
 }
