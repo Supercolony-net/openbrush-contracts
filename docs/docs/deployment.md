@@ -26,7 +26,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
   - Astar canary network `Shiden`
   - `Astar` main network (will support pallet contracts in near futures)
   - Other networks which supports pallet contracts
-- Be sure that you have installed `polkadot.js.org` wallet extenstion for your browser
+- Be sure that you have installed `polkadot.js.org` [wallet](Install-polkadot-extention-for-your-browser-and-create-account) extenstion for your browser
 - Here you can find how to [Build](https://ink.substrate.io/cargo-contract-cli/#usage) **ink!** smart contract
 - Let's [deploy to local network](#Deployment-on-local-network)
 - You can manuly [call](#Call-the-smart-contract) our deployed contract
@@ -51,10 +51,11 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 - `my_psp22.wasm` (the contract’s code)
 - `metadata.json` (the contract’s metadata)
 
-### Install `polkadot.js.org` extention for your browser and create account
+### Install polkadot extention for your browser and create account
 
 - Navigate to [Polkadot.js.org](https://polkadot.js.org/extension/) extention tab and install to your browser. You need wallet extention to sign and submit transaction for deployment contract and manual testing via UI
 - Create or import polkadot account. You need account and some tokens on that account to deploy and test contracts on test network like `Canvas`, `Shibuya` or main network like `Shiden` and `Astar` in near futures. How to get free tokens for test net you will find [there](#Rococo-Faucet)
+- Please write down your wallet's mnemonic seed and keep it in a safe place. The mnemonic can be used to restore your wallet. Keep it carefully to not lose your assets.
 
 ![](assets/20220605_155001_create-wallet.gif)
 
@@ -66,7 +67,7 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked
 ```
 
-or follow the steps below to get started with the [Substrate Node Template](https://github.com/substrate-developer-hub/substrate-node-template)
+or follow the steps to get started with the [Substrate Node Template](https://github.com/substrate-developer-hub/substrate-node-template)
 
 - Run local substrate node
 
@@ -81,7 +82,7 @@ substrate-contracts-node --dev
 
 - Upload and deploy contract
 
-  Click `Developer` -> `Contracts` -> `Upload & deploy` code. Specify the user account to use for deployment. Any fees will be deducted from deployment account. Upload `.contract`file. .contract file contains the`ABI`for the`WASM`code. The`ABI`is required and stored for future operations such as sending messages. Type a descriptive name for the smart contract. Set value`1000`for`totalSupply`when initialize the contract using constructor. And finally click`Sign and Submit` transaction.![](assets/20220605_122254_upload-contract.gif)
+  Click `Developer` -> `Contracts` -> `Upload & deploy code`. Specify the user account to use for deployment. Any fees will be deducted from deployment account. Upload `*.contract`file. `*.contract` file contains the`ABI`for the`WASM`code. The`ABI`is required and stored for future operations such as sending messages. Type a descriptive name for the smart contract. Set value `1000`for`totalSupply` when initialize the contract using constructor. And finally click`Sign and Submit` transaction.![](assets/20220605_122254_upload-contract.gif)
 
 The Polkadot UI displays information about the content of the smart contract.
 
@@ -89,7 +90,7 @@ Depending on the account you used, you might be prompted for the account passwor
 
 ### Call the smart contract
 
-Now that your contract has been deployed on the blockchain, you can interact with it. The default flipper smart contract has  functions — `totalSupply()` and `balanceOf()` — and you can use the Contracts UI to try them out.
+Now that your contract has been deployed on the blockchain, you can interact with it. Our deployed smart contract has  functions — `totalSupply()` and `balanceOf()` — and you can use the Polkadot UI to try them out.
 
 To test the `balanceOf()` function:
 
@@ -97,8 +98,7 @@ Select any account from the Account list.
 
 This contract doesn’t place restrictions on who is allowed to send the `balanceOf()` request.
 
-- Click **Read**.
-  Verify that the value `1,000,000,000,000,000` is returned in the Call Results.
+- Click `Read`. Verify that the value `1,000,000,000,000,000` is returned in the Call Results.
 
 ![](assets/20220605_124705_balance-of.gif)
 
@@ -144,10 +144,11 @@ Please note that Shiden has its real economic value. So you need to pay in SDN, 
 ### Deploy to Shibuya
 
 - Build smart contract the same way as for [local node](#Build)
-- Create an **Astar** [wallet](https://docs.astar.network/stake2earn-festival/how-to-make-a-kusama-polkadot-address#recommend-polkadot-.js-browser-plugin)
-- **Faucet**. get free **SBY** [token](https://docs.astar.network/integration/testnet-faucet)
+- Be sure that you have polkadot [wallet](https://docs.astar.network/stake2earn-festival/how-to-make-a-kusama-polkadot-address#recommend-polkadot-.js-browser-plugin) exension in your browser
+- [Create polkadot account](https://docs.astar.network/tutorial/how-to/how-to-make-a-kusama-polkadot-address#create-account) if not have yet
+- Use **Faucet** to get free **SBY** [token](https://docs.astar.network/integration/testnet-faucet)
 - Go to [polkadot.js.org](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.shibuya.astar.network#/explorer)
-- Switch network and deploy
+- Switch network to **Shibuya** and deploy contract
 
 ![](assets/20220605_132655_shibuya_testnet.gif)
 
