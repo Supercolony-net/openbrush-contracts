@@ -17,13 +17,14 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 
 ### Overview
 
-- To deploy contract you should build your own contract or get some example from [Openbrush](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples). You have to choose substrate network to deploy your contract.
+- To deploy contract you should build your own contract or get some example from [Openbrush](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples). You can find instruction how to build ink! smart contract in [docs](https://ink.substrate.io/getting-started/building-your-contract)
+- You have to choose substrate network to deploy your contract.
   There are several option you have:
 
   - Local substrate node with pallet contracts.
   - `Canvas` network
-  - Astar testnet `Shibuya`
-  - Astar canary network `Shiden`
+  - `Shibuya` - Astar testnet
+  - `Shiden` - Astar canary network
   - `Astar` main network (will support pallet contracts in near futures)
   - Other networks which supports pallet contracts
 - Be sure that you have installed `polkadot.js.org` [wallet](Install-polkadot-extention-for-your-browser-and-create-account) extenstion for your browser
@@ -43,7 +44,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 cargo +nightly contract build
 ```
 
-Once the compilation is completed, a target folder is created. In this folder, under the ink subdirectory, you will be able to see a my_psp22.wasm file and a `metadata.json` file. my_psp22.wasm is your contract that has been compiled to web assembly and the `metadata.json` is a JSON abstraction of your contract.
+Once the compilation is completed, a target folder is created. In this folder, under the ink subdirectory, you will be able to see a `my_psp22.wasm` file and a `metadata.json` file. `my_psp22.wasm` is your contract that has been compiled to web assembly and the `metadata.json` is a JSON abstraction of your contract.
 
 You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 
@@ -61,21 +62,9 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 
 ### Deployment on local network
 
-- Install contracts node:
-
-```
-cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked
-```
-
-or follow the steps to get started with the [Substrate Node Template](https://github.com/substrate-developer-hub/substrate-node-template)
-
-- Run local substrate node
-
-```
-substrate-contracts-node --dev
-```
-
-- Navigate to the [Polkadot.js.org](https://polkadot.js.org) in a web browser :
+- Substrate framework pre requisites [guide](https://ink.substrate.io/getting-started/setup/#substrate-framework-pre-requisites)
+- Run a Substrate Node [guide](https://ink.substrate.io/getting-started/running-substrate)
+- Navigate to the [Polkadot.js.org](https://polkadot.js.org) in a web browser
 - Verify that you are connected to the [Local Node](https://github.com/substrate-developer-hub/substrate-node-template).
 
 ![](assets/20220604_183027_go-to-polkadot.gif)
