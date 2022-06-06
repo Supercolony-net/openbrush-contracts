@@ -217,14 +217,16 @@ impl<T: PSP35EnumerableStorage + Flush> PSP35EnumerableInternal for T {
 }
 
 impl<T: PSP35EnumerableStorage + Flush> PSP35Enumerable for T {
-    default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<(Id, Balance), PSP35Error> {
+    default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<Id, PSP35Error> {
         PSP35EnumerableStorage::get(self)
             .enumerable
-            .get_by_index(&Some(owner), &index)
+            .get_id_by_index(&Some(owner), &index)
     }
 
-    default fn token_by_index(&self, index: u128) -> Result<(Id, Balance), PSP35Error> {
-        PSP35EnumerableStorage::get(self).enumerable.get_by_index(&None, &index)
+    default fn token_by_index(&self, index: u128) -> Result<Id, PSP35Error> {
+        PSP35EnumerableStorage::get(self)
+            .enumerable
+            .get_id_by_index(&None, &index)
     }
 }
 
