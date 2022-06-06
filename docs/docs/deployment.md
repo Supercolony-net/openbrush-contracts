@@ -27,7 +27,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
   - `Shiden` - Astar canary network
   - `Astar` main network (will support pallet contracts in near futures)
   - Other networks which supports pallet contracts
-- Be sure that you have installed `polkadot.js.org` [wallet](Install-polkadot-extention-for-your-browser-and-create-account) extenstion for your browser
+- Be sure that you have installed `polkadot.js.org` [wallet](#Install-polkadot-extention-for-your-browser-and-create-account) extenstion for your browser
 - Here you can find how to [Build](https://ink.substrate.io/cargo-contract-cli/#usage) **ink!** smart contract
 - Let's [deploy to local network](#Deployment-on-local-network)
 - You can manuly [call](#Call-the-smart-contract) our deployed contract
