@@ -141,9 +141,11 @@ mod psp35_enumerable {
             Err(PSP35Error::TokenNotExists)
         );
         // act. transfer token from alice to alice
-        assert!(nft.transfer(accounts.alice, token_id2, token_amount2, vec![]).is_ok());
+        assert!(nft.transfer(accounts.bob, token_id2, 10, vec![]).is_ok());
         // check Alice token by index
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2));
+        // check Bob token by index
+        assert_eq!(nft.owners_token_by_index(accounts.bob, 1u128), Ok(token_id2));
     }
 
     #[ink::test]
