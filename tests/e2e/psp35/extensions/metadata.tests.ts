@@ -9,7 +9,7 @@ describe('MY_PSP35_METADATA', () => {
     const { query, tx } = await setup()
     const encoder = new TextEncoder()
 
-    await expect(tx.setAttribute(bnArg(0), bnArg(1), encoder.encode('https://www.supercolony.net/'))).to.eventually.be.fulfilled
+    await expect(tx.setAttribute(bnArg(0), bnArg(1), bnArg(encoder.encode('https://www.supercolony.net/')))).to.eventually.be.fulfilled
 
     await expect(query.getAttribute(bnArg(0), bnArg(1))).to.have.output(bnArg(encoder.encode('https://www.supercolony.net/')))
   })
