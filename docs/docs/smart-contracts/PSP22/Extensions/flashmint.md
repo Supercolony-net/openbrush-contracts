@@ -16,6 +16,6 @@ impl FlashLender for MyPSP22FlashMint {}
 ```
 
 And that's it! Your `PSP22` is now extended by the `PSP22FlashMint` extension and ready to use its functions!
-You can check the full example of the implementation of this extension [here](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp22_extensions/flashmint).
+You can check the full example of the implementation of this extension [here](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/flashmint).
 
 You can also check the documentation for the basic implementation of [PSP22](/smart-contracts/PSP22).

@@ -111,9 +111,6 @@ pub trait PSP35Internal {
     );
 
     fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, value: Balance);
-
-    fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>);
-
     /// Creates `amount` tokens of token type `id` to `to`.
     ///
     /// On success a `TransferSingle` event is emitted if length of `ids_amounts` is 1, otherwise `TransferBatch` event.
@@ -199,8 +196,6 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
     }
 
     default fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, _value: Balance) {}
-
-    default fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>) {}
 
     default fn _mint_to(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
         if to.is_zero() {

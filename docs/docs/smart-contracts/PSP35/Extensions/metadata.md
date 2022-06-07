@@ -7,15 +7,15 @@ This example shows how you can reuse the implementation of [PSP35](https://githu
 
 ## Step 1: Add imports and enable unstable feature
 
-Import **everything** from `brush::contracts::psp35::extensions::metadata`.
+Import **everything** from `openbrush::contracts::psp35::extensions::metadata`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp35 {
-    use brush::contracts::psp35::extensions::metadata::*;
+    use openbrush::contracts::psp35::extensions::metadata::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
 ...

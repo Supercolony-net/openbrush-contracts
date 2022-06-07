@@ -23,10 +23,13 @@ pub mod my_psp35 {
     impl MyPSP35 {
         /// contract constructor
         #[ink(constructor)]
-        pub fn new(id: Id, key: Vec<u8>, attribute: Vec<u8>) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                instance.metadata.attributes.insert(&(id, key), &attribute);
-            })
+        pub fn new() -> Self {
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {})
+        }
+
+        #[ink(message)]
+        pub fn set_attribute(&mut self, id: Id, key: Vec<u8>, data: Vec<u8>) -> Result<(), PSP35Error> {
+            self._set_attribute(&id, &key, &data)
         }
     }
 }
