@@ -380,6 +380,21 @@ mod psp35 {
     }
 
     #[ink::test]
+    fn transfer_no_approve() {
+        let token_id = [1; 32];
+        let mint_amount = 2;
+        let transfer_amount = 1;
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP35Struct::new();
+        assert!(nft.mint(accounts.bob, token_id, mint_amount).is_ok());
+        assert_eq!(
+            nft.transfer(accounts.alice, token_id, transfer_amount, vec![]),
+            Err(PSP35Error::InsufficientBalance),
+        );
+    }
+
+    #[ink::test]
     fn transfer_insufficient_balance() {
         let token_id = [1; 32];
         let mint_amount = 1;

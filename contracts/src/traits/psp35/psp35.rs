@@ -43,10 +43,12 @@ pub trait PSP35 {
     #[ink(message)]
     fn balance_of(&self, owner: AccountId, id: Id) -> Balance;
 
+    /// Returns amount of `id` token of `owner` that `operator` can withdraw
+    /// If `id` is `None` returns allowance of all tokens of `owner`
     #[ink(message)]
     fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance;
 
-    /// Allows `operator` to withdraw  the `id` token from the caller's account
+    /// Allows `operator` to withdraw the `id` token from the caller's account
     /// multiple times, up to the `value` amount.
     /// If this function is called again it overwrites the current allowance with `value`
     /// If `id` is `None` approves or disapproves the operator for all tokens of the caller.
@@ -55,6 +57,19 @@ pub trait PSP35 {
     #[ink(message)]
     fn approve(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
 
+    /// Transfers `value` of `id` token from `caller` to `to`
+    ///
+    /// On success a `TransferSingle` event is emitted.
+    ///
+    /// # Errors
+    ///
+    /// Returns `TransferToZeroAddress` error if recipient is zero account.
+    ///
+    /// Returns `NotAllowed` error if transfer is not approved.
+    ///
+    /// Returns `InsufficientBalance` error if `caller` doesn't contain enough balance.
+    ///
+    /// Returns `SafeTransferCheckFailed` error if `to` doesn't accept transfer.
     #[ink(message)]
     fn transfer(&mut self, to: AccountId, id: Id, value: Balance, data: Vec<u8>) -> Result<(), PSP35Error>;
 

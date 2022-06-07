@@ -3,28 +3,28 @@ sidebar_position: 1
 title: PSP35
 ---
 
-This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp1155) token. Also, this example shows how you can customize the logic, for example, to track the number of token types with `unique_ids`, adding a new token type with the `add_type` function.
+This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token. Also, this example shows how you can customize the logic, for example, to track the number of token types with `unique_ids`, adding a new token type with the `add_type` function.
 
 ## Step 1: Include dependencies
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of PSP35 via `brush` feature.
+Include `openbrush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
+After you need to enable default implementation of PSP35 via `openbrush` feature.
 
 ```toml
-brush = { tag = "v1.7.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp1155"] }
+openbrush = { tag = "v2.0.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp35"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::psp1155`.
+Use `openbrush::contract` macro instead of `ink::contract`. Import **everything** from `openbrush::contracts::psp35`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
-pub mod my_psp1155 {
-    use brush::contracts::psp1155::*;
+#[openbrush::contract]
+pub mod my_psp35 {
+    use openbrush::contracts::psp35::*;
     use ink_prelude::{
         string::String,
         vec,
@@ -38,7 +38,7 @@ pub mod my_psp1155 {
 
 ## Step 3: Define storage
 
-Declare storage struct and declare the field related to the `PSP35Storage` trait. Then you need to derive the `PSP1155Storage` trait and mark the corresponding field with the `#[PSP1155StorageField]` attribute. Deriving this trait allows you to reuse the default implementation of `PSP1155`.
+Declare storage struct and declare the field related to the `PSP35Storage` trait. Then you need to derive the `PSP35Storage` trait and mark the corresponding field with the `#[PSP35StorageField]` attribute. Deriving this trait allows you to reuse the default implementation of `PSP35`.
 
 ```rust
 #[derive(Default, SpreadAllocate, PSP35Storage)]

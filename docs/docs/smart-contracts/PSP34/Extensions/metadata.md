@@ -73,6 +73,6 @@ impl MyPSP34 {
 }
 ```
 
-You can check an example of the usage of [PSP34 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/psp34_extensions/metadata).
+You can check an example of the usage of [PSP34 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp34_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP34](/smart-contracts/PSP34).

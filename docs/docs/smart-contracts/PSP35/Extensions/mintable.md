@@ -7,10 +7,10 @@ This example shows how you can reuse the implementation of [PSP35](https://githu
 
 ## How to use this extension
 
-For your smart contract to use this extension, you only need to implement the `PSP35Mintable` trait in your `PSP35` smart contract. Add import for `brush::contracts::psp35::extensions::mintable::*`, inherit the implementation for `PSP35Mintable` trait, where you can also customize (override) the original functions from `PSP35Mintable`.
+For your smart contract to use this extension, you only need to implement the `PSP35Mintable` trait in your `PSP35` smart contract. Add import for `openbrush::contracts::psp35::extensions::mintable::*`, inherit the implementation for `PSP35Mintable` trait, where you can also customize (override) the original functions from `PSP35Mintable`.
 
-```rust
-use brush::contracts::psp35::extensions::mintable::*;
+```rust6
+use openbrush::contracts::psp35::extensions::mintable::*;
 
 impl PSP35Mintable for MyPSP35 {}
 ```

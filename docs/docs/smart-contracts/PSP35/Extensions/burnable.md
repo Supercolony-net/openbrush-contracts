@@ -7,10 +7,10 @@ This example shows how you can reuse the implementation of [PSP35](https://githu
 
 ## How to use this extension
 
-For your smart contract to use this extension, you only need to implement the `PSP35Burnable` trait in your `PSP35` smart contract. Add import for `brush::contracts::psp35::extensions::burnable::*`, inherit the implementation for `PSP35Burnable` trait, where you can also customize (override) the original functions from `PSP35Burnable`.
+For your smart contract to use this extension, you only need to implement the `PSP35Burnable` trait in your `PSP35` smart contract. Add import for `openbrush::contracts::psp35::extensions::burnable::*`, inherit the implementation for `PSP35Burnable` trait, where you can also customize (override) the original functions from `PSP35Burnable`.
 
 ```rust
-use brush::contracts::psp35::extensions::burnable::*;
+use openbrush::contracts::psp35::extensions::burnable::*;
 
 impl PSP35Burnable for MyPSP35 {}
 ```

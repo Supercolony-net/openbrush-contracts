@@ -44,3 +44,25 @@ impl<T: PSP35MetadataStorage> PSP35Metadata for T {
         self.get().attributes.get(&(id, key))
     }
 }
+
+pub trait PSP35MetadataInternal {
+    fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP35Error>;
+
+    fn _get_attribute(&self, id: &Id, key: &Vec<u8>) -> Option<Vec<u8>>;
+
+    fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>);
+}
+
+impl<T: PSP35MetadataStorage> PSP35MetadataInternal for T {
+    default fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP35Error> {
+        self.get_mut().attributes.insert((id, key), data);
+        self._emit_attribute_set_event(id, key, data);
+        Ok(())
+    }
+
+    default fn _get_attribute(&self, id: &Id, key: &Vec<u8>) -> Option<Vec<u8>> {
+        self.get().attributes.get((id, key))
+    }
+
+    default fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {}
+}
