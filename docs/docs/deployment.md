@@ -1,6 +1,8 @@
+---
 sidebar_position: 4
-title: Deploy
--------------
+title: Deployment
+sidebar_label: Deployment
+---
 
 - Deployment of ink! based smart contracts
 
