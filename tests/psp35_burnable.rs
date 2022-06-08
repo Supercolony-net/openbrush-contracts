@@ -130,9 +130,9 @@ mod psp35_burnable {
         assert!(nft.mint(accounts.alice, token_id, 2).is_ok());
         // Alice can burn tokens
         assert!(nft.burn(accounts.alice, vec![(token_id, 1)]).is_ok());
-        // Turn on error on before_received
+        // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
-        // Alice gets an error on before_received
+        // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, vec![(token_id, 1)]),
             Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))

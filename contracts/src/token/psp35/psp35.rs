@@ -72,6 +72,7 @@ impl<T: PSP35Storage + Flush> PSP35 for T {
         let caller = Self::env().caller();
         let ids_amounts = vec![(id, value)];
 
+        self._transfer_guard(caller, caller, to, id, value)?;
         self._before_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
         self._transfer_token(caller, to, id, value, data)?;
         self._after_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
@@ -285,7 +286,7 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
     default fn _get_allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
         return match self.get().operator_approvals.get(&(owner, operator, None)) {
             None => self.get().operator_approvals.get(&(owner, operator, id)).unwrap_or(0),
-            Some(value) => value,
+            _ => Balance::MAX,
         }
     }
 
@@ -326,6 +327,10 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         }
 
         let initial_allowance = self._get_allowance(owner, operator, Some(id));
+
+        if initial_allowance == Balance::MAX {
+            return Ok(())
+        }
 
         if initial_allowance < value {
             return Err(PSP35Error::InsufficientBalance)

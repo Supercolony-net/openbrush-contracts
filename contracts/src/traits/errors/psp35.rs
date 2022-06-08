@@ -41,6 +41,8 @@ pub enum PSP35Error {
     TokenNotExists,
     /// Returned if the caller is not allowed.
     NotAllowed,
+    /// Returned if caller trying to approve himself
+    SelfApprove,
     /// Returned if safe transfer check fails
     SafeTransferCheckFailed(String),
 }
