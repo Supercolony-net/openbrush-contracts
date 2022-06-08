@@ -29,13 +29,13 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
   - `Shiden` - Astar canary network
   - `Astar` main network (will support pallet contracts in near futures)
   - Other networks which supports pallet contracts
-- Be sure that you have installed `polkadot.js.org` [wallet](#Install-polkadot-extention-for-your-browser-and-create-account) extenstion for your browser
+- Be sure that you have installed `polkadot.js.org` [wallet](#install-polkadot-extention-for-your-browser-and-create-account) extenstion for your browser
 - Here you can find how to [Build](https://ink.substrate.io/cargo-contract-cli/#usage) **ink!** smart contract
-- Let's [deploy to local network](#Deployment-on-local-network)
-- You can manuly [call](#Call-the-smart-contract) our deployed contract
-- [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/). You need to get free `ROC` token using [faucet](#Rococo-Faucet) to deploy contract to Canvas network. Finally deploy your ink! smart contract to [canvas](#Deploy-to-Canvas)
-- [Astar](#Astar) - [WASM](https://webassembly.org/) + [EVM](https://ethereum.org/en/developers/docs/evm/) Hub on [Polkadot](https://polkadot.network/). More info about astar [here](https://docs.astar.network/)
-- You can deploy **ink!** smart contract to [Shibuya](#Deploy-to-Shibuya) (astar test network). How to get free `SBY` using [faucet](https://docs.astar.network/integration/testnet-faucet)
+- Let's [deploy to local network](#deployment-on-local-network)
+- You can manuly [call](#call-the-smart-contract) our deployed contract
+- [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/). You need to get free `ROC` token using [faucet](#rococo-faucet) to deploy contract to Canvas network. Finally deploy your ink! smart contract to [canvas](#deploy-to-=anvas)
+- [Astar](#astar) - [WASM](https://webassembly.org/) + [EVM](https://ethereum.org/en/developers/docs/evm/) Hub on [Polkadot](https://polkadot.network/). More info about astar [here](https://docs.astar.network/)
+- You can deploy **ink!** smart contract to [Shibuya](#deploy-to-shibuya) (astar test network). How to get free `SBY` using [faucet](https://docs.astar.network/integration/testnet-faucet)
 
 ### Build
 
@@ -57,7 +57,7 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 ### Install polkadot extention for your browser and create account
 
 - Navigate to [Polkadot.js.org](https://polkadot.js.org/extension/) extention tab and install to your browser. You need wallet extention to sign and submit transaction for deployment contract and manual testing via UI
-- Create or import polkadot account. You need account and some tokens on that account to deploy and test contracts on test network like `Canvas`, `Shibuya` or main network like `Shiden` and `Astar` in near futures. How to get free tokens for test net you will find [there](#Rococo-Faucet)
+- Create or import polkadot account. You need account and some tokens on that account to deploy and test contracts on test network like `Canvas`, `Shibuya` or main network like `Shiden` and `Astar` in near futures. How to get free tokens for test net you will find [there](#rococo-Faucet)
 - Please write down your wallet's mnemonic seed and keep it in a safe place. The mnemonic can be used to restore your wallet. Keep it carefully to not lose your assets.
 
 ![](assets/20220605_155001_create-wallet.gif)
@@ -134,7 +134,7 @@ Please note that Shiden has its real economic value. So you need to pay in SDN, 
 
 ### Deploy to Shibuya
 
-- Build smart contract the same way as for [local node](#Build)
+- Build smart contract the same way as for [local node](#build)
 - Be sure that you have polkadot [wallet](https://docs.astar.network/stake2earn-festival/how-to-make-a-kusama-polkadot-address#recommend-polkadot-.js-browser-plugin) exension in your browser
 - [Create polkadot account](https://docs.astar.network/tutorial/how-to/how-to-make-a-kusama-polkadot-address#create-account) if not have yet
 - Use **Faucet** to get free **SBY** [token](https://docs.astar.network/integration/testnet-faucet)
