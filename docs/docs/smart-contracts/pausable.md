@@ -117,4 +117,4 @@ pub mod my_pausable {
 }
 ```
 
-You can check an example of the usage of [Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/master/examples/pausable).
+You can check an example of the usage of [Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/pausable).

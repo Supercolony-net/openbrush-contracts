@@ -44,7 +44,7 @@ pub trait PSP35 {
     fn balance_of(&self, owner: AccountId, id: Id) -> Balance;
 
     /// Returns amount of `id` token of `owner` that `operator` can withdraw
-    /// If `id` is `None` returns allowance of all tokens of `owner`
+    /// If `id` is `None` returns allowance `Balance::MAX` of all tokens of `owner`
     #[ink(message)]
     fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance;
 

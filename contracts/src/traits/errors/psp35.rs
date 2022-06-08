@@ -39,6 +39,8 @@ pub enum PSP35Error {
     TransferToZeroAddress,
     /// Returned if the caller is not allowed.
     NotAllowed,
+    /// Returned if caller trying to approve himself
+    SelfApprove,
     /// Returned if safe transfer check fails
     SafeTransferCheckFailed(String),
 }
