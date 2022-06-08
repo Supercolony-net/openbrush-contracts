@@ -19,16 +19,27 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub mod access_control;
-pub mod access_control_enumerable;
-pub mod diamond;
-pub mod errors;
-pub mod flashloan;
-pub mod ownable;
-pub mod pausable;
-pub mod payment_splitter;
-pub mod proxy;
-pub mod psp1155;
-pub mod psp22;
-pub mod psp34;
-pub mod timelock_controller;
+use openbrush::traits::AccountId;
+
+pub type RoleType = u32;
+
+#[openbrush::wrapper]
+pub type AccessControlEnumerableRef = dyn AccessControlEnumerable;
+
+/// Extension of AccessControl that allows enumerating the members of each role.
+#[openbrush::trait_definition]
+pub trait AccessControlEnumerable {
+     /// Returns one of the accounts that have `role`. `index` must be a
+     /// value between 0 and {get_role_member_count}, non-inclusive.
+     /// 
+     /// Role bearers are not sorted in any particular way, and their 
+     /// ordering may change at any point.
+     #[ink(message)]
+     fn get_role_member(&self, role: RoleType, index: u128) -> AccountId;
+
+     /// Returns the number of accounts that have `role`. 
+     /// Can be used together with {get_role_member_count} to enumerate
+     /// all bearers of a role.
+     #[ink(message)]
+     fn get_role_member_count(&self, role: RoleType) -> u128;
+}
