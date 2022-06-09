@@ -25,6 +25,7 @@ pub use crate::{
 };
 use openbrush::traits::{
     AccountId,
+    AccountIdExt,
     Balance,
     InkStorage,
 };
@@ -38,17 +39,7 @@ impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
         ids_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP35Error> {
-        let caller = Self::env().caller();
-
-        self._before_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
-        for item in ids_amounts.clone().into_iter() {
-            self._transfer_token(caller, to, item.0, item.1, data.clone())?;
-        }
-        self._after_token_transfer(Some(&caller), Some(&to), &ids_amounts)?;
-
-        self._emit_transfer_batch_event(Some(caller), Some(to), ids_amounts);
-
-        Ok(())
+        self._batch_transfer_from(Self::env().caller(), to, ids_amounts, data)
     }
 
     default fn batch_transfer_from(
@@ -58,17 +49,52 @@ impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
         ids_amounts: Vec<(Id, Balance)>,
         data: Vec<u8>,
     ) -> Result<(), PSP35Error> {
+        self._batch_transfer_from(from, to, ids_amounts, data)
+    }
+}
+
+pub trait PSP35BatchInternal {
+    fn _batch_transfer_from(
+        &mut self,
+        from: AccountId,
+        to: AccountId,
+        ids_amounts: Vec<(Id, Balance)>,
+        data: Vec<u8>,
+    ) -> Result<(), PSP35Error>;
+}
+
+impl<T: PSP35Internal + InkStorage> PSP35BatchInternal for T {
+    default fn _batch_transfer_from(
+        &mut self,
+        from: AccountId,
+        to: AccountId,
+        ids_amounts: Vec<(Id, Balance)>,
+        data: Vec<u8>,
+    ) -> Result<(), PSP35Error> {
         let operator = Self::env().caller();
 
-        for item in ids_amounts.clone().into_iter() {
-            self._transfer_guard(operator, from, to, item.0, item.1)?;
+        for (id, value) in &ids_amounts {
+            if to.is_zero() {
+                return Err(PSP35Error::TransferToZeroAddress)
+            }
+
+            if from != operator && &self._get_allowance(&from, &operator, &Some(id.clone())) < value {
+                return Err(PSP35Error::NotAllowed)
+            }
         }
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
-        for item in ids_amounts.clone().into_iter() {
-            self._decrease_allowance(from, operator, item.0, item.1)?;
-            self._transfer_token(from, to, item.0, item.1, data.clone())?;
+        for (id, value) in &ids_amounts {
+            self._decrease_allowance(&from, &operator, id.clone(), value.clone())?;
+
+            self._decrease_sender_balance(&from, &id, value.clone())?;
+        }
+
+        self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
+
+        for (id, value) in &ids_amounts {
+            self._increase_receiver_balance(&to, &id, value.clone());
         }
 
         self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;

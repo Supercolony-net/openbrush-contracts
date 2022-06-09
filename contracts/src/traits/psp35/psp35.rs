@@ -19,17 +19,18 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::errors::{
-    PSP35Error,
-    PSP35ReceiverError,
+pub use crate::traits::{
+    errors::{
+        PSP35Error,
+        PSP35ReceiverError,
+    },
+    types::Id,
 };
 use ink_prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,
 };
-
-pub type Id = [u8; 32];
 
 #[openbrush::wrapper]
 pub type PSP35Ref = dyn PSP35;

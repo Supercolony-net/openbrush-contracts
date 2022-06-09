@@ -128,11 +128,11 @@ mod psp35_batch {
 
     #[ink::test]
     fn batch_transfer() {
-        let token_id1 = [1; 32];
-        let token_id2 = [2; 32];
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
         let id_1_amount = 1;
         let id_2_amount = 20;
-        let ids_amounts = vec![(token_id1, id_1_amount), (token_id2, id_2_amount)];
+        let ids_amounts = vec![(token_id1.clone(), id_1_amount), (token_id2.clone(), id_2_amount)];
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
@@ -140,8 +140,8 @@ mod psp35_batch {
 
         assert!(nft.batch_transfer(accounts.bob, ids_amounts.clone(), vec![]).is_ok());
 
-        assert_eq!(nft.balance_of(accounts.alice, token_id1), 0);
-        assert_eq!(nft.balance_of(accounts.alice, token_id2), 0);
+        assert_eq!(nft.balance_of(accounts.alice, token_id1.clone()), 0);
+        assert_eq!(nft.balance_of(accounts.alice, token_id2.clone()), 0);
 
         assert_eq!(nft.balance_of(accounts.bob, token_id1), id_1_amount);
         assert_eq!(nft.balance_of(accounts.bob, token_id2), id_2_amount);
@@ -159,38 +159,41 @@ mod psp35_batch {
 
     #[ink::test]
     fn transfer_batch_from() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
+        let token_id_1 = Id::U128(1);
+        let token_id_2 = Id::U128(2);
         let token_1_amount = 1;
         let token_2_amount = 20;
-        let ids_amounts = vec![(token_id_1, token_1_amount), (token_id_2, token_2_amount)];
+        let ids_amounts = vec![
+            (token_id_1.clone(), token_1_amount),
+            (token_id_2.clone(), token_2_amount),
+        ];
         let amounts = vec![token_1_amount, token_2_amount];
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
         assert!(nft.mint(accounts.alice, ids_amounts.clone()).is_ok());
 
-        assert_eq!(nft.balance_of(accounts.bob, token_id_1), 0);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2), 0);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_1.clone()), 0);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), 0);
 
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1), amounts[0]);
-        assert_eq!(nft.balance_of(accounts.alice, token_id_2), amounts[1]);
+        assert_eq!(nft.balance_of(accounts.alice, token_id_1.clone()), amounts[0]);
+        assert_eq!(nft.balance_of(accounts.alice, token_id_2.clone()), amounts[1]);
 
         assert!(nft
             .batch_transfer_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![])
             .is_ok());
 
-        assert_eq!(nft.balance_of(accounts.bob, token_id_1), amounts[0]);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2), amounts[1]);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_1.clone()), amounts[0]);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), amounts[1]);
 
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1), 0);
-        assert_eq!(nft.balance_of(accounts.alice, token_id_2), 0);
+        assert_eq!(nft.balance_of(accounts.alice, token_id_1.clone()), 0);
+        assert_eq!(nft.balance_of(accounts.alice, token_id_2.clone()), 0);
     }
 
     #[ink::test]
     fn batch_transfer_from_insufficient_balance() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
+        let token_id_1 = Id::U128(1);
+        let token_id_2 = Id::U128(2);
         let token_1_amount = 1;
         let token_2_amount = 20;
         let ids_amounts = vec![(token_id_1, token_1_amount), (token_id_2, token_2_amount)];
@@ -204,11 +207,7 @@ mod psp35_batch {
                 accounts.bob,
                 ids_amounts
                     .iter()
-                    .map(|x| {
-                        let mut res = *x;
-                        res.1 += 1;
-                        res
-                    })
+                    .map(|(_, amount)| { (Id::U128(123), *amount) })
                     .collect(),
                 vec![]
             ),
@@ -218,8 +217,8 @@ mod psp35_batch {
 
     #[ink::test]
     fn batch_transfer_from_no_approve() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
+        let token_id_1 = Id::U128(1);
+        let token_id_2 = Id::U128(2);
         let token_1_amount = 1;
         let token_2_amount = 20;
         let ids_amounts = vec![(token_id_1, token_1_amount), (token_id_2, token_2_amount)];
@@ -236,11 +235,14 @@ mod psp35_batch {
 
     #[ink::test]
     fn batch_transfer_with_approve() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
+        let token_id_1 = Id::U128(1);
+        let token_id_2 = Id::U128(2);
         let token_1_amount = 1;
         let token_2_amount = 20;
-        let ids_amounts = vec![(token_id_1, token_1_amount), (token_id_2, token_2_amount)];
+        let ids_amounts = vec![
+            (token_id_1.clone(), token_1_amount),
+            (token_id_2.clone(), token_2_amount),
+        ];
         let amounts = vec![token_1_amount, token_2_amount];
         let accounts = accounts();
         // Create a new contract instance.
@@ -253,8 +255,8 @@ mod psp35_batch {
             .batch_transfer_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![])
             .is_ok());
 
-        assert_eq!(nft.balance_of(accounts.bob, token_id_1), amounts[0]);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2), amounts[1]);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_1.clone()), amounts[0]);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), amounts[1]);
         assert_eq!(nft.balance_of(accounts.alice, token_id_1), 0);
         assert_eq!(nft.balance_of(accounts.alice, token_id_2), 0);
 
