@@ -25,11 +25,9 @@ pub mod my_psp35 {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
                 let caller = Self::env().caller();
                 instance
-                    ._mint_to(caller, vec![([0; 32], 1)])
+                    ._mint_to(caller, vec![(Id::U128(0), 1)])
                     .expect("Should mint token");
-                let mut id = [0; 32];
-                id[0] = 1;
-                instance._mint_to(caller, vec![(id, 20)]).expect("Should mint token");
+                instance._mint_to(caller, vec![(Id::U128(1), 20)]).expect("Should mint token");
             })
         }
     }
