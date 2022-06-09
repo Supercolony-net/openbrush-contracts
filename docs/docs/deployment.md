@@ -67,13 +67,13 @@ You will find 3 files in folder `./openbrush/examples/psp22/target/ink`
 - Substrate framework pre requisites [guide](https://ink.substrate.io/getting-started/setup/#substrate-framework-pre-requisites)
 - Run a Substrate Node [guide](https://ink.substrate.io/getting-started/running-substrate)
 - Navigate to the [Polkadot.js.org](https://polkadot.js.org) in a web browser
-- Verify that you are connected to the [Local Node](https://github.com/substrate-developer-hub/substrate-node-template).
+- Verify that you are connected to the [Local Node](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer).
 
 ![](assets/20220604_183027_go-to-polkadot.gif)
 
 - Upload and deploy contract
 
-  Click `Developer` -> `Contracts` -> `Upload & deploy code`. Specify the user account to use for deployment. Any fees will be deducted from deployment account. Upload `*.contract`file. `*.contract` file contains the`ABI`for the`WASM`code. The`ABI`is required and stored for future operations such as sending messages. Type a descriptive name for the smart contract. Set value `1000`for`totalSupply` when initialize the contract using constructor. And finally click`Sign and Submit` transaction.![](assets/20220605_122254_upload-contract.gif)
+  Click `Developer` -> `Contracts` -> `Upload & deploy code`. Specify the user account to use for deployment. Any fees will be deducted from deployment account. Upload `*.contract` file. `*.contract` file contains the `ABI` for the `WASM` code. The `ABI` is required and stored for future operations such as sending messages. Type a descriptive name for the smart contract. Set value `1000` for `totalSupply` when initialize the contract using constructor. And finally click `Sign and Submit` transaction.![](assets/20220605_122254_upload-contract.gif)
 
 The Polkadot UI displays information about the content of the smart contract.
 
