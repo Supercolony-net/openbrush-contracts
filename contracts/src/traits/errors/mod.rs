@@ -20,6 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 mod access_control;
+mod access_control_enumerable;
 mod diamond;
 mod flashloan;
 mod ownable;
@@ -32,6 +33,7 @@ mod reentrancy_guard;
 mod timelock_controller;
 
 pub use access_control::AccessControlError;
+pub use access_control_enumerable::AccessControlEnumerableError;
 pub use diamond::DiamondError;
 pub use flashloan::{
     FlashBorrowerError,

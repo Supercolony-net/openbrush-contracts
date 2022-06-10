@@ -19,29 +19,25 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::{
-    access_control::RoleType,
-    errors::AccessControlEnumerableError,
+use super::{
+    AccessControlError,
 };
-use openbrush::traits::AccountId;
 
-#[openbrush::wrapper]
-pub type AccessControlEnumerableRef = dyn AccessControlEnumerable;
+/// The AccessControlEnumerable error type. Contract will throw one of this errors.
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub enum AccessControlEnumerableError {
+    AccessControlError(AccessControlError),
+    ValueAlreadyExists,
+    ValueNotExists,
+}
 
-/// Extension of AccessControl that allows enumerating the members of each role.
-#[openbrush::trait_definition]
-pub trait AccessControlEnumerable {
-    /// Returns one of the accounts that have `role`. `index` must be a
-    /// value between 0 and {get_role_member_count}, non-inclusive.
-    ///
-    /// Role bearers are not sorted in any particular way, and their
-    /// ordering may change at any point.
-    #[ink(message)]
-    fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlEnumerableError>;
-
-    /// Returns the number of accounts that have `role`.
-    /// Can be used together with {get_role_member_count} to enumerate
-    /// all bearers of a role.
-    #[ink(message)]
-    fn get_role_member_count(&self, role: RoleType) -> u128;
+impl From<AccessControlError> for AccessControlEnumerableError {
+    fn from(access: AccessControlError) -> Self {
+        match access {
+            AccessControlError::MissingRole => AccessControlEnumerableError::AccessControlError(AccessControlError::MissingRole),
+            AccessControlError::RoleRedundant => AccessControlEnumerableError::AccessControlError(AccessControlError::RoleRedundant),
+            AccessControlError::InvalidCaller => AccessControlEnumerableError::AccessControlError(AccessControlError::InvalidCaller),
+        }
+    }
 }
