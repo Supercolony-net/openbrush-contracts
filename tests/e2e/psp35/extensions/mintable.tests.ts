@@ -1,4 +1,4 @@
-import { bnArg, expect, setupContract } from '../../helpers'
+import { expect, setupContract } from '../../helpers'
 
 describe('MY_PSP35_MINTABLE', () => {
   async function setup() {
@@ -8,8 +8,12 @@ describe('MY_PSP35_MINTABLE', () => {
   it('Mint works', async () => {
     const { contract, defaultSigner: sender, query, accounts: [alice] } = await setup()
 
-    const token1 = bnArg(1)
-    const token2 = bnArg(2)
+    const token1 = {
+      'u8': 0
+    }
+    const token2 = {
+      'u8': 1
+    }
     const amount1 = 1
     const amount2 = 10
 
@@ -26,6 +30,5 @@ describe('MY_PSP35_MINTABLE', () => {
     await expect(query.balanceOf(sender.address, token2)).to.have.output(amount2)
     await expect(query.balanceOf(alice.address, token1)).to.have.output(amount1)
     await expect(query.balanceOf(alice.address, token2)).to.have.output(amount2)
-
   })
 })

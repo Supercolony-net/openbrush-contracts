@@ -38,21 +38,25 @@ describe('MY_OWNABLE', () => {
       accounts: [alice]
     } = await setup()
 
-    const ids_amounts = [[bnArg(1), 123]]
+    const token = {
+      'u8': 1
+    }
+
+    const ids_amounts = [[token, 123]]
 
     // Arrange - Alice is not the owner hence minting should fail
     await expect(query.owner()).to.have.output(sender.address)
     await expect(fromSigner(contract, alice.address).tx.mint(alice.address, ids_amounts)).to.eventually.be.rejected
-    await expect(query.balanceOf(alice.address, bnArg(1))).to.have.output(0)
+    await expect(query.balanceOf(alice.address, token)).to.have.output(0)
 
-    // Act - transfer ownership to Alice
+    // Act - transfer ownership to Alice96
     await expect(tx.transferOwnership(alice.address)).to.eventually.be.fulfilled
     await expect(query.owner()).to.have.output(alice.address)
 
     // Assert - Alice can mint a token
     await expect(fromSigner(contract, alice.address).tx.mint(alice.address, ids_amounts)).to.eventually.be.fulfilled
     await expect(query.owner()).to.have.output(alice.address)
-    await expect(query.balanceOf(alice.address, bnArg(1))).to.have.output(123)
+    await expect(query.balanceOf(alice.address, token)).to.have.output(123)
   })
 
   it('OWNABLE - renounce ownership works', async () => {
