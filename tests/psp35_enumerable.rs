@@ -100,12 +100,12 @@ mod psp35_enumerable {
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
 
-        let token_id = [1u8; 32];
+        let token_id = Id::U128(1);
 
         // Create token Id 1 for Alice
-        assert!(nft._mint_to(accounts.alice, vec![(token_id, 20)]).is_ok());
+        assert!(nft._mint_to(accounts.alice, vec![(token_id.clone(), 20)]).is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id.clone()));
         // check token by index
         assert_eq!(nft.token_by_index(0u128), Ok(token_id));
     }
@@ -117,33 +117,35 @@ mod psp35_enumerable {
         let mut nft = PSP35Struct::new();
         // Create token Id 1 and Id 2 for Alice
 
-        let token_id1 = [1u8; 32];
-        let token_id2 = [2u8; 32];
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
         let token_amount1 = 1;
         let token_amount2 = 20;
 
         assert!(nft
             ._mint_to(
                 accounts.alice,
-                vec![(token_id1, token_amount1), (token_id2, token_amount2)]
+                vec![(token_id1.clone(), token_amount1), (token_id2.clone(), token_amount2)]
             )
             .is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1.clone()));
         // act. transfer token from alice to bob
-        assert!(nft.transfer(accounts.bob, token_id1, token_amount1, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.bob, token_id1.clone(), token_amount1, vec![])
+            .is_ok());
         // bob owns token
         assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Ok(token_id1));
         // alice does not own token Id 1
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2.clone()));
         assert_eq!(
             nft.owners_token_by_index(accounts.alice, 1u128),
             Err(PSP35Error::TokenNotExists)
         );
         // act. transfer token from alice to alice
-        assert!(nft.transfer(accounts.bob, token_id2, 10, vec![]).is_ok());
+        assert!(nft.transfer(accounts.bob, token_id2.clone(), 10, vec![]).is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2.clone()));
         // check Bob token by index
         assert_eq!(nft.owners_token_by_index(accounts.bob, 1u128), Ok(token_id2));
     }
@@ -155,31 +157,35 @@ mod psp35_enumerable {
         let mut nft = PSP35Struct::new();
         // Create token Id 1 and Id 2 for Alice
 
-        let token_id1 = [1u8; 32];
-        let token_id2 = [2u8; 32];
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
         let token_amount1 = 1;
         let token_amount2 = 20;
 
         assert!(nft
             ._mint_to(
                 accounts.alice,
-                vec![(token_id1, token_amount1), (token_id2, token_amount2)]
+                vec![(token_id1.clone(), token_amount1), (token_id2.clone(), token_amount2)]
             )
             .is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1.clone()));
         // act. transfer token from alice to bob
-        assert!(nft.transfer(accounts.bob, token_id1, token_amount1, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.bob, token_id1.clone(), token_amount1, vec![])
+            .is_ok());
         // bob owns token
         assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Ok(token_id1));
         // alice does not own token Id 1
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2.clone()));
         assert_eq!(
             nft.owners_token_by_index(accounts.alice, 1u128),
             Err(PSP35Error::TokenNotExists)
         );
         // act. transfer token from alice to alice
-        assert!(nft.transfer(accounts.alice, token_id2, token_amount2, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.alice, token_id2.clone(), token_amount2, vec![])
+            .is_ok());
         // check Alice token by index
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2));
     }
@@ -190,9 +196,9 @@ mod psp35_enumerable {
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
 
-        let token_id1 = [1u8; 32];
-        let token_id2 = [2u8; 32];
-        let token_id3 = [3u8; 32];
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
+        let token_id3 = Id::U128(3);
         let token_amount1 = 1u128;
         let token_amount2 = 1u128;
         let token_amount3 = 1u128;
@@ -202,21 +208,31 @@ mod psp35_enumerable {
             ._mint_to(
                 accounts.alice,
                 vec![
-                    (token_id1, token_amount1),
-                    (token_id2, token_amount2),
-                    (token_id3, token_amount3)
+                    (token_id1.clone(), token_amount1),
+                    (token_id2.clone(), token_amount2),
+                    (token_id3.clone(), token_amount3)
                 ]
             )
             .is_ok());
 
-        assert!(nft.transfer(accounts.bob, token_id1, token_amount1, vec![]).is_ok());
-        assert!(nft.transfer(accounts.bob, token_id3, token_amount3, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.bob, token_id1.clone(), token_amount1, vec![])
+            .is_ok());
+        assert!(nft
+            .transfer(accounts.bob, token_id3.clone(), token_amount3, vec![])
+            .is_ok());
         change_caller(accounts.bob);
-        assert!(nft.transfer(accounts.alice, token_id1, token_amount1, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.alice, token_id1.clone(), token_amount1, vec![])
+            .is_ok());
         assert!(nft.burn(accounts.alice, vec![(token_id2, token_amount2)]).is_ok());
-        assert!(nft.transfer(accounts.alice, token_id3, token_amount3, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.alice, token_id3.clone(), token_amount3, vec![])
+            .is_ok());
         change_caller(accounts.alice);
-        assert!(nft.transfer(accounts.bob, token_id3, token_amount3, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.bob, token_id3.clone(), token_amount3, vec![])
+            .is_ok());
         // alice does not own token
         assert_eq!(nft.token_by_index(0u128), Ok(token_id1));
         assert_eq!(nft.token_by_index(1u128), Ok(token_id3));
@@ -226,15 +242,17 @@ mod psp35_enumerable {
     #[ink::test]
     fn enumerable_burn_works() {
         let accounts = accounts();
-        let token_id = [1u8; 32];
+        let token_id = Id::U128(1);
         let token_amount = 1u128;
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
-        assert!(nft._mint_to(accounts.alice, vec![(token_id, token_amount)]).is_ok());
+        assert!(nft
+            ._mint_to(accounts.alice, vec![(token_id.clone(), token_amount)])
+            .is_ok());
         // alice still owns token id 1
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id.clone()));
         // index 0 points to token with id 1
-        assert_eq!(nft.token_by_index(0u128), Ok(token_id));
+        assert_eq!(nft.token_by_index(0u128), Ok(token_id.clone()));
         // Destroy token Id 1.
         assert!(nft.burn(accounts.alice, vec![(token_id, token_amount)]).is_ok());
         // alice does not owns any tokens
