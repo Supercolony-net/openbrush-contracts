@@ -72,13 +72,21 @@ impl<T: AccessControlEnumerableStorage + Flush> AccessControlEnumerableInternal 
     }
 }
 
-impl<T: AccessControlEnumerableStorage + Flush> AccessControlEnumerable for T {
+impl<T: AccessControlEnumerableStorage + AccessControlEnumerableInternal + Flush> AccessControlEnumerable for T {
     default fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlEnumerableError> {
         AccessControlEnumerableStorage::get(self).role_members.at(&role, &index)
     }
 
     default fn get_role_member_count(&self, role: RoleType) -> u128 {
         AccessControlEnumerableStorage::get(self).role_members.length(&role) as u128
+    }
+
+    fn grant_role_enumerable(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError> {
+        self._grant_role(role, account)
+    }
+
+    fn revoke_role_enumerable(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError> {
+        self._revoke_role(role, account)
     }
 }
 

@@ -59,9 +59,6 @@ psp1155 = [
 access_control = [
     "derive/access_control",
 ]
-access_control_enumerable = [
-    "derive/access_control_enumerable"
-]
 ownable = [
     "derive/ownable",
 ]
