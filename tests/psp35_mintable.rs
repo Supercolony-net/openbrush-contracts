@@ -84,55 +84,59 @@ mod psp35_mintable {
 
     #[ink::test]
     fn mint_works() {
-        let token_id_1 = [1; 32];
-        let token_id_2 = [2; 32];
+        let token_id_1 = Id::U128(1);
+        let token_id_2 = Id::U128(2);
         let token_1_amount = 1;
         let token_2_amount = 20;
         let accounts = accounts();
 
         let mut nft = PSP35Struct::new();
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1), 0);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2), 0);
+        assert_eq!(nft.balance_of(accounts.alice, token_id_1.clone()), 0);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), 0);
 
-        assert!(nft.mint(accounts.alice, vec![(token_id_1, token_1_amount)]).is_ok());
-        assert!(nft.mint(accounts.bob, vec![(token_id_2, token_2_amount)]).is_ok());
+        assert!(nft
+            .mint(accounts.alice, vec![(token_id_1.clone(), token_1_amount)])
+            .is_ok());
+        assert!(nft
+            .mint(accounts.bob, vec![(token_id_2.clone(), token_2_amount)])
+            .is_ok());
 
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1), token_1_amount);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2), token_2_amount);
+        assert_eq!(nft.balance_of(accounts.alice, token_id_1.clone()), token_1_amount);
+        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), token_2_amount);
     }
 
     #[ink::test]
     fn before_token_transfer_should_fail_mint() {
-        let token_id = [1; 32];
+        let token_id = Id::U128(123);
         let amount = 1;
         let accounts = accounts();
         let mut nft = PSP35Struct::new();
         // Can mint
-        assert!(nft.mint(accounts.alice, vec![(token_id, amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id), amount);
+        assert!(nft.mint(accounts.alice, vec![(token_id.clone(), amount)]).is_ok());
+        assert_eq!(nft.balance_of(accounts.alice, token_id.clone()), amount);
         // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
         assert_eq!(
-            nft.mint(accounts.alice, vec![(token_id, amount)]),
+            nft.mint(accounts.alice, vec![(token_id.clone(), amount)]),
             Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 
     #[ink::test]
     fn after_token_transfer_should_fail_mint() {
-        let token_id = [1; 32];
+        let token_id = Id::U128(123);
         let amount = 1;
         let accounts = accounts();
         let mut nft = PSP35Struct::new();
         // Can mint
-        assert!(nft.mint(accounts.alice, vec![(token_id, amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id), amount);
+        assert!(nft.mint(accounts.alice, vec![(token_id.clone(), amount)]).is_ok());
+        assert_eq!(nft.balance_of(accounts.alice, token_id.clone()), amount);
         // Turn on error on _after_token_transfer
         nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer
         assert_eq!(
-            nft.mint(accounts.alice, vec![(token_id, amount)]),
+            nft.mint(accounts.alice, vec![(token_id.clone(), amount)]),
             Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }

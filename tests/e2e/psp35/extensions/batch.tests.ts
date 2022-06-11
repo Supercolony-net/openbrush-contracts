@@ -1,4 +1,4 @@
-import {bnArg, expect, fromSigner, setupContract} from '../../helpers'
+import { expect, fromSigner, setupContract} from '../../helpers'
 
 describe('MY_PSP35_BATCH', () => {
   async function setup() {
@@ -8,8 +8,12 @@ describe('MY_PSP35_BATCH', () => {
   it('Batch Transfer should work', async () =>{
     const { defaultSigner: sender, accounts: [alice], query, tx } = await setup()
 
-    const token1 = bnArg(0)
-    const token2 = bnArg(1)
+    const token1 = { 
+      'u8': 0
+    }
+    const token2 = { 
+      'u8': 1
+    }
     const amount1 = 1
     const amount2 = 20
 
@@ -26,8 +30,12 @@ describe('MY_PSP35_BATCH', () => {
   it(' Batch transfer from should work', async () => {
     const { defaultSigner: sender, accounts: [alice], query, tx } = await setup()
 
-    const token1 = bnArg(0)
-    const token2 = bnArg(1)
+    const token1 = {
+      'u8': 0
+    }
+    const token2 = {
+      'u8': 1
+    }
     const amount1 = 1
     const amount2 = 20
 
@@ -47,10 +55,14 @@ describe('MY_PSP35_BATCH', () => {
   })
 
   it('Batch transfer from with insufficient balance should fail', async () => {
-    const { defaultSigner: sender, accounts: [alice], query, tx } = await setup()
+    const { defaultSigner: sender, accounts: [alice], tx } = await setup()
 
-    const token1 = bnArg(0)
-    const token2 = bnArg(1)
+    const token1 = {
+      'u8': 0
+    }
+    const token2 = {
+      'u8': 1
+    }
     const amount1 = 1
     const amount2 = 20
 
@@ -62,8 +74,12 @@ describe('MY_PSP35_BATCH', () => {
   it('Batch transfer from with no approve should fail', async () => {
     const { defaultSigner: sender, accounts: [alice], tx } = await setup()
 
-    const token1 = bnArg(0)
-    const token2 = bnArg(1)
+    const token1 = {
+      'u8': 0
+    }
+    const token2 = {
+      'u8': 1
+    }
     const amount1 = 1
     const amount2 = 20
 
@@ -74,8 +90,12 @@ describe('MY_PSP35_BATCH', () => {
   it('Batch transfer from with approve should work', async () => {
     const { contract, defaultSigner: sender, accounts: [alice], query, tx } = await setup()
 
-    const token1 = bnArg(0)
-    const token2 = bnArg(1)
+    const token1 = {
+      'u8': 0
+    }
+    const token2 = {
+      'u8': 1
+    }
     const amount1 = 1
     const amount2 = 20
 

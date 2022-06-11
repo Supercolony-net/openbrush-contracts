@@ -77,8 +77,8 @@ mod psp35_metadata {
     fn metadata_works() {
         let mut nft = PSP35Struct::new();
 
-        assert!(nft.set_attribute([0; 32], vec![0u8, 0u8], vec![1u8, 0u8]).is_ok());
+        assert!(nft.set_attribute(Id::U128(1), vec![0u8, 0u8], vec![1u8, 0u8]).is_ok());
 
-        assert_eq!(nft.get_attribute([0; 32], vec![0u8, 0u8]), Some(vec![1u8, 0u8]));
+        assert_eq!(nft.get_attribute(Id::U128(1), vec![0u8, 0u8]), Some(vec![1u8, 0u8]));
     }
 }

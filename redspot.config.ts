@@ -3,7 +3,7 @@ import '@redspot/patract'
 import '@redspot/chai'
 import '@redspot/gas-reporter'
 const types = {
-  OpenbrushContractsPsp34Id: {
+  OpenbrushContractsTypesId: {
     _enum: {
       U8: 'u8',
       U16: 'u16',

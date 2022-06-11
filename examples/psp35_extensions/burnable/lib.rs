@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp35 {
-    use ink_prelude::vec;
+    use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::contracts::psp35::extensions::burnable::*;
 
@@ -22,15 +22,12 @@ pub mod my_psp35 {
         /// contract constructor
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                let caller = Self::env().caller();
-                instance
-                    ._mint_to(caller, vec![([0; 32], 1)])
-                    .expect("Should mint token");
-                let mut id = [0; 32];
-                id[0] = 1;
-                instance._mint_to(caller, vec![(id, 20)]).expect("Should mint token");
-            })
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+        }
+
+        #[ink(message)]
+        pub fn mint_to(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
+            self._mint_to(to, ids_amounts)
         }
     }
 }
