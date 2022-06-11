@@ -254,7 +254,7 @@ impl EnumerableMapping {
 
         if last_index != &index {
             let (last_id, balance) = self.get_by_index(owner, last_index)?;
-            self.index_to_id.insert((owner, &index), &(last_id, balance));
+            self.index_to_id.insert((owner, &index), &(last_id.clone(), balance));
             self.id_to_index.insert((owner, &last_id), &index);
         }
 
