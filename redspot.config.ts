@@ -3,7 +3,7 @@ import '@redspot/patract'
 import '@redspot/chai'
 import '@redspot/gas-reporter'
 const types = {
-  OpenbrushContractsPsp34Id: {
+  OpenbrushContractsTypesId: {
     _enum: {
       U8: 'u8',
       U16: 'u16',
@@ -24,7 +24,7 @@ export default {
   contract: {
     ink: {
       toolchain: 'nightly',
-      sources: ['example_project_structure/contracts/**', 'examples/**/', 'mock/**', `!examples/reentrancy_guard/Cargo.toml`]
+      sources: ['example_project_structure/contracts/**', 'examples/**/', 'mock/**', '!examples/reentrancy_guard/Cargo.toml']
     }
   },
   networks: {

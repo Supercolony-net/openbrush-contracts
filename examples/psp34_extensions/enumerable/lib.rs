@@ -16,7 +16,7 @@ pub mod my_psp34_enumerable {
         #[PSP34StorageField]
         psp34: PSP34Data,
         #[PSP34EnumerableStorageField]
-        metadata: PSP34EnumerableData,
+        enumerable: PSP34EnumerableData,
     }
 
     impl PSP34 for MyPSP34 {}

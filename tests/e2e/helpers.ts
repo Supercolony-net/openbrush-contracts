@@ -5,7 +5,7 @@ import { expect } from './setup/chai'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { buildTx } from '@redspot/patract/buildTx'
 import { Keyring } from '@polkadot/keyring'
-import { TransactionParams, TransactionResponse } from "@redspot/patract/types";
+import { TransactionParams, TransactionResponse } from '@redspot/patract/types'
 
 
 const { getContractFactory, getRandomSigner } = patract
@@ -19,7 +19,7 @@ const patchContractMethods = (contract: Contract): Contract => {
   patchMethods(contract.tx)
 
   for (const prop in contract.tx) {
-    const original_tx = contract.tx[prop];
+    const original_tx = contract.tx[prop]
     contract.tx[prop] = async function (...args: TransactionParams): Promise<TransactionResponse> {
       return new Promise<TransactionResponse>(((resolve, reject) => {
         contract.query[prop](...args).then((_ => {
@@ -27,7 +27,7 @@ const patchContractMethods = (contract: Contract): Contract => {
           resolve(original_tx(...args))
         })).catch((reason => reject(reason)))
       }))
-    };
+    }
   }
 
   return contract
@@ -48,18 +48,18 @@ const patchMethods = (object) => {
 }
 
 export const setupProxy = (contract, proxy): Contract =>  {
-  const proxied_contract = new Contract(proxy.address, contract.abi, contract.api, proxy.signer);
-  return patchContractMethods(proxied_contract);
+  const proxied_contract = new Contract(proxy.address, contract.abi, contract.api, proxy.signer)
+  return patchContractMethods(proxied_contract)
 }
 
 function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 export const setupContract = async (name, constructor, ...args) => {
-  await api.disconnect();
-  await timeout(100);
-  await api.connect();
+  await api.disconnect()
+  await timeout(100)
+  await api.connect()
   const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
   const signers = await getSigners()
   const defaultSigner = await getRandomSigner(signers[0], one.muln(10))
