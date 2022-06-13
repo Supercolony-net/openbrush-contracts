@@ -78,7 +78,7 @@ impl<T: PSP35Internal + InkStorage> PSP35BatchInternal for T {
                 return Err(PSP35Error::TransferToZeroAddress)
             }
 
-            if from != operator && &self._get_allowance(&from, &operator, &Some(id.clone())) < value {
+            if from != operator && &self._get_allowance(&from, &operator, &Some(id)) < value {
                 return Err(PSP35Error::NotAllowed)
             }
         }
@@ -86,7 +86,7 @@ impl<T: PSP35Internal + InkStorage> PSP35BatchInternal for T {
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
 
         for (id, value) in &ids_amounts {
-            self._decrease_allowance(&from, &operator, id.clone(), value.clone())?;
+            self._decrease_allowance(&from, &operator, id, value.clone())?;
 
             self._decrease_sender_balance(&from, &id, value.clone())?;
         }

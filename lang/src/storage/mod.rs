@@ -19,19 +19,6 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+mod multiple_value_mapping;
 
-pub mod derive;
-mod macros;
-pub mod storage;
-pub mod test_utils;
-pub mod traits;
-
-pub use openbrush_lang_macro::{
-    contract,
-    modifier_definition,
-    modifiers,
-    storage,
-    trait_definition,
-    wrapper,
-};
+pub use multiple_value_mapping::MultipleValueMapping;

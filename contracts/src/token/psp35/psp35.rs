@@ -60,11 +60,14 @@ impl<T: PSP35Storage + Flush> PSP35 for T {
     }
 
     default fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
-        self._get_allowance(&owner, &operator, &id)
+        match id {
+            None => self._get_allowance(&owner, &operator, &None),
+            Some(id) => self._get_allowance(&owner, &operator, &Some(&id)),
+        }
     }
 
     default fn approve(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error> {
-        self._approve_for(&operator, token)
+        self._approve_for(operator, token)
     }
 
     default fn transfer(&mut self, to: AccountId, id: Id, value: Balance, data: Vec<u8>) -> Result<(), PSP35Error> {
@@ -129,15 +132,15 @@ pub trait PSP35Internal {
 
     fn _decrease_sender_balance(&mut self, from: &AccountId, id: &Id, amount: Balance) -> Result<(), PSP35Error>;
 
-    fn _get_allowance(&self, account: &AccountId, operator: &AccountId, id: &Option<Id>) -> Balance;
+    fn _get_allowance(&self, account: &AccountId, operator: &AccountId, id: &Option<&Id>) -> Balance;
 
-    fn _approve_for(&mut self, operator: &AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
+    fn _approve_for(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
 
     fn _decrease_allowance(
         &mut self,
         owner: &AccountId,
         operator: &AccountId,
-        id: Id,
+        id: &Id,
         value: Balance,
     ) -> Result<(), PSP35Error>;
 
@@ -244,12 +247,12 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
             return Err(PSP35Error::TransferToZeroAddress)
         }
 
-        if from != operator && self._get_allowance(&from, &operator, &Some(id.clone())) < value {
+        if from != operator && self._get_allowance(&from, &operator, &Some(&id)) < value {
             return Err(PSP35Error::NotAllowed)
         }
 
         self._before_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
-        self._decrease_allowance(&from, &operator, id.clone(), value)?;
+        self._decrease_allowance(&from, &operator, &id, value)?;
         self._transfer_token(&from, &to, id.clone(), value, &data)?;
         self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         self._emit_transfer_event(Some(from), Some(to), id, value);
@@ -281,17 +284,20 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         Ok(())
     }
 
-    default fn _get_allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<Id>) -> Balance {
+    default fn _get_allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<&Id>) -> Balance {
         return match self.get().operator_approvals.get((owner, operator, &None)) {
-            None => self.get().operator_approvals.get((owner, operator, id)).unwrap_or(0),
+            None => {
+                let id = <scale::Ref<'_, Option<&Id>, Option<Id>> as From<_>>::from(id);
+                self.get().operator_approvals.get((owner, operator, id)).unwrap_or(0)
+            }
             _ => Balance::MAX,
         }
     }
 
-    fn _approve_for(&mut self, operator: &AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error> {
+    fn _approve_for(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error> {
         let caller = Self::env().caller();
 
-        if &caller == operator {
+        if caller == operator {
             return Err(PSP35Error::SelfApprove)
         }
 
@@ -299,6 +305,23 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
             Some((token_id, amount)) => ((Some(token_id)), amount),
             None => (None, Balance::MAX),
         };
+
+        // TODO: Rework as in PSP35
+        // if let Some((id, value)) = token {
+        //     if value == 0 {
+        //
+        //     } else {
+        //         self.get_mut()
+        //             .operator_approvals
+        //             .insert((caller, operator, &None), &Balance::MAX);
+        //     }
+        //     Some((token_id, amount)) => ((Some(token_id)), amount),
+        //     None => (None, Balance::MAX),
+        // } else {
+        //     self.get_mut()
+        //         .operator_approvals
+        //         .insert((caller, operator, &None), &Balance::MAX);
+        // }
 
         if value == 0 {
             self.get_mut().operator_approvals.remove((caller, operator, &id));
@@ -317,14 +340,14 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
         &mut self,
         owner: &AccountId,
         operator: &AccountId,
-        id: Id,
+        id: &Id,
         value: Balance,
     ) -> Result<(), PSP35Error> {
         if owner == operator {
             return Ok(())
         }
 
-        let initial_allowance = self._get_allowance(owner, operator, &Some(id.clone()));
+        let initial_allowance = self._get_allowance(owner, operator, &Some(id));
 
         if initial_allowance == Balance::MAX {
             return Ok(())

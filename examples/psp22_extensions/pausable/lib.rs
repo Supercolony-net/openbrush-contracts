@@ -3,6 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp22_pausable {
+    use ink_storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             pausable::*,
@@ -10,7 +11,6 @@ pub mod my_psp22_pausable {
         },
         modifiers,
     };
-    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, PSP22Storage, PausableStorage)]
