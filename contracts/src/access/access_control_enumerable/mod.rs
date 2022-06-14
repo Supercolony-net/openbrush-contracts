@@ -56,7 +56,7 @@ pub trait AccessControlEnumerableInternal {
 
 impl<T: AccessControlEnumerableStorage + Flush> AccessControlEnumerableInternal for T {
     default fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError> {
-        self.grant_role(role, account)?;
+        // self.grant_role(role, account)?;
         AccessControlEnumerableStorage::get_mut(self)
             .role_members
             .add(&role, &account)?;
@@ -64,7 +64,7 @@ impl<T: AccessControlEnumerableStorage + Flush> AccessControlEnumerableInternal 
     }
 
     default fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError> {
-        self.revoke_role(role, account)?;
+        // self.revoke_role(role, account)?;
         AccessControlEnumerableStorage::get_mut(self)
             .role_members
             .remove(&role, &account)?;
@@ -105,16 +105,16 @@ pub struct EnumerableMapping {
 
 impl EnumerableMapping {
     pub fn add(&mut self, member: &RoleType, value: &AccountId) -> Result<(), AccessControlEnumerableError> {
-        if !self.value_to_index.contains((member, value)) {
-            let mut values = Vec::<AccountId>::new();
+        return if !self.value_to_index.contains((member, value)) {
+            let mut values = self.values.get(member).unwrap_or(Vec::<AccountId>::new());
             values.push(*value);
             self.values.insert(member, &values);
 
-            self.index_to_value.insert((member, &(self.length(member) + 1)), value);
-            self.value_to_index.insert((member, value), &(self.length(member) + 1));
-            return Ok(())
+            self.index_to_value.insert((member, &self.length(member)), value);
+            self.value_to_index.insert((member, value), &self.length(member));
+            Ok(())
         } else {
-            return Err(AccessControlEnumerableError::ValueAlreadyExists)
+            Err(AccessControlEnumerableError::ValueAlreadyExists)
         }
     }
 
