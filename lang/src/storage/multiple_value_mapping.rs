@@ -410,8 +410,8 @@ mod tests {
         mapping.insert(&1, &1);
         mapping.insert(&1, &2);
 
-        assert_eq!(mapping.contain(&1), true);
-        assert_eq!(mapping.contain(&2), false);
+        assert_eq!(mapping.contains(&1), true);
+        assert_eq!(mapping.contains(&2), false);
         assert_eq!(mapping.contains_index(&1, &1), true);
         assert_eq!(mapping.contains_index(&1, &2), false);
         assert_eq!(mapping.contains_value(&1, &1), true);
