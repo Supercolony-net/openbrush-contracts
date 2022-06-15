@@ -193,7 +193,7 @@ where
 
     /// Checks if any value is stored at the given `key` in the contract storage.
     #[inline]
-    pub fn contain<'b>(&'b self, key: <TGK as TypeGuard<'b>>::Type) -> bool
+    pub fn contains<'b>(&'b self, key: <TGK as TypeGuard<'b>>::Type) -> bool
     where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode,
