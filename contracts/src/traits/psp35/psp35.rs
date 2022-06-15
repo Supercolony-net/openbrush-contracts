@@ -56,7 +56,7 @@ pub trait PSP35 {
     ///
     /// An `Approval` event is emitted.
     #[ink(message)]
-    fn approve(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
+    fn approve(&mut self, operator: AccountId, id: Option<Id>, value: Balance) -> Result<(), PSP35Error>;
 
     /// Transfers `value` of `id` token from `caller` to `to`
     ///

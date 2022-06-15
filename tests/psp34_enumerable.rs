@@ -114,6 +114,7 @@ mod psp34_enumerable {
         assert!(nft._mint_to(accounts.alice, Id::U8(2u8)).is_ok());
         // check Alice token by index
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(Id::U8(1u8)));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), Ok(Id::U8(2u8)));
         // act. transfer token from alice to bob
         assert!(nft.transfer(accounts.bob, Id::U8(1u8), vec![]).is_ok());
         // bob owns token
