@@ -3,10 +3,10 @@ import BN from 'bn.js'
 
 describe('LENDING_CONTRACT', () => {
   async function setup() {
-    let stable_coin = await setupContract('stable_coin_contract', 'new', `Green Coin`, `GC`)
-    let loan = await (await setupContract('loan_contract', 'new' )).abi
-    let shares = await (await setupContract('shares_contract', 'new', '', '')).abi
-    let lending = await setupContract('lending_contract', 'new', shares.source.hash, loan.source.hash)
+    const stable_coin = await setupContract('stable_coin_contract', 'new', 'Green Coin', 'GC')
+    const loan = await (await setupContract('loan_contract', 'new' )).abi
+    const shares = await (await setupContract('shares_contract', 'new', '', '')).abi
+    const lending = await setupContract('lending_contract', 'new', shares.source.hash, loan.source.hash)
 
     return { lending, stable_coin, alice: stable_coin.defaultSigner }
   }
@@ -14,11 +14,11 @@ describe('LENDING_CONTRACT', () => {
   it('LENDING CONTRACT - lend asset', async () => {
     const { lending, stable_coin, alice } = await setup()
 
-    const amount = 100;
+    const amount = 100
 
     // Alice balance should be >= than lending `amount`
-    let alice_balance = (await stable_coin.query.balanceOf(alice.address)).output;
-    expect(alice_balance).to.gte(amount);
+    const alice_balance = (await stable_coin.query.balanceOf(alice.address)).output
+    expect(alice_balance).to.gte(amount)
 
     // Alice approves `amount` for lending contact
     await expect(stable_coin.tx.approve(lending.contract.address, amount)).to.eventually.be.fulfilled

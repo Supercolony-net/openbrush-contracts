@@ -21,7 +21,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract: psp22, abi } = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract, defaultSigner: sender } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22, contract)
-    await proxy.tx.initialize(1000)
+    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
 
     await expect(proxy.query.totalSupply()).to.have.output(1000)
     await expect(proxy.query.balanceOf(sender.address)).to.have.output(1000)
@@ -39,19 +39,19 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract: psp22, abi, accounts: [receiver] } = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22, contract)
-    
-    await proxy.tx.initialize(1000)
+
+    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
 
     await expect(() => proxy.tx.transfer(receiver.address, 7, [])).to.changeTokenBalance(proxy, receiver, 7)
     await expect(() => proxy.tx.transfer(receiver.address, 7, [])).to.changeTokenBalances(proxy, [proxy.signer, receiver], [-7, 7])
-  }) 
+  })
 
   it('MY_UPGRADEABLE_PSP22 - Transfers funds successfully if destination account is a receiver and supports transfers', async () => {
     const { contract: psp22, abi} = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22, contract)
     const { contract: psp22_receiver } = await setupContract('psp22_receiver', 'new')
-    await proxy.tx.initialize(1000)
+    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
 
     await expect(proxy.tx.transfer(psp22_receiver.address, 7, [])).to.eventually.be.fulfilled
   })
@@ -61,7 +61,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract: psp22_1 } = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22_0, contract)
-    await proxy.tx.initialize(1000)
+    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
 
     await expect(proxy.tx.transfer(psp22_1.address, 7, [])).to.eventually.be.fulfilled
   })
@@ -70,8 +70,8 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract: psp22, abi, accounts: [receiver]} = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', (await abi).source.hash)
     const proxy = setupProxy(psp22, contract)
-    await proxy.tx.initialize(1000)
-    
+    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
+
     await expect(proxy.tx.transfer(receiver.address, 1007, [])).to.eventually.be.rejected
   })
 
@@ -79,7 +79,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const {contract: psp22, abi: abi_psp22, accounts: [receiver]} = await setupContract('my_psp22_upgradeable', 'new', '0')
     const { contract } = await setupContract('my_proxy', 'new', (await abi_psp22).source.hash)
     const proxy = setupProxy(psp22, contract)
-    await proxy.tx.initialize(1000)
+    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
 
     await expect(proxy.query.totalSupply()).to.have.output(1000)
     await expect(proxy.tx.transfer(receiver.address, 100, [])).to.eventually.be.fulfilled
@@ -91,11 +91,11 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     await expect(contract.query.getDelegateCode()).to.have.output(hash)
 
     const proxy_metadata = setupProxy(psp22_metadata, contract)
-    await proxy_metadata.tx.initialize(0,"COLONY", "COL", 18)
+    await expect(proxy_metadata.tx.initialize(0,'COLONY', 'COL', 18)).to.eventually.be.fulfilled
 
     await expect(proxy_metadata.query.totalSupply()).to.have.output(1000)
-    await expect(proxy_metadata.query.tokenName()).to.have.output("COLONY")
-    await expect(proxy_metadata.query.tokenSymbol()).to.have.output("COL")
+    await expect(proxy_metadata.query.tokenName()).to.have.output('COLONY')
+    await expect(proxy_metadata.query.tokenSymbol()).to.have.output('COL')
     await expect(proxy_metadata.query.tokenDecimals()).to.have.output(18)
     await expect(proxy_metadata.query.balanceOf(receiver.address)).to.have.output(100)
   })

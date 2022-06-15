@@ -28,7 +28,9 @@ pub mod ownable;
 pub mod pausable;
 pub mod payment_splitter;
 pub mod proxy;
-pub mod psp1155;
 pub mod psp22;
 pub mod psp34;
+pub mod psp35;
 pub mod timelock_controller;
+
+mod types;

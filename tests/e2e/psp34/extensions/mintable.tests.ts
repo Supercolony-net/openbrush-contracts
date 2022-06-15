@@ -16,8 +16,8 @@ describe('MY_PSP34_MINTABLE', () => {
     await expect(query.balanceOf(sender.address)).to.have.output(0)
     await expect(query.balanceOf(alice.address)).to.have.output(0)
 
-    await contract.tx.mint(sender.address, 0)
-    await contract.tx.mint(alice.address, 1)
+    await expect(contract.tx.mint(sender.address, 0)).to.eventually.be.fulfilled
+    await expect(contract.tx.mint(alice.address, 1)).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address)).to.have.output(1)
     await expect(query.balanceOf(alice.address)).to.have.output(1)

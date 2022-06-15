@@ -147,12 +147,11 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         let mut caller = Self::env().caller();
 
         if id.is_some() {
-            let maybe_owner = self.get().token_owner.get(id.as_ref().unwrap());
-
-            if maybe_owner.is_none() {
-                return Err(PSP34Error::TokenNotExists)
-            }
-            let owner = maybe_owner.unwrap();
+            let owner = self
+                .get()
+                .token_owner
+                .get(id.as_ref().unwrap())
+                .ok_or(PSP34Error::TokenNotExists)?;
 
             if approved && owner == to {
                 return Err(PSP34Error::SelfApprove)

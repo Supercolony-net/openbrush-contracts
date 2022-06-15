@@ -24,10 +24,15 @@ pub use crate::{
     traits::psp34::extensions::enumerable::*,
 };
 pub use derive::PSP34EnumerableStorage;
-use ink_storage::Mapping;
-use openbrush::traits::{
-    AccountId,
-    Flush,
+use openbrush::{
+    storage::{
+        MultipleValueMapping,
+        TypeGuard,
+    },
+    traits::{
+        AccountId,
+        Flush,
+    },
 };
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP34EnumerableData");
@@ -35,8 +40,14 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP34Enumera
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct PSP34EnumerableData {
-    pub enumerable: EnumerableMapping,
+    pub enumerable: MultipleValueMapping<Option<AccountId>, Id, EnumerableKey /* for optimization */>,
     pub _reserved: Option<()>,
+}
+
+pub struct EnumerableKey;
+
+impl<'a> TypeGuard<'a> for EnumerableKey {
+    type Type = &'a Option<&'a AccountId>;
 }
 
 pub trait PSP34EnumerableStorage: PSP34Storage + ::openbrush::traits::InkStorage {
@@ -79,6 +90,10 @@ pub trait PSP34EnumerableInternal {
         to: Option<&AccountId>,
         id: &Id,
     ) -> Result<(), PSP34Error>;
+
+    fn _enumerable(&self) -> &PSP34EnumerableData;
+
+    fn _enumerable_mut(&mut self) -> &mut PSP34EnumerableData;
 }
 
 impl<T: PSP34EnumerableStorage + Flush> PSP34EnumerableInternal for T {
@@ -93,85 +108,43 @@ impl<T: PSP34EnumerableStorage + Flush> PSP34EnumerableInternal for T {
         }
 
         if from.is_none() {
-            let last_free_index = self._total_supply();
-            PSP34EnumerableStorage::get_mut(self)
-                .enumerable
-                .insert(&None, id, &last_free_index);
+            self._enumerable_mut().enumerable.insert(&None, id);
         } else {
-            let from = from.unwrap();
-            let last_index = (self._balance_of(from) - 1) as u128;
-            PSP34EnumerableStorage::get_mut(self)
-                .enumerable
-                .remove(&Some(from.clone()), id, &last_index)?;
+            self._enumerable_mut().enumerable.remove_value(&from, id);
         }
 
         if to.is_none() {
-            let last_index = self._total_supply() - 1;
-            PSP34EnumerableStorage::get_mut(self)
-                .enumerable
-                .remove(&None, id, &last_index)?;
+            self._enumerable_mut().enumerable.remove_value(&None, id);
         } else {
-            let to = to.unwrap();
-            let last_free_index = (self._balance_of(to)) as u128;
-            PSP34EnumerableStorage::get_mut(self)
-                .enumerable
-                .insert(&Some(to.clone()), id, &last_free_index);
+            self._enumerable_mut().enumerable.insert(&to, id);
         }
 
         Ok(())
+    }
+
+    #[inline(always)]
+    fn _enumerable(&self) -> &PSP34EnumerableData {
+        PSP34EnumerableStorage::get(self)
+    }
+
+    #[inline(always)]
+    fn _enumerable_mut(&mut self) -> &mut PSP34EnumerableData {
+        PSP34EnumerableStorage::get_mut(self)
     }
 }
 
 impl<T: PSP34EnumerableStorage + Flush> PSP34Enumerable for T {
     default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<Id, PSP34Error> {
-        PSP34EnumerableStorage::get(self)
+        self._enumerable()
             .enumerable
-            .get_by_index(&Some(owner), &index)
+            .get_value(&Some(&owner), &index)
+            .ok_or(PSP34Error::TokenNotExists)
     }
 
     default fn token_by_index(&self, index: u128) -> Result<Id, PSP34Error> {
-        PSP34EnumerableStorage::get(self).enumerable.get_by_index(&None, &index)
-    }
-}
-
-#[derive(Default, Debug, ink_storage::traits::SpreadLayout, ink_storage::traits::SpreadAllocate)]
-#[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
-pub struct EnumerableMapping {
-    /// Mapping from index to `Id`.
-    ///
-    /// ** Note ** Owner can be `None` to track existence of the token in the contract
-    id_to_index: Mapping<(Option<AccountId>, Id), u128>,
-    /// Mapping from owner's index to `Id`.
-    ///
-    /// ** Note ** Owner can be `None` that means it is a contract.
-    index_to_id: Mapping<(Option<AccountId>, u128), Id>,
-}
-
-impl EnumerableMapping {
-    pub fn insert(&mut self, owner: &Option<AccountId>, id: &Id, index: &u128) {
-        self.id_to_index.insert((owner, id), index);
-        self.index_to_id.insert((owner, index), id);
-    }
-
-    pub fn remove(&mut self, owner: &Option<AccountId>, id: &Id, last_index: &u128) -> Result<(), PSP34Error> {
-        let index = self.id_to_index.get((owner, id)).ok_or(PSP34Error::TokenNotExists)?;
-
-        if last_index != &index {
-            let last_id = self
-                .index_to_id
-                .get((owner, last_index))
-                .ok_or(PSP34Error::TokenNotExists)?;
-            self.index_to_id.insert((owner, &index), &last_id);
-            self.id_to_index.insert((owner, &last_id), &index);
-        }
-
-        self.index_to_id.remove((owner, &last_index));
-        self.id_to_index.remove((owner, id));
-
-        Ok(())
-    }
-
-    pub fn get_by_index(&self, owner: &Option<AccountId>, index: &u128) -> Result<Id, PSP34Error> {
-        self.index_to_id.get((owner, index)).ok_or(PSP34Error::TokenNotExists)
+        self._enumerable()
+            .enumerable
+            .get_value(&None, &index)
+            .ok_or(PSP34Error::TokenNotExists)
     }
 }
