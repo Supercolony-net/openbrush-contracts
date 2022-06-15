@@ -21,7 +21,7 @@
 
 pub use crate::traits::{
     access_control::RoleType,
-    errors::AccessControlEnumerableError,
+    errors::AccessControlError,
 };
 use openbrush::traits::AccountId;
 
@@ -37,7 +37,7 @@ pub trait AccessControlEnumerable {
     /// Role bearers are not sorted in any particular way, and their
     /// ordering may change at any point.
     #[ink(message)]
-    fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlEnumerableError>;
+    fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlError>;
 
     /// Returns the number of accounts that have `role`.
     /// Can be used together with {get_role_member_count} to enumerate
@@ -45,24 +45,24 @@ pub trait AccessControlEnumerable {
     #[ink(message)]
     fn get_role_member_count(&self, role: RoleType) -> u128;
 
-    /// Grants `role` to `account`.
-    ///
-    /// On success a `RoleGranted` event is emitted.
-    ///
-    /// # Errors
-    ///
-    /// Returns with `MissingRole` error if caller can't grant the role.
-    /// Returns with `RoleRedundant` error `account` has `role`.
-    #[ink(message)]
-    fn grant_role_enumerable(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError>;
-
-    /// Revokes `role` from `account`.
-    ///
-    /// On success a `RoleRevoked` event is emitted.
-    ///
-    /// # Errors
-    ///
-    /// Returns with `MissingRole` error if caller can't grant the `role` or if `account` doesn't have `role`.
-    #[ink(message)]
-    fn revoke_role_enumerable(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError>;
+    // /// Grants `role` to `account`.
+    // ///
+    // /// On success a `RoleGranted` event is emitted.
+    // ///
+    // /// # Errors
+    // ///
+    // /// Returns with `MissingRole` error if caller can't grant the role.
+    // /// Returns with `RoleRedundant` error `account` has `role`.
+    // #[ink(message)]
+    // fn grant_role_enumerable(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError>;
+    //
+    // /// Revokes `role` from `account`.
+    // ///
+    // /// On success a `RoleRevoked` event is emitted.
+    // ///
+    // /// # Errors
+    // ///
+    // /// Returns with `MissingRole` error if caller can't grant the `role` or if `account` doesn't have `role`.
+    // #[ink(message)]
+    // fn revoke_role_enumerable(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError>;
 }

@@ -47,24 +47,19 @@ pub trait AccessControlEnumerableStorage: AccessControlStorage + ::openbrush::tr
     fn get_mut(&mut self) -> &mut AccessControlEnumerableData;
 }
 
-pub trait AccessControlEnumerableInternal {
-    /// Overload {_grant_role} to track enumerable memberships
-    fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError>;
-    /// Overload {_revoke_role} to track enumerable memberships
-    fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError>;
-}
+impl<T: AccessControlEnumerableStorage + Flush> AccessControlRoleManager for T {
+    fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+        // default_grant_role(self, role, account)?;
 
-impl<T: AccessControlEnumerableStorage + Flush> AccessControlEnumerableInternal for T {
-    default fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError> {
-        // self.grant_role(role, account)?;
         AccessControlEnumerableStorage::get_mut(self)
             .role_members
             .add(&role, &account)?;
+
         Ok(())
     }
 
-    default fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError> {
-        // self.revoke_role(role, account)?;
+    fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+        default_revoke_role(self, role, account)?;
         AccessControlEnumerableStorage::get_mut(self)
             .role_members
             .remove(&role, &account)?;
@@ -72,21 +67,13 @@ impl<T: AccessControlEnumerableStorage + Flush> AccessControlEnumerableInternal 
     }
 }
 
-impl<T: AccessControlEnumerableStorage + AccessControlEnumerableInternal + Flush> AccessControlEnumerable for T {
-    default fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlEnumerableError> {
+impl<T: AccessControlEnumerableStorage + Flush> AccessControlEnumerable for T {
+    default fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlError> {
         AccessControlEnumerableStorage::get(self).role_members.at(&role, &index)
     }
 
     default fn get_role_member_count(&self, role: RoleType) -> u128 {
         AccessControlEnumerableStorage::get(self).role_members.length(&role) as u128
-    }
-
-    fn grant_role_enumerable(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError> {
-        self._grant_role(role, account)
-    }
-
-    fn revoke_role_enumerable(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlEnumerableError> {
-        self._revoke_role(role, account)
     }
 }
 
@@ -104,8 +91,8 @@ pub struct EnumerableMapping {
 }
 
 impl EnumerableMapping {
-    pub fn add(&mut self, member: &RoleType, value: &AccountId) -> Result<(), AccessControlEnumerableError> {
-        return if !self.value_to_index.contains((member, value)) {
+    pub fn add(&mut self, member: &RoleType, value: &AccountId) -> Result<(), AccessControlError> {
+        if !self.value_to_index.contains((member, value)) {
             let mut values = self.values.get(member).unwrap_or(Vec::<AccountId>::new());
             values.push(*value);
             self.values.insert(member, &values);
@@ -114,15 +101,15 @@ impl EnumerableMapping {
             self.value_to_index.insert((member, value), &self.length(member));
             Ok(())
         } else {
-            Err(AccessControlEnumerableError::ValueAlreadyExists)
+            Err(AccessControlError::ValueAlreadyExists)
         }
     }
 
-    pub fn remove(&mut self, member: &RoleType, value: &AccountId) -> Result<(), AccessControlEnumerableError> {
+    pub fn remove(&mut self, member: &RoleType, value: &AccountId) -> Result<(), AccessControlError> {
         let value_index = self
             .value_to_index
             .get((member, value))
-            .ok_or(AccessControlEnumerableError::ValueNotExists)?;
+            .ok_or(AccessControlError::ValueNotExists)?;
 
         let to_delete_index = value_index - 1;
         let last_index = self.length(member) - 1;
@@ -131,7 +118,7 @@ impl EnumerableMapping {
             let values = self.get_values(member);
             let last_value = values
                 .get(last_index as usize)
-                .ok_or(AccessControlEnumerableError::ValueNotExists)?;
+                .ok_or(AccessControlError::ValueNotExists)?;
 
             let mut values = self.get_values(member);
             values.insert(to_delete_index as usize, *last_value);
@@ -153,10 +140,10 @@ impl EnumerableMapping {
         self.get_values(member).len() as u128
     }
 
-    pub fn at(&self, member: &RoleType, index: &u128) -> Result<AccountId, AccessControlEnumerableError> {
+    pub fn at(&self, member: &RoleType, index: &u128) -> Result<AccountId, AccessControlError> {
         self.index_to_value
             .get((member, index))
-            .ok_or(AccessControlEnumerableError::ValueNotExists)
+            .ok_or(AccessControlError::ValueNotExists)
     }
 
     pub fn get_values(&self, member: &RoleType) -> Vec<AccountId> {

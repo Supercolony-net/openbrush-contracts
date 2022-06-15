@@ -27,4 +27,6 @@ pub enum AccessControlError {
     InvalidCaller,
     MissingRole,
     RoleRedundant,
+    ValueAlreadyExists,
+    ValueNotExists,
 }

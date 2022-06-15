@@ -28,6 +28,7 @@ use openbrush::{
     modifiers,
     traits::AccountId,
 };
+use crate::access_control;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlData");
 
@@ -68,19 +69,12 @@ impl<T: AccessControlStorage> AccessControl for T {
 
     #[modifiers(only_role(get_role_admin(self, &role)))]
     default fn grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        if has_role(self, &role, &account) {
-            return Err(AccessControlError::RoleRedundant)
-        }
-        self.get_mut().members.insert((&role, &account), &());
-        self._emit_role_granted(role, account, Some(Self::env().caller()));
-        Ok(())
+        self._grant_role(role, account)
     }
 
     #[modifiers(only_role(get_role_admin(self, &role)))]
     default fn revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        check_role(self, &role, &account)?;
-        self._do_revoke_role(role, account);
-        Ok(())
+        self._revoke_role(role, account)
     }
 
     default fn renounce_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
@@ -164,6 +158,37 @@ impl<T: AccessControlStorage> AccessControlInternal for T {
         self.get_mut().admin_roles.insert(&role, &new_admin);
         self._emit_role_admin_changed(role, old_admin, new_admin);
     }
+}
+
+pub trait AccessControlRoleManager {
+    fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError>;
+
+    fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError>;
+}
+
+impl<T: AccessControlStorage> AccessControlRoleManager for T {
+    default fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+        default_grant_role(self, role, account)
+    }
+
+    default fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+        default_revoke_role(self, role ,account)
+    }
+}
+
+pub fn default_grant_role<T: AccessControlStorage + ?Sized> (ac: &mut T, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+    if has_role(ac, &role, &account) {
+        return Err(AccessControlError::RoleRedundant)
+    }
+    ac.get_mut().members.insert((&role, &account), &());
+    ac._emit_role_granted(role, account, Some(T::env().caller()));
+    Ok(())
+}
+
+pub fn default_revoke_role<T: AccessControlStorage + ?Sized> (ac: &mut T, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+    check_role(ac, &role, &account)?;
+    ac._do_revoke_role(role, account);
+    Ok(())
 }
 
 pub fn check_role<T: AccessControlStorage>(

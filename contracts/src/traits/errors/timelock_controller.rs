@@ -54,6 +54,12 @@ impl From<AccessControlError> for TimelockControllerError {
             AccessControlError::InvalidCaller => {
                 TimelockControllerError::AccessControlError(AccessControlError::InvalidCaller)
             }
+            AccessControlError::ValueAlreadyExists => {
+                TimelockControllerError::AccessControlError(AccessControlError::ValueAlreadyExists)
+            }
+            AccessControlError::ValueNotExists => {
+                TimelockControllerError::AccessControlError(AccessControlError::ValueNotExists)
+            }
         }
     }
 }

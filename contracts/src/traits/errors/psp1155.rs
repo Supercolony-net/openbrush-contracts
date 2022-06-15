@@ -58,6 +58,8 @@ impl From<AccessControlError> for PSP1155Error {
             AccessControlError::MissingRole => PSP1155Error::Custom(String::from("AC::MissingRole")),
             AccessControlError::RoleRedundant => PSP1155Error::Custom(String::from("AC::RoleRedundant")),
             AccessControlError::InvalidCaller => PSP1155Error::Custom(String::from("AC::InvalidCaller")),
+            AccessControlError::ValueAlreadyExists => PSP1155Error::Custom(String::from("AC::ValueAlreadyExists")),
+            AccessControlError::ValueNotExists => PSP1155Error::Custom(String::from("AC::ValueNotExists")),
         }
     }
 }
