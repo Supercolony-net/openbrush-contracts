@@ -350,4 +350,71 @@ const _: () = {
     }
 };
 
-// TODO: Tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[ink_lang::test]
+    fn insert_and_count_works() {
+        let mut mapping: MultipleValueMapping<u128, u128> = MultipleValueMapping::default();
+        mapping.insert(&1, &1);
+        mapping.insert(&1, &2);
+        assert_eq!(mapping.count(&1), 2);
+    }
+
+    #[ink_lang::test]
+    fn get_works() {
+        let mut mapping: MultipleValueMapping<u128, u128> = MultipleValueMapping::default();
+        mapping.insert(&1, &1);
+        assert_eq!(mapping.get_index(&1, &1), Some(0));
+        assert_eq!(mapping.get_value(&1, &0), Some(1));
+
+        mapping.insert(&1, &2);
+        assert_eq!(mapping.get_index(&1, &1), Some(0));
+        assert_eq!(mapping.get_index(&1, &2), Some(1));
+
+        assert_eq!(mapping.get_value(&1, &0), Some(1));
+        assert_eq!(mapping.get_value(&1, &1), Some(2));
+    }
+
+    #[ink_lang::test]
+    fn remove_works() {
+        let mut mapping: MultipleValueMapping<u128, u128> = MultipleValueMapping::default();
+        mapping.insert(&1, &1);
+        mapping.insert(&1, &2);
+        assert_eq!(mapping.get_index(&1, &1), Some(0));
+        assert_eq!(mapping.get_index(&1, &2), Some(1));
+
+        assert_eq!(mapping.count(&1), 2);
+
+        mapping.remove_value(&1, &1);
+        assert_eq!(mapping.count(&1), 1);
+        assert_eq!(mapping.get_value(&1, &0), Some(2));
+
+        mapping.insert(&1, &1);
+
+        assert_eq!(mapping.count(&1), 2);
+        assert_eq!(mapping.get_value(&1, &0), Some(2));
+        assert_eq!(mapping.get_value(&1, &1), Some(1));
+
+        mapping.remove_index(&1, &0);
+
+        assert_eq!(mapping.count(&1), 1);
+        assert_eq!(mapping.get_value(&1, &0), Some(1));
+    }
+
+    #[ink_lang::test]
+    fn contain_works() {
+        let mut mapping: MultipleValueMapping<u128, u128> = MultipleValueMapping::default();
+
+        mapping.insert(&1, &1);
+        mapping.insert(&1, &2);
+
+        assert_eq!(mapping.contain(&1), true);
+        assert_eq!(mapping.contain(&2), false);
+        assert_eq!(mapping.contains_index(&1, &1), true);
+        assert_eq!(mapping.contains_index(&1, &2), false);
+        assert_eq!(mapping.contains_value(&1, &1), true);
+        assert_eq!(mapping.contains_value(&1, &3), false);
+    }
+}
