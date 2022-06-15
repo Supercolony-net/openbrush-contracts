@@ -48,6 +48,9 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
         return (quote! {}).into()
     }
     let attrs: proc_macro2::TokenStream = _attrs.into();
+    let (mock_type, attrs) = extract_mock_config(attrs);
+    println!("mock_type: {:?}", mock_type);
+    println!("extracted_attrs: {:?}", attrs);
     let mut trait_item: ItemTrait = parse2(_input).unwrap();
     let trait_without_ink_attrs;
     let ink_code;
@@ -60,6 +63,7 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
         }
     });
 
+    let mut maybe_use_mock_env = quote! {};
     if contains_ink.is_some() {
         add_selectors_attribute(&mut trait_item);
         // Brackets to force the unlock of the file after the update of the trait definition
@@ -97,7 +101,7 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
             }
         });
 
-        let wrapper_trait = generate_wrapper(ink_trait.clone());
+        let wrapper_trait = generate_wrapper(ink_trait.clone(), mock_type.clone());
 
         ink_code = quote! {
             #[allow(non_camel_case_types)]
@@ -113,6 +117,12 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
                 #ink_trait
             }
         };
+
+        let pub_mock_env_ident = format_ident!("Mock{}", trait_item.ident.to_string());
+        maybe_use_mock_env = quote! {
+            #[cfg(test)]
+            pub use #namespace_ident :: mock_env as #pub_mock_env_ident;
+        };
     } else {
         trait_without_ink_attrs = trait_item;
         ink_code = quote! {};
@@ -124,7 +134,10 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
         #trait_without_ink_attrs
 
         #ink_code
+
+        #maybe_use_mock_env
     };
+    // println!("Final output: {}", code);
     code.into()
 }
 
@@ -167,7 +180,7 @@ fn transform_to_ink_trait(mut trait_item: ItemTrait) -> ItemTrait {
     trait_item
 }
 
-fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
+fn generate_wrapper(ink_trait: ItemTrait, mock_type: Option<TokenStream>) -> proc_macro2::TokenStream {
     let trait_ident = ink_trait.ident.clone();
     let trait_wrapper_ident = format_ident!("{}Wrapper", ink_trait.ident);
     let mut def_messages = vec![];
@@ -252,15 +265,33 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 >;
             });
 
+            let message_test_impl = match &mock_type {
+                Some(_mock_ty) => quote! {
+                    mock_env :: with(|mock_obj|
+                        mock_obj . #message_ident (
+                            #( #input_bindings , )*
+                        )
+                    ).expect("mock object not set")
+                },
+                None => quote! { ::core::panic!("cross-contract call is not supported in ink tests; try to set a mock object?") }
+            };
+
             impl_messages.push(quote! {
                 #[inline]
                 fn #message_ident(
                     & self
                     #( , #input_bindings : #input_types )*
                 ) -> #output_ty {
-                    Self::#message_builder_ident(self #( , #input_bindings)*)
-                        .fire()
-                        .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
+                    #[cfg(not(test))]
+                    {
+                        Self::#message_builder_ident(self #( , #input_bindings)*)
+                            .fire()
+                            .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
+                    }
+                    #[cfg(test)]
+                    {
+                        #message_test_impl
+                    }
                 }
 
                 #[inline]
@@ -292,6 +323,14 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
     let impl_messages = impl_messages.iter();
     let def_messages = def_messages.iter();
 
+    let maybe_mock_environmental = match mock_type {
+        Some(ty) => quote! {
+            #[cfg(test)]
+            ::environmental::environmental!( pub mock_env : #ty );
+        },
+        None => quote! {},
+    };
+
     quote! {
         pub trait #trait_wrapper_ident {
             #( #def_messages )*
@@ -300,6 +339,8 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
         impl #trait_wrapper_ident for ::openbrush::traits::AccountId {
             #( #impl_messages )*
         }
+
+        #maybe_mock_environmental
     }
 }
 
@@ -333,4 +374,54 @@ fn remove_ink_attrs(mut trait_item: ItemTrait) -> ItemTrait {
         }
     });
     trait_item
+}
+
+fn extract_mock_config(attr: TokenStream) -> (Option<TokenStream>, TokenStream) {
+    let attr_args = syn::parse2::<attr_args::AttributeArgs>(attr).expect("unable to parse trait_definition attribute");
+
+    let (mock_args, ink_args): (Vec<_>, Vec<_>) = attr_args
+        .into_iter()
+        .partition(|arg| {
+            arg.name.is_ident("mock")
+        });
+    
+    let mock_type = mock_args.first().map(|mock_attr| {
+        let ty = &mock_attr.value;
+        quote! { #ty }
+    });
+    let ink_attrs = quote! {
+        #( #ink_args , ) *
+    };
+    (mock_type, ink_attrs)
+}
+
+mod attr_args;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn macro_works() {
+        let r = generate(
+            quote! {
+                mock = MyMockType,
+                namespace = ::name::space
+            },
+            quote!{
+                pub trait SubmittableOracle {
+                    #[ink(message)]
+                    fn admin(&self) -> AccountId;
+            
+                    #[ink(message)]
+                    fn verifier(&self) -> Verifier;
+            
+                    #[ink(message)]
+                    fn attest(&self, arg: String) -> Result<Attestation, ()>;
+                }
+            }
+        );
+
+        println!("OUTPUT:\n\n{:}", r);
+    }
 }
