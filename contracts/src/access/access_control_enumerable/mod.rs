@@ -49,11 +49,10 @@ pub trait AccessControlEnumerableStorage: AccessControlStorage + ::openbrush::tr
 
 impl<T: AccessControlEnumerableStorage + Flush> AccessControlRoleManager for T {
     fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        // default_grant_role(self, role, account)?;
-
+        default_grant_role(self, role, account)?;
         AccessControlEnumerableStorage::get_mut(self)
             .role_members
-            .add(&role, &account)?;
+            .add(role, account)?;
 
         Ok(())
     }
@@ -62,7 +61,7 @@ impl<T: AccessControlEnumerableStorage + Flush> AccessControlRoleManager for T {
         default_revoke_role(self, role, account)?;
         AccessControlEnumerableStorage::get_mut(self)
             .role_members
-            .remove(&role, &account)?;
+            .remove(role, account)?;
         Ok(())
     }
 }
@@ -87,51 +86,51 @@ pub struct EnumerableMapping {
     /// because index 0 means a value is not in the set.
     pub index_to_value: Mapping<(RoleType, u128), AccountId>,
     /// Mapping from `value` to index.
-    pub value_to_index: Mapping<(RoleType, AccountId), u128>,
+    pub value_to_index: Mapping<Option<(RoleType, AccountId)>, u128>,
 }
 
 impl EnumerableMapping {
-    pub fn add(&mut self, member: &RoleType, value: &AccountId) -> Result<(), AccessControlError> {
-        if !self.value_to_index.contains((member, value)) {
+    pub fn add(&mut self, member: RoleType, value: AccountId) -> Result<(), AccessControlError> {
+        if !self.value_to_index.contains(&Some((member, value))) {
             let mut values = self.values.get(member).unwrap_or(Vec::<AccountId>::new());
-            values.push(*value);
+            values.push(value);
             self.values.insert(member, &values);
 
-            self.index_to_value.insert((member, &self.length(member)), value);
-            self.value_to_index.insert((member, value), &self.length(member));
+            self.index_to_value.insert((member, &self.length(&member)), &value);
+            self.value_to_index.insert(&Some((member, value)), &self.length(&member));
             Ok(())
         } else {
             Err(AccessControlError::ValueAlreadyExists)
         }
     }
 
-    pub fn remove(&mut self, member: &RoleType, value: &AccountId) -> Result<(), AccessControlError> {
+    pub fn remove(&mut self, member: RoleType, value: AccountId) -> Result<(), AccessControlError> {
         let value_index = self
             .value_to_index
-            .get((member, value))
+            .get(&Some((member, value)))
             .ok_or(AccessControlError::ValueNotExists)?;
 
         let to_delete_index = value_index - 1;
-        let last_index = self.length(member) - 1;
+        let last_index = self.length(&member) - 1;
 
         if last_index != to_delete_index {
-            let values = self.get_values(member);
+            let values = self.get_values(&member);
             let last_value = values
                 .get(last_index as usize)
                 .ok_or(AccessControlError::ValueNotExists)?;
 
-            let mut values = self.get_values(member);
+            let mut values = self.get_values(&member);
             values.insert(to_delete_index as usize, *last_value);
             self.values.insert(member, &values);
             self.index_to_value.insert((member, &value_index), last_value);
-            self.value_to_index.insert((member, last_value), &value_index);
+            self.value_to_index.insert(Some((&member, last_value)), &value_index);
         }
 
-        let mut values = self.get_values(member);
+        let mut values = self.get_values(&member);
         values.remove(last_index as usize);
         self.values.insert(member, &values);
         self.index_to_value.remove((member, &last_index));
-        self.value_to_index.remove((member, value));
+        self.value_to_index.remove(&Some((member, value)));
 
         Ok(())
     }

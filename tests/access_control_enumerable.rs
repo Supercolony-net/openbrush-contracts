@@ -81,10 +81,10 @@ mod access_control_enumerable {
         assert_eq!(access_control.grant_role(PAUSER, alice), Ok(()));
         assert_eq!(access_control.get_role_member_count(PAUSER), 1);
         assert_eq!(access_control.get_role_member(PAUSER, 1), Ok(alice));
-        // assert!(access_control.grant_role_enumerable(MINTER, alice).is_ok());
+        assert!(access_control.grant_role_enumerable(MINTER, alice).is_ok());
         //
         // assert!(access_control.has_role(DEFAULT_ADMIN_ROLE, alice));
-        assert!(access_control.has_role(PAUSER, accounts.alice));
+        // assert!(!access_control.has_role(PAUSER, accounts.alice));
         // assert!(access_control.has_role(MINTER, alice));
     }
 
@@ -99,14 +99,14 @@ mod access_control_enumerable {
     //
     //     assert!(!access_control.has_role(PAUSER, accounts.bob));
     // }
-
+    //
     // #[ink::test]
     // fn should_renounce_role() {
     //     let accounts = setup();
     //     let mut access_control = AccessControlStruct::new(accounts.alice);
     //     change_caller(accounts.alice);
     //
-    //     assert!(access_control.grant_role_enumerable(PAUSER, accounts.eve).is_ok());
+    //     assert!(access_control.grant_role(PAUSER, accounts.eve).is_ok());
     //     assert!(access_control.has_role(PAUSER, accounts.eve));
     //     change_caller(accounts.eve);
     //     assert!(access_control.renounce_role(PAUSER, accounts.eve).is_ok());
