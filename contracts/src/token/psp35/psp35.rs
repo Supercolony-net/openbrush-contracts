@@ -31,9 +31,12 @@ use ink_prelude::{
     vec,
     vec::Vec,
 };
-use ink_storage::Mapping;
 use openbrush::{
     declare_storage_trait,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         AccountIdExt,
@@ -47,9 +50,22 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Data");
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct PSP35Data {
-    pub balances: Mapping<(Id, AccountId), Balance>,
-    pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance>,
+    pub balances: Mapping<(Id, AccountId), Balance, BalancesKey /* for optimization */>,
+    pub operator_approvals:
+        Mapping<(AccountId, AccountId, Option<Id>), Balance, ApprovalsKey /* for optimization */>,
     pub _reserved: Option<()>,
+}
+
+pub struct BalancesKey;
+
+impl<'a> TypeGuard<'a> for BalancesKey {
+    type Type = &'a (&'a Id, &'a AccountId);
+}
+
+pub struct ApprovalsKey;
+
+impl<'a> TypeGuard<'a> for ApprovalsKey {
+    type Type = &'a (&'a AccountId, &'a AccountId, &'a Option<&'a Id>);
 }
 
 declare_storage_trait!(PSP35Storage, PSP35Data);
@@ -66,8 +82,8 @@ impl<T: PSP35Storage + Flush> PSP35 for T {
         }
     }
 
-    default fn approve(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error> {
-        self._approve_for(operator, token)
+    default fn approve(&mut self, operator: AccountId, id: Option<Id>, value: Balance) -> Result<(), PSP35Error> {
+        self._approve_for(operator, id, value)
     }
 
     default fn transfer(&mut self, to: AccountId, id: Id, value: Balance, data: Vec<u8>) -> Result<(), PSP35Error> {
@@ -134,7 +150,7 @@ pub trait PSP35Internal {
 
     fn _get_allowance(&self, account: &AccountId, operator: &AccountId, id: &Option<&Id>) -> Balance;
 
-    fn _approve_for(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error>;
+    fn _approve_for(&mut self, operator: AccountId, id: Option<Id>, value: Balance) -> Result<(), PSP35Error>;
 
     fn _decrease_allowance(
         &mut self,
@@ -260,12 +276,12 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
     }
 
     default fn _balance_of_or_zero(&self, owner: &AccountId, id: &Id) -> Balance {
-        self.get().balances.get((id, owner)).unwrap_or(0)
+        self.get().balances.get(&(id, owner)).unwrap_or(0)
     }
 
     default fn _increase_receiver_balance(&mut self, to: &AccountId, id: &Id, amount: Balance) {
-        let to_balance = self.get_mut().balances.get((id, to)).unwrap_or(0);
-        self.get_mut().balances.insert((id, to), &(to_balance + amount));
+        let to_balance = self.get_mut().balances.get(&(id, to)).unwrap_or(0);
+        self.get_mut().balances.insert(&(id, to), &(to_balance + amount));
     }
 
     default fn _decrease_sender_balance(
@@ -280,58 +296,45 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
             return Err(PSP35Error::InsufficientBalance)
         }
 
-        self.get_mut().balances.insert((id, from), &(balance - amount));
+        self.get_mut().balances.insert(&(id, from), &(balance - amount));
         Ok(())
     }
 
     default fn _get_allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<&Id>) -> Balance {
-        return match self.get().operator_approvals.get((owner, operator, &None)) {
-            None => {
-                let id = <scale::Ref<'_, Option<&Id>, Option<Id>> as From<_>>::from(id);
-                self.get().operator_approvals.get((owner, operator, id)).unwrap_or(0)
-            }
+        return match self.get().operator_approvals.get(&(owner, operator, &None)) {
+            None => self.get().operator_approvals.get(&(owner, operator, id)).unwrap_or(0),
             _ => Balance::MAX,
         }
     }
 
-    fn _approve_for(&mut self, operator: AccountId, token: Option<(Id, Balance)>) -> Result<(), PSP35Error> {
+    fn _approve_for(&mut self, operator: AccountId, id: Option<Id>, value: Balance) -> Result<(), PSP35Error> {
         let caller = Self::env().caller();
 
         if caller == operator {
             return Err(PSP35Error::SelfApprove)
         }
 
-        let (id, value) = match token {
-            Some((token_id, amount)) => ((Some(token_id)), amount),
-            None => (None, Balance::MAX),
-        };
-
-        // TODO: Rework as in PSP35
-        // if let Some((id, value)) = token {
-        //     if value == 0 {
-        //
-        //     } else {
-        //         self.get_mut()
-        //             .operator_approvals
-        //             .insert((caller, operator, &None), &Balance::MAX);
-        //     }
-        //     Some((token_id, amount)) => ((Some(token_id)), amount),
-        //     None => (None, Balance::MAX),
-        // } else {
-        //     self.get_mut()
-        //         .operator_approvals
-        //         .insert((caller, operator, &None), &Balance::MAX);
-        // }
-
-        if value == 0 {
-            self.get_mut().operator_approvals.remove((caller, operator, &id));
+        if let Some(id) = &id {
+            if value == 0 {
+                self.get_mut()
+                    .operator_approvals
+                    .remove(&(&caller, &operator, &Some(id)));
+            } else {
+                self.get_mut()
+                    .operator_approvals
+                    .insert(&(&caller, &operator, &Some(id)), &value);
+            }
         } else {
-            self.get_mut()
-                .operator_approvals
-                .insert((caller, operator, &id), &value);
+            if value == 0 {
+                self.get_mut().operator_approvals.remove(&(&caller, &operator, &None));
+            } else {
+                self.get_mut()
+                    .operator_approvals
+                    .insert(&(&caller, &operator, &None), &Balance::MAX);
+            }
         }
 
-        self._emit_approval_event(caller, operator.clone(), id, value);
+        self._emit_approval_event(caller, operator, id, value);
 
         Ok(())
     }
@@ -359,7 +362,7 @@ impl<T: PSP35Storage + Flush> PSP35Internal for T {
 
         self.get_mut()
             .operator_approvals
-            .insert((owner, operator, Some(id)), &(initial_allowance - value));
+            .insert(&(owner, operator, &Some(id)), &(initial_allowance - value));
 
         Ok(())
     }

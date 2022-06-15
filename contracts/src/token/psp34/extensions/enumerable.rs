@@ -25,7 +25,10 @@ pub use crate::{
 };
 pub use derive::PSP34EnumerableStorage;
 use openbrush::{
-    storage::MultipleValueMapping,
+    storage::{
+        MultipleValueMapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         Flush,
@@ -37,8 +40,14 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP34Enumera
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct PSP34EnumerableData {
-    pub enumerable: MultipleValueMapping<Option<AccountId>, Id>,
+    pub enumerable: MultipleValueMapping<Option<AccountId>, Id, EnumerableKey /* for optimization */>,
     pub _reserved: Option<()>,
+}
+
+pub struct EnumerableKey;
+
+impl<'a> TypeGuard<'a> for EnumerableKey {
+    type Type = &'a Option<&'a AccountId>;
 }
 
 pub trait PSP34EnumerableStorage: PSP34Storage + ::openbrush::traits::InkStorage {
@@ -99,23 +108,15 @@ impl<T: PSP34EnumerableStorage + Flush> PSP34EnumerableInternal for T {
         }
 
         if from.is_none() {
-            self._enumerable_mut()
-                .enumerable
-                .insert::<Option<&AccountId>, Id>(&None, id);
+            self._enumerable_mut().enumerable.insert(&None, id);
         } else {
-            self._enumerable_mut()
-                .enumerable
-                .remove_value::<Option<&AccountId>, Id>(&from, id);
+            self._enumerable_mut().enumerable.remove_value(&from, id);
         }
 
         if to.is_none() {
-            self._enumerable_mut()
-                .enumerable
-                .remove_value::<Option<&AccountId>, Id>(&None, id);
+            self._enumerable_mut().enumerable.remove_value(&None, id);
         } else {
-            self._enumerable_mut()
-                .enumerable
-                .insert::<Option<&AccountId>, Id>(&to, id);
+            self._enumerable_mut().enumerable.insert(&to, id);
         }
 
         Ok(())
@@ -136,14 +137,14 @@ impl<T: PSP34EnumerableStorage + Flush> PSP34Enumerable for T {
     default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<Id, PSP34Error> {
         self._enumerable()
             .enumerable
-            .get_value::<Option<&AccountId>>(&Some(&owner), &index)
+            .get_value(&Some(&owner), &index)
             .ok_or(PSP34Error::TokenNotExists)
     }
 
     default fn token_by_index(&self, index: u128) -> Result<Id, PSP34Error> {
         self._enumerable()
             .enumerable
-            .get_value::<Option<&AccountId>>(&None, &index)
+            .get_value(&None, &index)
             .ok_or(PSP34Error::TokenNotExists)
     }
 }

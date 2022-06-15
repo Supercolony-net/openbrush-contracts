@@ -248,7 +248,7 @@ mod psp35_batch {
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
         assert!(nft.mint(accounts.alice, ids_amounts.clone()).is_ok());
-        assert!(nft.approve(accounts.bob, None).is_ok());
+        assert!(nft.approve(accounts.bob, None, Balance::MAX).is_ok());
 
         change_caller(accounts.bob);
         assert!(nft

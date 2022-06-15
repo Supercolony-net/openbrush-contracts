@@ -19,6 +19,32 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use core::marker::PhantomData;
+
+mod helper;
+mod mapping;
 mod multiple_value_mapping;
 
+pub use helper::Helper;
+pub use mapping::Mapping;
 pub use multiple_value_mapping::MultipleValueMapping;
+
+pub trait TypeGuard<'a> {
+    type Type: 'a;
+}
+
+impl<'a> TypeGuard<'a> for () {
+    type Type = ();
+}
+
+pub struct ValueGuard<K>(PhantomData<K>);
+
+impl<'a, K: 'a> TypeGuard<'a> for ValueGuard<K> {
+    type Type = K;
+}
+
+pub struct RefGuard<K>(PhantomData<K>);
+
+impl<'a, K: 'a> TypeGuard<'a> for RefGuard<K> {
+    type Type = &'a K;
+}
