@@ -37,9 +37,9 @@ pub struct PSP35MetadataData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PSP35MetadataStorage, PSP35MetadataData);
+declare_storage_trait!(PSP35MetadataStorage);
 
-impl<T: PSP35MetadataStorage> PSP35Metadata for T {
+impl<T: PSP35MetadataStorage<Data = PSP35MetadataData>> PSP35Metadata for T {
     default fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>> {
         self.get().attributes.get(&(id, key))
     }
@@ -53,7 +53,7 @@ pub trait PSP35MetadataInternal {
     fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>);
 }
 
-impl<T: PSP35MetadataStorage> PSP35MetadataInternal for T {
+impl<T: PSP35MetadataStorage<Data = PSP35MetadataData>> PSP35MetadataInternal for T {
     default fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP35Error> {
         self.get_mut().attributes.insert((id, key), data);
         self._emit_attribute_set_event(id, key, data);

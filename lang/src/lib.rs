@@ -23,6 +23,7 @@
 
 pub mod derive;
 mod macros;
+pub mod storage;
 pub mod test_utils;
 pub mod traits;
 

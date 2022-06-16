@@ -21,8 +21,10 @@
 
 use ink_prelude::vec::Vec;
 use ink_primitives::Key;
+
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
+
 use ink_storage::traits::{
     ExtKeyPtr,
     KeyPtr,
@@ -44,13 +46,19 @@ pub enum Id {
     Bytes(Vec<u8>),
 }
 
-impl SpreadAllocate for Id {
+impl SpreadAllocate for Id
+where
+    Self: SpreadLayout,
+{
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         ptr.next_for::<Id>();
         Id::U8(0)
     }
 }
-impl PackedAllocate for Id {
+impl PackedAllocate for Id
+where
+    Self: PackedLayout,
+{
     #[inline]
     fn allocate_packed(&mut self, _at: &Key) {}
 }

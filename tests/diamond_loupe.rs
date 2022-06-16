@@ -48,6 +48,7 @@ mod diamond {
     }
 
     impl OwnableStorage for DiamondContract {
+        type Data = OwnableData;
         fn get(&self) -> &OwnableData {
             &self.diamond.ownable
         }

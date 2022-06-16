@@ -39,7 +39,7 @@ pub struct AccessControlData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(AccessControlStorage, AccessControlData);
+declare_storage_trait!(AccessControlStorage);
 
 pub const DEFAULT_ADMIN_ROLE: RoleType = 0;
 
@@ -47,7 +47,7 @@ pub const DEFAULT_ADMIN_ROLE: RoleType = 0;
 #[modifier_definition]
 pub fn only_role<T, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    T: AccessControlStorage,
+    T: AccessControlStorage<Data = AccessControlData>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
@@ -57,7 +57,7 @@ where
     body(instance)
 }
 
-impl<T: AccessControlStorage> AccessControl for T {
+impl<T: AccessControlStorage<Data = AccessControlData>> AccessControl for T {
     default fn has_role(&self, role: RoleType, address: AccountId) -> bool {
         has_role(self, &role, &address)
     }
@@ -116,7 +116,7 @@ pub trait AccessControlInternal {
     fn _set_role_admin(&mut self, role: RoleType, new_admin: RoleType);
 }
 
-impl<T: AccessControlStorage> AccessControlInternal for T {
+impl<T: AccessControlStorage<Data = AccessControlData>> AccessControlInternal for T {
     default fn _emit_role_admin_changed(
         &mut self,
         _role: RoleType,
@@ -166,7 +166,7 @@ impl<T: AccessControlStorage> AccessControlInternal for T {
     }
 }
 
-pub fn check_role<T: AccessControlStorage>(
+pub fn check_role<T: AccessControlStorage<Data = AccessControlData>>(
     instance: &T,
     role: &RoleType,
     account: &AccountId,
@@ -177,10 +177,14 @@ pub fn check_role<T: AccessControlStorage>(
     Ok(())
 }
 
-pub fn has_role<T: AccessControlStorage>(instance: &T, role: &RoleType, account: &AccountId) -> bool {
+pub fn has_role<T: AccessControlStorage<Data = AccessControlData>>(
+    instance: &T,
+    role: &RoleType,
+    account: &AccountId,
+) -> bool {
     instance.get().members.get((role, account)).is_some()
 }
 
-pub fn get_role_admin<T: AccessControlStorage>(instance: &T, role: &RoleType) -> RoleType {
+pub fn get_role_admin<T: AccessControlStorage<Data = AccessControlData>>(instance: &T, role: &RoleType) -> RoleType {
     instance.get().admin_roles.get(role).unwrap_or(T::_default_admin())
 }

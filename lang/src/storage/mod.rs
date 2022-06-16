@@ -19,18 +19,32 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use openbrush::traits::AccountId;
+use core::marker::PhantomData;
 
-mod balances;
-pub mod psp34;
+mod mapping;
+mod multi_mapping;
+mod raw_mapping;
 
-pub use psp34::*;
-pub mod extensions {
-    pub mod burnable;
-    pub mod enumerable;
-    pub mod metadata;
-    pub mod mintable;
+pub use mapping::Mapping;
+pub use multi_mapping::MultiMapping;
+pub use raw_mapping::RawMapping;
+
+pub trait TypeGuard<'a> {
+    type Type: 'a;
 }
 
-pub type Owner = AccountId;
-pub type Operator = AccountId;
+impl<'a> TypeGuard<'a> for () {
+    type Type = ();
+}
+
+pub struct ValueGuard<K>(PhantomData<K>);
+
+impl<'a, K: 'a> TypeGuard<'a> for ValueGuard<K> {
+    type Type = K;
+}
+
+pub struct RefGuard<K>(PhantomData<K>);
+
+impl<'a, K: 'a> TypeGuard<'a> for RefGuard<K> {
+    type Type = &'a K;
+}

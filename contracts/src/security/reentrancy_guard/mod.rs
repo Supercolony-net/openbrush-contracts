@@ -36,7 +36,7 @@ pub struct ReentrancyGuardData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(ReentrancyGuardStorage, ReentrancyGuardData);
+declare_storage_trait!(ReentrancyGuardStorage);
 
 const NOT_ENTERED: u8 = 0;
 const ENTERED: u8 = 1;
@@ -52,7 +52,7 @@ const ENTERED: u8 = 1;
 #[modifier_definition]
 pub fn non_reentrant<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
-    T: ReentrancyGuardStorage,
+    T: ReentrancyGuardStorage<Data = ReentrancyGuardData>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<ReentrancyGuardError>,
 {
