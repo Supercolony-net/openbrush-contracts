@@ -204,3 +204,36 @@ const _: () = {
         }
     }
 };
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[ink_lang::test]
+    fn insert_and_get_work() {
+        let mut mapping: Mapping<u128, u128> = Mapping::default();
+
+        mapping.insert(&1, &1);
+        mapping.insert(&2, &2);
+
+        assert_eq!(mapping.get(&1), Some(1));
+        assert_eq!(mapping.get(&2), Some(2));
+        assert_eq!(mapping.get(&3), None);
+    }
+
+    #[ink_lang::test]
+    fn remove_and_contains_works() {
+        let mut mapping: Mapping<u128, u128> = Mapping::default();
+
+        mapping.insert(&1, &1);
+        mapping.insert(&2, &2);
+
+        assert_eq!(mapping.contains(&1), true);
+        assert_eq!(mapping.contains(&2), true);
+
+        mapping.remove(&1);
+
+        assert_eq!(mapping.contains(&1), false);
+        assert_eq!(mapping.contains(&2), true);
+    }
+}
