@@ -39,7 +39,6 @@ use ink_primitives::Key;
 /// It is a more restricted version of the `Mapping` from ink!. That mapping can be used to unify
 /// the API calls to the `Mapping` to avoid monomorphization to reduce the size of contracts.
 /// It verifies that all calls are done with the same type during compilation.
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Mapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
     offset_key: Key,
     _marker: PhantomData<fn() -> (K, V, TGK, TGV)>,
@@ -191,16 +190,40 @@ const _: () = {
         LayoutKey,
     };
     use ink_storage::traits::StorageLayout;
+    use scale_info::{
+        build::Fields,
+        type_params,
+        Path,
+        Type,
+        TypeInfo,
+    };
+
+    impl<K, V, TGK, TGV> TypeInfo for Mapping<K, V, TGK, TGV>
+    where
+        K: TypeInfo + 'static,
+        V: TypeInfo + 'static,
+        TGK: 'static,
+        TGV: 'static,
+    {
+        type Identity = Self;
+
+        fn type_info() -> Type {
+            Type::builder()
+                .path(Path::new("Mapping", module_path!()))
+                .type_params(type_params![K, V])
+                .composite(Fields::unnamed().field(|f| f.ty::<[(K, V)]>()))
+        }
+    }
 
     impl<K, V, TGK, TGV> StorageLayout for Mapping<K, V, TGK, TGV>
     where
         K: scale_info::TypeInfo + 'static,
         V: scale_info::TypeInfo + 'static,
+        TGK: 'static,
+        TGV: 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Cell(CellLayout::new::<ink_storage::Mapping<K, V>>(LayoutKey::from(
-                key_ptr.advance_by(1),
-            )))
+            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
         }
     }
 };
