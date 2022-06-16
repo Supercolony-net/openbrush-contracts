@@ -21,13 +21,13 @@
 
 use core::marker::PhantomData;
 
-mod helper;
 mod mapping;
-mod multiple_value_mapping;
+mod multi_mapping;
+mod raw_mapping;
 
-pub use helper::Helper;
 pub use mapping::Mapping;
-pub use multiple_value_mapping::MultipleValueMapping;
+pub use multi_mapping::MultiMapping;
+pub use raw_mapping::RawMapping;
 
 pub trait TypeGuard<'a> {
     type Type: 'a;

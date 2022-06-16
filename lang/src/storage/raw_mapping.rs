@@ -19,13 +19,6 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-//! A simple Helper to contract storage.
-//!
-//! # Note
-//!
-//! This Helper doesn't actually "own" any data.
-//! Instead it is just a simple wrapper around the contract storage facilities.
-
 use core::marker::PhantomData;
 use ink_storage::traits::{
     push_packed_root,
@@ -39,14 +32,15 @@ use ink_env::hash::{
 };
 use ink_primitives::Key;
 
-pub struct Helper<K, V, T = Key> {
+pub struct RawMapping<K, V, T = Key> {
     prefix: T,
     _marker: PhantomData<fn() -> (K, V)>,
 }
 
-// TODO: Doc
-impl<K, V, T> Helper<K, V, T> {
-    /// Creates a new empty `Helper`.
+/// It is the implementation of `Mapping` functionality without storing it as a storage field.
+/// It can be used to store value under the key manually.
+impl<K, V, T> RawMapping<K, V, T> {
+    /// Creates a new empty `RawMapping`.
     #[inline(always)]
     pub fn new(prefix: T) -> Self {
         Self {
@@ -56,7 +50,7 @@ impl<K, V, T> Helper<K, V, T> {
     }
 }
 
-impl<K, V, T> Helper<K, V, T>
+impl<K, V, T> RawMapping<K, V, T>
 where
     T: scale::Encode + Copy,
 {
@@ -136,7 +130,7 @@ where
 
     /// Returns a `Key` pointer used internally by the storage API.
     ///
-    /// This key is a combination of the `Helper`'s internal `offset_key`
+    /// This key is a combination of the `RawMapping`'s internal `offset_key`
     /// and the user provided `key`.
     #[inline(always)]
     fn storage_key(&self, key: K) -> Key

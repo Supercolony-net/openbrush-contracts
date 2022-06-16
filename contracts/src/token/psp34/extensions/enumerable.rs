@@ -26,7 +26,7 @@ pub use crate::{
 pub use derive::PSP34EnumerableStorage;
 use openbrush::{
     storage::{
-        MultipleValueMapping,
+        MultiMapping,
         TypeGuard,
     },
     traits::{
@@ -40,7 +40,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP34Enumera
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct PSP34EnumerableData {
-    pub enumerable: MultipleValueMapping<Option<AccountId>, Id, EnumerableKey /* for optimization */>,
+    pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey /* for optimization */>,
     pub _reserved: Option<()>,
 }
 
