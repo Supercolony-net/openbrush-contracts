@@ -118,10 +118,12 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
             }
         };
 
-        let pub_mock_env_ident = format_ident!("Mock{}", trait_item.ident.to_string());
+        let pub_mock_env_ident = format_ident!("mock_{}", trait_item.ident.to_string().to_lowercase());
         maybe_use_mock_env = quote! {
             #[cfg(test)]
-            pub use #namespace_ident :: mock_env as #pub_mock_env_ident;
+            pub mod #pub_mock_env_ident {
+                pub use super :: #namespace_ident :: { mock_env as env , using , deploy };
+            }
         };
     } else {
         trait_without_ink_attrs = trait_item;
@@ -185,6 +187,7 @@ fn generate_wrapper(ink_trait: ItemTrait, mock_type: Option<TokenStream>) -> pro
     let trait_wrapper_ident = format_ident!("{}Wrapper", ink_trait.ident);
     let mut def_messages = vec![];
     let mut impl_messages = vec![];
+    let mock_address_pattern = name_to_raw_account(&format!("Mock{}", ink_trait.ident));
     ink_trait
         .items
         .clone()
@@ -267,11 +270,12 @@ fn generate_wrapper(ink_trait: ItemTrait, mock_type: Option<TokenStream>) -> pro
 
             let message_test_impl = match &mock_type {
                 Some(_mock_ty) => quote! {
-                    mock_env :: with(|mock_obj|
-                        mock_obj . #message_ident (
+                    mock_env :: with(|registry| {
+                        let mut mock_ref = registry.get_mut(self).expect("not an address of mocked contract");
+                        mock_ref.borrow_mut(). #message_ident (
                             #( #input_bindings , )*
                         )
-                    ).expect("mock object not set")
+                    }).expect("mock object not set")
                 },
                 None => quote! { ::core::panic!("cross-contract call is not supported in ink tests; try to set a mock object?") }
             };
@@ -324,9 +328,39 @@ fn generate_wrapper(ink_trait: ItemTrait, mock_type: Option<TokenStream>) -> pro
     let def_messages = def_messages.iter();
 
     let maybe_mock_environmental = match mock_type {
-        Some(ty) => quote! {
-            #[cfg(test)]
-            ::environmental::environmental!( pub mock_env : #ty );
+        Some(ty) =>{
+            quote! {
+                #[cfg(test)]
+                ::environmental::environmental!(
+                    pub mock_env : std::collections::BTreeMap<
+                        ::openbrush::traits::AccountId,
+                        std::rc::Rc<std::cell::RefCell< #ty >>
+                    > 
+                );
+
+                #[cfg(test)]
+                pub fn using<F: FnOnce()>(f: F) {
+                    let mut env = Default::default();
+                    mock_env::using(&mut env, f);
+                }
+
+                #[cfg(test)]
+                pub fn deploy(inner_contract : #ty) -> (::openbrush::traits::AccountId, std::rc::Rc<std::cell::RefCell< #ty >>) {
+                    let contract: std::rc::Rc<std::cell::RefCell< #ty >> = std::rc::Rc::new(
+                        std::cell::RefCell::< #ty >::new(inner_contract)
+                    );
+                    mock_env::with(|register| {
+                        let n: u8 = register.len().try_into()
+                            .expect("too many contracts to fit into u8");
+                        let mut pat = [ #( #mock_address_pattern,  )* ];
+                        pat[31] = n;
+                        let account_id: ::openbrush::traits::AccountId = pat.into();
+
+                        register.insert(account_id.clone(), contract.clone());
+                        (account_id, contract)
+                    }).expect("must call within `using()`")
+                }
+            }
         },
         None => quote! {},
     };
@@ -376,6 +410,9 @@ fn remove_ink_attrs(mut trait_item: ItemTrait) -> ItemTrait {
     trait_item
 }
 
+/// Extracts the mocking related macro args out from the input
+/// 
+/// Return a tuple of an optional mock target and the args without the mock target
 fn extract_mock_config(attr: TokenStream) -> (Option<TokenStream>, TokenStream) {
     let attr_args = syn::parse2::<attr_args::AttributeArgs>(attr).expect("unable to parse trait_definition attribute");
 
@@ -393,6 +430,13 @@ fn extract_mock_config(attr: TokenStream) -> (Option<TokenStream>, TokenStream) 
         #( #ink_args , ) *
     };
     (mock_type, ink_attrs)
+}
+
+/// Returns a `[u8; 32]` filled with the give str with zero padding.
+fn name_to_raw_account(name: &str) -> [u8; 32] {
+    let mut v = name.as_bytes().to_vec();
+    v.resize(32, 0);
+    v.try_into().expect("length is 32; qed.")
 }
 
 mod attr_args;
