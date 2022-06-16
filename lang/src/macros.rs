@@ -19,19 +19,18 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// This `macro_rule` defines the storage trait.
-///
-/// The first argument is the name of the storage trait.
-/// The second argument is the type of storage data, which will be returned by this trait.
+/// This `macro_rule` defines the storage trait. It accepts only one argument -
+/// the name of the storage trait.
 ///
 /// An example of the usage of this macro can be found in any contract implemented by this library.
 /// For example [OwnableStorage](ownable::OwnableStorage).
 #[macro_export]
 macro_rules! declare_storage_trait {
-    ($trait_name:ident,$data_ty:ty) => {
+    ($trait_name:ident) => {
         pub trait $trait_name: ::openbrush::traits::InkStorage {
-            fn get(&self) -> &$data_ty;
-            fn get_mut(&mut self) -> &mut $data_ty;
+            type Data;
+            fn get(&self) -> &Self::Data;
+            fn get_mut(&mut self) -> &mut Self::Data;
         }
     };
 }
@@ -48,11 +47,12 @@ macro_rules! declare_storage_trait {
 macro_rules! impl_storage_trait {
     ($trait_name:ident,$struct_name:ident,$field:ident,$data_ty:ty) => {
         impl $trait_name for $struct_name {
-            fn get(&self) -> &$data_ty {
+            type Data = $data_ty;
+            fn get(&self) -> &Self::Data {
                 &self.$field
             }
 
-            fn get_mut(&mut self) -> &mut $data_ty {
+            fn get_mut(&mut self) -> &mut Self::Data {
                 &mut self.$field
             }
         }

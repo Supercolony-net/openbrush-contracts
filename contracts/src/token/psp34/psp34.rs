@@ -19,6 +19,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pub use super::balances::*;
+use crate::psp34::{
+    Operator,
+    Owner,
+};
 pub use crate::traits::psp34::*;
 pub use derive::PSP34Storage;
 use ink_env::{
@@ -29,42 +34,57 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_storage::Mapping;
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
+};
 use openbrush::{
     declare_storage_trait,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
+        Balance,
         Flush,
     },
 };
 
-use openbrush::traits::Balance;
-
-type Owner = AccountId;
-type Operator = AccountId;
-
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP34Data");
+pub const DATA_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP34Data");
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct PSP34Data {
+#[openbrush::storage(DATA_KEY)]
+pub struct PSP34Data<B = Balances>
+where
+    B: BalancesManager + SpreadLayout + SpreadAllocate,
+{
     pub token_owner: Mapping<Id, Owner>,
-    pub owned_tokens_count: Mapping<Owner, u32>,
-    pub operator_approvals: Mapping<(Owner, Operator, Option<Id>), ()>,
-    pub total_supply: Balance,
+    pub operator_approvals: Mapping<(Owner, Operator, Option<Id>), (), ApprovalsKey /* optimization */>,
+    pub balances: B,
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PSP34Storage, PSP34Data);
+pub struct ApprovalsKey;
 
-impl<T: PSP34Storage + Flush> PSP34 for T {
+impl<'a> TypeGuard<'a> for ApprovalsKey {
+    type Type = &'a (&'a Owner, &'a Operator, &'a Option<&'a Id>);
+}
+
+declare_storage_trait!(PSP34Storage);
+
+impl<B, T> PSP34 for T
+where
+    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    T: PSP34Storage<Data = PSP34Data<B>> + Flush,
+{
     default fn collection_id(&self) -> Id {
         let account_id = Self::env().account_id();
         Id::Bytes(<_ as AsRef<[u8; 32]>>::as_ref(&account_id).to_vec())
     }
 
     default fn balance_of(&self, owner: AccountId) -> u32 {
-        self._balance_of(&owner)
+        self.get().balances.balance_of(&owner)
     }
 
     default fn owner_of(&self, id: Id) -> Option<AccountId> {
@@ -72,21 +92,19 @@ impl<T: PSP34Storage + Flush> PSP34 for T {
     }
 
     default fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> bool {
-        self._allowance(&owner, &operator, &id)
+        self._allowance(&owner, &operator, &id.as_ref())
     }
 
     default fn approve(&mut self, operator: AccountId, id: Option<Id>, approved: bool) -> Result<(), PSP34Error> {
-        self._approve_for(operator, id, approved)?;
-        Ok(())
+        self._approve_for(operator, id, approved)
     }
 
     default fn transfer(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error> {
-        self._transfer_token(to, id, data)?;
-        Ok(())
+        self._transfer_token(to, id, data)
     }
 
     default fn total_supply(&self) -> Balance {
-        self._total_supply()
+        self.get().balances.total_supply()
     }
 }
 
@@ -119,24 +137,20 @@ pub trait PSP34Internal {
         data: &Vec<u8>,
     ) -> Result<(), PSP34Error>;
 
-    fn _add_token(&mut self, to: &AccountId, id: &Id) -> Result<(), PSP34Error>;
-
-    fn _remove_token(&mut self, from: &AccountId, id: &Id) -> Result<(), PSP34Error>;
-
     fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error>;
 
     fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP34Error>;
 
-    fn _balance_of(&self, owner: &AccountId) -> u32;
-
-    fn _total_supply(&self) -> Balance;
-
-    fn _allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<Id>) -> bool;
+    fn _allowance(&self, owner: &Owner, operator: &Operator, id: &Option<&Id>) -> bool;
 
     fn _check_token_exists(&self, id: &Id) -> Result<AccountId, PSP34Error>;
 }
 
-impl<T: PSP34Storage + Flush> PSP34Internal for T {
+impl<B, T> PSP34Internal for T
+where
+    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    T: PSP34Storage<Data = PSP34Data<B>> + Flush,
+{
     default fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _id: Id) {}
 
     default fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Option<Id>, _approved: bool) {}
@@ -146,12 +160,8 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
     default fn _approve_for(&mut self, to: AccountId, id: Option<Id>, approved: bool) -> Result<(), PSP34Error> {
         let mut caller = Self::env().caller();
 
-        if id.is_some() {
-            let owner = self
-                .get()
-                .token_owner
-                .get(id.as_ref().unwrap())
-                .ok_or(PSP34Error::TokenNotExists)?;
+        if let Some(id) = &id {
+            let owner = self.get().token_owner.get(id).ok_or(PSP34Error::TokenNotExists)?;
 
             if approved && owner == to {
                 return Err(PSP34Error::SelfApprove)
@@ -164,9 +174,11 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         }
 
         if approved {
-            self.get_mut().operator_approvals.insert((&caller, &to, &id), &());
+            self.get_mut()
+                .operator_approvals
+                .insert(&(&caller, &to, &id.as_ref()), &());
         } else {
-            self.get_mut().operator_approvals.remove((&caller, &to, &id));
+            self.get_mut().operator_approvals.remove(&(&caller, &to, &id.as_ref()));
         }
         self._emit_approval_event(caller, to, id, approved);
 
@@ -177,31 +189,24 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         self.get().token_owner.get(&id)
     }
 
-    default fn _allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<Id>) -> bool {
-        self.get().operator_approvals.get((owner, operator, &None)).is_some()
-            || id != &None && self.get().operator_approvals.get((owner, operator, id)).is_some()
-    }
-
-    default fn _check_token_exists(&self, id: &Id) -> Result<AccountId, PSP34Error> {
-        self.get().token_owner.get(&id).ok_or(PSP34Error::TokenNotExists)
-    }
-
     default fn _transfer_token(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error> {
         let owner = self._check_token_exists(&id)?;
         let caller = Self::env().caller();
-        let id_opt = Some(id.clone());
 
-        if owner != caller && !self._allowance(&owner, &caller, &id_opt) {
+        if owner != caller && !self._allowance(&owner, &caller, &Some(&id)) {
             return Err(PSP34Error::NotApproved)
         }
 
         self._before_token_transfer(Some(&owner), Some(&to), &id)?;
 
-        self.get_mut().operator_approvals.remove((&owner, &caller, &id_opt));
-        self._remove_token(&owner, &id)?;
+        self.get_mut().operator_approvals.remove(&(&owner, &caller, &Some(&id)));
+        self.get_mut().balances.decrease_balance(&owner, &id, false);
+        self.get_mut().token_owner.remove(&id);
 
         self._do_safe_transfer_check(&caller, &owner, &to, &id, &data)?;
-        self._add_token(&to, &id)?;
+
+        self.get_mut().balances.increase_balance(&to, &id, false);
+        self.get_mut().token_owner.insert(&id, &to);
         self._after_token_transfer(Some(&owner), Some(&to), &id)?;
         self._emit_transfer_event(Some(owner), Some(to), id);
 
@@ -248,31 +253,14 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
         result
     }
 
-    default fn _add_token(&mut self, to: &AccountId, id: &Id) -> Result<(), PSP34Error> {
-        let to_balance = self.get_mut().owned_tokens_count.get(to).unwrap_or(0);
-        self.get_mut().owned_tokens_count.insert(to, &(to_balance + 1));
-        self.get_mut().total_supply += 1;
-
-        self.get_mut().token_owner.insert(id, to);
-        Ok(())
-    }
-
-    default fn _remove_token(&mut self, from: &AccountId, id: &Id) -> Result<(), PSP34Error> {
-        self.get_mut().token_owner.remove(id);
-
-        let from_balance = self.get_mut().owned_tokens_count.get(from).unwrap_or(0);
-        self.get_mut().owned_tokens_count.insert(from, &(from_balance - 1));
-        self.get_mut().total_supply -= 1;
-        Ok(())
-    }
-
     default fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error> {
         if self.get_mut().token_owner.get(&id).is_some() {
             return Err(PSP34Error::TokenExists)
         }
         self._before_token_transfer(None, Some(&to), &id)?;
 
-        self._add_token(&to, &id)?;
+        self.get_mut().balances.increase_balance(&to, &id, true);
+        self.get_mut().token_owner.insert(&id, &to);
         self._after_token_transfer(None, Some(&to), &id)?;
         self._emit_transfer_event(None, Some(to), id);
 
@@ -284,18 +272,20 @@ impl<T: PSP34Storage + Flush> PSP34Internal for T {
 
         self._before_token_transfer(Some(&from), None, &id)?;
 
-        self._remove_token(&from, &id)?;
+        self.get_mut().token_owner.remove(&id);
+        self.get_mut().balances.decrease_balance(&from, &id, true);
         self._after_token_transfer(Some(&from), None, &id)?;
         self._emit_transfer_event(Some(from), None, id);
         Ok(())
     }
 
-    default fn _balance_of(&self, owner: &AccountId) -> u32 {
-        self.get().owned_tokens_count.get(owner).unwrap_or(0)
+    default fn _allowance(&self, owner: &Owner, operator: &Operator, id: &Option<&Id>) -> bool {
+        self.get().operator_approvals.get(&(owner, operator, &None)).is_some()
+            || id != &None && self.get().operator_approvals.get(&(owner, operator, id)).is_some()
     }
 
-    default fn _total_supply(&self) -> Balance {
-        self.get().total_supply
+    default fn _check_token_exists(&self, id: &Id) -> Result<AccountId, PSP34Error> {
+        self.get().token_owner.get(&id).ok_or(PSP34Error::TokenNotExists)
     }
 }
 

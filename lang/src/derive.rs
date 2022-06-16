@@ -75,11 +75,13 @@ macro_rules! declare_derive_storage_trait {
 
             let code = quote::quote! {
                 impl $trait_name for #struct_ident {
-                    fn get(&self) -> & #field_ty {
+                    type Data = #field_ty;
+
+                    fn get(&self) -> &<Self as $trait_name>::Data {
                         &self.#field_ident
                     }
 
-                    fn get_mut(&mut self) -> &mut #field_ty {
+                    fn get_mut(&mut self) -> &mut <Self as $trait_name>::Data {
                         &mut self.#field_ident
                     }
                 }

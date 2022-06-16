@@ -40,23 +40,25 @@ pub struct ProxyData {
     pub forward_to: Hash,
 }
 
-pub trait ProxyStorage: OwnableStorage + ::openbrush::traits::InkStorage {
-    fn get(&self) -> &ProxyData;
-    fn get_mut(&mut self) -> &mut ProxyData;
+pub trait ProxyStorage: OwnableStorage<Data = OwnableData> + ::openbrush::traits::InkStorage {
+    type Data;
+    fn get(&self) -> &<Self as ProxyStorage>::Data;
+    fn get_mut(&mut self) -> &mut <Self as ProxyStorage>::Data;
 }
 
 #[cfg(not(feature = "diamond"))]
-impl<T: ProxyStorage> OwnableStorage for T {
-    fn get(&self) -> &OwnableData {
-        &ProxyStorage::get(self).ownable
+impl<T: ProxyStorage<Data = ProxyData>> OwnableStorage for T {
+    type Data = OwnableData;
+    fn get(&self) -> &Self::Data {
+        &self.get().ownable
     }
 
-    fn get_mut(&mut self) -> &mut OwnableData {
-        &mut ProxyStorage::get_mut(self).ownable
+    fn get_mut(&mut self) -> &mut Self::Data {
+        &mut self.get_mut().ownable
     }
 }
 
-impl<T: ProxyStorage> Proxy for T {
+impl<T: ProxyStorage<Data = ProxyData>> Proxy for T {
     default fn get_delegate_code(&self) -> Hash {
         ProxyStorage::get(self).forward_to
     }
@@ -78,7 +80,7 @@ pub trait ProxyInternal {
     fn _fallback(&self) -> !;
 }
 
-impl<T: ProxyStorage> ProxyInternal for T {
+impl<T: ProxyStorage<Data = ProxyData>> ProxyInternal for T {
     default fn _emit_delegate_code_changed_event(
         &self,
         _previous_code_hash: Option<Hash>,

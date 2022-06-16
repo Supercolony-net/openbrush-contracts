@@ -47,9 +47,9 @@ pub struct DiamondLoupeData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(DiamondLoupeStorage, DiamondLoupeData);
+declare_storage_trait!(DiamondLoupeStorage);
 
-impl<T: DiamondLoupeStorage> DiamondCut for T {
+impl<T: DiamondLoupeStorage<Data = DiamondLoupeData>> DiamondCut for T {
     default fn _on_add_facet(&mut self, code_hash: Hash) {
         let hash_id = self.get().code_hashes;
         self.get_mut().hash_to_id.insert(&code_hash, &hash_id);
@@ -75,7 +75,7 @@ impl<T: DiamondLoupeStorage> DiamondCut for T {
     }
 }
 
-impl<T: DiamondLoupeStorage + DiamondStorage> DiamondLoupe for T {
+impl<T: DiamondLoupeStorage<Data = DiamondLoupeData> + DiamondStorage<Data = DiamondData>> DiamondLoupe for T {
     default fn facets(&self) -> Vec<FacetCut> {
         let mut out_vec = Vec::new();
         for i in 0..DiamondLoupeStorage::get(self).code_hashes {

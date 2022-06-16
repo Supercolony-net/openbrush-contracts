@@ -50,9 +50,8 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Data");
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct PSP35Data {
-    pub balances: Mapping<(Id, AccountId), Balance, BalancesKey /* for optimization */>,
-    pub operator_approvals:
-        Mapping<(AccountId, AccountId, Option<Id>), Balance, ApprovalsKey /* for optimization */>,
+    pub balances: Mapping<(Id, AccountId), Balance, BalancesKey /* optimization */>,
+    pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance, ApprovalsKey /* optimization */>,
     pub _reserved: Option<()>,
 }
 
@@ -68,9 +67,9 @@ impl<'a> TypeGuard<'a> for ApprovalsKey {
     type Type = &'a (&'a AccountId, &'a AccountId, &'a Option<&'a Id>);
 }
 
-declare_storage_trait!(PSP35Storage, PSP35Data);
+declare_storage_trait!(PSP35Storage);
 
-impl<T: PSP35Storage + Flush> PSP35 for T {
+impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35 for T {
     default fn balance_of(&self, owner: AccountId, id: Id) -> Balance {
         self._balance_of_or_zero(&owner, &id)
     }
@@ -179,7 +178,7 @@ pub trait PSP35Internal {
     ) -> Result<(), PSP35Error>;
 }
 
-impl<T: PSP35Storage + Flush> PSP35Internal for T {
+impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
     default fn _emit_transfer_event(
         &self,
         _from: Option<AccountId>,

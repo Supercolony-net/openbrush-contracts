@@ -19,6 +19,9 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use openbrush::traits::AccountId;
+
+mod balances;
 pub mod psp34;
 
 pub use psp34::*;
@@ -28,3 +31,6 @@ pub mod extensions {
     pub mod metadata;
     pub mod mintable;
 }
+
+pub type Owner = AccountId;
+pub type Operator = AccountId;

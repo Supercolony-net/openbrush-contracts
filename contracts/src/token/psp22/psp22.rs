@@ -60,9 +60,9 @@ pub struct PSP22Data {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PSP22Storage, PSP22Data);
+declare_storage_trait!(PSP22Storage);
 
-impl<T: PSP22Storage + Flush> PSP22 for T {
+impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22 for T {
     default fn total_supply(&self) -> Balance {
         self.get().supply.clone()
     }
@@ -155,7 +155,7 @@ pub trait PSP22Internal {
     fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
 
-impl<T: PSP22Storage + Flush> PSP22Internal for T {
+impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
     default fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {}
 
     default fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}

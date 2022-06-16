@@ -38,9 +38,9 @@ pub struct PSP22MetadataData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PSP22MetadataStorage, PSP22MetadataData);
+declare_storage_trait!(PSP22MetadataStorage);
 
-impl<T: PSP22MetadataStorage> PSP22Metadata for T {
+impl<T: PSP22MetadataStorage<Data = PSP22MetadataData>> PSP22Metadata for T {
     default fn token_name(&self) -> Option<String> {
         self.get().name.clone()
     }

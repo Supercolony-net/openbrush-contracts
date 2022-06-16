@@ -41,13 +41,13 @@ pub struct OwnableData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(OwnableStorage, OwnableData);
+declare_storage_trait!(OwnableStorage);
 
 /// Throws if called by any account other than the owner.
 #[modifier_definition]
 pub fn only_owner<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
-    T: OwnableStorage,
+    T: OwnableStorage<Data = OwnableData>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<OwnableError>,
 {
@@ -57,7 +57,7 @@ where
     body(instance)
 }
 
-impl<T: OwnableStorage> Ownable for T {
+impl<T: OwnableStorage<Data = OwnableData>> Ownable for T {
     default fn owner(&self) -> AccountId {
         self.get().owner.clone()
     }
@@ -89,7 +89,7 @@ pub trait OwnableInternal {
     fn _init_with_owner(&mut self, owner: AccountId);
 }
 
-impl<T: OwnableStorage> OwnableInternal for T {
+impl<T: OwnableStorage<Data = OwnableData>> OwnableInternal for T {
     /// User must override this method in their contract.
     default fn _emit_ownership_transferred_event(
         &self,
