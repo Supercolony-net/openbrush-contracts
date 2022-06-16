@@ -193,7 +193,7 @@ where
 
     /// Checks if any value is stored at the given `key` in the contract storage.
     #[inline]
-    pub fn contain<'b>(&'b self, key: <TGK as TypeGuard<'b>>::Type) -> bool
+    pub fn contains<'b>(&'b self, key: <TGK as TypeGuard<'b>>::Type) -> bool
     where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode,
@@ -410,8 +410,8 @@ mod tests {
         mapping.insert(&1, &1);
         mapping.insert(&1, &2);
 
-        assert_eq!(mapping.contain(&1), true);
-        assert_eq!(mapping.contain(&2), false);
+        assert_eq!(mapping.contains(&1), true);
+        assert_eq!(mapping.contains(&2), false);
         assert_eq!(mapping.contains_index(&1, &1), true);
         assert_eq!(mapping.contains_index(&1, &2), false);
         assert_eq!(mapping.contains_value(&1, &1), true);
