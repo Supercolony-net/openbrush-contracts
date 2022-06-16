@@ -50,11 +50,11 @@ pub trait ProxyStorage: OwnableStorage<Data = OwnableData> + ::openbrush::traits
 impl<T: ProxyStorage<Data = ProxyData>> OwnableStorage for T {
     type Data = OwnableData;
     fn get(&self) -> &Self::Data {
-        &self.get().ownable
+        &ProxyStorage::get(self).ownable
     }
 
     fn get_mut(&mut self) -> &mut Self::Data {
-        &mut self.get_mut().ownable
+        &mut ProxyStorage::get_mut(self).ownable
     }
 }
 

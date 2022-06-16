@@ -67,11 +67,11 @@ impl<T: DiamondStorage<Data = DiamondData>> OwnableStorage for T {
     type Data = OwnableData;
 
     fn get(&self) -> &Self::Data {
-        &self.get().ownable
+        &DiamondStorage::get(self).ownable
     }
 
     fn get_mut(&mut self) -> &mut Self::Data {
-        &mut self.get_mut().ownable
+        &mut DiamondStorage::get_mut(self).ownable
     }
 }
 
