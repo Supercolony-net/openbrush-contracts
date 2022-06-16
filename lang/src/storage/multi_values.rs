@@ -41,7 +41,7 @@ use ink_storage::traits::{
 /// A mapping of one key to many values. The mapping provides iteration functionality over all
 /// key's values.
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct MultipleValueMapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
+pub struct MultiValues<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
     offset_key: Key,
     _marker: PhantomData<fn() -> (K, V, TGK, TGV)>,
 }
@@ -49,7 +49,7 @@ pub struct MultipleValueMapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
 type ValueToIndex<'a, TGK, TGV> = &'a (<TGK as TypeGuard<'a>>::Type, &'a <TGV as TypeGuard<'a>>::Type);
 type IndexToValue<'a, TGK> = &'a (<TGK as TypeGuard<'a>>::Type, &'a u128);
 
-impl<K, V, TGK, TGV> MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> MultiValues<K, V, TGK, TGV> {
     fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
@@ -87,7 +87,7 @@ impl<K, V, TGK, TGV> MultipleValueMapping<K, V, TGK, TGV> {
     }
 }
 
-impl<K, V, TGK, TGV> Default for MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> Default for MultiValues<K, V, TGK, TGV> {
     fn default() -> Self {
         Self {
             offset_key: Default::default(),
@@ -96,15 +96,15 @@ impl<K, V, TGK, TGV> Default for MultipleValueMapping<K, V, TGK, TGV> {
     }
 }
 
-impl<K, V, TGK, TGV> core::fmt::Debug for MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> core::fmt::Debug for MultiValues<K, V, TGK, TGV> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("MultipleValueMapping")
+        f.debug_struct("MultiValues")
             .field("offset_key", &self.offset_key)
             .finish()
     }
 }
 
-impl<K, V, TGK, TGV> MultipleValueMapping<K, V, TGK, TGV>
+impl<K, V, TGK, TGV> MultiValues<K, V, TGK, TGV>
 where
     K: PackedLayout,
     V: PackedLayout,
@@ -293,7 +293,7 @@ where
     }
 }
 
-impl<K, V, TGK, TGV> SpreadLayout for MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> SpreadLayout for MultiValues<K, V, TGK, TGV> {
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = false;
 
@@ -320,7 +320,7 @@ impl<K, V, TGK, TGV> SpreadLayout for MultipleValueMapping<K, V, TGK, TGV> {
     }
 }
 
-impl<K, V, TGK, TGV> SpreadAllocate for MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> SpreadAllocate for MultiValues<K, V, TGK, TGV> {
     #[inline(always)]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         // Note: The mapping type initializes itself entirely by the key pointer.
@@ -337,7 +337,7 @@ const _: () = {
     };
     use ink_storage::traits::StorageLayout;
 
-    impl<K, V, TGK, TGV> StorageLayout for MultipleValueMapping<K, V, TGK, TGV>
+    impl<K, V, TGK, TGV> StorageLayout for MultiValues<K, V, TGK, TGV>
     where
         K: scale_info::TypeInfo + 'static,
         V: scale_info::TypeInfo + 'static,
@@ -356,7 +356,7 @@ mod tests {
 
     #[ink_lang::test]
     fn insert_and_count_works() {
-        let mut mapping: MultipleValueMapping<u128, u128> = MultipleValueMapping::default();
+        let mut mapping: MultiValues<u128, u128> = MultiValues::default();
         mapping.insert(&1, &1);
         mapping.insert(&1, &2);
         assert_eq!(mapping.count(&1), 2);
@@ -364,7 +364,7 @@ mod tests {
 
     #[ink_lang::test]
     fn get_works() {
-        let mut mapping: MultipleValueMapping<u128, u128> = MultipleValueMapping::default();
+        let mut mapping: MultiValues<u128, u128> = MultiValues::default();
         mapping.insert(&1, &1);
         assert_eq!(mapping.get_index(&1, &1), Some(0));
         assert_eq!(mapping.get_value(&1, &0), Some(1));
@@ -379,7 +379,7 @@ mod tests {
 
     #[ink_lang::test]
     fn remove_works() {
-        let mut mapping: MultipleValueMapping<u128, u128> = MultipleValueMapping::default();
+        let mut mapping: MultiValues<u128, u128> = MultiValues::default();
         mapping.insert(&1, &1);
         mapping.insert(&1, &2);
         assert_eq!(mapping.get_index(&1, &1), Some(0));
@@ -405,7 +405,7 @@ mod tests {
 
     #[ink_lang::test]
     fn contain_works() {
-        let mut mapping: MultipleValueMapping<u128, u128> = MultipleValueMapping::default();
+        let mut mapping: MultiValues<u128, u128> = MultiValues::default();
 
         mapping.insert(&1, &1);
         mapping.insert(&1, &2);
