@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use super::{
-    Helper,
+    RawMapping,
     TypeGuard,
     ValueGuard,
 };
@@ -85,7 +85,7 @@ where
         TGK::Type: scale::Encode,
         TGV::Type: PackedLayout,
     {
-        Helper::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert(key, value)
+        RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert(key, value)
     }
 
     /// Insert the given `value` to the contract storage.
@@ -99,7 +99,7 @@ where
         TGK::Type: scale::Encode,
         TGV::Type: PackedLayout,
     {
-        Helper::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert_return_size(key, value)
+        RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert_return_size(key, value)
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -111,7 +111,7 @@ where
         TGK: TypeGuard<'a>,
         TGK::Type: scale::Encode,
     {
-        Helper::<TGK::Type, V, &Key>::new(&self.offset_key).get(key)
+        RawMapping::<TGK::Type, V, &Key>::new(&self.offset_key).get(key)
     }
 
     /// Get the size of a value stored at `key` in the contract storage.
@@ -123,7 +123,7 @@ where
         TGK: TypeGuard<'a>,
         TGK::Type: scale::Encode,
     {
-        Helper::<TGK::Type, (), &Key>::new(&self.offset_key).size(key)
+        RawMapping::<TGK::Type, (), &Key>::new(&self.offset_key).size(key)
     }
 
     /// Checks if a value is stored at the given `key` in the contract storage.
@@ -135,7 +135,7 @@ where
         TGK: TypeGuard<'a>,
         TGK::Type: scale::Encode,
     {
-        Helper::<TGK::Type, (), &Key>::new(&self.offset_key).contains(key)
+        RawMapping::<TGK::Type, (), &Key>::new(&self.offset_key).contains(key)
     }
 
     /// Clears the value at `key` from storage.
@@ -144,7 +144,7 @@ where
         TGK: TypeGuard<'a>,
         TGK::Type: scale::Encode,
     {
-        Helper::<TGK::Type, V, &Key>::new(&self.offset_key).remove(key)
+        RawMapping::<TGK::Type, V, &Key>::new(&self.offset_key).remove(key)
     }
 }
 
