@@ -100,7 +100,7 @@ describe('MY_PSP35_BATCH', () => {
     const amount2 = 20
 
     await expect(tx.mint(sender.address, [[token1, amount1], [token2, amount2]], [])).to.eventually.be.fulfilled
-    await expect(tx.approve(alice.address, null, '340282366920938463463374607431768211455')).to.eventually.be.fulfilled
+    await expect(tx.approve(alice.address, null, 1)).to.eventually.be.fulfilled
 
     await expect(fromSigner(contract, alice.address).tx.batchTransferFrom(sender.address, alice.address, [[token1, amount1], [token2, amount2]], [])).to.eventually.be.fulfilled
 

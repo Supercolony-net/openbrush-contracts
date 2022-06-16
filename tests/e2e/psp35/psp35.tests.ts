@@ -108,7 +108,7 @@ describe('MY_PSP35', () => {
     await expect(query.allowance(sender.address, alice.address, token))
       .to.have.output(tokenAmount)
 
-    await expect(contract.tx.approve(alice.address, null, '340282366920938463463374607431768211455')).to.eventually.be.fulfilled
+    await expect(contract.tx.approve(alice.address, null, 1)).to.eventually.be.fulfilled
     await expect(query.allowance(sender.address, alice.address, token))
       .to.have.output('340282366920938463463374607431768211455')
   })
@@ -157,7 +157,7 @@ describe('MY_PSP35', () => {
     await expect(tx.mintTokens(token1, token1Amount)).to.eventually.be.fulfilled
     await expect(tx.mintTokens(token2, token2Amount)).to.eventually.be.fulfilled
 
-    await expect(fromSigner(contract, alice.address).tx.approve(sender.address, null, '340282366920938463463374607431768211455')).to.eventually.be.fulfilled
+    await expect(fromSigner(contract, alice.address).tx.approve(sender.address, null, 1)).to.eventually.be.fulfilled
     await expect(contract.tx.transferFrom(sender.address, alice.address, token2, token2Amount, [])).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, token1)).to.have.output(token1Amount)
