@@ -11,13 +11,11 @@ pub mod my_psp35_enumerable {
         mintable::*,
     };
 
-    #[derive(Default, SpreadAllocate, PSP35Storage, PSP35EnumerableStorage)]
+    #[derive(Default, SpreadAllocate, PSP35Storage)]
     #[ink(storage)]
     pub struct MyPSP35 {
         #[PSP35StorageField]
-        psp35: PSP35Data,
-        #[PSP35EnumerableStorageField]
-        metadata: PSP35EnumerableData,
+        psp35: PSP35Data<EnumerableBalances>,
     }
 
     impl PSP35 for MyPSP35 {}
