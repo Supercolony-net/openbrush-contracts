@@ -39,6 +39,7 @@ use openbrush::{
         Flush,
     },
 };
+use ink_prelude::vec::Vec;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlEnumerableData");
 

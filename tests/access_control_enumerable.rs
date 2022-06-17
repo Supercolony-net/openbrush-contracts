@@ -91,7 +91,7 @@ mod access_control_enumerable {
     }
 
     #[ink::test]
-    fn should_return_member_of_role() {
+    fn should_return_role_member() {
         let accounts = setup();
         let alice = accounts.alice;
         let mut access_control = AccessControlStruct::new(alice);
