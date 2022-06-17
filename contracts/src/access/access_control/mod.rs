@@ -28,7 +28,6 @@ use openbrush::{
     modifiers,
     traits::AccountId,
 };
-use crate::access_control;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlData");
 
@@ -172,11 +171,15 @@ impl<T: AccessControlStorage> AccessControlRoleManager for T {
     }
 
     default fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        default_revoke_role(self, role ,account)
+        default_revoke_role(self, role, account)
     }
 }
 
-pub fn default_grant_role<T: AccessControlStorage + ?Sized> (ac: &mut T, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+pub fn default_grant_role<T: AccessControlStorage + ?Sized>(
+    ac: &mut T,
+    role: RoleType,
+    account: AccountId,
+) -> Result<(), AccessControlError> {
     if has_role(ac, &role, &account) {
         return Err(AccessControlError::RoleRedundant)
     }
@@ -185,7 +188,11 @@ pub fn default_grant_role<T: AccessControlStorage + ?Sized> (ac: &mut T, role: R
     Ok(())
 }
 
-pub fn default_revoke_role<T: AccessControlStorage + ?Sized> (ac: &mut T, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
+pub fn default_revoke_role<T: AccessControlStorage + ?Sized>(
+    ac: &mut T,
+    role: RoleType,
+    account: AccountId,
+) -> Result<(), AccessControlError> {
     check_role(ac, &role, &account)?;
     ac._do_revoke_role(role, account);
     Ok(())

@@ -47,7 +47,9 @@ impl From<AccessControlError> for PaymentSplitterError {
             AccessControlError::MissingRole => PaymentSplitterError::Custom(String::from("AC::MissingRole")),
             AccessControlError::RoleRedundant => PaymentSplitterError::Custom(String::from("AC::RoleRedundant")),
             AccessControlError::InvalidCaller => PaymentSplitterError::Custom(String::from("AC::InvalidCaller")),
-            AccessControlError::ValueAlreadyExists => PaymentSplitterError::Custom(String::from("AC::ValueAlreadyExists")),
+            AccessControlError::ValueAlreadyExists => {
+                PaymentSplitterError::Custom(String::from("AC::ValueAlreadyExists"))
+            }
             AccessControlError::ValueNotExists => PaymentSplitterError::Custom(String::from("AC::ValueNotExists")),
         }
     }
