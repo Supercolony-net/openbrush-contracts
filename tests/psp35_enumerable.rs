@@ -41,13 +41,11 @@ mod psp35_enumerable {
         },
     };
 
-    #[derive(Default, SpreadAllocate, PSP35Storage, PSP35EnumerableStorage)]
+    #[derive(Default, SpreadAllocate, PSP35Storage)]
     #[ink(storage)]
     pub struct PSP35Struct {
         #[PSP35StorageField]
-        psp35: PSP35Data,
-        #[PSP35EnumerableStorageField]
-        metadata: PSP35EnumerableData,
+        psp35: PSP35Data<EnumerableBalances>,
     }
 
     impl PSP35Internal for PSP35Struct {

@@ -19,8 +19,8 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pub use super::balances::*;
 pub use crate::traits::psp35::*;
-use core::result::Result;
 pub use derive::PSP35Storage;
 use ink_env::{
     CallFlags,
@@ -30,6 +30,10 @@ use ink_prelude::{
     string::String,
     vec,
     vec::Vec,
+};
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
 };
 use openbrush::{
     declare_storage_trait,
@@ -49,8 +53,11 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Data");
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
-pub struct PSP35Data {
-    pub balances: Mapping<(Id, AccountId), Balance, BalancesKey /* optimization */>,
+pub struct PSP35Data<B = Balances>
+where
+    B: BalancesManager + SpreadLayout + SpreadAllocate,
+{
+    pub balances: B,
     pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance, ApprovalsKey /* optimization */>,
     pub _reserved: Option<()>,
 }
@@ -69,9 +76,13 @@ impl<'a> TypeGuard<'a> for ApprovalsKey {
 
 declare_storage_trait!(PSP35Storage);
 
-impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35 for T {
+impl<B, T> PSP35 for T
+where
+    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    T: PSP35Storage<Data = PSP35Data<B>> + Flush,
+{
     default fn balance_of(&self, owner: AccountId, id: Id) -> Balance {
-        self._balance_of_or_zero(&owner, &id)
+        self.get().balances.balance_of(&owner, &id)
     }
 
     default fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
@@ -141,12 +152,6 @@ pub trait PSP35Internal {
         data: Vec<u8>,
     ) -> Result<(), PSP35Error>;
 
-    fn _balance_of_or_zero(&self, owner: &AccountId, id: &Id) -> Balance;
-
-    fn _increase_receiver_balance(&mut self, to: &AccountId, id: &Id, amount: Balance);
-
-    fn _decrease_sender_balance(&mut self, from: &AccountId, id: &Id, amount: Balance) -> Result<(), PSP35Error>;
-
     fn _get_allowance(&self, account: &AccountId, operator: &AccountId, id: &Option<&Id>) -> Balance;
 
     fn _approve_for(&mut self, operator: AccountId, id: Option<Id>, value: Balance) -> Result<(), PSP35Error>;
@@ -178,7 +183,11 @@ pub trait PSP35Internal {
     ) -> Result<(), PSP35Error>;
 }
 
-impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
+impl<B, T> PSP35Internal for T
+where
+    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    T: PSP35Storage<Data = PSP35Data<B>> + Flush,
+{
     default fn _emit_transfer_event(
         &self,
         _from: Option<AccountId>,
@@ -209,7 +218,7 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
         self._before_token_transfer(None, Some(&to), &ids_amounts)?;
 
         for (id, amount) in &ids_amounts {
-            self._increase_receiver_balance(&to, &id, amount.clone());
+            self.get_mut().balances.mint(&to, &id, *amount, true);
         }
 
         self._after_token_transfer(None, Some(&to), &ids_amounts)?;
@@ -232,7 +241,7 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
         }
 
         for (id, amount) in ids_amounts.iter() {
-            self._decrease_sender_balance(&from, &id, amount.clone())?;
+            self.get_mut().balances.burn(&from, &id, *amount, true);
         }
 
         self._after_token_transfer(Some(&from), None, &ids_amounts)?;
@@ -271,31 +280,6 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
         self._transfer_token(&from, &to, id.clone(), value, &data)?;
         self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
         self._emit_transfer_event(Some(from), Some(to), id, value);
-        Ok(())
-    }
-
-    default fn _balance_of_or_zero(&self, owner: &AccountId, id: &Id) -> Balance {
-        self.get().balances.get(&(id, owner)).unwrap_or(0)
-    }
-
-    default fn _increase_receiver_balance(&mut self, to: &AccountId, id: &Id, amount: Balance) {
-        let to_balance = self.get_mut().balances.get(&(id, to)).unwrap_or(0);
-        self.get_mut().balances.insert(&(id, to), &(to_balance + amount));
-    }
-
-    default fn _decrease_sender_balance(
-        &mut self,
-        from: &AccountId,
-        id: &Id,
-        amount: Balance,
-    ) -> Result<(), PSP35Error> {
-        let balance = self._balance_of_or_zero(from, id);
-
-        if balance < amount {
-            return Err(PSP35Error::InsufficientBalance)
-        }
-
-        self.get_mut().balances.insert(&(id, from), &(balance - amount));
         Ok(())
     }
 
@@ -374,9 +358,9 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
         value: Balance,
         data: &Vec<u8>,
     ) -> Result<(), PSP35Error> {
-        self._decrease_sender_balance(from, &id, value)?;
+        self.get_mut().balances.burn(from, &id, value, false);
         self._do_safe_transfer_check(&Self::env().caller(), from, to, &vec![(id.clone(), value)], &data)?;
-        self._increase_receiver_balance(to, &id, value);
+        self.get_mut().balances.mint(to, &id, value, false);
         Ok(())
     }
 
