@@ -19,7 +19,10 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use crate::psp35::Id;
+use crate::psp35::{
+    Id,
+    PSP35Error,
+};
 use openbrush::{
     storage::Mapping,
     traits::{
@@ -32,8 +35,8 @@ pub const BALANCES_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Balanc
 
 pub trait BalancesManager {
     fn balance_of(&self, owner: &AccountId, id: &Id) -> Balance;
-    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, increase_supply: bool);
-    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, decrease_supply: bool);
+    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, increase_supply: bool) -> Result<(), PSP35Error>;
+    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, decrease_supply: bool) -> Result<(), PSP35Error>;
 }
 
 #[derive(Default, Debug)]
@@ -49,18 +52,22 @@ impl BalancesManager for Balances {
     }
 
     #[inline(always)]
-    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, _increase_supply: bool) {
+    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, _increase_supply: bool) -> Result<(), PSP35Error> {
         let to_balance = self.balance_of(owner, id);
         self.balances
-            .insert(&(owner.clone(), id.clone()), &(to_balance.checked_add(amount).unwrap()));
+            .insert(&(owner.clone(), id.clone()), &(to_balance + amount));
+        Ok(())
     }
 
     #[inline(always)]
-    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, _decrease_supply: bool) {
+    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, _decrease_supply: bool) -> Result<(), PSP35Error> {
         let from_balance = self.balance_of(owner, id);
         self.balances.insert(
             &(owner.clone(), id.clone()),
-            &(from_balance.checked_sub(amount).unwrap()),
+            &(from_balance
+                .checked_sub(amount)
+                .ok_or(PSP35Error::InsufficientBalance)?),
         );
+        Ok(())
     }
 }

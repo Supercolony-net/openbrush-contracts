@@ -62,7 +62,7 @@ impl BalancesManager for EnumerableBalances {
         self.balances.get(&(owner.clone(), id.clone())).unwrap_or(0)
     }
 
-    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, increase_supply: bool) {
+    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, increase_supply: bool) -> Result<(), PSP35Error> {
         let initial_balance = self.balance_of(owner, id);
         self.balances.insert(
             &(owner.clone(), id.clone()),
@@ -83,13 +83,16 @@ impl BalancesManager for EnumerableBalances {
                 self.enumerable.insert(&None, id);
             }
         }
+        Ok(())
     }
 
-    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, decrease_supply: bool) {
+    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, decrease_supply: bool) -> Result<(), PSP35Error> {
         let initial_balance = self.balance_of(owner, id);
         self.balances.insert(
             &(owner.clone(), id.clone()),
-            &(initial_balance.checked_sub(amount).unwrap()),
+            &(initial_balance
+                .checked_sub(amount)
+                .ok_or(PSP35Error::InsufficientBalance)?),
         );
 
         if initial_balance == amount {
@@ -98,13 +101,18 @@ impl BalancesManager for EnumerableBalances {
 
         if decrease_supply {
             let token_supply = self.total_supply.get(id).unwrap_or(0);
-            self.total_supply
-                .insert(id, &(token_supply.checked_sub(amount).unwrap()));
+            self.total_supply.insert(
+                id,
+                &(token_supply
+                    .checked_sub(amount)
+                    .ok_or(PSP35Error::InsufficientBalance)?),
+            );
 
             if token_supply == amount {
                 self.enumerable.remove_value(&None, id);
             }
         }
+        Ok(())
     }
 }
 

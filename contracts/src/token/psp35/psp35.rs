@@ -218,7 +218,7 @@ where
         self._before_token_transfer(None, Some(&to), &ids_amounts)?;
 
         for (id, amount) in &ids_amounts {
-            self.get_mut().balances.mint(&to, &id, *amount, true);
+            self.get_mut().balances.mint(&to, &id, *amount, true)?;
         }
 
         self._after_token_transfer(None, Some(&to), &ids_amounts)?;
@@ -241,7 +241,7 @@ where
         }
 
         for (id, amount) in ids_amounts.iter() {
-            self.get_mut().balances.burn(&from, &id, *amount, true);
+            self.get_mut().balances.burn(&from, &id, *amount, true)?;
         }
 
         self._after_token_transfer(Some(&from), None, &ids_amounts)?;
@@ -358,9 +358,9 @@ where
         value: Balance,
         data: &Vec<u8>,
     ) -> Result<(), PSP35Error> {
-        self.get_mut().balances.burn(from, &id, value, false);
+        self.get_mut().balances.burn(from, &id, value, false)?;
         self._do_safe_transfer_check(&Self::env().caller(), from, to, &vec![(id.clone(), value)], &data)?;
-        self.get_mut().balances.mint(to, &id, value, false);
+        self.get_mut().balances.mint(to, &id, value, false)?;
         Ok(())
     }
 
