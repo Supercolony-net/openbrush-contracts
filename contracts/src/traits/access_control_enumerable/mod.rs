@@ -31,8 +31,7 @@ pub type AccessControlEnumerableRef = dyn AccessControlEnumerable;
 /// Extension of AccessControl that allows enumerating the members of each role.
 #[openbrush::trait_definition]
 pub trait AccessControlEnumerable {
-    /// Returns one of the accounts that have `role`. `index` must be a
-    /// value between 0 and {get_role_member_count}, non-inclusive.
+    /// Returns one of the accounts that have `role`.
     ///
     /// Role bearers are not sorted in any particular way, and their
     /// ordering may change at any point.
