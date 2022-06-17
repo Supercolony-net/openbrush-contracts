@@ -165,7 +165,7 @@ pub trait AccessControlRoleManager {
     fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError>;
 }
 
-impl<T: AccessControlStorage> AccessControlRoleManager for T {
+impl<T: AccessControlStorage<Data = AccessControlData>> AccessControlRoleManager for T {
     default fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
         default_grant_role(self, role, account)
     }
@@ -175,7 +175,7 @@ impl<T: AccessControlStorage> AccessControlRoleManager for T {
     }
 }
 
-pub fn default_grant_role<T: AccessControlStorage + ?Sized>(
+pub fn default_grant_role<T: AccessControlStorage<Data = AccessControlData> + ?Sized>(
     ac: &mut T,
     role: RoleType,
     account: AccountId,
@@ -188,7 +188,7 @@ pub fn default_grant_role<T: AccessControlStorage + ?Sized>(
     Ok(())
 }
 
-pub fn default_revoke_role<T: AccessControlStorage + ?Sized>(
+pub fn default_revoke_role<T: AccessControlStorage<Data = AccessControlData> + ?Sized>(
     ac: &mut T,
     role: RoleType,
     account: AccountId,
