@@ -65,14 +65,16 @@ pub struct TimelockControllerData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(TimelockControllerStorage, TimelockControllerData);
+declare_storage_trait!(TimelockControllerStorage);
 
-impl<T: TimelockControllerStorage> AccessControlStorage for T {
-    fn get(&self) -> &AccessControlData {
+impl<T: TimelockControllerStorage<Data = TimelockControllerData>> AccessControlStorage for T {
+    type Data = AccessControlData;
+
+    fn get(&self) -> &Self::Data {
         &T::get(self).access_control
     }
 
-    fn get_mut(&mut self) -> &mut AccessControlData {
+    fn get_mut(&mut self) -> &mut Self::Data {
         &mut T::get_mut(self).access_control
     }
 }
@@ -84,7 +86,7 @@ impl<T: TimelockControllerStorage> AccessControlStorage for T {
 #[modifier_definition]
 pub fn only_role_or_open_role<T, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    T: AccessControlStorage,
+    T: AccessControlStorage<Data = AccessControlData>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
@@ -100,7 +102,7 @@ pub const EXECUTOR_ROLE: RoleType = ink_lang::selector_id!("EXECUTOR_ROLE");
 
 pub const DONE_TIMESTAMP: Timestamp = 1;
 
-impl<T: TimelockControllerStorage + Flush> TimelockController for T {
+impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> TimelockController for T {
     default fn is_operation(&self, id: OperationId) -> bool {
         self.get_timestamp(id) > Timestamp::default()
     }
@@ -303,7 +305,7 @@ pub trait TimelockControllerInternal {
     fn _done_timestamp() -> Timestamp;
 }
 
-impl<T: TimelockControllerStorage + Flush> TimelockControllerInternal for T {
+impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> TimelockControllerInternal for T {
     default fn _emit_min_delay_change_event(&self, _old_delay: Timestamp, _new_delay: Timestamp) {}
 
     default fn _emit_call_scheduled_event(

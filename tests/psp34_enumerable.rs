@@ -40,13 +40,11 @@ mod psp34_enumerable {
         },
     };
 
-    #[derive(Default, SpreadAllocate, PSP34Storage, PSP34EnumerableStorage)]
+    #[derive(Default, SpreadAllocate, PSP34Storage)]
     #[ink(storage)]
     pub struct PSP34Struct {
         #[PSP34StorageField]
-        psp34: PSP34Data,
-        #[PSP34EnumerableStorageField]
-        metadata: PSP34EnumerableData,
+        psp34: PSP34Data<EnumerableBalances>,
     }
 
     impl PSP34Internal for PSP34Struct {

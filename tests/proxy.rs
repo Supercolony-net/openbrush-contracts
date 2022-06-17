@@ -56,11 +56,12 @@ mod proxy {
     }
 
     impl OwnableStorage for MyProxy {
-        fn get(&self) -> &OwnableData {
+        type Data = OwnableData;
+        fn get(&self) -> &Self::Data {
             &self.proxy.ownable
         }
 
-        fn get_mut(&mut self) -> &mut OwnableData {
+        fn get_mut(&mut self) -> &mut Self::Data {
             &mut self.proxy.ownable
         }
     }

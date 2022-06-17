@@ -56,17 +56,22 @@ pub struct LendingData {
     pub loan_account: AccountId,
 }
 
-declare_storage_trait!(LendingStorage, LendingData);
+declare_storage_trait!(LendingStorage);
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
-pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
+pub fn set_asset_price<T: LendingStorage<Data = LendingData>>(
+    instance: &mut T,
+    asset_in: AccountId,
+    asset_out: AccountId,
+    price: Balance,
+) {
     instance.get_mut().asset_price.insert((&asset_in, &asset_out), &price);
 }
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
-pub fn get_asset_price<T: LendingStorage>(
+pub fn get_asset_price<T: LendingStorage<Data = LendingData>>(
     instance: &T,
     amount_in: Balance,
     asset_in: AccountId,
@@ -78,7 +83,7 @@ pub fn get_asset_price<T: LendingStorage>(
 
 /// Internal function which will return the address of the shares token
 /// which are minted when `asset_address` is borrowed
-pub fn get_reserve_asset<T: LendingStorage>(
+pub fn get_reserve_asset<T: LendingStorage<Data = LendingData>>(
     instance: &T,
     asset_address: &AccountId,
 ) -> Result<AccountId, LendingError> {
@@ -95,7 +100,7 @@ pub fn get_reserve_asset<T: LendingStorage>(
 
 /// internal function which will return the address of asset
 /// which is bound to `shares_address` shares token
-pub fn get_asset_from_shares<T: LendingStorage>(
+pub fn get_asset_from_shares<T: LendingStorage<Data = LendingData>>(
     instance: &T,
     shares_address: AccountId,
 ) -> Result<AccountId, LendingError> {

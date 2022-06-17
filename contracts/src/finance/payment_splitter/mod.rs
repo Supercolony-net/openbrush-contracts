@@ -46,9 +46,9 @@ pub struct PaymentSplitterData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PaymentSplitterStorage, PaymentSplitterData);
+declare_storage_trait!(PaymentSplitterStorage);
 
-impl<T: PaymentSplitterStorage> PaymentSplitter for T {
+impl<T: PaymentSplitterStorage<Data = PaymentSplitterData>> PaymentSplitter for T {
     default fn total_shares(&self) -> Balance {
         self.get().total_shares.clone()
     }
@@ -131,7 +131,7 @@ pub trait PaymentSplitterInternal {
     fn _release_all(&mut self) -> Result<(), PaymentSplitterError>;
 }
 
-impl<T: PaymentSplitterStorage> PaymentSplitterInternal for T {
+impl<T: PaymentSplitterStorage<Data = PaymentSplitterData>> PaymentSplitterInternal for T {
     default fn _emit_payee_added_event(&self, _account: AccountId, _shares: Balance) {}
 
     default fn _emit_payment_received_event(&self, _from: AccountId, _amount: Balance) {}

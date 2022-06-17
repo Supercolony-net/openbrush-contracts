@@ -37,13 +37,13 @@ pub struct PausableData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PausableStorage, PausableData);
+declare_storage_trait!(PausableStorage);
 
 /// Modifier to make a function callable only when the contract is paused.
 #[modifier_definition]
 pub fn when_paused<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
-    T: PausableStorage,
+    T: PausableStorage<Data = PausableData>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<PausableError>,
 {
@@ -57,7 +57,7 @@ where
 #[modifier_definition]
 pub fn when_not_paused<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
-    T: PausableStorage,
+    T: PausableStorage<Data = PausableData>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<PausableError>,
 {
@@ -67,7 +67,7 @@ where
     body(instance)
 }
 
-impl<T: PausableStorage> Pausable for T {
+impl<T: PausableStorage<Data = PausableData>> Pausable for T {
     default fn paused(&self) -> bool {
         self.get().paused
     }
@@ -93,7 +93,7 @@ pub trait PausableInternal {
     fn _unpause<E: From<PausableError>>(&mut self) -> Result<(), E>;
 }
 
-impl<T: PausableStorage> PausableInternal for T {
+impl<T: PausableStorage<Data = PausableData>> PausableInternal for T {
     default fn _emit_paused_event(&self, _account: AccountId) {}
 
     default fn _emit_unpaused_event(&self, _account: AccountId) {}
