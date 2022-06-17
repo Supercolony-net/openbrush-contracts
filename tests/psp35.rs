@@ -225,15 +225,15 @@ mod psp35 {
         // no approvall exists yet
         assert_eq!(nft.allowance(accounts.alice, accounts.bob, None), 0);
         // increase allowance
-        assert!(nft.approve(accounts.bob, Some((token_id.clone(), 1))).is_ok());
+        assert!(nft.approve(accounts.bob, Some(token_id.clone()), 1).is_ok());
         // allowance increased
         assert_eq!(nft.allowance(accounts.alice, accounts.bob, Some(token_id.clone())), 1);
         // decrease allowance
-        assert!(nft.approve(accounts.bob, Some((token_id.clone(), 0))).is_ok());
+        assert!(nft.approve(accounts.bob, Some(token_id.clone()), 0).is_ok());
         // allowance decreased
         assert_eq!(nft.allowance(accounts.alice, accounts.bob, Some(token_id.clone())), 0);
         // approval for all
-        assert!(nft.approve(accounts.bob, None).is_ok());
+        assert!(nft.approve(accounts.bob, None, Balance::MAX).is_ok());
         // approval for all exists
         assert_eq!(nft.allowance(accounts.alice, accounts.bob, None), Balance::MAX);
         // approval for token exists
@@ -331,7 +331,7 @@ mod psp35 {
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
         assert!(nft.mint(accounts.alice, token_id.clone(), mint_amount).is_ok());
-        assert!(nft.approve(accounts.bob, Some((token_id.clone(), mint_amount))).is_ok());
+        assert!(nft.approve(accounts.bob, Some(token_id.clone()), mint_amount).is_ok());
 
         change_caller(accounts.bob);
         assert!(nft

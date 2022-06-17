@@ -24,7 +24,7 @@ use super::{
     TypeGuard,
     ValueGuard,
 };
-use crate::storage::Helper;
+use crate::storage::RawMapping;
 use core::marker::PhantomData;
 use ink_primitives::{
     Key,
@@ -40,8 +40,7 @@ use ink_storage::traits::{
 // TODO: More doc
 /// A mapping of one key to many values. The mapping provides iteration functionality over all
 /// key's values.
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct MultipleValueMapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
+pub struct MultiMapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
     offset_key: Key,
     _marker: PhantomData<fn() -> (K, V, TGK, TGV)>,
 }
@@ -49,7 +48,7 @@ pub struct MultipleValueMapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
 type ValueToIndex<'a, TGK, TGV> = &'a (<TGK as TypeGuard<'a>>::Type, &'a <TGV as TypeGuard<'a>>::Type);
 type IndexToValue<'a, TGK> = &'a (<TGK as TypeGuard<'a>>::Type, &'a u128);
 
-impl<K, V, TGK, TGV> MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV> {
     fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
@@ -59,35 +58,35 @@ impl<K, V, TGK, TGV> MultipleValueMapping<K, V, TGK, TGV> {
 
     // Contains count of values by key.
     // key_count: Mapping<K, u128>,
-    fn key_count(&self) -> Helper<<TGK as TypeGuard>::Type, u128, (&Key, &u32)>
+    fn key_count(&self) -> RawMapping<<TGK as TypeGuard>::Type, u128, (&Key, &u32)>
     where
         for<'a> TGK: TypeGuard<'a>,
     {
-        Helper::new((&self.offset_key, &0))
+        RawMapping::new((&self.offset_key, &0))
     }
 
     // Mapping from key's value to local index.
     // value_to_index: Mapping<(K, V), u128>,
-    fn value_to_index(&self) -> Helper<ValueToIndex<TGK, TGV>, u128, (&Key, &u32)>
+    fn value_to_index(&self) -> RawMapping<ValueToIndex<TGK, TGV>, u128, (&Key, &u32)>
     where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
     {
-        Helper::new((&self.offset_key, &1))
+        RawMapping::new((&self.offset_key, &1))
     }
 
     // Mapping from local key's index to value.
     // index_to_value: Mapping<(K, u128), V>,
-    fn index_to_value(&self) -> Helper<IndexToValue<TGK>, <TGV as TypeGuard>::Type, (&Key, &u32)>
+    fn index_to_value(&self) -> RawMapping<IndexToValue<TGK>, <TGV as TypeGuard>::Type, (&Key, &u32)>
     where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
     {
-        Helper::new((&self.offset_key, &2))
+        RawMapping::new((&self.offset_key, &2))
     }
 }
 
-impl<K, V, TGK, TGV> Default for MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> Default for MultiMapping<K, V, TGK, TGV> {
     fn default() -> Self {
         Self {
             offset_key: Default::default(),
@@ -96,15 +95,15 @@ impl<K, V, TGK, TGV> Default for MultipleValueMapping<K, V, TGK, TGV> {
     }
 }
 
-impl<K, V, TGK, TGV> core::fmt::Debug for MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> core::fmt::Debug for MultiMapping<K, V, TGK, TGV> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("MultipleValueMapping")
+        f.debug_struct("MultiMapping")
             .field("offset_key", &self.offset_key)
             .finish()
     }
 }
 
-impl<K, V, TGK, TGV> MultipleValueMapping<K, V, TGK, TGV>
+impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV>
 where
     K: PackedLayout,
     V: PackedLayout,
@@ -134,10 +133,16 @@ where
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
         for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
     {
-        let count: u128 = self.count(key);
-        self.value_to_index().insert_return_size(&(key, value), &count);
-        let size = self.index_to_value().insert_return_size(&(key, &count), value);
-        self.key_count().insert(key, &(count + 1));
+        let index: u128 = match self.get_index(key, value) {
+            None => {
+                let count = self.count(key);
+                self.key_count().insert(key, &(count + 1));
+                count
+            }
+            Some(index) => index,
+        };
+        self.value_to_index().insert_return_size(&(key, value), &index);
+        let size = self.index_to_value().insert_return_size(&(key, &index), value);
         size
     }
 
@@ -161,7 +166,7 @@ where
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
     {
-        Helper::<IndexToValue<TGK>, V, _>::new((&self.offset_key, &2)).get(&(key, index))
+        RawMapping::<IndexToValue<TGK>, V, _>::new((&self.offset_key, &2)).get(&(key, index))
     }
 
     /// Get the `index` of (`key`, `value`) from the contract storage.
@@ -175,14 +180,36 @@ where
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
         for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
     {
-        Helper::<ValueToIndex<TGK, TGV>, u128, _>::new((&self.offset_key, &1)).get(&(key, value))
+        RawMapping::<ValueToIndex<TGK, TGV>, u128, _>::new((&self.offset_key, &1)).get(&(key, value))
+    }
+
+    /// Get the size of a value stored at (`key`, `value`) in the contract storage.
+    ///
+    /// Returns `None` if no `value` exists at the given (`key`, `value`).
+    #[inline]
+    pub fn size_value<'b>(
+        &'b self,
+        key: <TGK as TypeGuard<'b>>::Type,
+        value: &<TGV as TypeGuard<'b>>::Type,
+    ) -> Option<u32>
+    where
+        for<'a> TGK: TypeGuard<'a>,
+        for<'a> TGV: TypeGuard<'a>,
+        for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
+        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
+    {
+        if let Some(index) = self.get_index(key, value) {
+            self.index_to_value().size(&(key, &index))
+        } else {
+            None
+        }
     }
 
     /// Get the size of a value stored at (`key`, `index`) in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given (`key`, `index`).
     #[inline]
-    pub fn size<'b>(&'b self, key: <TGK as TypeGuard<'b>>::Type, index: &u128) -> Option<u32>
+    pub fn size_index<'b>(&'b self, key: <TGK as TypeGuard<'b>>::Type, index: &u128) -> Option<u32>
     where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
@@ -193,7 +220,7 @@ where
 
     /// Checks if any value is stored at the given `key` in the contract storage.
     #[inline]
-    pub fn contain<'b>(&'b self, key: <TGK as TypeGuard<'b>>::Type) -> bool
+    pub fn contains<'b>(&'b self, key: <TGK as TypeGuard<'b>>::Type) -> bool
     where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode,
@@ -225,9 +252,8 @@ where
     }
 
     /// Clears the `value` at `key` from storage.
-    pub fn remove_value<'b, 'd>(&'d mut self, key: <TGK as TypeGuard<'b>>::Type, value: &<TGV as TypeGuard<'b>>::Type)
+    pub fn remove_value<'b>(&'b mut self, key: <TGK as TypeGuard<'b>>::Type, value: &<TGV as TypeGuard<'b>>::Type)
     where
-        'd: 'b,
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
@@ -264,13 +290,12 @@ where
         self.swap_and_remove(key, &value.into(), index);
     }
 
-    fn swap_and_remove<'b, 'd>(
-        &'d mut self,
+    fn swap_and_remove<'b>(
+        &'b mut self,
         key: <TGK as TypeGuard<'b>>::Type,
         value: &<TGV as TypeGuard<'b>>::Type,
         index: &u128,
     ) where
-        'd: 'b,
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
@@ -293,7 +318,7 @@ where
     }
 }
 
-impl<K, V, TGK, TGV> SpreadLayout for MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> SpreadLayout for MultiMapping<K, V, TGK, TGV> {
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = false;
 
@@ -320,7 +345,7 @@ impl<K, V, TGK, TGV> SpreadLayout for MultipleValueMapping<K, V, TGK, TGV> {
     }
 }
 
-impl<K, V, TGK, TGV> SpreadAllocate for MultipleValueMapping<K, V, TGK, TGV> {
+impl<K, V, TGK, TGV> SpreadAllocate for MultiMapping<K, V, TGK, TGV> {
     #[inline(always)]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         // Note: The mapping type initializes itself entirely by the key pointer.
@@ -336,18 +361,134 @@ const _: () = {
         LayoutKey,
     };
     use ink_storage::traits::StorageLayout;
+    use scale_info::{
+        build::Fields,
+        type_params,
+        Path,
+        Type,
+        TypeInfo,
+    };
 
-    impl<K, V, TGK, TGV> StorageLayout for MultipleValueMapping<K, V, TGK, TGV>
+    impl<K, V, TGK, TGV> TypeInfo for MultiMapping<K, V, TGK, TGV>
+    where
+        K: TypeInfo + 'static,
+        V: TypeInfo + 'static,
+        TGK: 'static,
+        TGV: 'static,
+    {
+        type Identity = Self;
+
+        fn type_info() -> Type {
+            Type::builder()
+                .path(Path::new("MultiMapping", module_path!()))
+                .type_params(type_params![K, V])
+                .composite(Fields::unnamed().field(|f| f.ty::<[(K, V)]>()))
+        }
+    }
+
+    impl<K, V, TGK, TGV> StorageLayout for MultiMapping<K, V, TGK, TGV>
     where
         K: scale_info::TypeInfo + 'static,
         V: scale_info::TypeInfo + 'static,
+        TGK: 'static,
+        TGV: 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Cell(CellLayout::new::<ink_storage::Mapping<K, V>>(LayoutKey::from(
-                key_ptr.advance_by(1),
-            )))
+            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
         }
     }
 };
 
-// TODO: Tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[ink_lang::test]
+    fn insert_and_count_works() {
+        let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
+        mapping.insert(&1, &1);
+        mapping.insert(&1, &2);
+        assert_eq!(mapping.count(&1), 2);
+    }
+
+    #[ink_lang::test]
+    fn double_insert_and_count_works() {
+        let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
+        mapping.insert(&1, &1);
+        mapping.insert(&1, &1);
+        assert_eq!(mapping.count(&1), 1);
+    }
+
+    #[ink_lang::test]
+    fn get_works() {
+        let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
+        mapping.insert(&1, &1);
+        assert_eq!(mapping.get_index(&1, &1), Some(0));
+        assert_eq!(mapping.get_value(&1, &0), Some(1));
+
+        mapping.insert(&1, &2);
+        assert_eq!(mapping.get_index(&1, &1), Some(0));
+        assert_eq!(mapping.get_index(&1, &2), Some(1));
+
+        assert_eq!(mapping.get_value(&1, &0), Some(1));
+        assert_eq!(mapping.get_value(&1, &1), Some(2));
+    }
+
+    #[ink_lang::test]
+    fn remove_works() {
+        let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
+        mapping.insert(&1, &1);
+        mapping.insert(&1, &2);
+        assert_eq!(mapping.get_index(&1, &1), Some(0));
+        assert_eq!(mapping.get_index(&1, &2), Some(1));
+
+        assert_eq!(mapping.count(&1), 2);
+
+        mapping.remove_value(&1, &1);
+        assert_eq!(mapping.count(&1), 1);
+        assert_eq!(mapping.get_value(&1, &0), Some(2));
+
+        mapping.insert(&1, &1);
+
+        assert_eq!(mapping.count(&1), 2);
+        assert_eq!(mapping.get_value(&1, &0), Some(2));
+        assert_eq!(mapping.get_value(&1, &1), Some(1));
+
+        mapping.remove_index(&1, &0);
+
+        assert_eq!(mapping.count(&1), 1);
+        assert_eq!(mapping.get_value(&1, &0), Some(1));
+    }
+
+    #[ink_lang::test]
+    fn remove_non_exist_works() {
+        let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
+        mapping.insert(&1, &1);
+        mapping.insert(&1, &2);
+        mapping.insert(&1, &3);
+        assert_eq!(mapping.count(&1), 3);
+
+        mapping.remove_value(&1, &4);
+        assert_eq!(mapping.count(&1), 3);
+
+        mapping.remove_value(&1, &2);
+        assert_eq!(mapping.count(&1), 2);
+        mapping.remove_value(&1, &2);
+        assert_eq!(mapping.count(&1), 2);
+    }
+
+    #[ink_lang::test]
+    fn contain_works() {
+        let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
+
+        mapping.insert(&1, &1);
+        mapping.insert(&1, &2);
+
+        assert_eq!(mapping.contains(&1), true);
+        assert_eq!(mapping.contains(&2), false);
+        assert_eq!(mapping.contains_index(&1, &1), true);
+        assert_eq!(mapping.contains_index(&1, &2), false);
+        assert_eq!(mapping.contains_value(&1, &1), true);
+        assert_eq!(mapping.contains_value(&1, &3), false);
+    }
+}

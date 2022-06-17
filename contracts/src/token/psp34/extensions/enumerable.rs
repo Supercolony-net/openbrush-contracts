@@ -19,19 +19,21 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use crate::psp34::BalancesManager;
 pub use crate::{
     psp34::*,
     traits::psp34::extensions::enumerable::*,
 };
 pub use derive::PSP34EnumerableStorage;
 use openbrush::{
+    declare_storage_trait,
     storage::{
-        MultipleValueMapping,
+        MultiMapping,
         TypeGuard,
     },
     traits::{
         AccountId,
-        Flush,
+        Balance,
     },
 };
 
@@ -39,8 +41,8 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP34Enumera
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
-pub struct PSP34EnumerableData {
-    pub enumerable: MultipleValueMapping<Option<AccountId>, Id, EnumerableKey /* for optimization */>,
+pub struct EnumerableBalances {
+    pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey /* optimization */>,
     pub _reserved: Option<()>,
 }
 
@@ -50,99 +52,57 @@ impl<'a> TypeGuard<'a> for EnumerableKey {
     type Type = &'a Option<&'a AccountId>;
 }
 
-pub trait PSP34EnumerableStorage: PSP34Storage + ::openbrush::traits::InkStorage {
-    fn get(&self) -> &PSP34EnumerableData;
-    fn get_mut(&mut self) -> &mut PSP34EnumerableData;
-}
+declare_storage_trait!(PSP34EnumerableBalancesStorage);
 
-impl<T: PSP34EnumerableStorage + Flush> PSP34Transfer for T {
-    default fn _before_token_transfer(
-        &mut self,
-        from: Option<&AccountId>,
-        to: Option<&AccountId>,
-        id: &Id,
-    ) -> Result<(), PSP34Error> {
-        self._track_id_transfer(from, to, id)
+impl BalancesManager for EnumerableBalances {
+    fn balance_of(&self, owner: &Owner) -> u32 {
+        self.enumerable.count(&Some(owner)) as u32
     }
 
-    default fn _after_token_transfer(
-        &mut self,
-        _from: Option<&AccountId>,
-        _to: Option<&AccountId>,
-        _id: &Id,
-    ) -> Result<(), PSP34Error> {
-        Ok(())
-    }
-}
-
-pub trait PSP34EnumerableInternal {
-    /// Help function that can be called in `_before_token_transfer`. The function tracks moving of
-    /// the token between account to update enumerable data.
-    /// Calling conditions:
-    ///
-    /// - When `from` and `to` are both `None`, ``from``'s `id` will be
-    /// transferred to `to`.
-    /// - When `from` is `None`, `id` will be minted for `to`.
-    /// - When `to` is `None`, ``from``'s `id` will be burned.
-    fn _track_id_transfer(
-        &mut self,
-        from: Option<&AccountId>,
-        to: Option<&AccountId>,
-        id: &Id,
-    ) -> Result<(), PSP34Error>;
-
-    fn _enumerable(&self) -> &PSP34EnumerableData;
-
-    fn _enumerable_mut(&mut self) -> &mut PSP34EnumerableData;
-}
-
-impl<T: PSP34EnumerableStorage + Flush> PSP34EnumerableInternal for T {
-    default fn _track_id_transfer(
-        &mut self,
-        from: Option<&AccountId>,
-        to: Option<&AccountId>,
-        id: &Id,
-    ) -> Result<(), PSP34Error> {
-        if from == to {
-            return Ok(())
+    fn increase_balance(&mut self, owner: &Owner, id: &Id, increase_supply: bool) {
+        self.enumerable.insert(&Some(owner), id);
+        if increase_supply {
+            self.enumerable.insert(&None, id);
         }
-
-        if from.is_none() {
-            self._enumerable_mut().enumerable.insert(&None, id);
-        } else {
-            self._enumerable_mut().enumerable.remove_value(&from, id);
-        }
-
-        if to.is_none() {
-            self._enumerable_mut().enumerable.remove_value(&None, id);
-        } else {
-            self._enumerable_mut().enumerable.insert(&to, id);
-        }
-
-        Ok(())
     }
 
-    #[inline(always)]
-    fn _enumerable(&self) -> &PSP34EnumerableData {
-        PSP34EnumerableStorage::get(self)
+    fn decrease_balance(&mut self, owner: &Owner, id: &Id, decrease_supply: bool) {
+        self.enumerable.remove_value(&Some(owner), id);
+        if decrease_supply {
+            self.enumerable.remove_value(&None, id);
+        }
     }
 
-    #[inline(always)]
-    fn _enumerable_mut(&mut self) -> &mut PSP34EnumerableData {
-        PSP34EnumerableStorage::get_mut(self)
+    fn total_supply(&self) -> Balance {
+        self.enumerable.count(&None)
     }
 }
 
-impl<T: PSP34EnumerableStorage + Flush> PSP34Enumerable for T {
+impl<T> PSP34EnumerableBalancesStorage for T
+where
+    T: PSP34Storage<Data = PSP34Data<EnumerableBalances>>,
+{
+    type Data = EnumerableBalances;
+
+    fn get(&self) -> &Self::Data {
+        &self.get().balances
+    }
+
+    fn get_mut(&mut self) -> &mut Self::Data {
+        &mut self.get_mut().balances
+    }
+}
+
+impl<T: PSP34EnumerableBalancesStorage<Data = EnumerableBalances> + PSP34> PSP34Enumerable for T {
     default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<Id, PSP34Error> {
-        self._enumerable()
+        self.get()
             .enumerable
             .get_value(&Some(&owner), &index)
             .ok_or(PSP34Error::TokenNotExists)
     }
 
     default fn token_by_index(&self, index: u128) -> Result<Id, PSP34Error> {
-        self._enumerable()
+        self.get()
             .enumerable
             .get_value(&None, &index)
             .ok_or(PSP34Error::TokenNotExists)

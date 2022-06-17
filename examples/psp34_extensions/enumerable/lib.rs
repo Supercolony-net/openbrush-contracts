@@ -10,13 +10,11 @@ pub mod my_psp34_enumerable {
         mintable::*,
     };
 
-    #[derive(Default, SpreadAllocate, PSP34Storage, PSP34EnumerableStorage)]
+    #[derive(Default, SpreadAllocate, PSP34Storage)]
     #[ink(storage)]
     pub struct MyPSP34 {
         #[PSP34StorageField]
-        psp34: PSP34Data,
-        #[PSP34EnumerableStorageField]
-        enumerable: PSP34EnumerableData,
+        psp34: PSP34Data<EnumerableBalances>,
     }
 
     impl PSP34 for MyPSP34 {}

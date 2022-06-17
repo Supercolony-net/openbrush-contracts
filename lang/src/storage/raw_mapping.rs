@@ -1,23 +1,23 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (c) 2012-2022 Supercolony
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the"Software"),
+// to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-//! A simple Helper to contract storage.
-//!
-//! # Note
-//!
-//! This Helper doesn't actually "own" any data.
-//! Instead it is just a simple wrapper around the contract storage facilities.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::marker::PhantomData;
 use ink_storage::traits::{
@@ -32,14 +32,15 @@ use ink_env::hash::{
 };
 use ink_primitives::Key;
 
-pub struct Helper<K, V, T = Key> {
+pub struct RawMapping<K, V, T = Key> {
     prefix: T,
     _marker: PhantomData<fn() -> (K, V)>,
 }
 
-// TODO: Doc
-impl<K, V, T> Helper<K, V, T> {
-    /// Creates a new empty `Helper`.
+/// It is the implementation of `Mapping` functionality without storing it as a storage field.
+/// It can be used to store value under the key manually.
+impl<K, V, T> RawMapping<K, V, T> {
+    /// Creates a new empty `RawMapping`.
     #[inline(always)]
     pub fn new(prefix: T) -> Self {
         Self {
@@ -49,7 +50,7 @@ impl<K, V, T> Helper<K, V, T> {
     }
 }
 
-impl<K, V, T> Helper<K, V, T>
+impl<K, V, T> RawMapping<K, V, T>
 where
     T: scale::Encode + Copy,
 {
@@ -129,7 +130,7 @@ where
 
     /// Returns a `Key` pointer used internally by the storage API.
     ///
-    /// This key is a combination of the `Helper`'s internal `offset_key`
+    /// This key is a combination of the `RawMapping`'s internal `offset_key`
     /// and the user provided `key`.
     #[inline(always)]
     fn storage_key(&self, key: K) -> Key

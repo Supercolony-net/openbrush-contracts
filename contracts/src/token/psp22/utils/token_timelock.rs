@@ -45,9 +45,9 @@ pub struct PSP22TokenTimelockData {
     release_time: Timestamp,
 }
 
-declare_storage_trait!(PSP22TokenTimelockStorage, PSP22TokenTimelockData);
+declare_storage_trait!(PSP22TokenTimelockStorage);
 
-impl<T: PSP22TokenTimelockStorage> PSP22TokenTimelock for T {
+impl<T: PSP22TokenTimelockStorage<Data = PSP22TokenTimelockData>> PSP22TokenTimelock for T {
     /// Returns the token address
     default fn token(&self) -> AccountId {
         self.get().token
@@ -95,7 +95,7 @@ pub trait PSP22TokenTimelockInternal {
     fn _token(&mut self) -> &mut PSP22Ref;
 }
 
-impl<T: PSP22TokenTimelockStorage> PSP22TokenTimelockInternal for T {
+impl<T: PSP22TokenTimelockStorage<Data = PSP22TokenTimelockData>> PSP22TokenTimelockInternal for T {
     default fn _withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
         let beneficairy = self.beneficiary();
         self._token()

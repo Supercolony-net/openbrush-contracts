@@ -107,7 +107,7 @@ Some macros from OpenBrush allows to remove boilerplate code and simplify the de
 macro define the storage like described in the [Storage trait](/smart-contracts/example/data#storage-trait)
 ```rust
 use openbrush::declare_storage_trait;
-declare_storage_trait!(PointStorage, PointData);
+declare_storage_trait!(PointStorage);
 ```
 - [`impl_storage_trait!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/macro/src/lib.rs)
 macro implements the storage trait for the contract and return the field from that contract of the data type
