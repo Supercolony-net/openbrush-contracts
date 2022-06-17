@@ -27,6 +27,7 @@ pub use derive::{
     AccessControlEnumerableStorage,
     AccessControlStorage,
 };
+use ink_prelude::vec::Vec;
 use openbrush::{
     declare_storage_trait,
     storage::{
@@ -39,7 +40,6 @@ use openbrush::{
         Flush,
     },
 };
-use ink_prelude::vec::Vec;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlEnumerableData");
 
@@ -59,7 +59,12 @@ impl<'a> TypeGuard<'a> for RoleTypeKey {
 
 declare_storage_trait!(AccessControlEnumerableStorage);
 
-impl<T: AccessControlEnumerableStorage<Data = AccessControlEnumerableData> + AccessControlStorage<Data = AccessControlData> + Flush> AccessControlRoleManager for T {
+impl<T> AccessControlRoleManager for T
+where
+    T: AccessControlEnumerableStorage<Data = AccessControlEnumerableData> +
+    AccessControlStorage<Data = AccessControlData> +
+    Flush
+{
     fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
         default_grant_role(self, role, account)?;
         self._add(&role, &account)?;
@@ -87,7 +92,12 @@ pub trait AccessControlEnumerableInternal {
     fn _get_values(&self, member: &RoleType) -> Vec<AccountId>;
 }
 
-impl<T: AccessControlEnumerableStorage<Data = AccessControlEnumerableData> + AccessControlStorage<Data = AccessControlData> + Flush> AccessControlEnumerableInternal for T {
+impl<T> AccessControlEnumerableInternal for T
+where
+    T: AccessControlEnumerableStorage<Data = AccessControlEnumerableData> +
+    AccessControlStorage<Data = AccessControlData> +
+    Flush
+{
     #[inline(always)]
     fn _enumerable(&self) -> &AccessControlEnumerableData {
         AccessControlEnumerableStorage::get(self)
@@ -153,7 +163,12 @@ impl<T: AccessControlEnumerableStorage<Data = AccessControlEnumerableData> + Acc
     }
 }
 
-impl<T: AccessControlEnumerableStorage<Data = AccessControlEnumerableData> + AccessControlStorage<Data = AccessControlData> + Flush> AccessControlEnumerable for T {
+impl<T> AccessControlEnumerable for T
+where
+    T: AccessControlEnumerableStorage<Data = AccessControlEnumerableData> +
+    AccessControlStorage<Data = AccessControlData> +
+    Flush
+{
     default fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlError> {
         self._enumerable()
             .role_members
