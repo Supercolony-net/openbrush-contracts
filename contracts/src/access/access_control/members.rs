@@ -19,5 +19,40 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub mod access_control;
-mod members;
+pub use crate::traits::access_control::{RoleType, AccessControlError};
+use openbrush::{
+    storage::{
+        Mapping,
+    },
+    traits::AccountId,
+};
+
+pub const MEMBERS_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlMembers");
+
+#[derive(Default, Debug)]
+#[openbrush::storage(MEMBERS_KEY)]
+pub struct Members {
+    pub members: Mapping<(RoleType, AccountId), ()>,
+}
+
+pub trait AccessControlMemberManager {
+    fn _has_role(&self, role: &RoleType, address: &AccountId) -> bool;
+
+    fn _add(&mut self, role: RoleType, member: AccountId);
+
+    fn _remove(&mut self, role: RoleType, member: AccountId);
+}
+
+impl AccessControlMemberManager for Members {
+    fn _has_role(&self, role: &RoleType, address: &AccountId) -> bool {
+        self.members.get(&(*role, *address)).is_some()
+    }
+
+    fn _add(&mut self, role: RoleType, member: AccountId) {
+        self.members.insert(&(role, member), &());
+    }
+
+    fn _remove(&mut self, role: RoleType, member: AccountId) {
+        self.members.remove(&(role, member));
+    }
+}

@@ -27,7 +27,7 @@ mod access_control {
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
     use openbrush::{
-        contracts::access_control::*,
+        contracts::access_control::access_control::*,
         test_utils::{
             accounts,
             change_caller,
