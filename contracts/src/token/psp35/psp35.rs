@@ -31,10 +31,6 @@ use ink_prelude::{
     vec,
     vec::Vec,
 };
-use ink_storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
 use openbrush::{
     declare_storage_trait,
     storage::{
@@ -55,7 +51,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Data");
 #[openbrush::storage(STORAGE_KEY)]
 pub struct PSP35Data<B = Balances>
 where
-    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    B: BalancesManager,
 {
     pub balances: B,
     pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance, ApprovalsKey /* optimization */>,
@@ -78,7 +74,7 @@ declare_storage_trait!(PSP35Storage);
 
 impl<B, T> PSP35 for T
 where
-    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    B: BalancesManager,
     T: PSP35Storage<Data = PSP35Data<B>> + Flush,
 {
     default fn balance_of(&self, owner: AccountId, id: Id) -> Balance {
@@ -185,7 +181,7 @@ pub trait PSP35Internal {
 
 impl<B, T> PSP35Internal for T
 where
-    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    B: BalancesManager,
     T: PSP35Storage<Data = PSP35Data<B>> + Flush,
 {
     default fn _emit_transfer_event(
@@ -218,7 +214,7 @@ where
         self._before_token_transfer(None, Some(&to), &ids_amounts)?;
 
         for (id, amount) in &ids_amounts {
-            self.get_mut().balances.mint(&to, &id, *amount, true)?;
+            self.get_mut().balances.increase_balance(&to, &id, amount, true)?;
         }
 
         self._after_token_transfer(None, Some(&to), &ids_amounts)?;
@@ -241,7 +237,7 @@ where
         }
 
         for (id, amount) in ids_amounts.iter() {
-            self.get_mut().balances.burn(&from, &id, *amount, true)?;
+            self.get_mut().balances.decrease_balance(&from, &id, amount, true)?;
         }
 
         self._after_token_transfer(Some(&from), None, &ids_amounts)?;
@@ -358,9 +354,9 @@ where
         value: Balance,
         data: &Vec<u8>,
     ) -> Result<(), PSP35Error> {
-        self.get_mut().balances.burn(from, &id, value, false)?;
+        self.get_mut().balances.decrease_balance(from, &id, &value, false)?;
         self._do_safe_transfer_check(&Self::env().caller(), from, to, &vec![(id.clone(), value)], &data)?;
-        self.get_mut().balances.mint(to, &id, value, false)?;
+        self.get_mut().balances.increase_balance(to, &id, &value, false)?;
         Ok(())
     }
 

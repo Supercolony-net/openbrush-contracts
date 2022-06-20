@@ -44,7 +44,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Enumera
 #[openbrush::storage(STORAGE_KEY)]
 pub struct EnumerableBalances {
     pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey>,
-    pub balances: Mapping<(AccountId, Id), Balance>,
+    pub balances: Mapping<(AccountId, Id), Balance, BalancesKey>,
     pub total_supply: Mapping<Id, Balance>,
     pub _reserved: Option<()>,
 }
@@ -55,29 +55,33 @@ impl<'a> TypeGuard<'a> for EnumerableKey {
     type Type = &'a Option<&'a AccountId>;
 }
 
+pub struct BalancesKey;
+
+impl<'a> TypeGuard<'a> for BalancesKey {
+    type Type = &'a (&'a AccountId, &'a Id);
+}
+
 declare_storage_trait!(PSP35EnumerableBalancesStorage);
 
 impl BalancesManager for EnumerableBalances {
     fn balance_of(&self, owner: &AccountId, id: &Id) -> Balance {
-        self.balances.get(&(owner.clone(), id.clone())).unwrap_or(0)
+        self.balances.get(&(owner, id)).unwrap_or(0)
     }
 
-    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, increase_supply: bool) -> Result<(), PSP35Error> {
+    fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error> {
         let initial_balance = self.balance_of(owner, id);
-        self.balances.insert(
-            &(owner.clone(), id.clone()),
-            &(initial_balance.checked_add(amount).unwrap()),
-        );
+        self.balances
+            .insert(&(owner, id), &(initial_balance.checked_add(amount.clone()).unwrap()));
 
         if initial_balance == 0 {
             self.enumerable.insert(&Some(owner), id);
         }
 
-        if increase_supply {
+        if mint {
             let token_supply = self.total_supply.get(id).unwrap_or(0);
 
             self.total_supply
-                .insert(id, &(token_supply.checked_add(amount).unwrap()));
+                .insert(id, &(token_supply.checked_add(amount.clone()).unwrap()));
 
             if token_supply == 0 {
                 self.enumerable.insert(&None, id);
@@ -86,29 +90,29 @@ impl BalancesManager for EnumerableBalances {
         Ok(())
     }
 
-    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, decrease_supply: bool) -> Result<(), PSP35Error> {
+    fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP35Error> {
         let initial_balance = self.balance_of(owner, id);
         self.balances.insert(
-            &(owner.clone(), id.clone()),
+            &(owner, id),
             &(initial_balance
-                .checked_sub(amount)
+                .checked_sub(amount.clone())
                 .ok_or(PSP35Error::InsufficientBalance)?),
         );
 
-        if initial_balance == amount {
+        if initial_balance == *amount {
             self.enumerable.remove_value(&Some(owner), id);
         }
 
-        if decrease_supply {
+        if burn {
             let token_supply = self.total_supply.get(id).unwrap_or(0);
             self.total_supply.insert(
                 id,
                 &(token_supply
-                    .checked_sub(amount)
+                    .checked_sub(amount.clone())
                     .ok_or(PSP35Error::InsufficientBalance)?),
             );
 
-            if token_supply == amount {
+            if token_supply == *amount {
                 self.enumerable.remove_value(&None, id);
             }
         }

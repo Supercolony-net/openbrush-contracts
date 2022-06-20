@@ -145,7 +145,7 @@ mod psp35_enumerable {
         // check Alice token by index
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2.clone()));
         // check Bob token by index
-        assert_eq!(nft.owners_token_by_index(accounts.bob, 1u128), Ok(token_id2));
+        assert_eq!(nft.owners_token_by_index(accounts.bob, 1u128), Ok(token_id2.clone()));
     }
 
     #[ink::test]
@@ -186,6 +186,44 @@ mod psp35_enumerable {
             .is_ok());
         // check Alice token by index
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2));
+    }
+
+    #[ink::test]
+    fn enumerable_self_transfer_works() {
+        let accounts = accounts();
+
+        let mut nft = PSP35Struct::new();
+
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
+        let token_id3 = Id::U128(3);
+        let token_id4 = Id::U128(4);
+
+        assert!(nft
+            ._mint_to(
+                accounts.alice,
+                vec![
+                    (token_id1.clone(), 1),
+                    (token_id2.clone(), 2),
+                    (token_id3.clone(), 3),
+                    (token_id4.clone(), 4)
+                ]
+            )
+            .is_ok());
+
+        assert!(nft.transfer(accounts.alice, token_id2.clone(), 1, vec![]).is_ok());
+
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1.clone()));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), Ok(token_id2.clone()));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 2u128), Ok(token_id3.clone()));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 3u128), Ok(token_id4.clone()));
+
+        assert!(nft.transfer(accounts.alice, token_id2.clone(), 2, vec![]).is_ok());
+
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), Ok(token_id4));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 2u128), Ok(token_id3));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 3u128), Ok(token_id2));
     }
 
     #[ink::test]

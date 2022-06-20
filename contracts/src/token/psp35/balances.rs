@@ -23,6 +23,10 @@ use crate::psp35::{
     Id,
     PSP35Error,
 };
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
+};
 use openbrush::{
     storage::Mapping,
     traits::{
@@ -33,10 +37,10 @@ use openbrush::{
 
 pub const BALANCES_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Balances");
 
-pub trait BalancesManager {
+pub trait BalancesManager: SpreadLayout + SpreadAllocate {
     fn balance_of(&self, owner: &AccountId, id: &Id) -> Balance;
-    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, increase_supply: bool) -> Result<(), PSP35Error>;
-    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, decrease_supply: bool) -> Result<(), PSP35Error>;
+    fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error>;
+    fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP35Error>;
 }
 
 #[derive(Default, Debug)]
@@ -52,20 +56,32 @@ impl BalancesManager for Balances {
     }
 
     #[inline(always)]
-    fn mint(&mut self, owner: &AccountId, id: &Id, amount: Balance, _increase_supply: bool) -> Result<(), PSP35Error> {
+    fn increase_balance(
+        &mut self,
+        owner: &AccountId,
+        id: &Id,
+        amount: &Balance,
+        _mint: bool,
+    ) -> Result<(), PSP35Error> {
         let to_balance = self.balance_of(owner, id);
         self.balances
-            .insert(&(owner.clone(), id.clone()), &(to_balance + amount));
+            .insert(&(owner.clone(), id.clone()), &to_balance.checked_add(*amount).unwrap());
         Ok(())
     }
 
     #[inline(always)]
-    fn burn(&mut self, owner: &AccountId, id: &Id, amount: Balance, _decrease_supply: bool) -> Result<(), PSP35Error> {
+    fn decrease_balance(
+        &mut self,
+        owner: &AccountId,
+        id: &Id,
+        amount: &Balance,
+        _burn: bool,
+    ) -> Result<(), PSP35Error> {
         let from_balance = self.balance_of(owner, id);
         self.balances.insert(
             &(owner.clone(), id.clone()),
             &(from_balance
-                .checked_sub(amount)
+                .checked_sub(*amount)
                 .ok_or(PSP35Error::InsufficientBalance)?),
         );
         Ok(())
