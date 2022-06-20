@@ -56,12 +56,6 @@ impl From<AccessControlError> for FlashBorrowerError {
             AccessControlError::InvalidCaller => {
                 FlashBorrowerError::FlashloanRejected(String::from("AC::InvalidCaller"))
             }
-            AccessControlError::ValueAlreadyExists => {
-                FlashBorrowerError::FlashloanRejected(String::from("AC::ValueAlreadyExists"))
-            }
-            AccessControlError::ValueNotExists => {
-                FlashBorrowerError::FlashloanRejected(String::from("AC::ValueNotExists"))
-            }
         }
     }
 }
@@ -143,8 +137,6 @@ impl From<AccessControlError> for FlashLenderError {
             AccessControlError::MissingRole => FlashLenderError::Custom(String::from("AC::MissingRole")),
             AccessControlError::RoleRedundant => FlashLenderError::Custom(String::from("AC::RoleRedundant")),
             AccessControlError::InvalidCaller => FlashLenderError::Custom(String::from("AC::InvalidCaller")),
-            AccessControlError::ValueAlreadyExists => FlashLenderError::Custom(String::from("AC::ValueAlreadyExists")),
-            AccessControlError::ValueNotExists => FlashLenderError::Custom(String::from("AC::ValueNotExists")),
         }
     }
 }

@@ -96,7 +96,7 @@ mod access_control_enumerable {
         assert!(access_control.grant_role(PAUSER, alice).is_ok());
         assert!(access_control.grant_role(PAUSER, accounts.eve).is_ok());
 
-        assert_eq!(access_control.get_role_member(PAUSER, 1), Ok(alice))
+        assert_eq!(access_control.get_role_member(PAUSER, 1), Some(alice))
     }
 
     #[ink::test]
@@ -107,12 +107,12 @@ mod access_control_enumerable {
 
         assert!(access_control.grant_role(PAUSER, accounts.bob).is_ok());
         assert!(access_control.grant_role(PAUSER, alice).is_ok());
-        assert_eq!(access_control.get_role_member(PAUSER, 1), Ok(alice));
+        assert_eq!(access_control.get_role_member(PAUSER, 1), Some(alice));
 
         assert!(access_control.revoke_role(PAUSER, alice).is_ok());
         assert_eq!(
             access_control.get_role_member(PAUSER, 1),
-            Err(AccessControlError::ValueNotExists)
+            None
         )
     }
 }

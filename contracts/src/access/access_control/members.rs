@@ -31,33 +31,40 @@ use openbrush::{
     storage::Mapping,
     traits::AccountId,
 };
+use openbrush::storage::TypeGuard;
 
 pub const MEMBERS_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlMembers");
 
 #[derive(Default, Debug)]
 #[openbrush::storage(MEMBERS_KEY)]
 pub struct Members {
-    pub members: Mapping<(RoleType, AccountId), ()>,
+    pub members: Mapping<(RoleType, AccountId), (), MemberTypeKey>,
+}
+
+pub struct MemberTypeKey;
+
+impl<'a> TypeGuard<'a> for MemberTypeKey {
+    type Type =&'a (RoleType, &'a AccountId);
 }
 
 pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {
-    fn has_role(&self, role: RoleType, address: AccountId) -> bool;
+    fn has_role(&self, role: RoleType, address: &AccountId) -> bool;
 
-    fn add(&mut self, role: RoleType, member: AccountId);
+    fn add(&mut self, role: RoleType, member: &AccountId);
 
-    fn remove(&mut self, role: RoleType, member: AccountId);
+    fn remove(&mut self, role: RoleType, member: &AccountId);
 }
 
 impl AccessControlMemberManager for Members {
-    fn has_role(&self, role: RoleType, address: AccountId) -> bool {
+    fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
         self.members.get(&(role, address)).is_some()
     }
 
-    fn add(&mut self, role: RoleType, member: AccountId) {
+    fn add(&mut self, role: RoleType, member: &AccountId) {
         self.members.insert(&(role, member), &());
     }
 
-    fn remove(&mut self, role: RoleType, member: AccountId) {
+    fn remove(&mut self, role: RoleType, member: &AccountId) {
         self.members.remove(&(role, member));
     }
 }

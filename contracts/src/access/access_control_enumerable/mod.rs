@@ -20,10 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    access_control::{
-        access_control::*,
-        members::AccessControlMemberManager,
-    },
+    access_control::*,
     traits::access_control_enumerable::*,
 };
 pub use derive::AccessControlEnumerableStorage;
@@ -31,7 +28,6 @@ use openbrush::{
     declare_storage_trait,
     storage::{
         MultiMapping,
-        TypeGuard,
     },
     traits::AccountId,
 };
@@ -41,29 +37,23 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessContro
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct EnumerableMembers {
-    pub role_members: MultiMapping<RoleType, AccountId, RoleTypeKey /* optimization */>,
+    pub role_members: MultiMapping<RoleType, AccountId>,
     pub _reserved: Option<()>,
-}
-
-pub struct RoleTypeKey;
-
-impl<'a> TypeGuard<'a> for RoleTypeKey {
-    type Type = &'a RoleType;
 }
 
 declare_storage_trait!(AccessControlEnumerableMembersStorage);
 
 impl AccessControlMemberManager for EnumerableMembers {
-    fn has_role(&self, role: RoleType, address: AccountId) -> bool {
-        self.role_members.get_index(&role, &address).is_some()
+    fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
+        self.role_members.get_index(&role, address).is_some()
     }
 
-    fn add(&mut self, role: RoleType, member: AccountId) {
-        self.role_members.insert(&role, &member);
+    fn add(&mut self, role: RoleType, member: &AccountId) {
+        self.role_members.insert(&role, member);
     }
 
-    fn remove(&mut self, role: RoleType, member: AccountId) {
-        self.role_members.remove_value(&role, &member);
+    fn remove(&mut self, role: RoleType, member: &AccountId) {
+        self.role_members.remove_value(&role, member);
     }
 }
 
@@ -86,11 +76,10 @@ impl<T> AccessControlEnumerable for T
 where
     T: AccessControlEnumerableMembersStorage<Data = EnumerableMembers> + AccessControl,
 {
-    default fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlError> {
+    default fn get_role_member(&self, role: RoleType, index: u128) -> Option<AccountId> {
         self.get()
             .role_members
             .get_value(&role, &index)
-            .ok_or(AccessControlError::ValueNotExists)
     }
 
     default fn get_role_member_count(&self, role: RoleType) -> u128 {

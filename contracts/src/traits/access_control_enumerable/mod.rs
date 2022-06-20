@@ -21,7 +21,6 @@
 
 pub use crate::traits::{
     access_control::RoleType,
-    errors::AccessControlError,
 };
 use openbrush::traits::AccountId;
 
@@ -36,7 +35,7 @@ pub trait AccessControlEnumerable {
     /// Role bearers are not sorted in any particular way, and their
     /// ordering may change at any point.
     #[ink(message)]
-    fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlError>;
+    fn get_role_member(&self, role: RoleType, index: u128) -> Option<AccountId>;
 
     /// Returns the number of accounts that have `role`.
     /// Can be used together with {get_role_member} to enumerate

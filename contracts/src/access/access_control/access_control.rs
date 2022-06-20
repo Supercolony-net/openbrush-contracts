@@ -68,7 +68,7 @@ where
     T: AccessControlStorage<Data = AccessControlData<B>>,
 {
     default fn has_role(&self, role: RoleType, address: AccountId) -> bool {
-        self.get().members.has_role(role, address)
+        self.get().members.has_role(role, &address)
     }
 
     default fn get_role_admin(&self, role: RoleType) -> RoleType {
@@ -77,10 +77,10 @@ where
 
     #[modifiers(only_role(get_role_admin(self, &role)))]
     default fn grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        if self.get().members.has_role(role, account) {
+        if self.get().members.has_role(role, &account) {
             return Err(AccessControlError::RoleRedundant)
         }
-        self.get_mut().members.add(role, account);
+        self.get_mut().members.add(role, &account);
         self._emit_role_granted(role, account, Some(T::env().caller()));
         Ok(())
     }
@@ -156,15 +156,15 @@ where
     }
 
     default fn _setup_role(&mut self, role: RoleType, member: AccountId) {
-        if !self.get().members.has_role(role, member) {
-            self.get_mut().members.add(role, member);
+        if !self.get().members.has_role(role, &member) {
+            self.get_mut().members.add(role, &member);
 
             self._emit_role_granted(role, member, None);
         }
     }
 
     default fn _do_revoke_role(&mut self, role: RoleType, account: AccountId) {
-        self.get_mut().members.remove(role, account);
+        self.get_mut().members.remove(role, &account);
         self._emit_role_revoked(role, account, Self::env().caller());
     }
 
@@ -184,7 +184,7 @@ pub fn check_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: Acces
     role: RoleType,
     account: AccountId,
 ) -> Result<(), AccessControlError> {
-    if !instance.get().members.has_role(role, account) {
+    if !instance.get().members.has_role(role, &account) {
         return Err(AccessControlError::MissingRole)
     }
     Ok(())
