@@ -23,7 +23,7 @@ openbrush = { path = "..", default-features = false, features = ["psp22", "psp34
 name = "lending_project"
 path = "lib.rs"
 crate-type = [
-    "rlib",
+    "cdylib", "rlib",
 ]
 
 [features]
