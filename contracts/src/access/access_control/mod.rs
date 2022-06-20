@@ -20,4 +20,4 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub mod access_control;
-mod members;
+pub mod members;

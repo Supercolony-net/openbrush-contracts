@@ -36,23 +36,23 @@ pub struct Members {
 }
 
 pub trait AccessControlMemberManager {
-    fn _has_role(&self, role: &RoleType, address: &AccountId) -> bool;
+    fn has_role(&self, role: &RoleType, address: &AccountId) -> bool;
 
-    fn _add(&mut self, role: RoleType, member: AccountId);
+    fn add(&mut self, role: RoleType, member: AccountId);
 
-    fn _remove(&mut self, role: RoleType, member: AccountId);
+    fn remove(&mut self, role: RoleType, member: AccountId);
 }
 
 impl AccessControlMemberManager for Members {
-    fn _has_role(&self, role: &RoleType, address: &AccountId) -> bool {
+    fn has_role(&self, role: &RoleType, address: &AccountId) -> bool {
         self.members.get(&(*role, *address)).is_some()
     }
 
-    fn _add(&mut self, role: RoleType, member: AccountId) {
+    fn add(&mut self, role: RoleType, member: AccountId){
         self.members.insert(&(role, member), &());
     }
 
-    fn _remove(&mut self, role: RoleType, member: AccountId) {
+    fn remove(&mut self, role: RoleType, member: AccountId){
         self.members.remove(&(role, member));
     }
 }

@@ -71,7 +71,7 @@ where
     T: AccessControlStorage<Data = AccessControlData<B>>,
 {
     default fn has_role(&self, role: RoleType, address: AccountId) -> bool {
-        has_role(self, &role, &address)
+        self.get().members.has_role(&role, &address)
     }
 
     default fn get_role_admin(&self, role: RoleType) -> RoleType {
@@ -80,12 +80,19 @@ where
 
     #[modifiers(only_role(get_role_admin(self, &role)))]
     default fn grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        self._grant_role(role, account)
+        if self.get().members.has_role(&role, &account) {
+            return Err(AccessControlError::RoleRedundant)
+        }
+        self.get_mut().members.add(role, account);
+        self._emit_role_granted(role, account, Some(T::env().caller()));
+        Ok(())
     }
 
     #[modifiers(only_role(get_role_admin(self, &role)))]
     default fn revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        self._revoke_role(role, account)
+        check_role(self, &role, &account)?;
+        self._do_revoke_role(role, account);
+        Ok(())
     }
 
     default fn renounce_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
@@ -152,15 +159,15 @@ where
     }
 
     default fn _setup_role(&mut self, role: RoleType, member: AccountId) {
-        if !has_role(self, &role, &member) {
-            self.get_mut().members._add(role, member);
+        if !self.get().members.has_role(&role, &member) {
+            self.get_mut().members.add(role, member);
 
             self._emit_role_granted(role, member, None);
         }
     }
 
     default fn _do_revoke_role(&mut self, role: RoleType, account: AccountId) {
-        self.get_mut().members._remove(role, account);
+        self.get_mut().members.remove(role, account);
         self._emit_role_revoked(role, account, Self::env().caller());
     }
 
@@ -176,66 +183,15 @@ where
     }
 }
 
-pub trait AccessControlRoleManager {
-    fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError>;
-
-    fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError>;
-}
-
-impl<B, T> AccessControlRoleManager for T
-where
-    B: AccessControlMemberManager + SpreadLayout + SpreadAllocate,
-    T: AccessControlStorage<Data = AccessControlData<B>>,
-{
-    default fn _grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        default_grant_role(self, role, account)
-    }
-
-    default fn _revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        default_revoke_role(self, role, account)
-    }
-}
-
-pub fn default_grant_role<T: AccessControlStorage<Data = AccessControlData<B>> + ?Sized, B: AccessControlMemberManager + SpreadLayout + SpreadAllocate>(
-    ac: &mut T,
-    role: RoleType,
-    account: AccountId,
-) -> Result<(), AccessControlError> {
-    if has_role(ac, &role, &account) {
-        return Err(AccessControlError::RoleRedundant)
-    }
-    ac.get_mut().members._add(role, account);
-    ac._emit_role_granted(role, account, Some(T::env().caller()));
-    Ok(())
-}
-
-pub fn default_revoke_role<T: AccessControlStorage<Data = AccessControlData<B>> + ?Sized, B: AccessControlMemberManager + SpreadLayout + SpreadAllocate>(
-    ac: &mut T,
-    role: RoleType,
-    account: AccountId,
-) -> Result<(), AccessControlError> {
-    check_role(ac, &role, &account)?;
-    ac._do_revoke_role(role, account);
-    Ok(())
-}
-
 pub fn check_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager + SpreadLayout + SpreadAllocate>(
     instance: &T,
     role: &RoleType,
     account: &AccountId,
 ) -> Result<(), AccessControlError> {
-    if !has_role(instance, role, account) {
+    if !instance.get().members.has_role(role, account) {
         return Err(AccessControlError::MissingRole)
     }
     Ok(())
-}
-
-pub fn has_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager + SpreadLayout + SpreadAllocate>(
-    instance: &T,
-    role: &RoleType,
-    account: &AccountId,
-) -> bool {
-    instance.get().members._has_role(role, account)
 }
 
 pub fn get_role_admin<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager + SpreadLayout + SpreadAllocate>(instance: &T, role: &RoleType) -> RoleType {
