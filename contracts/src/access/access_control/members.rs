@@ -19,11 +19,16 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::access_control::{RoleType, AccessControlError};
+pub use crate::traits::access_control::{
+    AccessControlError,
+    RoleType,
+};
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
+};
 use openbrush::{
-    storage::{
-        Mapping,
-    },
+    storage::Mapping,
     traits::AccountId,
 };
 
@@ -35,7 +40,7 @@ pub struct Members {
     pub members: Mapping<(RoleType, AccountId), ()>,
 }
 
-pub trait AccessControlMemberManager {
+pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {
     fn has_role(&self, role: &RoleType, address: &AccountId) -> bool;
 
     fn add(&mut self, role: RoleType, member: AccountId);
@@ -48,11 +53,11 @@ impl AccessControlMemberManager for Members {
         self.members.get(&(*role, *address)).is_some()
     }
 
-    fn add(&mut self, role: RoleType, member: AccountId){
+    fn add(&mut self, role: RoleType, member: AccountId) {
         self.members.insert(&(role, member), &());
     }
 
-    fn remove(&mut self, role: RoleType, member: AccountId){
+    fn remove(&mut self, role: RoleType, member: AccountId) {
         self.members.remove(&(role, member));
     }
 }

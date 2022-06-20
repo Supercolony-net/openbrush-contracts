@@ -20,25 +20,23 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    access_control::access_control::*,
+    access_control::{
+        access_control::*,
+        members::AccessControlMemberManager,
+    },
     traits::access_control_enumerable::*,
-    access_control::members::AccessControlMemberManager,
 };
-pub use derive::{
-    AccessControlEnumerableStorage,
-};
+pub use derive::AccessControlEnumerableStorage;
 use openbrush::{
     declare_storage_trait,
     storage::{
         MultiMapping,
         TypeGuard,
     },
-    traits::{
-        AccountId,
-    },
+    traits::AccountId,
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::EnumerableMembers");
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlEnumerableData");
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
@@ -64,14 +62,14 @@ impl AccessControlMemberManager for EnumerableMembers {
         self.role_members.insert(&role, &member);
     }
 
-    fn remove(&mut self, role: RoleType, member: AccountId){
+    fn remove(&mut self, role: RoleType, member: AccountId) {
         self.role_members.remove_value(&role, &member);
     }
 }
 
 impl<T> AccessControlEnumerableMembersStorage for T
 where
-    T: AccessControlStorage<Data = AccessControlData<EnumerableMembers>>
+    T: AccessControlStorage<Data = AccessControlData<EnumerableMembers>>,
 {
     type Data = EnumerableMembers;
 
@@ -86,8 +84,7 @@ where
 
 impl<T> AccessControlEnumerable for T
 where
-    T: AccessControlEnumerableMembersStorage<Data = EnumerableMembers> +
-    AccessControl
+    T: AccessControlEnumerableMembersStorage<Data = EnumerableMembers> + AccessControl,
 {
     default fn get_role_member(&self, role: RoleType, index: u128) -> Result<AccountId, AccessControlError> {
         self.get()

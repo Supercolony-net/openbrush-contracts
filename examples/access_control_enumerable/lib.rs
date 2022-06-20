@@ -4,20 +4,16 @@
 #[openbrush::contract]
 pub mod my_access_control {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::{
-        contracts::{
-            access_control::*,
-            access_control_enumerable::*,
-        },
+    use openbrush::contracts::{
+        access_control::*,
+        access_control_enumerable::*,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, AccessControlStorage, AccessControlEnumerableStorage)]
+    #[derive(Default, SpreadAllocate, AccessControlStorage)]
     pub struct AccessControlStruct {
         #[AccessControlStorageField]
-        access: AccessControlData,
-        #[AccessControlEnumerableStorageField]
-        access_enumerable: AccessControlEnumerableData,
+        access: AccessControlData<EnumerableMembers>,
     }
 
     // You can manually set the number for the role.

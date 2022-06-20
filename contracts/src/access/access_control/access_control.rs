@@ -22,14 +22,11 @@
 pub use super::members::*;
 pub use crate::traits::access_control::*;
 pub use derive::AccessControlStorage;
-use ink_storage::traits::{SpreadAllocate, SpreadLayout};
 use openbrush::{
-    storage::{
-        Mapping,
-    },
     declare_storage_trait,
     modifier_definition,
     modifiers,
+    storage::Mapping,
     traits::AccountId,
 };
 
@@ -38,8 +35,8 @@ pub const DATA_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlDa
 #[derive(Default, Debug)]
 #[openbrush::storage(DATA_KEY)]
 pub struct AccessControlData<B = Members>
-    where
-        B: AccessControlMemberManager + SpreadLayout + SpreadAllocate,
+where
+    B: AccessControlMemberManager,
 {
     pub admin_roles: Mapping<RoleType, RoleType>,
     pub members: B,
@@ -53,11 +50,11 @@ pub const DEFAULT_ADMIN_ROLE: RoleType = 0;
 /// Modifier that checks that `caller` has a specific role.
 #[modifier_definition]
 pub fn only_role<T, B, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
-    where
-        B: AccessControlMemberManager + SpreadLayout + SpreadAllocate,
-        T: AccessControlStorage<Data = AccessControlData<B>>,
-        F: FnOnce(&mut T) -> Result<R, E>,
-        E: From<AccessControlError>,
+where
+    B: AccessControlMemberManager,
+    T: AccessControlStorage<Data = AccessControlData<B>>,
+    F: FnOnce(&mut T) -> Result<R, E>,
+    E: From<AccessControlError>,
 {
     if let Err(err) = check_role(instance, &role, &T::env().caller()) {
         return Err(From::from(err))
@@ -67,7 +64,7 @@ pub fn only_role<T, B, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Re
 
 impl<B, T> AccessControl for T
 where
-    B: AccessControlMemberManager + SpreadLayout + SpreadAllocate,
+    B: AccessControlMemberManager,
     T: AccessControlStorage<Data = AccessControlData<B>>,
 {
     default fn has_role(&self, role: RoleType, address: AccountId) -> bool {
@@ -130,7 +127,7 @@ pub trait AccessControlInternal {
 
 impl<B, T> AccessControlInternal for T
 where
-    B: AccessControlMemberManager + SpreadLayout + SpreadAllocate,
+    B: AccessControlMemberManager,
     T: AccessControlStorage<Data = AccessControlData<B>>,
 {
     default fn _emit_role_admin_changed(
@@ -171,7 +168,6 @@ where
         self._emit_role_revoked(role, account, Self::env().caller());
     }
 
-
     default fn _set_role_admin(&mut self, role: RoleType, new_admin: RoleType) {
         let mut entry = self.get_mut().admin_roles.get(&role);
         if entry.is_none() {
@@ -183,7 +179,7 @@ where
     }
 }
 
-pub fn check_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager + SpreadLayout + SpreadAllocate>(
+pub fn check_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager>(
     instance: &T,
     role: &RoleType,
     account: &AccountId,
@@ -194,6 +190,9 @@ pub fn check_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: Acces
     Ok(())
 }
 
-pub fn get_role_admin<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager + SpreadLayout + SpreadAllocate>(instance: &T, role: &RoleType) -> RoleType {
+pub fn get_role_admin<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager>(
+    instance: &T,
+    role: &RoleType,
+) -> RoleType {
     instance.get().admin_roles.get(role).unwrap_or(T::_default_admin())
 }
