@@ -41,7 +41,7 @@ pub struct Members {
 }
 
 pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {
-    fn has_role(&self, role: &RoleType, address: &AccountId) -> bool;
+    fn has_role(&self, role: RoleType, address: AccountId) -> bool;
 
     fn add(&mut self, role: RoleType, member: AccountId);
 
@@ -49,8 +49,8 @@ pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {
 }
 
 impl AccessControlMemberManager for Members {
-    fn has_role(&self, role: &RoleType, address: &AccountId) -> bool {
-        self.members.get(&(*role, *address)).is_some()
+    fn has_role(&self, role: RoleType, address: AccountId) -> bool {
+        self.members.get(&(role, address)).is_some()
     }
 
     fn add(&mut self, role: RoleType, member: AccountId) {

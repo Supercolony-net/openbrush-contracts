@@ -54,8 +54,8 @@ impl<'a> TypeGuard<'a> for RoleTypeKey {
 declare_storage_trait!(AccessControlEnumerableMembersStorage);
 
 impl AccessControlMemberManager for EnumerableMembers {
-    fn has_role(&self, role: &RoleType, address: &AccountId) -> bool {
-        self.role_members.get_index(role, address).is_some()
+    fn has_role(&self, role: RoleType, address: AccountId) -> bool {
+        self.role_members.get_index(&role, &address).is_some()
     }
 
     fn add(&mut self, role: RoleType, member: AccountId) {

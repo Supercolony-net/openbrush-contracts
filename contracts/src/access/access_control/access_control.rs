@@ -56,7 +56,7 @@ where
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if let Err(err) = check_role(instance, &role, &T::env().caller()) {
+    if let Err(err) = check_role(instance, role, T::env().caller()) {
         return Err(From::from(err))
     }
     body(instance)
@@ -68,7 +68,7 @@ where
     T: AccessControlStorage<Data = AccessControlData<B>>,
 {
     default fn has_role(&self, role: RoleType, address: AccountId) -> bool {
-        self.get().members.has_role(&role, &address)
+        self.get().members.has_role(role, address)
     }
 
     default fn get_role_admin(&self, role: RoleType) -> RoleType {
@@ -77,7 +77,7 @@ where
 
     #[modifiers(only_role(get_role_admin(self, &role)))]
     default fn grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        if self.get().members.has_role(&role, &account) {
+        if self.get().members.has_role(role, account) {
             return Err(AccessControlError::RoleRedundant)
         }
         self.get_mut().members.add(role, account);
@@ -87,7 +87,7 @@ where
 
     #[modifiers(only_role(get_role_admin(self, &role)))]
     default fn revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
-        check_role(self, &role, &account)?;
+        check_role(self, role, account)?;
         self._do_revoke_role(role, account);
         Ok(())
     }
@@ -96,7 +96,7 @@ where
         if Self::env().caller() != account {
             return Err(AccessControlError::InvalidCaller)
         }
-        check_role(self, &role, &account)?;
+        check_role(self, role, account)?;
         self._do_revoke_role(role, account);
         Ok(())
     }
@@ -156,7 +156,7 @@ where
     }
 
     default fn _setup_role(&mut self, role: RoleType, member: AccountId) {
-        if !self.get().members.has_role(&role, &member) {
+        if !self.get().members.has_role(role, member) {
             self.get_mut().members.add(role, member);
 
             self._emit_role_granted(role, member, None);
@@ -181,8 +181,8 @@ where
 
 pub fn check_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager>(
     instance: &T,
-    role: &RoleType,
-    account: &AccountId,
+    role: RoleType,
+    account: AccountId,
 ) -> Result<(), AccessControlError> {
     if !instance.get().members.has_role(role, account) {
         return Err(AccessControlError::MissingRole)
