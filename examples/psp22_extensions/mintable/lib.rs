@@ -10,7 +10,7 @@ pub mod my_psp22_mintable {
     #[derive(Default, SpreadAllocate, PSP22Storage)]
     pub struct MyPSP22 {
         #[PSP22StorageField]
-        psp22: PSP22Data,
+        psp22: Data,
     }
 
     impl PSP22 for MyPSP22 {}

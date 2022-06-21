@@ -19,53 +19,53 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::ownable::*;
-pub use derive::OwnableStorage;
+pub use crate::{
+    ownable,
+    traits::ownable::*,
+};
 use openbrush::{
-    declare_storage_trait,
     modifier_definition,
     modifiers,
     traits::{
         AccountId,
         AccountIdExt,
+        Storage,
         ZERO_ADDRESS,
     },
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::OwnableData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
-pub struct OwnableData {
+pub struct Data {
     pub owner: AccountId,
     pub _reserved: Option<()>,
 }
-
-declare_storage_trait!(OwnableStorage);
 
 /// Throws if called by any account other than the owner.
 #[modifier_definition]
 pub fn only_owner<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
-    T: OwnableStorage<Data = OwnableData>,
+    T: Storage<Data>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<OwnableError>,
 {
-    if instance.get().owner != T::env().caller() {
+    if instance.data().owner != T::env().caller() {
         return Err(From::from(OwnableError::CallerIsNotOwner))
     }
     body(instance)
 }
 
-impl<T: OwnableStorage<Data = OwnableData>> Ownable for T {
+impl<T: Storage<Data>> Ownable for T {
     default fn owner(&self) -> AccountId {
-        self.get().owner.clone()
+        self.data().owner.clone()
     }
 
     #[modifiers(only_owner)]
     default fn renounce_ownership(&mut self) -> Result<(), OwnableError> {
-        let old_owner = self.get().owner.clone();
-        self.get_mut().owner = ZERO_ADDRESS.into();
+        let old_owner = self.data().owner.clone();
+        self.data().owner = ZERO_ADDRESS.into();
         self._emit_ownership_transferred_event(Some(old_owner), None);
         Ok(())
     }
@@ -75,31 +75,25 @@ impl<T: OwnableStorage<Data = OwnableData>> Ownable for T {
         if new_owner.is_zero() {
             return Err(OwnableError::NewOwnerIsZero)
         }
-        let old_owner = self.get().owner.clone();
-        self.get_mut().owner = new_owner.clone();
+        let old_owner = self.data().owner.clone();
+        self.data().owner = new_owner.clone();
         self._emit_ownership_transferred_event(Some(old_owner), Some(new_owner));
         Ok(())
     }
 }
 
-pub trait OwnableInternal {
+pub trait Internal {
     /// User must override this method in their contract.
-    fn _emit_ownership_transferred_event(&self, _previous_owner: Option<AccountId>, _new_owner: Option<AccountId>);
+    fn _emit_ownership_transferred_event(&self, _previous: Option<AccountId>, _new: Option<AccountId>);
 
     fn _init_with_owner(&mut self, owner: AccountId);
 }
 
-impl<T: OwnableStorage<Data = OwnableData>> OwnableInternal for T {
-    /// User must override this method in their contract.
-    default fn _emit_ownership_transferred_event(
-        &self,
-        _previous_owner: Option<AccountId>,
-        _new_owner: Option<AccountId>,
-    ) {
-    }
+impl<T: Storage<Data>> Internal for T {
+    default fn _emit_ownership_transferred_event(&self, _previous: Option<AccountId>, _new: Option<AccountId>) {}
 
     default fn _init_with_owner(&mut self, owner: AccountId) {
-        self.get_mut().owner = owner;
+        self.data().owner = owner;
         self._emit_ownership_transferred_event(None, Some(owner));
     }
 }

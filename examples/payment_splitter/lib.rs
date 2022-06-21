@@ -11,7 +11,7 @@ pub mod my_payment_splitter {
     #[derive(Default, SpreadAllocate, PaymentSplitterStorage)]
     pub struct SplitterStruct {
         #[PaymentSplitterStorageField]
-        splitter: PaymentSplitterData,
+        splitter: Data,
     }
 
     impl SplitterStruct {

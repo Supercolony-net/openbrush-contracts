@@ -10,7 +10,7 @@ pub mod my_psp22_token_timelock {
     #[derive(Default, SpreadAllocate, PSP22TokenTimelockStorage)]
     pub struct MyPSP22TokenTimelock {
         #[PSP22TokenTimelockStorageField]
-        timelock: PSP22TokenTimelockData,
+        timelock: Data,
     }
 
     impl PSP22TokenTimelock for MyPSP22TokenTimelock {}

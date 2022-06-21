@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_contracts"
-version = "2.0.0"
+version = "2.1.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -25,8 +25,7 @@ ink_prelude = { version = "~3.2.0", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-derive = { package = "openbrush_contracts_derive", version = "~2.0.0", path = "derive" }
-openbrush = { version = "~2.0.0", package = "openbrush_lang", path = "../lang", default-features = false }
+openbrush = { version = "~2.1.0", package = "openbrush_lang", path = "../lang", default-features = false }
 
 [lib]
 name = "openbrush_contracts"
@@ -47,39 +46,20 @@ std = [
 
     "openbrush/std",
 ]
-psp22 = [
-    "derive/psp22",
-]
-psp34 = [
-    "derive/psp34",
-]
-psp35 = [
-    "derive/psp35",
-]
-access_control = [
-    "derive/access_control",
-]
-ownable = [
-    "derive/ownable",
-]
-payment_splitter = [
-    "derive/payment_splitter",
-]
-reentrancy_guard = [
-    "derive/reentrancy_guard",
-]
-pausable = [
-    "derive/pausable",
-]
+psp22 = []
+psp34 = []
+psp35 = []
+access_control = []
+ownable = []
+payment_splitter = []
+reentrancy_guard = []
+pausable = []
 timelock_controller = [
     "access_control",
-    "derive/timelock_controller",
 ]
 proxy = [
     "ownable",
-    "derive/proxy",
 ]
 diamond = [
     "ownable",
-    "derive/diamond",
 ]

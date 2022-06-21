@@ -1,6 +1,6 @@
 [package]
 name = "psp34_receiver"
-version = "2.0.0"
+version = "2.1.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 

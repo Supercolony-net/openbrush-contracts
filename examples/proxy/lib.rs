@@ -13,7 +13,7 @@ pub mod proxy {
     #[derive(Default, SpreadAllocate, ProxyStorage)]
     pub struct ProxyStruct {
         #[ProxyStorageField]
-        proxy: ProxyData,
+        proxy: Data,
     }
 
     impl ProxyStruct {
@@ -27,7 +27,7 @@ pub mod proxy {
         }
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) {
-            ProxyInternal::_fallback(self);
+            Internal::_fallback(self);
         }
     }
 

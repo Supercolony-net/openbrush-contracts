@@ -52,9 +52,9 @@ pub mod lending {
     #[derive(Default, SpreadAllocate, AccessControlStorage, PausableStorage, LendingStorage)]
     pub struct LendingContract {
         #[AccessControlStorageField]
-        access: AccessControlData,
+        access: Data,
         #[PausableStorageField]
-        pause: PausableData,
+        pause: Data,
         #[LendingStorageField]
         lending: LendingData,
     }

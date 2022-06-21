@@ -4,15 +4,18 @@
 #[openbrush::contract]
 pub mod diamond {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::diamond::extensions::diamond_loupe::*;
+    use openbrush::{
+        contracts::diamond::extensions::diamond_loupe::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct DiamondContract {
-        #[DiamondStorageField]
-        diamond: DiamondData,
-        #[DiamondLoupeStorageField]
-        diamond_loupe: DiamondLoupeData,
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        diamond: diamond::Data<Loupe>,
     }
 
     impl DiamondContract {

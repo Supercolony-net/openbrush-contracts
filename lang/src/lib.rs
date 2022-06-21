@@ -21,11 +21,11 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub mod derive;
 mod macros;
 pub mod storage;
 pub mod test_utils;
 pub mod traits;
+pub mod utils;
 
 pub use openbrush_lang_macro::{
     contract,

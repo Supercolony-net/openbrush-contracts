@@ -32,6 +32,7 @@ mod timelock_controller {
             accounts,
             change_caller,
         },
+        traits::Storage,
     };
 
     use ink::codegen::{
@@ -76,10 +77,12 @@ mod timelock_controller {
     }
 
     #[ink(storage)]
-    #[derive(Default, TimelockControllerStorage)]
+    #[derive(Default, Storage)]
     pub struct TimelockControllerStruct {
-        #[TimelockControllerStorageField]
-        timelock: TimelockControllerData,
+        #[storage_field]
+        access_control: access_control::Data,
+        #[storage_field]
+        timelock: timelock_controller::Data,
     }
 
     type Event = <TimelockControllerStruct as ::ink_lang::reflect::ContractEventBase>::Type;
@@ -87,7 +90,7 @@ mod timelock_controller {
     impl AccessControl for TimelockControllerStruct {}
     impl TimelockController for TimelockControllerStruct {}
 
-    impl TimelockControllerInternal for TimelockControllerStruct {
+    impl timelock_controller::Internal for TimelockControllerStruct {
         fn _emit_min_delay_change_event(&self, old_delay: Timestamp, new_delay: Timestamp) {
             self.env().emit_event(MinDelayChange { old_delay, new_delay })
         }
@@ -122,8 +125,8 @@ mod timelock_controller {
         #[ink(constructor)]
         pub fn new(admin: AccountId, delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
             let mut instance = Self::default();
-            AccessControlInternal::_init_with_admin(&mut instance, admin);
-            TimelockControllerInternal::_init_with_admin(&mut instance, admin, delay, proposers, executors);
+            access_control::Internal::_init_with_admin(&mut instance, admin);
+            timelock_controller::Internal::_init_with_admin(&mut instance, admin, delay, proposers, executors);
             instance
         }
     }

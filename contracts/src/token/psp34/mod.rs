@@ -21,7 +21,7 @@
 
 use openbrush::traits::AccountId;
 
-mod balances;
+pub mod balances;
 pub mod psp34;
 
 pub use psp34::*;

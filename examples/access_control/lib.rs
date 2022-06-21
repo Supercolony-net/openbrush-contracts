@@ -19,9 +19,9 @@ pub mod my_access_control {
     #[derive(Default, SpreadAllocate, PSP34Storage, AccessControlStorage)]
     pub struct PSP34Struct {
         #[PSP34StorageField]
-        psp34: PSP34Data,
+        psp34: Data,
         #[AccessControlStorageField]
-        access: AccessControlData,
+        access: Data,
     }
 
     // You can manually set the number for the role.

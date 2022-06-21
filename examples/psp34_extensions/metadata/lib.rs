@@ -3,20 +3,26 @@
 
 #[openbrush::contract]
 pub mod my_psp34_metadata {
-    use openbrush::contracts::psp34::extensions::metadata::*;
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::psp34::extensions::metadata::{
+            self,
+            *,
+        },
+        traits::Storage,
+    };
 
-    #[derive(Default, SpreadAllocate, PSP34Storage, PSP34MetadataStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct MyPSP34 {
-        #[PSP34StorageField]
-        psp34: PSP34Data,
-        #[PSP34MetadataStorageField]
-        metadata: PSP34MetadataData,
+        #[storage_field]
+        psp34: psp34::Data,
+        #[storage_field]
+        metadata: metadata::Data,
     }
 
     impl PSP34 for MyPSP34 {}

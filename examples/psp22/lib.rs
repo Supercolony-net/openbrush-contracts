@@ -5,18 +5,21 @@
 pub mod my_psp22 {
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp22::*;
+    use openbrush::{
+        contracts::psp22::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22 {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+        #[storage_field]
+        psp22: Data,
         // fields for hater logic
         hated_account: AccountId,
     }
 
-    impl PSP22Transfer for MyPSP22 {
+    impl Transfer for MyPSP22 {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,

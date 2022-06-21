@@ -10,7 +10,7 @@ pub mod my_pausable {
     #[derive(Default, SpreadAllocate, PausableStorage)]
     pub struct MyFlipper {
         #[PausableStorageField]
-        pause: PausableData,
+        pause: Data,
         flipped: bool,
     }
 

@@ -29,6 +29,7 @@ mod psp35_metadata {
     };
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::traits::Storage;
     use openbrush_contracts::psp35::extensions::metadata::*;
 
     #[ink(event)]
@@ -38,20 +39,20 @@ mod psp35_metadata {
         data: Vec<u8>,
     }
 
-    #[derive(Default, SpreadAllocate, PSP35Storage, PSP35MetadataStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct PSP35Struct {
-        #[PSP35StorageField]
-        psp35: PSP35Data,
-        #[PSP35MetadataStorageField]
-        metadata: PSP35MetadataData,
+        #[storage_field]
+        psp35: psp35::Data,
+        #[storage_field]
+        metadata: metadata::Data,
     }
 
     impl PSP35 for PSP35Struct {}
 
     impl PSP35Metadata for PSP35Struct {}
 
-    impl PSP35MetadataInternal for PSP35Struct {
+    impl metadata::Internal for PSP35Struct {
         fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {
             self.env().emit_event(AttributeSet {
                 id: _id.clone(),

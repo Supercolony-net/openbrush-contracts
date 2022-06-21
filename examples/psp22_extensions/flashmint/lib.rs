@@ -10,7 +10,7 @@ pub mod my_psp22_flashmint {
     #[derive(Default, SpreadAllocate, PSP22Storage)]
     pub struct MyPSP22FlashMint {
         #[PSP22StorageField]
-        psp22: PSP22Data,
+        psp22: Data,
     }
 
     impl PSP22 for MyPSP22FlashMint {}
@@ -19,7 +19,7 @@ pub mod my_psp22_flashmint {
 
     // To override an internal method from OpenBrush implementation
     // you need to override that in the `PSP22FlashLenderInternal` trait
-    impl PSP22FlashLenderInternal for MyPSP22FlashMint {
+    impl Internal for MyPSP22FlashMint {
         /// Override `get_fee` function to add 1% fee to the borrowed `amount`
         fn _get_fee(&self, amount: Balance) -> Balance {
             amount / 100

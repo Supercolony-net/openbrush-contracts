@@ -9,7 +9,7 @@ pub mod my_flipper_guard {
     #[derive(Default, SpreadAllocate, ReentrancyGuardStorage)]
     pub struct MyFlipper {
         #[ReentrancyGuardStorageField]
-        guard: ReentrancyGuardData,
+        guard: Data,
         value: bool,
     }
 

@@ -20,9 +20,9 @@ pub mod ownable {
     #[derive(Default, SpreadAllocate, PSP35Storage, OwnableStorage)]
     pub struct PSP35Struct {
         #[PSP35StorageField]
-        psp1155: PSP35Data,
+        psp1155: Data,
         #[OwnableStorageField]
-        ownable: OwnableData,
+        ownable: Data,
     }
 
     impl PSP35Struct {

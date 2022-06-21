@@ -24,14 +24,17 @@
 #[openbrush::contract]
 mod psp35_mintable {
     use ink_lang as ink;
-    use openbrush::test_utils::accounts;
+    use openbrush::{
+        test_utils::accounts,
+        traits::Storage,
+    };
     use openbrush_contracts::psp35::extensions::mintable::*;
 
-    #[derive(Default, PSP35Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP35Struct {
-        #[PSP35StorageField]
-        psp35: PSP35Data,
+        #[storage_field]
+        psp35: psp35::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
@@ -41,7 +44,7 @@ mod psp35_mintable {
     impl PSP35Mintable for PSP35Struct {}
     impl PSP35 for PSP35Struct {}
 
-    impl PSP35Transfer for PSP35Struct {
+    impl psp35::Transfer for PSP35Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

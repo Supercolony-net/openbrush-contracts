@@ -20,19 +20,28 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp35::*,
-    traits::psp35::extensions::batch::*,
+    psp35,
+    psp35::extensions::batch,
+    traits::psp35::{
+        extensions::batch::*,
+        *,
+    },
 };
+pub use psp35::{
+    Internal as _,
+    Transfer as _,
+};
+
 use openbrush::traits::{
     AccountId,
     AccountIdExt,
     Balance,
-    InkStorage,
+    Storage,
 };
 
 use ink_prelude::vec::Vec;
 
-impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
+impl<T: Storage<psp35::Data>> PSP35Batch for T {
     default fn batch_transfer(
         &mut self,
         to: AccountId,
@@ -53,7 +62,7 @@ impl<T: PSP35Internal + InkStorage> PSP35Batch for T {
     }
 }
 
-pub trait PSP35BatchInternal {
+pub trait Internal {
     fn _batch_transfer_from(
         &mut self,
         from: AccountId,
@@ -63,7 +72,7 @@ pub trait PSP35BatchInternal {
     ) -> Result<(), PSP35Error>;
 }
 
-impl<T: PSP35Internal + InkStorage> PSP35BatchInternal for T {
+impl<T: Storage<psp35::Data>> Internal for T {
     default fn _batch_transfer_from(
         &mut self,
         from: AccountId,

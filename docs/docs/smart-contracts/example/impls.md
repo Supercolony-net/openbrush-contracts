@@ -190,7 +190,6 @@ it will be enough for us. We will store prices info in our data struct.
 // by one import
 pub use crate::traits::lending::*;
 use openbrush::{
-    declare_storage_trait,
     traits::{
         AccountId,
         AccountIdExt,
@@ -244,8 +243,6 @@ pub struct LendingData {
     pub loan_account: AccountId,
 }
 
-declare_storage_trait!(LendingStorage, LendingData);
-
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
 pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
@@ -261,7 +258,7 @@ pub fn get_asset_price<T: LendingStorage>(
     asset_out: AccountId,
 ) -> Balance {
     let price = instance
-        .get()
+        .data()
         .asset_price
         .get((&asset_in, &asset_out))
         .cloned()
@@ -276,13 +273,13 @@ pub fn get_reserve_asset<T: LendingStorage>(
     asset_address: &AccountId,
 ) -> Result<AccountId, LendingError> {
     let reserve_asset = instance
-        .get()
+        .data()
         .asset_shares
         .get(asset_address)
         .cloned()
         .unwrap_or(ZERO_ADDRESS.into());
     if reserve_asset.is_zero() {
-        return Err(LendingError::AssetNotSupported)
+        return Err(LendingError::AssetNotSupported);
     }
     Ok(reserve_asset)
 }
@@ -294,13 +291,13 @@ pub fn get_asset_from_shares<T: LendingStorage>(
     shares_address: AccountId,
 ) -> Result<AccountId, LendingError> {
     let token = instance
-        .get()
+        .data()
         .shares_asset
         .get(&shares_address)
         .cloned()
         .unwrap_or(ZERO_ADDRESS.into());
     if token.is_zero() {
-        return Err(LendingError::AssetNotSupported)
+        return Err(LendingError::AssetNotSupported);
     }
     Ok(token)
 }

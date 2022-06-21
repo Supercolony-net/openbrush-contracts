@@ -28,6 +28,7 @@ use openbrush_lang_codegen::{
     modifier_definition,
     modifiers,
     storage,
+    storage_derive,
     trait_definition,
     wrapper,
 };
@@ -456,3 +457,9 @@ synstructure::decl_attribute!(
     /// ```
     storage::storage
 );
+
+// TODO: Comments
+#[proc_macro_derive(Storage, attributes(storage_field))]
+pub fn storage_derive(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    storage_derive::storage_derive(item.into()).into()
+}

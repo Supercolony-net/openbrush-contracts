@@ -35,7 +35,9 @@ mod proxy {
             proxy::*,
         },
         test_utils::change_caller,
+        traits::Storage,
     };
+    use proxy::Internal as _;
 
     #[ink(event)]
     pub struct CodeHashChanged {
@@ -49,21 +51,12 @@ mod proxy {
     const CODE_HASH_1: [u8; 32] = [1u8; 32];
 
     #[ink(storage)]
-    #[derive(Default, ProxyStorage)]
+    #[derive(Default, Storage)]
     pub struct MyProxy {
-        #[ProxyStorageField]
-        proxy: ProxyData,
-    }
-
-    impl OwnableStorage for MyProxy {
-        type Data = OwnableData;
-        fn get(&self) -> &Self::Data {
-            &self.proxy.ownable
-        }
-
-        fn get_mut(&mut self) -> &mut Self::Data {
-            &mut self.proxy.ownable
-        }
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        proxy: proxy::Data,
     }
 
     type Event = <MyProxy as ::ink_lang::reflect::ContractEventBase>::Type;
@@ -80,7 +73,7 @@ mod proxy {
 
     impl Proxy for MyProxy {}
 
-    impl ProxyInternal for MyProxy {
+    impl proxy::Internal for MyProxy {
         default fn _emit_delegate_code_changed_event(
             &self,
             previous_code_hash: Option<Hash>,

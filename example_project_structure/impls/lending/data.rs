@@ -8,21 +8,19 @@ use ink_storage::{
     },
     Mapping,
 };
-use openbrush::{
-    declare_storage_trait,
-    traits::{
-        AccountId,
-        AccountIdExt,
-        Balance,
-        Hash,
-        ZERO_ADDRESS,
-    },
+use openbrush::traits::{
+    AccountId,
+    AccountIdExt,
+    Balance,
+    Hash,
+    ZERO_ADDRESS,
 };
 // it is public because when you will import the trait you also will import the derive for the trait
 pub use lending_project_derive::LendingStorage;
 
 #[cfg(feature = "std")]
 use ink_storage::traits::StorageLayout;
+use openbrush::traits::Storage;
 
 #[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout))]
@@ -56,11 +54,9 @@ pub struct LendingData {
     pub loan_account: AccountId,
 }
 
-declare_storage_trait!(LendingStorage);
-
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
-pub fn set_asset_price<T: LendingStorage<Data = LendingData>>(
+pub fn set_asset_price<T: Storage<LendingData>>(
     instance: &mut T,
     asset_in: AccountId,
     asset_out: AccountId,
@@ -71,24 +67,24 @@ pub fn set_asset_price<T: LendingStorage<Data = LendingData>>(
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
-pub fn get_asset_price<T: LendingStorage<Data = LendingData>>(
+pub fn get_asset_price<T: Storage<LendingData>>(
     instance: &T,
     amount_in: Balance,
     asset_in: AccountId,
     asset_out: AccountId,
 ) -> Balance {
-    let price = instance.get().asset_price.get((&asset_in, &asset_out)).unwrap_or(0);
+    let price = instance.data().asset_price.get((&asset_in, &asset_out)).unwrap_or(0);
     price * amount_in
 }
 
 /// Internal function which will return the address of the shares token
 /// which are minted when `asset_address` is borrowed
-pub fn get_reserve_asset<T: LendingStorage<Data = LendingData>>(
+pub fn get_reserve_asset<T: Storage<LendingData>>(
     instance: &T,
     asset_address: &AccountId,
 ) -> Result<AccountId, LendingError> {
     let reserve_asset = instance
-        .get()
+        .data()
         .asset_shares
         .get(&asset_address)
         .unwrap_or(ZERO_ADDRESS.into());
@@ -100,12 +96,12 @@ pub fn get_reserve_asset<T: LendingStorage<Data = LendingData>>(
 
 /// internal function which will return the address of asset
 /// which is bound to `shares_address` shares token
-pub fn get_asset_from_shares<T: LendingStorage<Data = LendingData>>(
+pub fn get_asset_from_shares<T: Storage<LendingData>>(
     instance: &T,
     shares_address: AccountId,
 ) -> Result<AccountId, LendingError> {
     let token = instance
-        .get()
+        .data()
         .shares_asset
         .get(&shares_address)
         .unwrap_or(ZERO_ADDRESS.into());

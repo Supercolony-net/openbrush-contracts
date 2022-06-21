@@ -3,26 +3,22 @@ use openbrush::{
     modifiers,
     traits::AccountId,
 };
-
-pub trait FlipperStorage {
-    fn value(&self) -> &bool;
-    fn value_mut(&mut self) -> &mut bool;
-}
+use openbrush::traits::Storage;
 
 #[openbrush::wrapper]
 pub type FlipperRef = dyn Flipper;
 
 #[openbrush::trait_definition]
-pub trait Flipper: FlipperStorage + ReentrancyGuardStorage<Data = ReentrancyGuardData> {
+pub trait Flipper: Storage<bool> + Storage<Data> {
     #[ink(message)]
     fn get_value(&self) -> bool {
-        self.value().clone()
+        *<Self as Storage<bool>>::get(self)
     }
 
     #[ink(message)]
     #[openbrush::modifiers(non_reentrant)]
     fn flip(&mut self) -> Result<(), ReentrancyGuardError> {
-        *self.value_mut() = !self.value().clone();
+        *<Self as Storage<bool>>::get_mut(self) = !*<Self as Storage<bool>>::get(self);
         Ok(())
     }
 

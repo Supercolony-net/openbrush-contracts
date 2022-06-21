@@ -26,11 +26,11 @@ pub mod loan {
     #[derive(SpreadAllocate, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
     pub struct LoanContract {
         #[PSP34StorageField]
-        psp34: PSP34Data,
+        psp34: Data,
         #[OwnableStorageField]
-        ownable: OwnableData,
+        ownable: Data,
         #[PSP34MetadataStorageField]
-        metadata: PSP34MetadataData,
+        metadata: Data,
 
         // Fields of current contract
         /// mapping from token id to `LoanInfo`

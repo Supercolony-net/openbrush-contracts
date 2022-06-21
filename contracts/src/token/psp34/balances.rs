@@ -23,14 +23,18 @@ use crate::psp34::{
     Id,
     Owner,
 };
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
+};
 use openbrush::{
     storage::Mapping,
     traits::Balance,
 };
 
-pub const BALANCES_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP34Balances");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
-pub trait BalancesManager {
+pub trait BalancesManager: SpreadLayout + SpreadAllocate {
     fn balance_of(&self, owner: &Owner) -> u32;
     fn increase_balance(&mut self, owner: &Owner, id: &Id, increase_supply: bool);
     fn decrease_balance(&mut self, owner: &Owner, id: &Id, decrease_supply: bool);
@@ -38,7 +42,7 @@ pub trait BalancesManager {
 }
 
 #[derive(Default, Debug)]
-#[openbrush::storage(BALANCES_KEY)]
+#[openbrush::storage(STORAGE_KEY)]
 pub struct Balances {
     owned_tokens_count: Mapping<Owner, u32>,
     total_supply: Balance,

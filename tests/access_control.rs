@@ -32,6 +32,7 @@ mod access_control {
             accounts,
             change_caller,
         },
+        traits::Storage,
     };
 
     use ink::codegen::{
@@ -76,18 +77,18 @@ mod access_control {
     const MINTER: RoleType = ink_lang::selector_id!("MINTER");
     const PAUSER: RoleType = ink_lang::selector_id!("PAUSER");
 
-    #[derive(Default, AccessControlStorage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct AccessControlStruct {
-        #[AccessControlStorageField]
-        access: AccessControlData,
+        #[storage_field]
+        access: Data,
     }
 
     type Event = <AccessControlStruct as ::ink_lang::reflect::ContractEventBase>::Type;
 
     impl AccessControl for AccessControlStruct {}
 
-    impl AccessControlInternal for AccessControlStruct {
+    impl Internal for AccessControlStruct {
         fn _emit_role_admin_changed(&mut self, role: u32, previous_admin_role: u32, new_admin_role: u32) {
             self.env().emit_event(RoleAdminChanged {
                 role,

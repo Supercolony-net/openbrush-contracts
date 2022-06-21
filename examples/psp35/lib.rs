@@ -17,7 +17,7 @@ pub mod my_psp35 {
     #[ink(storage)]
     pub struct MyPSP35 {
         #[PSP35StorageField]
-        psp35: PSP35Data,
+        psp35: Data,
         denied_ids: Mapping<Id, ()>,
     }
 

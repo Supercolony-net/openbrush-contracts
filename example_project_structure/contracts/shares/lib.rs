@@ -26,11 +26,11 @@ pub mod shares {
     #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage, PSP22MetadataStorage)]
     pub struct SharesContract {
         #[PSP22StorageField]
-        psp22: PSP22Data,
+        psp22: Data,
         #[OwnableStorageField]
-        ownable: OwnableData,
+        ownable: Data,
         #[PSP22MetadataStorageField]
-        metadata: PSP22MetadataData,
+        metadata: Data,
     }
 
     // implement PSP22 Trait for our share

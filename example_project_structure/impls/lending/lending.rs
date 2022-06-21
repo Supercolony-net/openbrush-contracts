@@ -23,6 +23,7 @@ use openbrush::{
         AccountId,
         AccountIdExt,
         Balance,
+        Storage,
         Timestamp,
         ZERO_ADDRESS,
     },
@@ -30,7 +31,7 @@ use openbrush::{
 
 pub const YEAR: Timestamp = 60 * 60 * 24 * 365;
 
-impl<T: LendingStorage<Data = LendingData> + PausableStorage<Data = PausableData>> Lending for T {
+impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
     default fn total_asset(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
         let mapped_asset = LendingStorage::get(self)

@@ -19,25 +19,30 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use crate::traits::diamond::Selector;
 pub use crate::{
-    diamond::*,
-    traits::diamond::extensions::diamond_loupe::*,
+    diamond,
+    diamond::extensions::diamond_loupe,
+    ownable,
+    traits::{
+        diamond::extensions::diamond_loupe::*,
+        ownable::*,
+    },
 };
+pub use diamond::Internal as _;
+pub use ownable::Internal as _;
+
 use ink_prelude::vec::Vec;
 use ink_storage::Mapping;
-use openbrush::{
-    declare_storage_trait,
-    traits::Hash,
+use openbrush::traits::{
+    Hash,
+    Storage,
 };
 
-pub use derive::DiamondLoupeStorage;
-
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::DiamondLoupeData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Loupe);
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
-pub struct DiamondLoupeData {
+pub struct Loupe {
     // number of registered code hashes
     pub code_hashes: u16,
     // mapping of facet to its position in all facets list
@@ -47,47 +52,47 @@ pub struct DiamondLoupeData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(DiamondLoupeStorage);
-
-impl<T: DiamondLoupeStorage<Data = DiamondLoupeData>> DiamondCut for T {
-    default fn _on_add_facet(&mut self, code_hash: Hash) {
-        let hash_id = self.get().code_hashes;
-        self.get_mut().hash_to_id.insert(&code_hash, &hash_id);
-        self.get_mut().id_to_hash.insert(&hash_id, &code_hash);
-        self.get_mut().code_hashes += 1;
+impl diamond::DiamondCut for Loupe {
+    #[inline(always)]
+    fn on_add_facet(&mut self, code_hash: Hash) {
+        let hash_id = self.code_hashes;
+        self.hash_to_id.insert(&code_hash, &hash_id);
+        self.id_to_hash.insert(&hash_id, &code_hash);
+        self.code_hashes += 1;
     }
 
-    default fn _on_remove_facet(&mut self, code_hash: Hash) {
-        let new_hash_id = self.get().code_hashes - 1;
-        let removed_hash_id = self.get().hash_to_id.get(&code_hash).unwrap();
-        let last_hash = self.get().id_to_hash.get(&new_hash_id).unwrap();
+    fn on_remove_facet(&mut self, code_hash: Hash) {
+        let new_hash_id = self.code_hashes - 1;
+        let removed_hash_id = self.hash_to_id.get(&code_hash).unwrap();
+        let last_hash = self.id_to_hash.get(&new_hash_id).unwrap();
 
         if last_hash != code_hash {
-            self.get_mut().id_to_hash.insert(&removed_hash_id, &last_hash);
-            self.get_mut().hash_to_id.insert(&last_hash, &removed_hash_id);
-            self.get_mut().id_to_hash.remove(&new_hash_id);
+            self.id_to_hash.insert(&removed_hash_id, &last_hash);
+            self.hash_to_id.insert(&last_hash, &removed_hash_id);
+            self.id_to_hash.remove(&new_hash_id);
         } else {
-            self.get_mut().id_to_hash.remove(&removed_hash_id);
+            self.id_to_hash.remove(&removed_hash_id);
         }
 
-        self.get_mut().hash_to_id.remove(&code_hash);
-        self.get_mut().code_hashes = new_hash_id;
+        self.hash_to_id.remove(&code_hash);
+        self.code_hashes = new_hash_id;
     }
 }
 
-impl<T: DiamondLoupeStorage<Data = DiamondLoupeData> + DiamondStorage<Data = DiamondData>> DiamondLoupe for T {
+impl<T: Storage<diamond::Data<Loupe>>> DiamondLoupe for T {
     default fn facets(&self) -> Vec<FacetCut> {
         let mut out_vec = Vec::new();
-        for i in 0..DiamondLoupeStorage::get(self).code_hashes {
-            let hash = DiamondLoupeStorage::get(self).id_to_hash.get(&i).unwrap();
-            let selectors = DiamondStorage::get(self).hash_to_selectors.get(&hash).unwrap();
+        let data = &self.data().handler;
+        for i in 0..data.code_hashes {
+            let hash = data.id_to_hash.get(&i).unwrap();
+            let selectors = self.data().hash_to_selectors.get(&hash).unwrap();
             out_vec.push(FacetCut { hash, selectors })
         }
         out_vec
     }
 
     default fn facet_function_selectors(&self, facet: Hash) -> Vec<Selector> {
-        DiamondStorage::get(self)
+        self.data()
             .hash_to_selectors
             .get(facet)
             .unwrap_or(Vec::<Selector>::new())
@@ -95,13 +100,13 @@ impl<T: DiamondLoupeStorage<Data = DiamondLoupeData> + DiamondStorage<Data = Dia
 
     default fn facet_code_hashes(&self) -> Vec<Hash> {
         let mut out_vec = Vec::new();
-        for i in 0..DiamondLoupeStorage::get(self).code_hashes {
-            out_vec.push(DiamondLoupeStorage::get(self).id_to_hash.get(&i).unwrap())
+        for i in 0..self.data().handler.code_hashes {
+            out_vec.push(self.data().handler.id_to_hash.get(&i).unwrap())
         }
         out_vec
     }
 
     default fn facet_code_hash(&self, selector: Selector) -> Option<Hash> {
-        DiamondStorage::get(self).selector_to_hash.get(selector)
+        self.data().selector_to_hash.get(selector)
     }
 }

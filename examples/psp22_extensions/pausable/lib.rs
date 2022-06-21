@@ -23,7 +23,7 @@ pub mod my_psp22_pausable {
 
     impl PSP22 for MyPSP22Pausable {}
 
-    impl PSP22Transfer for MyPSP22Pausable {
+    impl Transfer for MyPSP22Pausable {
         /// Return `Paused` error if the token is paused
         #[modifiers(when_not_paused)]
         fn _before_token_transfer(

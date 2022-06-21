@@ -4,17 +4,23 @@
 #[openbrush::contract]
 pub mod my_psp34_enumerable {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp34::extensions::{
-        burnable::*,
-        enumerable::*,
-        mintable::*,
+    use openbrush::{
+        contracts::psp34::extensions::{
+            burnable::*,
+            enumerable::{
+                self,
+                *,
+            },
+            mintable::*,
+        },
+        traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, PSP34Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct MyPSP34 {
-        #[PSP34StorageField]
-        psp34: PSP34Data<EnumerableBalances>,
+        #[storage_field]
+        psp34: Data<enumerable::Balances>,
     }
 
     impl PSP34 for MyPSP34 {}

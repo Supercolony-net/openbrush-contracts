@@ -10,9 +10,9 @@ pub mod my_psp22_wrapper {
     #[derive(Default, SpreadAllocate, PSP22WrapperStorage, PSP22Storage)]
     pub struct MyPSP22Wrapper {
         #[PSP22StorageField]
-        psp22: PSP22Data,
+        psp22: Data,
         #[PSP22WrapperStorageField]
-        wrapper: PSP22WrapperData,
+        wrapper: Data,
     }
 
     impl PSP22 for MyPSP22Wrapper {}

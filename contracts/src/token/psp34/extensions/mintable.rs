@@ -20,12 +20,27 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp34::*,
-    traits::psp34::extensions::mintable::*,
+    psp34,
+    psp34::balances,
+    traits::psp34::{
+        extensions::mintable::*,
+        *,
+    },
 };
-use openbrush::traits::AccountId;
+pub use psp34::Internal as _;
 
-impl<T: PSP34Internal> PSP34Mintable for T {
+use openbrush::traits::{
+    AccountId,
+    OccupiedStorage,
+    Storage,
+};
+
+impl<B, T> PSP34Mintable for T
+where
+    B: balances::BalancesManager,
+    T: Storage<psp34::Data<B>>,
+    T: OccupiedStorage<{ psp34::STORAGE_KEY }, WithData = psp34::Data<B>>,
+{
     default fn mint(&mut self, account: AccountId, id: Id) -> Result<(), PSP34Error> {
         self._mint_to(account, id)
     }

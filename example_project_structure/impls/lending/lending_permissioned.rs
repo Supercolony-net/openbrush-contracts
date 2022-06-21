@@ -3,7 +3,7 @@ use openbrush::{
     contracts::{
         access_control::*,
         pausable::{
-            PausableData,
+            Data,
             PausableStorage,
         },
         traits::psp22::PSP22Ref,
@@ -12,6 +12,7 @@ use openbrush::{
     traits::{
         AccountId,
         Balance,
+        Storage,
         ZERO_ADDRESS,
     },
 };
@@ -20,10 +21,7 @@ pub const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
 
 impl<T> LendingPermissioned for T
 where
-    T: LendingStorage<Data = LendingData>
-        + PausableStorage<Data = PausableData>
-        + LendingPermissionedInternal
-        + AccessControlStorage<Data = AccessControlData>,
+    T: Storage<LendingData> + Storage<Data> + LendingPermissionedInternal + Storage<Data>,
 {
     #[modifiers(only_role(MANAGER))]
     default fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
@@ -90,7 +88,7 @@ pub trait LendingPermissionedInternal {
     fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId;
 }
 
-fn accept_lending<T: LendingStorage<Data = LendingData>>(
+fn accept_lending<T: Storage<LendingData>>(
     instance: &mut T,
     asset_address: AccountId,
     share_address: AccountId,
@@ -104,7 +102,7 @@ fn accept_lending<T: LendingStorage<Data = LendingData>>(
         .insert(&asset_address, &reserve_address);
 }
 
-fn disallow_lending<T: LendingStorage<Data = LendingData>>(instance: &mut T, asset_address: AccountId) {
+fn disallow_lending<T: Storage<LendingData>>(instance: &mut T, asset_address: AccountId) {
     let share_address = instance
         .get_mut()
         .asset_shares
@@ -116,10 +114,6 @@ fn disallow_lending<T: LendingStorage<Data = LendingData>>(instance: &mut T, ass
 }
 
 /// this function will accept `asset_address` for using as collateral
-fn set_collateral_accepted<T: LendingStorage<Data = LendingData>>(
-    instance: &mut T,
-    asset_address: AccountId,
-    accepted: bool,
-) {
+fn set_collateral_accepted<T: Storage<LendingData>>(instance: &mut T, asset_address: AccountId, accepted: bool) {
     instance.get_mut().collateral_accepted.insert(&asset_address, &accepted);
 }

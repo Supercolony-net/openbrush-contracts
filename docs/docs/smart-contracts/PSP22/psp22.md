@@ -11,7 +11,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of PSP22 via `openbrush` features.
 
 ```toml
-openbrush = { version = "~2.0.0", default-features = false, features = ["psp22"] }
+openbrush = { version = "~2.1.0", default-features = false, features = ["psp22"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -71,7 +71,7 @@ impl MyPSP22 {
 ## Step 6: Customize your contract
 
 Customize it by adding hated account logic. It will contain two public methods `set_hated_account` and `get_hated_account`. Also we will
-override `_before_token_transfer` method in the `PSP22` implementation(that methods defined in `PSP22Transfer` trait), and we will add the `hated_account: AccountId` field to the structure.
+override `_before_token_transfer` method in the `PSP22` implementation(that methods defined in `Transfer` trait), and we will add the `hated_account: AccountId` field to the structure.
 
 ```rust
 #[ink(storage)]
@@ -83,7 +83,7 @@ pub struct MyPSP22 {
     hated_account: AccountId,
 }
 
-impl PSP22Transfer for MyPSP22 {
+impl Transfer for MyPSP22 {
     // Let's override method to reject transactions to bad account
     fn _before_token_transfer(
         &mut self,

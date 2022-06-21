@@ -19,24 +19,25 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::errors::ReentrancyGuardError;
-pub use derive::ReentrancyGuardStorage;
-use ink_storage::traits::push_spread_root;
-use openbrush::{
-    declare_storage_trait,
-    modifier_definition,
+pub use crate::{
+    reentrancy_guard,
+    traits::errors::ReentrancyGuardError,
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::ReentrancyGuardData");
+use ink_storage::traits::push_spread_root;
+use openbrush::{
+    modifier_definition,
+    traits::Storage,
+};
+
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
-pub struct ReentrancyGuardData {
+pub struct Data {
     pub status: u8,
     pub _reserved: Option<()>,
 }
-
-declare_storage_trait!(ReentrancyGuardStorage);
 
 const NOT_ENTERED: u8 = 0;
 const ENTERED: u8 = 1;
@@ -52,22 +53,22 @@ const ENTERED: u8 = 1;
 #[modifier_definition]
 pub fn non_reentrant<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
-    T: ReentrancyGuardStorage<Data = ReentrancyGuardData>,
+    T: Storage<Data>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<ReentrancyGuardError>,
 {
-    if instance.get().status == ENTERED {
+    if instance.data().status == ENTERED {
         return Err(From::from(ReentrancyGuardError::ReentrantCall))
     }
     // Any calls to nonReentrant after this point will fail
-    instance.get_mut().status = ENTERED;
+    instance.data().status = ENTERED;
 
     // We want to flush storage before execution of inner function,
     // because ink! doesn't do it by default and `status` will not be updated in child calls
-    push_spread_root(instance.get(), &Default::default());
+    push_spread_root(instance.data(), &Default::default());
 
     let result = body(instance);
-    instance.get_mut().status = NOT_ENTERED;
+    instance.data().status = NOT_ENTERED;
 
     return result
 }

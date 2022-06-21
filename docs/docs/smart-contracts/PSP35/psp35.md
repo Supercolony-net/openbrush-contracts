@@ -11,7 +11,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of PSP35 via `openbrush` feature.
 
 ```toml
-openbrush = { version = "~2.0.0", default-features = false, features = ["psp35"] }
+openbrush = { version = "~2.1.0", default-features = false, features = ["psp35"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature

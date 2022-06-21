@@ -11,7 +11,7 @@ Include `openbrush` as dependency in the cargo file or you can use [default `Car
 After you need to enable default implementation of PSP22 and Pausable via `openbrush` features.
 
 ```toml
-openbrush = { version = "~2.0.0", default-features = false, features = ["psp22", "pausable"] }
+openbrush = { version = "~2.1.0", default-features = false, features = ["psp22", "pausable"] }
 ```
 
 ## Step 2: Add imports and enable unstable feature
@@ -56,7 +56,7 @@ Inherit the implementation of the `PSP22` and `Pausable` traits. You can customi
 ```rust
 impl PSP22 for MyPSP22Pausable {}
 
-impl PSP22Transfer for MyPSP22Pausable {
+impl Transfer for MyPSP22Pausable {
     /// Return `Paused` error if the token is paused
     #[modifiers(when_not_paused)]
     fn _before_token_transfer(

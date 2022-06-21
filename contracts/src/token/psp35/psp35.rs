@@ -19,9 +19,12 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::psp35::*;
+pub use crate::{
+    psp35,
+    traits::psp35::*,
+};
+
 use core::result::Result;
-pub use derive::PSP35Storage;
 use ink_env::{
     CallFlags,
     Error as EnvError,
@@ -32,7 +35,6 @@ use ink_prelude::{
     vec::Vec,
 };
 use openbrush::{
-    declare_storage_trait,
     storage::{
         Mapping,
         TypeGuard,
@@ -41,15 +43,15 @@ use openbrush::{
         AccountId,
         AccountIdExt,
         Balance,
-        Flush,
+        Storage,
     },
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Data");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
-pub struct PSP35Data {
+pub struct Data {
     pub balances: Mapping<(Id, AccountId), Balance, BalancesKey /* optimization */>,
     pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance, ApprovalsKey /* optimization */>,
     pub _reserved: Option<()>,
@@ -67,9 +69,7 @@ impl<'a> TypeGuard<'a> for ApprovalsKey {
     type Type = &'a (&'a AccountId, &'a AccountId, &'a Option<&'a Id>);
 }
 
-declare_storage_trait!(PSP35Storage);
-
-impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35 for T {
+impl<T: Storage<Data>> PSP35 for T {
     default fn balance_of(&self, owner: AccountId, id: Id) -> Balance {
         self._balance_of_or_zero(&owner, &id)
     }
@@ -101,17 +101,17 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35 for T {
     }
 }
 
-pub trait PSP35Internal {
+pub trait Internal {
+    /// Those methods must be implemented in derived implementation
     fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _id: Id, _amount: Balance);
-
     fn _emit_transfer_batch_event(
         &self,
         _from: Option<AccountId>,
         _to: Option<AccountId>,
         _ids_amounts: Vec<(Id, Balance)>,
     );
-
     fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, value: Balance);
+
     /// Creates `amount` tokens of token type `id` to `to`.
     ///
     /// On success a `TransferSingle` event is emitted if length of `ids_amounts` is 1, otherwise `TransferBatch` event.
@@ -178,7 +178,7 @@ pub trait PSP35Internal {
     ) -> Result<(), PSP35Error>;
 }
 
-impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
+impl<T: Storage<Data>> Internal for T {
     default fn _emit_transfer_event(
         &self,
         _from: Option<AccountId>,
@@ -187,7 +187,6 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
         _amount: Balance,
     ) {
     }
-
     default fn _emit_transfer_batch_event(
         &self,
         _from: Option<AccountId>,
@@ -195,7 +194,6 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
         _ids_amounts: Vec<(Id, Balance)>,
     ) {
     }
-
     default fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, _value: Balance) {}
 
     default fn _mint_to(&mut self, to: AccountId, mut ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
@@ -275,12 +273,12 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
     }
 
     default fn _balance_of_or_zero(&self, owner: &AccountId, id: &Id) -> Balance {
-        self.get().balances.get(&(id, owner)).unwrap_or(0)
+        self.data().balances.get(&(id, owner)).unwrap_or(0)
     }
 
     default fn _increase_receiver_balance(&mut self, to: &AccountId, id: &Id, amount: Balance) {
-        let to_balance = self.get_mut().balances.get(&(id, to)).unwrap_or(0);
-        self.get_mut().balances.insert(&(id, to), &(to_balance + amount));
+        let to_balance = self.data().balances.get(&(id, to)).unwrap_or(0);
+        self.data().balances.insert(&(id, to), &(to_balance + amount));
     }
 
     default fn _decrease_sender_balance(
@@ -295,13 +293,13 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
             return Err(PSP35Error::InsufficientBalance)
         }
 
-        self.get_mut().balances.insert(&(id, from), &(balance - amount));
+        self.data().balances.insert(&(id, from), &(balance - amount));
         Ok(())
     }
 
     default fn _get_allowance(&self, owner: &AccountId, operator: &AccountId, id: &Option<&Id>) -> Balance {
-        return match self.get().operator_approvals.get(&(owner, operator, &None)) {
-            None => self.get().operator_approvals.get(&(owner, operator, id)).unwrap_or(0),
+        return match self.data().operator_approvals.get(&(owner, operator, &None)) {
+            None => self.data().operator_approvals.get(&(owner, operator, id)).unwrap_or(0),
             _ => Balance::MAX,
         }
     }
@@ -315,19 +313,17 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
 
         if let Some(id) = &id {
             if value == 0 {
-                self.get_mut()
-                    .operator_approvals
-                    .remove(&(&caller, &operator, &Some(id)));
+                self.data().operator_approvals.remove(&(&caller, &operator, &Some(id)));
             } else {
-                self.get_mut()
+                self.data()
                     .operator_approvals
                     .insert(&(&caller, &operator, &Some(id)), &value);
             }
         } else {
             if value == 0 {
-                self.get_mut().operator_approvals.remove(&(&caller, &operator, &None));
+                self.data().operator_approvals.remove(&(&caller, &operator, &None));
             } else {
-                self.get_mut()
+                self.data()
                     .operator_approvals
                     .insert(&(&caller, &operator, &None), &Balance::MAX);
             }
@@ -359,7 +355,7 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
             return Err(PSP35Error::InsufficientBalance)
         }
 
-        self.get_mut()
+        self.data()
             .operator_approvals
             .insert(&(owner, operator, &Some(id)), &(initial_allowance - value));
 
@@ -425,7 +421,7 @@ impl<T: PSP35Storage<Data = PSP35Data> + Flush> PSP35Internal for T {
     }
 }
 
-pub trait PSP35Transfer {
+pub trait Transfer {
     fn _before_token_transfer(
         &mut self,
         _from: Option<&AccountId>,
@@ -441,7 +437,7 @@ pub trait PSP35Transfer {
     ) -> Result<(), PSP35Error>;
 }
 
-impl<T> PSP35Transfer for T {
+impl<T: Storage<Data>> Transfer for T {
     default fn _before_token_transfer(
         &mut self,
         _from: Option<&AccountId>,
