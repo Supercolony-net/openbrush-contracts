@@ -72,6 +72,12 @@ declare_derive_storage_trait!(
     PSP35MetadataStorage,
     PSP35MetadataStorageField
 );
+#[cfg(feature = "psp35")]
+declare_derive_storage_trait!(
+    derive_psp35_enumerable_storage,
+    PSP35EnumerableStorage,
+    PSP35EnumerableStorageField
+);
 
 // AccessControl
 #[cfg(feature = "access_control")]
