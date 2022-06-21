@@ -13,7 +13,7 @@ describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
     } = await setup()
 
     // Assert - No minter member for index 1
-    await expect(query.getRoleMember(Roles.Minter, 1)).to.eventually.be.rejected
+    await expect(query.getRoleMember(Roles.Minter, 1)).to.have.output(null)
   })
 
   it('ACCESS CONTROL ENUMERABLE - should get role member', async () => {
