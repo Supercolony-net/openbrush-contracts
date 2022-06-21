@@ -214,7 +214,7 @@ where
         self._before_token_transfer(None, Some(&to), &ids_amounts)?;
 
         for (id, amount) in &ids_amounts {
-            self.get_mut().balances.increase_balance(&to, &id, amount, true)?;
+            self.get_mut().balances.increase_balance(&to, id, amount, true)?;
         }
 
         self._after_token_transfer(None, Some(&to), &ids_amounts)?;
@@ -237,7 +237,7 @@ where
         }
 
         for (id, amount) in ids_amounts.iter() {
-            self.get_mut().balances.decrease_balance(&from, &id, amount, true)?;
+            self.get_mut().balances.decrease_balance(&from, id, amount, true)?;
         }
 
         self._after_token_transfer(Some(&from), None, &ids_amounts)?;

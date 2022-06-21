@@ -24,11 +24,6 @@ pub use crate::{
     traits::psp35::extensions::batch::*,
 };
 
-use ink_storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
-
 use openbrush::traits::{
     AccountId,
     AccountIdExt,
@@ -76,7 +71,7 @@ pub trait PSP35BatchInternal {
 
 impl<B, T> PSP35BatchInternal for T
 where
-    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    B: BalancesManager,
     T: PSP35Storage<Data = PSP35Data<B>> + PSP35Internal + Flush,
 {
     default fn _batch_transfer_from(
@@ -103,13 +98,13 @@ where
         for (id, value) in &ids_amounts {
             self._decrease_allowance(&from, &operator, id, value.clone())?;
 
-            self.get_mut().balances.decrease_balance(&from, &id, value, false)?;
+            self.get_mut().balances.decrease_balance(&from, id, value, false)?;
         }
 
         self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
 
         for (id, value) in &ids_amounts {
-            self.get_mut().balances.increase_balance(&to, &id, value, false)?;
+            self.get_mut().balances.increase_balance(&to, id, value, false)?;
         }
 
         self._after_token_transfer(Some(&from), Some(&to), &ids_amounts)?;
