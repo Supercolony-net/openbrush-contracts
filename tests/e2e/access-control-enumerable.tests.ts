@@ -7,7 +7,7 @@ describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
     return setupContract('my_access_control_enumerable', 'new')
   }
 
-  it('ACCESS CONTROL ENUMERABLE - should fail', async () => {
+  it('ACCESS CONTROL ENUMERABLE - should have not member', async () => {
     const {
       query
     } = await setup()
