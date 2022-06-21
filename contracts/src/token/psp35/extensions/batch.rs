@@ -41,7 +41,7 @@ use ink_prelude::vec::Vec;
 
 impl<B, T> PSP35Batch for T
 where
-    B: BalancesManager + SpreadLayout + SpreadAllocate,
+    B: BalancesManager,
     T: PSP35Storage<Data = PSP35Data<B>> + Flush,
 {
     default fn batch_transfer(

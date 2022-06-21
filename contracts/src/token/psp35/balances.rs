@@ -28,7 +28,10 @@ use ink_storage::traits::{
     SpreadLayout,
 };
 use openbrush::{
-    storage::Mapping,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         Balance,
@@ -46,13 +49,19 @@ pub trait BalancesManager: SpreadLayout + SpreadAllocate {
 #[derive(Default, Debug)]
 #[openbrush::storage(BALANCES_KEY)]
 pub struct Balances {
-    balances: Mapping<(AccountId, Id), Balance>,
+    balances: Mapping<(AccountId, Id), Balance, BalancesKey>,
+}
+
+pub struct BalancesKey;
+
+impl<'a> TypeGuard<'a> for BalancesKey {
+    type Type = &'a (&'a AccountId, &'a Id);
 }
 
 impl BalancesManager for Balances {
     #[inline(always)]
     fn balance_of(&self, owner: &AccountId, id: &Id) -> Balance {
-        self.balances.get(&(owner.clone(), id.clone())).unwrap_or(0)
+        self.balances.get(&(owner, id)).unwrap_or(0)
     }
 
     #[inline(always)]
@@ -65,7 +74,7 @@ impl BalancesManager for Balances {
     ) -> Result<(), PSP35Error> {
         let to_balance = self.balance_of(owner, id);
         self.balances
-            .insert(&(owner.clone(), id.clone()), &to_balance.checked_add(*amount).unwrap());
+            .insert(&(owner, id), &to_balance.checked_add(*amount).unwrap());
         Ok(())
     }
 
@@ -79,7 +88,7 @@ impl BalancesManager for Balances {
     ) -> Result<(), PSP35Error> {
         let from_balance = self.balance_of(owner, id);
         self.balances.insert(
-            &(owner.clone(), id.clone()),
+            &(owner, id),
             &(from_balance
                 .checked_sub(*amount)
                 .ok_or(PSP35Error::InsufficientBalance)?),

@@ -71,7 +71,7 @@ impl BalancesManager for EnumerableBalances {
     fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error> {
         let initial_balance = self.balance_of(owner, id);
         self.balances
-            .insert(&(owner, id), &(initial_balance.checked_add(amount.clone()).unwrap()));
+            .insert(&(owner, id), &(initial_balance.checked_add(*amount).unwrap()));
 
         if initial_balance == 0 {
             self.enumerable.insert(&Some(owner), id);
@@ -81,7 +81,7 @@ impl BalancesManager for EnumerableBalances {
             let token_supply = self.total_supply.get(id).unwrap_or(0);
 
             self.total_supply
-                .insert(id, &(token_supply.checked_add(amount.clone()).unwrap()));
+                .insert(id, &(token_supply.checked_add(*amount).unwrap()));
 
             if token_supply == 0 {
                 self.enumerable.insert(&None, id);
@@ -95,7 +95,7 @@ impl BalancesManager for EnumerableBalances {
         self.balances.insert(
             &(owner, id),
             &(initial_balance
-                .checked_sub(amount.clone())
+                .checked_sub(*amount)
                 .ok_or(PSP35Error::InsufficientBalance)?),
         );
 
@@ -108,7 +108,7 @@ impl BalancesManager for EnumerableBalances {
             self.total_supply.insert(
                 id,
                 &(token_supply
-                    .checked_sub(amount.clone())
+                    .checked_sub(*amount)
                     .ok_or(PSP35Error::InsufficientBalance)?),
             );
 
@@ -136,17 +136,11 @@ where
 }
 
 impl<T: PSP35EnumerableBalancesStorage<Data = EnumerableBalances> + PSP35> PSP35Enumerable for T {
-    default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Result<Id, PSP35Error> {
-        self.get()
-            .enumerable
-            .get_value(&Some(&owner), &index)
-            .ok_or(PSP35Error::TokenNotExists)
+    default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Option<Id> {
+        self.get().enumerable.get_value(&Some(&owner), &index)
     }
 
-    default fn token_by_index(&self, index: u128) -> Result<Id, PSP35Error> {
-        self.get()
-            .enumerable
-            .get_value(&None, &index)
-            .ok_or(PSP35Error::TokenNotExists)
+    default fn token_by_index(&self, index: u128) -> Option<Id> {
+        self.get().enumerable.get_value(&None, &index)
     }
 }

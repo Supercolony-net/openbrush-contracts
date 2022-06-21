@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: PSP35 Metadata
+title: PSP35 Enumerable
 ---
 
 This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token with [PSP35Enumerable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35/src/extensions/enumerable.rs) extension.

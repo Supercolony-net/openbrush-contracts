@@ -84,12 +84,9 @@ mod psp35_enumerable {
         // Create a new contract instance.
         let nft = PSP35Struct::new();
         // check that alice does not have token by index
-        assert_eq!(
-            nft.owners_token_by_index(accounts.alice, 0u128),
-            Err(PSP35Error::TokenNotExists)
-        );
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), None);
         // token by index 1 does not exists
-        assert_eq!(nft.token_by_index(0u128), Err(PSP35Error::TokenNotExists));
+        assert_eq!(nft.token_by_index(0u128), None)
     }
 
     #[ink::test]
@@ -103,9 +100,9 @@ mod psp35_enumerable {
         // Create token Id 1 for Alice
         assert!(nft._mint_to(accounts.alice, vec![(token_id.clone(), 20)]).is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id.clone()));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Some(token_id.clone()));
         // check token by index
-        assert_eq!(nft.token_by_index(0u128), Ok(token_id));
+        assert_eq!(nft.token_by_index(0u128), Some(token_id));
     }
 
     #[ink::test]
@@ -127,25 +124,31 @@ mod psp35_enumerable {
             )
             .is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1.clone()));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id1.clone())
+        );
         // act. transfer token from alice to bob
         assert!(nft
             .transfer(accounts.bob, token_id1.clone(), token_amount1, vec![])
             .is_ok());
         // bob owns token
-        assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Ok(token_id1));
+        assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Some(token_id1));
         // alice does not own token Id 1
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2.clone()));
         assert_eq!(
-            nft.owners_token_by_index(accounts.alice, 1u128),
-            Err(PSP35Error::TokenNotExists)
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id2.clone())
         );
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), None);
         // act. transfer token from alice to alice
         assert!(nft.transfer(accounts.bob, token_id2.clone(), 10, vec![]).is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2.clone()));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id2.clone())
+        );
         // check Bob token by index
-        assert_eq!(nft.owners_token_by_index(accounts.bob, 1u128), Ok(token_id2.clone()));
+        assert_eq!(nft.owners_token_by_index(accounts.bob, 1u128), Some(token_id2.clone()));
     }
 
     #[ink::test]
@@ -167,25 +170,28 @@ mod psp35_enumerable {
             )
             .is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1.clone()));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id1.clone())
+        );
         // act. transfer token from alice to bob
         assert!(nft
             .transfer(accounts.bob, token_id1.clone(), token_amount1, vec![])
             .is_ok());
         // bob owns token
-        assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Ok(token_id1));
+        assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Some(token_id1));
         // alice does not own token Id 1
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2.clone()));
         assert_eq!(
-            nft.owners_token_by_index(accounts.alice, 1u128),
-            Err(PSP35Error::TokenNotExists)
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id2.clone())
         );
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), None);
         // act. transfer token from alice to alice
         assert!(nft
             .transfer(accounts.alice, token_id2.clone(), token_amount2, vec![])
             .is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id2));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Some(token_id2));
     }
 
     #[ink::test]
@@ -213,17 +219,29 @@ mod psp35_enumerable {
 
         assert!(nft.transfer(accounts.alice, token_id2.clone(), 1, vec![]).is_ok());
 
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1.clone()));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), Ok(token_id2.clone()));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 2u128), Ok(token_id3.clone()));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 3u128), Ok(token_id4.clone()));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id1.clone())
+        );
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 1u128),
+            Some(token_id2.clone())
+        );
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 2u128),
+            Some(token_id3.clone())
+        );
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 3u128),
+            Some(token_id4.clone())
+        );
 
         assert!(nft.transfer(accounts.alice, token_id2.clone(), 2, vec![]).is_ok());
 
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id1));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), Ok(token_id4));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 2u128), Ok(token_id3));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 3u128), Ok(token_id2));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Some(token_id1));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), Some(token_id4));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 2u128), Some(token_id3));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 3u128), Some(token_id2));
     }
 
     #[ink::test]
@@ -270,9 +288,9 @@ mod psp35_enumerable {
             .transfer(accounts.bob, token_id3.clone(), token_amount3, vec![])
             .is_ok());
         // alice does not own token
-        assert_eq!(nft.token_by_index(0u128), Ok(token_id1));
-        assert_eq!(nft.token_by_index(1u128), Ok(token_id3));
-        assert_eq!(nft.token_by_index(2u128), Err(PSP35Error::TokenNotExists));
+        assert_eq!(nft.token_by_index(0u128), Some(token_id1));
+        assert_eq!(nft.token_by_index(1u128), Some(token_id3));
+        assert_eq!(nft.token_by_index(2u128), None);
     }
 
     #[ink::test]
@@ -286,17 +304,14 @@ mod psp35_enumerable {
             ._mint_to(accounts.alice, vec![(token_id.clone(), token_amount)])
             .is_ok());
         // alice still owns token id 1
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Ok(token_id.clone()));
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Some(token_id.clone()));
         // index 0 points to token with id 1
-        assert_eq!(nft.token_by_index(0u128), Ok(token_id.clone()));
+        assert_eq!(nft.token_by_index(0u128), Some(token_id.clone()));
         // Destroy token Id 1.
         assert!(nft.burn(accounts.alice, vec![(token_id, token_amount)]).is_ok());
         // alice does not owns any tokens
-        assert_eq!(
-            nft.owners_token_by_index(accounts.alice, 0u128),
-            Err(PSP35Error::TokenNotExists)
-        );
+        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), None);
         // token by index 1 does not exists
-        assert_eq!(nft.token_by_index(0u128), Err(PSP35Error::TokenNotExists));
+        assert_eq!(nft.token_by_index(0u128), None);
     }
 }

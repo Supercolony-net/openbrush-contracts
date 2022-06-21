@@ -1,10 +1,6 @@
 import { expect, setupContract } from '../../helpers'
 
-interface Result {
-  ok: Ok;
-}
-
-interface Ok {
+interface Id {
   u8: number;
 }
 
@@ -13,9 +9,9 @@ describe('MY_PSP35_ENUMERABLE', () => {
     return setupContract('my_psp35_enumerable', 'new')
   }
 
-  function result(s: string | undefined) {
-    const result: Result = s != null ? JSON.parse(s) : null
-    return result
+  function id(s: string | undefined) {
+    const id: Id = s != null ? JSON.parse(s) : null
+    return id
   }
 
   it('Enumerable should fail', async () => {
@@ -25,8 +21,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
       query
     } = await setup()
 
-    await expect(query.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
-    await expect(query.ownersTokenByIndex(alice.address, 0)).to.eventually.be.rejected
+    await expect(query.ownersTokenByIndex(sender.address, 0)).to.have.output(null)
+    await expect(query.ownersTokenByIndex(alice.address, 0)).to.have.output(null)
   })
 
   it('Enumerable works', async () => {
@@ -37,8 +33,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
       query
     } = await setup()
 
-    await expect(contract.tx.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
-    await expect(contract.tx.ownersTokenByIndex(alice.address, 0)).to.eventually.be.rejected
+    await expect(query.ownersTokenByIndex(sender.address, 0)).to.have.output(null)
+    await expect(query.ownersTokenByIndex(alice.address, 0)).to.have.output(null)
 
     const token1 = {'u8': 1 }
     const token2 = {'u8': 2 }
@@ -47,11 +43,11 @@ describe('MY_PSP35_ENUMERABLE', () => {
 
     await expect(contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
 
-    expect(result((await query.tokenByIndex(0)).output?.toString()).ok.u8).equal(1)
-    expect(result((await query.tokenByIndex(1)).output?.toString()).ok.u8).equal(2)
+    expect(id((await query.tokenByIndex(0)).output?.toString()).u8).equal(1)
+    expect(id((await query.tokenByIndex(1)).output?.toString()).u8).equal(2)
 
-    expect(result((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).ok.u8).equal(1)
-    expect(result((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).ok.u8).equal(2)
+    expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
+    expect(id((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).u8).equal(2)
   })
 
   it('Enumerable works after burn', async () => {
@@ -62,8 +58,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
       query
     } = await setup()
 
-    await expect(contract.tx.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
-    await expect(contract.tx.ownersTokenByIndex(alice.address, 0)).to.eventually.be.rejected
+    await expect(query.ownersTokenByIndex(sender.address, 0)).to.have.output(null)
+    await expect(query.ownersTokenByIndex(alice.address, 0)).to.have.output(null)
 
     const token1 = {'u8': 1}
     const token2 = {'u8': 2}
@@ -72,13 +68,13 @@ describe('MY_PSP35_ENUMERABLE', () => {
 
     await expect(contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
 
-    expect(result((await query.tokenByIndex(0)).output?.toString()).ok.u8).equal(1)
-    expect(result((await query.tokenByIndex(1)).output?.toString()).ok.u8).equal(2)
+    expect(id((await query.tokenByIndex(0)).output?.toString()).u8).equal(1)
+    expect(id((await query.tokenByIndex(1)).output?.toString()).u8).equal(2)
 
     await expect(contract.tx.burn(alice.address, [[token2, amount2]])).to.eventually.be.fulfilled
 
-    expect(result((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).ok.u8).equal(1)
-    await expect(contract.query.ownersTokenByIndex(alice.address, 1)).to.eventually.be.rejected
+    expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
+    await expect(query.ownersTokenByIndex(alice.address, 1)).to.have.output(null)
   })
 
   it('Enumerable transfer works', async () => {
@@ -89,8 +85,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
       query
     } = await setup()
 
-    await expect(contract.tx.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
-    await expect(contract.tx.ownersTokenByIndex(alice.address, 0)).to.eventually.be.rejected
+    await expect(query.ownersTokenByIndex(sender.address, 0)).to.have.output(null)
+    await expect(query.ownersTokenByIndex(alice.address, 0)).to.have.output(null)
 
     const token1 = {'u8': 1}
     const token2 = {'u8': 2}
@@ -99,15 +95,16 @@ describe('MY_PSP35_ENUMERABLE', () => {
 
     await expect(contract.tx.mint(sender.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
 
-    expect(result((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).ok.u8).equal(1)
+    expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(1)
+
     await expect(contract.tx.transfer(alice.address, token1, amount1, [])).to.eventually.be.fulfilled
 
-    expect(result((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).ok.u8).equal(1)
-    expect(result((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).ok.u8).equal(2)
+    expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
+    expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(2)
 
     await expect(contract.tx.transfer(alice.address, token2, 10, [])).to.eventually.be.fulfilled
 
-    expect(result((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).ok.u8).equal(2)
-    expect(result((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).ok.u8).equal(2)
+    expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(2)
+    expect(id((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).u8).equal(2)
   })
 })
