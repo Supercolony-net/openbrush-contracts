@@ -28,10 +28,12 @@ use ink_storage::traits::{
     SpreadLayout,
 };
 use openbrush::{
-    storage::Mapping,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::AccountId,
 };
-use openbrush::storage::TypeGuard;
 
 pub const MEMBERS_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlMembers");
 
@@ -44,7 +46,7 @@ pub struct Members {
 pub struct MemberTypeKey;
 
 impl<'a> TypeGuard<'a> for MemberTypeKey {
-    type Type =&'a (RoleType, &'a AccountId);
+    type Type = &'a (RoleType, &'a AccountId);
 }
 
 pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {

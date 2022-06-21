@@ -26,9 +26,7 @@ pub use crate::{
 pub use derive::AccessControlEnumerableStorage;
 use openbrush::{
     declare_storage_trait,
-    storage::{
-        MultiMapping,
-    },
+    storage::MultiMapping,
     traits::AccountId,
 };
 
@@ -77,9 +75,7 @@ where
     T: AccessControlEnumerableMembersStorage<Data = EnumerableMembers> + AccessControl,
 {
     default fn get_role_member(&self, role: RoleType, index: u128) -> Option<AccountId> {
-        self.get()
-            .role_members
-            .get_value(&role, &index)
+        self.get().role_members.get_value(&role, &index)
     }
 
     default fn get_role_member_count(&self, role: RoleType) -> u128 {
