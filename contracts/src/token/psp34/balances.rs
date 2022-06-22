@@ -24,10 +24,7 @@ use crate::psp34::{
     Owner,
 };
 use openbrush::{
-    storage::{
-        Mapping,
-        TypeGuard,
-    },
+    storage::Mapping,
     traits::Balance,
 };
 
@@ -43,14 +40,8 @@ pub trait BalancesManager {
 #[derive(Default, Debug)]
 #[openbrush::storage(BALANCES_KEY)]
 pub struct Balances {
-    owned_tokens_count: Mapping<Owner, u32, OwnerKey>,
+    owned_tokens_count: Mapping<Owner, u32>,
     total_supply: Balance,
-}
-
-pub struct OwnerKey;
-
-impl<'a> TypeGuard<'a> for OwnerKey {
-    type Type = &'a Owner;
 }
 
 impl BalancesManager for Balances {

@@ -41,10 +41,7 @@ use openbrush::{
 };
 
 pub use derive::DiamondStorage;
-use openbrush::storage::{
-    Mapping,
-    TypeGuard,
-};
+use openbrush::storage::Mapping;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::DiamondData");
 
@@ -56,13 +53,7 @@ pub struct DiamondData {
     // selector mapped to its facet
     pub selector_to_hash: Mapping<Selector, Hash>,
     // facet mapped to all functions it supports
-    pub hash_to_selectors: Mapping<Hash, Vec<Selector>, HashKey>,
-}
-
-pub struct HashKey;
-
-impl<'a> TypeGuard<'a> for HashKey {
-    type Type = &'a Hash;
+    pub hash_to_selectors: Mapping<Hash, Vec<Selector>>,
 }
 
 pub trait DiamondStorage: OwnableStorage<Data = OwnableData> + ::openbrush::traits::InkStorage {

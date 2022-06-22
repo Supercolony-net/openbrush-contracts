@@ -58,12 +58,6 @@ where
     pub _reserved: Option<()>,
 }
 
-pub struct BalancesKey;
-
-impl<'a> TypeGuard<'a> for BalancesKey {
-    type Type = &'a (&'a Id, &'a AccountId);
-}
-
 pub struct ApprovalsKey;
 
 impl<'a> TypeGuard<'a> for ApprovalsKey {
