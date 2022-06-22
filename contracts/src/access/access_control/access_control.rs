@@ -190,9 +190,13 @@ where
     Ok(())
 }
 
-pub fn get_role_admin<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager>(
+pub fn get_role_admin<T, B>(
     instance: &T,
     role: &RoleType,
-) -> RoleType {
+) -> RoleType
+where
+    B: AccessControlMemberManager,
+    T: AccessControlStorage<Data = AccessControlData<B>>,
+{
     instance.get().admin_roles.get(role).unwrap_or(T::_default_admin())
 }
