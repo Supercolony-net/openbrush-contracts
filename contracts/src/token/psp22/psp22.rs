@@ -58,7 +58,7 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP22Data");
 #[openbrush::storage(STORAGE_KEY)]
 pub struct PSP22Data {
     pub supply: Balance,
-    pub balances: Mapping<AccountId, Balance>,
+    pub balances: Mapping<AccountId, Balance, BalancesKey>,
     pub allowances: Mapping<(AccountId, AccountId), Balance, AllowancesKey>,
     pub _reserved: Option<()>,
 }
