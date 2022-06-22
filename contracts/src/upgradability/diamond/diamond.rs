@@ -32,7 +32,6 @@ use ink_env::{
     Clear,
 };
 use ink_prelude::vec::Vec;
-use ink_storage::Mapping;
 use openbrush::{
     modifiers,
     traits::{
@@ -42,6 +41,10 @@ use openbrush::{
 };
 
 pub use derive::DiamondStorage;
+use openbrush::storage::{
+    Mapping,
+    TypeGuard,
+};
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::DiamondData");
 
@@ -53,7 +56,13 @@ pub struct DiamondData {
     // selector mapped to its facet
     pub selector_to_hash: Mapping<Selector, Hash>,
     // facet mapped to all functions it supports
-    pub hash_to_selectors: Mapping<Hash, Vec<Selector>>,
+    pub hash_to_selectors: Mapping<Hash, Vec<Selector>, HashKey>,
+}
+
+pub struct HashKey;
+
+impl<'a> TypeGuard<'a> for HashKey {
+    type Type = &'a Hash;
 }
 
 pub trait DiamondStorage: OwnableStorage<Data = OwnableData> + ::openbrush::traits::InkStorage {
@@ -149,7 +158,7 @@ impl<T: DiamondStorage<Data = DiamondData> + Flush + DiamondCut> DiamondInternal
     default fn _fallback(&self) -> ! {
         let selector = ink_env::decode_input::<Selector>().unwrap_or_else(|_| panic!("Calldata error"));
 
-        let delegate_code = DiamondStorage::get(self).selector_to_hash.get(selector);
+        let delegate_code = DiamondStorage::get(self).selector_to_hash.get(&selector);
 
         if delegate_code.is_none() {
             panic!("Function is not registered");

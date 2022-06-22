@@ -22,9 +22,12 @@
 pub use crate::traits::payment_splitter::*;
 pub use derive::PaymentSplitterStorage;
 use ink_prelude::vec::Vec;
-use ink_storage::Mapping;
 use openbrush::{
     declare_storage_trait,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         AccountIdExt,
@@ -40,10 +43,16 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PaymentSplit
 pub struct PaymentSplitterData {
     pub total_shares: Balance,
     pub total_released: Balance,
-    pub shares: Mapping<AccountId, Balance>,
-    pub released: Mapping<AccountId, Balance>,
+    pub shares: Mapping<AccountId, Balance, AccountIdKey>,
+    pub released: Mapping<AccountId, Balance, AccountIdKey>,
     pub payees: Vec<AccountId>,
     pub _reserved: Option<()>,
+}
+
+pub struct AccountIdKey;
+
+impl<'a> TypeGuard<'a> for AccountIdKey {
+    type Type = &'a AccountId;
 }
 
 declare_storage_trait!(PaymentSplitterStorage);

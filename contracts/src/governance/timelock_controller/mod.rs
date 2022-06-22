@@ -39,11 +39,14 @@ use ink_prelude::{
     vec,
     vec::Vec,
 };
-use ink_storage::Mapping;
 use openbrush::{
     declare_storage_trait,
     modifier_definition,
     modifiers,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         Flush,
@@ -61,8 +64,14 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::TimelockCont
 pub struct TimelockControllerData {
     pub access_control: AccessControlData,
     pub min_delay: Timestamp,
-    pub timestamps: Mapping<OperationId, Timestamp>,
+    pub timestamps: Mapping<OperationId, Timestamp, TimestampKey>,
     pub _reserved: Option<()>,
+}
+
+pub struct TimestampKey;
+
+impl<'a> TypeGuard<'a> for TimestampKey {
+    type Type = &'a OperationId;
 }
 
 declare_storage_trait!(TimelockControllerStorage);
@@ -90,7 +99,7 @@ where
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if !instance.get().members.has_role(role, ZERO_ADDRESS.into()) {
+    if !instance.get().members.has_role(role, &ZERO_ADDRESS.into()) {
         check_role(instance, role, T::env().caller())?;
     }
     body(instance)

@@ -25,13 +25,16 @@ pub use crate::{
     traits::diamond::extensions::diamond_loupe::*,
 };
 use ink_prelude::vec::Vec;
-use ink_storage::Mapping;
 use openbrush::{
     declare_storage_trait,
     traits::Hash,
 };
 
 pub use derive::DiamondLoupeStorage;
+use openbrush::storage::{
+    Mapping,
+    TypeGuard,
+};
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::DiamondLoupeData");
 
@@ -41,10 +44,16 @@ pub struct DiamondLoupeData {
     // number of registered code hashes
     pub code_hashes: u16,
     // mapping of facet to its position in all facets list
-    pub hash_to_id: Mapping<Hash, u16>,
+    pub hash_to_id: Mapping<Hash, u16, HashKey>,
     // mapping of facet id to its facet
     pub id_to_hash: Mapping<u16, Hash>,
     pub _reserved: Option<()>,
+}
+
+pub struct HashKey;
+
+impl<'a> TypeGuard<'a> for HashKey {
+    type Type = &'a Hash;
 }
 
 declare_storage_trait!(DiamondLoupeStorage);
@@ -89,7 +98,7 @@ impl<T: DiamondLoupeStorage<Data = DiamondLoupeData> + DiamondStorage<Data = Dia
     default fn facet_function_selectors(&self, facet: Hash) -> Vec<Selector> {
         DiamondStorage::get(self)
             .hash_to_selectors
-            .get(facet)
+            .get(&facet)
             .unwrap_or(Vec::<Selector>::new())
     }
 
@@ -102,6 +111,6 @@ impl<T: DiamondLoupeStorage<Data = DiamondLoupeData> + DiamondStorage<Data = Dia
     }
 
     default fn facet_code_hash(&self, selector: Selector) -> Option<Hash> {
-        DiamondStorage::get(self).selector_to_hash.get(selector)
+        DiamondStorage::get(self).selector_to_hash.get(&selector)
     }
 }

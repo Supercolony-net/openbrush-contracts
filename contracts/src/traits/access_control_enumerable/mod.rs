@@ -19,9 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::{
-    access_control::RoleType,
-};
+pub use crate::traits::access_control::RoleType;
 use openbrush::traits::AccountId;
 
 #[openbrush::wrapper]

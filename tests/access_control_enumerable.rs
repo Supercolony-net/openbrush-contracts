@@ -110,9 +110,6 @@ mod access_control_enumerable {
         assert_eq!(access_control.get_role_member(PAUSER, 1), Some(alice));
 
         assert!(access_control.revoke_role(PAUSER, alice).is_ok());
-        assert_eq!(
-            access_control.get_role_member(PAUSER, 1),
-            None
-        )
+        assert_eq!(access_control.get_role_member(PAUSER, 1), None)
     }
 }
