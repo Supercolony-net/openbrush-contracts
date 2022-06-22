@@ -43,7 +43,10 @@ use openbrush::{
     declare_storage_trait,
     modifier_definition,
     modifiers,
-    storage::Mapping,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         Flush,
@@ -97,7 +100,7 @@ where
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if !instance.get().members.has_role(role, ZERO_ADDRESS.into()) {
+    if !instance.get().members.has_role(role, &ZERO_ADDRESS.into()) {
         check_role(instance, role, T::env().caller())?;
     }
     body(instance)
