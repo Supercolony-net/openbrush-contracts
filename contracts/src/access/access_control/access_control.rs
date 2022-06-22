@@ -190,10 +190,7 @@ where
     Ok(())
 }
 
-pub fn get_role_admin<T, B>(
-    instance: &T,
-    role: &RoleType,
-) -> RoleType
+pub fn get_role_admin<T, B>(instance: &T, role: &RoleType) -> RoleType
 where
     B: AccessControlMemberManager,
     T: AccessControlStorage<Data = AccessControlData<B>>,
