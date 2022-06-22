@@ -21,7 +21,10 @@
 
 pub use crate::{
     psp35,
-    psp35::extensions::metadata,
+    psp35::{
+        balances,
+        extensions::metadata,
+    },
     traits::psp35::{
         extensions::metadata::*,
         *,

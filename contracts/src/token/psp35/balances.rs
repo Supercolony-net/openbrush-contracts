@@ -38,7 +38,7 @@ use openbrush::{
     },
 };
 
-pub const BALANCES_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Balances");
+pub const BALANCES_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
 pub trait BalancesManager: SpreadLayout + SpreadAllocate {
     fn balance_of(&self, owner: &AccountId, id: &Id) -> Balance;

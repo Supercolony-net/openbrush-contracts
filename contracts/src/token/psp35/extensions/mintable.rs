@@ -21,6 +21,7 @@
 
 pub use crate::{
     psp35,
+    psp35::balances,
     traits::psp35::{
         extensions::mintable::*,
         *,
@@ -32,10 +33,16 @@ use ink_prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,
+    OccupiedStorage,
     Storage,
 };
 
-impl<T: Storage<psp35::Data>> PSP35Mintable for T {
+impl<B, T> PSP35Mintable for T
+where
+    B: balances::BalancesManager,
+    T: Storage<psp35::Data<B>>,
+    T: OccupiedStorage<{ psp35::STORAGE_KEY }, WithData = psp35::Data<B>>,
+{
     default fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
         self._mint_to(to, ids_amounts)
     }

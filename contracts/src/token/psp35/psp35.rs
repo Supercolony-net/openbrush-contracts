@@ -20,8 +20,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    super::balances::*,
     psp35,
+    psp35::balances,
     traits::psp35::*,
 };
 
@@ -44,6 +44,7 @@ use openbrush::{
         AccountId,
         AccountIdExt,
         Balance,
+        OccupiedStorage,
         Storage,
     },
 };
@@ -52,9 +53,9 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
-pub struct Data<B = Balances>
+pub struct Data<B = balances::Balances>
 where
-    B: BalancesManager,
+    B: balances::BalancesManager,
 {
     pub balances: B,
     pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance, ApprovalsKey /* optimization */>,
@@ -75,11 +76,12 @@ impl<'a> TypeGuard<'a> for ApprovalsKey {
 
 impl<B, T> PSP35 for T
 where
-    B: BalancesManager,
+    B: balances::BalancesManager,
     T: Storage<Data<B>>,
+    T: OccupiedStorage<STORAGE_KEY, WithData = Data<B>>,
 {
     default fn balance_of(&self, owner: AccountId, id: Id) -> Balance {
-        self.get().balances.balance_of(&owner, &id)
+        self.data().balances.balance_of(&owner, &id)
     }
 
     default fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
@@ -182,8 +184,10 @@ pub trait Internal {
 
 impl<B, T> Internal for T
 where
-B: BalancesManager,
-T: Storage<Data<B>>, {
+    B: balances::BalancesManager,
+    T: Storage<Data<B>>,
+    T: OccupiedStorage<STORAGE_KEY, WithData = Data<B>>,
+{
     default fn _emit_transfer_event(
         &self,
         _from: Option<AccountId>,
@@ -212,7 +216,7 @@ T: Storage<Data<B>>, {
         self._before_token_transfer(None, Some(&to), &ids_amounts)?;
 
         for (id, amount) in &ids_amounts {
-            self.get_mut().balances.increase_balance(&to, id, amount, true)?;
+            self.data().balances.increase_balance(&to, id, amount, true)?;
         }
 
         self._after_token_transfer(None, Some(&to), &ids_amounts)?;
@@ -235,7 +239,7 @@ T: Storage<Data<B>>, {
         }
 
         for (id, amount) in ids_amounts.iter() {
-            self.get_mut().balances.decrease_balance(&from, id, amount, true)?;
+            self.data().balances.decrease_balance(&from, id, amount, true)?;
         }
 
         self._after_token_transfer(Some(&from), None, &ids_amounts)?;
@@ -419,8 +423,10 @@ pub trait Transfer {
 
 impl<B, T> Transfer for T
 where
-B: BalancesManager,
-T: Storage<Data<B>>,{
+    B: balances::BalancesManager,
+    T: Storage<Data<B>>,
+    T: OccupiedStorage<STORAGE_KEY, WithData = Data<B>>,
+{
     default fn _before_token_transfer(
         &mut self,
         _from: Option<&AccountId>,
