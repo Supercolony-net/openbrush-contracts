@@ -37,6 +37,8 @@ pub enum PSP35Error {
     InsufficientBalance,
     /// Returned if recipient is zero account.
     TransferToZeroAddress,
+    /// Returned if token doesn't exist
+    TokenNotExists,
     /// Returned if the caller is not allowed.
     NotAllowed,
     /// Returned if caller trying to approve himself
