@@ -21,5 +21,7 @@
 
 #[cfg(feature = "access_control")]
 pub mod access_control;
+#[cfg(feature = "access_control")]
+pub mod access_control_enumerable;
 #[cfg(feature = "ownable")]
 pub mod ownable;

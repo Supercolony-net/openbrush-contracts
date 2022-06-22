@@ -86,6 +86,12 @@ declare_derive_storage_trait!(
     AccessControlStorage,
     AccessControlStorageField
 );
+#[cfg(feature = "access_control")]
+declare_derive_storage_trait!(
+    derive_access_control_enumerable_storage,
+    AccessControlEnumerableStorage,
+    AccessControlEnumerableStorageField
+);
 
 // Ownable
 #[cfg(feature = "ownable")]

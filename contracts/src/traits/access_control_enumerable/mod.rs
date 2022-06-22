@@ -19,8 +19,25 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-mod access_control;
-mod members;
+pub use crate::traits::access_control::RoleType;
+use openbrush::traits::AccountId;
 
-pub use access_control::*;
-pub use members::*;
+#[openbrush::wrapper]
+pub type AccessControlEnumerableRef = dyn AccessControlEnumerable;
+
+/// Extension of AccessControl that allows enumerating the members of each role.
+#[openbrush::trait_definition]
+pub trait AccessControlEnumerable {
+    /// Returns one of the accounts that have `role`.
+    ///
+    /// Role bearers are not sorted in any particular way, and their
+    /// ordering may change at any point.
+    #[ink(message)]
+    fn get_role_member(&self, role: RoleType, index: u128) -> Option<AccountId>;
+
+    /// Returns the number of accounts that have `role`.
+    /// Can be used together with {get_role_member} to enumerate
+    /// all bearers of a role.
+    #[ink(message)]
+    fn get_role_member_count(&self, role: RoleType) -> u128;
+}
