@@ -107,43 +107,40 @@ pub mod mock {
     }
 
     /// A managed call stack for mocking cross-contract call in test environment
-    pub struct ManagedCallStack {
-        stack: Vec<MockCallContext>,
+    #[derive(Clone)]
+    pub struct SharedCallStack {
+        stack: Rc<RefCell<Vec<MockCallContext>>>,
     }
 
-    impl ManagedCallStack {
+    impl SharedCallStack {
         /// Crates a call stack with the default `account`
         pub fn new(account: AccountId) -> Self {
-            ManagedCallStack {
-                stack: alloc::vec![MockCallContext {
+            SharedCallStack {
+                stack: Rc::new(RefCell::new(alloc::vec![MockCallContext {
                     level: 0,
                     caller: None,
                     callee: account,
-                }],
+                }])),
             }
-        }
-
-        /// Creates a call stack with the default `account` and returns a shared reference
-        pub fn create_shared(account: AccountId) -> Rc<RefCell<Self>> {
-            Rc::new(RefCell::new(Self::new(account)))
         }
 
         /// Changes the caller account
         ///
         /// Only allowed outside any contract call (when the stack is empty).
-        pub fn switch_account(&mut self, account: AccountId) -> Result<(), ()> {
-            if self.stack.len() != 1 {
+        pub fn switch_account(&self, account: AccountId) -> Result<(), ()> {
+            let mut stack = self.stack.borrow_mut();
+            if stack.len() != 1 {
                 return Err(())
             }
-            let ctx = self.stack.get_mut(0).ok_or(())?;
+            let ctx = stack.get_mut(0).ok_or(())?;
             ctx.callee = account;
             Ok(())
         }
 
         /// Pushes a new call frame
-        pub fn push(&mut self, callee: &AccountId) {
-            let parent_ctx = self.peek().clone();
-            self.stack.push(MockCallContext {
+        pub fn push(&self, callee: &AccountId) {
+            let parent_ctx = self.peek();
+            self.stack.borrow_mut().push(MockCallContext {
                 level: parent_ctx.level + 1,
                 caller: Some(parent_ctx.callee),
                 callee: callee.clone(),
@@ -152,9 +149,9 @@ pub mod mock {
         }
 
         /// Pops the call frame and returns the frame
-        pub fn pop(&mut self) -> Option<MockCallContext> {
-            if self.stack.len() > 1 {
-                let ctx = self.stack.pop();
+        pub fn pop(&self) -> Option<MockCallContext> {
+            if self.stack.borrow().len() > 1 {
+                let ctx = self.stack.borrow_mut().pop();
                 self.sync_to_ink();
                 ctx
             } else {
@@ -163,8 +160,8 @@ pub mod mock {
         }
 
         /// Peeks the current call frame
-        pub fn peek(&self) -> &MockCallContext {
-            self.stack.last().expect("stack is never empty; qed.")
+        pub fn peek(&self) -> MockCallContext {
+            self.stack.borrow().last().cloned().expect("stack is never empty; qed.")
         }
 
         /// Syncs the top call frame to ink testing environment
@@ -182,19 +179,19 @@ pub mod mock {
     pub struct Addressable<T> {
         inner: Rc<RefCell<T>>,
         id: AccountId,
-        stack: Rc<RefCell<ManagedCallStack>>,
+        stack: SharedCallStack,
     }
 
     impl<T> Addressable<T> {
         /// Wraps a contract reference with id and a shared call stack
-        pub fn new(id: AccountId, inner: Rc<RefCell<T>>, stack: Rc<RefCell<ManagedCallStack>>) -> Self {
+        pub fn new(id: AccountId, inner: Rc<RefCell<T>>, stack: SharedCallStack) -> Self {
             Addressable { inner, id, stack }
         }
 
         /// Wraps a native contract object with a simple id
         ///
         /// The account id of the contract will be the `id` with zero-padding.
-        pub fn create_native(id: u8, inner: T, stack: Rc<RefCell<ManagedCallStack>>) -> Self {
+        pub fn create_native(id: u8, inner: T, stack: SharedCallStack) -> Self {
             Addressable {
                 inner: Rc::new(RefCell::new(inner)),
                 id: naive_id(id),
@@ -225,12 +222,12 @@ pub mod mock {
     /// Push a call stack when the `Ref` in scope
     pub struct ScopedRef<'b, T: 'b> {
         inner: Ref<'b, T>,
-        stack: Rc<RefCell<ManagedCallStack>>,
+        stack: SharedCallStack,
     }
 
     impl<'b, T> ScopedRef<'b, T> {
-        fn new(inner: Ref<'b, T>, address: &AccountId, stack: Rc<RefCell<ManagedCallStack>>) -> Self {
-            stack.borrow_mut().push(address);
+        fn new(inner: Ref<'b, T>, address: &AccountId, stack: SharedCallStack) -> Self {
+            stack.push(address);
             Self { inner, stack }
         }
     }
@@ -244,19 +241,19 @@ pub mod mock {
 
     impl<'b, T> Drop for ScopedRef<'b, T> {
         fn drop(&mut self) {
-            self.stack.borrow_mut().pop().expect("pop never fails");
+            self.stack.pop().expect("pop never fails");
         }
     }
 
     /// Push a call stack when the `RefMut` in scope
     pub struct ScopedRefMut<'b, T: 'b> {
         inner: RefMut<'b, T>,
-        stack: Rc<RefCell<ManagedCallStack>>,
+        stack: SharedCallStack,
     }
 
     impl<'b, T> ScopedRefMut<'b, T> {
-        fn new(inner: RefMut<'b, T>, address: &AccountId, stack: Rc<RefCell<ManagedCallStack>>) -> Self {
-            stack.borrow_mut().push(address);
+        fn new(inner: RefMut<'b, T>, address: &AccountId, stack: SharedCallStack) -> Self {
+            stack.push(address);
             Self { inner, stack }
         }
     }
@@ -276,7 +273,7 @@ pub mod mock {
 
     impl<'b, T> Drop for ScopedRefMut<'b, T> {
         fn drop(&mut self) {
-            self.stack.borrow_mut().pop().expect("pop never fails");
+            self.stack.pop().expect("pop never fails");
         }
     }
 

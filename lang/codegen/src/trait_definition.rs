@@ -272,11 +272,11 @@ fn generate_wrapper(ink_trait: ItemTrait, mock_type: Option<TokenStream>) -> pro
                 Some(_mock_ty) => quote! {
                     mock_env :: with(|ctx| {
                         let mut mock_ref = ctx.register.get_mut(self).expect("not an address of mocked contract");
-                        ctx.stack.borrow_mut().push(&self);
+                        ctx.stack.push(&self);
                         let result = mock_ref.borrow_mut(). #message_ident (
                             #( #input_bindings , )*
                         );
-                        ctx.stack.borrow_mut().pop();
+                        ctx.stack.pop();
                         result
                     }).expect("mock object not set")
                 },
@@ -335,9 +335,7 @@ fn generate_wrapper(ink_trait: ItemTrait, mock_type: Option<TokenStream>) -> pro
             quote! {
                 #[cfg(any(test, feature = "mockable"))]
                 pub struct Context {
-                    pub stack: std::rc::Rc<std::cell::RefCell<
-                        ::openbrush::traits::mock::ManagedCallStack
-                    >>,
+                    pub stack: ::openbrush::traits::mock::SharedCallStack,
                     pub register: std::collections::BTreeMap<
                         ::openbrush::traits::AccountId,
                         std::rc::Rc<std::cell::RefCell< #ty >>
@@ -351,7 +349,7 @@ fn generate_wrapper(ink_trait: ItemTrait, mock_type: Option<TokenStream>) -> pro
 
                 #[cfg(any(test, feature = "mockable"))]
                 pub fn using<F: FnOnce()>(
-                    stack: std::rc::Rc<std::cell::RefCell<::openbrush::traits::mock::ManagedCallStack>>,
+                    stack: ::openbrush::traits::mock::SharedCallStack,
                     f: F
                 ) {
                     let mut env = Context {
