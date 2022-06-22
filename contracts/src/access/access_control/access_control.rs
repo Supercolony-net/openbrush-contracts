@@ -26,7 +26,10 @@ use openbrush::{
     declare_storage_trait,
     modifier_definition,
     modifiers,
-    storage::Mapping,
+    storage::{
+        Mapping,
+        ValueGuard,
+    },
     traits::AccountId,
 };
 
@@ -38,7 +41,7 @@ pub struct AccessControlData<B = Members>
 where
     B: AccessControlMemberManager,
 {
-    pub admin_roles: Mapping<RoleType, RoleType>,
+    pub admin_roles: Mapping<RoleType, RoleType, ValueGuard<RoleType>>,
     pub members: B,
     pub _reserved: Option<()>,
 }
@@ -72,10 +75,10 @@ where
     }
 
     default fn get_role_admin(&self, role: RoleType) -> RoleType {
-        get_role_admin(self, &role)
+        get_role_admin(self, role)
     }
 
-    #[modifiers(only_role(get_role_admin(self, &role)))]
+    #[modifiers(only_role(get_role_admin(self, role)))]
     default fn grant_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
         if self.get().members.has_role(role, &account) {
             return Err(AccessControlError::RoleRedundant)
@@ -85,7 +88,7 @@ where
         Ok(())
     }
 
-    #[modifiers(only_role(get_role_admin(self, &role)))]
+    #[modifiers(only_role(get_role_admin(self, role)))]
     default fn revoke_role(&mut self, role: RoleType, account: AccountId) -> Result<(), AccessControlError> {
         check_role(self, role, account)?;
         self._do_revoke_role(role, account);
@@ -169,12 +172,12 @@ where
     }
 
     default fn _set_role_admin(&mut self, role: RoleType, new_admin: RoleType) {
-        let mut entry = self.get_mut().admin_roles.get(&role);
+        let mut entry = self.get_mut().admin_roles.get(role);
         if entry.is_none() {
             entry = Some(Self::_default_admin());
         }
         let old_admin = entry.unwrap();
-        self.get_mut().admin_roles.insert(&role, &new_admin);
+        self.get_mut().admin_roles.insert(role, &new_admin);
         self._emit_role_admin_changed(role, old_admin, new_admin);
     }
 }
@@ -190,7 +193,7 @@ where
     Ok(())
 }
 
-pub fn get_role_admin<T, B>(instance: &T, role: &RoleType) -> RoleType
+pub fn get_role_admin<T, B>(instance: &T, role: RoleType) -> RoleType
 where
     B: AccessControlMemberManager,
     T: AccessControlStorage<Data = AccessControlData<B>>,

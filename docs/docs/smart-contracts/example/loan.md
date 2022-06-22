@@ -33,6 +33,10 @@ so it is defined in the `traits` instead of the body of the contract).
 `LoanRef` can be used by other developers to do a cross contract call to `LoanContract`.
 
 ```rust
+use ink_storage::traits::{
+    PackedLayout,
+    SpreadLayout,
+};
 use openbrush::{
     contracts::traits::{
         ownable::*,
@@ -46,10 +50,6 @@ use openbrush::{
         Balance,
         Timestamp,
     },
-};
-use ink_storage::traits::{
-    PackedLayout,
-    SpreadLayout,
 };
 
 #[cfg(feature = "std")]
@@ -99,6 +99,7 @@ pub trait Loan: PSP34 + PSP34Metadata + Ownable {
     #[ink(message)]
     fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP34Error>;
 }
+
 ```
 
 ## Add dependencies
@@ -121,9 +122,13 @@ so we will add these to our contract. We will add a `openbrush::contract` macro 
 /// This contract will represent the loan of a user
 #[openbrush::contract]
 pub mod loan {
-    use openbrush::contracts::{
-        ownable::*,
-        psp34::extensions::metadata::*,
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::{
+            ownable::*,
+            psp34::extensions::metadata::*,
+        },
+        storage::Mapping,
     };
 
     use openbrush::modifiers;
@@ -131,10 +136,6 @@ pub mod loan {
     use ink_prelude::{
         string::String,
         vec::Vec,
-    };
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
     };
     use lending_project::traits::loan::*;
 ```
@@ -204,7 +205,7 @@ impl Loan for LoanContract {
     #[modifiers(only_owner)]
     #[ink(message)]
     fn delete_loan(&mut self, initiator: AccountId, loan_id: Id) -> Result<(), PSP34Error> {
-        self.loan_info.take(&loan_id);
+        self.loan_info.remove(&loan_id);
         self._burn_from(initiator, loan_id)
     }
 
@@ -232,7 +233,7 @@ impl Loan for LoanContract {
         if loan_info.is_none() {
             return Err(PSP34Error::Custom(String::from("Loan does not exist")))
         }
-        Ok(loan_info.cloned().unwrap())
+        Ok(loan_info.unwrap())
     }
 }
 ```
@@ -247,7 +248,7 @@ We will also add several helper functions.
 ```rust
 impl LoanContract {
     /// constructor with name and symbol
-    #[ink(constructor)]
+    #[ink(constructor, payable)]
     pub fn new() -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut LoanContract| {
             instance.last_loan_id = Id::U8(1u8);
@@ -274,7 +275,7 @@ impl LoanContract {
             return Err(PSP34Error::Custom(String::from("This loan does not exist!")))
         }
 
-        let mut loan_info = loan_info.cloned().unwrap();
+        let mut loan_info = loan_info.unwrap();
         loan_info.collateral_amount = new_collateral_amount;
         loan_info.borrow_amount = new_borrow_amount;
         loan_info.timestamp = new_timestamp;
@@ -292,7 +293,7 @@ impl LoanContract {
             return Err(PSP34Error::Custom(String::from("This loan does not exist!")))
         }
 
-        let mut loan_info = loan_info.cloned().unwrap();
+        let mut loan_info = loan_info.unwrap();
         loan_info.liquidated = true;
 
         self.loan_info.insert(&loan_id, &loan_info);
@@ -305,21 +306,17 @@ impl LoanContract {
         if self.freed_ids.len() > 0 {
             return Ok(self.freed_ids.pop().unwrap())
         }
-        let mut current = self.last_loan_id;
+        let current = self.last_loan_id.clone();
         // It is not fully correct implementation of the increasing. but it is only an example
-        for n in 0..32 {
-            if current[n] == u8::MAX {
-                if n == 31 {
+        match current {
+            Id::U8(v) => {
+                if v == u8::MAX {
                     return Err(PSP34Error::Custom(String::from("Max Id reached!")))
-                } else {
-                    current[n] = 0;
                 }
-            } else {
-                current[n] += 1;
-                break
+                self.last_loan_id = Id::U8(v + 1);
             }
-        }
-        self.last_loan_id = current;
+            _ => {}
+        };
         Ok(current)
     }
 }

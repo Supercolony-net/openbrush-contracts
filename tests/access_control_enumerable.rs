@@ -29,7 +29,7 @@ mod access_control_enumerable {
     use ink_storage::traits::SpreadAllocate;
 
     use openbrush::{
-        contracts::access_control_enumerable::*,
+        contracts::access_control::extensions::enumerable::*,
         test_utils::accounts,
     };
 
