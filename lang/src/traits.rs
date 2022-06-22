@@ -79,6 +79,7 @@ pub trait Flush: ::ink_storage::traits::SpreadLayout + InkStorage {
 impl<T: ::ink_storage::traits::SpreadLayout + InkStorage> Flush for T {}
 
 /// Types for managing mock cross-contract calls in unit tests
+#[cfg(feature = "mockable")]
 pub mod mock {
     use super::AccountId;
 

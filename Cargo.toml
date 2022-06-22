@@ -72,6 +72,7 @@ pausable = ["openbrush_contracts/pausable"]
 timelock_controller = ["openbrush_contracts/timelock_controller"]
 proxy = ["openbrush_contracts/proxy"]
 diamond = ["openbrush_contracts/diamond"]
+mockable = ["openbrush_lang/mockable"]
 
 [profile.release]
 panic = "abort"

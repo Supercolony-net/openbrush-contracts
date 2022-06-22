@@ -49,8 +49,6 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
     }
     let attrs: proc_macro2::TokenStream = _attrs.into();
     let (mock_type, attrs) = extract_mock_config(attrs);
-    println!("mock_type: {:?}", mock_type);
-    println!("extracted_attrs: {:?}", attrs);
     let mut trait_item: ItemTrait = parse2(_input).unwrap();
     let trait_without_ink_attrs;
     let ink_code;
@@ -139,7 +137,6 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
 
         #maybe_use_mock_env
     };
-    // println!("Final output: {}", code);
     code.into()
 }
 
