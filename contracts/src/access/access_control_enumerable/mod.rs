@@ -26,7 +26,10 @@ pub use crate::{
 pub use derive::AccessControlEnumerableStorage;
 use openbrush::{
     declare_storage_trait,
-    storage::MultiMapping,
+    storage::{
+        MultiMapping,
+        TypeGuard,
+    },
     traits::AccountId,
 };
 
@@ -35,23 +38,29 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessContro
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct EnumerableMembers {
-    pub role_members: MultiMapping<RoleType, AccountId>,
+    pub role_members: MultiMapping<RoleType, AccountId, RoleMembersKey>,
     pub _reserved: Option<()>,
+}
+
+pub struct RoleMembersKey;
+
+impl<'a> TypeGuard<'a> for RoleMembersKey {
+    type Type = RoleType;
 }
 
 declare_storage_trait!(AccessControlEnumerableMembersStorage);
 
 impl AccessControlMemberManager for EnumerableMembers {
     fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
-        self.role_members.get_index(&role, address).is_some()
+        self.role_members.contains_value(role, address)
     }
 
     fn add(&mut self, role: RoleType, member: &AccountId) {
-        self.role_members.insert(&role, member);
+        self.role_members.insert(role, member);
     }
 
     fn remove(&mut self, role: RoleType, member: &AccountId) {
-        self.role_members.remove_value(&role, member);
+        self.role_members.remove_value(role, member);
     }
 }
 
@@ -75,10 +84,10 @@ where
     T: AccessControlEnumerableMembersStorage<Data = EnumerableMembers> + AccessControl,
 {
     default fn get_role_member(&self, role: RoleType, index: u128) -> Option<AccountId> {
-        self.get().role_members.get_value(&role, &index)
+        self.get().role_members.get_value(role, &index)
     }
 
     default fn get_role_member_count(&self, role: RoleType) -> u128 {
-        self.get().role_members.count(&role)
+        self.get().role_members.count(role)
     }
 }

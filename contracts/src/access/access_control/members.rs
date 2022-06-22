@@ -40,12 +40,12 @@ pub const MEMBERS_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessContro
 #[derive(Default, Debug)]
 #[openbrush::storage(MEMBERS_KEY)]
 pub struct Members {
-    pub members: Mapping<(RoleType, AccountId), (), MemberTypeKey>,
+    pub members: Mapping<(RoleType, AccountId), (), MembersKey>,
 }
 
-pub struct MemberTypeKey;
+pub struct MembersKey;
 
-impl<'a> TypeGuard<'a> for MemberTypeKey {
+impl<'a> TypeGuard<'a> for MembersKey {
     type Type = &'a (RoleType, &'a AccountId);
 }
 
@@ -59,7 +59,7 @@ pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {
 
 impl AccessControlMemberManager for Members {
     fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
-        self.members.get(&(role, address)).is_some()
+        self.members.contains(&(role, address))
     }
 
     fn add(&mut self, role: RoleType, member: &AccountId) {

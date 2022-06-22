@@ -39,11 +39,11 @@ use ink_prelude::{
     vec,
     vec::Vec,
 };
-use ink_storage::Mapping;
 use openbrush::{
     declare_storage_trait,
     modifier_definition,
     modifiers,
+    storage::Mapping,
     traits::{
         AccountId,
         Flush,
@@ -67,6 +67,20 @@ pub struct TimelockControllerData {
 
 declare_storage_trait!(TimelockControllerStorage);
 
+impl AccessControlMemberManager for TimelockControllerData {
+    fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
+        self.access_control.members.has_role(role, address)
+    }
+
+    fn add(&mut self, role: RoleType, member: &AccountId) {
+        self.access_control.members.add(role, member);
+    }
+
+    fn remove(&mut self, role: RoleType, member: &AccountId) {
+        self.access_control.members.remove(role, member);
+    }
+}
+
 impl<T: TimelockControllerStorage<Data = TimelockControllerData>> AccessControlStorage for T {
     type Data = AccessControlData;
 
@@ -84,13 +98,14 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData>> AccessControlS
 /// considered. Granting a role to zero account is equivalent to enabling
 /// this role for everyone.
 #[modifier_definition]
-pub fn only_role_or_open_role<T, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
+pub fn only_role_or_open_role<T, B, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    T: AccessControlStorage<Data = AccessControlData>,
+    B: AccessControlMemberManager,
+    T: AccessControlStorage<Data = AccessControlData<B>>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if !instance.get().members.has_role(role, &ZERO_ADDRESS.into()) {
+    if !instance.has_role(role, ZERO_ADDRESS.into()) {
         check_role(instance, role, T::env().caller())?;
     }
     body(instance)

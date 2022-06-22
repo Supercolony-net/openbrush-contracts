@@ -16,7 +16,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-openbrush = { path = "../..", default-features = false, features = ["access_control", "psp34"] }
+openbrush = { path = "../..", default-features = false, features = ["access_control"] }
 
 [lib]
 name = "my_access_control_enumerable"
