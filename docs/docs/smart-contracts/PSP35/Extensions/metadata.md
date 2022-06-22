@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP35 Metadata
 ---
 
-This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token with [PSP35Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35/src/extensions/metadata.rs) extension.
+This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token with [PSP35Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35/extensions/metadata.rs) extension.
 
 ## Step 1: Add imports and enable unstable feature
 

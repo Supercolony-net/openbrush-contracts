@@ -209,7 +209,7 @@ default fn borrow_assets(
     let reserve_asset = get_reserve_asset(self, &asset_address)?;
 
     // we will find out the price of deposited collateral
-    let price = get_asset_price(self, amount, collateral_address, asset_address);
+    let price = get_asset_price(self, &amount, &collateral_address, &asset_address);
     // we will set the liquidation price to be 75% of current price
     let liquidation_price = (price * 75) / 100;
     // borrow amount is 70% of collateral

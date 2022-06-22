@@ -4,10 +4,7 @@
 #[openbrush::contract]
 pub mod my_access_control {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::{
-        access_control::*,
-        access_control_enumerable::*,
-    };
+    use openbrush::contracts::access_control::extensions::enumerable::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, AccessControlStorage)]

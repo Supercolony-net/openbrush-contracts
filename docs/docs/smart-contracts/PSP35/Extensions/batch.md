@@ -3,7 +3,7 @@ sidebar_position: 2
 title: PSP35 Batch
 ---
 
-This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token with [PSP35Batch](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35/src/extensions/batch.rs) extension, which allows batch transferring of PSP35 tokens.
+This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token with [PSP35Batch](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35/extensions/batch.rs) extension, which allows batch transferring of PSP35 tokens.
 
 ## How to use this extension
 

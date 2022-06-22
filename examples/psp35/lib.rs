@@ -7,11 +7,11 @@ pub mod my_psp35 {
         string::String,
         vec,
     };
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::psp35::*,
+        storage::Mapping,
     };
-    use openbrush::contracts::psp35::*;
 
     #[derive(Default, SpreadAllocate, PSP35Storage)]
     #[ink(storage)]

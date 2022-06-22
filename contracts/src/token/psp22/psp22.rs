@@ -38,9 +38,12 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_storage::Mapping;
 use openbrush::{
     declare_storage_trait,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         AccountIdExt,
@@ -56,8 +59,14 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP22Data");
 pub struct PSP22Data {
     pub supply: Balance,
     pub balances: Mapping<AccountId, Balance>,
-    pub allowances: Mapping<(AccountId, AccountId), Balance>,
+    pub allowances: Mapping<(AccountId, AccountId), Balance, AllowancesKey>,
     pub _reserved: Option<()>,
+}
+
+pub struct AllowancesKey;
+
+impl<'a> TypeGuard<'a> for AllowancesKey {
+    type Type = &'a (&'a AccountId, &'a AccountId);
 }
 
 declare_storage_trait!(PSP22Storage);
@@ -72,7 +81,7 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22 for T {
     }
 
     default fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        self.get().allowances.get((&owner, &spender)).unwrap_or(0)
+        self.get().allowances.get(&(&owner, &spender)).unwrap_or(0)
     }
 
     default fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
@@ -256,7 +265,7 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        self.get_mut().allowances.insert((&owner, &spender), &amount);
+        self.get_mut().allowances.insert(&(&owner, &spender), &amount);
         self._emit_approval_event(owner, spender, amount);
         Ok(())
     }

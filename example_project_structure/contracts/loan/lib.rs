@@ -4,13 +4,13 @@
 /// This contract will represent the loan of a user
 #[openbrush::contract]
 pub mod loan {
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
-    };
-    use openbrush::contracts::{
-        ownable::*,
-        psp34::extensions::metadata::*,
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::{
+            ownable::*,
+            psp34::extensions::metadata::*,
+        },
+        storage::Mapping,
     };
 
     use openbrush::modifiers;

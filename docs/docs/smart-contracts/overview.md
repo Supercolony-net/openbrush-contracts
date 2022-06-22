@@ -79,15 +79,18 @@ Also, that doc contains links to the examples of how to reuse and customize the 
   * [PSP34Metadata](PSP34/Extensions/metadata.md): metadata for PSP34.
   * [PSP34Mintable](PSP34/Extensions/mintable.md): creation of new tokens.
   * [PSP34Burnable](PSP34/Extensions/burnable.md): destruction of own tokens.
+  * [PSP34Enumerable](PSP34/Extensions/enumerable.md): iterating over contract's tokens.
 * [PSP35](PSP35/psp35.md) is an example of how you can reuse the implementation of
   [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35). You also can find examples of how to reuse extensions.
   * [PSP35Metadata](PSP35/Extensions/metadata.md): metadata for PSP35.
   * [PSP35Mintable](PSP35/Extensions/mintable.md): creation of new tokens.
   * [PSP35Burnable](PSP35/Extensions/burnable.md): destruction of own tokens.
-  * [PSP35Batch](PSP35/Extensions/batch.md): batch transferring of tokens
+  * [PSP35Batch](PSP35/Extensions/batch.md): batch transferring of tokens.
+  * [PSP35Enumerable](PSP35/Extensions/enumerable.md): iterating over contract's tokens.
 * [Access Control](access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/access/access_control) and
   [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) together to provide rights to mint and burn NFT tokens.
+  * [AccessControlEnumerable](PSP34/Extensions/enumerable.md): iterating over contract's tokens.
 * [Ownable](ownable.md) shows how you can use the implementation of
   [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
   [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) together to provide rights to mint and burn tokens.
@@ -103,3 +106,10 @@ Also, that doc contains links to the examples of how to reuse and customize the 
 * [PaymentSplitter](payment-splitter.md) shows how you can use the implementation of
   [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/finance/payment_splitter)
   to split received native tokens between participants of the contract.
+* [Diamond](diamond.md) shows how you can use the implementation of
+  [diamond](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/diamond)
+  pattern to split your contract into small parts and support upgradability.
+  * [DiamondLoupe](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/diamond/extensions): iterating over contract's facets.
+* [Proxy](proxy.md) shows how you can use the implementation of
+  [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/proxy)
+  pattern to support upgradability of your contract.
