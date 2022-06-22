@@ -67,20 +67,6 @@ pub struct TimelockControllerData {
 
 declare_storage_trait!(TimelockControllerStorage);
 
-impl AccessControlMemberManager for TimelockControllerData {
-    fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
-        self.access_control.members.has_role(role, address)
-    }
-
-    fn add(&mut self, role: RoleType, member: &AccountId) {
-        self.access_control.members.add(role, member);
-    }
-
-    fn remove(&mut self, role: RoleType, member: &AccountId) {
-        self.access_control.members.remove(role, member);
-    }
-}
-
 impl<T: TimelockControllerStorage<Data = TimelockControllerData>> AccessControlStorage for T {
     type Data = AccessControlData;
 
@@ -105,7 +91,7 @@ where
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if !instance.has_role(role, ZERO_ADDRESS.into()) {
+    if !instance.get().members.has_role(role, &ZERO_ADDRESS.into()) {
         check_role(instance, role, T::env().caller())?;
     }
     body(instance)

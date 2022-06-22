@@ -179,11 +179,11 @@ where
     }
 }
 
-pub fn check_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager>(
-    instance: &T,
-    role: RoleType,
-    account: AccountId,
-) -> Result<(), AccessControlError> {
+pub fn check_role<T, B>(instance: &T, role: RoleType, account: AccountId) -> Result<(), AccessControlError>
+where
+    B: AccessControlMemberManager,
+    T: AccessControlStorage<Data = AccessControlData<B>>,
+{
     if !instance.get().members.has_role(role, &account) {
         return Err(AccessControlError::MissingRole)
     }

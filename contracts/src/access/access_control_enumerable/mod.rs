@@ -28,7 +28,7 @@ use openbrush::{
     declare_storage_trait,
     storage::{
         MultiMapping,
-        TypeGuard,
+        ValueGuard,
     },
     traits::AccountId,
 };
@@ -38,14 +38,8 @@ pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessContro
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct EnumerableMembers {
-    pub role_members: MultiMapping<RoleType, AccountId, RoleMembersKey>,
+    pub role_members: MultiMapping<RoleType, AccountId, ValueGuard<RoleType>>,
     pub _reserved: Option<()>,
-}
-
-pub struct RoleMembersKey;
-
-impl<'a> TypeGuard<'a> for RoleMembersKey {
-    type Type = RoleType;
 }
 
 declare_storage_trait!(AccessControlEnumerableMembersStorage);
