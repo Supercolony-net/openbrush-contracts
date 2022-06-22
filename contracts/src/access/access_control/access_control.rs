@@ -179,20 +179,21 @@ where
     }
 }
 
-pub fn check_role<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager>(
-    instance: &T,
-    role: RoleType,
-    account: AccountId,
-) -> Result<(), AccessControlError> {
+pub fn check_role<T, B>(instance: &T, role: RoleType, account: AccountId) -> Result<(), AccessControlError>
+where
+    B: AccessControlMemberManager,
+    T: AccessControlStorage<Data = AccessControlData<B>>,
+{
     if !instance.get().members.has_role(role, &account) {
         return Err(AccessControlError::MissingRole)
     }
     Ok(())
 }
 
-pub fn get_role_admin<T: AccessControlStorage<Data = AccessControlData<B>>, B: AccessControlMemberManager>(
-    instance: &T,
-    role: &RoleType,
-) -> RoleType {
+pub fn get_role_admin<T, B>(instance: &T, role: &RoleType) -> RoleType
+where
+    B: AccessControlMemberManager,
+    T: AccessControlStorage<Data = AccessControlData<B>>,
+{
     instance.get().admin_roles.get(role).unwrap_or(T::_default_admin())
 }

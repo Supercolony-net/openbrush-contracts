@@ -59,7 +59,7 @@ pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {
 
 impl AccessControlMemberManager for Members {
     fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
-        self.members.get(&(role, address)).is_some()
+        self.members.contains(&(role, address))
     }
 
     fn add(&mut self, role: RoleType, member: &AccountId) {

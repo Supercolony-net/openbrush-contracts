@@ -7,13 +7,13 @@ describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
     return setupContract('my_access_control_enumerable', 'new')
   }
 
-  it('ACCESS CONTROL ENUMERABLE - should fail', async () => {
+  it('ACCESS CONTROL ENUMERABLE - should have not member', async () => {
     const {
       query
     } = await setup()
 
     // Assert - No minter member for index 1
-    await expect(query.getRoleMember(Roles.Minter, 1)).to.eventually.be.rejected
+    await expect(query.getRoleMember(Roles.Minter, 1)).to.have.output(null)
   })
 
   it('ACCESS CONTROL ENUMERABLE - should get role member', async () => {

@@ -43,10 +43,7 @@ use openbrush::{
     declare_storage_trait,
     modifier_definition,
     modifiers,
-    storage::{
-        Mapping,
-        TypeGuard,
-    },
+    storage::Mapping,
     traits::{
         AccountId,
         Flush,
@@ -93,13 +90,14 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData>> AccessControlS
 /// considered. Granting a role to zero account is equivalent to enabling
 /// this role for everyone.
 #[modifier_definition]
-pub fn only_role_or_open_role<T, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
+pub fn only_role_or_open_role<T, B, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    T: AccessControlStorage<Data = AccessControlData>,
+    B: AccessControlMemberManager,
+    T: AccessControlStorage<Data = AccessControlData<B>>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if !instance.get().members.has_role(role, &ZERO_ADDRESS.into()) {
+    if !instance.get().members.has_role(role, ZERO_ADDRESS.into()) {
         check_role(instance, role, T::env().caller())?;
     }
     body(instance)
