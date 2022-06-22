@@ -1,6 +1,6 @@
-import { expect, setupContract } from './helpers'
+import { expect, setupContract } from '../../helpers'
 
-import { Roles } from './constants'
+import { Roles } from '../../constants'
 
 describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
   async function setup() {
