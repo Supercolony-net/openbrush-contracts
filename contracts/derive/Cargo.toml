@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_contracts_derive"
-version = "2.0.0"
+version = "2.1.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -17,7 +17,7 @@ include = ["Cargo.toml", "lib.rs"]
 syn = { version = "1.0" }
 quote = "1.0"
 proc-macro2 = "1"
-openbrush = { package = "openbrush_lang", version = "~2.0.0", path = "../../lang" }
+openbrush = { package = "openbrush_lang", version = "~2.1.0", path = "../../lang" }
 
 [lib]
 name = "openbrush_contracts_derive"

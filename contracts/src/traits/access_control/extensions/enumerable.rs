@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::access_control::RoleType;
+pub use crate::traits::access_control::*;
 use openbrush::traits::AccountId;
 
 #[openbrush::wrapper]
@@ -33,11 +33,11 @@ pub trait AccessControlEnumerable {
     /// Role bearers are not sorted in any particular way, and their
     /// ordering may change at any point.
     #[ink(message)]
-    fn get_role_member(&self, role: RoleType, index: u128) -> Option<AccountId>;
+    fn get_role_member(&self, role: RoleType, index: u32) -> Option<AccountId>;
 
     /// Returns the number of accounts that have `role`.
     /// Can be used together with {get_role_member} to enumerate
     /// all bearers of a role.
     #[ink(message)]
-    fn get_role_member_count(&self, role: RoleType) -> u128;
+    fn get_role_member_count(&self, role: RoleType) -> u32;
 }

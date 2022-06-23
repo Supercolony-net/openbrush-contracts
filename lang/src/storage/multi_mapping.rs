@@ -116,23 +116,6 @@ where
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
         for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
     {
-        self.insert_return_size(key, value);
-    }
-
-    /// Insert the given `value` to the contract storage at `key`.
-    ///
-    /// Returns the size of the pre-existing value at the specified key if any.
-    pub fn insert_return_size<'b>(
-        &'b mut self,
-        key: <TGK as TypeGuard<'b>>::Type,
-        value: &<TGV as TypeGuard<'b>>::Type,
-    ) -> Option<u32>
-    where
-        for<'a> TGK: TypeGuard<'a>,
-        for<'a> TGV: TypeGuard<'a>,
-        for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
-        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
-    {
         let index: u128 = match self.get_index(key, value) {
             None => {
                 let count = self.count(key);
@@ -141,10 +124,37 @@ where
             }
             Some(index) => index,
         };
-        self.value_to_index().insert_return_size(&(key, value), &index);
-        let size = self.index_to_value().insert_return_size(&(key, &index), value);
+        self.value_to_index().insert(&(key, value), &index);
+        let size = self.index_to_value().insert(&(key, &index), value);
         size
     }
+
+    // /// Insert the given `value` to the contract storage at `key`.
+    // ///
+    // /// Returns the size of the pre-existing value at the specified key if any.
+    // pub fn insert_return_size<'b>(
+    //     &'b mut self,
+    //     key: <TGK as TypeGuard<'b>>::Type,
+    //     value: &<TGV as TypeGuard<'b>>::Type,
+    // ) -> Option<u32>
+    // where
+    //     for<'a> TGK: TypeGuard<'a>,
+    //     for<'a> TGV: TypeGuard<'a>,
+    //     for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
+    //     for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
+    // {
+    //     let index: u128 = match self.get_index(key, value) {
+    //         None => {
+    //             let count = self.count(key);
+    //             self.key_count().insert(key, &(count + 1));
+    //             count
+    //         }
+    //         Some(index) => index,
+    //     };
+    //     self.value_to_index().insert_return_size(&(key, value), &index);
+    //     let size = self.index_to_value().insert_return_size(&(key, &index), value);
+    //     size
+    // }
 
     /// Returns the count of values stored under the `key`.
     #[inline]
