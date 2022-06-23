@@ -33,7 +33,12 @@ pub use crate::{
 pub use psp34::Internal as _;
 
 use ink_prelude::vec::Vec;
-use ink_storage::Mapping;
+use openbrush::{
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
+};
 use openbrush::traits::Storage;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
@@ -41,13 +46,19 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct Data {
-    pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>>,
+    pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>, AttributesKey>,
     pub _reserved: Option<()>,
+}
+
+pub struct AttributesKey;
+
+impl<'a> TypeGuard<'a> for AttributesKey {
+    type Type = &'a (&'a Id, &'a Vec<u8>);
 }
 
 impl<T: Storage<Data>> PSP34Metadata for T {
     default fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>> {
-        self.data().attributes.get((&id, &key))
+        self.data().attributes.get(&(&id, &key))
     }
 }
 
@@ -65,7 +76,7 @@ where
     default fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>) {}
 
     default fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>) {
-        self.data().attributes.insert((&id, &key), &value);
+        self.data().attributes.insert(&(&id, &key), &value);
         self._emit_attribute_set_event(id, key, value);
     }
 }

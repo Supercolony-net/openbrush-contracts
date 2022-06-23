@@ -43,10 +43,10 @@ use ink_prelude::{
     vec,
     vec::Vec,
 };
-use ink_storage::Mapping;
 use openbrush::{
     modifier_definition,
     modifiers,
+    storage::Mapping,
     traits::{
         AccountId,
         Hash,
@@ -72,14 +72,14 @@ pub struct Data {
 /// considered. Granting a role to zero account is equivalent to enabling
 /// this role for everyone.
 #[modifier_definition]
-pub fn only_role_or_open_role<T, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
+pub fn only_role_or_open_role<T, B, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    T: Storage<access_control::Data>,
+    T: Storage<access_control::Data<B>>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if !access_control::has_role(instance, &role, &ZERO_ADDRESS.into()) {
-        access_control::check_role(instance, &role, &T::env().caller())?;
+    if !instance.data().members.has_role(role, &ZERO_ADDRESS.into()) {
+        access_control::check_role(instance, role, T::env().caller())?;
     }
     body(instance)
 }

@@ -3,7 +3,7 @@ sidebar_position: 2
 title: PSP35 Mintable
 ---
 
-This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token with [PSP35Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35/src/extensions/mintable.rs) extension.
+This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token with [PSP35Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35/extensions/mintable.rs) extension.
 
 ## How to use this extension
 

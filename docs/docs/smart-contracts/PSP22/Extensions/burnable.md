@@ -4,7 +4,7 @@ title: PSP22 Burnable
 ---
 
 This example shows how you can reuse the implementation of
-[PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22) token with [PSP22Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22/src/extensions/burnable.rs) extension.
+[PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22) token with [PSP22Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22/extensions/burnable.rs) extension.
 
 ## How to use this extension
 

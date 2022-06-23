@@ -43,10 +43,10 @@ use ink_storage::{
         SpreadAllocate,
         SpreadLayout,
     },
-    Mapping,
 };
 use openbrush::{
     modifiers,
+    storage::Mapping,
     traits::{
         Hash,
         OccupiedStorage,
@@ -153,7 +153,7 @@ where
     default fn _fallback(&self) -> ! {
         let selector = ink_env::decode_input::<Selector>().unwrap_or_else(|_| panic!("Calldata error"));
 
-        let delegate_code = self.data().selector_to_hash.get(selector);
+        let delegate_code = self.data().selector_to_hash.get(&selector);
 
         if delegate_code.is_none() {
             panic!("Function is not registered");

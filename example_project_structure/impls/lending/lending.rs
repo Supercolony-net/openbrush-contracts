@@ -135,7 +135,7 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
         let reserve_asset = get_reserve_asset(self, &asset_address)?;
 
         // we will find out the price of deposited collateral
-        let price = get_asset_price(self, amount, collateral_address, asset_address);
+        let price = get_asset_price(self, &amount, &collateral_address, &asset_address);
         // we will set the liquidation price to be 75% of current price
         let liquidation_price = (price * 75) / 100;
         // borrow amount is 70% of collateral
@@ -249,7 +249,7 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
         shares_address: AccountId,
         shares_amount: Balance,
     ) -> Result<(), LendingError> {
-        let withdraw_asset = get_asset_from_shares(self, shares_address)?;
+        let withdraw_asset = get_asset_from_shares(self, &shares_address)?;
         let withdraw_amount =
             (shares_amount * self.total_asset(withdraw_asset)?) / PSP22Ref::total_supply(&shares_address);
         if withdraw_amount > PSP22Ref::balance_of(&withdraw_asset, Self::env().account_id()) {
@@ -271,9 +271,9 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
 
         let price = get_asset_price(
             self,
-            loan_info.collateral_amount,
-            loan_info.collateral_token,
-            loan_info.borrow_token,
+            &loan_info.collateral_amount,
+            &loan_info.collateral_token,
+            &loan_info.borrow_token,
         );
 
         if price <= loan_info.liquidation_price {

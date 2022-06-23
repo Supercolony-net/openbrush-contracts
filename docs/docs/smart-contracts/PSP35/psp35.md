@@ -118,4 +118,6 @@ Also you can use extensions for PSP35 token:
 
 [PSP35Burnable](/smart-contracts/PSP35/extensions/burnable): destruction of contract's tokens.
 
-[PSP35Batch](/smart-contracts/PSP35/extensions/batch): transfer batch of tokens
+[PSP35Batch](/smart-contracts/PSP35/extensions/batch): transfer batch of tokens.
+
+[PSP35Enumerable](/smart-contracts/PSP35/extensions/enumerable): iterates over contract's tokens.

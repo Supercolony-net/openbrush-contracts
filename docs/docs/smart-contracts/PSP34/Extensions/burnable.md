@@ -3,7 +3,7 @@ sidebar_position: 3
 title: PSP34 Burnable
 ---
 
-This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token with [PSP34Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34/src/extensions/burnable.rs) extension.
+This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token with [PSP34Burnable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34/extensions/burnable.rs) extension.
 
 ## How to use this extension
 

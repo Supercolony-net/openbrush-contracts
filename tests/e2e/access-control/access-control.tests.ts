@@ -1,6 +1,6 @@
-import { bnArg, expect, fromSigner, setupContract } from './helpers'
+import { bnArg, expect, fromSigner, setupContract } from '../helpers'
 
-import { Roles } from './constants'
+import { Roles } from '../constants'
 
 describe('MY_ACCESS_CONTROL', () => {
   async function setup() {

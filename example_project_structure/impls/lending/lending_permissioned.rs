@@ -78,7 +78,7 @@ where
         asset_out: AccountId,
         price: Balance,
     ) -> Result<(), LendingError> {
-        set_asset_price(self, asset_in, asset_out, price);
+        set_asset_price(self, &asset_in, &asset_out, &price);
         Ok(())
     }
 }

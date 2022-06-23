@@ -24,8 +24,8 @@ pub use crate::{
     traits::payment_splitter::*,
 };
 use ink_prelude::vec::Vec;
-use ink_storage::Mapping;
 use openbrush::traits::{
+    storage::Mapping,
     AccountId,
     AccountIdExt,
     Balance,

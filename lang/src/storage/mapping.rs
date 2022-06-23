@@ -87,19 +87,19 @@ where
         RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert(key, value)
     }
 
-    /// Insert the given `value` to the contract storage.
-    ///
-    /// Returns the size of the pre-existing value at the specified key if any.
-    #[inline]
-    pub fn insert_return_size<'a, 'b>(&mut self, key: TGK::Type, value: &TGV::Type) -> Option<u32>
-    where
-        TGK: TypeGuard<'a>,
-        TGV: TypeGuard<'b>,
-        TGK::Type: scale::Encode,
-        TGV::Type: PackedLayout,
-    {
-        RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert_return_size(key, value)
-    }
+    // /// Insert the given `value` to the contract storage.
+    // ///
+    // /// Returns the size of the pre-existing value at the specified key if any.
+    // #[inline]
+    // pub fn insert_return_size<'a, 'b>(&mut self, key: TGK::Type, value: &TGV::Type) -> Option<u32>
+    // where
+    //     TGK: TypeGuard<'a>,
+    //     TGV: TypeGuard<'b>,
+    //     TGK::Type: scale::Encode,
+    //     TGV::Type: PackedLayout,
+    // {
+    //     RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert_return_size(key, value)
+    // }
 
     /// Get the `value` at `key` from the contract storage.
     ///

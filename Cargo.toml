@@ -27,12 +27,13 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
-ink_primitives = { version = "~3.2.0", default-features = false }
-ink_metadata = { version = "~3.2.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "~3.2.0", default-features = false }
-ink_storage = { version = "~3.2.0", default-features = false }
-ink_lang = { version = "~3.2.0", default-features = false }
-ink_prelude = { version = "~3.2.0", default-features = false }
+ink_primitives = { version = "~3.3.0", default-features = false }
+ink_metadata = { version = "~3.3.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.3.0", default-features = false }
+ink_storage = { version = "~3.3.0", default-features = false }
+ink_lang = { version = "~3.3.0", default-features = false }
+ink_prelude = { version = "~3.3.0", default-features = false }
+ink_engine = { version = "~3.3.0", default-features = false, optional = true }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
@@ -60,11 +61,11 @@ std = [
     "openbrush_contracts/std",
     "openbrush_lang/std",
 ]
+access_control = ["openbrush_contracts/access_control"]
 psp22 = ["openbrush_contracts/psp22"]
 psp34 = ["openbrush_contracts/psp34"]
 psp35 = ["openbrush_contracts/psp35"]
 ownable = ["openbrush_contracts/ownable"]
-access_control = ["openbrush_contracts/access_control"]
 payment_splitter = ["openbrush_contracts/payment_splitter"]
 reentrancy_guard = ["openbrush_contracts/reentrancy_guard"]
 pausable = ["openbrush_contracts/pausable"]

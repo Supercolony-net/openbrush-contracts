@@ -31,8 +31,11 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_storage::Mapping;
 use openbrush::traits::{
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     AccountId,
     AccountIdExt,
     Balance,
@@ -46,8 +49,14 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 pub struct Data {
     pub supply: Balance,
     pub balances: Mapping<AccountId, Balance>,
-    pub allowances: Mapping<(AccountId, AccountId), Balance>,
+    pub allowances: Mapping<(AccountId, AccountId), Balance, AllowancesKey>,
     pub _reserved: Option<()>,
+}
+
+pub struct AllowancesKey;
+
+impl<'a> TypeGuard<'a> for AllowancesKey {
+    type Type = &'a (&'a AccountId, &'a AccountId);
 }
 
 impl<T: Storage<Data>> PSP22 for T {
@@ -60,7 +69,7 @@ impl<T: Storage<Data>> PSP22 for T {
     }
 
     default fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        self.data().allowances.get((&owner, &spender)).unwrap_or(0)
+        self.data().allowances.get(&(&owner, &spender)).unwrap_or(0)
     }
 
     default fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
@@ -243,7 +252,7 @@ impl<T: Storage<Data>> Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        self.data().allowances.insert((&owner, &spender), &amount);
+        self.data().allowances.insert(&(&owner, &spender), &amount);
         self._emit_approval_event(owner, spender, amount);
         Ok(())
     }
