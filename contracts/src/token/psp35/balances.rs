@@ -79,9 +79,12 @@ impl BalancesManager for Balances {
     }
 
     fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error> {
-        if *amount == 0 {
+        let amount = *amount;
+
+        if amount == 0 {
             return Ok(())
         }
+
         let id = &Some(id);
         let balance_before = self.balance_of(owner, id);
 
@@ -91,11 +94,11 @@ impl BalancesManager for Balances {
         }
 
         self.balances
-            .insert(&(owner, id), &balance_before.checked_add(*amount).unwrap());
+            .insert(&(owner, id), &balance_before.checked_add(amount).unwrap());
 
         if mint {
             let supply_before = self.total_supply(id);
-            self.supply.insert(id, &supply_before.checked_add(*amount).unwrap());
+            self.supply.insert(id, &supply_before.checked_add(amount).unwrap());
 
             if supply_before == 0 {
                 self.supply
@@ -107,13 +110,16 @@ impl BalancesManager for Balances {
     }
 
     fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP35Error> {
-        if *amount == 0 {
+        let amount = *amount;
+
+        if amount == 0 {
             return Ok(())
         }
+
         let id = &Some(id);
         let balance_after = self
             .balance_of(owner, id)
-            .checked_sub(*amount)
+            .checked_sub(amount)
             .ok_or(PSP35Error::InsufficientBalance)?;
         self.balances.insert(&(owner, id), &balance_after);
 
@@ -130,7 +136,7 @@ impl BalancesManager for Balances {
         if burn {
             let supply_after = self
                 .total_supply(id)
-                .checked_sub(*amount)
+                .checked_sub(amount)
                 .ok_or(PSP35Error::InsufficientBalance)?;
             self.supply.insert(id, &supply_after);
 

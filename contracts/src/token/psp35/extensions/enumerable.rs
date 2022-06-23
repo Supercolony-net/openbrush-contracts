@@ -81,9 +81,15 @@ impl BalancesManager for EnumerableBalances {
     }
 
     fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error> {
+        let amount = *amount;
+
+        if amount == 0 {
+            return Ok(())
+        }
+
         let balance_before = self.balance_of(owner, &Some(id));
         self.balances
-            .insert(&(owner, id), &(balance_before.checked_add(*amount).unwrap()));
+            .insert(&(owner, id), &(balance_before.checked_add(amount).unwrap()));
 
         if balance_before == 0 {
             self.enumerable.insert(&Some(owner), id);
@@ -92,7 +98,7 @@ impl BalancesManager for EnumerableBalances {
         if mint {
             let supply_before = self.total_supply(&Some(id));
 
-            self.supply.insert(id, &(supply_before.checked_add(*amount).unwrap()));
+            self.supply.insert(id, &(supply_before.checked_add(amount).unwrap()));
 
             if supply_before == 0 {
                 self.enumerable.insert(&None, id);
@@ -102,9 +108,15 @@ impl BalancesManager for EnumerableBalances {
     }
 
     fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP35Error> {
+        let amount = *amount;
+
+        if amount == 0 {
+            return Ok(())
+        }
+
         let balance_after = self
             .balance_of(owner, &Some(id))
-            .checked_sub(*amount)
+            .checked_sub(amount)
             .ok_or(PSP35Error::InsufficientBalance)?;
         self.balances.insert(&(owner, id), &balance_after);
 
@@ -115,7 +127,7 @@ impl BalancesManager for EnumerableBalances {
         if burn {
             let supply_after = self
                 .total_supply(&Some(id))
-                .checked_sub(*amount)
+                .checked_sub(amount)
                 .ok_or(PSP35Error::InsufficientBalance)?;
             self.supply.insert(id, &supply_after);
 
