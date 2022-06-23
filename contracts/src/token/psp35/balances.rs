@@ -79,6 +79,9 @@ impl BalancesManager for Balances {
     }
 
     fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error> {
+        if *amount == 0 {
+            return Ok(())
+        }
         let id = &Some(id);
         let balance_before = self.balance_of(owner, id);
 
@@ -104,6 +107,9 @@ impl BalancesManager for Balances {
     }
 
     fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP35Error> {
+        if *amount == 0 {
+            return Ok(())
+        }
         let id = &Some(id);
         let balance_after = self
             .balance_of(owner, id)

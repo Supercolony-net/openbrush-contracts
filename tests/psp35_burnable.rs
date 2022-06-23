@@ -105,11 +105,17 @@ mod psp35_burnable {
         assert!(nft.mint(accounts.bob, token_id2.clone(), token_amount2).is_ok());
 
         assert_eq!(nft.total_supply(None), 2);
+        assert_eq!(nft.total_supply(Some(token_id1.clone())), 1);
         assert_eq!(nft.total_supply(Some(token_id2.clone())), 20);
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
         assert_eq!(nft.balance_of(accounts.bob, None), 1);
 
-        assert!(nft.burn(accounts.bob, vec![(token_id2.clone(), token_amount2)]).is_ok());
+        assert!(nft
+            .burn(
+                accounts.bob,
+                vec![(token_id2.clone(), token_amount2), (token_id1.clone(), 0)]
+            )
+            .is_ok());
 
         assert_eq!(nft.total_supply(None), 2);
         assert_eq!(nft.total_supply(Some(token_id2.clone())), 10);
