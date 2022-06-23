@@ -138,6 +138,7 @@ jobs:
                 has_timeout=true
               else
                 yarn test:mocha-single ./$test
+                has_timeout=false
               fi
               kill $P1;
             done

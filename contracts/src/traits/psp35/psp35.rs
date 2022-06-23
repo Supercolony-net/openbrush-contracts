@@ -41,8 +41,16 @@ pub type PSP35Ref = dyn PSP35;
 #[openbrush::trait_definition]
 pub trait PSP35 {
     /// Returns the amount of tokens of token type `id` owned by `account`.
+    ///
+    /// If `id` is `None` returns the total number of `owner`'s tokens.
     #[ink(message)]
-    fn balance_of(&self, owner: AccountId, id: Id) -> Balance;
+    fn balance_of(&self, owner: AccountId, id: Option<Id>) -> Balance;
+
+    /// Returns the total amount of token type `id` in the supply.
+    ///
+    /// If `id` is `None` returns the total number of tokens.
+    #[ink(message)]
+    fn total_supply(&self, id: Option<Id>) -> Balance;
 
     /// Returns amount of `id` token of `owner` that `operator` can withdraw
     /// If `id` is `None` returns allowance `Balance::MAX` of all tokens of `owner`

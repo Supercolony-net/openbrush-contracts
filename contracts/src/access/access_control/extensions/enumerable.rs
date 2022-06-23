@@ -21,7 +21,7 @@
 
 pub use crate::{
     access_control::*,
-    traits::access_control_enumerable::*,
+    traits::access_control::extensions::enumerable::*,
 };
 pub use derive::AccessControlEnumerableStorage;
 use openbrush::{
@@ -77,11 +77,11 @@ impl<T> AccessControlEnumerable for T
 where
     T: AccessControlEnumerableMembersStorage<Data = EnumerableMembers> + AccessControl,
 {
-    default fn get_role_member(&self, role: RoleType, index: u128) -> Option<AccountId> {
-        self.get().role_members.get_value(role, &index)
+    default fn get_role_member(&self, role: RoleType, index: u32) -> Option<AccountId> {
+        self.get().role_members.get_value(role, &(index as u128))
     }
 
-    default fn get_role_member_count(&self, role: RoleType) -> u128 {
-        self.get().role_members.count(role)
+    default fn get_role_member_count(&self, role: RoleType) -> u32 {
+        self.get().role_members.count(role) as u32
     }
 }

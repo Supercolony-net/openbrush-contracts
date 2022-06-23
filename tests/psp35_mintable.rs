@@ -94,8 +94,10 @@ mod psp35_mintable {
         let accounts = accounts();
 
         let mut nft = PSP35Struct::new();
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1.clone()), 0);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), 0);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id_1.clone())), 0);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id_2.clone())), 0);
+
+        assert_eq!(nft.total_supply(None), 0);
 
         assert!(nft
             .mint(accounts.alice, vec![(token_id_1.clone(), token_1_amount)])
@@ -104,8 +106,9 @@ mod psp35_mintable {
             .mint(accounts.bob, vec![(token_id_2.clone(), token_2_amount)])
             .is_ok());
 
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1.clone()), token_1_amount);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), token_2_amount);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id_1.clone())), token_1_amount);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id_2.clone())), token_2_amount);
+        assert_eq!(nft.total_supply(None), 2);
     }
 
     #[ink::test]
@@ -116,7 +119,7 @@ mod psp35_mintable {
         let mut nft = PSP35Struct::new();
         // Can mint
         assert!(nft.mint(accounts.alice, vec![(token_id.clone(), amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id.clone()), amount);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), amount);
         // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
@@ -134,7 +137,7 @@ mod psp35_mintable {
         let mut nft = PSP35Struct::new();
         // Can mint
         assert!(nft.mint(accounts.alice, vec![(token_id.clone(), amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id.clone()), amount);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), amount);
         // Turn on error on _after_token_transfer
         nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer

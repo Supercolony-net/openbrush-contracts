@@ -41,6 +41,7 @@ pub const MEMBERS_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessContro
 #[openbrush::storage(MEMBERS_KEY)]
 pub struct Members {
     pub members: Mapping<(RoleType, AccountId), (), MembersKey>,
+    pub _reserved: Option<()>,
 }
 
 pub struct MembersKey;

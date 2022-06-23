@@ -100,14 +100,22 @@ mod psp35_burnable {
         assert!(nft.mint(accounts.alice, token_id.clone(), token_amount).is_ok());
         assert!(nft.mint(accounts.bob, token_id.clone(), token_amount).is_ok());
 
-        assert_eq!(nft.balance_of(accounts.alice, token_id.clone()), token_amount);
-        assert_eq!(nft.balance_of(accounts.bob, token_id.clone()), token_amount);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), token_amount);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id.clone())), token_amount);
+
+        assert_eq!(nft.total_supply(None), 1);
+        assert_eq!(nft.total_supply(Some(token_id.clone())), 2 * token_amount);
 
         assert!(nft.burn(accounts.alice, vec![(token_id.clone(), token_amount)]).is_ok());
         assert!(nft.burn(accounts.bob, vec![(token_id.clone(), token_amount)]).is_ok());
 
-        assert_eq!(nft.balance_of(accounts.alice, token_id.clone()), 0);
-        assert_eq!(nft.balance_of(accounts.bob, token_id.clone()), 0);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), 0);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id.clone())), 0);
+
+        assert_eq!(nft.balance_of(accounts.alice, None), 0);
+        assert_eq!(nft.balance_of(accounts.bob, None), 0);
+        assert_eq!(nft.total_supply(None), 0);
+        assert_eq!(nft.total_supply(Some(token_id.clone())), 0);
     }
 
     #[ink::test]

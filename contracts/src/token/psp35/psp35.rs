@@ -74,8 +74,12 @@ where
     T: Storage<Data<B>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<B>>,
 {
-    default fn balance_of(&self, owner: AccountId, id: Id) -> Balance {
-        self.data().balances.balance_of(&owner, &id)
+    default fn balance_of(&self, owner: AccountId, id: Option<Id>) -> Balance {
+        self.data().balances.balance_of(&owner, &id.as_ref())
+    }
+
+    default fn total_supply(&self, id: Option<Id>) -> Balance {
+        self.data().balances.total_supply(&id.as_ref())
     }
 
     default fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance {

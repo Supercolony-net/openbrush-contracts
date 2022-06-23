@@ -51,7 +51,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 pub struct Balances {
     pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey>,
     pub balances: Mapping<(AccountId, Id), Balance, BalancesKey>,
-    pub total_supply: Mapping<Id, Balance>,
+    pub supply: Mapping<Id, Balance>,
     pub _reserved: Option<()>,
 }
 
@@ -67,27 +67,40 @@ impl<'a> TypeGuard<'a> for BalancesKey {
     type Type = &'a (&'a AccountId, &'a Id);
 }
 
+declare_storage_trait!(PSP35EnumerableBalancesStorage);
+
 impl balances::BalancesManager for Balances {
-    fn balance_of(&self, owner: &AccountId, id: &Id) -> Balance {
-        self.balances.get(&(owner, id)).unwrap_or(0)
+    #[inline(always)]
+    fn balance_of(&self, owner: &AccountId, id: &Option<&Id>) -> Balance {
+        match id {
+            None => self.enumerable.count(&Some(owner)),
+            Some(id) => self.balances.get(&(owner, id)).unwrap_or(0),
+        }
+    }
+
+    #[inline(always)]
+    fn total_supply(&self, id: &Option<&Id>) -> Balance {
+        match id {
+            None => self.enumerable.count(&None),
+            Some(id) => self.supply.get(id).unwrap_or(0),
+        }
     }
 
     fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error> {
-        let initial_balance = self.balance_of(owner, id);
+        let balance_before = self.balance_of(owner, &Some(id));
         self.balances
-            .insert(&(owner, id), &(initial_balance.checked_add(*amount).unwrap()));
+            .insert(&(owner, id), &(balance_before.checked_add(*amount).unwrap()));
 
-        if initial_balance == 0 {
+        if balance_before == 0 {
             self.enumerable.insert(&Some(owner), id);
         }
 
         if mint {
-            let token_supply = self.total_supply.get(id).unwrap_or(0);
+            let supply_before = self.total_supply(&Some(id));
 
-            self.total_supply
-                .insert(id, &(token_supply.checked_add(*amount).unwrap()));
+            self.supply.insert(id, &(supply_before.checked_add(*amount).unwrap()));
 
-            if token_supply == 0 {
+            if supply_before == 0 {
                 self.enumerable.insert(&None, id);
             }
         }
@@ -95,28 +108,24 @@ impl balances::BalancesManager for Balances {
     }
 
     fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP35Error> {
-        let initial_balance = self.balance_of(owner, id);
-        self.balances.insert(
-            &(owner, id),
-            &(initial_balance
-                .checked_sub(*amount)
-                .ok_or(PSP35Error::InsufficientBalance)?),
-        );
+        let balance_after = self
+            .balance_of(owner, &Some(id))
+            .checked_sub(*amount)
+            .ok_or(PSP35Error::InsufficientBalance)?;
+        self.balances.insert(&(owner, id), &balance_after);
 
-        if initial_balance == *amount {
+        if balance_after == 0 {
             self.enumerable.remove_value(&Some(owner), id);
         }
 
         if burn {
-            let token_supply = self.total_supply.get(id).unwrap_or(0);
-            self.total_supply.insert(
-                id,
-                &(token_supply
-                    .checked_sub(*amount)
-                    .ok_or(PSP35Error::InsufficientBalance)?),
-            );
+            let supply_after = self
+                .total_supply(&Some(id))
+                .checked_sub(*amount)
+                .ok_or(PSP35Error::InsufficientBalance)?;
+            self.supply.insert(id, &supply_after);
 
-            if token_supply == *amount {
+            if supply_after == 0 {
                 self.enumerable.remove_value(&None, id);
             }
         }
