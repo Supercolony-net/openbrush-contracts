@@ -11,7 +11,15 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Cache rust artifacts
+        id: cache-rust-artifacts
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts
+
       - name: Rustfmt check
         run: cargo fmt --all -- --check
   unit-test:
@@ -22,7 +30,15 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Cache rust artifacts
+        id: cache-rust-artifacts
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts
+
       - name: Build & Run cargo tests
         run: |
           RUSTFLAGS="-D warnings" cargo test --all-features --workspace -- --test-threads=10
@@ -37,11 +53,26 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '16.x'
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Yarn install dependencies
         run: |
           yarn
           yarn add ts-node
+
+      - name: Cache rust artifacts
+        id: cache-rust-artifacts
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts
+
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
+
       - name: Redspot Сompile examples
         run: |
           chown -R root .
@@ -49,6 +80,7 @@ jobs:
           RUSTFLAGS="-D warnings" yarn build:release
   integration-tests:
     runs-on: ubuntu-latest
+    needs: examples-builds
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
@@ -58,16 +90,19 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '16.x'
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Yarn install dependencies
         run: |
           yarn
           yarn add ts-node
-      - name: Redspot Сompile
-        run: |
-          chown -R root .
-          chmod -R a+rwx .
-          yarn build:release
+
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
+
       - name: Run Test Mocha
         run: |
           for test in $(find tests -type f -regex ".*\.ts"); do
