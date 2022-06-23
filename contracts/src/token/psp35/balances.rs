@@ -41,7 +41,8 @@ use openbrush::{
 pub const BALANCES_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35Balances");
 
 pub trait BalancesManager: SpreadLayout + SpreadAllocate {
-    fn balance_of(&self, owner: &AccountId, id: &Id) -> Balance;
+    fn balance_of(&self, owner: &AccountId, id: &Option<&Id>) -> Balance;
+    fn total_supply(&self, id: &Option<&Id>) -> Balance;
     fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error>;
     fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP35Error>;
 }
@@ -49,50 +50,94 @@ pub trait BalancesManager: SpreadLayout + SpreadAllocate {
 #[derive(Default, Debug)]
 #[openbrush::storage(BALANCES_KEY)]
 pub struct Balances {
-    balances: Mapping<(AccountId, Id), Balance, BalancesKey>,
+    pub balances: Mapping<(AccountId, Option<Id>), Balance, BalancesKey>,
+    pub supply: Mapping<Option<Id>, Balance, SupplyKey>,
+    pub _reserved: Option<()>,
 }
 
 pub struct BalancesKey;
 
 impl<'a> TypeGuard<'a> for BalancesKey {
-    type Type = &'a (&'a AccountId, &'a Id);
+    type Type = &'a (&'a AccountId, &'a Option<&'a Id>);
+}
+
+pub struct SupplyKey;
+
+impl<'a> TypeGuard<'a> for SupplyKey {
+    type Type = &'a Option<&'a Id>;
 }
 
 impl BalancesManager for Balances {
     #[inline(always)]
-    fn balance_of(&self, owner: &AccountId, id: &Id) -> Balance {
+    fn balance_of(&self, owner: &AccountId, id: &Option<&Id>) -> Balance {
         self.balances.get(&(owner, id)).unwrap_or(0)
     }
 
     #[inline(always)]
-    fn increase_balance(
-        &mut self,
-        owner: &AccountId,
-        id: &Id,
-        amount: &Balance,
-        _mint: bool,
-    ) -> Result<(), PSP35Error> {
-        let to_balance = self.balance_of(owner, id);
+    fn total_supply(&self, id: &Option<&Id>) -> Balance {
+        self.supply.get(id).unwrap_or(0)
+    }
+
+    fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP35Error> {
+        let id = &Some(id);
+        let balance_before = self.balance_of(owner, id);
+
+        if balance_before == 0 {
+            self.balances
+                .insert(&(owner, &None), &self.balance_of(owner, &None).checked_add(1).unwrap());
+        }
+
         self.balances
-            .insert(&(owner, id), &to_balance.checked_add(*amount).unwrap());
+            .insert(&(owner, id), &balance_before.checked_add(*amount).unwrap());
+
+        if mint {
+            let supply_before = self.total_supply(id);
+            self.supply.insert(id, &supply_before.checked_add(*amount).unwrap());
+
+            if supply_before == 0 {
+                self.supply
+                    .insert(&None, &self.total_supply(&None).checked_add(1).unwrap());
+            }
+        }
+
         Ok(())
     }
 
-    #[inline(always)]
-    fn decrease_balance(
-        &mut self,
-        owner: &AccountId,
-        id: &Id,
-        amount: &Balance,
-        _burn: bool,
-    ) -> Result<(), PSP35Error> {
-        let from_balance = self.balance_of(owner, id);
-        self.balances.insert(
-            &(owner, id),
-            &(from_balance
+    fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP35Error> {
+        let id = &Some(id);
+        let balance_after = self
+            .balance_of(owner, id)
+            .checked_sub(*amount)
+            .ok_or(PSP35Error::InsufficientBalance)?;
+        self.balances.insert(&(owner, id), &balance_after);
+
+        if balance_after == 0 {
+            self.balances.insert(
+                &(owner, &None),
+                &self
+                    .balance_of(owner, &None)
+                    .checked_sub(1)
+                    .ok_or(PSP35Error::InsufficientBalance)?,
+            );
+        }
+
+        if burn {
+            let supply_after = self
+                .total_supply(id)
                 .checked_sub(*amount)
-                .ok_or(PSP35Error::InsufficientBalance)?),
-        );
+                .ok_or(PSP35Error::InsufficientBalance)?;
+            self.supply.insert(id, &supply_after);
+
+            if supply_after == 0 {
+                self.supply.insert(
+                    &None,
+                    &self
+                        .total_supply(&None)
+                        .checked_sub(1)
+                        .ok_or(PSP35Error::InsufficientBalance)?,
+                );
+            }
+        }
         Ok(())
     }
 }

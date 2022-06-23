@@ -71,8 +71,12 @@ where
     B: BalancesManager,
     T: PSP35Storage<Data = PSP35Data<B>> + Flush,
 {
-    default fn balance_of(&self, owner: AccountId, id: Id) -> Balance {
-        self.get().balances.balance_of(&owner, &id)
+    default fn balance_of(&self, owner: AccountId, id: Option<Id>) -> Balance {
+        self.get().balances.balance_of(&owner, &id.as_ref())
+    }
+
+    default fn total_supply(&self, id: Option<Id>) -> Balance {
+        self.get().balances.total_supply(&id.as_ref())
     }
 
     default fn allowance(&self, owner: AccountId, operator: AccountId, id: Option<Id>) -> Balance {
