@@ -63,14 +63,20 @@ declare_derive_storage_trait!(
     PSP34EnumerableStorageField
 );
 
-// PSP1155
-#[cfg(feature = "psp1155")]
-declare_derive_storage_trait!(derive_psp1155_storage, PSP1155Storage, PSP1155StorageField);
-#[cfg(feature = "psp1155")]
+// PSP35
+#[cfg(feature = "psp35")]
+declare_derive_storage_trait!(derive_psp35_storage, PSP35Storage, PSP35StorageField);
+#[cfg(feature = "psp35")]
 declare_derive_storage_trait!(
-    derive_psp1155_metadata_storage,
-    PSP1155MetadataStorage,
-    PSP1155MetadataStorageField
+    derive_psp35_metadata_storage,
+    PSP35MetadataStorage,
+    PSP35MetadataStorageField
+);
+#[cfg(feature = "psp35")]
+declare_derive_storage_trait!(
+    derive_psp35_enumerable_storage,
+    PSP35EnumerableStorage,
+    PSP35EnumerableStorageField
 );
 
 // AccessControl
@@ -79,6 +85,12 @@ declare_derive_storage_trait!(
     derive_access_control_storage,
     AccessControlStorage,
     AccessControlStorageField
+);
+#[cfg(feature = "access_control")]
+declare_derive_storage_trait!(
+    derive_access_control_enumerable_storage,
+    AccessControlEnumerableStorage,
+    AccessControlEnumerableStorageField
 );
 
 // Ownable

@@ -32,7 +32,6 @@ use ink_env::{
     Clear,
 };
 use ink_prelude::vec::Vec;
-use ink_storage::Mapping;
 use openbrush::{
     modifiers,
     traits::{
@@ -42,6 +41,7 @@ use openbrush::{
 };
 
 pub use derive::DiamondStorage;
+use openbrush::storage::Mapping;
 
 pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::DiamondData");
 
@@ -56,23 +56,26 @@ pub struct DiamondData {
     pub hash_to_selectors: Mapping<Hash, Vec<Selector>>,
 }
 
-pub trait DiamondStorage: OwnableStorage + ::openbrush::traits::InkStorage {
-    fn get(&self) -> &DiamondData;
-    fn get_mut(&mut self) -> &mut DiamondData;
+pub trait DiamondStorage: OwnableStorage<Data = OwnableData> + ::openbrush::traits::InkStorage {
+    type Data;
+    fn get(&self) -> &<Self as DiamondStorage>::Data;
+    fn get_mut(&mut self) -> &mut <Self as DiamondStorage>::Data;
 }
 
 #[cfg(not(feature = "proxy"))]
-impl<T: DiamondStorage> OwnableStorage for T {
-    fn get(&self) -> &OwnableData {
+impl<T: DiamondStorage<Data = DiamondData>> OwnableStorage for T {
+    type Data = OwnableData;
+
+    fn get(&self) -> &Self::Data {
         &DiamondStorage::get(self).ownable
     }
 
-    fn get_mut(&mut self) -> &mut OwnableData {
+    fn get_mut(&mut self) -> &mut Self::Data {
         &mut DiamondStorage::get_mut(self).ownable
     }
 }
 
-impl<T: DiamondStorage + Flush + DiamondCut> Diamond for T {
+impl<T: DiamondStorage<Data = DiamondData> + Flush + DiamondCut> Diamond for T {
     #[modifiers(only_owner)]
     default fn diamond_cut(&mut self, diamond_cut: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError> {
         self._diamond_cut(diamond_cut, init)
@@ -93,7 +96,7 @@ pub trait DiamondInternal {
     fn _emit_diamond_cut_event(&self, diamond_cut: &Vec<FacetCut>, init: &Option<InitCall>);
 }
 
-impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
+impl<T: DiamondStorage<Data = DiamondData> + Flush + DiamondCut> DiamondInternal for T {
     default fn _diamond_cut(&mut self, diamond_cut: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError> {
         for facet_cut in diamond_cut.iter() {
             let code_hash = facet_cut.hash;
@@ -146,7 +149,7 @@ impl<T: DiamondStorage + Flush + DiamondCut> DiamondInternal for T {
     default fn _fallback(&self) -> ! {
         let selector = ink_env::decode_input::<Selector>().unwrap_or_else(|_| panic!("Calldata error"));
 
-        let delegate_code = DiamondStorage::get(self).selector_to_hash.get(selector);
+        let delegate_code = DiamondStorage::get(self).selector_to_hash.get(&selector);
 
         if delegate_code.is_none() {
             panic!("Function is not registered");

@@ -20,6 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub mod access_control;
+pub mod access_control_enumerable;
 pub mod diamond;
 pub mod errors;
 pub mod flashloan;
@@ -27,7 +28,9 @@ pub mod ownable;
 pub mod pausable;
 pub mod payment_splitter;
 pub mod proxy;
-pub mod psp1155;
 pub mod psp22;
 pub mod psp34;
+pub mod psp35;
 pub mod timelock_controller;
+
+mod types;

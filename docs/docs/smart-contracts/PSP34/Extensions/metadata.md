@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP34 Metadata
 ---
 
-This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token with [PSP34Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34/src/extensions/metadata.rs) extension.
+This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token with [PSP34Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34/extensions/metadata.rs) extension.
 
 ## Step 1: Include dependencies
 

@@ -43,9 +43,9 @@ pub struct PSP22WrapperData {
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PSP22WrapperStorage, PSP22WrapperData);
+declare_storage_trait!(PSP22WrapperStorage);
 
-impl<T: PSP22 + PSP22WrapperStorage + PSP22Internal> PSP22Wrapper for T {
+impl<T: PSP22 + PSP22WrapperStorage<Data = PSP22WrapperData> + PSP22Internal> PSP22Wrapper for T {
     default fn deposit_for(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         self._deposit(amount)?;
         self._mint(account, amount)
@@ -80,7 +80,7 @@ pub trait PSP22WrapperInternal {
     fn _underlying(&mut self) -> &mut PSP22Ref;
 }
 
-impl<T: PSP22 + PSP22Internal + PSP22WrapperStorage> PSP22WrapperInternal for T {
+impl<T: PSP22 + PSP22Internal + PSP22WrapperStorage<Data = PSP22WrapperData>> PSP22WrapperInternal for T {
     default fn _recover(&mut self, account: AccountId) -> Result<Balance, PSP22Error> {
         let value = self._underlying_balance() - self.total_supply();
         self._mint(account, value)?;

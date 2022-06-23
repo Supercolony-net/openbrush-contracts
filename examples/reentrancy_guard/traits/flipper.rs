@@ -13,7 +13,7 @@ pub trait FlipperStorage {
 pub type FlipperRef = dyn Flipper;
 
 #[openbrush::trait_definition]
-pub trait Flipper: FlipperStorage + ReentrancyGuardStorage {
+pub trait Flipper: FlipperStorage + ReentrancyGuardStorage<Data = ReentrancyGuardData> {
     #[ink(message)]
     fn get_value(&self) -> bool {
         self.value().clone()

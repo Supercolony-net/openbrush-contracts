@@ -101,3 +101,5 @@ Also you can use extensions for psp34 token:
 [PSP34Mintable](/smart-contracts/PSP34/extensions/mintable): creation of new tokens.
 
 [PSP34Burnable](/smart-contracts/PSP34/extensions/burnable): destruction of contract's tokens.
+
+[PSP34Enumerable](/smart-contracts/PSP34/extensions/enumerable): iterating over contract's tokens.

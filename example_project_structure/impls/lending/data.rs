@@ -1,15 +1,16 @@
 // importing everything publicly from traits allows you to import every stuff related to lending
 // by one import
 pub use crate::traits::lending::*;
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
 };
 use openbrush::{
     declare_storage_trait,
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         AccountIdExt,
@@ -49,39 +50,46 @@ pub struct LendingData {
     /// when we deposit 1 unit of tuple.0
     /// we are using this just to simulate an oracle in our example
     /// in the example the returned balance will be amount of stable coin for an asset
-    pub asset_price: Mapping<(AccountId, AccountId), Balance>,
+    pub asset_price: Mapping<(AccountId, AccountId), Balance, AssetPriceKey>,
     /// code hash of the `SharesContract`
     pub shares_contract_code_hash: Hash,
     /// the `AccountId` of the `Loan`
     pub loan_account: AccountId,
 }
 
-declare_storage_trait!(LendingStorage, LendingData);
+pub struct AssetPriceKey;
+
+impl<'a> TypeGuard<'a> for AssetPriceKey {
+    type Type = &'a (&'a AccountId, &'a AccountId);
+}
+
+declare_storage_trait!(LendingStorage);
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
-pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-    instance.get_mut().asset_price.insert((&asset_in, &asset_out), &price);
+pub fn set_asset_price<T>(instance: &mut T, asset_in: &AccountId, asset_out: &AccountId, price: &Balance)
+where
+    T: LendingStorage<Data = LendingData>,
+{
+    instance.get_mut().asset_price.insert(&(asset_in, asset_out), price);
 }
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
-pub fn get_asset_price<T: LendingStorage>(
-    instance: &T,
-    amount_in: Balance,
-    asset_in: AccountId,
-    asset_out: AccountId,
-) -> Balance {
-    let price = instance.get().asset_price.get((&asset_in, &asset_out)).unwrap_or(0);
+pub fn get_asset_price<T>(instance: &T, amount_in: &Balance, asset_in: &AccountId, asset_out: &AccountId) -> Balance
+where
+    T: LendingStorage<Data = LendingData>,
+{
+    let price = instance.get().asset_price.get(&(asset_in, asset_out)).unwrap_or(0);
     price * amount_in
 }
 
 /// Internal function which will return the address of the shares token
 /// which are minted when `asset_address` is borrowed
-pub fn get_reserve_asset<T: LendingStorage>(
-    instance: &T,
-    asset_address: &AccountId,
-) -> Result<AccountId, LendingError> {
+pub fn get_reserve_asset<T>(instance: &T, asset_address: &AccountId) -> Result<AccountId, LendingError>
+where
+    T: LendingStorage<Data = LendingData>,
+{
     let reserve_asset = instance
         .get()
         .asset_shares
@@ -95,14 +103,14 @@ pub fn get_reserve_asset<T: LendingStorage>(
 
 /// internal function which will return the address of asset
 /// which is bound to `shares_address` shares token
-pub fn get_asset_from_shares<T: LendingStorage>(
-    instance: &T,
-    shares_address: AccountId,
-) -> Result<AccountId, LendingError> {
+pub fn get_asset_from_shares<T>(instance: &T, shares_address: &AccountId) -> Result<AccountId, LendingError>
+where
+    T: LendingStorage<Data = LendingData>,
+{
     let token = instance
         .get()
         .shares_asset
-        .get(&shares_address)
+        .get(shares_address)
         .unwrap_or(ZERO_ADDRESS.into());
     if token.is_zero() {
         return Err(LendingError::AssetNotSupported)

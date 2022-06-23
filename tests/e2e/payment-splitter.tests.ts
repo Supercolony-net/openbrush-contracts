@@ -3,14 +3,14 @@ import { network, patract } from 'redspot'
 const { api } = network
 
 const { getRandomSigner } = patract
-const KAYNE_SHARE = 40;
-const IAN_SHARE = 60;
+const KAYNE_SHARE = 40
+const IAN_SHARE = 60
 
 describe('MY_PAYMENT_SPLITTER', () => {
   async function setup() {
     const ian = await getRandomSigner()
     const kayne = await getRandomSigner()
-    let contract = await setupContract('my_payment_splitter', 'new', [[kayne.address, KAYNE_SHARE], [ian.address, IAN_SHARE]])
+    const contract = await setupContract('my_payment_splitter', 'new', [[kayne.address, KAYNE_SHARE], [ian.address, IAN_SHARE]])
 
     return { contract, kayne, ian }
   }
@@ -39,11 +39,11 @@ describe('MY_PAYMENT_SPLITTER', () => {
 
     // Assert - Ian must hold more tokens than kayne
     // @ts-ignore
-    let totalReleased = Number.parseInt((await contract.contract.query.totalReleased()).output)
+    const totalReleased = Number.parseInt((await contract.contract.query.totalReleased()).output)
     // @ts-ignore
-    let kayneReleased = Number.parseInt((await contract.contract.query.released(kayne.address)).output)
+    const kayneReleased = Number.parseInt((await contract.contract.query.released(kayne.address)).output)
     // @ts-ignore
-    let ianReleased = Number.parseInt((await contract.contract.query.released(ian.address)).output)
+    const ianReleased = Number.parseInt((await contract.contract.query.released(ian.address)).output)
     expect(ianReleased > kayneReleased).to.true
     expect(kayneReleased).to.equal(totalReleased * KAYNE_SHARE / (KAYNE_SHARE + IAN_SHARE))
     expect(ianReleased).to.equal(totalReleased * IAN_SHARE / (KAYNE_SHARE + IAN_SHARE))
@@ -61,11 +61,11 @@ describe('MY_PAYMENT_SPLITTER', () => {
 
     // Assert - Ian must hold more tokens than kayne
     // @ts-ignore
-    let totalReleased = Number.parseInt((await contract.contract.query.totalReleased()).output)
+    const totalReleased = Number.parseInt((await contract.contract.query.totalReleased()).output)
     // @ts-ignore
-    let kayneReleased = Number.parseInt((await contract.contract.query.released(kayne.address)).output)
+    const kayneReleased = Number.parseInt((await contract.contract.query.released(kayne.address)).output)
     // @ts-ignore
-    let ianReleased = Number.parseInt((await contract.contract.query.released(ian.address)).output)
+    const ianReleased = Number.parseInt((await contract.contract.query.released(ian.address)).output)
     expect(ianReleased > kayneReleased).to.true
     expect(kayneReleased).to.equal(totalReleased * KAYNE_SHARE / (KAYNE_SHARE + IAN_SHARE))
     expect(ianReleased).to.equal(totalReleased * IAN_SHARE / (KAYNE_SHARE + IAN_SHARE))

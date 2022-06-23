@@ -3,7 +3,7 @@ sidebar_position: 2
 title: PSP34 Mintable
 ---
 
-This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token with [PSP34Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34/src/extensions/mintable.rs) extension.
+This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token with [PSP34Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34/extensions/mintable.rs) extension.
 
 ## How to use this extension
 
