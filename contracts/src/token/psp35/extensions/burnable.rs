@@ -27,7 +27,10 @@ pub use crate::{
         *,
     },
 };
-pub use psp35::Internal as _;
+pub use psp35::{
+    Internal as _,
+    Transfer as _,
+};
 
 use ink_prelude::vec::Vec;
 use openbrush::traits::{

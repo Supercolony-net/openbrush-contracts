@@ -30,6 +30,11 @@ pub use crate::{
         *,
     },
 };
+pub use psp35::{
+    Internal as _,
+    Transfer as _,
+};
+
 use openbrush::{
     storage::{
         Mapping,
@@ -66,8 +71,6 @@ pub struct BalancesKey;
 impl<'a> TypeGuard<'a> for BalancesKey {
     type Type = &'a (&'a AccountId, &'a Id);
 }
-
-declare_storage_trait!(PSP35EnumerableBalancesStorage);
 
 impl balances::BalancesManager for Balances {
     #[inline(always)]

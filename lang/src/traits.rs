@@ -62,10 +62,12 @@ pub trait Storage<Data>: Flush + StorageAsRef + StorageAsMut + DefaultEnv {
     fn get_mut(&mut self) -> &mut Data;
 }
 
+// TODO: Doc
 pub trait OccupiedStorage<const KEY: u32> {
     type WithData: OccupyStorage;
 }
 
+// TODO: Doc
 pub trait OccupyStorage {
     const KEY: u32;
 }
@@ -108,7 +110,7 @@ impl AccountIdExt for AccountId {
     }
 }
 
-/// This trait is automatically implemented for storage.
+/// This trait is automatically implemented for storage structs.
 pub trait Flush: ::ink_storage::traits::SpreadLayout + Sized {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate a key of each field.

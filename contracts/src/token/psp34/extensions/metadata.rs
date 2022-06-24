@@ -30,7 +30,10 @@ pub use crate::{
         *,
     },
 };
-pub use psp34::Internal as _;
+pub use psp34::{
+    Internal as _,
+    Transfer as _,
+};
 
 use ink_prelude::vec::Vec;
 use openbrush::{
@@ -38,8 +41,8 @@ use openbrush::{
         Mapping,
         TypeGuard,
     },
+    traits::Storage,
 };
-use openbrush::traits::Storage;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 

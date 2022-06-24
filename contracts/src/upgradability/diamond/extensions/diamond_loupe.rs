@@ -32,14 +32,15 @@ pub use diamond::Internal as _;
 pub use ownable::Internal as _;
 
 use ink_prelude::vec::Vec;
-use ink_storage::Mapping;
-use openbrush::traits::{
-    Hash,
-    Storage,
-};
-use openbrush::storage::{
-    Mapping,
-    ValueGuard,
+use openbrush::{
+    storage::{
+        Mapping,
+        ValueGuard,
+    },
+    traits::{
+        Hash,
+        Storage,
+    },
 };
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Loupe);

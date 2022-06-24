@@ -20,31 +20,40 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    access_control::*,
-    traits::access_control::extensions::enumerable::*,
+    access_control,
+    access_control::{
+        extensions::enumerable,
+        members,
+    },
+    traits::access_control::{
+        extensions::enumerable::*,
+        *,
+    },
 };
-pub use derive::AccessControlEnumerableStorage;
+pub use access_control::Internal as _;
+
 use openbrush::{
-    declare_storage_trait,
     storage::{
         MultiMapping,
         ValueGuard,
     },
-    traits::AccountId,
+    traits::{
+        AccountId,
+        OccupiedStorage,
+        Storage,
+    },
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlEnumerableData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Members);
 
 #[derive(Default, Debug)]
 #[openbrush::storage(STORAGE_KEY)]
-pub struct EnumerableMembers {
+pub struct Members {
     pub role_members: MultiMapping<RoleType, AccountId, ValueGuard<RoleType>>,
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(AccessControlEnumerableMembersStorage);
-
-impl AccessControlMemberManager for EnumerableMembers {
+impl members::MembersManager for Members {
     fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
         self.role_members.contains_value(role, address)
     }
@@ -58,30 +67,16 @@ impl AccessControlMemberManager for EnumerableMembers {
     }
 }
 
-impl<T> AccessControlEnumerableMembersStorage for T
-where
-    T: AccessControlStorage<Data = AccessControlData<EnumerableMembers>>,
-{
-    type Data = EnumerableMembers;
-
-    fn get(&self) -> &Self::Data {
-        &self.get().members
-    }
-
-    fn get_mut(&mut self) -> &mut Self::Data {
-        &mut self.get_mut().members
-    }
-}
-
 impl<T> AccessControlEnumerable for T
 where
-    T: AccessControlEnumerableMembersStorage<Data = EnumerableMembers> + AccessControl,
+    T: Storage<access_control::Data<Members>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<Members>>,
 {
     default fn get_role_member(&self, role: RoleType, index: u32) -> Option<AccountId> {
-        self.get().role_members.get_value(role, &(index as u128))
+        self.data().members.role_members.get_value(role, &(index as u128))
     }
 
     default fn get_role_member_count(&self, role: RoleType) -> u32 {
-        self.get().role_members.count(role) as u32
+        self.data().members.role_members.count(role) as u32
     }
 }

@@ -38,11 +38,9 @@ use ink_env::{
     Clear,
 };
 use ink_prelude::vec::Vec;
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
+use ink_storage::traits::{
+    SpreadAllocate,
+    SpreadLayout,
 };
 use openbrush::{
     modifiers,

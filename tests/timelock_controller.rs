@@ -27,7 +27,10 @@ mod timelock_controller {
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
     use openbrush::{
-        contracts::timelock_controller::*,
+        contracts::{
+            access_control::extensions::enumerable::*,
+            timelock_controller::*,
+        },
         test_utils::{
             accounts,
             change_caller,
@@ -80,7 +83,7 @@ mod timelock_controller {
     #[derive(Default, Storage)]
     pub struct TimelockControllerStruct {
         #[storage_field]
-        access_control: access_control::Data,
+        access_control: access_control::Data<enumerable::Members>,
         #[storage_field]
         timelock: timelock_controller::Data,
     }

@@ -31,15 +31,17 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use openbrush::traits::{
+use openbrush::{
     storage::{
         Mapping,
         TypeGuard,
     },
-    AccountId,
-    AccountIdExt,
-    Balance,
-    Storage,
+    traits::{
+        AccountId,
+        AccountIdExt,
+        Balance,
+        Storage,
+    },
 };
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);

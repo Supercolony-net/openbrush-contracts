@@ -24,13 +24,15 @@ pub use crate::{
     traits::payment_splitter::*,
 };
 use ink_prelude::vec::Vec;
-use openbrush::traits::{
+use openbrush::{
     storage::Mapping,
-    AccountId,
-    AccountIdExt,
-    Balance,
-    Storage,
-    ZERO_ADDRESS,
+    traits::{
+        AccountId,
+        AccountIdExt,
+        Balance,
+        Storage,
+        ZERO_ADDRESS,
+    },
 };
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);

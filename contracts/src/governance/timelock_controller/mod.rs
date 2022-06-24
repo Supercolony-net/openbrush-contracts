@@ -28,6 +28,7 @@ pub use crate::{
     },
 };
 pub use access_control::Internal as _;
+
 use core::convert::TryFrom;
 use ink_env::{
     call::{
@@ -50,6 +51,7 @@ use openbrush::{
     traits::{
         AccountId,
         Hash,
+        OccupiedStorage,
         Storage,
         Timestamp,
         ZERO_ADDRESS,
@@ -72,13 +74,15 @@ pub struct Data {
 /// considered. Granting a role to zero account is equivalent to enabling
 /// this role for everyone.
 #[modifier_definition]
-pub fn only_role_or_open_role<T, B, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
+pub fn only_role_or_open_role<T, M, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    T: Storage<access_control::Data<B>>,
+    M: access_control::members::MembersManager,
+    T: Storage<access_control::Data<M>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if !instance.data().members.has_role(role, &ZERO_ADDRESS.into()) {
+    if !instance.data().members.has_role(role, &(ZERO_ADDRESS.into())) {
         access_control::check_role(instance, role, T::env().caller())?;
     }
     body(instance)
@@ -90,7 +94,13 @@ pub const EXECUTOR_ROLE: RoleType = ink_lang::selector_id!("EXECUTOR_ROLE");
 
 pub const DONE_TIMESTAMP: Timestamp = 1;
 
-impl<T: Storage<Data> + Storage<access_control::Data>> TimelockController for T {
+impl<T, M> TimelockController for T
+where
+    M: access_control::members::MembersManager,
+    T: Storage<Data>,
+    T: Storage<access_control::Data<M>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
+{
     default fn is_operation(&self, id: OperationId) -> bool {
         self.get_timestamp(id) > Timestamp::default()
     }
@@ -284,7 +294,13 @@ pub trait Internal {
     fn _done_timestamp() -> Timestamp;
 }
 
-impl<T: Storage<Data> + Storage<access_control::Data>> Internal for T {
+impl<T, M> Internal for T
+where
+    M: access_control::members::MembersManager,
+    T: Storage<Data>,
+    T: Storage<access_control::Data<M>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
+{
     default fn _emit_min_delay_change_event(&self, _old_delay: Timestamp, _new_delay: Timestamp) {}
     default fn _emit_call_scheduled_event(
         &self,

@@ -30,7 +30,10 @@ pub use crate::{
         *,
     },
 };
-pub use psp34::Internal as _;
+pub use psp34::{
+    Internal as _,
+    Transfer as _,
+};
 
 use crate::psp34::Owner;
 use openbrush::{

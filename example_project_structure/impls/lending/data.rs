@@ -6,15 +6,15 @@ use ink_storage::traits::{
     SpreadLayout,
 };
 use openbrush::traits::{
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     AccountId,
     AccountIdExt,
     Balance,
     Hash,
     ZERO_ADDRESS,
-    storage::{
-        Mapping,
-        TypeGuard,
-    },
 };
 // it is public because when you will import the trait you also will import the derive for the trait
 pub use lending_project_derive::LendingStorage;

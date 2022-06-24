@@ -10,7 +10,7 @@ pub mod my_access_control {
     #[derive(Default, SpreadAllocate, AccessControlStorage)]
     pub struct AccessControlStruct {
         #[AccessControlStorageField]
-        access: AccessControlData<EnumerableMembers>,
+        access: Data<Members>,
     }
 
     // You can manually set the number for the role.
