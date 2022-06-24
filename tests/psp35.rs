@@ -221,22 +221,6 @@ mod psp35 {
 
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
 
-        assert!(nft.transfer(accounts.bob, token_id2.clone(), 10, vec![]).is_ok());
-
-        assert_eq!(
-            nft.balance_of(accounts.alice, Some(token_id2.clone())),
-            token_amount2 - 10
-        );
-        assert_eq!(nft.balance_of(accounts.bob, Some(token_id2.clone())), 10);
-
-        assert_eq!(nft.balance_of(accounts.alice, None), 2);
-        assert_eq!(nft.balance_of(accounts.bob, None), 1);
-
-        assert!(nft.transfer(accounts.bob, token_id1.clone(), 1, vec![]).is_ok());
-
-        assert_eq!(nft.balance_of(accounts.alice, None), 1);
-        assert_eq!(nft.balance_of(accounts.bob, None), 2);
-
         let mut events_iter = ink_env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
         assert_transfer_event(
@@ -256,24 +240,7 @@ mod psp35 {
             token_amount2,
         );
 
-        let emmited_event = events_iter.next().unwrap();
-        assert_transfer_event(
-            emmited_event,
-            Some(accounts.alice),
-            Some(accounts.bob),
-            token_id2.clone(),
-            10,
-        );
-
-        let emmited_event = events_iter.next().unwrap();
-        assert_transfer_event(
-            emmited_event,
-            Some(accounts.alice),
-            Some(accounts.bob),
-            token_id1.clone(),
-            1,
-        );
-        assert_eq!(ink_env::test::recorded_events().count(), 4);
+        assert_eq!(ink_env::test::recorded_events().count(), 2);
     }
 
     #[ink::test]
@@ -302,11 +269,6 @@ mod psp35 {
 
         assert_eq!(nft.total_supply(None), 3);
         assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
-
-        assert!(nft.transfer(accounts.alice, token_id2.clone(), 10, vec![]).is_ok());
-
-        assert_eq!(nft.total_supply(None), 3);
-        assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
     }
 
     #[ink::test]
@@ -458,17 +420,62 @@ mod psp35 {
 
     #[ink::test]
     fn transfer() {
-        let token_id = Id::U128(1);
-        let transfer_amount = 1;
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
+        let token_id3 = Id::U128(3);
+        let token_amount1 = 1;
+        let token_amount2 = 20;
+        let token_amount3 = 30;
+
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP35Struct::new();
-        assert!(nft.mint(accounts.alice, token_id.clone(), transfer_amount).is_ok());
-        assert!(nft
-            .transfer(accounts.bob, token_id.clone(), transfer_amount, vec![])
-            .is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), 0);
-        assert_eq!(nft.balance_of(accounts.bob, Some(token_id.clone())), transfer_amount);
+        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
+        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
+        assert!(nft.mint(accounts.alice, token_id3.clone(), token_amount3).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, None), 3);
+        assert_eq!(nft.total_supply(Some(token_id1.clone())), token_amount1);
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+        assert_eq!(nft.total_supply(None), 3);
+
+        assert!(nft.transfer(accounts.bob, token_id2.clone(), 10, vec![]).is_ok());
+        assert!(nft.transfer(accounts.bob, token_id3.clone(), 10, vec![]).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id2.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 20);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id2.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id3.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.alice, None), 3);
+        assert_eq!(nft.balance_of(accounts.bob, None), 2);
+
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+        assert_eq!(nft.total_supply(None), 3);
+
+        assert!(nft.transfer(accounts.charlie, token_id3.clone(), 10, vec![]).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.charlie, Some(token_id3.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.alice, None), 3);
+        assert_eq!(nft.balance_of(accounts.bob, None), 2);
+        assert_eq!(nft.balance_of(accounts.charlie, None), 1);
+
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+
+        assert!(nft.transfer(accounts.charlie, token_id3.clone(), 10, vec![]).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 0);
+        assert_eq!(nft.balance_of(accounts.charlie, Some(token_id3.clone())), 20);
+        assert_eq!(nft.balance_of(accounts.alice, None), 2);
+        assert_eq!(nft.balance_of(accounts.bob, None), 2);
+        assert_eq!(nft.balance_of(accounts.charlie, None), 1);
+
+        assert_eq!(nft.total_supply(Some(token_id1.clone())), token_amount1);
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+        assert_eq!(nft.total_supply(None), 3);
 
         // EVENTS ASSERTS
         let mut events_iter = ink_env::test::recorded_events();
@@ -477,8 +484,26 @@ mod psp35 {
             emmited_event,
             None,
             Some(accounts.alice),
-            token_id.clone(),
-            transfer_amount,
+            token_id1.clone(),
+            token_amount1,
+        );
+
+        let emmited_event = events_iter.next().unwrap();
+        assert_transfer_event(
+            emmited_event,
+            None,
+            Some(accounts.alice),
+            token_id2.clone(),
+            token_amount2,
+        );
+
+        let emmited_event = events_iter.next().unwrap();
+        assert_transfer_event(
+            emmited_event,
+            None,
+            Some(accounts.alice),
+            token_id3.clone(),
+            token_amount3,
         );
 
         let emmited_event = events_iter.next().unwrap();
@@ -486,11 +511,38 @@ mod psp35 {
             emmited_event,
             Some(accounts.alice),
             Some(accounts.bob),
-            token_id.clone(),
-            transfer_amount,
+            token_id2.clone(),
+            10,
         );
 
-        assert_eq!(ink_env::test::recorded_events().count(), 2);
+        let emmited_event = events_iter.next().unwrap();
+        assert_transfer_event(
+            emmited_event,
+            Some(accounts.alice),
+            Some(accounts.bob),
+            token_id3.clone(),
+            10,
+        );
+
+        let emmited_event = events_iter.next().unwrap();
+        assert_transfer_event(
+            emmited_event,
+            Some(accounts.alice),
+            Some(accounts.charlie),
+            token_id3.clone(),
+            10,
+        );
+
+        let emmited_event = events_iter.next().unwrap();
+        assert_transfer_event(
+            emmited_event,
+            Some(accounts.alice),
+            Some(accounts.charlie),
+            token_id3.clone(),
+            10,
+        );
+
+        assert_eq!(ink_env::test::recorded_events().count(), 7);
     }
 
     #[ink::test]

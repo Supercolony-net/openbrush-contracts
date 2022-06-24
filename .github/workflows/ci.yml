@@ -132,7 +132,9 @@ jobs:
             while $has_timeout
             do
               substrate-contracts-node --tmp --dev & P1=$!;
+              set +e;
               output=$(yarn test:mocha-single ./$test || true);
+              set -e;
               if echo $output | grep -q 'For async tests and hooks, ensure "done()" is called'; then
                 echo $output;
                 has_timeout=true

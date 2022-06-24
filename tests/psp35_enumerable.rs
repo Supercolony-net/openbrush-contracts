@@ -77,6 +77,11 @@ mod psp35_enumerable {
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
+
+        #[ink(message)]
+        pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP35Error> {
+            self._mint_to(acc, vec![(id, amount)])
+        }
     }
 
     #[ink::test]
@@ -314,5 +319,161 @@ mod psp35_enumerable {
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), None);
         // token by index 1 does not exists
         assert_eq!(nft.token_by_index(0u128), None);
+    }
+
+    #[ink::test]
+    fn total_supply_works() {
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
+        let token_id3 = Id::U128(3);
+
+        let token_amount1 = 1;
+        let token_amount2 = 20;
+        let token_amount3 = 1;
+
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP35Struct::new();
+        assert_eq!(nft.total_supply(None), 0);
+        // mint some token 1
+        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
+        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
+
+        assert_eq!(nft.total_supply(None), 2);
+        assert_eq!(nft.total_supply(Some(token_id1.clone())), token_amount1);
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
+
+        assert!(nft.mint(accounts.bob, token_id3.clone(), token_amount3).is_ok());
+
+        assert_eq!(nft.total_supply(None), 3);
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+    }
+
+    #[ink::test]
+    fn balance_of() {
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
+        let token_amount1 = 1;
+        let token_amount2 = 20;
+
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP35Struct::new();
+        // Token 1 does not exists.
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id1.clone())), 0);
+        assert_eq!(nft.balance_of(accounts.alice, None), 0);
+        // mint some token 1
+        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
+        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id1.clone())), token_amount1);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id2.clone())), token_amount2);
+
+        assert_eq!(nft.balance_of(accounts.alice, None), 2);
+    }
+
+    #[ink::test]
+    fn transfer() {
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
+        let token_id3 = Id::U128(3);
+        let token_amount1 = 1;
+        let token_amount2 = 20;
+        let token_amount3 = 30;
+
+        let accounts = accounts();
+        // Create a new contract instance.
+        let mut nft = PSP35Struct::new();
+        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
+        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
+        assert!(nft.mint(accounts.alice, token_id3.clone(), token_amount3).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, None), 3);
+        assert_eq!(nft.total_supply(Some(token_id1.clone())), token_amount1);
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+        assert_eq!(nft.total_supply(None), 3);
+
+        assert!(nft.transfer(accounts.bob, token_id2.clone(), 10, vec![]).is_ok());
+        assert!(nft.transfer(accounts.bob, token_id3.clone(), 10, vec![]).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id2.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 20);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id2.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id3.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.alice, None), 3);
+        assert_eq!(nft.balance_of(accounts.bob, None), 2);
+
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+        assert_eq!(nft.total_supply(None), 3);
+
+        assert!(nft.transfer(accounts.charlie, token_id3.clone(), 10, vec![]).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.charlie, Some(token_id3.clone())), 10);
+        assert_eq!(nft.balance_of(accounts.alice, None), 3);
+        assert_eq!(nft.balance_of(accounts.bob, None), 2);
+        assert_eq!(nft.balance_of(accounts.charlie, None), 1);
+
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+
+        assert!(nft.transfer(accounts.charlie, token_id3.clone(), 10, vec![]).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 0);
+        assert_eq!(nft.balance_of(accounts.charlie, Some(token_id3.clone())), 20);
+        assert_eq!(nft.balance_of(accounts.alice, None), 2);
+        assert_eq!(nft.balance_of(accounts.bob, None), 2);
+        assert_eq!(nft.balance_of(accounts.charlie, None), 1);
+
+        assert_eq!(nft.total_supply(Some(token_id1.clone())), token_amount1);
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
+        assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
+        assert_eq!(nft.total_supply(None), 3);
+    }
+
+    #[ink::test]
+    fn burn_works() {
+        let token_id1 = Id::U128(1);
+        let token_id2 = Id::U128(2);
+        let token_amount1 = 1;
+        let token_amount2 = 10;
+        let accounts = accounts();
+
+        let mut nft = PSP35Struct::new();
+        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
+        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
+
+        assert_eq!(nft.balance_of(accounts.alice, None), 2);
+        assert_eq!(nft.total_supply(None), 2);
+
+        assert!(nft.mint(accounts.bob, token_id2.clone(), token_amount2).is_ok());
+
+        assert_eq!(nft.total_supply(None), 2);
+        assert_eq!(nft.total_supply(Some(token_id1.clone())), 1);
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), 20);
+        assert_eq!(nft.balance_of(accounts.alice, None), 2);
+        assert_eq!(nft.balance_of(accounts.bob, None), 1);
+
+        assert!(nft
+            .burn(
+                accounts.bob,
+                vec![(token_id2.clone(), token_amount2), (token_id1.clone(), 0)]
+            )
+            .is_ok());
+
+        assert_eq!(nft.total_supply(None), 2);
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), 10);
+
+        assert_eq!(nft.balance_of(accounts.alice, None), 2);
+        assert_eq!(nft.balance_of(accounts.bob, None), 0);
+
+        assert!(nft
+            .burn(accounts.alice, vec![(token_id2.clone(), token_amount2)])
+            .is_ok());
+
+        assert_eq!(nft.total_supply(None), 1);
+        assert_eq!(nft.total_supply(Some(token_id2.clone())), 0);
+        assert_eq!(nft.balance_of(accounts.alice, None), 1);
     }
 }
