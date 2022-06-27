@@ -65,6 +65,14 @@ html[data-theme='light'] {
   padding-top: 2rem;
 }
 
+.menu.thin-scrollbar {
+  padding-bottom: 20px;
+}
+
+a.menu__link {
+  position: relative
+}
+
 a.menu__link.menu__link--active:before {
   content: '';
   display: block;
