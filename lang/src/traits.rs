@@ -77,3 +77,211 @@ pub trait Flush: ::ink_storage::traits::SpreadLayout + InkStorage {
 }
 
 impl<T: ::ink_storage::traits::SpreadLayout + InkStorage> Flush for T {}
+
+/// Types for managing mock cross-contract calls in unit tests
+#[cfg(feature = "mockable")]
+pub mod mock {
+    use super::AccountId;
+
+    use alloc::{
+        rc::Rc,
+        vec::Vec,
+    };
+    use core::{
+        cell::{
+            Ref,
+            RefCell,
+            RefMut,
+        },
+        ops::{
+            Deref,
+            DerefMut,
+        },
+    };
+
+    /// A frame in the call stack
+    #[derive(Clone, Debug)]
+    pub struct MockCallContext {
+        pub level: u32,
+        pub caller: Option<AccountId>,
+        pub callee: AccountId,
+    }
+
+    /// A managed call stack for mocking cross-contract call in test environment
+    #[derive(Clone)]
+    pub struct SharedCallStack {
+        stack: Rc<RefCell<Vec<MockCallContext>>>,
+    }
+
+    impl SharedCallStack {
+        /// Crates a call stack with the default `account`
+        pub fn new(account: AccountId) -> Self {
+            SharedCallStack {
+                stack: Rc::new(RefCell::new(alloc::vec![MockCallContext {
+                    level: 0,
+                    caller: None,
+                    callee: account,
+                }])),
+            }
+        }
+
+        /// Changes the caller account
+        ///
+        /// Only allowed outside any contract call (when the stack is empty).
+        pub fn switch_account(&self, account: AccountId) -> Result<(), ()> {
+            let mut stack = self.stack.borrow_mut();
+            if stack.len() != 1 {
+                return Err(())
+            }
+            let ctx = stack.get_mut(0).ok_or(())?;
+            ctx.callee = account;
+            Ok(())
+        }
+
+        /// Pushes a new call frame
+        pub fn push(&self, callee: &AccountId) {
+            let parent_ctx = self.peek();
+            self.stack.borrow_mut().push(MockCallContext {
+                level: parent_ctx.level + 1,
+                caller: Some(parent_ctx.callee),
+                callee: callee.clone(),
+            });
+            self.sync_to_ink();
+        }
+
+        /// Pops the call frame and returns the frame
+        pub fn pop(&self) -> Option<MockCallContext> {
+            if self.stack.borrow().len() > 1 {
+                let ctx = self.stack.borrow_mut().pop();
+                self.sync_to_ink();
+                ctx
+            } else {
+                None
+            }
+        }
+
+        /// Peeks the current call frame
+        pub fn peek(&self) -> MockCallContext {
+            self.stack.borrow().last().cloned().expect("stack is never empty; qed.")
+        }
+
+        /// Syncs the top call frame to ink testing environment
+        pub fn sync_to_ink(&self) {
+            let ctx = self.peek();
+            if let Some(caller) = ctx.caller {
+                ink_env::test::set_caller::<ink_env::DefaultEnvironment>(caller);
+            }
+            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(ctx.callee);
+        }
+    }
+
+    /// A wrapper of a contract with an address for call stake auto-management
+    #[derive(Clone)]
+    pub struct Addressable<T> {
+        inner: Rc<RefCell<T>>,
+        id: AccountId,
+        stack: SharedCallStack,
+    }
+
+    impl<T> Addressable<T> {
+        /// Wraps a contract reference with id and a shared call stack
+        pub fn new(id: AccountId, inner: Rc<RefCell<T>>, stack: SharedCallStack) -> Self {
+            Addressable { inner, id, stack }
+        }
+
+        /// Wraps a native contract object with a simple id
+        ///
+        /// The account id of the contract will be the `id` with zero-padding.
+        pub fn create_native(id: u8, inner: T, stack: SharedCallStack) -> Self {
+            Addressable {
+                inner: Rc::new(RefCell::new(inner)),
+                id: naive_id(id),
+                stack,
+            }
+        }
+
+        /// Returns the account id of the inner contract
+        pub fn id(&self) -> AccountId {
+            self.id.clone()
+        }
+
+        /// Borrows the contract for _a_ call with the stack auto-managed
+        ///
+        /// Holding the ref for multiple calls or nested call is considered abuse.
+        pub fn call(&self) -> ScopedRef<'_, T> {
+            ScopedRef::new(self.inner.borrow(), &self.id, self.stack.clone())
+        }
+
+        /// Borrows the contract for _a_ mut call with the stack auto-managed
+        ///
+        /// Holding the mut ref for multiple calls or nested call is considered abuse.
+        pub fn call_mut(&self) -> ScopedRefMut<'_, T> {
+            ScopedRefMut::new(self.inner.borrow_mut(), &self.id, self.stack.clone())
+        }
+    }
+
+    /// Push a call stack when the `Ref` in scope
+    pub struct ScopedRef<'b, T: 'b> {
+        inner: Ref<'b, T>,
+        stack: SharedCallStack,
+    }
+
+    impl<'b, T> ScopedRef<'b, T> {
+        fn new(inner: Ref<'b, T>, address: &AccountId, stack: SharedCallStack) -> Self {
+            stack.push(address);
+            Self { inner, stack }
+        }
+    }
+
+    impl<'b, T> Deref for ScopedRef<'b, T> {
+        type Target = T;
+        fn deref(&self) -> &T {
+            self.inner.deref()
+        }
+    }
+
+    impl<'b, T> Drop for ScopedRef<'b, T> {
+        fn drop(&mut self) {
+            self.stack.pop().expect("pop never fails");
+        }
+    }
+
+    /// Push a call stack when the `RefMut` in scope
+    pub struct ScopedRefMut<'b, T: 'b> {
+        inner: RefMut<'b, T>,
+        stack: SharedCallStack,
+    }
+
+    impl<'b, T> ScopedRefMut<'b, T> {
+        fn new(inner: RefMut<'b, T>, address: &AccountId, stack: SharedCallStack) -> Self {
+            stack.push(address);
+            Self { inner, stack }
+        }
+    }
+
+    impl<'b, T> Deref for ScopedRefMut<'b, T> {
+        type Target = T;
+        fn deref(&self) -> &T {
+            self.inner.deref()
+        }
+    }
+
+    impl<'b, T> DerefMut for ScopedRefMut<'b, T> {
+        fn deref_mut(&mut self) -> &mut T {
+            self.inner.deref_mut()
+        }
+    }
+
+    impl<'b, T> Drop for ScopedRefMut<'b, T> {
+        fn drop(&mut self) {
+            self.stack.pop().expect("pop never fails");
+        }
+    }
+
+    /// Generates a naive zero-padding account id with a `u8` number
+    pub fn naive_id(id: u8) -> AccountId {
+        let mut address = [0u8; 32];
+        address[31] = id;
+        address.into()
+    }
+}

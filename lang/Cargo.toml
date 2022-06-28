@@ -44,3 +44,4 @@ std = [
     "scale/std",
     "scale-info/std",
 ]
+mockable = []
