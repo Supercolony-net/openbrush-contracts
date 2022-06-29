@@ -57,11 +57,11 @@ Define constructor. Your basic version of `PSP22` contract is ready!
 
 ```rust
 impl MyPSP22 {
-   #[ink(constructor)]
+    #[ink(constructor)]
     pub fn new(total_supply: Balance) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
             instance
-                ._mint(instance.env().caller(), total_supply)
+                ._mint_to(instance.env().caller(), total_supply)
                 .expect("Should mint");
         })
     }
@@ -92,7 +92,7 @@ impl PSP22Transfer for MyPSP22 {
         _amount: &Balance,
     ) -> Result<(), PSP22Error> {
         if to == Some(&self.hated_account) {
-            return Err(PSP22Error::Custom(String::from("I hate this account!")))
+            return Err(PSP22Error::Custom(String::from("I hate this account!")));
         }
         Ok(())
     }
@@ -105,7 +105,7 @@ impl MyPSP22 {
     pub fn new(total_supply: Balance) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
             instance
-                ._mint(instance.env().caller(), total_supply)
+                ._mint_to(instance.env().caller(), total_supply)
                 .expect("Should mint");
         })
     }

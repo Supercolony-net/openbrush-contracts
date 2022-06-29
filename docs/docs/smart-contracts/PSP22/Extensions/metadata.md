@@ -60,7 +60,7 @@ impl MyPSP22 {
             instance.metadata.symbol = symbol;
             instance.metadata.decimals = decimal;
             instance
-                ._mint(instance.env().caller(), total_supply)
+                ._mint_to(instance.env().caller(), total_supply)
                 .expect("Should mint total_supply");
         })
     }

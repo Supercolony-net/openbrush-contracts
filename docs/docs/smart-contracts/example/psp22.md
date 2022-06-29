@@ -100,7 +100,7 @@ impl StableCoinContract {
             instance.metadata.symbol = symbol;
             instance.metadata.decimals = 18;
             let total_supply = 1_000_000 * 10_u128.pow(18);
-            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+            assert!(instance._mint_to(instance.env().caller(), total_supply).is_ok());
         })
     }
 }

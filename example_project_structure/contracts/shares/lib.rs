@@ -48,7 +48,7 @@ pub mod shares {
         #[ink(message)]
         #[modifiers(only_owner)]
         fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            self._mint(account, amount)
+            self._mint_to(account, amount)
         }
     }
 

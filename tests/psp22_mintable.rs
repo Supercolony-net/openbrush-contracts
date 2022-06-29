@@ -102,7 +102,7 @@ mod psp22_mintable {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+            assert!(instance._mint_to(instance.env().caller(), total_supply).is_ok());
             instance
         }
 

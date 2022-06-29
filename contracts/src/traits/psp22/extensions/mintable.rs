@@ -34,7 +34,7 @@ pub type PSP22MintableRef = dyn PSP22Mintable;
 pub trait PSP22Mintable {
     /// Minting `amount` tokens to the account.
     ///
-    /// See [`PSP22::_mint`].
+    /// See [`PSP22::_mint_to`].
     #[ink(message)]
     fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
