@@ -8,13 +8,13 @@ interface Result {
 
 describe('LENDING_CONTRACT', () => {
   async function setup() {
-    const greencoin = await setupContract('stable_coin_contract', 'new', 'Green Coin', 'GC')
+    const stablecoin = await setupContract('stable_coin_contract', 'new', 'Stable Coin', 'SC')
     const loan = await (await setupContract('loan_contract', 'new')).abi
     const shares = await (await setupContract('shares_contract', 'new', '', '')).abi
     const lending = await setupContract('lending_contract', 'new', shares.source.hash, loan.source.hash)
-    const redcoin = await setupContract('stable_coin_contract', 'new', 'Red Coin', 'RC')
+    const greencoin = await setupContract('stable_coin_contract', 'new', 'Green Coin', 'GC')
 
-    return { lending: lending.contract, stablecoin: greencoin.contract, alice: greencoin.defaultSigner.address, redcoin: redcoin.contract }
+    return { lending: lending.contract, stablecoin: stablecoin.contract, alice: stablecoin.defaultSigner.address, greencoin: greencoin.contract }
   }
 
   function result(s: string | undefined) {
@@ -22,7 +22,7 @@ describe('LENDING_CONTRACT', () => {
     return result
   }
 
-  async function borrow(lendingContract, borrowedToken, collateralToken, user, approveAmount, borrowedAmount, price) {
+  async function borrow(lendingContract, borrowedToken, collateralToken, user, approveAmount, collateralAmount, price) {
     // collateralToken approves amount of tokens for lending contact
     await expect(collateralToken.tx.approve(lendingContract.address, approveAmount)).to.eventually.be.fulfilled
     // Grant user the manager role
@@ -44,10 +44,10 @@ describe('LENDING_CONTRACT', () => {
 
     const alice_balance = (await collateralToken.query.balanceOf(user)).output
     // user borrow borrowedToken
-    await expect(fromSigner(lendingContract, user).tx.borrowAssets(borrowedToken.address, collateralToken.address, borrowedAmount)).to.eventually.be
+    await expect(fromSigner(lendingContract, user).tx.borrowAssets(borrowedToken.address, collateralToken.address, collateralAmount)).to.eventually.be
       .fulfilled
     // @ts-ignore
-    await expect(collateralToken.query.balanceOf(user)).to.have.output(alice_balance.sub(new BN(borrowedAmount)))
+    await expect(collateralToken.query.balanceOf(user)).to.have.output(alice_balance.sub(new BN(collateralAmount)))
   }
 
   it('LENDING CONTRACT - accept lending', async () => {
@@ -133,20 +133,20 @@ describe('LENDING_CONTRACT', () => {
   })
 
   it('LENDING CONTRACT - borrow and repay full amount', async () => {
-    const { lending, stablecoin, redcoin, alice } = await setup()
+    const { lending, stablecoin, greencoin, alice } = await setup()
 
     const amount = 1000
-    const borrowedAmount = 100
+    const collateralAmount = 100
     const price = 1
 
-    await redcoin.tx.mint(alice, new BN('1000000'))
+    await greencoin.tx.mint(alice, new BN('1000000'))
 
     // Act - Alice borrows redcoin
     const alice_balance = (await stablecoin.query.balanceOf(alice)).output
-    await borrow(lending, redcoin, stablecoin, alice, amount, borrowedAmount, price)
+    await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
 
     // Act - Alice repays loan
-    await expect(fromSigner(lending, alice).tx.repay({ u8: 1 }, borrowedAmount)).to.eventually.be.fulfilled
+    await expect(fromSigner(lending, alice).tx.repay({ u8: 1 }, collateralAmount)).to.eventually.be.fulfilled
 
     // Assert - Alice received borrowed tokens
     // @ts-ignore
@@ -154,27 +154,27 @@ describe('LENDING_CONTRACT', () => {
   })
 
   it('LENDING CONTRACT - borrow and repay part of amount', async () => {
-    const { lending, stablecoin, redcoin, alice } = await setup()
+    const { lending, stablecoin, greencoin, alice } = await setup()
 
     const amount = 1000
-    const borrowedAmount = 100
+    const collateralAmount = 100
     const price = 2
 
-    await redcoin.tx.mint(alice, new BN('1000000'))
+    await greencoin.tx.mint(alice, new BN('1000000'))
 
     // Act - Alice borrows redcoin
     const alice_balance = (await stablecoin.query.balanceOf(alice)).output
-    await borrow(lending, redcoin, stablecoin, alice, amount, borrowedAmount, price)
+    await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
 
-    // Act - Calculate half of the amount Alice should repay
-    const loanAmount = (borrowedAmount * 70) / 100
+    // Act - Calculate half of the amount Alice should repay (borrowed amount = 70% of collateral amount)
+    const loanAmount = (collateralAmount * 70) / 100
     const halfOfLoan = (loanAmount * price) / 2
     // Act - Alice repays half of loan
     await expect(fromSigner(lending, alice).tx.repay({ u8: 1 }, halfOfLoan)).to.eventually.be.fulfilled
 
     // Assert - Alice received half of collateral tokens
     // @ts-ignore
-    await expect(stablecoin.query.balanceOf(alice)).to.have.output(alice_balance.sub(new BN(borrowedAmount / 2 + 1)))
+    await expect(stablecoin.query.balanceOf(alice)).to.have.output(alice_balance.sub(new BN(collateralAmount / 2 + 1)))
   })
 
   it('LENDING CONTRACT - withdraw asset', async () => {
@@ -202,20 +202,20 @@ describe('LENDING_CONTRACT', () => {
   })
 
   it('LENDING CONTRACT - liquidate loan', async () => {
-    const { lending, stablecoin, redcoin, alice } = await setup()
+    const { lending, stablecoin, greencoin, alice } = await setup()
 
     const amount = 1000
-    const borrowedAmount = 100
+    const collateralAmount = 100
     const price = 10
 
-    await redcoin.tx.mint(alice, new BN('1000000'))
+    await greencoin.tx.mint(alice, new BN('1000000'))
 
     // Act - Alice borrows redcoin
-    await borrow(lending, redcoin, stablecoin, alice, amount, borrowedAmount, price)
+    await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
     await expect(fromSigner(lending, alice).tx.liquidateLoan({ u8: 1 })).to.eventually.be.rejected
 
     // Act - Decrease redcoin price, now redcoin price < liquidation price
-    await expect(fromSigner(lending, alice).tx.setAssetPrice(stablecoin.address, redcoin.address, 1)).to.eventually.be.fulfilled
+    await expect(fromSigner(lending, alice).tx.setAssetPrice(stablecoin.address, greencoin.address, 1)).to.eventually.be.fulfilled
 
     // Assert - Alice can liquidate loan
     await expect(fromSigner(lending, alice).tx.liquidateLoan({ u8: 1 })).to.eventually.be.fulfilled
