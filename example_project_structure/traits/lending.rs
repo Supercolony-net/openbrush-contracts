@@ -39,7 +39,7 @@ pub trait Lending {
     /// This function  will return the address of shares
     /// which is bound to `asset_address` asset token
     #[ink(message)]
-    fn get_shares_from_asset(&self, asset_address: AccountId) -> Result<AccountId, LendingError>;
+    fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError>;
 
     /// This function will return true if the asset is accepted by the contract
     #[ink(message)]

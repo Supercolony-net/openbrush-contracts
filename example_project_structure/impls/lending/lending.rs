@@ -60,7 +60,7 @@ impl<T: LendingStorage<Data = LendingData> + PausableStorage<Data = PausableData
         Ok(PSP22Ref::total_supply(&mapped_asset))
     }
 
-    default fn get_shares_from_asset(&self, asset_address: AccountId) -> Result<AccountId, LendingError> {
+    default fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError> {
         LendingStorage::get(self)
             .asset_shares
             .get(&asset_address)
