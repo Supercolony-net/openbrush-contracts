@@ -60,6 +60,13 @@ impl<T: LendingStorage<Data = LendingData> + PausableStorage<Data = PausableData
         Ok(PSP22Ref::total_supply(&mapped_asset))
     }
 
+    default fn get_shares_from_asset(&self, asset_address: AccountId) -> Result<AccountId, LendingError> {
+        LendingStorage::get(self)
+            .asset_shares
+            .get(&asset_address)
+            .ok_or(LendingError::AssetNotSupported)
+    }
+
     default fn is_accepted_lending(&self, asset_address: AccountId) -> bool {
         !LendingStorage::get(self)
             .asset_shares
@@ -230,7 +237,7 @@ impl<T: LendingStorage<Data = LendingData> + PausableStorage<Data = PausableData
             SharesRef::mint(
                 &reserve_asset,
                 contract,
-                to_repay - repay_amount - loan_info.borrow_amount,
+                to_repay - repay_amount,
             )?;
             LoanRef::update_loan(
                 &loan_account,
@@ -292,10 +299,4 @@ impl<T: LendingStorage<Data = LendingData> + PausableStorage<Data = PausableData
         }
         Ok(())
     }
-
-    
-    // default fn get_shares_address(&self, asset_address: AccountId) -> Option<AccountId>{
-    //     let shares_asset = get_asset_from_shares(self, asset_address);
-    //     shares_asset.ok()
-    // }
 }

@@ -13,10 +13,8 @@ use openbrush::{
     },
     traits::{
         AccountId,
-        AccountIdExt,
         Balance,
         Hash,
-        ZERO_ADDRESS,
     },
 };
 // it is public because when you will import the trait you also will import the derive for the trait
@@ -90,15 +88,11 @@ pub fn get_reserve_asset<T>(instance: &T, asset_address: &AccountId) -> Result<A
 where
     T: LendingStorage<Data = LendingData>,
 {
-    let reserve_asset = instance
+    instance
         .get()
         .asset_shares
         .get(&asset_address)
-        .unwrap_or(ZERO_ADDRESS.into());
-    if reserve_asset.is_zero() {
-        return Err(LendingError::AssetNotSupported)
-    }
-    Ok(reserve_asset)
+        .ok_or(LendingError::AssetNotSupported)
 }
 
 /// internal function which will return the address of asset
@@ -107,13 +101,9 @@ pub fn get_asset_from_shares<T>(instance: &T, shares_address: &AccountId) -> Res
 where
     T: LendingStorage<Data = LendingData>,
 {
-    let token = instance
+    instance
         .get()
         .shares_asset
         .get(shares_address)
-        .unwrap_or(ZERO_ADDRESS.into());
-    if token.is_zero() {
-        return Err(LendingError::AssetNotSupported)
-    }
-    Ok(token)
+        .ok_or(LendingError::AssetNotSupported)
 }

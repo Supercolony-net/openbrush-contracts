@@ -36,11 +36,16 @@ pub trait Lending {
     #[ink(message)]
     fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError>;
 
+    /// This function  will return the address of shares
+    /// which is bound to `asset_address` asset token
+    #[ink(message)]
+    fn get_shares_from_asset(&self, asset_address: AccountId) -> Result<AccountId, LendingError>;
+
     /// This function will return true if the asset is accepted by the contract
     #[ink(message)]
     fn is_accepted_lending(&self, asset_address: AccountId) -> bool;
 
-    /// This function will return true if the asset is accepted by the contract
+    /// This function will return true if the asset is accepted for using as collateral
     #[ink(message)]
     fn is_accepted_collateral(&self, asset_address: AccountId) -> bool;
 
@@ -113,10 +118,6 @@ pub trait Lending {
     /// Returns `CanNotBeLiquidated` error if the price of collateral is not below the liquidation price
     #[ink(message)]
     fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError>;
-
-    // //This function return shares asset by asset address
-    // #[ink(message)]
-    // fn get_shares_address(&self, asset_address: AccountId) -> Option<AccountId>;
 }
 
 #[openbrush::wrapper]

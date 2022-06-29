@@ -7,7 +7,7 @@ pub mod token {
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::traits::stable_coin::*;
-    use openbrush::contracts::psp22::extensions::metadata::*;
+    use openbrush::contracts::psp22::extensions::{metadata::*, mintable::*};
 
     /// Define the storage for PSP22 data and Metadata data
     #[ink(storage)]
@@ -24,6 +24,9 @@ pub mod token {
 
     /// implement PSP22Metadata Trait for our coin
     impl PSP22Metadata for StableCoinContract {}
+
+    /// implement PSP22Mintable Trait for our coin
+    impl PSP22Mintable for StableCoinContract {}
 
     // It forces the compiler to check that you implemented all super traits
     impl StableCoin for StableCoinContract {}
