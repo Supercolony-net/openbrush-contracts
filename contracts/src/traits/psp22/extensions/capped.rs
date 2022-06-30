@@ -19,19 +19,23 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-mod psp22;
+/// Extension of [`PSP22`] that allows to set a limit on the total funding
+pub use crate::traits::errors::PSP22Error;
+use openbrush::traits::{
+    AccountId,
+    Balance,
+};
 
-pub use psp22::*;
+#[openbrush::wrapper]
+pub type PSP22CappedRef = dyn PSP22Capped;
 
-pub mod extensions {
-    pub mod burnable;
-    pub mod capped;
-    pub mod flashmint;
-    pub mod metadata;
-    pub mod mintable;
-    pub mod wrapper;
-}
+#[openbrush::trait_definition]
+pub trait PSP22Capped {
+    #[ink(message)]
+    /// Returns the token's cap
+    fn cap(&self) -> Balance;
 
-pub mod utils {
-    pub mod token_timelock;
+    /// Expose the `_mint_to` function
+    #[ink(message)]
+    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }

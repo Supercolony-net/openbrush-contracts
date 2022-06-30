@@ -19,19 +19,37 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-mod psp22;
+pub use crate::{
+    psp22::*,
+    traits::psp22::extensions::capped::*,
+};
+pub use derive::PSP22CappedStorage;
+use openbrush::{
+    declare_storage_trait,
+    traits::{
+        AccountId,
+        Balance,
+        InkStorage,
+    },
+};
 
-pub use psp22::*;
+pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP22CappedData");
 
-pub mod extensions {
-    pub mod burnable;
-    pub mod capped;
-    pub mod flashmint;
-    pub mod metadata;
-    pub mod mintable;
-    pub mod wrapper;
+#[derive(Default, Debug)]
+#[openbrush::storage(STORAGE_KEY)]
+pub struct PSP22CappedData {
+    pub cap: Balance,
+    pub _reserved: Option<()>,
 }
 
-pub mod utils {
-    pub mod token_timelock;
+declare_storage_trait!(PSP22CappedStorage);
+
+impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22Internal + InkStorage> PSP22Capped for T {
+    fn cap(&self) -> Balance {
+        self.get().cap
+    }
+
+    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        self._mint_to(account, amount)
+    }
 }

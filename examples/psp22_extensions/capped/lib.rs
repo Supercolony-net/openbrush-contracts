@@ -3,19 +3,22 @@
 
 #[openbrush::contract]
 pub mod my_psp22_capped {
-    use openbrush::contracts::psp22::*;
+    use openbrush::contracts::psp22::extensions::capped::*;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, PSP22Storage, PSP22CappedStorage)]
     pub struct MyPSP22Capped {
         #[PSP22StorageField]
         psp22: PSP22Data,
-        cap: Balance,
+        #[PSP22CappedStorageField]
+        capped: PSP22CappedData,
     }
 
     impl PSP22 for MyPSP22Capped {}
+
+    impl PSP22Capped for MyPSP22Capped {}
 
     impl MyPSP22Capped {
         /// Constructor which mints `initial_supply` of the token to sender
@@ -28,33 +31,21 @@ pub mod my_psp22_capped {
             })
         }
 
-        /// Expose the `_mint_to` function
-        #[ink(message)]
-        pub fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            self._mint_to(account, amount)
-        }
-
-        #[ink(message)]
-        /// Returns the token's cap
-        pub fn cap(&self) -> Balance {
-            self.cap
-        }
-
         /// Overrides the `_mint_to` function to check for cap overflow before minting tokens
         /// Performs `PSP22::_mint_to` after the check succeeds
-        fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        fn _mint_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             if (self.total_supply() + amount) > self.cap() {
                 return Err(PSP22Error::Custom(String::from("Cap exceeded")))
             }
-            PSP22Internal::_mint(self, account, amount)
+            PSP22Internal::_mint_to(self, account, amount)
         }
 
         /// Initializes the token's cap
         fn init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
-            if cap <= 0 {
+            if self.cap() <= 0 {
                 return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
             }
-            self.cap = cap;
+            PSP22CappedStorage::get_mut(self).cap = cap;
             Ok(())
         }
     }

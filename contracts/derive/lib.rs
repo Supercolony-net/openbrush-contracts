@@ -29,6 +29,8 @@ use openbrush::declare_derive_storage_trait;
 #[cfg(feature = "psp22")]
 declare_derive_storage_trait!(derive_psp22_storage, PSP22Storage, PSP22StorageField);
 #[cfg(feature = "psp22")]
+declare_derive_storage_trait!(derive_psp22capped_storage, PSP22CappedStorage, PSP22CappedStorageField);
+#[cfg(feature = "psp22")]
 declare_derive_storage_trait!(
     derive_psp22metadata_storage,
     PSP22MetadataStorage,
