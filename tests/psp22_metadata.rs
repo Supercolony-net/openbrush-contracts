@@ -27,7 +27,7 @@ mod psp22_metadata {
     /// Imports all the definitions from the outer scope so we can use them here.
     use openbrush::contracts::psp22::extensions::metadata::*;
 
-    /// A simple PSP-20 contract.
+    /// A simple PSP-22 contract.
     #[ink(storage)]
     #[derive(Default, PSP22Storage, PSP22MetadataStorage)]
     pub struct PSP22Struct {

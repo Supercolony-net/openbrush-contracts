@@ -45,11 +45,11 @@ pub struct PSP22CappedData {
 declare_storage_trait!(PSP22CappedStorage);
 
 impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22Internal + InkStorage> PSP22Capped for T {
-    fn cap(&self) -> Balance {
+    default fn cap(&self) -> Balance {
         self.get().cap
     }
 
-    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+    default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         self._mint_to(account, amount)
     }
 }

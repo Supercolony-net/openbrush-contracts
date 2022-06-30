@@ -41,8 +41,8 @@ pub mod my_psp22_capped {
         }
 
         /// Initializes the token's cap
-        fn init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
-            if self.cap() <= 0 {
+        fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
+            if cap == 0 {
                 return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
             }
             PSP22CappedStorage::get_mut(self).cap = cap;
