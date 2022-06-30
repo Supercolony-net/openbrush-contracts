@@ -26,18 +26,9 @@ pub mod my_psp22_capped {
         #[ink(constructor)]
         pub fn new(inital_supply: Balance, cap: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance.init_cap(cap).is_ok());
-                assert!(instance._mint_to(instance.env().caller(), inital_supply).is_ok());
+                assert!(instance._init_cap(cap).is_ok());
+                assert!(instance.mint(instance.env().caller(), inital_supply).is_ok());
             })
-        }
-
-        /// Overrides the `_mint_to` function to check for cap overflow before minting tokens
-        /// Performs `PSP22::_mint_to` after the check succeeds
-        fn _mint_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            if (self.total_supply() + amount) > self.cap() {
-                return Err(PSP22Error::Custom(String::from("Cap exceeded")))
-            }
-            PSP22Internal::_mint_to(self, account, amount)
         }
 
         /// Initializes the token's cap

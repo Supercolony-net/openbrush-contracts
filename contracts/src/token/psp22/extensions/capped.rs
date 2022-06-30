@@ -24,6 +24,7 @@ pub use crate::{
     traits::psp22::extensions::capped::*,
 };
 pub use derive::PSP22CappedStorage;
+use ink_prelude::string::String;
 use openbrush::{
     declare_storage_trait,
     traits::{
@@ -44,12 +45,15 @@ pub struct PSP22CappedData {
 
 declare_storage_trait!(PSP22CappedStorage);
 
-impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22Internal + InkStorage> PSP22Capped for T {
+impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22 + PSP22Internal + InkStorage> PSP22Capped for T {
     default fn cap(&self) -> Balance {
         self.get().cap
     }
 
     default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        if (self.total_supply() + amount) > self.cap() {
+            return Err(PSP22Error::Custom(String::from("Cap exceeded")))
+        }
         self._mint_to(account, amount)
     }
 }

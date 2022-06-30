@@ -31,11 +31,13 @@ pub type PSP22CappedRef = dyn PSP22Capped;
 
 #[openbrush::trait_definition]
 pub trait PSP22Capped {
-    #[ink(message)]
     /// Returns the token's cap
+    #[ink(message)]
     fn cap(&self) -> Balance;
 
-    /// Expose the `_mint_to` function
+    /// Minting `amount` tokens to the account.
+    /// Overrides the `_mint_to` function to check for cap overflow before minting tokens
+    /// Performs `PSP22::_mint_to` after the check succeeds
     #[ink(message)]
     fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }

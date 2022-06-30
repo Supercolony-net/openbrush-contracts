@@ -54,15 +54,6 @@ pub mod psp22_capped {
             })
         }
 
-        /// Overrides the `_mint_to` function to check for cap overflow before minting tokens
-        /// Performs `PSP22::_mint_to` after the check succeeds
-        fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            if (self.total_supply() + amount) > self.cap() {
-                return Err(PSP22Error::Custom(String::from("Cap exceeded")))
-            }
-            PSP22Internal::_mint_to(self, account, amount)
-        }
-
         /// Initializes the token's cap
         fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
             if cap == 0 {
