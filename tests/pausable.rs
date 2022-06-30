@@ -170,4 +170,17 @@ mod pausable {
         let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
         assert_unpaused_event(&emitted_events[0], accounts.alice);
     }
+
+    #[ink::test]
+    fn switch_pause_works() {
+        let accounts = setup();
+        let mut inst = MyFlipper::new();
+
+        assert!(inst._pause::<PausableError>().is_ok());
+        assert!(inst._switch_pause::<PausableError>().is_ok());
+        assert!(!inst.pause.paused);
+
+        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        assert_unpaused_event(&emitted_events[0], accounts.alice);
+    }
 }

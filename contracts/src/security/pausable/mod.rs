@@ -91,6 +91,9 @@ pub trait PausableInternal {
     /// On success a `Unpaused` event is emitted.
     #[modifiers(when_paused)]
     fn _unpause<E: From<PausableError>>(&mut self) -> Result<(), E>;
+
+    /// Function which changes state to unpaused if paused and vice versa
+    fn _switch_pause<E: From<PausableError>>(&mut self) -> Result<(), E>;
 }
 
 impl<T: PausableStorage<Data = PausableData>> PausableInternal for T {
@@ -110,5 +113,13 @@ impl<T: PausableStorage<Data = PausableData>> PausableInternal for T {
         self.get_mut().paused = false;
         self._emit_unpaused_event(Self::env().caller());
         Ok(())
+    }
+
+    fn _switch_pause<E: From<PausableError>>(&mut self) -> Result<(), E> {
+        if self.paused() {
+            self._unpause()
+        } else {
+            self._pause()
+        }
     }
 }

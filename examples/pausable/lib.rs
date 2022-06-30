@@ -36,6 +36,11 @@ pub mod my_pausable {
         pub fn unpause(&mut self) -> Result<(), PausableError> {
             self._unpause()
         }
+
+        #[ink(message)]
+        pub fn change_state(&mut self) -> Result<(), PausableError> {
+            self._switch_pause()
+        }
     }
 
     impl Pausable for MyFlipper {}

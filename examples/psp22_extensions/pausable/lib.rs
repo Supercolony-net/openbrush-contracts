@@ -50,11 +50,7 @@ pub mod my_psp22_pausable {
         /// Function which changes state to unpaused if paused and vice versa
         #[ink(message)]
         pub fn change_state(&mut self) -> Result<(), PSP22Error> {
-            if self.paused() {
-                self._unpause()
-            } else {
-                self._pause()
-            }
+            self._switch_pause()
         }
     }
 }
