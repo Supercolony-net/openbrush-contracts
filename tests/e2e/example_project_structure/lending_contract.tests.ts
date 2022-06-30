@@ -141,7 +141,7 @@ describe('LENDING_CONTRACT', () => {
 
     await greencoin.tx.mint(alice, new BN('1000000'))
 
-    // Act - Alice borrows redcoin
+    // Act - Alice borrows greencoin
     const alice_balance = (await stablecoin.query.balanceOf(alice)).output
     await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
 
@@ -162,7 +162,7 @@ describe('LENDING_CONTRACT', () => {
 
     await greencoin.tx.mint(alice, new BN('1000000'))
 
-    // Act - Alice borrows redcoin
+    // Act - Alice borrows greencoin
     const alice_balance = (await stablecoin.query.balanceOf(alice)).output
     await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
 
@@ -210,11 +210,11 @@ describe('LENDING_CONTRACT', () => {
 
     await greencoin.tx.mint(alice, new BN('1000000'))
 
-    // Act - Alice borrows redcoin
+    // Act - Alice borrows greencoin
     await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
     await expect(fromSigner(lending, alice).tx.liquidateLoan({ u8: 1 })).to.eventually.be.rejected
 
-    // Act - Decrease redcoin price, now redcoin price < liquidation price
+    // Act - Decrease greencoin price, now greencoin price < liquidation price
     await expect(fromSigner(lending, alice).tx.setAssetPrice(stablecoin.address, greencoin.address, 1)).to.eventually.be.fulfilled
 
     // Assert - Alice can liquidate loan
