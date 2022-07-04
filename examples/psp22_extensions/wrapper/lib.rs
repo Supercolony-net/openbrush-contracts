@@ -4,15 +4,18 @@
 #[openbrush::contract]
 pub mod my_psp22_wrapper {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp22::extensions::wrapper::*;
+    use openbrush::{
+        contracts::psp22::extensions::wrapper::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22WrapperStorage, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22Wrapper {
-        #[PSP22StorageField]
-        psp22: Data,
-        #[PSP22WrapperStorageField]
-        wrapper: Data,
+        #[storage_field]
+        psp22: psp22::Data,
+        #[storage_field]
+        wrapper: wrapper::Data,
     }
 
     impl PSP22 for MyPSP22Wrapper {}

@@ -4,13 +4,16 @@
 #[openbrush::contract]
 pub mod my_psp22_flashmint {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp22::extensions::flashmint::*;
+    use openbrush::{
+        contracts::psp22::extensions::flashmint::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22FlashMint {
-        #[PSP22StorageField]
-        psp22: Data,
+        #[storage_field]
+        psp22: psp22::Data,
     }
 
     impl PSP22 for MyPSP22FlashMint {}

@@ -4,13 +4,16 @@
 #[openbrush::contract]
 pub mod my_pausable {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::pausable::*;
+    use openbrush::{
+        contracts::pausable::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PausableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyFlipper {
-        #[PausableStorageField]
-        pause: Data,
+        #[storage_field]
+        pause: pausable::Data,
         flipped: bool,
     }
 

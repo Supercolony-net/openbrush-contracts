@@ -13,7 +13,7 @@ pub mod my_psp34_mintable {
     #[ink(storage)]
     pub struct MyPSP34 {
         #[storage_field]
-        psp34: Data,
+        psp34: psp34::Data,
     }
 
     impl PSP34 for MyPSP34 {}

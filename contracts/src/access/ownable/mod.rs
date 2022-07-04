@@ -23,6 +23,8 @@ pub use crate::{
     ownable,
     traits::ownable::*,
 };
+pub use ownable::Internal as _;
+
 use openbrush::{
     modifier_definition,
     modifiers,

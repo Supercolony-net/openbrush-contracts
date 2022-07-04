@@ -26,7 +26,10 @@ pub use crate::{
         *,
     },
 };
-pub use psp22::Internal as _;
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
 
 use openbrush::traits::{
     AccountId,

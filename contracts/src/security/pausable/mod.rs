@@ -23,6 +23,8 @@ pub use crate::{
     pausable,
     traits::pausable::*,
 };
+pub use pausable::Internal as _;
+
 use openbrush::{
     modifier_definition,
     modifiers,

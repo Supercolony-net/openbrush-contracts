@@ -36,27 +36,30 @@
 /// Users with the manager role can pause the contract. If the contract is paused, no borrowing or lending can be performed
 /// Users can still repay their loans, liquidate loans or withdraw their deposits
 #[openbrush::contract]
-pub mod lending {
+pub mod my_lending {
     use ink_lang::ToAccountId;
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::impls::lending::*;
     use loan_contract::loan::LoanContractRef;
-    use openbrush::contracts::{
-        access_control::*,
-        pausable::*,
+    use openbrush::{
+        contracts::{
+            access_control::*,
+            pausable::*,
+        },
+        traits::Storage,
     };
     use shares_contract::shares::SharesContractRef;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, AccessControlStorage, PausableStorage, LendingStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct LendingContract {
-        #[AccessControlStorageField]
-        access: Data,
-        #[PausableStorageField]
-        pause: Data,
-        #[LendingStorageField]
-        lending: LendingData,
+        #[storage_field]
+        access: access_control::Data,
+        #[storage_field]
+        pause: pausable::Data,
+        #[storage_field]
+        lending: lending::data::Data,
     }
 
     impl AccessControl for LendingContract {}
@@ -67,7 +70,7 @@ pub mod lending {
 
     impl LendingPermissioned for LendingContract {}
 
-    impl LendingPermissionedInternal for LendingContract {
+    impl lending::Internal for LendingContract {
         fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
             let code_hash = self.lending.shares_contract_code_hash;
             let (hash, _) =

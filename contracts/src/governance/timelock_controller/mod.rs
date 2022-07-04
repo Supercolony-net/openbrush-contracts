@@ -28,6 +28,7 @@ pub use crate::{
     },
 };
 pub use access_control::Internal as _;
+pub use timelock_controller::Internal as _;
 
 use core::convert::TryFrom;
 use ink_env::{

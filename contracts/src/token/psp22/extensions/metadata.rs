@@ -27,7 +27,10 @@ pub use crate::{
         *,
     },
 };
-pub use psp22::Internal as _;
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
 
 use ink_prelude::string::String;
 use openbrush::traits::Storage;

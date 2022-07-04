@@ -10,15 +10,16 @@ pub mod my_psp22_pausable {
             psp22::*,
         },
         modifiers,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, PausableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22Pausable {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[PausableStorageField]
-        pause: PausableData,
+        #[storage_field]
+        psp22: psp22::Data,
+        #[storage_field]
+        pause: pausable::Data,
     }
 
     impl PSP22 for MyPSP22Pausable {}

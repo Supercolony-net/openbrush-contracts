@@ -27,6 +27,7 @@ pub use crate::{
         ownable::*,
     },
 };
+pub use diamond::Internal as _;
 pub use ownable::Internal as _;
 
 use ink_env::{

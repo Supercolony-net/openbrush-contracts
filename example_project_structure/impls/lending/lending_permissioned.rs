@@ -1,17 +1,19 @@
-pub use super::data::*;
+use super::{
+    data,
+    data::*,
+};
+use crate::traits::lending::*;
 use openbrush::{
     contracts::{
         access_control::*,
-        pausable::{
-            Data,
-            PausableStorage,
-        },
+        pausable::*,
         traits::psp22::PSP22Ref,
     },
     modifiers,
     traits::{
         AccountId,
         Balance,
+        OccupiedStorage,
         Storage,
         ZERO_ADDRESS,
     },
@@ -19,9 +21,12 @@ use openbrush::{
 
 pub const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
 
-impl<T> LendingPermissioned for T
+impl<T, M> LendingPermissioned for T
 where
-    T: Storage<LendingData> + Storage<Data> + LendingPermissionedInternal + Storage<Data>,
+    T: Internal,
+    T: Storage<data::Data> + Storage<pausable::Data> + Storage<access_control::Data<M>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
+    M: members::MembersManager,
 {
     #[modifiers(only_role(MANAGER))]
     default fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
@@ -83,37 +88,34 @@ where
     }
 }
 
-pub trait LendingPermissionedInternal {
-    /// internal function which instantiates a shares contract and returns its AccountId
+pub trait Internal {
+    /// Internal function which instantiates a shares contract and returns its AccountId
     fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId;
 }
 
-fn accept_lending<T: Storage<LendingData>>(
+fn accept_lending<T: Storage<data::Data>>(
     instance: &mut T,
     asset_address: AccountId,
     share_address: AccountId,
     reserve_address: AccountId,
 ) {
-    instance.get_mut().asset_shares.insert(&asset_address, &share_address);
-    instance.get_mut().shares_asset.insert(&share_address, &asset_address);
-    instance
-        .get_mut()
-        .assets_lended
-        .insert(&asset_address, &reserve_address);
+    instance.data().asset_shares.insert(&asset_address, &share_address);
+    instance.data().shares_asset.insert(&share_address, &asset_address);
+    instance.data().assets_lended.insert(&asset_address, &reserve_address);
 }
 
-fn disallow_lending<T: Storage<LendingData>>(instance: &mut T, asset_address: AccountId) {
+fn disallow_lending<T: Storage<data::Data>>(instance: &mut T, asset_address: AccountId) {
     let share_address = instance
-        .get_mut()
+        .data()
         .asset_shares
         .get(&asset_address)
         .unwrap_or(ZERO_ADDRESS.into());
-    instance.get_mut().asset_shares.remove(&asset_address);
-    instance.get_mut().shares_asset.remove(&share_address);
-    instance.get_mut().assets_lended.remove(&asset_address);
+    instance.data().asset_shares.remove(&asset_address);
+    instance.data().shares_asset.remove(&share_address);
+    instance.data().assets_lended.remove(&asset_address);
 }
 
 /// this function will accept `asset_address` for using as collateral
-fn set_collateral_accepted<T: Storage<LendingData>>(instance: &mut T, asset_address: AccountId, accepted: bool) {
-    instance.get_mut().collateral_accepted.insert(&asset_address, &accepted);
+fn set_collateral_accepted<T: Storage<data::Data>>(instance: &mut T, asset_address: AccountId, accepted: bool) {
+    instance.data().collateral_accepted.insert(&asset_address, &accepted);
 }

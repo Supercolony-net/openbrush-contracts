@@ -13,15 +13,16 @@ pub mod my_access_control {
             },
         },
         modifiers,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP34Storage, AccessControlStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct PSP34Struct {
-        #[PSP34StorageField]
-        psp34: Data,
-        #[AccessControlStorageField]
-        access: Data,
+        #[storage_field]
+        psp34: psp34::Data,
+        #[storage_field]
+        access: access_control::Data,
     }
 
     // You can manually set the number for the role.

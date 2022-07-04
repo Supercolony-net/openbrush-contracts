@@ -24,6 +24,8 @@ pub use crate::{
     access_control::members,
     traits::access_control::*,
 };
+pub use access_control::Internal as _;
+
 use openbrush::{
     modifier_definition,
     modifiers,
@@ -59,7 +61,6 @@ pub fn only_role<T, M, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Re
 where
     M: members::MembersManager,
     T: Storage<Data<M>>,
-    T: OccupiedStorage<STORAGE_KEY, WithData = Data<M>>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
@@ -180,7 +181,6 @@ pub fn check_role<T, M>(instance: &T, role: RoleType, account: AccountId) -> Res
 where
     M: members::MembersManager,
     T: Storage<Data<M>>,
-    T: OccupiedStorage<STORAGE_KEY, WithData = Data<M>>,
 {
     if !instance.data().members.has_role(role, &account) {
         return Err(AccessControlError::MissingRole)
@@ -191,8 +191,7 @@ where
 pub fn get_role_admin<T, M>(instance: &T, role: RoleType) -> RoleType
 where
     M: members::MembersManager,
-    T: Storage<Data<M>>,
-    T: OccupiedStorage<STORAGE_KEY, WithData = Data<M>>,
+    T: Storage<Data<M>> + Internal,
 {
     instance.data().admin_roles.get(role).unwrap_or(T::_default_admin())
 }

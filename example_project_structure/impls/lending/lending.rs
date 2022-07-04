@@ -1,7 +1,19 @@
-// importing everything publicly from traits allows you to import every stuff related to lending
+// Importing everything publicly from traits allows you to import every stuff related to lending
 // by one import
-pub use super::data::*;
-pub use crate::traits::lending::*;
+pub use crate::{
+    impls::lending::{
+        data,
+        data::*,
+        lending,
+        lending_permissioned::{
+            Internal,
+            *,
+        },
+        *,
+    },
+    traits::lending::*,
+};
+
 use crate::traits::{
     loan::{
         LoanInfo,
@@ -31,10 +43,11 @@ use openbrush::{
 
 pub const YEAR: Timestamp = 60 * 60 * 24 * 365;
 
-impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
+impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
     default fn total_asset(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
-        let mapped_asset = LendingStorage::get(self)
+        let mapped_asset = self
+            .data::<data::Data>()
             .assets_lended
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into());
@@ -50,7 +63,8 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
 
     default fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
-        let mapped_asset = LendingStorage::get(self)
+        let mapped_asset = self
+            .data::<data::Data>()
             .asset_shares
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into());
@@ -62,7 +76,8 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
     }
 
     default fn is_accepted_lending(&self, asset_address: AccountId) -> bool {
-        !LendingStorage::get(self)
+        !self
+            .data::<data::Data>()
             .asset_shares
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into())
@@ -70,7 +85,7 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
     }
 
     default fn is_accepted_collateral(&self, asset_address: AccountId) -> bool {
-        LendingStorage::get(self)
+        self.data::<data::Data>()
             .collateral_accepted
             .get(&asset_address)
             .unwrap_or(false)
@@ -165,7 +180,7 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
             liquidated: false,
         };
 
-        let load_account = LendingStorage::get(self).loan_account;
+        let load_account = self.data::<data::Data>().loan_account;
         LoanRef::create_loan(&load_account, loan_info)?;
         // transfer assets to borrower
         PSP22Ref::transfer(&asset_address, borrower, borrow_amount, Vec::<u8>::new())?;
@@ -178,7 +193,7 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
         // REPAYING (borrower: B, nft, repayAmount: X):
         let initiator = Self::env().caller();
         let contract = Self::env().account_id();
-        let loan_account = LendingStorage::get(self).loan_account;
+        let loan_account = self.data::<data::Data>().loan_account;
         let apy = 1000;
         // initiator must own the nft
         if LoanRef::owner_of(&loan_account, loan_id.clone()).unwrap_or(ZERO_ADDRESS.into()) != initiator {
@@ -262,7 +277,7 @@ impl<T: Storage<LendingData> + Storage<Data>> Lending for T {
     }
 
     default fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError> {
-        let loan_account = LendingStorage::get(self).loan_account;
+        let loan_account = self.data::<data::Data>().loan_account;
         let loan_info = LoanRef::get_loan_info(&loan_account, loan_id.clone())?;
 
         if loan_info.liquidated {

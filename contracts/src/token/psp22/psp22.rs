@@ -21,8 +21,14 @@
 
 pub use crate::{
     psp22,
+    psp22::Internal as _,
     traits::psp22::*,
 };
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
+
 use ink_env::{
     CallFlags,
     Error as EnvError,

@@ -5,13 +5,16 @@
 pub mod my_psp22_burnable {
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp22::extensions::burnable::*;
+    use openbrush::{
+        contracts::psp22::extensions::burnable::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22 {
-        #[PSP22StorageField]
-        psp22: Data,
+        #[storage_field]
+        psp22: psp22::Data,
     }
 
     impl PSP22 for MyPSP22 {}

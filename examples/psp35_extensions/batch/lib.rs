@@ -5,13 +5,16 @@
 pub mod my_psp35 {
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp35::extensions::batch::*;
+    use openbrush::{
+        contracts::psp35::extensions::batch::*,
+        traits::Storage,
+    };
 
-    #[derive(Default, SpreadAllocate, PSP35Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct MyPSP35 {
-        #[PSP35StorageField]
-        psp35: PSP35Data,
+        #[storage_field]
+        psp35: psp35::Data,
     }
 
     impl PSP35 for MyPSP35 {}

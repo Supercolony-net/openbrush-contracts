@@ -28,6 +28,7 @@ pub use crate::{
     },
 };
 pub use ownable::Internal as _;
+pub use proxy::Internal as _;
 
 use ink_env::call::DelegateCall;
 use openbrush::{

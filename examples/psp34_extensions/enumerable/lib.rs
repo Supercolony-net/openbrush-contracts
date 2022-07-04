@@ -7,10 +7,7 @@ pub mod my_psp34_enumerable {
     use openbrush::{
         contracts::psp34::extensions::{
             burnable::*,
-            enumerable::{
-                self,
-                *,
-            },
+            enumerable::*,
             mintable::*,
         },
         traits::Storage,
@@ -20,7 +17,7 @@ pub mod my_psp34_enumerable {
     #[ink(storage)]
     pub struct MyPSP34 {
         #[storage_field]
-        psp34: Data<enumerable::Balances>,
+        psp34: psp34::Data<enumerable::Balances>,
     }
 
     impl PSP34 for MyPSP34 {}

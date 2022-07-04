@@ -11,43 +11,39 @@ pub mod loan {
             psp34::extensions::metadata::*,
         },
         storage::Mapping,
+        traits::Storage,
     };
 
     use openbrush::modifiers;
 
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
+    use ink_prelude::string::String;
     use lending_project::traits::loan::*;
 
     /// Define the storage for PSP34 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(SpreadAllocate, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
+    #[derive(SpreadAllocate, Storage)]
     pub struct LoanContract {
-        #[PSP34StorageField]
-        psp34: Data,
-        #[OwnableStorageField]
-        ownable: Data,
-        #[PSP34MetadataStorageField]
-        metadata: Data,
+        #[storage_field]
+        psp34: psp34::Data,
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        metadata: metadata::Data,
 
         // Fields of current contract
         /// mapping from token id to `LoanInfo`
         loan_info: Mapping<Id, LoanInfo>,
         /// the id of last loan
         last_loan_id: Id,
-        /// ids no longer used (can be reused)
-        freed_ids: Vec<Id>,
     }
 
-    /// implement PSP34 Trait for our NFT
+    // Implement PSP34 Trait for our NFT
     impl PSP34 for LoanContract {}
 
-    /// implement Ownable Trait for our NFT
+    // Implement Ownable Trait for our NFT
     impl Ownable for LoanContract {}
 
-    /// implement PSP34Metadata Trait for our NFT
+    // Implement PSP34Metadata Trait for our NFT
     impl PSP34Metadata for LoanContract {}
 
     impl Loan for LoanContract {
@@ -103,8 +99,7 @@ pub mod loan {
         #[ink(constructor, payable)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut LoanContract| {
-                instance.last_loan_id = Id::U8(1u8);
-                instance.freed_ids = Vec::new();
+                instance.last_loan_id = Id::U128(1);
                 instance._set_attribute(
                     Id::U8(1u8),
                     String::from("LoanContract NFT").into_bytes(),
@@ -113,7 +108,7 @@ pub mod loan {
             })
         }
 
-        /// internal function to update data of a loan
+        /// Internal function to update data of a loan
         fn _update_loan(
             &mut self,
             loan_id: Id,
@@ -137,7 +132,7 @@ pub mod loan {
             Ok(())
         }
 
-        /// internal function to set loan to liquidated
+        /// Internal function to set loan to liquidated
         fn _liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP34Error> {
             let loan_info = self.loan_info.get(&loan_id);
 
@@ -153,23 +148,16 @@ pub mod loan {
             Ok(())
         }
 
-        /// internal function to return the id of a new loan and to increase it in the storage
+        /// Internal function to return the id of a new loan and to increase it in the storage
         fn _get_next_loan_id_and_increase(&mut self) -> Result<Id, PSP34Error> {
-            if self.freed_ids.len() > 0 {
-                return Ok(self.freed_ids.pop().unwrap())
-            }
-            let current = self.last_loan_id.clone();
-            // It is not fully correct implementation of the increasing. but it is only an example
-            match current {
-                Id::U8(v) => {
-                    if v == u8::MAX {
-                        return Err(PSP34Error::Custom(String::from("Max Id reached!")))
-                    }
-                    self.last_loan_id = Id::U8(v + 1);
+            match &mut self.last_loan_id {
+                Id::U128(id) => {
+                    let result = Id::U128(id.clone());
+                    *id += 1;
+                    Ok(result)
                 }
-                _ => {}
-            };
-            Ok(current)
+                _ => Err(PSP34Error::Custom(String::from("Not expected Id!"))),
+            }
         }
     }
 }

@@ -4,18 +4,21 @@
 #[openbrush::contract]
 pub mod my_psp35_enumerable {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp35::extensions::{
-        batch::*,
-        burnable::*,
-        enumerable::*,
-        mintable::*,
+    use openbrush::{
+        contracts::psp35::extensions::{
+            batch::*,
+            burnable::*,
+            enumerable::*,
+            mintable::*,
+        },
+        traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, PSP35Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct MyPSP35 {
-        #[PSP35StorageField]
-        psp35: PSP35Data<EnumerableBalances>,
+        #[storage_field]
+        psp35: psp35::Data<enumerable::Balances>,
     }
 
     impl PSP35 for MyPSP35 {}

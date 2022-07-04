@@ -5,13 +5,18 @@
 pub mod my_timelock_controller {
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::timelock_controller::*;
+    use openbrush::{
+        contracts::timelock_controller::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, TimelockControllerStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct TimelockStruct {
-        #[TimelockControllerStorageField]
-        timelock: Data,
+        #[storage_field]
+        access_control: access_control::Data,
+        #[storage_field]
+        timelock: timelock_controller::Data,
     }
 
     impl TimelockStruct {
@@ -21,8 +26,8 @@ pub mod my_timelock_controller {
                 let caller = instance.env().caller();
                 // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
                 // You need to call it for each trait separately, to initialize everything for these traits.
-                Internal::_init_with_admin(instance, caller);
-                Internal::_init_with_admin(instance, caller, min_delay, proposers, executors);
+                access_control::Internal::_init_with_admin(instance, caller);
+                timelock_controller::Internal::_init_with_admin(instance, caller, min_delay, proposers, executors);
             })
         }
     }

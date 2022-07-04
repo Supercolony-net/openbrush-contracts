@@ -24,6 +24,10 @@ pub use crate::{
     psp35::balances,
     traits::psp35::*,
 };
+pub use psp35::{
+    Internal as _,
+    Transfer as _,
+};
 
 use core::result::Result;
 use ink_env::{

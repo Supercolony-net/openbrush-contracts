@@ -24,6 +24,10 @@ pub use crate::{
     psp34::balances,
     traits::psp34::*,
 };
+pub use psp34::{
+    Internal as _,
+    Transfer as _,
+};
 
 use crate::psp34::{
     Operator,

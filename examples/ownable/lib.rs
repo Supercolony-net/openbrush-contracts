@@ -14,15 +14,16 @@ pub mod ownable {
             },
         },
         modifiers,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP35Storage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct PSP35Struct {
-        #[PSP35StorageField]
-        psp1155: Data,
-        #[OwnableStorageField]
-        ownable: Data,
+        #[storage_field]
+        psp35: psp35::Data,
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
     impl PSP35Struct {

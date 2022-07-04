@@ -9,10 +9,7 @@ pub mod my_psp34_metadata {
     };
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
-        contracts::psp34::extensions::metadata::{
-            self,
-            *,
-        },
+        contracts::psp34::extensions::metadata::*,
         traits::Storage,
     };
 

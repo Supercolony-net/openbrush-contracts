@@ -11,13 +11,14 @@ pub mod my_psp35 {
     use openbrush::{
         contracts::psp35::*,
         storage::Mapping,
+        traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, PSP35Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct MyPSP35 {
-        #[PSP35StorageField]
-        psp35: Data,
+        #[storage_field]
+        psp35: psp35::Data,
         denied_ids: Mapping<Id, ()>,
     }
 

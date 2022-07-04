@@ -4,16 +4,21 @@
 #[openbrush::contract]
 pub mod proxy {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::{
-        ownable::*,
-        proxy::*,
+    use openbrush::{
+        contracts::{
+            ownable::*,
+            proxy::*,
+        },
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, ProxyStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct ProxyStruct {
-        #[ProxyStorageField]
-        proxy: Data,
+        #[storage_field]
+        proxy: proxy::Data,
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
     impl ProxyStruct {
@@ -27,7 +32,7 @@ pub mod proxy {
         }
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) {
-            Internal::_fallback(self);
+            self._fallback()
         }
     }
 

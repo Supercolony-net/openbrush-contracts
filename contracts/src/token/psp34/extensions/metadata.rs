@@ -30,6 +30,7 @@ pub use crate::{
         *,
     },
 };
+pub use metadata::Internal as _;
 pub use psp34::{
     Internal as _,
     Transfer as _,

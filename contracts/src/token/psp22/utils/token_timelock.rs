@@ -29,6 +29,7 @@ pub use crate::{
     },
 };
 pub use psp22::Internal as _;
+pub use token_timelock::Internal as _;
 
 use ink_env::CallFlags;
 use ink_prelude::vec::Vec;

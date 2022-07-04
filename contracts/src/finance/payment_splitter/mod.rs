@@ -23,6 +23,8 @@ pub use crate::{
     payment_splitter,
     traits::payment_splitter::*,
 };
+pub use payment_splitter::Internal as _;
+
 use ink_prelude::vec::Vec;
 use openbrush::{
     storage::Mapping,

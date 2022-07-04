@@ -5,13 +5,16 @@
 pub mod my_payment_splitter {
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::payment_splitter::*;
+    use openbrush::{
+        contracts::payment_splitter::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PaymentSplitterStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct SplitterStruct {
-        #[PaymentSplitterStorageField]
-        splitter: Data,
+        #[storage_field]
+        splitter: payment_splitter::Data,
     }
 
     impl SplitterStruct {
@@ -26,7 +29,7 @@ pub mod my_payment_splitter {
         /// Delete this method if you don't want this functionality in your version of the payment splitter.
         #[ink(message)]
         pub fn release_all(&mut self) -> Result<(), PaymentSplitterError> {
-            // `_release_all()` is an internal method defined by the `PaymentSplitterInternal` trait
+            // `_release_all()` is an internal method defined by the `payment_splitter::Internal` trait
             self._release_all()
         }
     }

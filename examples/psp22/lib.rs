@@ -14,7 +14,7 @@ pub mod my_psp22 {
     #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22 {
         #[storage_field]
-        psp22: Data,
+        psp22: psp22::Data,
         // fields for hater logic
         hated_account: AccountId,
     }

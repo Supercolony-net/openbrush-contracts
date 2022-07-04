@@ -27,7 +27,11 @@ pub use crate::{
         psp22::*,
     },
 };
-pub use psp22::Internal as _;
+pub use flashmint::Internal as _;
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
 
 use ink_env::{
     CallFlags,

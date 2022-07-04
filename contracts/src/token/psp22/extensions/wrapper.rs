@@ -28,6 +28,7 @@ pub use crate::{
     },
 };
 pub use psp22::Internal as _;
+pub use wrapper::Internal as _;
 
 use ink_env::CallFlags;
 use ink_prelude::vec::Vec;
