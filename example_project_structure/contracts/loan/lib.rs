@@ -107,7 +107,7 @@ pub mod loan {
                 instance.freed_ids = Vec::new();
                 instance._set_attribute(
                     Id::U8(1u8),
-                    String::from("LoanContract NFT").into_bytes(),
+                    &String::from("LoanContract NFT").into_bytes(),
                     String::from("L-NFT").into_bytes(),
                 );
             })
