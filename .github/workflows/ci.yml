@@ -86,21 +86,6 @@ jobs:
 #      - name: Contract size
 #        run: |
 #          find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \;
-  contract-size:
-    concurrency:
-      group: contract-size-${{ github.ref }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    needs: examples-builds
-    container:
-      image: ghcr.io/supercolony-net/openbrush-contracts-ci
-      options: --user root
-    steps:
-      - name: Contract size
-        with:
-          path: /usr/local/cache/target/ink
-        run: |
-          find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \;
   caching-artifacts:
     concurrency:
       group: caching-artifacts-${{ github.ref }}
@@ -119,6 +104,18 @@ jobs:
         with:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+  contract-size:
+    concurrency:
+      group: contract-size-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    needs: caching-artifacts
+    steps:
+      - name: Contract size
+        with:
+          path: artifacts
+        run: |
+          find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \;
   integration-tests:
     concurrency:
       group: integration-tests-${{ github.ref }}
