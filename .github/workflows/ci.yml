@@ -109,8 +109,18 @@ jobs:
       group: contract-size-${{ github.ref }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
-    needs: caching-artifacts
+    needs: examples-builds
+    container:
+      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      options: --user root
     steps:
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
+
       - name: Contract size
         with:
           path: artifacts
