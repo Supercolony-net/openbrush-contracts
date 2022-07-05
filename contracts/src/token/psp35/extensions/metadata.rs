@@ -45,7 +45,7 @@ pub struct PSP35MetadataData {
 pub struct AttributesKey;
 
 impl<'a> TypeGuard<'a> for AttributesKey {
-    type Type = &'a (&'a Id, &'a Vec<u8>);
+    type Type = &'a (&'a Id, &'a [u8]);
 }
 
 declare_storage_trait!(PSP35MetadataStorage);
@@ -57,16 +57,16 @@ impl<T: PSP35MetadataStorage<Data = PSP35MetadataData>> PSP35Metadata for T {
 }
 
 pub trait PSP35MetadataInternal {
-    fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP35Error>;
+    fn _set_attribute(&mut self, id: &Id, key: &[u8], data: &Vec<u8>) -> Result<(), PSP35Error>;
 
     fn _get_attribute(&self, id: &Id, key: &Vec<u8>) -> Option<Vec<u8>>;
 
-    fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>);
+    fn _emit_attribute_set_event(&self, _id: &Id, _key: &[u8], _data: &Vec<u8>);
 }
 
 impl<T: PSP35MetadataStorage<Data = PSP35MetadataData>> PSP35MetadataInternal for T {
-    default fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP35Error> {
-        self.get_mut().attributes.insert(&(&id, &key), data);
+    default fn _set_attribute(&mut self, id: &Id, key: &[u8], data: &Vec<u8>) -> Result<(), PSP35Error> {
+        self.get_mut().attributes.insert(&(&id, key), data);
         self._emit_attribute_set_event(id, key, data);
         Ok(())
     }
@@ -75,5 +75,5 @@ impl<T: PSP35MetadataStorage<Data = PSP35MetadataData>> PSP35MetadataInternal fo
         self.get().attributes.get(&(&id, &key))
     }
 
-    default fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {}
+    default fn _emit_attribute_set_event(&self, _id: &Id, _key: &[u8], _data: &Vec<u8>) {}
 }

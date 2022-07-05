@@ -48,7 +48,7 @@ pub struct PSP34MetadataData {
 pub struct AttributesKey;
 
 impl<'a> TypeGuard<'a> for AttributesKey {
-    type Type = &'a (&'a Id, &'a Vec<u8>);
+    type Type = &'a (&'a Id, &'a [u8]);
 }
 
 declare_storage_trait!(PSP34MetadataStorage);
@@ -60,12 +60,12 @@ impl<T: PSP34MetadataStorage<Data = PSP34MetadataData>> PSP34Metadata for T {
 }
 
 pub trait PSP34MetadataInternal {
-    fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>);
+    fn _set_attribute(&mut self, id: Id, key: &[u8], value: Vec<u8>);
 }
 
 impl<T: PSP34MetadataStorage<Data = PSP34MetadataData> + PSP34Internal> PSP34MetadataInternal for T {
-    default fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>) {
-        self.get_mut().attributes.insert(&(&id, &key), &value);
+    default fn _set_attribute(&mut self, id: Id, key: &[u8], value: Vec<u8>) {
+        self.get_mut().attributes.insert(&(&id, key), &value);
         self._emit_attribute_set_event(id, key, value);
     }
 }
