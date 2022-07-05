@@ -1,9 +1,6 @@
 name: CI/CD
 
 on:
-  push:
-    branches:
-      - "feature/ci-contract-size"
   pull_request:
     branches: [ main ]
 
@@ -24,23 +21,23 @@ jobs:
 
       - name: Rustfmt check
         run: cargo +nightly fmt --all -- --check
-#  unit-test:
-#    concurrency:
-#      group: unit-test-${{ github.ref }}
-#      cancel-in-progress: true
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Install latest nightly
-#        uses: actions-rs/toolchain@v1
-#        with:
-#          toolchain: nightly
-#          override: true
-#          components: rustfmt, clippy
-#
-#      - name: Build & Run cargo tests
-#        run: |
-#          RUSTFLAGS="-D warnings" cargo +nightly test --all-features --workspace -- --test-threads=10
+  unit-test:
+    concurrency:
+      group: unit-test-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      - name: Build & Run cargo tests
+        run: |
+          RUSTFLAGS="-D warnings" cargo +nightly test --all-features --workspace -- --test-threads=10
   examples-builds:
     concurrency:
       group: examples-builds-${{ github.ref }}
@@ -82,10 +79,6 @@ jobs:
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
-#
-#      - name: Contract size
-#        run: |
-#          find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \;
   caching-artifacts:
     concurrency:
       group: caching-artifacts-${{ github.ref }}
