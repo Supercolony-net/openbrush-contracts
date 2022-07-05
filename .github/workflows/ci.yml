@@ -97,8 +97,10 @@ jobs:
       options: --user root
     steps:
       - name: Contract size
+        with:
+          path: /usr/local/cache/target/ink
         run: |
-          find ./usr/local/cache/target/ink -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \;
+          find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \;
   caching-artifacts:
     concurrency:
       group: caching-artifacts-${{ github.ref }}
