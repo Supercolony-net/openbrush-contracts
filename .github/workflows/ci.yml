@@ -122,8 +122,6 @@ jobs:
           key: cache-contract-artifacts-${{ github.sha }}
 
       - name: Contract size
-        with:
-          path: artifacts
         run: |
           find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \;
   integration-tests:
