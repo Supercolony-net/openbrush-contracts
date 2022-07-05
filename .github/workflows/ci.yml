@@ -116,7 +116,7 @@ jobs:
 
       - name: Contract size
         run: |
-          find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \;
+          find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \; | sort -k2
   integration-tests:
     concurrency:
       group: integration-tests-${{ github.ref }}
