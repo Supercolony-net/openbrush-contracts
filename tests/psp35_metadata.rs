@@ -52,10 +52,10 @@ mod psp35_metadata {
     impl PSP35Metadata for PSP35Struct {}
 
     impl PSP35MetadataInternal for PSP35Struct {
-        fn _emit_attribute_set_event(&self, _id: &Id, _key: &[u8], _data: &Vec<u8>) {
+        fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {
             self.env().emit_event(AttributeSet {
                 id: _id.clone(),
-                key: _key.to_vec().clone(),
+                key: _key.clone(),
                 data: _data.clone(),
             });
         }

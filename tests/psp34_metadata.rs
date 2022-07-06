@@ -42,7 +42,7 @@ mod psp34_metadata {
         #[ink(constructor)]
         pub fn new(id: Id, key: String, val: String) -> Self {
             let mut instance = Self::default();
-            instance._set_attribute(id, &key.into_bytes(), val.into_bytes());
+            instance._set_attribute(id, key.into_bytes(), val.into_bytes());
             instance
         }
     }

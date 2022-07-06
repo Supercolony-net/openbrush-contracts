@@ -116,7 +116,7 @@ pub trait PSP34Internal {
     fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Option<Id>, approved: bool);
 
     /// Event is emitted when an attribute is set for a token.
-    fn _emit_attribute_set_event(&self, _id: Id, _key: &[u8], _data: Vec<u8>);
+    fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>);
 
     /// Approve the passed AccountId to transfer the specified token on behalf of the message's sender.
     fn _approve_for(&mut self, to: AccountId, id: Option<Id>, approved: bool) -> Result<(), PSP34Error>;
@@ -155,7 +155,7 @@ where
 
     default fn _emit_approval_event(&self, _from: AccountId, _to: AccountId, _id: Option<Id>, _approved: bool) {}
 
-    default fn _emit_attribute_set_event(&self, _id: Id, _key: &[u8], _data: Vec<u8>) {}
+    default fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>) {}
 
     default fn _approve_for(&mut self, to: AccountId, id: Option<Id>, approved: bool) -> Result<(), PSP34Error> {
         let mut caller = Self::env().caller();
