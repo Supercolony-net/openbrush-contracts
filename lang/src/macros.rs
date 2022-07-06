@@ -32,4 +32,36 @@ macro_rules! storage_unique_key {
     };
 }
 
-// TODO: Tests
+#[test]
+fn correct_storage_key() {
+    use crate::{
+        traits::OccupyStorage,
+        utils::ConstHasher,
+    };
+
+    mod contracts {
+        pub mod psp22 {
+            use crate::traits::OccupyStorage;
+            pub struct Data;
+
+            impl OccupyStorage for Data {
+                const KEY: u32 = storage_unique_key!(Data);
+            }
+        }
+
+        pub mod psp34 {
+            use crate::traits::OccupyStorage;
+            pub struct Data;
+
+            impl OccupyStorage for Data {
+                const KEY: u32 = storage_unique_key!(Data);
+            }
+        }
+    }
+
+    let expected_hash_psp22 = ConstHasher::u32("openbrush_lang::macros::contracts::psp22::Data");
+    assert_eq!(expected_hash_psp22, <contracts::psp22::Data as OccupyStorage>::KEY);
+
+    let expected_hash_psp34 = ConstHasher::u32("openbrush_lang::macros::contracts::psp34::Data");
+    assert_eq!(expected_hash_psp34, <contracts::psp34::Data as OccupyStorage>::KEY);
+}

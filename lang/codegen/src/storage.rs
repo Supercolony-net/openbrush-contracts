@@ -399,7 +399,7 @@ pub fn occupy_storage_derive(storage_key: &TokenStream, mut s: synstructure::Str
     })
 }
 
-pub fn storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
+pub fn upgradable_storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
     let storage_key_u32 = attrs.clone();
     let storage_key = quote! {
         ::openbrush::utils::StorageKeyConvertor::old_key(#attrs)

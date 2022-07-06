@@ -46,14 +46,18 @@ pub trait DefaultEnv {
 
 impl<T> DefaultEnv for T {}
 
-/// Implementation of the trait means that the type stores some `T` inside.
+/// Implementation of the trait means that the type stores some `Data` inside.
 /// It is stored in one exemplar, and reference can be retrieved from the object by `get` or
 /// `get_mut` methods. The trait is helpful for generics implementations when you don't know
-/// precisely the final type, but it is enough for you to know that it has some `T` inside.
+/// precisely the final type, but it is enough for you to know that it has some `Data` inside.
 ///
 /// The trait is used as bound in OpenBrush to provide a generic implementation for contracts'
 /// traits. The user of OpenBrush can "inherit" the default implementation by implementing the
-/// `Storage<T>` trait.
+/// `Storage<Data>` trait.
+///
+/// In most cases, the trait is implemented automatically by the derive macro.
+/// The trait methods should not be used directly. Instead use the `data` method of
+/// `StorageAsRef` or `StorageAsMut`.
 pub trait Storage<Data>: Flush + StorageAsRef + StorageAsMut + DefaultEnv {
     #[deprecated(since = "2.1.0", note = "please use `StorageAsRef::data` instead")]
     fn get(&self) -> &Data;
@@ -62,16 +66,20 @@ pub trait Storage<Data>: Flush + StorageAsRef + StorageAsMut + DefaultEnv {
     fn get_mut(&mut self) -> &mut Data;
 }
 
-// TODO: Doc
+/// Trait describes that the storage `KEY` already is occupied by `WithData` type.
+/// Implementation of that trait for each storage field prevents the user from occupying
+/// the same storage cells.
 pub trait OccupiedStorage<const KEY: u32> {
     type WithData: OccupyStorage;
 }
 
-// TODO: Doc
+/// Each upgradable storage type should occupy its storage key. The trait helps to describe what
+/// storage key is occupied by the type.
 pub trait OccupyStorage {
     const KEY: u32;
 }
 
+/// Helper trait for `Storage` to provide user-friendly API to retrieve data as reference.
 pub trait StorageAsRef {
     #[inline(always)]
     fn data<Data>(&self) -> &Data
@@ -83,6 +91,7 @@ pub trait StorageAsRef {
     }
 }
 
+/// Helper trait for `Storage` to provide user-friendly API to retrieve data as mutable reference.
 pub trait StorageAsMut: StorageAsRef {
     #[inline(always)]
     fn data<Data>(&mut self) -> &mut Data

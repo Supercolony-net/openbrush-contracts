@@ -37,7 +37,6 @@ mod proxy {
         test_utils::change_caller,
         traits::Storage,
     };
-    use proxy::Internal as _;
 
     #[ink(event)]
     pub struct CodeHashChanged {

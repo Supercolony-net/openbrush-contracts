@@ -107,7 +107,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     const STORAGE_KEY: u32 = 123;
 ///
 ///     #[derive(Default, Debug)]
-///     #[openbrush::storage(STORAGE_KEY)]
+///     #[openbrush::upgradable_storage(STORAGE_KEY)]
 ///     pub struct Data {
 ///         pub supply: Balance,
 ///         pub balances: BTreeMap<AccountId, Balance>,
@@ -403,7 +403,7 @@ pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 synstructure::decl_attribute!(
-    [storage] =>
+    [upgradable_storage] =>
     /// That macro implemented `SpreadLayout`, `SpreadAllocate`, `StorageLayout` and `OccupyStorage`
     /// with a specified storage key instead of the default one (All data is stored under
     /// the provided storage key).
@@ -419,31 +419,67 @@ synstructure::decl_attribute!(
     /// pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(OwnableData);
     ///
     /// #[derive(Default, Debug)]
-    /// #[openbrush::storage(STORAGE_KEY)]
+    /// #[openbrush::upgradable_storage(STORAGE_KEY)]
     /// pub struct OwnableData {
     ///    pub owner: AccountId,
     ///    pub _reserved: Option<()>,
     /// }
     ///
     /// #[derive(Default, Debug)]
-    /// #[openbrush::storage(openbrush::storage_unique_key!(ProxyData))]
+    /// #[openbrush::upgradable_storage(openbrush::storage_unique_key!(ProxyData))]
     /// pub struct ProxyData {
     ///    pub forward: AccountId,
     ///    pub _reserved: Option<()>,
     /// }
     ///
     /// #[derive(Default, Debug)]
-    /// #[openbrush::storage(123)]
+    /// #[openbrush::upgradable_storage(123)]
     /// pub struct SomeData {
     ///    pub _reserved: Option<()>,
     /// }
     ///
     /// }
     /// ```
-    storage::storage
+    storage::upgradable_storage
 );
 
-// TODO: Doc
+/// The macro implements `openbrush::traits::Storage` and `openbrush::traits::OccupiedStorage`
+/// traits for each field marked by `#[storage_field]` attribute. Each field's type should implement
+/// the `openbrush::traits::OccupyStorage` trait with a unique storage key. Each occupied storage
+/// key should be unique for each type otherwise compilation will fail.
+///
+/// `OccupyStorage` can be implemented for the type manually or automatically via
+/// [`#[openbrush::upgradable_storage]`](`macro@crate::upgradable_storage`) macro.
+///
+/// # Example:
+/// ```
+/// use openbrush::traits::Storage;
+/// use openbrush::traits::StorageAsRef;
+/// use openbrush::traits::StorageAsMut;
+///
+/// #[derive(Default, Debug)]
+/// #[openbrush::upgradable_storage(openbrush::storage_unique_key!(Automatically))]
+/// pub struct Automatically;
+///
+/// #[derive(Default, Debug, ::ink_storage::traits::SpreadLayout)]
+/// pub struct Manual;
+///
+/// impl openbrush::traits::OccupyStorage for Manual {
+///     const KEY: u32 = openbrush::storage_unique_key!(Manual);
+/// }
+///
+/// #[derive(Default, Debug, Storage, ::ink_storage::traits::SpreadLayout)]
+/// pub struct Contract {
+///    #[storage_field]
+///    automatically: Automatically,
+///    #[storage_field]
+///    manual: Manual,
+/// }
+///
+/// let mut contract = &mut Contract::default();
+/// let manual: &Manual = contract.data::<Manual>();
+/// let automatically: &mut Automatically = contract.data::<Automatically>();
+/// ```
 #[proc_macro_derive(Storage, attributes(storage_field))]
 pub fn storage_derive(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     storage_derive::storage_derive(item.into()).into()
