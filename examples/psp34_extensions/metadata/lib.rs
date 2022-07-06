@@ -6,6 +6,7 @@ pub mod my_psp34_metadata {
     use openbrush::contracts::psp34::extensions::metadata::*;
     use ink_prelude::{
         string::String,
+        vec::Vec,
     };
     use ink_storage::traits::SpreadAllocate;
 
@@ -27,10 +28,10 @@ pub mod my_psp34_metadata {
         #[ink(constructor)]
         pub fn new(id: Id, name: String, symbol: String) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                let name_key = String::from("name").into_bytes();
-                let symbol_key = String::from("symbol").into_bytes();
-                instance._set_attribute(id.clone(), &name_key, name.into_bytes());
-                instance._set_attribute(id, &symbol_key, symbol.into_bytes());
+                let name_key: Vec<u8> = String::from("name").into_bytes();
+                let symbol_key: Vec<u8> = String::from("symbol").into_bytes();
+                instance._set_attribute(id.clone(), name_key, name.into_bytes());
+                instance._set_attribute(id, symbol_key, symbol.into_bytes());
             })
         }
     }
