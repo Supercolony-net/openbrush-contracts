@@ -12,12 +12,12 @@ pub mod my_payment_splitter {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct SplitterStruct {
+    pub struct Contract {
         #[storage_field]
         splitter: payment_splitter::Data,
     }
 
-    impl SplitterStruct {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(payees_and_shares: Vec<(AccountId, Balance)>) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -34,5 +34,5 @@ pub mod my_payment_splitter {
         }
     }
 
-    impl PaymentSplitter for SplitterStruct {}
+    impl PaymentSplitter for Contract {}
 }

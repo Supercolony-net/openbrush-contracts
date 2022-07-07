@@ -11,14 +11,14 @@ pub mod my_psp22_token_timelock {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyPSP22TokenTimelock {
+    pub struct Contract {
         #[storage_field]
         timelock: token_timelock::Data,
     }
 
-    impl PSP22TokenTimelock for MyPSP22TokenTimelock {}
+    impl PSP22TokenTimelock for Contract {}
 
-    impl MyPSP22TokenTimelock {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {

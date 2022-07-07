@@ -11,13 +11,13 @@ pub mod my_pausable {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyFlipper {
+    pub struct Contract {
         #[storage_field]
         pause: pausable::Data,
         flipped: bool,
     }
 
-    impl MyFlipper {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
@@ -41,5 +41,5 @@ pub mod my_pausable {
         }
     }
 
-    impl Pausable for MyFlipper {}
+    impl Pausable for Contract {}
 }

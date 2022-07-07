@@ -12,14 +12,14 @@ pub mod my_psp22 {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyPSP22 {
+    pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
         // fields for hater logic
         hated_account: AccountId,
     }
 
-    impl Transfer for MyPSP22 {
+    impl Transfer for Contract {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,
@@ -34,12 +34,12 @@ pub mod my_psp22 {
         }
     }
 
-    impl PSP22 for MyPSP22 {}
+    impl PSP22 for Contract {}
 
-    impl MyPSP22 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+            ink_lang::codegen::initialize_contract(|instance: &mut Contract| {
                 instance
                     ._mint(instance.env().caller(), total_supply)
                     .expect("Should mint");

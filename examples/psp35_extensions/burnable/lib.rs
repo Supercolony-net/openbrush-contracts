@@ -12,16 +12,16 @@ pub mod my_psp35 {
 
     #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct MyPSP35 {
+    pub struct Contract {
         #[storage_field]
         psp35: psp35::Data,
     }
 
-    impl PSP35 for MyPSP35 {}
+    impl PSP35 for Contract {}
 
-    impl PSP35Burnable for MyPSP35 {}
+    impl PSP35Burnable for Contract {}
 
-    impl MyPSP35 {
+    impl Contract {
         /// contract constructor
         #[ink(constructor)]
         pub fn new() -> Self {

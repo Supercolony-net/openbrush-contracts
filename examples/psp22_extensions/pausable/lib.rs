@@ -15,16 +15,16 @@ pub mod my_psp22_pausable {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyPSP22Pausable {
+    pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
         #[storage_field]
         pause: pausable::Data,
     }
 
-    impl PSP22 for MyPSP22Pausable {}
+    impl PSP22 for Contract {}
 
-    impl Transfer for MyPSP22Pausable {
+    impl Transfer for Contract {
         /// Return `Paused` error if the token is paused
         #[modifiers(when_not_paused)]
         fn _before_token_transfer(
@@ -38,9 +38,9 @@ pub mod my_psp22_pausable {
         }
     }
 
-    impl Pausable for MyPSP22Pausable {}
+    impl Pausable for Contract {}
 
-    impl MyPSP22Pausable {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {

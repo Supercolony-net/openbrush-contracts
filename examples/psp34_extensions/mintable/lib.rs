@@ -11,16 +11,16 @@ pub mod my_psp34_mintable {
 
     #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct MyPSP34 {
+    pub struct Contract {
         #[storage_field]
         psp34: psp34::Data,
     }
 
-    impl PSP34 for MyPSP34 {}
+    impl PSP34 for Contract {}
 
-    impl PSP34Mintable for MyPSP34 {}
+    impl PSP34Mintable for Contract {}
 
-    impl MyPSP34 {
+    impl Contract {
         /// The constructor
         #[ink(constructor)]
         pub fn new() -> Self {

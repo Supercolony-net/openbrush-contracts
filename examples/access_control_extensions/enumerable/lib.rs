@@ -11,7 +11,7 @@ pub mod my_access_control {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct AccessControlStruct {
+    pub struct Contract {
         #[storage_field]
         access: access_control::Data<enumerable::Members>,
     }
@@ -22,11 +22,11 @@ pub mod my_access_control {
     // And will reduce the chance to have overlapping roles.
     const MINTER: RoleType = ink_lang::selector_id!("MINTER");
 
-    impl AccessControl for AccessControlStruct {}
+    impl AccessControl for Contract {}
 
-    impl AccessControlEnumerable for AccessControlStruct {}
+    impl AccessControlEnumerable for Contract {}
 
-    impl AccessControlStruct {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {

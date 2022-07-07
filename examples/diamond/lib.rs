@@ -11,14 +11,14 @@ pub mod diamond {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct DiamondContract {
+    pub struct Contract {
         #[storage_field]
         ownable: ownable::Data,
         #[storage_field]
         diamond: diamond::Data<Loupe>,
     }
 
-    impl DiamondContract {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(owner: AccountId) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -32,9 +32,9 @@ pub mod diamond {
         }
     }
 
-    impl Ownable for DiamondContract {}
+    impl Ownable for Contract {}
 
-    impl Diamond for DiamondContract {}
+    impl Diamond for Contract {}
 
-    impl DiamondLoupe for DiamondContract {}
+    impl DiamondLoupe for Contract {}
 }

@@ -12,14 +12,14 @@ pub mod my_timelock_controller {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct TimelockStruct {
+    pub struct Contract {
         #[storage_field]
         access_control: access_control::Data,
         #[storage_field]
         timelock: timelock_controller::Data,
     }
 
-    impl TimelockStruct {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -33,6 +33,6 @@ pub mod my_timelock_controller {
     }
 
     // `TimelockController` is an extension for `AccessControl`, so you have to inherit logic related to both modules.
-    impl AccessControl for TimelockStruct {}
-    impl TimelockController for TimelockStruct {}
+    impl AccessControl for Contract {}
+    impl TimelockController for Contract {}
 }

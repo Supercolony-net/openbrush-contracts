@@ -12,18 +12,18 @@ pub mod my_psp22 {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyPSP22 {
+    pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
         #[storage_field]
         metadata: metadata::Data,
     }
 
-    impl PSP22 for MyPSP22 {}
+    impl PSP22 for Contract {}
 
-    impl PSP22Metadata for MyPSP22 {}
+    impl PSP22Metadata for Contract {}
 
-    impl MyPSP22 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {

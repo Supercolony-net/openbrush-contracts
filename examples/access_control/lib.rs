@@ -18,7 +18,7 @@ pub mod my_access_control {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct PSP34Struct {
+    pub struct Contract {
         #[storage_field]
         psp34: psp34::Data,
         #[storage_field]
@@ -31,7 +31,7 @@ pub mod my_access_control {
     // And will reduce the chance to have overlapping roles.
     const MINTER: RoleType = ink_lang::selector_id!("MINTER");
 
-    impl PSP34Struct {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -43,11 +43,11 @@ pub mod my_access_control {
         }
     }
 
-    impl PSP34 for PSP34Struct {}
+    impl PSP34 for Contract {}
 
-    impl AccessControl for PSP34Struct {}
+    impl AccessControl for Contract {}
 
-    impl PSP34Mintable for PSP34Struct {
+    impl PSP34Mintable for Contract {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
         fn mint(&mut self, account: AccountId, id: Id) -> Result<(), PSP34Error> {
@@ -55,7 +55,7 @@ pub mod my_access_control {
         }
     }
 
-    impl PSP34Burnable for PSP34Struct {
+    impl PSP34Burnable for Contract {
         #[ink(message)]
         #[modifiers(only_role(MINTER))]
         fn burn(&mut self, account: AccountId, id: Id) -> Result<(), PSP34Error> {

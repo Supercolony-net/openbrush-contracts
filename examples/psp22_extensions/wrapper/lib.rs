@@ -11,18 +11,18 @@ pub mod my_psp22_wrapper {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyPSP22Wrapper {
+    pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
         #[storage_field]
         wrapper: wrapper::Data,
     }
 
-    impl PSP22 for MyPSP22Wrapper {}
+    impl PSP22 for Contract {}
 
-    impl PSP22Wrapper for MyPSP22Wrapper {}
+    impl PSP22Wrapper for Contract {}
 
-    impl MyPSP22Wrapper {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(token_address: AccountId) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {

@@ -12,16 +12,16 @@ pub mod my_psp35 {
 
     #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct MyPSP35 {
+    pub struct Contract {
         #[storage_field]
         psp35: psp35::Data,
     }
 
-    impl PSP35 for MyPSP35 {}
+    impl PSP35 for Contract {}
 
-    impl PSP35Batch for MyPSP35 {}
+    impl PSP35Batch for Contract {}
 
-    impl MyPSP35 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})

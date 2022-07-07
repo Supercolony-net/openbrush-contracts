@@ -11,7 +11,7 @@ pub mod my_psp34 {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyPSP34 {
+    pub struct Contract {
         #[storage_field]
         psp34: psp34::Data,
         #[storage_field]
@@ -19,9 +19,9 @@ pub mod my_psp34 {
         next_id: u8,
     }
 
-    impl PSP34 for MyPSP34 {}
+    impl PSP34 for Contract {}
 
-    impl MyPSP34 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})

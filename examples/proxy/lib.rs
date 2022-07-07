@@ -14,14 +14,14 @@ pub mod proxy {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct ProxyStruct {
+    pub struct Contract {
         #[storage_field]
         proxy: proxy::Data,
         #[storage_field]
         ownable: ownable::Data,
     }
 
-    impl ProxyStruct {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(forward_to: Hash) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -36,7 +36,7 @@ pub mod proxy {
         }
     }
 
-    impl Ownable for ProxyStruct {}
+    impl Ownable for Contract {}
 
-    impl Proxy for ProxyStruct {}
+    impl Proxy for Contract {}
 }

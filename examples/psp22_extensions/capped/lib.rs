@@ -12,15 +12,15 @@ pub mod my_psp22_capped {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyPSP22Capped {
+    pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
         cap: Balance,
     }
 
-    impl PSP22 for MyPSP22Capped {}
+    impl PSP22 for Contract {}
 
-    impl Transfer for MyPSP22Capped {
+    impl Transfer for Contract {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
@@ -35,7 +35,7 @@ pub mod my_psp22_capped {
         }
     }
 
-    impl MyPSP22Capped {
+    impl Contract {
         /// Constructor which mints `initial_supply` of the token to sender
         /// Will set the token's cap to `cap`
         #[ink(constructor)]

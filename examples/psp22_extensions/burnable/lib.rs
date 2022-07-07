@@ -12,15 +12,15 @@ pub mod my_psp22_burnable {
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate, Storage)]
-    pub struct MyPSP22 {
+    pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
     }
 
-    impl PSP22 for MyPSP22 {}
-    impl PSP22Burnable for MyPSP22 {}
+    impl PSP22 for Contract {}
+    impl PSP22Burnable for Contract {}
 
-    impl MyPSP22 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
