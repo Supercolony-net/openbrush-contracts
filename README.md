@@ -1,4 +1,6 @@
-# ![logo-2](https://user-images.githubusercontent.com/43150707/142042724-63623cdc-e109-4374-b15d-e57a21a30014.png)
+# [OpenBrush](https://openbrush.io/)
+# ![logo-2](https://user-images.githubusercontent.com/24861482/177749821-adc2738d-d1c0-445a-8ac9-735e5fcee754.png)
+
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
@@ -9,6 +11,8 @@ Our mission with this project is to make ink! development faster, safer and easi
 OpenBrush into ink!. OpenBrush provides documentation with FAQ section.
 
 You can ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
+
+# ![logo-2](https://user-images.githubusercontent.com/43150707/142042724-63623cdc-e109-4374-b15d-e57a21a30014.png)
 
 ## Summary
 **OpenBrush is a library for smart contract development on ink!.**
