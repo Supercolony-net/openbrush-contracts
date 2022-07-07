@@ -1,11 +1,11 @@
-# ![logo-2](https://user-images.githubusercontent.com/43150707/142042724-63623cdc-e109-4374-b15d-e57a21a30014.png)
+# ![logo-2](https://user-images.githubusercontent.com/24861482/177825604-bf797de0-d14f-44c5-bbdb-e57fa48d39d0.png)
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
 [![element chat](https://img.shields.io/badge/Element-green.svg?style=flat-square)](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=matrix.parity.io)
 [![discord chat](https://img.shields.io/badge/Discord-purple.svg?style=flat-square)](https://discord.gg/ZGdpEwFrJ8)
 
-Our mission with this project is to make ink! development faster, safer and easier. We plan to integrate most of the features
+OpenBrush was created by [Supercolony](supercolony.net) to make ink! development faster, safer and easier. We plan to integrate most of the features
 OpenBrush into ink!. OpenBrush provides documentation with FAQ section.
 
 You can ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
