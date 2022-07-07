@@ -21,10 +21,7 @@
 
 /// Extension of [`PSP22`] that allows to set a limit on the total funding
 pub use crate::traits::errors::PSP22Error;
-use openbrush::traits::{
-    AccountId,
-    Balance,
-};
+use openbrush::traits::Balance;
 
 #[openbrush::wrapper]
 pub type PSP22CappedRef = dyn PSP22Capped;
@@ -34,10 +31,4 @@ pub trait PSP22Capped {
     /// Returns the token's cap
     #[ink(message)]
     fn cap(&self) -> Balance;
-
-    /// Minting `amount` tokens to the account.
-    /// Overrides the `_mint_to` function to check for cap overflow before minting tokens
-    /// Performs `PSP22::_mint_to` after the check succeeds
-    #[ink(message)]
-    fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }

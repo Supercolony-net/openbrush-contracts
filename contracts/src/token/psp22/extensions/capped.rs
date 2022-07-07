@@ -28,7 +28,6 @@ use ink_prelude::string::String;
 use openbrush::{
     declare_storage_trait,
     traits::{
-        AccountId,
         Balance,
         InkStorage,
     },
@@ -45,15 +44,35 @@ pub struct PSP22CappedData {
 
 declare_storage_trait!(PSP22CappedStorage);
 
-impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22 + PSP22Internal + InkStorage> PSP22Capped for T {
+impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22CappedInternal + PSP22Internal + InkStorage> PSP22Capped
+    for T
+{
     default fn cap(&self) -> Balance {
         self.get().cap
     }
+}
 
-    default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        if (self.total_supply() + amount) > self.cap() {
+pub trait PSP22CappedInternal {
+    /// Check for cap overflow before minting tokens
+    fn _before_mint(&self, amount: Balance) -> Result<(), PSP22Error>;
+
+    /// Initializes the token's cap
+    fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error>;
+}
+
+impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22> PSP22CappedInternal for T {
+    fn _before_mint(&self, amount: Balance) -> Result<(), PSP22Error> {
+        if (self.total_supply() + amount) > self.get().cap {
             return Err(PSP22Error::Custom(String::from("Cap exceeded")))
         }
-        self._mint_to(account, amount)
+        Ok(())
+    }
+
+    fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
+        if cap == 0 {
+            return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
+        }
+        PSP22CappedStorage::get_mut(self).cap = cap;
+        Ok(())
     }
 }
