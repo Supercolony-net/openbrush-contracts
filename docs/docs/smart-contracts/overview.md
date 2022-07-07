@@ -224,7 +224,6 @@ you can find instructions on how to work with them:
   * [PSP22Wrapper](PSP22/Extensions/wrapper.md): wrapper for PSP22 token (useful for governance tokens etc.).
   * [PSP22FlashMint](PSP22/Extensions/flashmint.md): extension which allows performing flashloans of the token by minting and burning the token.
   * [PSP22Pausable](PSP22/Extensions/pausable.md): example of using pausable extension in the PSP22 contract.
-  * [PSP22Capped](PSP22/Extensions/capped.md): extension which adds a cap for total supply of PSP22 tokens.
   * [PSP22TokenTimelock](PSP22/Utils/token-timelock.md): Utility which allows token holders to lock their tokens for a specified amount of time.
 * [PSP34](PSP34/psp34.md) is an example of how you can reuse the implementation of
   [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34). You also can find examples of how to reuse extensions.
@@ -246,8 +245,7 @@ you can find instructions on how to work with them:
 * [Ownable](ownable.md) shows how you can use the implementation of
   [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
   [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) together to provide rights to mint and burn tokens.
-* [ReentrancyGuard](reentrancy-guard.md) shows how you can use the implementation of
-  [non_reentrant](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/security/reentrancy_guard)
+* [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/security/reentrancy_guard)
   modifier to prevent reentrancy during certain functions.
 * [Pausable](pausable.md) shows how you can use the implementation of
   [pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/security/pausable)
