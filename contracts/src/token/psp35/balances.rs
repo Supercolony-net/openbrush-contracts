@@ -48,7 +48,7 @@ pub trait BalancesManager: SpreadLayout + SpreadAllocate {
 }
 
 #[derive(Default, Debug)]
-#[openbrush::upgradable_storage(BALANCES_KEY)]
+#[openbrush::upgradeable_storage(BALANCES_KEY)]
 pub struct Balances {
     pub balances: Mapping<(AccountId, Option<Id>), Balance, BalancesKey>,
     pub supply: Mapping<Option<Id>, Balance, SupplyKey>,

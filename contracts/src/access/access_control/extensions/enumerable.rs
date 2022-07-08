@@ -47,7 +47,7 @@ use openbrush::{
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Members);
 
 #[derive(Default, Debug)]
-#[openbrush::upgradable_storage(STORAGE_KEY)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Members {
     pub role_members: MultiMapping<RoleType, AccountId, ValueGuard<RoleType>>,
     pub _reserved: Option<()>,

@@ -77,7 +77,7 @@ pub trait OccupiedStorage<const KEY: u32> {
     type WithData: OccupyStorage;
 }
 
-/// Each upgradable storage type should occupy its storage key. The trait helps to describe what
+/// Each upgradeable storage type should occupy its storage key. The trait helps to describe what
 /// storage key is occupied by the type.
 pub trait OccupyStorage {
     const KEY: u32;

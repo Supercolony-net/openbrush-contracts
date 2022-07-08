@@ -52,7 +52,7 @@ use openbrush::{
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
 #[derive(Default, Debug)]
-#[openbrush::upgradable_storage(STORAGE_KEY)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Balances {
     pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey>,
     pub balances: Mapping<(AccountId, Id), Balance, BalancesKey>,

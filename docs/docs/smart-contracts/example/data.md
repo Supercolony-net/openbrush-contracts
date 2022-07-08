@@ -68,11 +68,11 @@ impl openbrush::traits::OccupyStorage for PointData {
 }
 ```
 
-Also, you can use the `openbrush::upgradable_storage` macro that implements that trait by default,
-and also prepare the storage to be upgradable.
+Also, you can use the `openbrush::upgradeable_storage` macro that implements that trait by default,
+and also prepare the storage to be upgradeable.
 
 ```rust
-#[openbrush::upgradable_storage(openbrush::storage_unique_key!(PointData))]
+#[openbrush::upgradeable_storage(openbrush::storage_unique_key!(PointData))]
 pub struct PointData {
     pub x: u32,
     pub y: u32,

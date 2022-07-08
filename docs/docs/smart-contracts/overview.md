@@ -257,9 +257,9 @@ you can find instructions on how to work with them:
   [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/finance/payment_splitter)
   to split received native tokens between participants of the contract.
 * [Diamond](diamond.md) shows how you can use the implementation of
-  [diamond](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/diamond)
-  pattern to split your contract into small parts and support upgradability.
-  * [DiamondLoupe](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/diamond/extensions): iterating over contract's facets.
+  [diamond](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond)
+  pattern to split your contract into small parts and support upgradeability.
+  * [DiamondLoupe](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond/extensions): iterating over contract's facets.
 * [Proxy](proxy.md) shows how you can use the implementation of
-  [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/proxy)
-  pattern to support upgradability of your contract.
+  [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/proxy)
+  pattern to support upgradeability of your contract.

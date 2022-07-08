@@ -42,7 +42,7 @@ pub trait BalancesManager: SpreadLayout + SpreadAllocate {
 }
 
 #[derive(Default, Debug)]
-#[openbrush::upgradable_storage(STORAGE_KEY)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Balances {
     owned_tokens_count: Mapping<Owner, u32>,
     total_supply: Balance,

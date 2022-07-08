@@ -46,7 +46,7 @@ use openbrush::{
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Loupe);
 
 #[derive(Default, Debug)]
-#[openbrush::upgradable_storage(STORAGE_KEY)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Loupe {
     // number of registered code hashes
     pub code_hashes: u32,

@@ -27,7 +27,7 @@ mod finance;
 mod governance;
 mod security;
 mod token;
-mod upgradability;
+mod upgradeability;
 
 pub mod traits;
 
@@ -51,6 +51,6 @@ pub use token::psp34;
 #[cfg(feature = "psp35")]
 pub use token::psp35;
 #[cfg(feature = "diamond")]
-pub use upgradability::diamond;
+pub use upgradeability::diamond;
 #[cfg(feature = "proxy")]
-pub use upgradability::proxy;
+pub use upgradeability::proxy;

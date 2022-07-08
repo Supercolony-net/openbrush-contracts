@@ -57,7 +57,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 // TODO: Add support of Erc165
 #[derive(Default, Debug)]
-#[openbrush::upgradable_storage(STORAGE_KEY)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data<D: DiamondCut = ()> {
     // Selector mapped to its facet
     pub selector_to_hash: Mapping<Selector, Hash>,

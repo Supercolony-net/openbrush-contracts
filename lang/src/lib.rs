@@ -32,6 +32,6 @@ pub use openbrush_lang_macro::{
     modifier_definition,
     modifiers,
     trait_definition,
-    upgradable_storage,
+    upgradeable_storage,
     wrapper,
 };

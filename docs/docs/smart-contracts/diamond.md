@@ -3,7 +3,7 @@ sidebar_position: 4
 title: Diamond Standard
 ---
 
-This example shows how you can use the implementation of [diamond standard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/diamond) to implement diamond standard pattern for upgradeable and unlimited contracts.
+This example shows how you can use the implementation of [diamond standard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond) to implement diamond standard pattern for upgradeable and unlimited contracts.
 
 ## Step 1: Import default implementation
 

@@ -3,7 +3,7 @@ sidebar_position: 3
 title: Proxy
 ---
 
-This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradability/proxy) to to implement proxy pattern for upgradeable contracts.
+This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/proxy) to to implement proxy pattern for upgradeable contracts.
 
 ## Step 1: Import default implementation
 
