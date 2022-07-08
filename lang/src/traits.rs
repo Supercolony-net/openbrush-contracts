@@ -88,6 +88,7 @@ pub trait StorageAsRef {
     #[inline(always)]
     fn data<Data>(&self) -> &Data
     where
+        Data: OccupyStorage,
         Self: Storage<Data>,
     {
         #[allow(deprecated)]
@@ -100,6 +101,7 @@ pub trait StorageAsMut: StorageAsRef {
     #[inline(always)]
     fn data<Data>(&mut self) -> &mut Data
     where
+        Data: OccupyStorage,
         Self: Storage<Data>,
     {
         #[allow(deprecated)]
