@@ -58,7 +58,11 @@ impl<T> DefaultEnv for T {}
 /// In most cases, the trait is implemented automatically by the derive macro.
 /// The trait methods should not be used directly. Instead use the `data` method of
 /// `StorageAsRef` or `StorageAsMut`.
-pub trait Storage<Data>: Flush + StorageAsRef + StorageAsMut + DefaultEnv {
+pub trait Storage<Data>
+where
+    Data: OccupyStorage,
+    Self: Flush + StorageAsRef + StorageAsMut + DefaultEnv,
+{
     #[deprecated(since = "2.1.0", note = "please use `StorageAsRef::data` instead")]
     fn get(&self) -> &Data;
 

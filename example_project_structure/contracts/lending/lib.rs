@@ -5,11 +5,11 @@
 ///
 /// 1. Lend tokens accepted by the smart contract.
 /// The allowance and disallowance of tokens is done by the accounts which have a manager role
-/// Upon lending, the user gets a PSP-22 token representing their share of the current liquidity pool
+/// Upon lending, the user gets a PSP22 token representing their share of the current liquidity pool
 ///
 /// 2. Borrow tokens from the smart contract by depositing collateral tokens.
 /// The tokens which can be deposited as collateral are allowed and disallowed by the accounts with manager role
-/// Upon borrowing user gets a PSP-34 token representing info about their loan (how much assets were borrowed,
+/// Upon borrowing user gets a PSP34 token representing info about their loan (how much assets were borrowed,
 /// when did they borrow, what asset was borrowed, what asset was used as collateral, how much collateral assets
 /// were deposited, the liquidation price of the loan and if it was liquidated or not)
 ///

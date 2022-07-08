@@ -11,8 +11,7 @@ The lending contract implementation consists of two traits:
 
 We will define everything stuff from the previous chapter for "inheritable" contracts:
 - Both traits in `traits/lending.rs`
-- A data structure and `LendingStorage` storage trait in `impls/lending/data.rs`
-- A derive macro for `LendingStorage` in `derive/lib.rs`
+- A data structure in `impls/lending/data.rs`
 - A generic implementation for trait `Lending` in `impls/lending/lending.rs`
 - A generic implementation for trait `LendingPermissioned` in `impls/lending/lending_permissioned.rs`
 
@@ -72,7 +71,7 @@ pub trait Lending {
 
   /// This function is called by a user who wants to lend tokens and gain interest
   ///
-  /// `asset_address` is the AccountId of the PSP-22 token to be deposited
+  /// `asset_address` is the AccountId of the PSP22 token to be deposited
   /// `amount` is the amount to be deposited
   ///
   /// Returns `InsufficientAllowanceToLend` if the caller does not have enough allowance
@@ -85,8 +84,8 @@ pub trait Lending {
   /// they need to deposit collateral. The value of borrowed assets will be equal to 70%
   /// of the value of deposited collateral.
   ///
-  /// `asset_address` is the AccountId of the PSP-22 token to be borrowed
-  /// `collateral_address` is the AccountId of the PSP-22 token used as collateral
+  /// `asset_address` is the AccountId of the PSP22 token to be borrowed
+  /// `collateral_address` is the AccountId of the PSP22 token used as collateral
   /// `amount` is the amount to be deposited
   ///
   /// Returns `AssetNotSupported` if `asset_address` is not supported for using as collateral
@@ -178,18 +177,20 @@ pub trait LendingPermissioned {
 ## Data and storage trait
 
 In the `impls/lending/data.rs` we will define the data related to the lending contract.
-After, we will define a storage trait via `declare_storage_trait!` macro to return a
-`LendingData` and define some helper functions. 
+Also there we will define some helper functions. 
 
 In this example we will not be using price oracles, we will do
 our own simulated oracle. Since oracles are not the point of this example,
 it will be enough for us. We will store prices info in our data struct.
 
-```rust
-// importing everything publicly from traits allows you to import every stuff related to lending
+```rust// Importing everything publicly from traits allows you to import every stuff related to lending
 // by one import
-pub use crate::traits::lending::*;
+use crate::traits::lending::*;
 use openbrush::{
+    storage::{
+        Mapping,
+        TypeGuard,
+    },
     traits::{
         AccountId,
         AccountIdExt,
@@ -198,24 +199,16 @@ use openbrush::{
         ZERO_ADDRESS,
     },
 };
-use ink_storage::{
-    traits::{
-        SpreadAllocate,
-        SpreadLayout,
-    },
-    Mapping,
-};
-// it is public because when you will import the trait you also will import the derive for the trait
-pub use lending_project_derive::LendingStorage;
 
-#[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+use openbrush::traits::Storage;
 
-#[derive(Default, Debug, SpreadAllocate, SpreadLayout)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
+
+#[derive(Default, Debug)]
+#[openbrush::upgradable_storage(STORAGE_KEY)]
 /// define the struct with the data that our smart contract will be using
 /// this will isolate the logic of our smart contract from its storage
-pub struct LendingData {
+pub struct Data {
     /// mapping from asset address to lended asset address
     /// when X amount of asset is lended, X amount of asset it is mapped to is minted
     /// so the contract knows how much of asset it has and how much of the asset was lended
@@ -236,87 +229,86 @@ pub struct LendingData {
     /// when we deposit 1 unit of tuple.0
     /// we are using this just to simulate an oracle in our example
     /// in the example the returned balance will be amount of stable coin for an asset
-    pub asset_price: Mapping<(AccountId, AccountId), Balance>,
+    pub asset_price: Mapping<(AccountId, AccountId), Balance, AssetPriceKey>,
     /// code hash of the `SharesContract`
     pub shares_contract_code_hash: Hash,
     /// the `AccountId` of the `Loan`
     pub loan_account: AccountId,
 }
 
-/// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
-/// we are using this function in our example to simulate an oracle
-pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-    instance.get_mut().asset_price.insert((&asset_in, &asset_out), &price);
+pub struct AssetPriceKey;
+
+impl<'a> TypeGuard<'a> for AssetPriceKey {
+    type Type = &'a (&'a AccountId, &'a AccountId);
 }
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
-pub fn get_asset_price<T: LendingStorage>(
-    instance: &T,
-    amount_in: Balance,
-    asset_in: AccountId,
-    asset_out: AccountId,
-) -> Balance {
-    let price = instance
-        .data()
-        .asset_price
-        .get((&asset_in, &asset_out))
-        .cloned()
-        .unwrap_or(0);
+pub fn set_asset_price<T>(instance: &mut T, asset_in: &AccountId, asset_out: &AccountId, price: &Balance)
+where
+    T: Storage<Data>,
+{
+    instance.data().asset_price.insert(&(asset_in, asset_out), price);
+}
+
+/// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
+/// we are using this function in our example to simulate an oracle
+pub fn get_asset_price<T>(instance: &T, amount_in: &Balance, asset_in: &AccountId, asset_out: &AccountId) -> Balance
+where
+    T: Storage<Data>,
+{
+    let price = instance.data().asset_price.get(&(asset_in, asset_out)).unwrap_or(0);
     price * amount_in
 }
 
 /// Internal function which will return the address of the shares token
 /// which are minted when `asset_address` is borrowed
-pub fn get_reserve_asset<T: LendingStorage>(
-    instance: &T,
-    asset_address: &AccountId,
-) -> Result<AccountId, LendingError> {
+pub fn get_reserve_asset<T>(instance: &T, asset_address: &AccountId) -> Result<AccountId, LendingError>
+where
+    T: Storage<Data>,
+{
     let reserve_asset = instance
         .data()
         .asset_shares
-        .get(asset_address)
-        .cloned()
+        .get(&asset_address)
         .unwrap_or(ZERO_ADDRESS.into());
     if reserve_asset.is_zero() {
-        return Err(LendingError::AssetNotSupported);
+        return Err(LendingError::AssetNotSupported)
     }
     Ok(reserve_asset)
 }
 
 /// internal function which will return the address of asset
 /// which is bound to `shares_address` shares token
-pub fn get_asset_from_shares<T: LendingStorage>(
-    instance: &T,
-    shares_address: AccountId,
-) -> Result<AccountId, LendingError> {
+pub fn get_asset_from_shares<T>(instance: &T, shares_address: &AccountId) -> Result<AccountId, LendingError>
+where
+    T: Storage<Data>,
+{
     let token = instance
         .data()
         .shares_asset
-        .get(&shares_address)
-        .cloned()
+        .get(shares_address)
         .unwrap_or(ZERO_ADDRESS.into());
     if token.is_zero() {
-        return Err(LendingError::AssetNotSupported);
+        return Err(LendingError::AssetNotSupported)
     }
     Ok(token)
 }
-```
 
-Derive macro for `LendingStorage` is created by the [description](/smart-contracts/example/data#macros-from-openbrush).
+```
 
 ## A generic implementation of `LendingPermissioned` trait
 
 The all methods in `LendingPermissioned` are restricted and requires `#[modifiers(only_role(MANAGER))]`.
 That means that only accounts with `MANAGER` role can execute these methods.
 Usage of `only_role` modifier from [access_control](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/access/access_control/mod.rs#L30)
-requires that the contract should implement `AccessControlStorage`.
+requires that the contract should implement `Storage<access_control::Data>`.
 For that we also require the same restriction on the generic type.
 
 In the implementation of `LendingPermissioned`, we want to use methods from
 `Lending`. For that, the set of restrictions for generic in the `Lending` implementation
 should be a subset(<=) of restrictions for generic in the `LendingPermissioned` implementation.
-The `Lending` implementation requires `LendingStorage` and `PausableStorage` to use `when_paused` 
+The `Lending` implementation requires `Storage<lending::Data>` and `Storage<pausable::Data>` to use `when_paused` 
 modifier from [pausable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/security/pausable/mod.rs#L24).
 So we should have the same restriction in our generic implementation.
 
@@ -326,140 +318,153 @@ crate, because `SharesContract` also depends on `lending_project`.
 That will cause cyclic dependencies.
 To avoid that we will import `SharesContract` into `LendingContract` and in `LendingContract` we will define
 `_instantiate_shares_contract` method, that will instantiate `SharesCotnract`.
-```rust
-impl LendingPermissionedInternal for LendingContract {
+
+```rust    
+impl lending::Internal for LendingContract {
     fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
-    let code_hash = self.lending.shares_contract_code_hash;
-    let (hash, _) =
-        ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
-    let hash = hash.as_ref();
-    let contract = SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
-            .endowment(0)
-            .code_hash(code_hash)
-            .salt_bytes(&hash[..4])
-            .instantiate()
-            .unwrap();
-    contract.to_account_id()
+        let code_hash = self.lending.shares_contract_code_hash;
+        let (hash, _) =
+            ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
+        let hash = hash.as_ref();
+        let contract =
+            SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+                .endowment(0)
+                .code_hash(code_hash)
+                .salt_bytes(&hash[..4])
+                .instantiate()
+                .unwrap();
+        contract.to_account_id()
     }
 }
 ```
 
-For that we defined the `LendingPermissionedInternal` trait with `_instantiate_shares_contract` method.
+For that we defined the `Internal` trait in `lending` module with `_instantiate_shares_contract` method.
 
 The final generic implementation of the `LendingPermissioned` restricts the generic type `T`
-by `LendingStorage`, `AccessControlStorage`, `PausableStorage`, `LendingPermissionedInternal` traits.
+by `Storage<lending::Data>`, `Storage<access_control::Data>`, `Storage<pausable::Data>`, `lending::Internal` traits.
 That allows us to use methods from these traits and define the implementation.
+
 ```rust
-pub use super::data::*;
+use super::{
+    data,
+    data::*,
+};
+use crate::traits::lending::*;
 use openbrush::{
-  contracts::{
-    access_control::*,
-    pausable::PausableStorage,
-    traits::psp22::PSP22Ref,
-  },
-  modifiers,
-  traits::{
-    AccountId,
-    Balance,
-    ZERO_ADDRESS,
-  },
+    contracts::{
+        access_control::*,
+        pausable::*,
+        traits::psp22::PSP22Ref,
+    },
+    modifiers,
+    traits::{
+        AccountId,
+        Balance,
+        OccupiedStorage,
+        Storage,
+        ZERO_ADDRESS,
+    },
 };
 
 pub const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
 
-impl<T: LendingStorage + PausableStorage + LendingPermissionedInternal + AccessControlStorage> LendingPermissioned
-for T
+impl<T, M> LendingPermissioned for T
+where
+    T: Internal,
+    T: Storage<data::Data> + Storage<pausable::Data> + Storage<access_control::Data<M>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
+    M: members::MembersManager,
 {
-  #[modifiers(only_role(MANAGER))]
-  default fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
-    // we will ensure the asset is not accepted already
-    if self.is_accepted_lending(asset_address) {
-      return Err(LendingError::AssetSupported)
+    #[modifiers(only_role(MANAGER))]
+    default fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+        // we will ensure the asset is not accepted already
+        if self.is_accepted_lending(asset_address) {
+            return Err(LendingError::AssetSupported)
+        }
+
+        // instantiate the shares of the lended assets
+        let shares_address = self._instantiate_shares_contract("LendingShares", "LS");
+        // instantiate the reserves of the borrowed assets
+        let reserves_address = self._instantiate_shares_contract("LendingReserves", "LR");
+        // accept the asset and map shares and reserves to it
+
+        accept_lending(self, asset_address, shares_address, reserves_address);
+        Ok(())
     }
 
-    // instantiate the shares of the lended assets
-    let shares_address = self._instantiate_shares_contract("LendingShares", "LS");
-    // instantiate the reserves of the borrowed assets
-    let reserves_address = self._instantiate_shares_contract("LendingReserves", "LR");
-    // accept the asset and map shares and reserves to it
-
-    accept_lending(self, asset_address, shares_address, reserves_address);
-    Ok(())
-  }
-
-  #[modifiers(only_role(MANAGER))]
-  default fn disallow_lending(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
-    let reserve_asset = get_reserve_asset(self, &asset_address)?;
-    if PSP22Ref::balance_of(&asset_address, Self::env().account_id()) > 0
+    #[modifiers(only_role(MANAGER))]
+    default fn disallow_lending(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+        let reserve_asset = get_reserve_asset(self, &asset_address)?;
+        if PSP22Ref::balance_of(&asset_address, Self::env().account_id()) > 0
             || PSP22Ref::balance_of(&reserve_asset, Self::env().account_id()) > 0
-    {
-      return Err(LendingError::AssetsInTheContract)
+        {
+            return Err(LendingError::AssetsInTheContract)
+        }
+        disallow_lending(self, asset_address);
+        Ok(())
     }
-    disallow_lending(self, asset_address);
-    Ok(())
-  }
 
-  #[modifiers(only_role(MANAGER))]
-  default fn allow_collateral(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
-    // we will ensure the asset is not accepted already
-    if self.is_accepted_collateral(asset_address) {
-      return Err(LendingError::AssetSupported)
+    #[modifiers(only_role(MANAGER))]
+    default fn allow_collateral(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+        // we will ensure the asset is not accepted already
+        if self.is_accepted_collateral(asset_address) {
+            return Err(LendingError::AssetSupported)
+        }
+        set_collateral_accepted(self, asset_address, true);
+        Ok(())
     }
-    set_collateral_accepted(self, asset_address, true);
-    Ok(())
-  }
 
-  #[modifiers(only_role(MANAGER))]
-  default fn disallow_collateral(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
-    // we will ensure the asset is not accepted already
-    if self.is_accepted_collateral(asset_address) {
-      set_collateral_accepted(self, asset_address, false);
+    #[modifiers(only_role(MANAGER))]
+    default fn disallow_collateral(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
+        // we will ensure the asset is not accepted already
+        if self.is_accepted_collateral(asset_address) {
+            set_collateral_accepted(self, asset_address, false);
+        }
+        Ok(())
     }
-    Ok(())
-  }
 
-  #[modifiers(only_role(MANAGER))]
-  default fn set_asset_price(
-    &mut self,
-    asset_in: AccountId,
-    asset_out: AccountId,
-    price: Balance,
-  ) -> Result<(), LendingError> {
-    set_asset_price(self, asset_in, asset_out, price);
-    Ok(())
-  }
+    #[modifiers(only_role(MANAGER))]
+    default fn set_asset_price(
+        &mut self,
+        asset_in: AccountId,
+        asset_out: AccountId,
+        price: Balance,
+    ) -> Result<(), LendingError> {
+        set_asset_price(self, &asset_in, &asset_out, &price);
+        Ok(())
+    }
 }
 
-pub trait LendingPermissionedInternal {
-  /// internal function which instantiates a shares contract and returns its AccountId
-  fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId;
+pub trait Internal {
+    /// Internal function which instantiates a shares contract and returns its AccountId
+    fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId;
 }
 
-fn accept_lending<T: LendingStorage>(
-  instance: &mut T,
-  asset_address: AccountId,
-  share_address: AccountId,
-  reserve_address: AccountId,
+fn accept_lending<T: Storage<data::Data>>(
+    instance: &mut T,
+    asset_address: AccountId,
+    share_address: AccountId,
+    reserve_address: AccountId,
 ) {
-  instance.get_mut().asset_shares.insert(&asset_address, &share_address);
-  instance.get_mut().shares_asset.insert(&share_address, &asset_address);
-  instance.get_mut().assets_lended.insert(&asset_address, &reserve_address);
+    instance.data().asset_shares.insert(&asset_address, &share_address);
+    instance.data().shares_asset.insert(&share_address, &asset_address);
+    instance.data().assets_lended.insert(&asset_address, &reserve_address);
 }
 
-fn disallow_lending<T: LendingStorage>(instance: &mut T, asset_address: AccountId) {
-  let share_address = instance
-          .get_mut()
-          .asset_shares
-          .get(&asset_address)
-          .unwrap_or(ZERO_ADDRESS.into());
-  instance.get_mut().asset_shares.remove(&asset_address);
-  instance.get_mut().shares_asset.remove(&share_address);
-  instance.get_mut().assets_lended.remove(&asset_address);
+fn disallow_lending<T: Storage<data::Data>>(instance: &mut T, asset_address: AccountId) {
+    let share_address = instance
+        .data()
+        .asset_shares
+        .get(&asset_address)
+        .unwrap_or(ZERO_ADDRESS.into());
+    instance.data().asset_shares.remove(&asset_address);
+    instance.data().shares_asset.remove(&share_address);
+    instance.data().assets_lended.remove(&asset_address);
 }
 
 /// this function will accept `asset_address` for using as collateral
-fn set_collateral_accepted<T: LendingStorage>(instance: &mut T, asset_address: AccountId, accepted: bool) {
-  instance.get_mut().collateral_accepted.insert(&asset_address, &accepted);
+fn set_collateral_accepted<T: Storage<data::Data>>(instance: &mut T, asset_address: AccountId, accepted: bool) {
+    instance.data().collateral_accepted.insert(&asset_address, &accepted);
 }
 ```
 
@@ -467,14 +472,26 @@ fn set_collateral_accepted<T: LendingStorage>(instance: &mut T, asset_address: A
 
 The same logic is used during definition of the implementation for `Lending` trait.
 
-The `PausableStorage` restriction is required to use `when_paused`, `when_not_paused` modifiers 
+The `Storage<pausable::Data>` restriction is required to use `when_paused`, `when_not_paused` modifiers 
 from [pausable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/security/pausable/mod.rs#L24).
 
 ```rust
-// importing everything publicly from traits allows you to import every stuff related to lending
+// Importing everything publicly from traits allows you to import every stuff related to lending
 // by one import
-pub use super::data::*;
-pub use crate::traits::lending::*;
+pub use crate::{
+    impls::lending::{
+        data,
+        data::*,
+        lending,
+        lending_permissioned::{
+            Internal,
+            *,
+        },
+        *,
+    },
+    traits::lending::*,
+};
+
 use crate::traits::{
     loan::{
         LoanInfo,
@@ -482,6 +499,7 @@ use crate::traits::{
     },
     shares::SharesRef,
 };
+use ink_prelude::vec::Vec;
 use openbrush::{
     contracts::{
         pausable::*,
@@ -495,18 +513,19 @@ use openbrush::{
         AccountId,
         AccountIdExt,
         Balance,
+        Storage,
         Timestamp,
         ZERO_ADDRESS,
     },
 };
-use ink_prelude::vec::Vec;
 
 pub const YEAR: Timestamp = 60 * 60 * 24 * 365;
 
-impl<T: LendingStorage + PausableStorage> Lending for T {
+impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
     default fn total_asset(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
-        let mapped_asset = LendingStorage::get(self)
+        let mapped_asset = self
+            .data::<data::Data>()
             .assets_lended
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into());
@@ -522,7 +541,8 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
 
     default fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
-        let mapped_asset = LendingStorage::get(self)
+        let mapped_asset = self
+            .data::<data::Data>()
             .asset_shares
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into());
@@ -534,7 +554,8 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
     }
 
     default fn is_accepted_lending(&self, asset_address: AccountId) -> bool {
-        !LendingStorage::get(self)
+        !self
+            .data::<data::Data>()
             .asset_shares
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into())
@@ -542,7 +563,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
     }
 
     default fn is_accepted_collateral(&self, asset_address: AccountId) -> bool {
-        LendingStorage::get(self)
+        self.data::<data::Data>()
             .collateral_accepted
             .get(&asset_address)
             .unwrap_or(false)
@@ -607,7 +628,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let reserve_asset = get_reserve_asset(self, &asset_address)?;
 
         // we will find out the price of deposited collateral
-        let price = get_asset_price(self, amount, collateral_address, asset_address);
+        let price = get_asset_price(self, &amount, &collateral_address, &asset_address);
         // we will set the liquidation price to be 75% of current price
         let liquidation_price = (price * 75) / 100;
         // borrow amount is 70% of collateral
@@ -622,9 +643,9 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         }
         // we will transfer the collateral to the contract
         PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
-              .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
-              .fire()
-              .unwrap()?;
+            .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+            .fire()
+            .unwrap()?;
         // create loan info
         let loan_info = LoanInfo {
             borrower,
@@ -637,7 +658,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
             liquidated: false,
         };
 
-        let load_account = LendingStorage::get(self).loan_account;
+        let load_account = self.data::<data::Data>().loan_account;
         LoanRef::create_loan(&load_account, loan_info)?;
         // transfer assets to borrower
         PSP22Ref::transfer(&asset_address, borrower, borrow_amount, Vec::<u8>::new())?;
@@ -650,15 +671,15 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         // REPAYING (borrower: B, nft, repayAmount: X):
         let initiator = Self::env().caller();
         let contract = Self::env().account_id();
-        let loan_account = LendingStorage::get(self).loan_account;
+        let loan_account = self.data::<data::Data>().loan_account;
         let apy = 1000;
         // initiator must own the nft
-        if LoanRef::owner_of(&loan_account, loan_id).unwrap_or(ZERO_ADDRESS.into()) != initiator {
+        if LoanRef::owner_of(&loan_account, loan_id.clone()).unwrap_or(ZERO_ADDRESS.into()) != initiator {
             return Err(LendingError::NotTheOwner)
         }
-        let loan_info = LoanRef::get_loan_info(&loan_account, loan_id)?;
+        let loan_info = LoanRef::get_loan_info(&loan_account, loan_id.clone())?;
         if loan_info.liquidated {
-            LoanRef::delete_loan(&loan_account, initiator, loan_id)?;
+            LoanRef::delete_loan(&loan_account, initiator, loan_id.clone())?;
             return Ok(false)
         }
 
@@ -676,9 +697,9 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let reserve_asset = get_reserve_asset(self, &loan_info.borrow_token)?;
         if repay_amount >= to_repay {
             PSP22Ref::transfer_from_builder(&loan_info.borrow_token, initiator, contract, to_repay, Vec::<u8>::new())
-                  .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
-                  .fire()
-                  .unwrap()?;
+                .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+                .fire()
+                .unwrap()?;
             PSP22Ref::transfer(
                 &loan_info.collateral_token,
                 initiator,
@@ -686,7 +707,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
                 Vec::<u8>::new(),
             )?;
             LoanRef::delete_loan(&loan_account, initiator, loan_id)?;
-            SharesRef::burn(&reserve_asset, loan_info.borrow_amount)?;
+            SharesRef::burn(&reserve_asset, Self::env().caller(), loan_info.borrow_amount)?;
         } else {
             PSP22Ref::transfer_from_builder(
                 &loan_info.borrow_token,
@@ -707,7 +728,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
             )?;
             LoanRef::update_loan(
                 &loan_account,
-                loan_id,
+                loan_id.clone(),
                 to_repay - repay_amount,
                 Self::env().block_timestamp(),
                 loan_info.collateral_amount - to_return,
@@ -721,21 +742,21 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         shares_address: AccountId,
         shares_amount: Balance,
     ) -> Result<(), LendingError> {
-        let withdraw_asset = get_asset_from_shares(self, shares_address)?;
+        let withdraw_asset = get_asset_from_shares(self, &shares_address)?;
         let withdraw_amount =
             (shares_amount * self.total_asset(withdraw_asset)?) / PSP22Ref::total_supply(&shares_address);
         if withdraw_amount > PSP22Ref::balance_of(&withdraw_asset, Self::env().account_id()) {
             return Err(LendingError::InsufficientBalanceInContract)
         }
 
-        SharesRef::burn_from(&shares_address, Self::env().caller(), shares_amount)?;
+        SharesRef::burn(&shares_address, Self::env().caller(), shares_amount)?;
         PSP22Ref::transfer(&withdraw_asset, Self::env().caller(), withdraw_amount, Vec::<u8>::new())?;
         Ok(())
     }
 
     default fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError> {
-        let loan_account = LendingStorage::get(self).loan_account;
-        let loan_info = LoanRef::get_loan_info(&loan_account, loan_id)?;
+        let loan_account = self.data::<data::Data>().loan_account;
+        let loan_info = LoanRef::get_loan_info(&loan_account, loan_id.clone())?;
 
         if loan_info.liquidated {
             return Err(LendingError::LoanLiquidated)
@@ -743,9 +764,9 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
 
         let price = get_asset_price(
             self,
-            loan_info.collateral_amount,
-            loan_info.collateral_token,
-            loan_info.borrow_token,
+            &loan_info.collateral_amount,
+            &loan_info.collateral_token,
+            &loan_info.borrow_token,
         );
 
         if price <= loan_info.liquidation_price {
@@ -759,7 +780,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
                 reward,
                 Vec::<u8>::new(),
             )?;
-            LoanRef::liquidate_loan(&loan_account, loan_id)?;
+            LoanRef::liquidate_loan(&loan_account, loan_id.clone())?;
         } else {
             return Err(LendingError::CanNotBeLiquidated)
         }
