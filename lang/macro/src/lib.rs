@@ -64,11 +64,15 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// ```
 /// mod doc {
 /// use ink_prelude::collections::BTreeMap;
-/// use openbrush::traits::{ AccountId, Balance, Storage };
+/// use openbrush::traits::{ AccountId, Balance, Storage, OccupyStorage };
 ///
 /// #[derive(Default, Debug)]
 /// pub struct Data {
 ///     pub balances: BTreeMap<AccountId, Balance>,
+/// }
+///
+/// impl OccupyStorage for Data {
+///     const KEY: u32 = 0x123;
 /// }
 ///
 /// #[openbrush::trait_definition]
