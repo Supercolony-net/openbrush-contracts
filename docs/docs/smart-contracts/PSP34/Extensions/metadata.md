@@ -54,7 +54,7 @@ impl PSP34 for MyPSP34 {}
 impl PSP34Metadata for MyPSP34 {}
 // Optionally you can add more default implementations
 impl PSP34Internal for MyPSP34 {}
-impl PSP34MetadataInternal for MYPSP34 {}
+impl PSP34MetadataInternal for MyPSP34 {}
 ```
 
 ## Step 5: Define constructor
@@ -68,7 +68,7 @@ impl MyPSP34 {
         ink_lang::codegen::initialize_contract(|instance: &mut Self| {
             instance._set_attribute(id.clone(), String::from("name").into_bytes(), name.into_bytes());
             instance._set_attribute(id, String::from("symbol").into_bytes(), symbol.into_bytes());
-        }
+        })
     }
 }
 ```
