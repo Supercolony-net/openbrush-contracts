@@ -19,10 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::access_control::{
-    AccessControlError,
-    RoleType,
-};
+pub use crate::traits::access_control::*;
 use ink_storage::traits::{
     SpreadAllocate,
     SpreadLayout,
@@ -35,10 +32,10 @@ use openbrush::{
     traits::AccountId,
 };
 
-pub const MEMBERS_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::AccessControlMembers");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Members);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(MEMBERS_KEY)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Members {
     pub members: Mapping<(RoleType, AccountId), (), MembersKey>,
     pub _reserved: Option<()>,
@@ -50,7 +47,7 @@ impl<'a> TypeGuard<'a> for MembersKey {
     type Type = &'a (RoleType, &'a AccountId);
 }
 
-pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {
+pub trait MembersManager: SpreadLayout + SpreadAllocate {
     fn has_role(&self, role: RoleType, address: &AccountId) -> bool;
 
     fn add(&mut self, role: RoleType, member: &AccountId);
@@ -58,7 +55,7 @@ pub trait AccessControlMemberManager: SpreadLayout + SpreadAllocate {
     fn remove(&mut self, role: RoleType, member: &AccountId);
 }
 
-impl AccessControlMemberManager for Members {
+impl MembersManager for Members {
     fn has_role(&self, role: RoleType, address: &AccountId) -> bool {
         self.members.contains(&(role, address))
     }

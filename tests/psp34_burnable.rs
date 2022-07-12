@@ -27,20 +27,21 @@ mod psp34_burnable {
     use openbrush::{
         contracts::psp34::extensions::burnable::*,
         test_utils::accounts,
+        traits::Storage,
     };
 
-    #[derive(Default, PSP34Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP34Struct {
-        #[PSP34StorageField]
-        psp34: PSP34Data,
+        #[storage_field]
+        psp34: psp34::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
         return_err_on_after: bool,
     }
 
-    impl PSP34Transfer for PSP34Struct {
+    impl psp34::Transfer for PSP34Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

@@ -20,9 +20,19 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp22::*,
-    traits::flashloan::*,
+    psp22,
+    psp22::extensions::flashmint,
+    traits::{
+        flashloan::*,
+        psp22::*,
+    },
 };
+pub use flashmint::Internal as _;
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
+
 use ink_env::{
     CallFlags,
     Error as EnvError,
@@ -34,10 +44,10 @@ use ink_prelude::{
 use openbrush::traits::{
     AccountId,
     Balance,
-    Flush,
+    Storage,
 };
 
-impl<T: PSP22 + PSP22Internal + Flush> FlashLender for T {
+impl<T: Storage<psp22::Data>> FlashLender for T {
     default fn max_flashloan(&mut self, token: AccountId) -> Balance {
         if token == Self::env().account_id() {
             Balance::MAX - self.total_supply()
@@ -74,7 +84,7 @@ impl<T: PSP22 + PSP22Internal + Flush> FlashLender for T {
     }
 }
 
-pub trait PSP22FlashLenderInternal {
+pub trait Internal {
     fn _get_fee(&self, _amount: Balance) -> Balance;
 
     fn _on_flashloan(
@@ -87,7 +97,7 @@ pub trait PSP22FlashLenderInternal {
     ) -> Result<(), FlashLenderError>;
 }
 
-impl<T: PSP22 + PSP22Internal + Flush> PSP22FlashLenderInternal for T {
+impl<T: Storage<psp22::Data>> Internal for T {
     default fn _get_fee(&self, _amount: Balance) -> Balance {
         0
     }

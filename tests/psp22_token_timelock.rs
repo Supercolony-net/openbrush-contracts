@@ -27,20 +27,21 @@ mod psp22_timelock {
     use openbrush::{
         contracts::psp22::utils::token_timelock::*,
         test_utils::accounts,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, PSP22TokenTimelockStorage)]
+    #[derive(Default, Storage)]
     pub struct PSP22TokenTimelockStruct {
-        #[PSP22TokenTimelockStorageField]
-        timelock: PSP22TokenTimelockData,
+        #[storage_field]
+        timelock: Data,
         locked_tokens: Balance,
     }
 
     /// We will override timelock functions so they are not using cross-contract call in tests
     /// We will just remove calls to the locked token
     /// The cross-contract interaction will be tested in integration tests
-    impl PSP22TokenTimelockInternal for PSP22TokenTimelockStruct {
+    impl token_timelock::Internal for PSP22TokenTimelockStruct {
         fn _withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
             self.locked_tokens -= amount;
             Ok(())

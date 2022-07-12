@@ -20,24 +20,36 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp35::*,
-    traits::psp35::extensions::metadata::*,
+    psp35,
+    psp35::{
+        balances,
+        extensions::metadata,
+    },
+    traits::psp35::{
+        extensions::metadata::*,
+        *,
+    },
 };
-pub use derive::PSP35MetadataStorage;
+pub use metadata::Internal as _;
+pub use psp35::{
+    Internal as _,
+    Transfer as _,
+};
+
 use ink_prelude::vec::Vec;
 use openbrush::{
-    declare_storage_trait,
     storage::{
         Mapping,
         TypeGuard,
     },
+    traits::Storage,
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35MetadataData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct PSP35MetadataData {
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
     pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>, AttributesKey>,
     pub _reserved: Option<()>,
 }
@@ -48,32 +60,30 @@ impl<'a> TypeGuard<'a> for AttributesKey {
     type Type = &'a (&'a Id, &'a Vec<u8>);
 }
 
-declare_storage_trait!(PSP35MetadataStorage);
-
-impl<T: PSP35MetadataStorage<Data = PSP35MetadataData>> PSP35Metadata for T {
+impl<T: Storage<Data>> PSP35Metadata for T {
     default fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>> {
-        self.get().attributes.get(&(&id, &key))
+        self.data().attributes.get(&(&id, &key))
     }
 }
 
-pub trait PSP35MetadataInternal {
+pub trait Internal {
+    fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>);
+
     fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP35Error>;
 
     fn _get_attribute(&self, id: &Id, key: &Vec<u8>) -> Option<Vec<u8>>;
-
-    fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>);
 }
 
-impl<T: PSP35MetadataStorage<Data = PSP35MetadataData>> PSP35MetadataInternal for T {
+impl<T: Storage<Data>> Internal for T {
+    default fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {}
+
     default fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP35Error> {
-        self.get_mut().attributes.insert(&(&id, &key), data);
+        self.data().attributes.insert(&(&id, &key), data);
         self._emit_attribute_set_event(id, key, data);
         Ok(())
     }
 
     default fn _get_attribute(&self, id: &Id, key: &Vec<u8>) -> Option<Vec<u8>> {
-        self.get().attributes.get(&(&id, &key))
+        self.data().attributes.get(&(&id, &key))
     }
-
-    default fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {}
 }

@@ -25,15 +25,18 @@
 mod psp34_metadata {
     use ink_lang as ink;
     use ink_prelude::string::String;
-    use openbrush::contracts::psp34::extensions::metadata::*;
+    use openbrush::{
+        contracts::psp34::extensions::metadata::*,
+        traits::Storage,
+    };
 
-    #[derive(Default, PSP34Storage, PSP34MetadataStorage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP34Struct {
-        #[PSP34StorageField]
-        psp34: PSP34Data,
-        #[PSP34MetadataStorageField]
-        metadata: PSP34MetadataData,
+        #[storage_field]
+        psp34: psp34::Data,
+        #[storage_field]
+        metadata: Data,
     }
 
     impl PSP34Metadata for PSP34Struct {}

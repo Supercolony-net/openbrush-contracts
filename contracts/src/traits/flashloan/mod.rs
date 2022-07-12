@@ -32,7 +32,7 @@ use openbrush::traits::{
 #[openbrush::wrapper]
 pub type FlashLenderRef = dyn FlashLender;
 
-/// TODO remove eip link
+// TODO: Remove eip link
 /// Flash Lender implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[openbrush::trait_definition]
 pub trait FlashLender {
@@ -69,7 +69,7 @@ pub trait FlashLender {
 #[openbrush::wrapper]
 pub type FlashBorrowerRef = dyn FlashBorrower;
 
-/// TODO remove eip link
+// TODO: Remove eip link
 /// Flash Borrower implementation as proposed in https://eips.ethereum.org/EIPS/eip-3156)
 #[openbrush::trait_definition]
 pub trait FlashBorrower {

@@ -27,15 +27,16 @@ mod psp22_wrapper {
     use openbrush::{
         contracts::psp22::extensions::wrapper::*,
         test_utils::accounts,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, PSP22Storage, PSP22WrapperStorage)]
+    #[derive(Default, Storage)]
     pub struct PSP22WrapperStruct {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[PSP22WrapperStorageField]
-        wrapper: PSP22WrapperData,
+        #[storage_field]
+        psp22: psp22::Data,
+        #[storage_field]
+        wrapper: wrapper::Data,
         contract_balance: Balance,
     }
 
@@ -43,7 +44,7 @@ mod psp22_wrapper {
 
     /// We will override cross-contract wrapper calls in tests
     /// The cross-contract interaction will be tested in integration tests
-    impl PSP22WrapperInternal for PSP22WrapperStruct {
+    impl wrapper::Internal for PSP22WrapperStruct {
         fn _deposit(&mut self, amount: Balance) -> Result<(), PSP22Error> {
             self.contract_balance += amount;
             Ok(())

@@ -25,6 +25,9 @@ ink_metadata = { version = "~3.3.0", default-features = false, features = ["deri
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"] }
 
+sha2-const = "0.1.2"
+const_format = "0.2.21"
+
 [lib]
 name = "openbrush_lang"
 path = "src/lib.rs"
