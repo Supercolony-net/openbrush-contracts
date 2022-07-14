@@ -76,7 +76,8 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
     }
 
     default fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError> {
-        LendingStorage::get(self)
+        self
+            .data::<data::Data>()
             .asset_shares
             .get(&asset_address)
             .ok_or(LendingError::AssetNotSupported)

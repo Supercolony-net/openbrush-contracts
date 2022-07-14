@@ -146,7 +146,7 @@ describe('LENDING_CONTRACT', () => {
     await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
 
     // Act - Alice repays loan
-    await expect(fromSigner(lending, alice).tx.repay({ u8: 1 }, collateralAmount)).to.eventually.be.fulfilled
+    await expect(fromSigner(lending, alice).tx.repay({ u128: 1 }, collateralAmount)).to.eventually.be.fulfilled
 
     // Assert - Alice received borrowed tokens
     // @ts-ignore
@@ -170,7 +170,7 @@ describe('LENDING_CONTRACT', () => {
     const loanAmount = (collateralAmount * 70) / 100
     const halfOfLoan = (loanAmount * price) / 2
     // Act - Alice repays half of loan
-    await expect(fromSigner(lending, alice).tx.repay({ u8: 1 }, halfOfLoan)).to.eventually.be.fulfilled
+    await expect(fromSigner(lending, alice).tx.repay({ u128: 1 }, halfOfLoan)).to.eventually.be.fulfilled
 
     // Assert - Alice received half of collateral tokens
     // @ts-ignore
@@ -218,6 +218,6 @@ describe('LENDING_CONTRACT', () => {
     await expect(fromSigner(lending, alice).tx.setAssetPrice(stablecoin.address, greencoin.address, 1)).to.eventually.be.fulfilled
 
     // Assert - Alice can liquidate loan
-    await expect(fromSigner(lending, alice).tx.liquidateLoan({ u8: 1 })).to.eventually.be.fulfilled
+    await expect(fromSigner(lending, alice).tx.liquidateLoan({ u128: 1 })).to.eventually.be.fulfilled
   })
 })

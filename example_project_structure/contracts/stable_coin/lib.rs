@@ -9,6 +9,7 @@ pub mod token {
     use lending_project::traits::stable_coin::*;
     use openbrush::{
         contracts::psp22::extensions::metadata::*,
+        contracts::psp22::extensions::mintable::*,
         traits::Storage,
     };
 
