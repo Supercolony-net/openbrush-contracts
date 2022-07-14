@@ -3,11 +3,13 @@
 
 #[openbrush::contract]
 pub mod my_psp22_capped {
-    use openbrush::contracts::psp22::extensions::capped::*;
-    use openbrush::contracts::psp22::extensions::mintable::*;
+    use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
-        contracts::psp22::*,
+        contracts::psp22::extensions::{
+            capped::*,
+            mintable::*,
+        },
         traits::Storage,
     };
 
@@ -16,12 +18,17 @@ pub mod my_psp22_capped {
     pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
-        cap: Balance,
+        #[storage_field]
+        cap: Data,
     }
 
     impl PSP22 for Contract {}
 
-    impl Transfer for Contract {
+    impl PSP22Capped for Contract {}
+
+    impl PSP22Mintable for Contract {}
+
+    impl psp22::Transfer for Contract {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

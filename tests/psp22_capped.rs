@@ -22,7 +22,7 @@
 #![feature(min_specialization)]
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
-pub mod psp22_capped {
+mod psp22_capped {
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
@@ -31,15 +31,16 @@ pub mod psp22_capped {
             mintable::*,
         },
         test_utils::accounts,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, PSP22CappedStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct PSP22Struct {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[PSP22CappedStorageField]
-        metadata: PSP22CappedData,
+        #[storage_field]
+        psp22: psp22::Data,
+        #[storage_field]
+        cap: Data,
     }
 
     impl PSP22 for PSP22Struct {}
@@ -48,23 +49,17 @@ pub mod psp22_capped {
 
     impl PSP22Mintable for PSP22Struct {}
 
-    impl PSP22Transfer for PSP22Struct {
+    impl psp22::Transfer for PSP22Struct {
         fn _before_token_transfer(
-            &mut self,
-            _from: Option<&AccountId>,
-            _to: Option<&AccountId>,
-            amount: &Balance,
-        ) -> Result<(), PSP22Error> {
-            self._before_mint(*amount)?;
-            Ok(())
-        }
-
-        fn _after_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
+            // `is_none` means that it is minting
+            if _from.is_none() && (self.total_supply() + _amount) > self.cap() {
+                return Err(PSP22Error::Custom(String::from("Cap exceeded")))
+            }
             Ok(())
         }
     }
@@ -73,10 +68,10 @@ pub mod psp22_capped {
         /// Constructor which mints `initial_supply` of the token to sender
         /// Will set the token's cap to `cap`
         #[ink(constructor)]
-        pub fn new(inital_supply: Balance, cap: Balance) -> Self {
+        pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._init_cap(cap).is_ok());
-                assert!(instance.mint(instance.env().caller(), inital_supply).is_ok());
+                assert!(instance._init_cap(CAP).is_ok());
+                assert!(instance.mint(instance.env().caller(), 1).is_ok());
             })
         }
     }
@@ -85,13 +80,13 @@ pub mod psp22_capped {
 
     #[ink::test]
     fn initializing_works() {
-        let token = PSP22Struct::new(1, CAP);
+        let token = PSP22Struct::new();
         assert_eq!(token.cap(), CAP);
     }
 
     #[ink::test]
     fn mint_works() {
-        let mut token = PSP22Struct::new(1, CAP);
+        let mut token = PSP22Struct::new();
 
         let accounts = accounts();
         let alice_balance = token.balance_of(accounts.alice);
@@ -101,7 +96,7 @@ pub mod psp22_capped {
 
     #[ink::test]
     fn mint_fails() {
-        let mut token = PSP22Struct::new(1, CAP);
+        let mut token = PSP22Struct::new();
 
         let accounts = accounts();
         let alice_balance = token.balance_of(accounts.alice);

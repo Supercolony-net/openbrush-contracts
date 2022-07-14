@@ -20,7 +20,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// Extension of [`PSP22`] that allows to set a limit on the total funding
-pub use crate::traits::errors::PSP22Error;
 use openbrush::traits::Balance;
 
 #[openbrush::wrapper]

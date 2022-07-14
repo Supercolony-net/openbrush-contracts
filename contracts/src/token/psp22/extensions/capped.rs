@@ -20,59 +20,50 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp22::*,
-    traits::psp22::extensions::capped::*,
-};
-pub use derive::PSP22CappedStorage;
-use ink_prelude::string::String;
-use openbrush::{
-    declare_storage_trait,
-    traits::{
-        Balance,
-        InkStorage,
+    psp22,
+    psp22::extensions::capped,
+    traits::psp22::{
+        extensions::capped::*,
+        *,
     },
 };
+pub use capped::Internal as _;
+use ink_prelude::string::String;
+use openbrush::traits::{
+    Balance,
+    Storage,
+};
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP22CappedData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct PSP22CappedData {
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
     pub cap: Balance,
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PSP22CappedStorage);
-
-impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22CappedInternal + PSP22Internal + InkStorage> PSP22Capped
-    for T
-{
+impl<T: Storage<Data>> PSP22Capped for T {
     default fn cap(&self) -> Balance {
-        self.get().cap
+        self.data().cap.clone()
     }
 }
 
-pub trait PSP22CappedInternal {
-    /// Check for cap overflow before minting tokens
-    fn _before_mint(&self, amount: Balance) -> Result<(), PSP22Error>;
-
+pub trait Internal {
     /// Initializes the token's cap
     fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error>;
 }
 
-impl<T: PSP22CappedStorage<Data = PSP22CappedData> + PSP22> PSP22CappedInternal for T {
-    fn _before_mint(&self, amount: Balance) -> Result<(), PSP22Error> {
-        if (self.total_supply() + amount) > self.get().cap {
-            return Err(PSP22Error::Custom(String::from("Cap exceeded")))
-        }
-        Ok(())
-    }
-
+impl<T: Storage<Data> + Storage<psp22::Data>> Internal for T {
     fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
         if cap == 0 {
             return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
         }
-        PSP22CappedStorage::get_mut(self).cap = cap;
+        self.data::<Data>().cap = cap;
         Ok(())
     }
 }
