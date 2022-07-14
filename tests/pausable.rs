@@ -29,6 +29,7 @@ mod pausable {
     use openbrush::{
         contracts::pausable::*,
         test_utils::accounts,
+        traits::Storage,
     };
 
     use ink::codegen::{
@@ -49,10 +50,10 @@ mod pausable {
     }
 
     #[ink(storage)]
-    #[derive(Default, PausableStorage)]
+    #[derive(Default, Storage)]
     pub struct MyFlipper {
-        #[PausableStorageField]
-        pause: PausableData,
+        #[storage_field]
+        pause: Data,
         flipped: bool,
     }
 
@@ -74,7 +75,7 @@ mod pausable {
 
     impl Pausable for MyFlipper {}
 
-    impl PausableInternal for MyFlipper {
+    impl Internal for MyFlipper {
         fn _emit_paused_event(&self, account: AccountId) {
             self.env().emit_event(Paused { account })
         }

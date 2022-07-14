@@ -4,23 +4,23 @@
 #[openbrush::contract]
 pub mod my_psp22_metadata_facet {
     use ink_prelude::string::String;
+    use ink_storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             ownable::*,
             psp22::extensions::metadata::*,
         },
         modifiers,
+        traits::Storage,
     };
 
-    use ink_storage::traits::SpreadAllocate;
-
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22MetadataStorage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct PSP22Facet {
-        #[PSP22MetadataStorageField]
-        metadata: PSP22MetadataData,
-        #[OwnableStorageField]
-        ownable: OwnableData,
+        #[storage_field]
+        metadata: metadata::Data,
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
     impl PSP22Metadata for PSP22Facet {}

@@ -20,15 +20,24 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp22::*,
-    traits::psp22::extensions::mintable::*,
+    psp22,
+    traits::psp22::{
+        extensions::mintable::*,
+        *,
+    },
 };
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
+
 use openbrush::traits::{
     AccountId,
     Balance,
+    Storage,
 };
 
-impl<T: PSP22Internal> PSP22Mintable for T {
+impl<T: Storage<psp22::Data>> PSP22Mintable for T {
     default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         self._mint_to(account, amount)
     }

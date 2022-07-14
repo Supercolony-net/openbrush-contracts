@@ -30,9 +30,12 @@ mod psp35_batch {
     use ink_lang as ink;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::test_utils::{
-        accounts,
-        change_caller,
+    use openbrush::{
+        test_utils::{
+            accounts,
+            change_caller,
+        },
+        traits::Storage,
     };
     use openbrush_contracts::psp35::extensions::batch::*;
 
@@ -65,14 +68,14 @@ mod psp35_batch {
         value: Balance,
     }
 
-    #[derive(Default, SpreadAllocate, PSP35Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct PSP35Struct {
-        #[PSP35StorageField]
-        psp35: PSP35Data,
+        #[storage_field]
+        psp35: psp35::Data,
     }
 
-    impl PSP35Internal for PSP35Struct {
+    impl psp35::Internal for PSP35Struct {
         fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, _value: Balance) {
             self.env().emit_event(Approval {
                 owner: _owner,

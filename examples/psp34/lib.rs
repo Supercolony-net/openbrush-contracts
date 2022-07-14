@@ -4,19 +4,24 @@
 #[openbrush::contract]
 pub mod my_psp34 {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp34::*;
+    use openbrush::{
+        contracts::psp34::extensions::metadata::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP34Storage)]
-    pub struct MyPSP34 {
-        #[PSP34StorageField]
-        psp34: PSP34Data,
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct Contract {
+        #[storage_field]
+        psp34: psp34::Data,
+        #[storage_field]
+        metadata: Data,
         next_id: u8,
     }
 
-    impl PSP34 for MyPSP34 {}
+    impl PSP34 for Contract {}
 
-    impl MyPSP34 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})

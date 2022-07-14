@@ -39,16 +39,17 @@ mod psp35_enumerable {
             accounts,
             change_caller,
         },
+        traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, PSP35Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct PSP35Struct {
-        #[PSP35StorageField]
-        psp35: PSP35Data<EnumerableBalances>,
+        #[storage_field]
+        psp35: psp35::Data<enumerable::Balances>,
     }
 
-    impl PSP35Internal for PSP35Struct {
+    impl psp35::Internal for PSP35Struct {
         fn _do_safe_transfer_check(
             &mut self,
             _operator: &AccountId,

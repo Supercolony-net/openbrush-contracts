@@ -28,6 +28,7 @@ mod payment_splitter {
     use openbrush::{
         contracts::payment_splitter::*,
         test_utils::accounts,
+        traits::Storage,
     };
 
     use ink::codegen::{
@@ -54,10 +55,10 @@ mod payment_splitter {
     }
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PaymentSplitterStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MySplitter {
-        #[PaymentSplitterStorageField]
-        splitter: PaymentSplitterData,
+        #[storage_field]
+        splitter: Data,
     }
 
     impl MySplitter {
@@ -71,7 +72,7 @@ mod payment_splitter {
 
     impl PaymentSplitter for MySplitter {}
 
-    impl PaymentSplitterInternal for MySplitter {
+    impl Internal for MySplitter {
         fn _emit_payee_added_event(&self, account: AccountId, shares: Balance) {
             self.env().emit_event(PayeeAdded { account, shares })
         }

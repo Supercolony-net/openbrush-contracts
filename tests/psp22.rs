@@ -22,7 +22,7 @@
 #![feature(min_specialization)]
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
-mod psp22 {
+mod psp22_test {
     use ink::codegen::{
         EmitEvent,
         Env,
@@ -31,6 +31,7 @@ mod psp22 {
     use openbrush::{
         contracts::psp22::*,
         test_utils::*,
+        traits::Storage,
     };
     use std::panic;
 
@@ -57,10 +58,10 @@ mod psp22 {
 
     /// A simple PSP-20 contract.
     #[ink(storage)]
-    #[derive(Default, PSP22Storage)]
+    #[derive(Default, Storage)]
     pub struct PSP22Struct {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+        #[storage_field]
+        psp22: psp22::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
@@ -69,7 +70,7 @@ mod psp22 {
 
     type Event = <PSP22Struct as ::ink_lang::reflect::ContractEventBase>::Type;
 
-    impl PSP22Internal for PSP22Struct {
+    impl psp22::Internal for PSP22Struct {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
@@ -98,7 +99,7 @@ mod psp22 {
         }
     }
 
-    impl PSP22Transfer for PSP22Struct {
+    impl psp22::Transfer for PSP22Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

@@ -19,30 +19,31 @@ pub mod shares {
             },
         },
         modifiers,
+        traits::Storage,
     };
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage, PSP22MetadataStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct SharesContract {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[OwnableStorageField]
-        ownable: OwnableData,
-        #[PSP22MetadataStorageField]
-        metadata: PSP22MetadataData,
+        #[storage_field]
+        psp22: psp22::Data,
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        metadata: metadata::Data,
     }
 
-    // implement PSP22 Trait for our share
+    // Implement PSP22 Trait for our share
     impl PSP22 for SharesContract {}
 
-    // implement Ownable Trait for our share
+    // Implement Ownable Trait for our share
     impl Ownable for SharesContract {}
 
-    // implement Metadata Trait for our share
+    // Implement Metadata Trait for our share
     impl PSP22Metadata for SharesContract {}
 
-    // implement Mintable Trait for our share
+    // Implement Mintable Trait for our share
     impl PSP22Mintable for SharesContract {
         /// override the `mint` function to add the `only_owner` modifier
         #[ink(message)]
@@ -52,7 +53,7 @@ pub mod shares {
         }
     }
 
-    // implement Burnable Trait for our share
+    // Implement Burnable Trait for our share
     impl PSP22Burnable for SharesContract {
         /// override the `burn` function to add the `only_owner` modifier
         #[ink(message)]

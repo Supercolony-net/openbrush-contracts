@@ -20,11 +20,17 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    access_control::*,
-    traits::timelock_controller::*,
+    access_control,
+    timelock_controller,
+    traits::{
+        access_control::*,
+        timelock_controller::*,
+    },
 };
+pub use access_control::Internal as _;
+pub use timelock_controller::Internal as _;
+
 use core::convert::TryFrom;
-pub use derive::TimelockControllerStorage;
 use ink_env::{
     call::{
         build_call,
@@ -40,43 +46,28 @@ use ink_prelude::{
     vec::Vec,
 };
 use openbrush::{
-    declare_storage_trait,
     modifier_definition,
     modifiers,
     storage::Mapping,
     traits::{
         AccountId,
-        Flush,
         Hash,
+        OccupiedStorage,
+        Storage,
         Timestamp,
         ZERO_ADDRESS,
     },
 };
 use scale::Encode;
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::TimelockControllerData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct TimelockControllerData {
-    pub access_control: AccessControlData,
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
     pub min_delay: Timestamp,
     pub timestamps: Mapping<OperationId, Timestamp>,
     pub _reserved: Option<()>,
-}
-
-declare_storage_trait!(TimelockControllerStorage);
-
-impl<T: TimelockControllerStorage<Data = TimelockControllerData>> AccessControlStorage for T {
-    type Data = AccessControlData;
-
-    fn get(&self) -> &Self::Data {
-        &T::get(self).access_control
-    }
-
-    fn get_mut(&mut self) -> &mut Self::Data {
-        &mut T::get_mut(self).access_control
-    }
 }
 
 /// Modifier to make a function callable only by a certain role. In
@@ -84,15 +75,16 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData>> AccessControlS
 /// considered. Granting a role to zero account is equivalent to enabling
 /// this role for everyone.
 #[modifier_definition]
-pub fn only_role_or_open_role<T, B, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
+pub fn only_role_or_open_role<T, M, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    B: AccessControlMemberManager,
-    T: AccessControlStorage<Data = AccessControlData<B>>,
+    M: access_control::members::MembersManager,
+    T: Storage<access_control::Data<M>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
 {
-    if !instance.get().members.has_role(role, &ZERO_ADDRESS.into()) {
-        check_role(instance, role, T::env().caller())?;
+    if !instance.data().members.has_role(role, &(ZERO_ADDRESS.into())) {
+        access_control::check_role(instance, role, T::env().caller())?;
     }
     body(instance)
 }
@@ -103,7 +95,13 @@ pub const EXECUTOR_ROLE: RoleType = ink_lang::selector_id!("EXECUTOR_ROLE");
 
 pub const DONE_TIMESTAMP: Timestamp = 1;
 
-impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> TimelockController for T {
+impl<T, M> TimelockController for T
+where
+    M: access_control::members::MembersManager,
+    T: Storage<Data>,
+    T: Storage<access_control::Data<M>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
+{
     default fn is_operation(&self, id: OperationId) -> bool {
         self.get_timestamp(id) > Timestamp::default()
     }
@@ -122,14 +120,11 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
     }
 
     default fn get_timestamp(&self, id: OperationId) -> Timestamp {
-        TimelockControllerStorage::get(self)
-            .timestamps
-            .get(&id)
-            .unwrap_or(Timestamp::default())
+        self.data::<Data>().timestamps.get(&id).unwrap_or(Timestamp::default())
     }
 
     default fn get_min_delay(&self) -> Timestamp {
-        TimelockControllerStorage::get(self).min_delay.clone()
+        self.data::<Data>().min_delay.clone()
     }
 
     default fn hash_operation(
@@ -150,7 +145,7 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
         self._hash_operation_batch(&transactions, &predecessor, &salt)
     }
 
-    #[modifiers(only_role(Self::_proposal_role()))]
+    #[modifiers(access_control::only_role(Self::_proposal_role()))]
     default fn schedule(
         &mut self,
         transaction: Transaction,
@@ -166,7 +161,7 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
         Ok(())
     }
 
-    #[modifiers(only_role(Self::_proposal_role()))]
+    #[modifiers(access_control::only_role(Self::_proposal_role()))]
     default fn schedule_batch(
         &mut self,
         transactions: Vec<Transaction>,
@@ -184,12 +179,12 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
         Ok(())
     }
 
-    #[modifiers(only_role(Self::_proposal_role()))]
+    #[modifiers(access_control::only_role(Self::_proposal_role()))]
     default fn cancel(&mut self, id: OperationId) -> Result<(), TimelockControllerError> {
         if !self.is_operation_pending(id) {
             return Err(TimelockControllerError::OperationCannonBeCanceled)
         }
-        TimelockControllerStorage::get_mut(self).timestamps.remove(&id);
+        self.data::<Data>().timestamps.remove(&id);
 
         self._emit_cancelled_event(id);
         Ok(())
@@ -231,19 +226,17 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
             return Err(TimelockControllerError::CallerMustBeTimeLock)
         }
 
-        let old_delay = TimelockControllerStorage::get(self).min_delay.clone();
+        let old_delay = self.data::<Data>().min_delay.clone();
         self._emit_min_delay_change_event(old_delay, new_delay);
 
-        TimelockControllerStorage::get_mut(self).min_delay = new_delay;
+        self.data::<Data>().min_delay = new_delay;
         Ok(())
     }
 }
 
-pub trait TimelockControllerInternal {
-    /// User must override this method in their contract.
+pub trait Internal {
+    /// User must override those methods in their contract.
     fn _emit_min_delay_change_event(&self, _old_delay: Timestamp, _new_delay: Timestamp);
-
-    /// User must override this method in their contract.
     fn _emit_call_scheduled_event(
         &self,
         _id: OperationId,
@@ -252,11 +245,7 @@ pub trait TimelockControllerInternal {
         _predecessor: Option<OperationId>,
         _delay: Timestamp,
     );
-
-    /// User must override this method in their contract.
     fn _emit_cancelled_event(&self, _id: OperationId);
-
-    /// User must override this method in their contract.
     fn _emit_call_executed_event(&self, _id: OperationId, _index: u8, _transaction: Transaction);
 
     fn _init_with_caller(&mut self, min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>);
@@ -306,9 +295,14 @@ pub trait TimelockControllerInternal {
     fn _done_timestamp() -> Timestamp;
 }
 
-impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> TimelockControllerInternal for T {
+impl<T, M> Internal for T
+where
+    M: access_control::members::MembersManager,
+    T: Storage<Data>,
+    T: Storage<access_control::Data<M>>,
+    T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
+{
     default fn _emit_min_delay_change_event(&self, _old_delay: Timestamp, _new_delay: Timestamp) {}
-
     default fn _emit_call_scheduled_event(
         &self,
         _id: OperationId,
@@ -318,9 +312,7 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
         _delay: Timestamp,
     ) {
     }
-
     default fn _emit_cancelled_event(&self, _id: OperationId) {}
-
     default fn _emit_call_executed_event(&self, _id: OperationId, _index: u8, _transaction: Transaction) {}
 
     default fn _init_with_caller(
@@ -330,7 +322,7 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
         executors: Vec<AccountId>,
     ) {
         let caller = Self::env().caller();
-        TimelockControllerInternal::_init_with_admin(self, caller, min_delay, proposers, executors);
+        Internal::_init_with_admin(self, caller, min_delay, proposers, executors);
     }
 
     default fn _init_with_admin(
@@ -357,8 +349,8 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
             .into_iter()
             .for_each(|executor| self._setup_role(Self::_executor_role(), executor));
 
-        let old_delay = TimelockControllerStorage::get(self).min_delay.clone();
-        TimelockControllerStorage::get_mut(self).min_delay = min_delay;
+        let old_delay = self.data::<Data>().min_delay.clone();
+        self.data::<Data>().min_delay = min_delay;
         self._emit_min_delay_change_event(old_delay, min_delay);
     }
 
@@ -400,11 +392,11 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
         if self.is_operation(id) {
             return Err(TimelockControllerError::OperationAlreadyScheduled)
         }
-        if delay < &TimelockControllerStorage::get(self).min_delay {
+        if delay < &self.data::<Data>().min_delay {
             return Err(TimelockControllerError::InsufficientDelay)
         }
 
-        TimelockControllerStorage::get_mut(self)
+        self.data::<Data>()
             .timestamps
             .insert(&id, &(Self::env().block_timestamp() + delay));
         Ok(())
@@ -422,9 +414,7 @@ impl<T: TimelockControllerStorage<Data = TimelockControllerData> + Flush> Timelo
             return Err(TimelockControllerError::OperationIsNotReady)
         }
 
-        TimelockControllerStorage::get_mut(self)
-            .timestamps
-            .insert(&id, &Self::_done_timestamp());
+        self.data::<Data>().timestamps.insert(&id, &Self::_done_timestamp());
         Ok(())
     }
 

@@ -11,19 +11,20 @@ pub mod my_psp35 {
     use openbrush::{
         contracts::psp35::*,
         storage::Mapping,
+        traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, PSP35Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct MyPSP35 {
-        #[PSP35StorageField]
-        psp35: PSP35Data,
+    pub struct Contract {
+        #[storage_field]
+        psp35: psp35::Data,
         denied_ids: Mapping<Id, ()>,
     }
 
-    impl PSP35 for MyPSP35 {}
+    impl PSP35 for Contract {}
 
-    impl MyPSP35 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})

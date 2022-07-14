@@ -4,18 +4,21 @@
 #[openbrush::contract]
 pub mod my_psp22_token_timelock {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp22::utils::token_timelock::*;
+    use openbrush::{
+        contracts::psp22::utils::token_timelock::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22TokenTimelockStorage)]
-    pub struct MyPSP22TokenTimelock {
-        #[PSP22TokenTimelockStorageField]
-        timelock: PSP22TokenTimelockData,
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct Contract {
+        #[storage_field]
+        timelock: token_timelock::Data,
     }
 
-    impl PSP22TokenTimelock for MyPSP22TokenTimelock {}
+    impl PSP22TokenTimelock for Contract {}
 
-    impl MyPSP22TokenTimelock {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {

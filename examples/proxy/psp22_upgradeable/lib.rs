@@ -10,15 +10,16 @@ pub mod my_psp22_upgradeable {
             psp22::*,
         },
         modifiers,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22 {
-        #[OwnableStorageField]
-        ownable: OwnableData,
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        psp22: psp22::Data,
     }
 
     impl Ownable for MyPSP22 {}

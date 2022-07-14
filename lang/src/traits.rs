@@ -24,7 +24,9 @@ use ::ink_env::{
     Environment,
 };
 use core::mem::ManuallyDrop;
+pub use openbrush_lang_macro::Storage;
 
+/// Aliases for types of the default environment
 pub type AccountId = <DefaultEnvironment as Environment>::AccountId;
 pub type Balance = <DefaultEnvironment as Environment>::Balance;
 pub type Hash = <DefaultEnvironment as Environment>::Hash;
@@ -33,16 +35,86 @@ pub type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 pub type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 pub type EnvAccess = ::ink_lang::EnvAccess<'static, DefaultEnvironment>;
 
-pub trait InkStorage: Sized {
+/// Each object has access to default environment via `Self::env()`.
+/// It can be used for interaction with host functions of the blockchain.
+pub trait DefaultEnv {
+    #[inline(always)]
     fn env() -> EnvAccess {
         Default::default()
     }
 }
 
-impl<T> InkStorage for T {}
+impl<T> DefaultEnv for T {}
+
+/// Implementation of the trait means that the type stores some `Data` inside.
+/// It is stored in one exemplar, and reference can be retrieved from the object by `get` or
+/// `get_mut` methods. The trait is helpful for generics implementations when you don't know
+/// precisely the final type, but it is enough for you to know that it has some `Data` inside.
+///
+/// The trait is used as bound in OpenBrush to provide a generic implementation for contracts'
+/// traits. The user of OpenBrush can "inherit" the default implementation by implementing the
+/// `Storage<Data>` trait.
+///
+/// In most cases, the trait is implemented automatically by the derive macro.
+/// The trait methods should not be used directly. Instead use the `data` method of
+/// `StorageAsRef` or `StorageAsMut`.
+pub trait Storage<Data>
+where
+    Data: OccupyStorage,
+    Self: Flush + StorageAsRef + StorageAsMut + DefaultEnv,
+{
+    #[deprecated(since = "2.1.0", note = "please use `StorageAsRef::data` instead")]
+    fn get(&self) -> &Data;
+
+    #[deprecated(since = "2.1.0", note = "please use `StorageAsMut::data` instead")]
+    fn get_mut(&mut self) -> &mut Data;
+}
+
+/// Trait describes that the storage `KEY` already is occupied by `WithData` type.
+/// Implementation of that trait for each storage field prevents the user from occupying
+/// the same storage cells.
+pub trait OccupiedStorage<const KEY: u32> {
+    type WithData: OccupyStorage;
+}
+
+/// Each upgradeable storage type should occupy its storage key. The trait helps to describe what
+/// storage key is occupied by the type.
+pub trait OccupyStorage {
+    const KEY: u32;
+}
+
+/// Helper trait for `Storage` to provide user-friendly API to retrieve data as reference.
+pub trait StorageAsRef {
+    #[inline(always)]
+    fn data<Data>(&self) -> &Data
+    where
+        Data: OccupyStorage,
+        Self: Storage<Data>,
+    {
+        #[allow(deprecated)]
+        <Self as Storage<Data>>::get(self)
+    }
+}
+
+/// Helper trait for `Storage` to provide user-friendly API to retrieve data as mutable reference.
+pub trait StorageAsMut: StorageAsRef {
+    #[inline(always)]
+    fn data<Data>(&mut self) -> &mut Data
+    where
+        Data: OccupyStorage,
+        Self: Storage<Data>,
+    {
+        #[allow(deprecated)]
+        <Self as Storage<Data>>::get_mut(self)
+    }
+}
+
+impl<T> StorageAsRef for T {}
+impl<T: StorageAsRef> StorageAsMut for T {}
 
 pub const ZERO_ADDRESS: [u8; 32] = [0; 32];
 
+/// The trait provides some useful methods for `AccountId` type.
 pub trait AccountIdExt {
     fn is_zero(&self) -> bool;
 }
@@ -53,8 +125,8 @@ impl AccountIdExt for AccountId {
     }
 }
 
-/// This trait is automatically implemented for storage.
-pub trait Flush: ::ink_storage::traits::SpreadLayout + InkStorage {
+/// This trait is automatically implemented for storage structs.
+pub trait Flush: ::ink_storage::traits::SpreadLayout + Sized {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate a key of each field.
     /// So if you want to flush the correct state of the contract,
@@ -76,4 +148,4 @@ pub trait Flush: ::ink_storage::traits::SpreadLayout + InkStorage {
     }
 }
 
-impl<T: ::ink_storage::traits::SpreadLayout + InkStorage> Flush for T {}
+impl<T: ::ink_storage::traits::SpreadLayout + Sized> Flush for T {}

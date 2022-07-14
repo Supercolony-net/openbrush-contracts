@@ -30,32 +30,18 @@ mod diamond {
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
-        contracts::diamond::{
-            extensions::diamond_loupe::*,
-            FacetCut,
-            *,
-        },
+        contracts::diamond::extensions::diamond_loupe::*,
         test_utils::accounts,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, DiamondStorage, DiamondLoupeStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct DiamondContract {
-        #[DiamondStorageField]
-        diamond: DiamondData,
-        #[DiamondLoupeStorageField]
-        diamond_loupe: DiamondLoupeData,
-    }
-
-    impl OwnableStorage for DiamondContract {
-        type Data = OwnableData;
-        fn get(&self) -> &OwnableData {
-            &self.diamond.ownable
-        }
-
-        fn get_mut(&mut self) -> &mut OwnableData {
-            &mut self.diamond.ownable
-        }
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        diamond: diamond::Data<Loupe>,
     }
 
     impl DiamondContract {

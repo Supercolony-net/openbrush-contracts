@@ -5,18 +5,21 @@
 pub mod my_psp22 {
     use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp22::*;
+    use openbrush::{
+        contracts::psp22::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
-    pub struct MyPSP22 {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct Contract {
+        #[storage_field]
+        psp22: psp22::Data,
         // fields for hater logic
         hated_account: AccountId,
     }
 
-    impl PSP22Transfer for MyPSP22 {
+    impl Transfer for Contract {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
             &mut self,
@@ -31,12 +34,12 @@ pub mod my_psp22 {
         }
     }
 
-    impl PSP22 for MyPSP22 {}
+    impl PSP22 for Contract {}
 
-    impl MyPSP22 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+            ink_lang::codegen::initialize_contract(|instance: &mut Contract| {
                 instance
                     ._mint_to(instance.env().caller(), total_supply)
                     .expect("Should mint");

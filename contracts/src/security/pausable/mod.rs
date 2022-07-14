@@ -19,35 +19,39 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::pausable::*;
-pub use derive::PausableStorage;
+pub use crate::{
+    pausable,
+    traits::pausable::*,
+};
+pub use pausable::Internal as _;
+
 use openbrush::{
-    declare_storage_trait,
     modifier_definition,
     modifiers,
-    traits::AccountId,
+    traits::{
+        AccountId,
+        Storage,
+    },
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PausableData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct PausableData {
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
     pub paused: bool,
     pub _reserved: Option<()>,
 }
-
-declare_storage_trait!(PausableStorage);
 
 /// Modifier to make a function callable only when the contract is paused.
 #[modifier_definition]
 pub fn when_paused<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
-    T: PausableStorage<Data = PausableData>,
+    T: Storage<Data>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<PausableError>,
 {
-    if !instance.get().paused {
+    if !instance.data().paused {
         return Err(From::from(PausableError::NotPaused))
     }
     body(instance)
@@ -57,27 +61,25 @@ where
 #[modifier_definition]
 pub fn when_not_paused<T, F, R, E>(instance: &mut T, body: F) -> Result<R, E>
 where
-    T: PausableStorage<Data = PausableData>,
+    T: Storage<Data>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<PausableError>,
 {
-    if instance.get().paused {
+    if instance.data().paused {
         return Err(From::from(PausableError::Paused))
     }
     body(instance)
 }
 
-impl<T: PausableStorage<Data = PausableData>> Pausable for T {
+impl<T: Storage<Data>> Pausable for T {
     default fn paused(&self) -> bool {
-        self.get().paused
+        self.data().paused
     }
 }
 
-pub trait PausableInternal {
-    /// User must override this method in their contract.
+pub trait Internal {
+    /// User must override those methods in their contract.
     fn _emit_paused_event(&self, _account: AccountId);
-
-    /// User must override this method in their contract.
     fn _emit_unpaused_event(&self, _account: AccountId);
 
     /// Triggers stopped state.
@@ -96,21 +98,20 @@ pub trait PausableInternal {
     fn _switch_pause<E: From<PausableError>>(&mut self) -> Result<(), E>;
 }
 
-impl<T: PausableStorage<Data = PausableData>> PausableInternal for T {
+impl<T: Storage<Data>> Internal for T {
     default fn _emit_paused_event(&self, _account: AccountId) {}
-
     default fn _emit_unpaused_event(&self, _account: AccountId) {}
 
     #[modifiers(when_not_paused)]
     default fn _pause<E: From<PausableError>>(&mut self) -> Result<(), E> {
-        self.get_mut().paused = true;
+        self.data().paused = true;
         self._emit_paused_event(Self::env().caller());
         Ok(())
     }
 
     #[modifiers(when_paused)]
     default fn _unpause<E: From<PausableError>>(&mut self) -> Result<(), E> {
-        self.get_mut().paused = false;
+        self.data().paused = false;
         self._emit_unpaused_event(Self::env().caller());
         Ok(())
     }

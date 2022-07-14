@@ -3,27 +3,30 @@
 
 #[openbrush::contract]
 pub mod my_psp34_metadata {
-    use openbrush::contracts::psp34::extensions::metadata::*;
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::psp34::extensions::metadata::*,
+        traits::Storage,
+    };
 
-    #[derive(Default, SpreadAllocate, PSP34Storage, PSP34MetadataStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct MyPSP34 {
-        #[PSP34StorageField]
-        psp34: PSP34Data,
-        #[PSP34MetadataStorageField]
-        metadata: PSP34MetadataData,
+    pub struct Contract {
+        #[storage_field]
+        psp34: psp34::Data,
+        #[storage_field]
+        metadata: metadata::Data,
     }
 
-    impl PSP34 for MyPSP34 {}
+    impl PSP34 for Contract {}
 
-    impl PSP34Metadata for MyPSP34 {}
+    impl PSP34Metadata for Contract {}
 
-    impl MyPSP34 {
+    impl Contract {
         /// A constructor which mints the first token to the owner
         #[ink(constructor)]
         pub fn new(id: Id, name: String, symbol: String) -> Self {

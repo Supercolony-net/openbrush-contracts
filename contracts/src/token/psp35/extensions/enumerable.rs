@@ -19,14 +19,23 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use crate::psp35::BalancesManager;
 pub use crate::{
-    psp35::*,
-    traits::psp35::extensions::enumerable::*,
+    psp35,
+    psp35::{
+        balances,
+        extensions::enumerable,
+    },
+    traits::psp35::{
+        extensions::enumerable::*,
+        *,
+    },
 };
-pub use derive::PSP35EnumerableStorage;
+pub use psp35::{
+    Internal as _,
+    Transfer as _,
+};
+
 use openbrush::{
-    declare_storage_trait,
     storage::{
         Mapping,
         MultiMapping,
@@ -35,14 +44,16 @@ use openbrush::{
     traits::{
         AccountId,
         Balance,
+        OccupiedStorage,
+        Storage,
     },
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP35EnumerableData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct EnumerableBalances {
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Balances {
     pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey>,
     pub balances: Mapping<(AccountId, Id), Balance, BalancesKey>,
     pub supply: Mapping<Id, Balance>,
@@ -61,9 +72,7 @@ impl<'a> TypeGuard<'a> for BalancesKey {
     type Type = &'a (&'a AccountId, &'a Id);
 }
 
-declare_storage_trait!(PSP35EnumerableBalancesStorage);
-
-impl BalancesManager for EnumerableBalances {
+impl balances::BalancesManager for Balances {
     #[inline(always)]
     fn balance_of(&self, owner: &AccountId, id: &Option<&Id>) -> Balance {
         match id {
@@ -139,27 +148,16 @@ impl BalancesManager for EnumerableBalances {
     }
 }
 
-impl<T> PSP35EnumerableBalancesStorage for T
+impl<T> PSP35Enumerable for T
 where
-    T: PSP35Storage<Data = PSP35Data<EnumerableBalances>>,
+    T: Storage<psp35::Data<Balances>>,
+    T: OccupiedStorage<{ psp35::STORAGE_KEY }, WithData = psp35::Data<Balances>>,
 {
-    type Data = EnumerableBalances;
-
-    fn get(&self) -> &Self::Data {
-        &self.get().balances
-    }
-
-    fn get_mut(&mut self) -> &mut Self::Data {
-        &mut self.get_mut().balances
-    }
-}
-
-impl<T: PSP35EnumerableBalancesStorage<Data = EnumerableBalances> + PSP35> PSP35Enumerable for T {
     default fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Option<Id> {
-        self.get().enumerable.get_value(&Some(&owner), &index)
+        self.data().balances.enumerable.get_value(&Some(&owner), &index)
     }
 
     default fn token_by_index(&self, index: u128) -> Option<Id> {
-        self.get().enumerable.get_value(&None, &index)
+        self.data().balances.enumerable.get_value(&None, &index)
     }
 }

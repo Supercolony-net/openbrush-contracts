@@ -9,4 +9,4 @@ from the contract.
 
 The example consists of `diamond`, which is the main contract in the standard and will be used for storage and 
 execution of it's modules' functions via fallback, and the `psp22_facet`, which is the facet with functionality of basic 
-[PSP-22](https://github.com/w3f/PSPs/blob/master/PSPs/psp-22.md) token.
+[PSP22](https://github.com/w3f/PSPs/blob/master/PSPs/psp-22.md) token.

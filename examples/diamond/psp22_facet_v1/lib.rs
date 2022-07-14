@@ -10,15 +10,16 @@ pub mod my_psp22_facet_v1 {
             psp22::*,
         },
         modifiers,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct PSP22FacetV1 {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[OwnableStorageField]
-        ownable: OwnableData,
+        #[storage_field]
+        psp22: psp22::Data,
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
     impl PSP22 for PSP22FacetV1 {}

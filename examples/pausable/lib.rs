@@ -4,17 +4,20 @@
 #[openbrush::contract]
 pub mod my_pausable {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::pausable::*;
+    use openbrush::{
+        contracts::pausable::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PausableStorage)]
-    pub struct MyFlipper {
-        #[PausableStorageField]
-        pause: PausableData,
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct Contract {
+        #[storage_field]
+        pause: pausable::Data,
         flipped: bool,
     }
 
-    impl MyFlipper {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
@@ -43,5 +46,5 @@ pub mod my_pausable {
         }
     }
 
-    impl Pausable for MyFlipper {}
+    impl Pausable for Contract {}
 }
