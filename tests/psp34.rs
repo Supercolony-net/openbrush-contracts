@@ -36,6 +36,7 @@ mod psp34 {
             accounts,
             change_caller,
         },
+        traits::Storage,
     };
 
     /// Event emitted when a token transfer occurs.
@@ -61,18 +62,18 @@ mod psp34 {
         approved: bool,
     }
 
-    #[derive(Default, SpreadAllocate, PSP34Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct PSP34Struct {
-        #[PSP34StorageField]
-        psp34: PSP34Data,
+        #[storage_field]
+        psp34: psp34::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
         return_err_on_after: bool,
     }
 
-    impl PSP34Internal for PSP34Struct {
+    impl psp34::Internal for PSP34Struct {
         fn _emit_transfer_event(&self, from: Option<AccountId>, to: Option<AccountId>, id: Id) {
             self.env().emit_event(Transfer { from, to, id });
         }
@@ -93,7 +94,7 @@ mod psp34 {
         }
     }
 
-    impl PSP34Transfer for PSP34Struct {
+    impl psp34::Transfer for PSP34Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

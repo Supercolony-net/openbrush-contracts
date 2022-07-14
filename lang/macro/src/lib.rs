@@ -28,6 +28,7 @@ use openbrush_lang_codegen::{
     modifier_definition,
     modifiers,
     storage,
+    storage_derive,
     trait_definition,
     wrapper,
 };
@@ -63,25 +64,23 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// ```
 /// mod doc {
 /// use ink_prelude::collections::BTreeMap;
-/// use openbrush::traits::{AccountId, Balance, InkStorage};
+/// use openbrush::traits::{ AccountId, Balance, Storage, OccupyStorage };
 ///
 /// #[derive(Default, Debug)]
 /// pub struct Data {
 ///     pub balances: BTreeMap<AccountId, Balance>,
 /// }
 ///
-/// #[openbrush::trait_definition]
-/// pub trait PSP22Storage: InkStorage {
-///     fn get(&self) -> &Data;
-///     fn get_mut(&mut self) -> &mut Data;
+/// impl OccupyStorage for Data {
+///     const KEY: u32 = 0x123;
 /// }
 ///
 /// #[openbrush::trait_definition]
-/// pub trait PSP22: PSP22Storage {
+/// pub trait PSP22: Storage<Data> {
 ///     /// Returns the account Balance for the specified `owner`.
 ///     #[ink(message)]
 ///     fn balance_of(&self, owner: AccountId) -> Balance {
-///         self.get().balances.get(&owner).copied().unwrap_or(0)
+///         self.data().balances.get(&owner).copied().unwrap_or(0)
 ///     }
 ///
 ///     /// Transfers `value` amount of tokens from the caller's account to account `to`.
@@ -93,9 +92,9 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
 ///         let from_balance = self.balance_of(from);
 ///         assert!(from_balance >= amount, "InsufficientBalance");
-///         self.get_mut().balances.insert(from, from_balance - amount);
+///         self.data().balances.insert(from, from_balance - amount);
 ///         let to_balance = self.balance_of(to);
-///         self.get_mut().balances.insert(to, to_balance + amount);
+///         self.data().balances.insert(to, to_balance + amount);
 ///     }
 /// }
 /// }
@@ -103,18 +102,16 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///
 /// # Example: Implementation
 ///
-/// It uses storage trait from above.
-///
 /// ```
 /// #[openbrush::contract]
 /// mod base_psp22 {
 ///     use ink_prelude::collections::BTreeMap;
-///     use openbrush::traits::InkStorage;
-///     use ink_storage::traits::StorageLayout;
-///     use ink_storage::traits::SpreadLayout;
+///     use openbrush::traits::Storage;
 ///
-///     #[derive(Default, Debug, SpreadLayout)]
-///     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+///     const STORAGE_KEY: u32 = 123;
+///
+///     #[derive(Default, Debug)]
+///     #[openbrush::upgradeable_storage(STORAGE_KEY)]
 ///     pub struct Data {
 ///         pub supply: Balance,
 ///         pub balances: BTreeMap<AccountId, Balance>,
@@ -122,17 +119,11 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     }
 ///
 ///     #[openbrush::trait_definition]
-///     pub trait PSP22ExampleStorage: InkStorage {
-///         fn get(&self) -> &Data;
-///         fn get_mut(&mut self) -> &mut Data;
-///     }
-///
-///     #[openbrush::trait_definition]
-///     pub trait PSP22Example: PSP22ExampleStorage {
+///     pub trait PSP22Example: Storage<Data> {
 ///         /// Returns the account Balance for the specified `owner`.
 ///         #[ink(message)]
 ///         fn balance_of(&self, owner: AccountId) -> Balance {
-///             self.get().balances.get(&owner).copied().unwrap_or(0)
+///             self.data().balances.get(&owner).copied().unwrap_or(0)
 ///         }
 ///
 ///         /// Transfers `value` amount of tokens from the caller's account to account `to`.
@@ -145,27 +136,18 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///         fn _transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) {
 ///             let from_balance = self.balance_of(from);
 ///             assert!(from_balance >= amount, "InsufficientBalance");
-///             self.get_mut().balances.insert(from, from_balance - amount);
+///             self.data().balances.insert(from, from_balance - amount);
 ///             let to_balance = self.balance_of(to);
-///             self.get_mut().balances.insert(to, to_balance + amount);
+///             self.data().balances.insert(to, to_balance + amount);
 ///         }
 ///     }
 ///
 ///     #[ink(storage)]
-///     #[derive(Default)]
+///     #[derive(Default, Storage)]
 ///     pub struct PSP22Struct {
+///         #[storage_field]
 ///         example: Data,
 ///         hated_account: AccountId,
-///     }
-///
-///     impl PSP22ExampleStorage for PSP22Struct {
-///         fn get(&self) -> &Data {
-///             &self.example
-///         }
-///
-///         fn get_mut(&mut self) -> &mut Data {
-///             &mut self.example
-///         }
 ///     }
 ///
 ///     impl PSP22Example for PSP22Struct {
@@ -425,34 +407,84 @@ pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 synstructure::decl_attribute!(
-    [storage] =>
-    /// That macro implemented `SpreadLayout`, `SpreadAllocate` and `StorageLayout` with a specified
-    /// storage key instead of the default one(All data is stored under the provided storage key).
+    [upgradeable_storage] =>
+    /// That macro implemented `SpreadLayout`, `SpreadAllocate`, `StorageLayout` and `OccupyStorage`
+    /// with a specified storage key instead of the default one (All data is stored under
+    /// the provided storage key).
     ///
     /// Also, that macro adds the code to initialize the structure if it wasn't initialized.
-    /// That macro requires one input argument - the storage key. It can be any Rust code that returns [u8; 32].
+    /// That macro requires one input argument - the storage key. It can be any Rust code that returns
+    /// `u32`.
     ///
     /// # Example:
     /// ```
     /// {
     /// use openbrush::traits::AccountId;
-    /// pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::OwnableData");
+    /// pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(OwnableData);
     ///
     /// #[derive(Default, Debug)]
-    /// #[openbrush::storage(STORAGE_KEY)]
+    /// #[openbrush::upgradeable_storage(STORAGE_KEY)]
     /// pub struct OwnableData {
     ///    pub owner: AccountId,
     ///    pub _reserved: Option<()>,
     /// }
     ///
     /// #[derive(Default, Debug)]
-    /// #[openbrush::storage(ink_lang::blake2x256!("openbrush::ProxyData"))]
+    /// #[openbrush::upgradeable_storage(openbrush::storage_unique_key!(ProxyData))]
     /// pub struct ProxyData {
     ///    pub forward: AccountId,
     ///    pub _reserved: Option<()>,
     /// }
     ///
+    /// #[derive(Default, Debug)]
+    /// #[openbrush::upgradeable_storage(123)]
+    /// pub struct SomeData {
+    ///    pub _reserved: Option<()>,
+    /// }
+    ///
     /// }
     /// ```
-    storage::storage
+    storage::upgradeable_storage
 );
+
+/// The macro implements `openbrush::traits::Storage` and `openbrush::traits::OccupiedStorage`
+/// traits for each field marked by `#[storage_field]` attribute. Each field's type should implement
+/// the `openbrush::traits::OccupyStorage` trait with a unique storage key. Each occupied storage
+/// key should be unique for each type otherwise compilation will fail.
+///
+/// `OccupyStorage` can be implemented for the type manually or automatically via
+/// [`#[openbrush::upgradeable_storage]`](`macro@crate::upgradeable_storage`) macro.
+///
+/// # Example:
+/// ```
+/// use openbrush::traits::Storage;
+/// use openbrush::traits::StorageAsRef;
+/// use openbrush::traits::StorageAsMut;
+///
+/// #[derive(Default, Debug)]
+/// #[openbrush::upgradeable_storage(openbrush::storage_unique_key!(Automatically))]
+/// pub struct Automatically;
+///
+/// #[derive(Default, Debug, ::ink_storage::traits::SpreadLayout)]
+/// pub struct Manual;
+///
+/// impl openbrush::traits::OccupyStorage for Manual {
+///     const KEY: u32 = openbrush::storage_unique_key!(Manual);
+/// }
+///
+/// #[derive(Default, Debug, Storage, ::ink_storage::traits::SpreadLayout)]
+/// pub struct Contract {
+///    #[storage_field]
+///    automatically: Automatically,
+///    #[storage_field]
+///    manual: Manual,
+/// }
+///
+/// let mut contract = &mut Contract::default();
+/// let manual: &Manual = contract.data::<Manual>();
+/// let automatically: &mut Automatically = contract.data::<Automatically>();
+/// ```
+#[proc_macro_derive(Storage, attributes(storage_field))]
+pub fn storage_derive(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    storage_derive::storage_derive(item.into()).into()
+}

@@ -20,32 +20,34 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp22::*,
-    traits::psp22::extensions::wrapper::*,
-};
-pub use derive::PSP22WrapperStorage;
-use ink_env::CallFlags;
-use ink_prelude::vec::Vec;
-use openbrush::{
-    declare_storage_trait,
-    traits::{
-        AccountId,
-        Balance,
+    psp22,
+    psp22::extensions::wrapper,
+    traits::psp22::{
+        extensions::wrapper::*,
+        *,
     },
 };
+pub use psp22::Internal as _;
+pub use wrapper::Internal as _;
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP22WrapperData");
+use ink_env::CallFlags;
+use ink_prelude::vec::Vec;
+use openbrush::traits::{
+    AccountId,
+    Balance,
+    Storage,
+};
+
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct PSP22WrapperData {
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
     pub underlying: AccountId,
     pub _reserved: Option<()>,
 }
 
-declare_storage_trait!(PSP22WrapperStorage);
-
-impl<T: PSP22 + PSP22WrapperStorage<Data = PSP22WrapperData> + PSP22Internal> PSP22Wrapper for T {
+impl<T: Storage<psp22::Data> + Storage<Data>> PSP22Wrapper for T {
     default fn deposit_for(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         self._deposit(amount)?;
         self._mint(account, amount)
@@ -57,7 +59,7 @@ impl<T: PSP22 + PSP22WrapperStorage<Data = PSP22WrapperData> + PSP22Internal> PS
     }
 }
 
-pub trait PSP22WrapperInternal {
+pub trait Internal {
     /// Mint wrapped token to cover any underlyingTokens that would have been transfered by mistake. Internal
     /// function that can be exposed with access control if desired.
     fn _recover(&mut self, account: AccountId) -> Result<Balance, PSP22Error>;
@@ -80,7 +82,7 @@ pub trait PSP22WrapperInternal {
     fn _underlying(&mut self) -> &mut PSP22Ref;
 }
 
-impl<T: PSP22 + PSP22Internal + PSP22WrapperStorage<Data = PSP22WrapperData>> PSP22WrapperInternal for T {
+impl<T: Storage<psp22::Data> + Storage<Data>> Internal for T {
     default fn _recover(&mut self, account: AccountId) -> Result<Balance, PSP22Error> {
         let value = self._underlying_balance() - self.total_supply();
         self._mint(account, value)?;
@@ -108,10 +110,10 @@ impl<T: PSP22 + PSP22Internal + PSP22WrapperStorage<Data = PSP22WrapperData>> PS
     }
 
     default fn _init(&mut self, underlying: AccountId) {
-        PSP22WrapperStorage::get_mut(self).underlying = underlying;
+        self.data::<Data>().underlying = underlying;
     }
 
     default fn _underlying(&mut self) -> &mut PSP22Ref {
-        &mut PSP22WrapperStorage::get_mut(self).underlying
+        &mut self.data::<Data>().underlying
     }
 }

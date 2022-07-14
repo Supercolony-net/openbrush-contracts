@@ -61,20 +61,20 @@ where
         K: scale::Encode,
         V: PackedLayout,
     {
-        self.insert_return_size(key, value);
-    }
-
-    /// Insert the given `value` to the contract storage.
-    ///
-    /// Returns the size of the pre-existing value at the specified key if any.
-    #[inline(always)]
-    pub fn insert_return_size(&self, key: K, value: &V) -> Option<u32>
-    where
-        K: scale::Encode,
-        V: PackedLayout,
-    {
         push_packed_root(value, &self.storage_key(key))
     }
+
+    // /// Insert the given `value` to the contract storage.
+    // ///
+    // /// Returns the size of the pre-existing value at the specified key if any.
+    // #[inline(always)]
+    // pub fn insert_return_size(&self, key: K, value: &V) -> Option<u32>
+    // where
+    //     K: scale::Encode,
+    //     V: PackedLayout,
+    // {
+    //     push_packed_root(value, &self.storage_key(key))
+    // }
 
     /// Get the `value` at `key` from the contract storage.
     ///

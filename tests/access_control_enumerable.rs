@@ -27,10 +27,10 @@ mod access_control_enumerable {
     use ink_env::test::DefaultAccounts;
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
-
     use openbrush::{
         contracts::access_control::extensions::enumerable::*,
         test_utils::accounts,
+        traits::Storage,
     };
 
     // You can manually set the number for the role.
@@ -40,11 +40,11 @@ mod access_control_enumerable {
     const MINTER: RoleType = ink_lang::selector_id!("MINTER");
     const PAUSER: RoleType = ink_lang::selector_id!("PAUSER");
 
-    #[derive(Default, SpreadAllocate, AccessControlStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct AccessControlStruct {
-        #[AccessControlStorageField]
-        access: AccessControlData<EnumerableMembers>,
+        #[storage_field]
+        access: access_control::Data<enumerable::Members>,
     }
 
     impl AccessControl for AccessControlStruct {}

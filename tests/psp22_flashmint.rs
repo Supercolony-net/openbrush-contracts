@@ -28,19 +28,20 @@ mod psp22_flashmint {
     use openbrush::{
         contracts::psp22::extensions::flashmint::*,
         test_utils::accounts,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, PSP22Storage)]
+    #[derive(Default, Storage)]
     pub struct PSP22FlashMintStruct {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+        #[storage_field]
+        psp22: psp22::Data,
     }
 
     impl PSP22 for PSP22FlashMintStruct {}
 
     // we get rid of cross contract call in test
-    impl PSP22FlashLenderInternal for PSP22FlashMintStruct {
+    impl flashmint::Internal for PSP22FlashMintStruct {
         // we will add 1% fee to the amount
         fn _get_fee(&self, amount: Balance) -> Balance {
             amount / 100

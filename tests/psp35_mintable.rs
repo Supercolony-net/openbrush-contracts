@@ -24,14 +24,17 @@
 #[openbrush::contract]
 mod psp35_mintable {
     use ink_lang as ink;
-    use openbrush::test_utils::accounts;
+    use openbrush::{
+        test_utils::accounts,
+        traits::Storage,
+    };
     use openbrush_contracts::psp35::extensions::mintable::*;
 
-    #[derive(Default, PSP35Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP35Struct {
-        #[PSP35StorageField]
-        psp35: PSP35Data,
+        #[storage_field]
+        psp35: psp35::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
@@ -41,7 +44,7 @@ mod psp35_mintable {
     impl PSP35Mintable for PSP35Struct {}
     impl PSP35 for PSP35Struct {}
 
-    impl PSP35Transfer for PSP35Struct {
+    impl psp35::Transfer for PSP35Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
@@ -91,8 +94,10 @@ mod psp35_mintable {
         let accounts = accounts();
 
         let mut nft = PSP35Struct::new();
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1.clone()), 0);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), 0);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id_1.clone())), 0);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id_2.clone())), 0);
+
+        assert_eq!(nft.total_supply(None), 0);
 
         assert!(nft
             .mint(accounts.alice, vec![(token_id_1.clone(), token_1_amount)])
@@ -101,8 +106,9 @@ mod psp35_mintable {
             .mint(accounts.bob, vec![(token_id_2.clone(), token_2_amount)])
             .is_ok());
 
-        assert_eq!(nft.balance_of(accounts.alice, token_id_1.clone()), token_1_amount);
-        assert_eq!(nft.balance_of(accounts.bob, token_id_2.clone()), token_2_amount);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id_1.clone())), token_1_amount);
+        assert_eq!(nft.balance_of(accounts.bob, Some(token_id_2.clone())), token_2_amount);
+        assert_eq!(nft.total_supply(None), 2);
     }
 
     #[ink::test]
@@ -113,7 +119,7 @@ mod psp35_mintable {
         let mut nft = PSP35Struct::new();
         // Can mint
         assert!(nft.mint(accounts.alice, vec![(token_id.clone(), amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id.clone()), amount);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), amount);
         // Turn on error on _before_token_transfer
         nft.change_state_err_on_before();
         // Alice gets an error on _before_token_transfer
@@ -131,7 +137,7 @@ mod psp35_mintable {
         let mut nft = PSP35Struct::new();
         // Can mint
         assert!(nft.mint(accounts.alice, vec![(token_id.clone(), amount)]).is_ok());
-        assert_eq!(nft.balance_of(accounts.alice, token_id.clone()), amount);
+        assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), amount);
         // Turn on error on _after_token_transfer
         nft.change_state_err_on_after();
         // Alice gets an error on _after_token_transfer

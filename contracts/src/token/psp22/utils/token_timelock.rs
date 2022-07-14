@@ -20,52 +20,55 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// Extension of [`PSP22`] which allows the beneficiary to extract tokens after given time
-pub use crate::traits::psp22::utils::token_timelock::*;
-use ink_env::CallFlags;
-
-pub use crate::traits::psp22::PSP22Ref;
-pub use derive::PSP22TokenTimelockStorage;
-use ink_prelude::vec::Vec;
-use openbrush::{
-    declare_storage_trait,
-    traits::{
-        AccountId,
-        Balance,
-        Timestamp,
+pub use crate::{
+    psp22,
+    psp22::utils::token_timelock,
+    traits::psp22::{
+        utils::token_timelock::*,
+        *,
     },
 };
+pub use psp22::Internal as _;
+pub use token_timelock::Internal as _;
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP22TokenTimelockData");
+use ink_env::CallFlags;
+use ink_prelude::vec::Vec;
+use openbrush::traits::{
+    AccountId,
+    Balance,
+    Storage,
+    Timestamp,
+};
+
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct PSP22TokenTimelockData {
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
     token: AccountId,
     beneficiary: AccountId,
     release_time: Timestamp,
 }
 
-declare_storage_trait!(PSP22TokenTimelockStorage);
-
-impl<T: PSP22TokenTimelockStorage<Data = PSP22TokenTimelockData>> PSP22TokenTimelock for T {
+impl<T: Storage<Data>> PSP22TokenTimelock for T {
     /// Returns the token address
     default fn token(&self) -> AccountId {
-        self.get().token
+        self.data().token
     }
 
     /// Returns the beneficiary of the tokens
     default fn beneficiary(&self) -> AccountId {
-        self.get().beneficiary
+        self.data().beneficiary
     }
 
     /// Returns the timestamp when the tokens are released
     default fn release_time(&self) -> Timestamp {
-        self.get().release_time
+        self.data().release_time
     }
 
     /// Transfers the tokens held by timelock to the beneficairy
     default fn release(&mut self) -> Result<(), PSP22TokenTimelockError> {
-        if Self::env().block_timestamp() < self.get_mut().release_time {
+        if Self::env().block_timestamp() < self.data().release_time {
             return Err(PSP22TokenTimelockError::CurrentTimeIsBeforeReleaseTime)
         }
         let amount = self._contract_balance();
@@ -76,7 +79,7 @@ impl<T: PSP22TokenTimelockStorage<Data = PSP22TokenTimelockData>> PSP22TokenTime
     }
 }
 
-pub trait PSP22TokenTimelockInternal {
+pub trait Internal {
     /// Helper function to withdraw tokens
     fn _withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError>;
 
@@ -95,7 +98,7 @@ pub trait PSP22TokenTimelockInternal {
     fn _token(&mut self) -> &mut PSP22Ref;
 }
 
-impl<T: PSP22TokenTimelockStorage<Data = PSP22TokenTimelockData>> PSP22TokenTimelockInternal for T {
+impl<T: Storage<Data>> Internal for T {
     default fn _withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
         let beneficairy = self.beneficiary();
         self._token()
@@ -119,13 +122,13 @@ impl<T: PSP22TokenTimelockStorage<Data = PSP22TokenTimelockData>> PSP22TokenTime
         if release_time <= Self::env().block_timestamp() {
             return Err(PSP22TokenTimelockError::ReleaseTimeIsBeforeCurrentTime)
         }
-        self.get_mut().token = token;
-        self.get_mut().beneficiary = beneficiary;
-        self.get_mut().release_time = release_time;
+        self.data().token = token;
+        self.data().beneficiary = beneficiary;
+        self.data().release_time = release_time;
         Ok(())
     }
 
     default fn _token(&mut self) -> &mut PSP22Ref {
-        &mut self.get_mut().token
+        &mut self.data().token
     }
 }

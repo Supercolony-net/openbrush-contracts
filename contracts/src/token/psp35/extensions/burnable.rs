@@ -20,17 +20,32 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp35::*,
-    traits::psp35::extensions::burnable::*,
+    psp35,
+    psp35::balances,
+    traits::psp35::{
+        extensions::burnable::*,
+        *,
+    },
 };
+pub use psp35::{
+    Internal as _,
+    Transfer as _,
+};
+
 use ink_prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,
-    InkStorage,
+    OccupiedStorage,
+    Storage,
 };
 
-impl<T: PSP35Internal + InkStorage> PSP35Burnable for T {
+impl<B, T> PSP35Burnable for T
+where
+    B: balances::BalancesManager,
+    T: Storage<psp35::Data<B>>,
+    T: OccupiedStorage<{ psp35::STORAGE_KEY }, WithData = psp35::Data<B>>,
+{
     default fn burn(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
         self._burn_from(from, ids_amounts)
     }

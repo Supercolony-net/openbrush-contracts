@@ -20,16 +20,24 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp22::*,
-    traits::psp22::extensions::burnable::*,
+    psp22,
+    traits::psp22::{
+        extensions::burnable::*,
+        *,
+    },
 };
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
+
 use openbrush::traits::{
     AccountId,
     Balance,
-    InkStorage,
+    Storage,
 };
 
-impl<T: PSP22Internal + InkStorage> PSP22Burnable for T {
+impl<T: Storage<psp22::Data>> PSP22Burnable for T {
     default fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         self._burn_from(account, amount)
     }

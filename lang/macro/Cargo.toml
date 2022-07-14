@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_lang_macro"
-version = "2.0.0"
+version = "2.1.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -14,18 +14,18 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
-openbrush_lang_codegen = { version = "~2.0.0", path = "../codegen", default-features = false }
+openbrush_lang_codegen = { version = "~2.1.0", path = "../codegen", default-features = false }
 syn = "1"
 proc-macro2 = "1"
 synstructure = "0.12"
 
 [dev-dependencies]
-ink_primitives = { version = "~3.2.0", default-features = false }
-ink_metadata = { version = "~3.2.0", default-features = false, features = ["derive"] }
-ink_env = { version = "~3.2.0", default-features = false }
-ink_lang = { version = "~3.2.0", default-features = false }
-ink_storage = { version = "~3.2.0", default-features = false }
-ink_prelude = { version = "~3.2.0", default-features = false }
+ink_primitives = { version = "~3.3.0", default-features = false }
+ink_metadata = { version = "~3.3.0", default-features = false, features = ["derive"] }
+ink_env = { version = "~3.3.0", default-features = false }
+ink_lang = { version = "~3.3.0", default-features = false }
+ink_storage = { version = "~3.3.0", default-features = false }
+ink_prelude = { version = "~3.3.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"] }

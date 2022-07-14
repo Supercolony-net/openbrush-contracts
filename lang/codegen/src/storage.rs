@@ -134,7 +134,7 @@ fn spread_layout_struct_derive(storage_key: &TokenStream, s: &synstructure::Stru
                 let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
-                ::ink_env::set_contract_storage::<()>(__key_ptr.key(), &());
+                ::ink_env::set_contract_storage_return_size::<()>(__key_ptr.key(), &());
                 match self { #push_body }
             }
             fn clear_spread(&self, _: &mut ::ink_storage::traits::KeyPtr) {
@@ -390,12 +390,25 @@ pub fn storage_layout_derive(storage_key: &TokenStream, mut s: synstructure::Str
     }
 }
 
-pub fn storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
-    let storage_key = attrs;
+pub fn occupy_storage_derive(storage_key: &TokenStream, mut s: synstructure::Structure) -> TokenStream {
+    s.add_bounds(synstructure::AddBounds::None).underscore_const(true);
+    s.gen_impl(quote! {
+        gen impl ::openbrush::traits::OccupyStorage for @Self {
+            const KEY: ::core::primitive::u32 = #storage_key;
+        }
+    })
+}
+
+pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
+    let storage_key_u32 = attrs.clone();
+    let storage_key = quote! {
+        ::openbrush::utils::StorageKeyConvertor::old_key(#attrs)
+    };
 
     let spread_layout = spread_layout_derive(&storage_key, s.clone());
     let spread_allocate = spread_allocate_derive(&storage_key, s.clone());
     let storage_layout = storage_layout_derive(&storage_key, s.clone());
+    let occupy_storage = occupy_storage_derive(&storage_key_u32, s.clone());
     let item = s.ast().to_token_stream();
 
     (quote! {
@@ -405,6 +418,8 @@ pub fn storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
         #spread_allocate
         #[cfg(feature = "std")]
         #storage_layout
+
+        #occupy_storage
     })
     .into()
 }

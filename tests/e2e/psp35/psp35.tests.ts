@@ -11,13 +11,47 @@ describe('MY_PSP35', () => {
 
   it('Balance of works', async () => {
     const { query, defaultSigner: sender, tx } = await setup()
-    const token = {
+    const token1 = {
       'u8': 0
     }
+    const token2 = {
+      'u8': 1
+    }
 
-    await expect(query.balanceOf(sender.address, token)).to.have.output(0)
-    await expect(tx.mintTokens(token, 1)).to.eventually.be.fulfilled
-    await expect(query.balanceOf(sender.address, token)).to.have.output(1)
+    const amount1 = 1
+    const amount2 = 20
+
+    await expect(query.balanceOf(sender.address, null)).to.have.output(0)
+    await expect(tx.mintTokens(token1, amount1)).to.eventually.be.fulfilled
+    await expect(tx.mintTokens(token2, amount2)).to.eventually.be.fulfilled
+
+    await expect(query.balanceOf(sender.address, token1)).to.have.output(amount1)
+    await expect(query.balanceOf(sender.address, token2)).to.have.output(amount2)
+    await expect(query.balanceOf(sender.address, null)).to.have.output(2)
+  })
+
+  it('Total supply works', async () => {
+    const { query, defaultSigner: sender, tx } = await setup()
+    const token1 = {
+      'u8': 0
+    }
+    const token2 = {
+      'u8': 1
+    }
+    
+    const amount1 = 1
+    const amount2 = 20
+
+    await expect(query.totalSupply(null)).to.have.output(0)
+    await expect(tx.mintTokens(token1, amount1)).to.eventually.be.fulfilled
+    
+    await expect(query.totalSupply(token1)).to.have.output(amount1)
+    await expect(query.totalSupply(null)).to.have.output(1)
+
+    await expect(tx.mintTokens(token2, amount2)).to.eventually.be.fulfilled
+
+    await expect(query.totalSupply(token2)).to.have.output(amount2)
+    await expect(query.totalSupply(null)).to.have.output(2)
   })
 
   it('Allowance works', async () => {
@@ -127,12 +161,19 @@ describe('MY_PSP35', () => {
     await expect(tx.mintTokens(token1, token1Amount)).to.eventually.be.fulfilled
     await expect(tx.mintTokens(token2, token2Amount)).to.eventually.be.fulfilled
 
+    await expect(query.balanceOf(sender.address, null)).to.have.output(2)
+    await expect(query.balanceOf(sender.address, token1)).to.have.output(token1Amount)
+    await expect(query.balanceOf(sender.address, token2)).to.have.output(token2Amount)
+    await expect(query.totalSupply(null)).to.have.output(2)
+
     await expect(contract.tx.transfer(alice.address, token2, token2Amount, [])).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address, token1)).to.have.output(token1Amount)
     await expect(query.balanceOf(sender.address, token2)).to.have.output(0)
     await expect(query.balanceOf(alice.address, token1)).to.have.output(0)
     await expect(query.balanceOf(alice.address, token2)).to.have.output(token2Amount)
+    await expect(query.balanceOf(sender.address, null)).to.have.output(1)
+    await expect(query.balanceOf(alice.address, null)).to.have.output(1)
 
     await expect(contract.tx.transfer(alice.address, token1, token1Amount, [])).to.eventually.be.fulfilled
     await expect(fromSigner(contract, alice.address).tx.transfer(sender.address, token2, token1Amount, [])).to.eventually.be.fulfilled
@@ -141,6 +182,8 @@ describe('MY_PSP35', () => {
     await expect(query.balanceOf(sender.address, token2)).to.have.output(token1Amount)
     await expect(query.balanceOf(alice.address, token1)).to.have.output(token1Amount)
     await expect(query.balanceOf(alice.address, token2)).to.have.output(token2Amount - token1Amount)
+    await expect(query.balanceOf(sender.address, null)).to.have.output(1)
+    await expect(query.balanceOf(alice.address, null)).to.have.output(2)
   })
 
   it('Transfer from works', async () => {

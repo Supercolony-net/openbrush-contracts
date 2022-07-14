@@ -11,17 +11,18 @@ pub mod my_psp22 {
             psp22::extensions::metadata::*,
         },
         modifiers,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, PSP22MetadataStorage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22 {
-        #[OwnableStorageField]
-        ownable: OwnableData,
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[PSP22MetadataStorageField]
-        metadata: PSP22MetadataData,
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        psp22: psp22::Data,
+        #[storage_field]
+        metadata: metadata::Data,
     }
 
     impl Ownable for MyPSP22 {}

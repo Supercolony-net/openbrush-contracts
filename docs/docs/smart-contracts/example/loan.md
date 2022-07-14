@@ -3,7 +3,7 @@ sidebar_position: 5
 title: Loan contract
 ---
 
-In our project we will also implement [PSP-34](/smart-contracts/PSP34) 
+In our project we will also implement [PSP34](/smart-contracts/PSP34) 
 token. This token will represent a loan of a user who borrowed some assets. 
 Upon borrowing assets the contract will mint an NFT to them, which will hold 
 the information about their loan, namely the user who borrowed the assets, 
@@ -99,12 +99,11 @@ pub trait Loan: PSP34 + PSP34Metadata + Ownable {
     #[ink(message)]
     fn get_loan_info(&self, loan_id: Id) -> Result<LoanInfo, PSP34Error>;
 }
-
 ```
 
 ## Add dependencies
 
-In addition to the dependencies imported in the [PSP-34](/smart-contracts/PSP34)
+In addition to the dependencies imported in the [PSP34](/smart-contracts/PSP34)
 documentation, we will also add the `ownable` dependency the same way as in the
 [ownable](/smart-contracts/ownable) documentation. We will be using `LoanContract`
 as a dependency in our lending contract to instantiate it. So we need to also add
@@ -112,7 +111,7 @@ the `"rlib"` crate type to have the ability to import the `LoanContract` as a de
 
 ## Implement the contract
 
-We want a basic [PSP-34](/smart-contracts/PSP34) token with metadata and ownable extensions, 
+We want a basic [PSP34](/smart-contracts/PSP34) token with metadata and ownable extensions, 
 so we will add these to our contract. We will add a `openbrush::contract` macro to our contract and add some imports:
 
 ```rust
@@ -122,49 +121,43 @@ so we will add these to our contract. We will add a `openbrush::contract` macro 
 /// This contract will represent the loan of a user
 #[openbrush::contract]
 pub mod loan {
+    use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
+    use lending_project::traits::loan::*;
     use openbrush::{
         contracts::{
             ownable::*,
             psp34::extensions::metadata::*,
         },
+        modifiers,
         storage::Mapping,
+        traits::Storage,
     };
-
-    use openbrush::modifiers;
-
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
-    use lending_project::traits::loan::*;
 ```
 
 ## Define the storage
 
-We will derive the storage traits related to `PSP-34`, `PSP-34 Metadata`, and 
+We will derive the storage traits related to `PSP34`, `PSP34Metadata`, and 
 `Ownable` and declare the fields related to these traits. Also, we will declare 
 fields related to `Loan` itself.
 
 ```rust
 /// Define the storage for PSP34 data, Metadata data and Ownable data
 #[ink(storage)]
-#[derive(SpreadAllocate, PSP34Storage, OwnableStorage, PSP34MetadataStorage)]
+#[derive(SpreadAllocate, Storage)]
 pub struct LoanContract {
-    #[PSP34StorageField]
-    psp34: PSP34Data,
-    #[OwnableStorageField]
-    ownable: OwnableData,
-    #[PSP34MetadataStorageField]
-    metadata: PSP34MetadataData,
+    #[storage_field]
+    psp34: psp34::Data,
+    #[storage_field]
+    ownable: ownable::Data,
+    #[storage_field]
+    metadata: metadata::Data,
 
     // Fields of current contract
     /// mapping from token id to `LoanInfo`
     loan_info: Mapping<Id, LoanInfo>,
     /// the id of last loan
     last_loan_id: Id,
-    /// ids no longer used (can be reused)
-    freed_ids: Vec<Id>,
 }
 ```
 
@@ -173,13 +166,13 @@ pub struct LoanContract {
 We will be using these extensions in our NFT token, so we will implement them for our storage.
 
 ```rust
-/// implement PSP34 Trait for our NFT
+// Implement PSP34 Trait for our NFT
 impl PSP34 for LoanContract {}
 
-/// implement Ownable Trait for our NFT
+// Implement Ownable Trait for our NFT
 impl Ownable for LoanContract {}
 
-/// implement PSP34Metadata Trait for our NFT
+// Implement PSP34Metadata Trait for our NFT
 impl PSP34Metadata for LoanContract {}
 ```
 
@@ -251,8 +244,7 @@ impl LoanContract {
     #[ink(constructor, payable)]
     pub fn new() -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut LoanContract| {
-            instance.last_loan_id = Id::U8(1u8);
-            instance.freed_ids = Vec::new();
+            instance.last_loan_id = Id::U128(1);
             instance._set_attribute(
                 Id::U8(1u8),
                 String::from("LoanContract NFT").into_bytes(),
@@ -261,7 +253,7 @@ impl LoanContract {
         })
     }
 
-    /// internal function to update data of a loan
+    /// Internal function to update data of a loan
     fn _update_loan(
         &mut self,
         loan_id: Id,
@@ -285,7 +277,7 @@ impl LoanContract {
         Ok(())
     }
 
-    /// internal function to set loan to liquidated
+    /// Internal function to set loan to liquidated
     fn _liquidate_loan(&mut self, loan_id: Id) -> Result<(), PSP34Error> {
         let loan_info = self.loan_info.get(&loan_id);
 
@@ -301,23 +293,16 @@ impl LoanContract {
         Ok(())
     }
 
-    /// internal function to return the id of a new loan and to increase it in the storage
+    /// Internal function to return the id of a new loan and to increase it in the storage
     fn _get_next_loan_id_and_increase(&mut self) -> Result<Id, PSP34Error> {
-        if self.freed_ids.len() > 0 {
-            return Ok(self.freed_ids.pop().unwrap())
-        }
-        let current = self.last_loan_id.clone();
-        // It is not fully correct implementation of the increasing. but it is only an example
-        match current {
-            Id::U8(v) => {
-                if v == u8::MAX {
-                    return Err(PSP34Error::Custom(String::from("Max Id reached!")))
-                }
-                self.last_loan_id = Id::U8(v + 1);
+        match &mut self.last_loan_id {
+            Id::U128(id) => {
+                let result = Id::U128(id.clone());
+                *id += 1;
+                Ok(result)
             }
-            _ => {}
-        };
-        Ok(current)
+            _ => Err(PSP34Error::Custom(String::from("Not expected Id!"))),
+        }
     }
 }
 ```
