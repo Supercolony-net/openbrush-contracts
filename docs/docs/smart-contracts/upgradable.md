@@ -29,7 +29,7 @@ There 2 types of Upgradable contract OpenBrush supports
 
 The basic idea is using a proxy for upgrades. The first contract is a simple wrapper or "proxy" which users interact with directly and is in charge of forwarding transactions to and from the second contract, which contains the logic. The logic contract can be replaced while the proxy, or the access point is never changed. Both contracts are still immutable in the sense that their code cannot be changed, but the logic contract can simply be swapped by another contract.
 
-Proxy upgradable contract contains state variable `forward_to` in ink! storage that store Hash to uploaded code. Upgradable contract contains `change_delegate_call` method to update Hash for `forward_to` value inside the contract. Only owner is able to call `change_delegate_call` method.
+Proxy upgradable contract contains state variable `forward_to` that store Hash to uploaded code. Upgradable contract contains `change_delegate_call` method to update Hash for `forward_to` value inside the contract. Only owner is able to call `change_delegate_call` method.
 
 Upgradable contracts using proxy:
 
@@ -106,7 +106,7 @@ impl<T: Storage<Data>> Internal for T {
 }
 ```
 
-### With OpenBrush it is too easy create your own proxy upgradable contract
+### With OpenBrush it is so easy create your own proxy upgradable contract
 
 - create your struct and use `Storage` derive macro and use `ownable::Data` + `roxy::Data` storage field
 
@@ -161,9 +161,30 @@ These things to understand diamonds:
 
 A diamond is deployed by adding at least a facet to add the ‘diamondCut’ or other upgrade function in the constructor of the diamond. Once deployed more facets can be added using the upgrade function.
 
-Diamond upgradable contract stores:
+OpenBrush library implements Diamond standart with DiamondCut struct and defailt implementation of `diamond_cut` method. Only of contract can call this method to update facets.
 
+Diamond upgradable contract stores those data:
 - selector mapped to its facet
 - facet mapped to all functions it supports
+
+```rust
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
+
+#[derive(Default, Debug)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data<D: DiamondCut = ()> {
+    // Selector mapped to its facet
+    pub selector_to_hash: Mapping<Selector, Hash>,
+    // Facet mapped to all functions it supports
+    pub hash_to_selectors: Mapping<Hash, Vec<Selector>>,
+    // Handler of each facet add and remove.
+    // It is empty by default but can be extended with loup logic.
+    pub handler: D,
+}
+```
+
+`DiamondCut` has `openbrush::upgradeable_storage` macros which implements `SpreadLayout`, `SpreadAllocate`, `StorageLayout` and `OccupyStorage` with a specified storage key instead of the default one (All data is stored under the provided storage key).
+
+
 
 When you create a new contract (facet), which you want to make delegate calls from your diamond contract to, you will call the `diamond_cut` function on your diamond contract, with the code hash of your new facet and the selectors of all the functions from this facet you want to use. The diamond will register them and anytime you call this function on your diamond contract, it will make the delegate call to the facet the function belongs to. You can add, remove or replace these functions anytime with the `diamond_cut` function, some of the limitations are, that you can not add functions with the same selectors, when replacing functions, the new function needs to be from a different contract, then currently in use, and when removing functions, the function needs to be registered in the diamond contract.
