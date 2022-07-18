@@ -165,6 +165,13 @@ jobs:
           chmod -R a+rwx .
           yarn build:release
 
+      - name: Copy rust artifacts
+        id: cache-rust-artifacts-main
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+
       - name: Find contract data for main branch
         id: find-data-main
         run: |
