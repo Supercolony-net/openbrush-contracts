@@ -1,45 +1,45 @@
 name: CI/CD
 
 on:
-  pull_request:
-    branches: [ main ]
+#  pull_request:
+#    branches: [ main ]
   push:
     branches: [ feature/ci-contract-size ]
 
 jobs:
-  rustfmt:
-    concurrency:
-      group: rustfmt-${{ github.ref }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-          components: rustfmt
-
-      - name: Rustfmt check
-        run: cargo +nightly fmt --all -- --check
-  unit-test:
-    concurrency:
-      group: unit-test-${{ github.ref }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
-
-      - name: Build & Run cargo tests
-        run: |
-          RUSTFLAGS="-D warnings" cargo +nightly test --all-features --workspace -- --test-threads=10
+#  rustfmt:
+#    concurrency:
+#      group: rustfmt-${{ github.ref }}
+#      cancel-in-progress: true
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Install latest nightly
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: nightly
+#          override: true
+#          components: rustfmt
+#
+#      - name: Rustfmt check
+#        run: cargo +nightly fmt --all -- --check
+#  unit-test:
+#    concurrency:
+#      group: unit-test-${{ github.ref }}
+#      cancel-in-progress: true
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Install latest nightly
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: nightly
+#          override: true
+#          components: rustfmt, clippy
+#
+#      - name: Build & Run cargo tests
+#        run: |
+#          RUSTFLAGS="-D warnings" cargo +nightly test --all-features --workspace -- --test-threads=10
   examples-builds:
     concurrency:
       group: examples-builds-${{ github.ref }}
@@ -118,38 +118,33 @@ jobs:
 
       - name: Find current PR
         uses: jwalton/gh-find-current-pr@v1
-        id: findPr
+        id: find-current-pr
         with:
           state: open
 
-      - name: Checkout1
-        uses: actions/checkout@v1
-        with:
-          ref: main
-
-      - name: Find rs for main
-        id: findRsMain
-        run: |
-          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
-          echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
-          echo "$MAIN_DATA" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Checkout2
-        uses: actions/checkout@v1
-        with:
-          ref: feature/ci-refactoring
-
-      - name: Find rs for ci-refactoring
-        id: findRsCiRef
+      - name: Find contract data for PR
+        id: find-data-pr
         run: |
           PR_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "PR_DATA<<EOF" >> $GITHUB_ENV
           echo "$PR_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v2
-      - name: Script
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Find contract data for main branch
+        id: find-data-main
+        run: |
+          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
+          echo "$MAIN_DATA" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+      - name: Create report
         run: |
           chmod +x "./.github/contract_size.sh"
           "./.github/contract_size.sh"
@@ -161,51 +156,51 @@ jobs:
           issue-number: ${{ steps.findPr.outputs.pr }}
           body: |
             ${{ env.REPORT }}
-  integration-tests:
-    concurrency:
-      group: integration-tests-${{ github.ref }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    needs: examples-builds
-    container:
-      image: ghcr.io/supercolony-net/openbrush-contracts-ci
-      options: --user root
-      env:
-        CARGO_TARGET_DIR: /usr/local/cache/target
-    steps:
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '16.x'
-      - uses: actions/checkout@v3
-      - name: Yarn install dependencies
-        run: |
-          yarn
-          yarn add ts-node
-
-      - name: Cache contract artifacts
-        id: cache-contract-artifacts
-        uses: actions/cache@v3
-        with:
-          path: artifacts
-          key: cache-contract-artifacts-${{ github.sha }}
-
-      - name: Run Test Mocha
-        run: |
-          for test in $(find tests -type f -regex ".*\.ts"); do
-            has_timeout=true
-            while $has_timeout
-            do
-              substrate-contracts-node --tmp --dev & P1=$!;
-              set +e;
-              output=$(yarn test:mocha-single ./$test || true);
-              set -e;
-              if echo $output | grep -q 'For async tests and hooks, ensure "done()" is called'; then
-                echo $output;
-                has_timeout=true
-              else
-                yarn test:mocha-single ./$test
-                has_timeout=false
-              fi
-              kill $P1;
-            done
-          done
+#  integration-tests:
+#    concurrency:
+#      group: integration-tests-${{ github.ref }}
+#      cancel-in-progress: true
+#    runs-on: ubuntu-latest
+#    needs: examples-builds
+#    container:
+#      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+#      options: --user root
+#      env:
+#        CARGO_TARGET_DIR: /usr/local/cache/target
+#    steps:
+#      - uses: actions/setup-node@v1
+#        with:
+#          node-version: '16.x'
+#      - uses: actions/checkout@v3
+#      - name: Yarn install dependencies
+#        run: |
+#          yarn
+#          yarn add ts-node
+#
+#      - name: Cache contract artifacts
+#        id: cache-contract-artifacts
+#        uses: actions/cache@v3
+#        with:
+#          path: artifacts
+#          key: cache-contract-artifacts-${{ github.sha }}
+#
+#      - name: Run Test Mocha
+#        run: |
+#          for test in $(find tests -type f -regex ".*\.ts"); do
+#            has_timeout=true
+#            while $has_timeout
+#            do
+#              substrate-contracts-node --tmp --dev & P1=$!;
+#              set +e;
+#              output=$(yarn test:mocha-single ./$test || true);
+#              set -e;
+#              if echo $output | grep -q 'For async tests and hooks, ensure "done()" is called'; then
+#                echo $output;
+#                has_timeout=true
+#              else
+#                yarn test:mocha-single ./$test
+#                has_timeout=false
+#              fi
+#              kill $P1;
+#            done
+#          done
