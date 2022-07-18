@@ -137,10 +137,10 @@ jobs:
           ref: main
 
       - name: Yarn install dependencies
-      run: |
-        yarn
-        yarn add ts-node
-        -
+        run: |
+          yarn
+          yarn add ts-node
+
       - name: Redspot Сompile examples for main branch
         run: |
           chown -R root .
