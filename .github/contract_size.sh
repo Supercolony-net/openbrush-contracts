@@ -21,7 +21,6 @@ do
 done
 
 # get contract names and sizes from PR branch
-echo "$PR_DATA"
 pr_data=()
 for item in $PR_DATA
 do
