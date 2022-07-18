@@ -126,7 +126,7 @@ jobs:
       - name: Find contract data for PR
         id: find-data-pr
         run: |
-          PR_DATA=$(find . -type f -name "*.toml" -printf '%s ' -exec basename \{} .toml \; | sort -k2)
+          PR_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "PR_DATA<<EOF" >> $GITHUB_ENV
           echo "$PR_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -136,10 +136,16 @@ jobs:
         with:
           ref: main
 
+      - name: Redspot Сompile examples for main branch
+        run: |
+          chown -R root .
+          chmod -R a+rwx .
+          yarn build:release
+
       - name: Find contract data for main branch
         id: find-data-main
         run: |
-          MAIN_DATA=$(find . -type f -name "*.toml" -printf '%s ' -exec basename \{} .toml \; | sort -k2)
+          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
           echo "$MAIN_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
