@@ -108,6 +108,8 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
+      env:
+        CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - name: Cache contract artifacts
         id: cache-contract-artifacts
@@ -140,6 +142,22 @@ jobs:
         run: |
           yarn
           yarn add ts-node
+
+      - name: Cache rust artifacts
+        id: cache-rust-artifacts
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          restore-keys: |
+            cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
 
       - name: Redspot Сompile examples for main branch
         run: |
