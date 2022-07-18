@@ -58,12 +58,12 @@ pub trait Internal {
     fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error>;
 }
 
-impl<T: Storage<Data> + Storage<psp22::Data>> Internal for T {
+impl<T: Storage<Data>> Internal for T {
     fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
         if cap == 0 {
             return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
         }
-        self.data::<Data>().cap = cap;
+        self.data().cap = cap;
         Ok(())
     }
 }

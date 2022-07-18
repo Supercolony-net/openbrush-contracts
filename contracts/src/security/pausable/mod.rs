@@ -116,7 +116,7 @@ impl<T: Storage<Data>> Internal for T {
         Ok(())
     }
 
-    fn _switch_pause<E: From<PausableError>>(&mut self) -> Result<(), E> {
+    default fn _switch_pause<E: From<PausableError>>(&mut self) -> Result<(), E> {
         if self.paused() {
             self._unpause()
         } else {

@@ -19,7 +19,7 @@ pub mod my_psp22_capped {
         #[storage_field]
         psp22: psp22::Data,
         #[storage_field]
-        cap: Data,
+        cap: capped::Data,
     }
 
     impl PSP22 for Contract {}
