@@ -148,29 +148,22 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /usr/local/cache/target
-          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          key: cache-rust-artifacts-main-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
           restore-keys: |
-            cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+            cache-rust-artifacts-main-${{ hashFiles('Cargo.toml') }}
 
       - name: Cache contract artifacts
         id: cache-contract-artifacts-main
         uses: actions/cache@v3
         with:
           path: artifacts
-          key: cache-contract-artifacts-${{ github.sha }}
+          key: cache-contract-artifacts-main-${{ github.sha }}
 
       - name: Redspot Сompile examples for main branch
         run: |
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
-
-      - name: Copy rust artifacts
-        id: copy-rust-artifacts-main
-        uses: actions/cache@v3
-        with:
-          path: /usr/local/cache/target
-          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
 
       - name: Find contract data for main branch
         id: find-data-main
