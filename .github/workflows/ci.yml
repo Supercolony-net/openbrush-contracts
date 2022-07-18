@@ -3,6 +3,8 @@ name: CI/CD
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ feature/ci-contract-size ]
 
 jobs:
   rustfmt:
@@ -114,9 +116,53 @@ jobs:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
 
-      - name: Contract size
+      - uses: actions/checkout@v1
+
+      - name: Find current PR
+        uses: jwalton/gh-find-current-pr@v1
+        id: findPr
+        with:
+          state: open
+
+      - name: Checkout1
+        uses: actions/checkout@v1
+        with:
+          ref: main
+
+      - name: Find rs for main
+        id: findRsMain
         run: |
-          find . -type f -name "*.contract" -printf '%s\t' -exec basename \{} .contract \; | sort -k2
+          MAIN_DATA=$(find . -type f -name "*.rs" -printf '%s ' -exec basename \{} .rs \; | sort -k2)
+          echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
+          echo "$MAIN_DATA" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Checkout2
+        uses: actions/checkout@v1
+        with:
+          ref: feature/ci-refactoring
+
+      - name: Find rs for ci-refactoring
+        id: findRsCiRef
+        run: |
+          PR_DATA=$(find . -type f -name "*.rs" -printf '%s ' -exec basename \{} .rs \; | sort -k2)
+          echo "PR_DATA<<EOF" >> $GITHUB_ENV
+          echo "$PR_DATA" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
+      - name: Script
+        run: |
+          chmod +x "./.github/contract_size.sh"
+          "./.github/contract_size.sh"
+        shell: bash
+
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ steps.findPr.outputs.pr }}
+          body: |
+            ${{ env.REPORT }}
   integration-tests:
     concurrency:
       group: integration-tests-${{ github.ref }}
