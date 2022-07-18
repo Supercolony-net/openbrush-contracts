@@ -118,13 +118,6 @@ jobs:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
 
-      - name: Find current PR
-        uses: jwalton/gh-find-current-pr@v1
-        id: find-current-pr
-        with:
-          state: open
-
-      - uses: actions/checkout@v3
       - name: Find contract data for PR
         id: find-data-pr
         run: |
@@ -179,6 +172,12 @@ jobs:
           chmod +x "./.github/contract_size.sh"
           "./.github/contract_size.sh"
         shell: bash
+
+      - name: Find current PR
+        uses: jwalton/gh-find-current-pr@v1
+        id: find-current-pr
+        with:
+          state: open
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
