@@ -130,7 +130,7 @@ jobs:
       - name: Find rs for main
         id: findRsMain
         run: |
-          MAIN_DATA=$(find . -type f -name "*.rs" -printf '%s ' -exec basename \{} .rs \; | sort -k2)
+          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
           echo "$MAIN_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -143,7 +143,7 @@ jobs:
       - name: Find rs for ci-refactoring
         id: findRsCiRef
         run: |
-          PR_DATA=$(find . -type f -name "*.rs" -printf '%s ' -exec basename \{} .rs \; | sort -k2)
+          PR_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "PR_DATA<<EOF" >> $GITHUB_ENV
           echo "$PR_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
