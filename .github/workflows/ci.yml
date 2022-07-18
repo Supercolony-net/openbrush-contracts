@@ -166,7 +166,7 @@ jobs:
           yarn build:release
 
       - name: Copy rust artifacts
-        id: cache-rust-artifacts-main
+        id: copy-rust-artifacts-main
         uses: actions/cache@v3
         with:
           path: /usr/local/cache/target
