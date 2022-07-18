@@ -144,7 +144,7 @@ jobs:
           yarn add ts-node
 
       - name: Cache rust artifacts
-        id: cache-rust-artifacts
+        id: cache-rust-artifacts-main
         uses: actions/cache@v3
         with:
           path: /usr/local/cache/target
@@ -153,7 +153,7 @@ jobs:
             cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
 
       - name: Cache contract artifacts
-        id: cache-contract-artifacts
+        id: cache-contract-artifacts-main
         uses: actions/cache@v3
         with:
           path: artifacts
