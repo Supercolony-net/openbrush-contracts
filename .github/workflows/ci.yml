@@ -116,8 +116,6 @@ jobs:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
 
-      - uses: actions/checkout@v1
-
       - name: Find current PR
         uses: jwalton/gh-find-current-pr@v1
         id: findPr
