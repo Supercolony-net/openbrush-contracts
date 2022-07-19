@@ -1,12 +1,102 @@
----
 sidebar_position: 4
 title: Upgradable contract
----
+--------------------------
+
 ### Upgradable contract
 
 Smart contracts are immutable. But software quality depends on the ability to upgrade  source code in order to produce iterative releases. Certain degree of mutability is needed for bug fixing and potential product improvements.
 
 Upgradeability allows for experimenting and deploying the product at the early stage, always leaving the chance to fix vulnerabilities and progressively add features. Upgradeable contracts are not a Bug if they are developed consciously with decentralization in mind.
+
+The Story about Storage ink! smart contract. In on hand we have the smart contacts comunicating with contracts pallet over specified API. On the contract pallet side it  has access to the storage database. Any access to the storage is always througth contracts pallet.
+
+![](assets/20220719_073338_25A8A1FC-40BC-4EA5-AFEE-46372FCF81D7.jpeg)
+
+On the ink! side we have so-called memmory or also called cache because it is faster than storage and whenever we do a computation we frist of all pull the storage that immediately requared for any excecution of the smart contract and we compute our contract storage and then we compute our message or constructors etc and ink! try to stay as we can within our cache and only load from storage very lazy only when ink! really need to and in the end ink! push the storage back to storage. All of this is hidden from the user. The user does not need to care at all about anything of these details and everything is managed by ink! basically.
+
+![](assets/20220719_074645_4D8CF773-FFFB-477C-B7FC-A6EFF6C04CB7.jpeg)
+
+Let's take a little bit look into the storage database and what it entails to the users.
+If we unfold the database we see that it has that more or less a linear tableof so-called storage cells.
+And these cells are indexed by 256 bit keys and contains values that are of any bytes sequaence.
+So cell can have
+
+- zero bytes
+- one byte
+- any count of bytes
+
+![](assets/20220719_075309_F016550A-65D2-4DCD-A60A-D1A70B38D813.jpeg)
+
+So if we for example what to store a vector in one of those storage cells we can either do it this in packed layout where ink! will store entire vector that potentially consist thousands of elements into a single storage cell. And if we add another element ink! obviosly would also encode this into a single cell and so on.
+
+![](assets/20220719_080240_F4615414-46A3-4C77-B2A8-940B623E6A4D_1_105_c.jpeg)
+
+So we can use Spreading layout to decrease computation of decoding and encoding elements.
+Spreading layout allow us spread every element into its own cell and store the length into another cell.
+And it is means that if we for example push another element we whould simply use another cell.
+
+![](assets/20220719_081039_32F6303A-25A3-4BEF-9D69-14C48300FCB9_1_105_c.jpeg)
+
+OpenBrush privide `storage_unique_key` macros. 
+```rust
+#[macro_export]
+macro_rules! storage_unique_key {
+    ($struct:ident) => {
+        $crate::utils::ConstHasher::u32($crate::utils::const_format::concatcp!(
+            ::core::module_path!(),
+            "::",
+            ::core::stringify!($struct)
+        ))
+    };
+}
+```
+`storage_unique_key` macros returns the hash of the `format!("{}::{}", ::core::module_path!(), struct_name)`.
+This macro returns `u32` value which can be used for Storage key.
+
+```rust
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
+```
+
+This constant `STORAGE_KEY` we can pass to OpenBrush's macro : `upgradeable_storage`
+
+```rust
+#[derive(Default, Debug)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
+    pub forward_to: Hash,
+}
+```
+
+`upgradeable_storage` macro implemented `SpreadLayout`, `SpreadAllocate`, `StorageLayout` and `OccupyStorage` with a specified storage key instead of the default one (All data is stored under the provided storage key). Also, that macro adds the code to initialize the structure if it wasn't initialized. That macro requires one input argument - the storage key. It can be any Rust code that returns `u32`.
+
+There are other example of usage `upgradeable_storage` macro:
+ ```rust
+     
+use openbrush::traits::AccountId;
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(OwnableData);
+
+#[derive(Default, Debug)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct OwnableData {
+    pub owner: AccountId,
+    pub _reserved: Option<()>,
+}
+
+#[derive(Default, Debug)]
+#[openbrush::upgradeable_storage(openbrush::storage_unique_key!(ProxyData))]
+pub struct ProxyData {
+    pub forward: AccountId,
+    pub _reserved: Option<()>,
+}
+
+#[derive(Default, Debug)]
+#[openbrush::upgradeable_storage(123)]
+pub struct SomeData {
+    pub _reserved: Option<()>,
+}  
+```
+
+`upgradeable_storage` macro implements `openbrush::traits::Storage` and `openbrush::traits::OccupiedStorage` traits for each field marked by `#[storage_field]` attribute. Each field's type should implement the `openbrush::traits::OccupyStorage` trait with a unique storage key. Each occupied storage key should be unique for each type otherwise compilation will fail.
 
 There 2 types of Upgradable contract OpenBrush supports
 
@@ -120,7 +210,9 @@ impl<T: Storage<Data>> Internal for T {
         proxy: proxy::Data,
     }
 ```
+
 - create `constructor` and call `_init_with_forward_to` inside `new` asociated function.
+
 ```rust
 
     impl MyProxy {
@@ -133,7 +225,9 @@ impl<T: Storage<Data>> Internal for T {
         }
     }
 ```
+
 - Implement `Proxy` and `proxy::Internal` trait for your struct
+
 ```rust
     impl Proxy for MyProxy {}
 
@@ -164,6 +258,7 @@ A diamond is deployed by adding at least a facet to add the ‘diamondCut’ or 
 OpenBrush library implements Diamond standart with DiamondCut struct and defailt implementation of `diamond_cut` method. Only of contract can call this method to update facets.
 
 Diamond upgradable contract stores those data:
+
 - selector mapped to its facet
 - facet mapped to all functions it supports
 
@@ -184,7 +279,5 @@ pub struct Data<D: DiamondCut = ()> {
 ```
 
 `DiamondCut` has `openbrush::upgradeable_storage` macros which implements `SpreadLayout`, `SpreadAllocate`, `StorageLayout` and `OccupyStorage` with a specified storage key instead of the default one (All data is stored under the provided storage key).
-
-
 
 When you create a new contract (facet), which you want to make delegate calls from your diamond contract to, you will call the `diamond_cut` function on your diamond contract, with the code hash of your new facet and the selectors of all the functions from this facet you want to use. The diamond will register them and anytime you call this function on your diamond contract, it will make the delegate call to the facet the function belongs to. You can add, remove or replace these functions anytime with the `diamond_cut` function, some of the limitations are, that you can not add functions with the same selectors, when replacing functions, the new function needs to be from a different contract, then currently in use, and when removing functions, the function needs to be registered in the diamond contract.
