@@ -77,7 +77,7 @@ impl<T: Storage<Data>> PSP22 for T {
     }
 
     default fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        self.data().allowances.get(&(&owner, &spender)).unwrap_or(0)
+        self._allowance(&owner, &spender)
     }
 
     default fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
@@ -94,7 +94,7 @@ impl<T: Storage<Data>> PSP22 for T {
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
         let caller = Self::env().caller();
-        let allowance = self.allowance(from, caller);
+        let allowance = self._allowance(&from, &caller);
 
         if allowance < value {
             return Err(PSP22Error::InsufficientAllowance)
@@ -113,20 +113,18 @@ impl<T: Storage<Data>> PSP22 for T {
 
     default fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
         let owner = Self::env().caller();
-        self._approve_from_to(owner, spender, self.allowance(owner, spender) + delta_value)?;
-        Ok(())
+        self._approve_from_to(owner, spender, self._allowance(&owner, &spender) + delta_value)
     }
 
     default fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
         let owner = Self::env().caller();
-        let allowance = self.allowance(owner, spender);
+        let allowance = self._allowance(&owner, &spender);
 
         if allowance < delta_value {
             return Err(PSP22Error::InsufficientAllowance)
         }
 
-        self._approve_from_to(owner, spender, allowance - delta_value)?;
-        Ok(())
+        self._approve_from_to(owner, spender, allowance - delta_value)
     }
 }
 
@@ -136,6 +134,7 @@ pub trait Internal {
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance);
 
     fn _balance_of(&self, owner: &AccountId) -> Balance;
+    fn _allowance(&self, owner: &AccountId, spender: &AccountId) -> Balance;
 
     fn _do_safe_transfer_check(
         &mut self,
@@ -166,6 +165,10 @@ impl<T: Storage<Data>> Internal for T {
 
     default fn _balance_of(&self, owner: &AccountId) -> Balance {
         self.data().balances.get(owner).unwrap_or(0)
+    }
+
+    default fn _allowance(&self, owner: &AccountId, spender: &AccountId) -> Balance {
+        self.data().allowances.get(&(owner, spender)).unwrap_or(0)
     }
 
     default fn _do_safe_transfer_check(
@@ -226,7 +229,7 @@ impl<T: Storage<Data>> Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        let from_balance = self.balance_of(from);
+        let from_balance = self._balance_of(&from);
 
         if from_balance < amount {
             return Err(PSP22Error::InsufficientBalance)
@@ -271,7 +274,7 @@ impl<T: Storage<Data>> Internal for T {
         }
 
         self._before_token_transfer(None, Some(&account), &amount)?;
-        let mut new_balance = self.balance_of(account);
+        let mut new_balance = self._balance_of(&account);
         new_balance += amount;
         self.data().balances.insert(&account, &new_balance);
         self.data().supply += amount;
@@ -286,7 +289,7 @@ impl<T: Storage<Data>> Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        let mut from_balance = self.balance_of(account);
+        let mut from_balance = self._balance_of(&account);
 
         if from_balance < amount {
             return Err(PSP22Error::InsufficientBalance)
