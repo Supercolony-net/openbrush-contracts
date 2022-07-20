@@ -17,7 +17,7 @@ describe('RAW_DIAMOND', () => {
     // abi of psp22 facet
     const { contract: psp22Facet, abi: psp22Abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
     // abi of diamond facet
-    const { contract: diamondFacet, abi: diamondAbi } = await setupContract('my_diamond', 'new', defaultSigner)
+    const { contract: diamondFacet, abi: diamondAbi } = await setupContract('my_diamond', 'new', defaultSigner.address)
 
     const psp22Hash = (await psp22Abi).source.hash
     const psp22Messages = (await psp22Abi).V3.spec.messages
@@ -30,7 +30,7 @@ describe('RAW_DIAMOND', () => {
     const psp22Cut = [[psp22Hash, psp22Selectors]];
 
     const diamondSelectors = getSelectorsFromMessages(diamondMessages)
-    const diamondCut = [[diamondHash, diamondSelectors]];
+    const diamondCut = [diamondHash, diamondSelectors];
 
     // initialize diamond contract
     const { contract: diamondContract } = await setupContract('rust_diamond', 'new', diamondCut)
@@ -93,7 +93,7 @@ describe('RAW_DIAMOND', () => {
     // abi of psp22 facet
     const { contract: psp22Facet, abi: psp22Abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
     // abi of diamond facet
-    const { contract: diamondFacet, abi: diamondAbi } = await setupContract('my_diamond', 'new', defaultSigner)
+    const { contract: diamondFacet, abi: diamondAbi } = await setupContract('my_diamond', 'new', defaultSigner.address)
 
     const psp22Hash = (await psp22Abi).source.hash
     const psp22Messages = (await psp22Abi).V3.spec.messages
@@ -106,7 +106,7 @@ describe('RAW_DIAMOND', () => {
     const psp22Cut = [[psp22Hash, psp22Selectors]];
 
     const diamondSelectors = getSelectorsFromMessages(diamondMessages)
-    const diamondCut = [[diamondHash, diamondSelectors]];
+    const diamondCut = [diamondHash, diamondSelectors];
 
     // initialize diamond contract
     const { contract: diamondContract } = await setupContract('ink_diamond', 'new', diamondCut)
