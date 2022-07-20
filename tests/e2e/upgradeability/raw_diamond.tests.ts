@@ -36,6 +36,9 @@ describe('RAW_DIAMOND', () => {
     let { contract: diamondContract, defaultSigner } = await setupContract('rust_diamond', 'new', diamondCut)
     diamondContract = setupProxy(diamondFacet, diamondContract)
 
+    // add diamond facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(diamondCut, null)).to.eventually.be.fulfilled
+
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
 
     // add psp22 facet
@@ -112,6 +115,9 @@ describe('RAW_DIAMOND', () => {
     // initialize diamond contract
     let { contract: diamondContract, defaultSigner } = await setupContract('ink_diamond', 'new', diamondCut)
     diamondContract = setupProxy(diamondFacet, diamondContract)
+
+    // add diamond facet
+    await expect(fromSigner(diamondContract, defaultSigner.address).tx.diamondCut(diamondCut, null)).to.eventually.be.fulfilled
 
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
 
