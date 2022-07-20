@@ -15,9 +15,9 @@ const getSelectorByName = (messages, name) => {
 describe('RAW_DIAMOND', () => {
   it('Adding facets works for rust diamond', async () => {
     // abi of psp22 facet
-    const { contract: psp22Facet, abi: psp22Abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
+    const { contract: psp22Facet, abi: psp22Abi, defaultSigner: defaultSignerPsp22 } = await setupContract('my_psp22_facet_v1', 'new')
     // abi of diamond facet
-    const { contract: diamondFacet, abi: diamondAbi } = await setupContract('my_diamond', 'new', defaultSigner.address)
+    const { contract: diamondFacet, abi: diamondAbi } = await setupContract('my_diamond', 'new', defaultSignerPsp22.address)
 
     const psp22Hash = (await psp22Abi).source.hash
     const psp22Messages = (await psp22Abi).V3.spec.messages
@@ -33,7 +33,7 @@ describe('RAW_DIAMOND', () => {
     const diamondCut = [diamondHash, diamondSelectors];
 
     // initialize diamond contract
-    let { contract: diamondContract } = await setupContract('rust_diamond', 'new', diamondCut)
+    let { contract: diamondContract, defaultSigner } = await setupContract('rust_diamond', 'new', diamondCut)
     diamondContract = setupProxy(diamondFacet, diamondContract)
 
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
@@ -92,9 +92,9 @@ describe('RAW_DIAMOND', () => {
 
   it('Adding facets works for ink diamond', async () => {
     // abi of psp22 facet
-    const { contract: psp22Facet, abi: psp22Abi, defaultSigner } = await setupContract('my_psp22_facet_v1', 'new')
+    const { contract: psp22Facet, abi: psp22Abi, defaultSigner: defaultSignerPsp22 } = await setupContract('my_psp22_facet_v1', 'new')
     // abi of diamond facet
-    const { contract: diamondFacet, abi: diamondAbi } = await setupContract('my_diamond', 'new', defaultSigner.address)
+    const { contract: diamondFacet, abi: diamondAbi } = await setupContract('my_diamond', 'new', defaultSignerPsp22.address)
 
     const psp22Hash = (await psp22Abi).source.hash
     const psp22Messages = (await psp22Abi).V3.spec.messages
@@ -110,7 +110,7 @@ describe('RAW_DIAMOND', () => {
     const diamondCut = [diamondHash, diamondSelectors];
 
     // initialize diamond contract
-    let { contract: diamondContract } = await setupContract('ink_diamond', 'new', diamondCut)
+    let { contract: diamondContract, defaultSigner } = await setupContract('ink_diamond', 'new', diamondCut)
     diamondContract = setupProxy(diamondFacet, diamondContract)
 
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
