@@ -1,10 +1,8 @@
 name: CI/CD
 
 on:
-#  pull_request:
-#    branches: [ main ]
-  push:
-    branches: [ feature/ci-contract-size ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   rustfmt:
@@ -126,7 +124,7 @@ jobs:
           echo "$PR_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Checkout
+      - name: Checkout to main
         uses: actions/checkout@v3
         with:
           ref: main
@@ -179,10 +177,19 @@ jobs:
         with:
           state: open
 
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: find-comment
+        with:
+          issue-number: ${{ steps.find-current-pr.outputs.pr }}
+          comment-author: 'github-actions[bot]'
+
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
         with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
           issue-number: ${{ steps.find-current-pr.outputs.pr }}
+          edit-mode: replace
           body: |
             ${{ env.REPORT }}
   integration-tests:
