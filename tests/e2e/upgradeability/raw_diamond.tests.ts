@@ -33,7 +33,8 @@ describe('RAW_DIAMOND', () => {
     const diamondCut = [diamondHash, diamondSelectors];
 
     // initialize diamond contract
-    const { contract: diamondContract } = await setupContract('rust_diamond', 'new', diamondCut)
+    let { contract: diamondContract } = await setupContract('rust_diamond', 'new', diamondCut)
+    diamondContract = setupProxy(diamondFacet, diamondContract)
 
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
 
@@ -109,7 +110,8 @@ describe('RAW_DIAMOND', () => {
     const diamondCut = [diamondHash, diamondSelectors];
 
     // initialize diamond contract
-    const { contract: diamondContract } = await setupContract('ink_diamond', 'new', diamondCut)
+    let { contract: diamondContract } = await setupContract('ink_diamond', 'new', diamondCut)
+    diamondContract = setupProxy(diamondFacet, diamondContract)
 
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
 
