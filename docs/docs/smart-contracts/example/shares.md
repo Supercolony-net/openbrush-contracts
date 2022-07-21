@@ -104,7 +104,7 @@ We will be using these extensions in our token, so we will implement them for
 our storage.
 
 ```rust
-    // Implement PSP22 Trait for our share
+// Implement PSP22 Trait for our share
 impl PSP22 for SharesContract {}
 
 // Implement Ownable Trait for our share

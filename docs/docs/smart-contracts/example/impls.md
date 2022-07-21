@@ -267,28 +267,28 @@ where
 
 /// Internal function which will return the address of the shares token
 /// which are minted when `asset_address` is borrowed
-pub fn get_reserve_asset<T>(instance: &T, asset_address: &AccountId) -> Result<AccountId, LendingError>
-  where
-          T: Storage<Data>,
+pub fn get_reserve_asset<T>(instance: &T, asset_address: &AccountId) -> Result<AccountId, LendingError> 
+where 
+    T: Storage<Data>,
 {
     instance
-          .data()
-          .asset_shares
-          .get(&asset_address)
-          .ok_or(LendingError::AssetNotSupported)
+        .data()
+        .asset_shares
+        .get(&asset_address)
+        .ok_or(LendingError::AssetNotSupported)
 }
 
 /// internal function which will return the address of asset
 /// which is bound to `shares_address` shares token
-pub fn get_asset_from_shares<T>(instance: &T, shares_address: &AccountId) -> Result<AccountId, LendingError>
-  where
-          T: Storage<Data>,
+pub fn get_asset_from_shares<T>(instance: &T, shares_address: &AccountId) -> Result<AccountId, LendingError> 
+where
+    T: Storage<Data>,
 { 
     instance
-          .data()
-          .shares_asset
-          .get(shares_address)
-          .ok_or(LendingError::AssetNotSupported)
+        .data()
+        .shares_asset
+        .get(shares_address)
+        .ok_or(LendingError::AssetNotSupported)
 }
 
 ```
