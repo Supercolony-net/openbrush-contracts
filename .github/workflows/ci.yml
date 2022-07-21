@@ -109,17 +109,21 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - name: Cache contract artifacts for PR branch
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+      - uses: actions/checkout@v3
+      - name: Yarn install dependencies
+        run: |
+          yarn
+          yarn add ts-node
+
+      - name: Cache contract artifacts
         id: cache-contract-artifacts
         uses: actions/cache@v3
         with:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
-
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: feature/ci-contract-size
 
       - name: Find contract data for PR
         id: find-data-pr
