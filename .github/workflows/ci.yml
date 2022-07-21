@@ -5,22 +5,22 @@ on:
     branches: [ main ]
 
 jobs:
-  rustfmt:
-    concurrency:
-      group: rustfmt-${{ github.ref }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-          components: rustfmt
-
-      - name: Rustfmt check
-        run: cargo +nightly fmt --all -- --check
+#  rustfmt:
+#    concurrency:
+#      group: rustfmt-${{ github.ref }}
+#      cancel-in-progress: true
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Install latest nightly
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: nightly
+#          override: true
+#          components: rustfmt
+#
+#      - name: Rustfmt check
+#        run: cargo +nightly fmt --all -- --check
   unit-test:
     concurrency:
       group: unit-test-${{ github.ref }}
@@ -109,15 +109,6 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '16.x'
-      - uses: actions/checkout@v3
-      - name: Yarn install dependencies
-        run: |
-          yarn
-          yarn add ts-node
-
       - name: Cache contract artifacts
         id: cache-contract-artifacts
         uses: actions/cache@v3
@@ -125,52 +116,51 @@ jobs:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
 
-      - name: Find contract data for PR
-        id: find-data-pr
+      - name: Find contract data
+        id: find-data
         run: |
-          PR_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
-          echo "PR_DATA<<EOF" >> $GITHUB_ENV
-          echo "$PR_DATA" >> $GITHUB_ENV
+          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
+          echo "$MAIN_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Checkout to main
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Yarn install dependencies
         run: |
           yarn
           yarn add ts-node
 
-      - name: Cache rust artifacts for main branch
-        id: cache-rust-artifacts-main
+      - name: Cache rust artifacts for PR branch
+        id: cache-rust-artifacts-pr
         uses: actions/cache@v3
         with:
           path: /usr/local/cache/target
-          key: cache-rust-artifacts-main-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          key: cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
           restore-keys: |
-            cache-rust-artifacts-main-${{ hashFiles('Cargo.toml') }}
+            cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
 
-      - name: Cache contract artifacts for main branch
-        id: cache-contract-artifacts-main
+      - name: Cache contract artifacts for PR branch
+        id: cache-contract-artifacts-pr
         uses: actions/cache@v3
         with:
           path: artifacts
-          key: cache-contract-artifacts-main-${{ github.sha }}
+          key: cache-contract-artifacts-pr-${{ github.sha }}
 
-      - name: Redspot Сompile examples for main branch
+      - name: Redspot Сompile examples for PR branch
         run: |
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
 
-      - name: Find contract data for main branch
-        id: find-data-main
+      - name: Find contract data for PR
+        id: find-data-pr
         run: |
-          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
-          echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
-          echo "$MAIN_DATA" >> $GITHUB_ENV
+          PR_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo "PR_DATA<<EOF" >> $GITHUB_ENV
+          echo "$PR_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
