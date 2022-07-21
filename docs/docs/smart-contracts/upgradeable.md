@@ -1,6 +1,7 @@
-sidebar_position: 4
+---
+sidebar_position: 1
 title: Upgradeable contract
---------------------------
+---
 
 # Upgradeable contract
 
@@ -90,14 +91,21 @@ offsetted with the storage key of the logic unit, or you can use the same approa
 again and split logic into more units.
 
 With that approach, you can order your units as you wish. You can add/remove/swap 
-them and don't worry about storage layout because each logic unit will have its space 
+logic units and don't worry about storage layout because each logic unit will have its space 
 in the blockchain's storage. If storage keys are unique, those spaces don't overlap.
 
-OpenBrush provides [`openbrush:: upgradeable_storage`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/macro/src/lib.rs#L447) 
+OpenBrush provides [`openbrush::upgradeable_storage`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/macro/src/lib.rs#L447) 
 attribute macro that implements all required traits with specified storage key(storage key is required input argument to macro). 
 Also, macro initializes the field with a default value if the field is not initialized before
 (it can be actual during the upgrade because new fields are not initialized yet).
 You can use that macro to define a logic unit.
+
+> **Note**: Each logic unit should have a unique storage key.
+The storage key should be used only once in the contract.
+Those two requirements mean that your type(logic unit) can be used only once in the contract. For example,
+`psp22::Data` is a logic unit. You can have only one field of that type. 
+If you have several fields with that type, you will use the same storage 
+key several times, which is a collision.
 
 #### Logic unit per business use case
 
@@ -206,45 +214,152 @@ pub struct Data {
 }
 ```
 
+## Constructor and initialization
+
+Uploading your contract on the blockchain with `contract-pallet` has two phases:
+- Deploy - deploys source code to the blockchain. After deploying, the network uses the hash of the source code as an identifier for future instantiation of the contract. Now anyone can instantiate the contract by source code hash.
+- Instantiation - creates the instance of the contract on the blockchain that uses source code by its hash. After that, anyone can interact with the contract.
+
+So, deploy - uploading a logic layer to the blockchain; instantiation - reservation of 
+the storage that belongs to the contract and creation of the entity to 
+interact(contract with `AccountId`) with that storage via logic layers.
+
+Each logic layer can require initialization to set up initial variables for correct 
+work. In the typical scenario, when the contract is not upgradeable, you have only 
+one logic layer, which should be initialized only once during the instantiation of 
+the contract. It is called a constructor. You still can have several constructors, 
+but you can call only one during instantiation.
+
+Constructors can still be used to initialize upgradeable contracts that use the 
+`set_code_hash` function. But that approach doesn't work for logic layers of 
+`Proxy` and `Diamond` patterns.
+
+### Initialisation method
+
+`Proxy` and `Diamond` pattern contracts have their constructor but only initialize 
+variables related to forwarding calls to corresponding logic layers.
+
+#### Delegate call
+
+Those contracts use [`delegate_call`](https://github.com/paritytech/substrate/issues/10566) to forward calls to logic layers. 
+The delegate call accepts the logic layer's code hash and executes the source code, corresponding to the hash, 
+in the context of the current contract. The source code works with the current contract state in that case. 
+You can't call the constructor during a delegate call, so you can't naturally initialize the contract.
+
+#### Workaround
+
+Instead of using the constructors as the primary way to initialize the logic 
+units(each logic layer has its logic unit or a bunch of logic units), 
+you can add a separate initializer method and leave the constructor empty(with 
+resolving [issue](https://github.com/paritytech/ink/issues/1187) you can not 
+have constructor at all). That initialize method can accept any arguments the 
+same as a typical constructor.
+
+For example, for an upgradeable `PSP22` contract, you can add the `init_with_supply` method:
+
+```rust
+#[ink(message)]
+pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Error> {
+    self._mint(Self::env().caller(), total_supply)
+}
+```
+
+You can add as many methods as you wish with any arguments(the same as constructors).
+The problem is that anyone can call all those methods unlimited times when the 
+constructor can be called once by the creator of the contract. 
+In most cases, you want the same behavior as a constructor.
+So you need to add the check that initialization already was called and 
+restrict the set of people that can do that.
+
+#### Initialization state per logic unit
+
+Each logic unit can store boolean variable that shows the state of initialization.
+
+```rust
+#[ink(message)]
+pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Error> {
+    if self.initialized {
+        return Err(PSP22Error::Custom(String::from("Already initialized")));
+    }
+    self._mint(Self::env().caller(), total_supply)
+}
+```
+
+#### Permission to initialize
+
+Also, you can use some logic to manage permission. In an upgradeable contract, 
+you should already use some logic to manage upgrades. You can reuse it here.
+If you use `Ownable` then the code can look like this:
+
+```rust
+#[ink(message)]
+#[openbrush::modifiers(only_owner)]
+pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Error> {
+    if self.initialized {
+        return Err(PSP22Error::Custom(String::from("Already initialized")));
+    }
+    self._mint(Self::env().caller(), total_supply)
+}
+```
+
+OpenBrush doesn't provide any utils for initialization right now because, 
+in most cases, you have a unique way to initialize the contract.
+OpenBrush team don't want to add overhead - boolean variables per logic unit.
+
+But for managing the permission, you can use `Ownable` or `AccessControl` default implementation.
+
+### Small optimization for all upgradeable contract
+
+Most contracts require initialization, but in most cases, only once. 
+After initialization, you can always upgrade your contract and exclude the 
+initialization logic. It will make your contracts safer, improve performance, 
+and reduce gas consumption.
+
 ## Types of upgradeable contracts
 
-There 2 types of Upgradeable contract OpenBrush supports
+There are 3 types of Upgradeable contract.
 
-- **Proxy**
+1. **Proxy** pattern
+  * Pros
+    * Basic pattern where hard to introduce a bug
+  * Cons
+    * Necessity to deploy extra contract and additional overhead for every singe call
+2. Usage of **set_code_hash** method
+  * Pros
+    * Easy make your contract upgradeable, you only need to expose `set_code_hash` method
+  * Cons
+    * If you forgot to expose it during the update, you will lose ability to do upgrades
+3. **Diamond standard** pattern
+  * Pros
+    * Allows splitting your contract on facets(logic layers) to save optimize performance of you contract and overcome contract size limits
+    * Allows upgrading facets(logic layers) separately and use different governance rules per logic layer
+  * Cons
+    * More overhead for particular overlapping logic units
+    * More likely to brick the storage
+    * Requires good deploy management
 
-  - Pros
-    - Basic patern where hard to introduce a bug
-  - Cons
-    - Necessity to deploy extra contract and additional overhead for every singe call
-- **Diamond standart**
+### The `Proxy` Pattern
 
-  - Pros
-    - Allows to split logic on facets to save execution fees and overcome contract size limits
-    - Allows to upgrade facets separately and use different governance rules
-  - Cons
-    - More overhead for particular facets
-    - More likely to brick the storage
+Proxy pattern has two contracts. The first contract is a simple wrapper - 
+a "proxy" that users interact with directly and is in charge of forwarding calls to 
+the second contract - the logic layer. The logic layer can be replaced while the proxy 
+no. To upgrade the logic layer, you must replace the code hash of logic layer with a new one.
 
-### Upgrading via the Proxy Pattern
-
-The basic idea is using a proxy for upgrades. The first contract is a simple wrapper or "proxy" which users interact with directly and is in charge of forwarding transactions to and from the second contract, which contains the logic. The logic contract can be replaced while the proxy, or the access point is never changed. Both contracts are still immutable in the sense that their code cannot be changed, but the logic contract can simply be swapped by another contract.
-
-Proxy upgradeable contract contains state variable `forward_to` that store Hash to uploaded code. Upgradeable contract contains `change_delegate_call` method to update Hash for `forward_to` value inside the contract. Only owner is able to call `change_delegate_call` method.
-
-Upgradeable contracts using proxy:
-
-* Executes any call that does not match a selector of itself with the code of another contract.
-* The other contract does not need to be deployed on-chain.
-* State is stored in the storage of the originally called contract.
+The proxy contract is not upgradeable and straightforward. You can reuse implementation from OpenBrush to create your proxy.
+The logic layer is better to follow the rules described above.
 
 This is the illustration how Proxy contract with delegate_call looks like:
 
 ![](assets/20220715_130416_DD058578-67E2-4832-9F75-CA18C3B3921C_4_5005_c.jpeg)
 
-Upgradeable contract store `forward_to` Hash inside storage by `STORAGE_KEY`
+OpenBrush provides default implementation for `Proxy` pattern.
+It has `proxy::Data` logic unit that stores `forward_to` inside.
+The storage unit occupies the `proxy::STORAGE_KEY` storage key.
+The `forward_to` is the code hash of the logic layer's source code. It also contains
+`change_delegate_call` method to update code hash for `forward_to` value inside
+the contract. Only the owner is able to call the `change_delegate_call` method.
 
 ```rust
-
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
@@ -252,142 +367,47 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 pub struct Data {
     pub forward_to: Hash,
 }
-
 ```
 
-OpenBrush implement default `Proxy` upgradeable functionality for any type that implement `Storage<Data>` and `Storage<ownable::Data>>` traits
+For more details on how to reuse the default `Proxy` implementation, you can check [Proxy](proxy.md).
+
+### Usage of `set_code_hash` method
+
+ink! has the `ink_env::set_code_hash` method, which allows replacing the code hash 
+of the current contract. So you can change the logic layer by specifying a new code 
+hash on demand.
+
+You only need to expose that method somehow, and your common contract is upgradeable.
+For example, you can add that method, and it is done:
 
 ```rust
-impl<T: Storage<Data> + Storage<ownable::Data>> Proxy for T {
-    default fn get_delegate_code(&self) -> Hash {
-        self.data::<Data>().forward_to
-    }
-
-    #[modifiers(ownable::only_owner)]
-    default fn change_delegate_code(&mut self, new_code_hash: Hash) -> Result<(), OwnableError> {
-        let old_code_hash = self.data::<Data>().forward_to.clone();
-        self.data::<Data>().forward_to = new_code_hash;
-        self._emit_delegate_code_changed_event(Some(old_code_hash), Some(new_code_hash));
-        Ok(())
-    }
+#[ink(message)]
+pub fn upgrade_my_contract(&mut self, new_code_hash: Hash) {
+    ink_env::set_code_hash(&new_code_hash)
 }
 ```
 
-Implementation of `Storage<ownable::Data>>` give possiblity to use `only_owner` modifier that allows only owner calls `change_delegate_code` method.
+You need to consider the permission system because the only restricted set of people 
+should be able to call that function.
 
-In additional,  OpenBrush implement `Internal` trait for any type that implement `Storage<Data>`
-This implementation adds default `fallback` functionality that will DelegateCall to other contract by some code hash.
+All suggestions described above are applicable for that kind of upgradeable contracts. 
+Better to have an upgradeable storage layout, initialization function for new versions 
+of your contract, permission system, etc.
 
-```rust
-impl<T: Storage<Data>> Internal for T {
+### The Diamond Standard
 
-    default fn _fallback(&self) -> ! {
-        ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-            .call_type(DelegateCall::new().code_hash(self.data().forward_to.clone()))
-            .call_flags(
-                ink_env::CallFlags::default()
-                // We don't plan to use the input data after the delegated call, so the 
-                // input data can be forwarded to delegated contract to reduce the gas usage.
-                .set_forward_input(true)
-                // We don't plan to return back to that contract after execution, so we 
-                // marked delegated call as "tail", to end the execution of the contract.
-                .set_tail_call(true),
-            )
-            .fire()
-            .unwrap_or_else(|err| {
-                panic!(
-                    "delegate call to {:?} failed due to {:?}",
-                    self.data().forward_to.clone(),
-                    err
-                )
-            });
-        unreachable!("the _fallback call will never return since `tail_call` was set");
-    }
-}
-```
+Using Diamond Standard you can add support for several facets(logic layers) that 
+can be upgraded. [That standard](https://eips.ethereum.org/EIPS/eip-2535) came 
+from the ethereum network. It works in the same way in ink! but instead of the 
+address of the logic layer, you need to use the code hash of the logic layer.
 
-### With OpenBrush it is so easy create your own proxy upgradeable contract
-
-- create your struct and use `Storage` derive macro and use `ownable::Data` + `roxy::Data` storage field
-
-```rust
-    #[ink(storage)]
-    #[derive(Default, Storage)]
-    pub struct MyProxy {
-        #[storage_field]
-        ownable: ownable::Data,
-        #[storage_field]
-        proxy: proxy::Data,
-    }
-```
-
-- create `constructor` and call `_init_with_forward_to` inside `new` asociated function.
-
-```rust
-
-    impl MyProxy {
-        #[ink(constructor)]
-        pub fn new(forward_to: Hash) -> Self {
-            let mut inst = Self::default();
-            inst._init_with_forward_to(Hash::try_from(forward_to).unwrap());
-            inst._init_with_owner(Self::env().caller());
-            inst
-        }
-    }
-```
-
-- Implement `Proxy` and `proxy::Internal` trait for your struct
-
-```rust
-    impl Proxy for MyProxy {}
-
-    impl proxy::Internal for MyProxy {}
-```
-
-Now you can easily deploy and call your contract and `fallback` method will forward call to other contract using `code_hash`
-
-### Upgrading via the Diamond Standart
-
-Using Diamond Standart you can add support for different facets (contracts) and their functions and remove or replace existing functions from the contract.
-
-This is the illustration how contract with Diamond standart patern looks like:
+This is the illustration of the flow of the Diamond pattern:
 
 ![](assets/20220715_130335_47FD0F8D-60F3-4FDF-82F4-672402FDC5D1.jpeg)
 
-These things to understand diamonds:
+OpenBrush provides default implementation for `Diamond` standard on ink!.
+For more details you can check [Diamond](diamond.md).
 
-1. A diamond is a smart contract. Its substrate address is the single address that outside software uses to interact with it.
-2. Internally a diamond uses a set of contracts called facets for its external functions.
-3. All state variable storage data is stored in a diamond, not in its facets.
-4. The external functions of facets can directly read and write data stored in a diamond. This makes facets easy to write and gas efficient.
-5. A diamond is implemented as a fallback function that uses delegatecall to route external function calls to facets.
-6. A diamond often doesn’t have any external functions of its own — it uses facets for external functions which read/write its data.
-
-A diamond is deployed by adding at least a facet to add the ‘diamondCut’ or other upgrade function in the constructor of the diamond. Once deployed more facets can be added using the upgrade function.
-
-OpenBrush library implements Diamond standart with DiamondCut struct and defailt implementation of `diamond_cut` method. Only of contract can call this method to update facets.
-
-Diamond upgradeable contract stores those data:
-
-- selector mapped to its facet
-- facet mapped to all functions it supports
-
-```rust
-pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
-
-#[derive(Default, Debug)]
-#[openbrush::upgradeable_storage(STORAGE_KEY)]
-pub struct Data<D: DiamondCut = ()> {
-    // Selector mapped to its facet
-    pub selector_to_hash: Mapping<Selector, Hash>,
-    // Facet mapped to all functions it supports
-    pub hash_to_selectors: Mapping<Hash, Vec<Selector>>,
-    // Handler of each facet add and remove.
-    // It is empty by default but can be extended with loup logic.
-    pub handler: D,
-}
-```
-
-`DiamondCut` has `openbrush::upgradeable_storage` macros which implements `SpreadLayout`, `SpreadAllocate`, `StorageLayout` and `OccupyStorage` with a specified storage key instead of the default one (All data is stored under the provided storage key).
-
-When you create a new contract (facet), which you want to make delegate calls from your diamond contract to, you will call the `diamond_cut` function on your diamond contract, with the code hash of your new facet and the selectors of all the functions from this facet you want to use. The diamond will register them and anytime you call this function on your diamond contract, it will make the delegate call to the facet the function belongs to. You can add, remove or replace these functions anytime with the `diamond_cut` function, some of the limitations are, that you can not add functions with the same selectors, when replacing functions, the new function needs to be from a different contract, then currently in use, and when removing functions, the function needs to be registered in the diamond contract.
+All suggestions above ideally describe how to develop an upgradeable contract
+with multi-logic layers and many logic units.
+So here will be described how to write facets(logic layers) with OpenBrush.

@@ -12,7 +12,7 @@ accounts but kept in this contract, and the actual transfer is triggered as a se
 function. `release` pays out to only the provided address. If you will have many people to pay out, especially if often, you will likely
 want to use the `releaseAll` method instead to save you a lot of time.
 
-** Note **: In the substrate balance of contract decreases each block. Because it pays rent for the storage.
+**Note**: In the substrate balance of contract decreases each block. Because it pays rent for the storage.
 So during `release`, each next user will get fewer native tokens.
 
 This module is used through embedding of `PaymentSplitterData` and implementation of `PaymentSplitter` and
