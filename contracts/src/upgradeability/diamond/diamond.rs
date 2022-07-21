@@ -136,7 +136,7 @@ where
                     // selector already registered to this hash -> no action
                     continue
                 } else if selector_hash.is_some() {
-                    // selector already registered to another hash -> error
+                    // selector already registered to another hash -> error
                     return Err(DiamondError::ReplaceExisting(selector_hash.unwrap()))
                 } else {
                     // map selector to its facet
