@@ -22,6 +22,7 @@ pub mod my_psp22_facet_v2 {
     pub struct PSP22FacetV2 {
         #[storage_field]
         psp22: psp22::Data,
+        // Ownable is used only internally without exposing it to the world
         #[storage_field]
         ownable: ownable::Data,
     }
@@ -41,14 +42,10 @@ pub mod my_psp22_facet_v2 {
         }
     }
 
-    impl Ownable for PSP22FacetV2 {}
-
     impl PSP22FacetV2 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut PSP22FacetV2| {
-                instance._init_with_owner(instance.env().caller());
-            })
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 }

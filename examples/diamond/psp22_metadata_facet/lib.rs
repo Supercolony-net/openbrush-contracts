@@ -19,21 +19,17 @@ pub mod my_psp22_metadata_facet {
     pub struct PSP22Facet {
         #[storage_field]
         metadata: metadata::Data,
+        // Ownable is used only internally without exposing it to the world
         #[storage_field]
         ownable: ownable::Data,
     }
 
     impl PSP22Metadata for PSP22Facet {}
 
-    impl Ownable for PSP22Facet {}
-
     impl PSP22Facet {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut PSP22Facet| {
-                instance._init_with_owner(instance.env().caller());
-                instance.init_metadata().expect("Can not set metadata");
-            })
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self | {})
         }
 
         #[ink(message)]
