@@ -1,8 +1,8 @@
 name: CI/CD
 
 on:
-  pull_request:
-    branches: [ main ]
+  push:
+    branches: [ feature/ci-contract-size ]
 
 jobs:
 #  rustfmt:
@@ -115,6 +115,11 @@ jobs:
         with:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: feature/ci-contract-size
 
       - name: Find contract data for PR
         id: find-data-pr
