@@ -1,8 +1,8 @@
 name: CI/CD
 
 on:
-  pull_request:
-    branches: [ main ]
+  push:
+    branches: [ feature/ci-contract-size ]
 
 jobs:
 #  rustfmt:
