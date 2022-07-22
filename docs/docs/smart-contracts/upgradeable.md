@@ -12,9 +12,9 @@ contracts. But software quality depends on the ability to upgrade source code to
 produce iterative releases. A certain degree of mutability is needed for bug fixing 
 and potential product improvements.
 
-Upgradeability allows for experimenting and deploying the product at the early stage, 
+Upgradeability allows experimenting and deploying the product at the early stage, 
 always leaving the chance to fix vulnerabilities and progressively add features. 
-It is more actual right now while ink! and contract-pallet under active development. 
+It is more actual right now while ink! and contract-pallet are under active development. 
 Upgradeable contracts are not a Bug if they are developed consciously with 
 decentralization in mind.
 
@@ -35,9 +35,9 @@ its key and occupy storage cell. It is called storage layout.
 ![](assets/20220719_075309_F016550A-65D2-4DCD-A60A-D1A70B38D813.jpeg)
 
 During compilation ink! inserts code to work with storage and ink! knows how to store 
-each type in which storage cell. How exactly it works is not a part of that tutorial. 
+each type in which storage cell. How exactly it works is not a part of this tutorial. 
 The main point is that each type knows how to operate with each field and operate with 
-storage, cause of a unique identifier. In the old version of ink! the identifier is 
+storage, because of a unique identifier. In the old version of ink! the identifier is 
 `[u8; 32]` in a [new version](https://github.com/paritytech/ink/issues/1134) it is `u32`.
 
 So, each data is stored under its unique identifier - the storage key. The value of the 
@@ -90,7 +90,7 @@ of fields. In the scope of the logic unit, you can use automatically calculated 
 offsetted with the storage key of the logic unit, or you can use the same approach 
 again and split logic into more units.
 
-With that approach, you can order your units as you wish. You can add/remove/swap 
+With this approach, you can order your units as you wish. You can add/remove/swap 
 logic units and don't worry about storage layout because each logic unit will have its space 
 in the blockchain's storage. If storage keys are unique, those spaces don't overlap.
 
@@ -234,7 +234,7 @@ Constructors can still be used to initialize upgradeable contracts that use the
 `set_code_hash` function. But that approach doesn't work for logic layers of 
 `Proxy` and `Diamond` patterns.
 
-### Initialisation method
+### Initialization method
 
 `Proxy` and `Diamond` pattern contracts have their constructor but only initialize 
 variables related to forwarding calls to corresponding logic layers.
@@ -304,7 +304,7 @@ pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Err
 
 OpenBrush doesn't provide any utils for initialization right now because, 
 in most cases, you have a unique way to initialize the contract.
-OpenBrush team don't want to add overhead - boolean variables per logic unit.
+OpenBrush team doesn't want to add overhead - boolean variables per logic unit.
 
 But for managing the permission, you can use `Ownable` or `AccessControl` default implementation.
 
@@ -321,21 +321,21 @@ There are 3 types of Upgradeable contract.
 
 1. **Proxy** pattern
   * Pros
-    * Basic pattern where hard to introduce a bug
+    * Basic pattern where it's hard to introduce a bug
   * Cons
     * Necessity to deploy extra contract and additional overhead for every singe call
 2. Usage of **set_code_hash** method
   * Pros
-    * Easy make your contract upgradeable, you only need to expose `set_code_hash` method
+    * Easy to make your contract upgradeable, you only need to expose the `set_code_hash` method
   * Cons
-    * If you forgot to expose it during the update, you will lose ability to do upgrades
+    * If you forget to expose it during the update, you will lose the ability to do upgrades
 3. **Diamond standard** pattern
   * Pros
-    * Allows splitting your contract on facets(logic layers) to save optimize performance of you contract and overcome contract size limits
+    * Allows splitting your contract on facets(logic layers) to optimize performance of your contract and overcome contract size limits
     * Allows upgrading facets(logic layers) separately and use different governance rules per logic layer
   * Cons
     * More overhead for particular overlapping logic units
-    * More likely to brick the storage
+    * More likely to break the storage
     * Requires good deploy management
 
 ### The `Proxy` Pattern
@@ -343,7 +343,7 @@ There are 3 types of Upgradeable contract.
 `Proxy` pattern has two contracts. The first contract is a simple wrapper - 
 a "proxy" that users interact with directly and is in charge of forwarding calls to 
 the second contract - the logic layer. The logic layer can be replaced while the proxy 
-no. To upgrade the logic layer, you must replace the code hash of logic layer with a new one.
+can not. To upgrade the logic layer, you must replace the code hash of logic layer with a new one.
 
 The proxy contract is not upgradeable and straightforward. You can reuse implementation from OpenBrush to create your proxy.
 The logic layer is better to follow the rules described above.
@@ -390,7 +390,7 @@ pub fn upgrade_my_contract(&mut self, new_code_hash: Hash) {
 }
 ```
 
-You need to consider the permission system because the only restricted set of people 
+You need to consider the permission system because only a restricted set of people 
 should be able to call that function.
 
 All suggestions described above are applicable for that kind of upgradeable contracts. 
@@ -400,7 +400,7 @@ of your contract, permission system, etc.
 ### The `Diamond` Standard
 
 Using `Diamond` Standard you can add support for several facets(logic layers) that 
-can be upgraded. [That standard](https://eips.ethereum.org/EIPS/eip-2535) came 
+can be upgraded. [This standard](https://eips.ethereum.org/EIPS/eip-2535) came 
 from the ethereum network. It works in the same way in ink! but instead of the 
 address of the logic layer, you need to use the code hash of the logic layer.
 
@@ -421,7 +421,7 @@ For more details you can check [Diamond](diamond.md).
 
 All suggestions above ideally describe how to develop an upgradeable contract
 with multi-logic layers and many logic units.
-So here will be described how to write facets(logic layers) with OpenBrush.
+So here we will describe how to write facets(logic layers) with OpenBrush.
 
 #### Logic units for facet
 
@@ -435,7 +435,7 @@ variants(an enum with one variant is a structure). You can define struct/enum wi
 `openbrush::upgradeable_storage` macro and have an independent logic unit. You can 
 create several units and combine them into one contract.
 
-> **Note**: If your contract hash at least one field that is not defined with the 
+> **Note**: If your contract has at least one field that is not defined with the 
 `openbrush::upgradeable_storage`, it will fail during execution. Each field should be 
 upgradeable in the facet.
 
@@ -466,8 +466,8 @@ pub struct OwnableData {
 }
 ```
 
-`PSP22Data` and `OwnableData` have their storage keys. Both contain additional fields, 
-unrelated to business logic, `_reserved` for future upgrades(it adds overhead in one byte).
+`PSP22Data` and `OwnableData` have their storage keys. Both contain an additional field 
+unrelated to business logic `_reserved` for future upgrades(it adds overhead in one byte).
 
 #### Definition of the facet(logic layer)
 
@@ -516,7 +516,7 @@ pub mod facet_a {
 }
 ```
 
-You can deploy the code of the facet into the blockchain. After, you can 
+You can deploy the code of the facet to the blockchain. After that, you can 
 register your facet in `Diamond` via the `diamond_cut` method or in `Proxy` via 
 `change_delegate_call` method.
 
