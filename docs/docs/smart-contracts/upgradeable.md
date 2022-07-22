@@ -41,7 +41,7 @@ storage, because of a unique identifier. In the old version of ink! the identifi
 `[u8; 32]` in a [new version](https://github.com/paritytech/ink/issues/1134) it is `u32`.
 
 So, each data is stored under its unique identifier - the storage key. The value of the 
-key is the sequence of bytes - serialized(by SCALE codec) data type. The logic layer 
+key is the sequence of bytes - serialized (by SCALE codec) data type. The logic layer 
 knows how to serialize and deserialize each data type. So during the execution, the 
 logic layer deserializes all data by their storage keys and returns the 
 filled contract's storage variable. The developer works with that variable, and before 
