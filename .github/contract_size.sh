@@ -2,7 +2,7 @@
 
 # create table header
 REPORT=$'
-| Contract Name | Merged | PR | Difference |
+| Contract Name | Merged | Main | Difference |
 | --- | --- | --- | --- |
 '
 
@@ -20,27 +20,27 @@ do
   fi
 done
 
-# get contract names and sizes from PR branch
-pr_data=()
-for item in $PR_DATA
+# get contract names and sizes from source branch
+source_data=()
+for item in $SOURCE_DATA
 do
-  pr_data+=( "$item" )
+  source_data+=( "$item" )
 done
 
-# initialize pr_file_sizes by zeros
-pr_file_sizes=()
+# initialize source_file_sizes by zeros
+source_file_sizes=()
 for (( i=0; i<${#main_file_names[@]}; i++ ))
 do
-  pr_file_sizes+=("0")
+  source_file_sizes+=("0")
 done
 
-# find contracts in PR branch, which exist in main branch
+# find contracts in source branch, which exist in main branch
 for ((i=0; i < ${#main_file_names[@]}; i+=1));
 do
-  for ((j=0; j < ${#pr_data[@]}; j+=2));
+  for ((j=0; j < ${#source_data[@]}; j+=2));
   do
-    if [[ "${main_file_names[i]}" == "${pr_data[j+1]}" ]]; then
-      pr_file_sizes[i]=${pr_data[j]}
+    if [[ "${main_file_names[i]}" == "${source_data[j+1]}" ]]; then
+      source_file_sizes[i]=${source_data[j]}
       break
     fi
   done
@@ -50,13 +50,13 @@ done
 dif_sizes=()
 for (( i=0; i<${#main_file_sizes[@]}; i++ ))
 do
-  dif_sizes+=( $(( pr_file_sizes[i] - main_file_sizes[i] )) )
+  dif_sizes+=( $(( source_file_sizes[i] - main_file_sizes[i] )) )
 done
 
 # finish report table
 for (( i=0; i<${#main_file_names[@]}; i++ ))
 do
-  REPORT="$REPORT | ${main_file_names[i]} | ${main_file_sizes[i]} | ${pr_file_sizes[i]} | ${dif_sizes[i]} |
+  REPORT="$REPORT | ${main_file_names[i]} | ${main_file_sizes[i]} | ${source_file_sizes[i]} | ${dif_sizes[i]} |
   "
 done
 

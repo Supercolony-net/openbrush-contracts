@@ -119,9 +119,9 @@ jobs:
       - name: Find contract data for source branch
         id: find-data
         run: |
-          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
-          echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
-          echo "$MAIN_DATA" >> $GITHUB_ENV
+          SOURCE_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
+          echo "$SOURCE_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
@@ -158,9 +158,9 @@ jobs:
       - name: Find contract data destination branch
         id: find-data-pr
         run: |
-          PR_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
-          echo "PR_DATA<<EOF" >> $GITHUB_ENV
-          echo "$PR_DATA" >> $GITHUB_ENV
+          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
+          echo "$MAIN_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
