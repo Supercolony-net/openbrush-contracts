@@ -264,7 +264,7 @@ pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Err
 }
 ```
 
-You can add as many methods as you wish with any arguments(the same as constructors).
+You can add as many methods as you wish with any arguments (the same as constructors).
 The problem is that anyone can call all those methods unlimited times when the 
 constructor can be called once by the creator of the contract. 
 In most cases, you want the same behavior as a constructor.
@@ -413,7 +413,7 @@ smart contract call to execute the right logic.
 Each facet has a list of selectors that describe which methods are supported by the facet. 
 Each selector is unique and belongs only to one facet. So selectors of facets can't overlap. 
 `Diamond` contract knows which facet is responsible for which selector and forwards each 
-call to the smart contract to the corresponding facet(logic layer).
+call to the smart contract to the corresponding facet (logic layer).
 `Diamond` contract has a function `diamond_cut` that allows registering each facet.
 
 OpenBrush provides default implementation for `Diamond` standard on ink!.
@@ -421,17 +421,17 @@ For more details you can check [Diamond](diamond.md).
 
 All suggestions above ideally describe how to develop an upgradeable contract
 with multi-logic layers and many logic units.
-So here we will describe how to write facets(logic layers) with OpenBrush.
+So here we will describe how to write facets (logic layers) with OpenBrush.
 
 #### Logic units for facet
 
 Each facet(logic layer) can have zero, one, or many logic units that work 
 with storage.
 
-Each logic unit should have a unique storage key and be upgradeable(support initialization
+Each logic unit should have a unique storage key and be upgradeable (support initialization
 on demand, use storage key as an offset for all inner fields). It can be a struct with 
-one or many fields(structs without fields are useless) or an enum with at least two 
-variants(an enum with one variant is a structure). You can define struct/enum with the 
+one or many fields (structs without fields are useless) or an enum with at least two 
+variants (an enum with one variant is a structure). You can define struct/enum with the 
 `openbrush::upgradeable_storage` macro and have an independent logic unit. You can 
 create several units and combine them into one contract.
 
@@ -469,7 +469,7 @@ pub struct OwnableData {
 `PSP22Data` and `OwnableData` have their storage keys. Both contain an additional field 
 unrelated to business logic `_reserved` for future upgrades(it adds overhead in one byte).
 
-#### Definition of the facet(logic layer)
+#### Definition of the facet (logic layer)
 
 The definition of the facet is the same as the definition of the contract. You need 
 to combine your logic units in the contract as fields. Leave the constructor empty, 
@@ -522,8 +522,8 @@ register your facet in `Diamond` via the `diamond_cut` method or in `Proxy` via
 
 #### Interaction between facets
 
-During development, you can have cases when one logic layer(for example `FacetA`) needs to interact with 
-another logic unit or logic layer(for example `FacetB`). 
+During development, you can have cases when one logic layer (for example `FacetA`) needs to interact with 
+another logic unit or logic layer (for example `FacetB`). 
 You have two options for how to do that:
 
 1. The contract can send a cross-contract call to itself and execute the public function(method marked with `#[ink(message)]`) of your contract.
@@ -616,7 +616,7 @@ You can access the default implementation when you embed OpenBrush data structur
 into your contract. You can use default implementation internally, or you can make 
 it public.
 
-For example, when you embed `psp22::Data` into your `Contract`. You can already 
+For example, when you embed `psp22::Data` into your `Contract`, you can already 
 internally use the methods of the `PSP22` trait. Implementation of the `PSP22` makes your method public.
 
 ```rust
