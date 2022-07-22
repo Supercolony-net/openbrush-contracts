@@ -12,8 +12,8 @@ is in charge of proposing (resp executing) operations. A common use case is
 to position this `TimelockController` as the owner of a smart contract, with
 a multisig or a DAO as the sole proposer.
 
-This module is used through embedding of `TimelockControllerData`, `AccessControlData` and
-implementation of `TimelockController`, `TimelockControllerStorage`, `AccessControl` and
-`AccessControlStorage` traits.
+This module is used through embedding of `timelock_controller::Data`, `access_control::Data` and
+implementation of `TimelockController`, `AccessControl` and
+`Storage` traits.
 
 [See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/timelock-controller)
