@@ -371,11 +371,14 @@ pub struct Data {
 
 For more details on how to reuse the default `Proxy` implementation, you can check [Proxy](proxy.md).
 
+The logic layer for `Proxy` is the same as the definition of the facet for the `Diamond` 
+contract, but you have only one facet. You can read about it in [that section](#logic-units-for-facet). 
+
 ### Usage of `set_code_hash` method
 
 ink! has the `ink_env::set_code_hash` method, which allows replacing the code hash 
 of the current contract. So you can change the logic layer by specifying a new code 
-hash on demand.
+hash on demand. After setting a new code hash, the next call to your contract will execute updated logic.
 
 You only need to expose that method somehow, and your common contract is upgradeable.
 For example, you can add that method, and it is done:
@@ -405,9 +408,286 @@ This is the illustration of the flow of the Diamond pattern:
 
 ![](assets/20220715_130335_47FD0F8D-60F3-4FDF-82F4-672402FDC5D1.jpeg)
 
+Each method in the smart contract has a selector. It is used as an identifier during the 
+smart contract call to execute the right logic.
+Each facet has a list of selectors that describe which methods are supported by the facet. 
+Each selector is unique and belongs only to one facet. So selectors of facets can't overlap. 
+`Diamond` contract knows which facet is responsible for which selector and forwards each 
+call to the smart contract to the corresponding facet(logic layer).
+`Diamond` contract has a function `diamond_cut` that allows registering each facet.
+
 OpenBrush provides default implementation for `Diamond` standard on ink!.
 For more details you can check [Diamond](diamond.md).
 
 All suggestions above ideally describe how to develop an upgradeable contract
 with multi-logic layers and many logic units.
 So here will be described how to write facets(logic layers) with OpenBrush.
+
+#### Logic units for facet
+
+Each facet(logic layer) can have zero, one, or many logic units that work 
+with storage.
+
+Each logic unit should have a unique storage key and be upgradeable(support initialization
+on demand, use storage key as an offset for all inner fields). It can be a struct with 
+one or many fields(structs without fields are useless) or an enum with at least two 
+variants(an enum with one variant is a structure). You can define struct/enum with the 
+`openbrush::upgradeable_storage` macro and have an independent logic unit. You can 
+create several units and combine them into one contract.
+
+> **Note**: If your contract hash at least one field that is not defined with the 
+`openbrush::upgradeable_storage`, it will fail during execution. Each field should be 
+upgradeable in the facet.
+
+As an example, we will define logic units for `PSP22` and `Ownable` facets.
+
+```rust
+// OpenBrush uses the same logic unit for the default implementation of the `PSP22` trait.
+#[openbrush::upgradeable_storage(openbrush::storage_unique_key!(PSP22Data))]
+pub struct PSP22Data {
+    // Total supply of the `PSP22`
+    pub supply: Balance,
+    // Balance of each user
+    pub balances: Mapping<AccountId, Balance>,
+    // Allowance to send tokens from one user to another
+    pub allowances: Mapping<(AccountId, AccountId), Balance>,
+    // Reserved fields for future upgrades
+    pub _reserved: Option<()>,
+}
+
+// OpenBrush uses the same logic unit for the default implementation of the `Ownable` trait.
+// It simply stores the `AccountId` of the owner of the contract.
+#[openbrush::upgradeable_storage(openbrush::storage_unique_key!(OwnableData))]
+pub struct OwnableData {
+    // Owner of the contract
+    pub owner: AccountId,
+    // Reserved fields for future upgrades
+    pub _reserved: Option<()>,
+}
+```
+
+`PSP22Data` and `OwnableData` have their storage keys. Both contain additional fields, 
+unrelated to business logic, `_reserved` for future upgrades(it adds overhead in one byte).
+
+#### Definition of the facet(logic layer)
+
+The definition of the facet is the same as the definition of the contract. You need 
+to combine your logic units in the contract as fields. Leave the constructor empty, 
+add the initialization method and methods related to business logic.
+
+Example uses logic units defined in the previous section.
+
+```rust
+#[openbrush::contract]
+pub mod facet_a {
+    ...
+
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct FacetA {
+        psp22: PSP22Data,
+        ownable: OwnableData,
+    }
+    
+    // Your own implementation of `PSP22` trait.
+    impl PSP22 for FacetA {
+        ...
+        
+        #[ink(message)]
+        fn balance_of(&self, owner: AccountId) -> Balance {
+            ...
+        }
+    }
+
+    impl FacetA {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            // Empty constructor, we do here nothing
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {})
+        }
+
+        // Initialization method to grant `total_supply` tokens to someone.
+        #[ink(message)]
+        pub fn init_with_supply(&mut self, total_supply: Balance) {
+            assert_eq!(Self::env().caller(), self.ownable.owner, "Only owner can init contract");
+            ...
+        }
+    }
+}
+```
+
+You can deploy the code of the facet into the blockchain. After, you can 
+register your facet in `Diamond` via the `diamond_cut` method or in `Proxy` via 
+`change_delegate_call` method.
+
+#### Interaction between facets
+
+During development, you can have cases when one logic layer(for example `FacetA`) needs to interact with 
+another logic unit or logic layer(for example `FacetB`). 
+You have two options for how to do that:
+
+1. The contract can send a cross-contract call to itself and execute the public function(method marked with `#[ink(message)]`) of your contract.
+1. Embed logic unit into your contract what you want to use into another facet and interact with it.
+
+##### Cross-contract call to itself
+
+If your `FacetA` implements some trait, then you can use the 
+[wrapper around trait](https://github.com/Supercolony-net/openbrush-contracts#wrapper-around-traits) 
+feature of OpenBrush to do cross-contract call.
+
+> **Note**: The trait should be defined with `openbrush::trait_definition`.
+
+```rust
+#[openbrush::contract]
+pub mod facet_b {
+    ...
+    
+    impl FacetB {
+        ...
+
+
+        #[ink(message)]
+        fn balance_of_owner_in_facet_a(&self, owner: AccountId) -> Balance {
+            let address_of_current_contract = Self::env().account_id();
+            // It does a cross-contract call to itself with `owner` as an argument.
+            // It needs to allow reentrancy if it wants to execute itself.
+            PSP22Ref::balance_of_builder(&address_of_current_contract, owner)
+                .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+                .fire()
+                .unwrap();
+
+        }
+    }
+}
+```
+
+The important thing is that you should allow reentrancy during that call.
+You can also import the code of `FacetA` and use the native `Ref` feature for 
+cross-contract calls of ink!.
+
+Better to avoid the usage of cross-contract calls and work directly with the logic unit. 
+But it depends on the complexity of the logic layer.
+
+##### Embed logic unit
+
+If you use OpenBrush and follow suggestions above, your logic units are independent.
+It allows you to embed any logic unit into any facet(logic layer) without corruption of the storage.
+
+```rust
+#[openbrush::contract]
+pub mod facet_b {
+    ...
+
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct FacetB {
+        // You embed `PSP22Data` logic unit from `FacetA`. 
+        // It works with the same storage as `FacetA`. 
+        // So you have access to data of `FacetA`.
+        psp22: PSP22Data,
+        // Some data for `FacetB`.
+        foo: BarData,
+    }
+
+    impl FacetB {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            // Empty constructor, we do here nothing
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {})
+        }
+
+        #[ink(message)]
+        fn balance_of_owner_in_facet_a(&self, owner: AccountId) -> Balance {
+            // It accesses to the balance of `owner` that is managed by `FacetA`.
+            self.psp22.balances.get(&owner).unwrap_or_default()
+        }
+    }
+}
+```
+
+Embedding of the logic unit grants access to its storage.
+
+##### Remark about logic units and OpenBrush
+
+All data structures for contracts provided by OpenBrush are upgradeable logic units. 
+So contracts support upgradeability by default.
+
+You can access the default implementation when you embed OpenBrush data structures 
+into your contract. You can use default implementation internally, or you can make 
+it public.
+
+For example, when you embed `psp22::Data` into your `Contract`. You can already 
+internally use the methods of the `PSP22` trait. Implementation of the `PSP22` makes your method public.
+
+```rust
+impl PSP22 for Contract {} // That line makes your method publicly available.
+```
+
+So, if you embed `psp22:Data` in your `FacetB` contract. Then you can call `self.balance_of(owner)` and it will use the default implementation without a cross-contract call.
+
+```rust
+// Code of facet A
+#[openbrush::contract]
+pub mod facet_a {
+    use openbrush::contracts::psp22::*;
+    use openbrush::contracts::ownable::*;
+    ...
+
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct FacetA {
+        psp22: psp22::Data,
+        ownable: ownable::Data,
+    }
+
+    impl PSP22 for FacetA {}
+
+    impl FacetA {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            // Empty constructor, we do here nothing
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {})
+        }
+
+        // Initialization method to grant `total_supply` tokens to someone.
+        #[ink(message)]
+        pub fn init_with_supply(&mut self, total_supply: Balance) {
+            assert_eq!(Self::env().caller(), self.ownable.owner, "Only owner can init contract");
+            ...
+        }
+    }
+}
+
+// Code of facet B
+#[openbrush::contract]
+pub mod facet_b {
+    use openbrush::contracts::psp22::*;
+    ...
+
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct FacetB {
+        // The same logic unit is used in `FacetA`.
+        psp22: psp22::Data,
+        // Some data for `FacetB`.
+        foo: BarData,
+    }
+
+    impl FacetB {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            // Empty constructor, we do here nothing
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {})
+        }
+
+        #[ink(message)]
+        fn balance_of_owner_in_facet_a(&self, owner: AccountId) -> Balance {
+            // Use default implementation for `psp22::Data`.
+            // It is not public, because it doesn't have `impl PSP22 for FacetB {}`
+            self.balance_of(owner)
+        }
+        
+        ...
+    }
+}
+```
