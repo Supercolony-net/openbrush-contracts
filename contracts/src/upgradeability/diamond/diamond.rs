@@ -86,6 +86,8 @@ pub trait Internal {
 
     fn _diamond_cut(&mut self, diamond_cut: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError>;
 
+    fn _diamond_cut_facet(&mut self, facet_cut: &FacetCut) -> Result<(), DiamondError>;
+
     fn _fallback(&self) -> !;
 
     fn _init_call(&self, call: InitCall) -> !;
@@ -105,37 +107,7 @@ where
 
     default fn _diamond_cut(&mut self, diamond_cut: Vec<FacetCut>, init: Option<InitCall>) -> Result<(), DiamondError> {
         for facet_cut in diamond_cut.iter() {
-            let code_hash = facet_cut.hash;
-            if code_hash.is_clear() {
-                return Err(DiamondError::EmptyCodeHash)
-            }
-            if facet_cut.selectors.is_empty() {
-                // means that we want to remove this facet
-                self._remove_facet(code_hash);
-            } else {
-                for selector in facet_cut.selectors.iter() {
-                    let selector_hash = self.data().selector_to_hash.get(&selector);
-
-                    if selector_hash.and_then(|hash| Some(hash == code_hash)).unwrap_or(false) {
-                        // selector already registered to this hash -> no action
-                        continue
-                    } else if selector_hash.is_some() {
-                        // selector already registered to another hash -> error
-                        return Err(DiamondError::ReplaceExisting(selector_hash.unwrap()))
-                    } else {
-                        // map selector to its facet
-                        self.data().selector_to_hash.insert(&selector, &code_hash);
-                    }
-                }
-
-                if self.data().hash_to_selectors.get(&code_hash).is_none() {
-                    self.data().handler.on_add_facet(code_hash);
-                }
-                // remove selectors from this facet which may be registered but will not be used anymore
-                self._remove_selectors(facet_cut);
-                // map this code hash to its selectors
-                self.data().hash_to_selectors.insert(&code_hash, &facet_cut.selectors);
-            }
+            self._diamond_cut_facet(facet_cut)?;
         }
 
         self._emit_diamond_cut_event(&diamond_cut, &init);
@@ -145,6 +117,41 @@ where
             self._init_call(init.unwrap());
         }
 
+        Ok(())
+    }
+
+    default fn _diamond_cut_facet(&mut self, facet_cut: &FacetCut) -> Result<(), DiamondError> {
+        let code_hash = facet_cut.hash;
+        if code_hash.is_clear() {
+            return Err(DiamondError::EmptyCodeHash)
+        }
+        if facet_cut.selectors.is_empty() {
+            // means that we want to remove this facet
+            self._remove_facet(code_hash);
+        } else {
+            for selector in facet_cut.selectors.iter() {
+                let selector_hash = self.data().selector_to_hash.get(&selector);
+
+                if selector_hash.and_then(|hash| Some(hash == code_hash)).unwrap_or(false) {
+                    // selector already registered to this hash -> no action
+                    continue
+                } else if selector_hash.is_some() {
+                    // selector already registered to another hash -> error
+                    return Err(DiamondError::ReplaceExisting(selector_hash.unwrap()))
+                } else {
+                    // map selector to its facet
+                    self.data().selector_to_hash.insert(&selector, &code_hash);
+                }
+            }
+
+            if self.data().hash_to_selectors.get(&code_hash).is_none() {
+                self.data().handler.on_add_facet(code_hash);
+            }
+            // remove selectors from this facet which may be registered but will not be used anymore
+            self._remove_selectors(facet_cut);
+            // map this code hash to its selectors
+            self.data().hash_to_selectors.insert(&code_hash, &facet_cut.selectors);
+        }
         Ok(())
     }
 

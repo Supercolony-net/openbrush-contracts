@@ -1,4 +1,3 @@
-import { consts } from '../constants'
 import { expect, setupContract, fromSigner, setupProxy } from '../helpers'
 
 const getSelectorsFromMessages = (messages) => {
@@ -38,7 +37,6 @@ describe('DIAMOND_PSP22', () => {
 
     // we called init function which mints tokens and sets owner
     await expect(proxy.query.balanceOf(defaultSigner.address)).to.output(1000)
-    await expect(proxy.query.owner()).to.output(defaultSigner.address)
 
     // add metadata to contract
     const { contract: metadataFacet, abi: metadataAbi } = await setupContract('my_psp22_metadata_facet', 'new')
@@ -47,11 +45,7 @@ describe('DIAMOND_PSP22', () => {
     const metadataMessages = (await metadataAbi).V3.spec.messages
 
     const metadataInit = getSelectorByName(metadataMessages, 'init_metadata')
-    const metadataSelectors = getSelectorsFromMessages(
-      metadataMessages.filter((message) => {
-        return message.label != 'Ownable::owner' && message.label != 'Ownable::renounce_ownership' && message.label != 'Ownable::transfer_ownership'
-      })
-    )
+    const metadataSelectors = getSelectorsFromMessages(metadataMessages)
 
     const metadataCut = [[metadataHash, metadataSelectors]]
 
@@ -204,7 +198,6 @@ describe('DIAMOND_PSP22', () => {
 
     // we called init function which mints tokens and sets owner
     await expect(proxy.query.balanceOf(defaultSigner.address)).to.output(1000)
-    await expect(proxy.query.owner()).to.output(defaultSigner.address)
 
     // we will remove the psp22 facet
     const facetCutRemove = [[psp22Hash, []]]
