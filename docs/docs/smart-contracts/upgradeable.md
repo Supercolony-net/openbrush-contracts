@@ -425,7 +425,7 @@ So here we will describe how to write facets (logic layers) with OpenBrush.
 
 #### Logic units for facet
 
-Each facet(logic layer) can have zero, one, or many logic units that work 
+Each facet (logic layer) can have zero, one, or many logic units that work 
 with storage.
 
 Each logic unit should have a unique storage key and be upgradeable (support initialization
