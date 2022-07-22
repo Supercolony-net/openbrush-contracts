@@ -97,6 +97,100 @@ jobs:
         with:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+  contract-size:
+    concurrency:
+      group: contract-size-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    needs: examples-builds
+    container:
+      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      options: --user root
+      env:
+        CARGO_TARGET_DIR: /usr/local/cache/target
+    steps:
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
+
+      - name: Find contract data
+        id: find-data
+        run: |
+          MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
+          echo "$MAIN_DATA" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Yarn install dependencies
+        run: |
+          yarn
+          yarn add ts-node
+
+      - name: Cache rust artifacts for PR branch
+        id: cache-rust-artifacts-pr
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          restore-keys: |
+            cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
+
+      - name: Cache contract artifacts for PR branch
+        id: cache-contract-artifacts-pr
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-pr-${{ github.sha }}
+
+      - name: Redspot Сompile examples for PR branch
+        run: |
+          chown -R root .
+          chmod -R a+rwx .
+          yarn build:release
+
+      - name: Find contract data for PR
+        id: find-data-pr
+        run: |
+          PR_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo "PR_DATA<<EOF" >> $GITHUB_ENV
+          echo "$PR_DATA" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+      - name: Create report
+        run: |
+          chmod +x "./.github/contract_size.sh"
+          "./.github/contract_size.sh"
+        shell: bash
+
+      - name: Find current PR
+        uses: jwalton/gh-find-current-pr@v1
+        id: find-current-pr
+        with:
+          state: open
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: find-comment
+        with:
+          issue-number: ${{ steps.find-current-pr.outputs.pr }}
+          comment-author: 'github-actions[bot]'
+
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ steps.find-current-pr.outputs.pr }}
+          edit-mode: replace
+          body: |
+            ${{ env.REPORT }}
   integration-tests:
     concurrency:
       group: integration-tests-${{ github.ref }}
