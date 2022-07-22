@@ -21,23 +21,23 @@ jobs:
 #
 #      - name: Rustfmt check
 #        run: cargo +nightly fmt --all -- --check
-  unit-test:
-    concurrency:
-      group: unit-test-${{ github.ref }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
-
-      - name: Build & Run cargo tests
-        run: |
-          RUSTFLAGS="-D warnings" cargo +nightly test --all-features --workspace -- --test-threads=10
+#  unit-test:
+#    concurrency:
+#      group: unit-test-${{ github.ref }}
+#      cancel-in-progress: true
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Install latest nightly
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: nightly
+#          override: true
+#          components: rustfmt, clippy
+#
+#      - name: Build & Run cargo tests
+#        run: |
+#          RUSTFLAGS="-D warnings" cargo +nightly test --all-features --workspace -- --test-threads=10
   examples-builds:
     concurrency:
       group: examples-builds-${{ github.ref }}
@@ -109,14 +109,14 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - name: Cache contract artifacts
+      - name: Cache contract artifacts for source branch
         id: cache-contract-artifacts
         uses: actions/cache@v3
         with:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
 
-      - name: Find contract data
+      - name: Find contract data for source branch
         id: find-data
         run: |
           MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
@@ -126,14 +126,14 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: main
 
-      - name: Yarn install dependencies
+      - name: Yarn install dependencies for destination branch
         run: |
           yarn
           yarn add ts-node
 
-      - name: Cache rust artifacts for PR branch
+      - name: Cache rust artifacts for destination branch
         id: cache-rust-artifacts-pr
         uses: actions/cache@v3
         with:
@@ -142,20 +142,20 @@ jobs:
           restore-keys: |
             cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
 
-      - name: Cache contract artifacts for PR branch
+      - name: Cache contract artifacts for destination branch
         id: cache-contract-artifacts-pr
         uses: actions/cache@v3
         with:
           path: artifacts
           key: cache-contract-artifacts-pr-${{ github.sha }}
 
-      - name: Redspot Сompile examples for PR branch
+      - name: Redspot Сompile examples for destination branch
         run: |
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
 
-      - name: Find contract data for PR
+      - name: Find contract data destination branch
         id: find-data-pr
         run: |
           PR_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
