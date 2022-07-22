@@ -27,16 +27,21 @@ do
   pr_data+=( "$item" )
 done
 
-# find contracts in PR branch, which exist in main branch
-pr_file_names=()
+# initialize pr_file_sizes by zeros
 pr_file_sizes=()
-for ((i=0; i < ${#pr_data[@]}; i+=2));
+for (( i=0; i<${#main_file_names[@]}; i++ ))
 do
-  for name in "${main_file_names[@]}"
+  pr_file_sizes+=("0")
+done
+
+# find contracts in PR branch, which exist in main branch
+for ((i=0; i < ${#main_file_names[@]}; i+=1));
+do
+  for ((j=0; j < ${#pr_data[@]}; j+=2));
   do
-    if [[ $name == "${pr_data[i+1]}" ]]; then
-      pr_file_names+=("$name")
-      pr_file_sizes+=("${pr_data[i]}")
+    if [[ "${main_file_names[i]}" == "${pr_data[j+1]}" ]]; then
+      pr_file_sizes[i]=${pr_data[j]}
+      break
     fi
   done
 done
@@ -49,9 +54,9 @@ do
 done
 
 # finish report table
-for (( i=0; i<${#pr_file_names[@]}; i++ ))
+for (( i=0; i<${#main_file_names[@]}; i++ ))
 do
-  REPORT="$REPORT | ${pr_file_names[i]} | ${main_file_sizes[i]} | ${pr_file_sizes[i]} | ${dif_sizes[i]} |
+  REPORT="$REPORT | ${main_file_names[i]} | ${main_file_sizes[i]} | ${pr_file_sizes[i]} | ${dif_sizes[i]} |
   "
 done
 
