@@ -340,7 +340,7 @@ There are 3 types of Upgradeable contract.
 
 ### The `Proxy` Pattern
 
-Proxy pattern has two contracts. The first contract is a simple wrapper - 
+`Proxy` pattern has two contracts. The first contract is a simple wrapper - 
 a "proxy" that users interact with directly and is in charge of forwarding calls to 
 the second contract - the logic layer. The logic layer can be replaced while the proxy 
 no. To upgrade the logic layer, you must replace the code hash of logic layer with a new one.
@@ -348,7 +348,7 @@ no. To upgrade the logic layer, you must replace the code hash of logic layer wi
 The proxy contract is not upgradeable and straightforward. You can reuse implementation from OpenBrush to create your proxy.
 The logic layer is better to follow the rules described above.
 
-This is the illustration how Proxy contract with delegate_call looks like:
+This is the illustration how `Proxy` contract with delegate_call looks like:
 
 ![](assets/20220715_130416_DD058578-67E2-4832-9F75-CA18C3B3921C_4_5005_c.jpeg)
 
@@ -397,14 +397,14 @@ All suggestions described above are applicable for that kind of upgradeable cont
 Better to have an upgradeable storage layout, initialization function for new versions 
 of your contract, permission system, etc.
 
-### The Diamond Standard
+### The `Diamond` Standard
 
-Using Diamond Standard you can add support for several facets(logic layers) that 
+Using `Diamond` Standard you can add support for several facets(logic layers) that 
 can be upgraded. [That standard](https://eips.ethereum.org/EIPS/eip-2535) came 
 from the ethereum network. It works in the same way in ink! but instead of the 
 address of the logic layer, you need to use the code hash of the logic layer.
 
-This is the illustration of the flow of the Diamond pattern:
+This is the illustration of the flow of the `Diamond` pattern:
 
 ![](assets/20220715_130335_47FD0F8D-60F3-4FDF-82F4-672402FDC5D1.jpeg)
 
