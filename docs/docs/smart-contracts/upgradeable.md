@@ -57,7 +57,7 @@ for upgradeable contracts with the `Proxy` pattern or `set_code_hash`.
 1. The data stored under the storage key should use the same serialization and 
 deserialization mechanism across all logic layers. Otherwise, some logic layers will not 
 be able to deserialize the data type and fail.
-1. Each logic unit(in most cases, it is a type) should occupy the same storage key across
+1. Each logic unit (in most cases, it is a type) should occupy the same storage key across
 all logic layers. For example, you have several logic layers that use the 
 `Mapping<Owner, Balances>` to track users' balances. You should use the same storage 
 key if you want to interact with the same mapping. Otherwise, you will work with different mappings.
@@ -85,9 +85,9 @@ specify the storage key you want to use for each field. If your contract has 20 
 then you need to set 20 storage keys.
 
 The main suggestion is to design your storage layout as a bunch of logic units and 
-assign a unique storage key per logic unit. The logic unit can be one field or a bunch 
+assign a unique storage key to logic unit. The logic unit can be one field or a bunch 
 of fields. In the scope of the logic unit, you can use automatically calculated keys 
-offsetted with the storage key of the logic unit, or you can use the same approach 
+offset with the storage key of the logic unit, or you can use the same approach 
 again and split logic into more units.
 
 With this approach, you can order your units as you wish. You can add/remove/swap 
