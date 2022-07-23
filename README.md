@@ -75,22 +75,28 @@ to call methods of that trait from some contract in the network
 (do a cross contract call).
 
 ```rust
+// Somewhere defined trait
 #[openbrush::trait_definition]
 pub trait Trait1 {
     #[ink(message)]
     fn foo(&mut self) -> bool;
 }
 
+// You can create wrapper in the place where you defined the trait
+// Or if you import **everything** from the file where you define trait
 #[openbrush::wrapper]
 type Trait1Ref = dyn Trait1;
 
 {
-    // It should be `AccountId` of some contract in the network
+    // It should be `AccountId` of contract in the network that implements `Trait1` trait
     let callee: openbrush::traits::AccountId = [1; 32].into();
     // This code will execute a cross contract call to `callee` contract
     let result_of_foo: bool = Trait1Ref::foo(&callee);
 }
 ```
+
+> **Note**: The trait should be defined with `openbrush::trait_definition`.
+The callee contract should implement that trait.
 
 ### Additional stuff
 
@@ -154,16 +160,16 @@ More common roadmap of tasks:
 - [x] Agnostic traits.
 - [x] Wrapper around the trait definition to do a cross-contract calls.
 - [X] PSP for NFT token and refactoring according new interface.
-- [ ] PSP for Multi token and refactoring according new interface.
+- [x] PSP for Multi token and refactoring according new interface.
 - [x] Add extension: `PSP34Enumerable`.
 - [x] Import all extensions for tokens from OpenZeppelin.
 - [x] Add support of upgradeable contracts to ink!/contract-pallet level.
 - [x] Implement `Proxy` pattern.
 - [x] Implement `Diamond` standard.
 - [x] Publish `openbrush` into [crates.io](https://crates.io/crates/openbrush)
-- [ ] Add documentation for upgradeable contracts(blocked until [resolving](https://github.com/paritytech/ink/pull/1217)).
-- [ ] Add extension: `AccessControlEnumerable`.
-- [ ] Add extension: `PSP35Enumerable`.
+- [x] Add documentation for upgradeable contracts.
+- [x] Add extension: `AccessControlEnumerable`.
+- [x] Add extension: `PSP35Enumerable`.
 - [ ] Force/help ink! to create new independent events. During this task decide how ink! can generate metadata for
   events/traits from other crates.
 - [ ] Cover everything with UT and integration tests.

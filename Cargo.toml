@@ -12,7 +12,7 @@ exclude = [
 
 [package]
 name = "openbrush"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
@@ -38,8 +38,8 @@ ink_engine = { version = "~3.3.0", default-features = false, optional = true }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-openbrush_contracts = { version = "~2.1.0", path = "contracts", default-features = false }
-openbrush_lang = { version = "~2.1.0", path = "lang", default-features = false }
+openbrush_contracts = { version = "~2.2.0", path = "contracts", default-features = false }
+openbrush_lang = { version = "~2.2.0", path = "lang", default-features = false }
 
 [lib]
 name = "openbrush"

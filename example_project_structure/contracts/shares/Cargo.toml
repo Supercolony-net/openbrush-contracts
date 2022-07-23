@@ -1,6 +1,6 @@
 [package]
 name = "shares_contract"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
