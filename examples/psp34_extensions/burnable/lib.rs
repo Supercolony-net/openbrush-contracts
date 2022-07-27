@@ -4,20 +4,23 @@
 #[openbrush::contract]
 pub mod my_psp34_burnable {
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::contracts::psp34::extensions::burnable::*;
+    use openbrush::{
+        contracts::psp34::extensions::burnable::*,
+        traits::Storage,
+    };
 
-    #[derive(Default, SpreadAllocate, PSP34Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct MyPSP34 {
-        #[PSP34StorageField]
-        psp34: PSP34Data,
+    pub struct Contract {
+        #[storage_field]
+        psp34: psp34::Data,
     }
 
-    impl PSP34 for MyPSP34 {}
+    impl PSP34 for Contract {}
 
-    impl PSP34Burnable for MyPSP34 {}
+    impl PSP34Burnable for Contract {}
 
-    impl MyPSP34 {
+    impl Contract {
         /// The constructor
         #[ink(constructor)]
         pub fn new() -> Self {

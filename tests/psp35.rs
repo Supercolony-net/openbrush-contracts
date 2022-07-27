@@ -29,9 +29,12 @@ mod psp35 {
     };
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
-    use openbrush::test_utils::{
-        accounts,
-        change_caller,
+    use openbrush::{
+        test_utils::{
+            accounts,
+            change_caller,
+        },
+        traits::Storage,
     };
     use openbrush_contracts::psp35::*;
 
@@ -55,18 +58,18 @@ mod psp35 {
         value: Balance,
     }
 
-    #[derive(Default, SpreadAllocate, PSP35Storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
     pub struct PSP35Struct {
-        #[PSP35StorageField]
-        psp35: PSP35Data,
+        #[storage_field]
+        psp35: psp35::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
         return_err_on_after: bool,
     }
 
-    impl PSP35Internal for PSP35Struct {
+    impl Internal for PSP35Struct {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _id: Id, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
@@ -98,7 +101,7 @@ mod psp35 {
         }
     }
 
-    impl PSP35Transfer for PSP35Struct {
+    impl psp35::Transfer for PSP35Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,

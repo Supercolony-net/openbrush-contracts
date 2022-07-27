@@ -14,18 +14,19 @@ pub mod ownable {
             },
         },
         modifiers,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP35Storage, OwnableStorage)]
-    pub struct PSP35Struct {
-        #[PSP35StorageField]
-        psp1155: PSP35Data,
-        #[OwnableStorageField]
-        ownable: OwnableData,
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct Contract {
+        #[storage_field]
+        psp35: psp35::Data,
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
-    impl PSP35Struct {
+    impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
@@ -35,11 +36,11 @@ pub mod ownable {
         }
     }
 
-    impl Ownable for PSP35Struct {}
+    impl Ownable for Contract {}
 
-    impl PSP35 for PSP35Struct {}
+    impl PSP35 for Contract {}
 
-    impl PSP35Mintable for PSP35Struct {
+    impl PSP35Mintable for Contract {
         #[ink(message)]
         #[modifiers(only_owner)]
         fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
@@ -47,7 +48,7 @@ pub mod ownable {
         }
     }
 
-    impl PSP35Burnable for PSP35Struct {
+    impl PSP35Burnable for Contract {
         #[ink(message)]
         #[modifiers(only_owner)]
         fn burn(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {

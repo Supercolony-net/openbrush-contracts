@@ -23,8 +23,7 @@ pub mod extensions {
     pub mod enumerable;
 }
 
-mod access_control;
-mod members;
+pub mod access_control;
+pub mod members;
 
 pub use access_control::*;
-pub use members::*;

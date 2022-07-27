@@ -46,7 +46,7 @@ pub trait Lending {
 
     /// This function is called by a user who wants to lend tokens and gain interest
     ///
-    /// `asset_address` is the AccountId of the PSP-22 token to be deposited
+    /// `asset_address` is the AccountId of the PSP22 token to be deposited
     /// `amount` is the amount to be deposited
     ///
     /// Returns `InsufficientAllowanceToLend` if the caller does not have enough allowance
@@ -59,8 +59,8 @@ pub trait Lending {
     /// they need to deposit collateral. The value of borrowed assets will be equal to 70%
     /// of the value of deposited collateral.
     ///
-    /// `asset_address` is the AccountId of the PSP-22 token to be borrowed
-    /// `collateral_address` is the AccountId of the PSP-22 token used as collateral
+    /// `asset_address` is the AccountId of the PSP22 token to be borrowed
+    /// `collateral_address` is the AccountId of the PSP22 token used as collateral
     /// `amount` is the amount to be deposited
     ///
     /// Returns `AssetNotSupported` if `asset_address` is not supported for using as collateral

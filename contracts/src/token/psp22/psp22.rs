@@ -19,17 +19,16 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::traits::{
-    errors::{
-        PSP22Error,
-        PSP22ReceiverError,
-    },
-    psp22::*,
+pub use crate::{
+    psp22,
+    psp22::Internal as _,
+    traits::psp22::*,
 };
-pub use derive::{
-    PSP22MetadataStorage,
-    PSP22Storage,
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
 };
+
 use ink_env::{
     CallFlags,
     Error as EnvError,
@@ -39,7 +38,6 @@ use ink_prelude::{
     vec::Vec,
 };
 use openbrush::{
-    declare_storage_trait,
     storage::{
         Mapping,
         TypeGuard,
@@ -48,15 +46,15 @@ use openbrush::{
         AccountId,
         AccountIdExt,
         Balance,
-        Flush,
+        Storage,
     },
 };
 
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::PSP22Data");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct PSP22Data {
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
     pub supply: Balance,
     pub balances: Mapping<AccountId, Balance>,
     pub allowances: Mapping<(AccountId, AccountId), Balance, AllowancesKey>,
@@ -69,11 +67,9 @@ impl<'a> TypeGuard<'a> for AllowancesKey {
     type Type = &'a (&'a AccountId, &'a AccountId);
 }
 
-declare_storage_trait!(PSP22Storage);
-
-impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22 for T {
+impl<T: Storage<Data>> PSP22 for T {
     default fn total_supply(&self) -> Balance {
-        self.get().supply.clone()
+        self.data().supply.clone()
     }
 
     default fn balance_of(&self, owner: AccountId) -> Balance {
@@ -81,7 +77,7 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22 for T {
     }
 
     default fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-        self.get().allowances.get(&(&owner, &spender)).unwrap_or(0)
+        self._allowance(&owner, &spender)
     }
 
     default fn transfer(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> Result<(), PSP22Error> {
@@ -98,7 +94,7 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22 for T {
         data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
         let caller = Self::env().caller();
-        let allowance = self.allowance(from, caller);
+        let allowance = self._allowance(&from, &caller);
 
         if allowance < value {
             return Err(PSP22Error::InsufficientAllowance)
@@ -117,29 +113,28 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22 for T {
 
     default fn increase_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
         let owner = Self::env().caller();
-        self._approve_from_to(owner, spender, self.allowance(owner, spender) + delta_value)?;
-        Ok(())
+        self._approve_from_to(owner, spender, self._allowance(&owner, &spender) + delta_value)
     }
 
     default fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error> {
         let owner = Self::env().caller();
-        let allowance = self.allowance(owner, spender);
+        let allowance = self._allowance(&owner, &spender);
 
         if allowance < delta_value {
             return Err(PSP22Error::InsufficientAllowance)
         }
 
-        self._approve_from_to(owner, spender, allowance - delta_value)?;
-        Ok(())
+        self._approve_from_to(owner, spender, allowance - delta_value)
     }
 }
 
-pub trait PSP22Internal {
+pub trait Internal {
+    /// User must override those methods in their contract.
     fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance);
-
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance);
 
     fn _balance_of(&self, owner: &AccountId) -> Balance;
+    fn _allowance(&self, owner: &AccountId, spender: &AccountId) -> Balance;
 
     fn _do_safe_transfer_check(
         &mut self,
@@ -164,13 +159,16 @@ pub trait PSP22Internal {
     fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
 
-impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
+impl<T: Storage<Data>> Internal for T {
     default fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {}
-
     default fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
     default fn _balance_of(&self, owner: &AccountId) -> Balance {
-        self.get().balances.get(owner).unwrap_or(0)
+        self.data().balances.get(owner).unwrap_or(0)
+    }
+
+    default fn _allowance(&self, owner: &AccountId, spender: &AccountId) -> Balance {
+        self.data().allowances.get(&(owner, spender)).unwrap_or(0)
     }
 
     default fn _do_safe_transfer_check(
@@ -231,7 +229,7 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        let from_balance = self.balance_of(from);
+        let from_balance = self._balance_of(&from);
 
         if from_balance < amount {
             return Err(PSP22Error::InsufficientBalance)
@@ -239,12 +237,12 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
 
         self._before_token_transfer(Some(&from), Some(&to), &amount)?;
 
-        self.get_mut().balances.insert(&from, &(from_balance - amount));
+        self.data().balances.insert(&from, &(from_balance - amount));
 
         self._do_safe_transfer_check(&from, &to, &amount, &data)?;
 
         let to_balance = self._balance_of(&to);
-        self.get_mut().balances.insert(&to, &(to_balance + amount));
+        self.data().balances.insert(&to, &(to_balance + amount));
 
         self._after_token_transfer(Some(&from), Some(&to), &amount)?;
         self._emit_transfer_event(Some(from), Some(to), amount);
@@ -265,7 +263,7 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        self.get_mut().allowances.insert(&(&owner, &spender), &amount);
+        self.data().allowances.insert(&(&owner, &spender), &amount);
         self._emit_approval_event(owner, spender, amount);
         Ok(())
     }
@@ -276,10 +274,10 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
         }
 
         self._before_token_transfer(None, Some(&account), &amount)?;
-        let mut new_balance = self.balance_of(account);
+        let mut new_balance = self._balance_of(&account);
         new_balance += amount;
-        self.get_mut().balances.insert(&account, &new_balance);
-        self.get_mut().supply += amount;
+        self.data().balances.insert(&account, &new_balance);
+        self.data().supply += amount;
         self._after_token_transfer(None, Some(&account), &amount)?;
         self._emit_transfer_event(None, Some(account), amount);
 
@@ -291,7 +289,7 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
 
-        let mut from_balance = self.balance_of(account);
+        let mut from_balance = self._balance_of(&account);
 
         if from_balance < amount {
             return Err(PSP22Error::InsufficientBalance)
@@ -300,8 +298,8 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
         self._before_token_transfer(Some(&account), None, &amount)?;
 
         from_balance -= amount;
-        self.get_mut().balances.insert(&account, &from_balance);
-        self.get_mut().supply -= amount;
+        self.data().balances.insert(&account, &from_balance);
+        self.data().supply -= amount;
         self._after_token_transfer(Some(&account), None, &amount)?;
         self._emit_transfer_event(Some(account), None, amount);
 
@@ -309,7 +307,7 @@ impl<T: PSP22Storage<Data = PSP22Data> + Flush> PSP22Internal for T {
     }
 }
 
-pub trait PSP22Transfer {
+pub trait Transfer {
     fn _before_token_transfer(
         &mut self,
         _from: Option<&AccountId>,
@@ -325,7 +323,7 @@ pub trait PSP22Transfer {
     ) -> Result<(), PSP22Error>;
 }
 
-impl<T> PSP22Transfer for T {
+impl<T: Storage<Data>> Transfer for T {
     default fn _before_token_transfer(
         &mut self,
         _from: Option<&AccountId>,

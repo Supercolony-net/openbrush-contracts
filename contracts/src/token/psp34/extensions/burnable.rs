@@ -20,12 +20,30 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    psp34::*,
-    traits::psp34::extensions::burnable::*,
+    psp34,
+    psp34::balances,
+    traits::psp34::{
+        extensions::burnable::*,
+        *,
+    },
 };
-use openbrush::traits::AccountId;
+pub use psp34::{
+    Internal as _,
+    Transfer as _,
+};
 
-impl<T: PSP34Internal> PSP34Burnable for T {
+use openbrush::traits::{
+    AccountId,
+    OccupiedStorage,
+    Storage,
+};
+
+impl<B, T> PSP34Burnable for T
+where
+    B: balances::BalancesManager,
+    T: Storage<psp34::Data<B>>,
+    T: OccupiedStorage<{ psp34::STORAGE_KEY }, WithData = psp34::Data<B>>,
+{
     default fn burn(&mut self, account: AccountId, id: Id) -> Result<(), PSP34Error> {
         self._burn_from(account, id)
     }

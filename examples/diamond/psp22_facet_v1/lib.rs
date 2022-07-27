@@ -10,28 +10,25 @@ pub mod my_psp22_facet_v1 {
             psp22::*,
         },
         modifiers,
+        traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct PSP22FacetV1 {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[OwnableStorageField]
-        ownable: OwnableData,
+        #[storage_field]
+        psp22: psp22::Data,
+        // Ownable is used only internally without exposing it to the world
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
     impl PSP22 for PSP22FacetV1 {}
 
-    impl Ownable for PSP22FacetV1 {}
-
     impl PSP22FacetV1 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut PSP22FacetV1| {
-                instance._init_with_owner(instance.env().caller());
-                instance.init_psp22().expect("Should initialize");
-            })
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

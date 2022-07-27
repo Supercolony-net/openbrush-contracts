@@ -1,6 +1,6 @@
 [package]
 name = "lending_project"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["Supercolony <green.baneling@supercolony.net, dominik.krizo@supercolony.net>"]
 edition = "2021"
 
@@ -17,7 +17,6 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-lending_project_derive = { path = "derive" }
 openbrush = { path = "..", default-features = false, features = ["psp22", "psp34", "ownable", "pausable", "access_control"] }
 
 [lib]

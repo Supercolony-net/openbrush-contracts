@@ -31,7 +31,10 @@ mod ownable {
     use openbrush::{
         contracts::ownable::*,
         test_utils::change_caller,
-        traits::AccountIdExt,
+        traits::{
+            AccountIdExt,
+            Storage,
+        },
     };
 
     #[ink(event)]
@@ -43,10 +46,10 @@ mod ownable {
     }
 
     #[ink(storage)]
-    #[derive(Default, OwnableStorage)]
+    #[derive(Default, Storage)]
     pub struct MyOwnable {
-        #[OwnableStorageField]
-        ownable: OwnableData,
+        #[storage_field]
+        ownable: Data,
     }
 
     type Event = <MyOwnable as ::ink_lang::reflect::ContractEventBase>::Type;
@@ -65,7 +68,7 @@ mod ownable {
 
     impl Ownable for MyOwnable {}
 
-    impl OwnableInternal for MyOwnable {
+    impl Internal for MyOwnable {
         fn _emit_ownership_transferred_event(&self, previous_owner: Option<AccountId>, new_owner: Option<AccountId>) {
             self.env().emit_event(OwnershipTransferred {
                 previous_owner,

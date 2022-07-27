@@ -20,21 +20,37 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(incomplete_features)]
-#![feature(specialization)]
+#![feature(min_specialization)]
 
 mod access;
 mod finance;
 mod governance;
 mod security;
 mod token;
-mod upgradability;
+mod upgradeability;
 
 pub mod traits;
-// Implementation of traits above
-pub use access::*;
-pub use finance::*;
-pub use governance::*;
-pub use security::*;
-pub use token::*;
-pub use upgradability::*;
+
+// Modules with implementation of traits above
+#[cfg(feature = "access_control")]
+pub use access::access_control;
+#[cfg(feature = "ownable")]
+pub use access::ownable;
+#[cfg(feature = "payment_splitter")]
+pub use finance::payment_splitter;
+#[cfg(feature = "timelock_controller")]
+pub use governance::timelock_controller;
+#[cfg(feature = "pausable")]
+pub use security::pausable;
+#[cfg(feature = "reentrancy_guard")]
+pub use security::reentrancy_guard;
+#[cfg(feature = "psp22")]
+pub use token::psp22;
+#[cfg(feature = "psp34")]
+pub use token::psp34;
+#[cfg(feature = "psp35")]
+pub use token::psp35;
+#[cfg(feature = "diamond")]
+pub use upgradeability::diamond;
+#[cfg(feature = "proxy")]
+pub use upgradeability::proxy;

@@ -24,13 +24,16 @@
 #[openbrush::contract]
 mod reentrancy_guard {
     use ink_lang as ink;
-    use openbrush::contracts::reentrancy_guard::*;
+    use openbrush::{
+        contracts::reentrancy_guard::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, ReentrancyGuardStorage)]
+    #[derive(Default, Storage)]
     pub struct MyFlipper {
-        #[ReentrancyGuardStorageField]
-        guard: ReentrancyGuardData,
+        #[storage_field]
+        guard: Data,
         flipped: bool,
     }
 

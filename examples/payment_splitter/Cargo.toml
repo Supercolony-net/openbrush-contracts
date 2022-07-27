@@ -1,6 +1,6 @@
 [package]
 name = "my_payment_splitter"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -46,6 +46,3 @@ ink-as-dependency = []
 
 [profile.dev]
 codegen-units = 16
-
-[profile.release]
-overflow-checks = false

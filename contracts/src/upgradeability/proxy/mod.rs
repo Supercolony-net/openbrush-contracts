@@ -20,82 +20,66 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::{
-    ownable::*,
-    traits::proxy::*,
+    ownable,
+    proxy,
+    traits::{
+        ownable::*,
+        proxy::*,
+    },
 };
+pub use ownable::Internal as _;
+pub use proxy::Internal as _;
+
+use ink_env::call::DelegateCall;
 use openbrush::{
     modifiers,
-    traits::Hash,
+    traits::{
+        Hash,
+        Storage,
+    },
 };
 
-pub use derive::ProxyStorage;
-use ink_env::call::DelegateCall;
-
-pub const STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("openbrush::ProxyData");
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Default, Debug)]
-#[openbrush::storage(STORAGE_KEY)]
-pub struct ProxyData {
-    pub ownable: OwnableData,
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
     pub forward_to: Hash,
 }
 
-pub trait ProxyStorage: OwnableStorage<Data = OwnableData> + ::openbrush::traits::InkStorage {
-    type Data;
-    fn get(&self) -> &<Self as ProxyStorage>::Data;
-    fn get_mut(&mut self) -> &mut <Self as ProxyStorage>::Data;
-}
-
-#[cfg(not(feature = "diamond"))]
-impl<T: ProxyStorage<Data = ProxyData>> OwnableStorage for T {
-    type Data = OwnableData;
-    fn get(&self) -> &Self::Data {
-        &ProxyStorage::get(self).ownable
-    }
-
-    fn get_mut(&mut self) -> &mut Self::Data {
-        &mut ProxyStorage::get_mut(self).ownable
-    }
-}
-
-impl<T: ProxyStorage<Data = ProxyData>> Proxy for T {
+impl<T: Storage<Data> + Storage<ownable::Data>> Proxy for T {
     default fn get_delegate_code(&self) -> Hash {
-        ProxyStorage::get(self).forward_to
+        self.data::<Data>().forward_to
     }
 
-    #[modifiers(only_owner)]
+    #[modifiers(ownable::only_owner)]
     default fn change_delegate_code(&mut self, new_code_hash: Hash) -> Result<(), OwnableError> {
-        let old_code_hash = ProxyStorage::get(self).forward_to.clone();
-        ProxyStorage::get_mut(self).forward_to = new_code_hash;
+        let old_code_hash = self.data::<Data>().forward_to.clone();
+        self.data::<Data>().forward_to = new_code_hash;
         self._emit_delegate_code_changed_event(Some(old_code_hash), Some(new_code_hash));
         Ok(())
     }
 }
 
-pub trait ProxyInternal {
-    fn _emit_delegate_code_changed_event(&self, _previous_code_hash: Option<Hash>, _new_code_hash: Option<Hash>);
+pub trait Internal {
+    fn _emit_delegate_code_changed_event(&self, _previous: Option<Hash>, _new: Option<Hash>);
 
     fn _init_with_forward_to(&mut self, forward_to: Hash);
 
     fn _fallback(&self) -> !;
 }
 
-impl<T: ProxyStorage<Data = ProxyData>> ProxyInternal for T {
-    default fn _emit_delegate_code_changed_event(
-        &self,
-        _previous_code_hash: Option<Hash>,
-        _new_code_hash: Option<Hash>,
-    ) {
-    }
+impl<T: Storage<Data>> Internal for T {
+    default fn _emit_delegate_code_changed_event(&self, _previous: Option<Hash>, _new: Option<Hash>) {}
 
     default fn _init_with_forward_to(&mut self, forward_to: Hash) {
-        ProxyStorage::get_mut(self).forward_to = forward_to;
+        self.data().forward_to = forward_to;
         self._emit_delegate_code_changed_event(None, Some(forward_to));
     }
 
     default fn _fallback(&self) -> ! {
         ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-            .call_type(DelegateCall::new().code_hash(self.get_delegate_code()))
+            .call_type(DelegateCall::new().code_hash(self.data().forward_to.clone()))
             .call_flags(
                 ink_env::CallFlags::default()
                 // We don't plan to use the input data after the delegated call, so the 
@@ -109,7 +93,7 @@ impl<T: ProxyStorage<Data = ProxyData>> ProxyInternal for T {
             .unwrap_or_else(|err| {
                 panic!(
                     "delegate call to {:?} failed due to {:?}",
-                    self.get_delegate_code(),
+                    self.data().forward_to.clone(),
                     err
                 )
             });

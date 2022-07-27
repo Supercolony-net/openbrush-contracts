@@ -17,4 +17,4 @@ OpenBrush attempts to analogize OpenZeppelin perfectly with Rust’s paradigm,
 enabling users to import contracts implemented by another user without problems 
 and reuse the code.
 There was a need to have a library that can provide base implementations of 
-ERCs and to import/reuse them by customizing their own logic.
+PSPs and to import/reuse them by customizing their own logic.

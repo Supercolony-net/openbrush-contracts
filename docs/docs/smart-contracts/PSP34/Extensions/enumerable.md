@@ -5,6 +5,8 @@ title: PSP34 Enumerable
 
 This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token with [PSP34Enumerable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34/extensions/enumerable.rs) extension.
 
+First, you should implement basic version of [PSP34](/smart-contracts/PSP34).
+
 ## Step 1: Add imports and enable unstable feature
 
 Import **everything** from `openbrush::contracts::psp34::extensions::enumerable`.
@@ -16,20 +18,20 @@ Import **everything** from `openbrush::contracts::psp34::extensions::enumerable`
 #[openbrush::contract]
 pub mod my_psp34 {
     use openbrush::contracts::psp34::extensions::enumerable::*;
-    use ink_storage::traits::SpreadAllocate;
 ...
 ```
 
 ## Step 2: Define storage
 
-Declare storage struct and use `EnumerableBalances` instead of common balances to be able to use `PSP34Enumerable` extension in your `PSP34` implementation.
+Pass `enumerable::Balances` into `psp34::Data` to be able to use `PSP34Enumerable` extension 
+in your `PSP34` implementation.
 
 ```rust
-#[derive(Default, SpreadAllocate, PSP34Storage)]
+#[derive(Default, SpreadAllocate, Storage)]
 #[ink(storage)]
-pub struct MyPSP34 {
-    #[PSP34StorageField]
-    psp34: PSP34Data<EnumerableBalances>,
+pub struct Contract {
+    #[storage_field]
+    psp34: psp34::Data<enumerable::Balances>,
 }
 ```
 
@@ -38,10 +40,40 @@ pub struct MyPSP34 {
 Inherit implementation of the `PSP34Enumerable` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
+impl PSP34Enumerable for Contract {}
+```
 
-impl PSP34 for MyPSP34 {}
+## Final code
 
-impl PSP34Enumerable for MyPSP34 {}
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
+#[openbrush::contract]
+pub mod my_psp34_enumerable {
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::psp34::extensions::enumerable::*,
+        traits::Storage,
+    };
+
+    #[derive(Default, SpreadAllocate, Storage)]
+    #[ink(storage)]
+    pub struct Contract {
+        #[storage_field]
+        psp34: psp34::Data<enumerable::Balances>,
+    }
+
+    impl PSP34 for Contract {}
+    impl PSP34Enumerable for Contract {}
+
+    impl Contract {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+        }
+    }
+}
 ```
 
 And that's it! Your `PSP34` is now extended by the `PSP34Enumerable` extension and ready to use its functions!

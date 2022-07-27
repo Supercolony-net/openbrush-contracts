@@ -1,11 +1,11 @@
-# ![logo-2](https://user-images.githubusercontent.com/43150707/142042724-63623cdc-e109-4374-b15d-e57a21a30014.png)
+# ![logo-2](https://user-images.githubusercontent.com/24861482/177825604-bf797de0-d14f-44c5-bbdb-e57fa48d39d0.png)
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
 [![element chat](https://img.shields.io/badge/Element-green.svg?style=flat-square)](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=matrix.parity.io)
 [![discord chat](https://img.shields.io/badge/Discord-purple.svg?style=flat-square)](https://discord.gg/ZGdpEwFrJ8)
 
-Our mission with this project is to make ink! development faster, safer and easier. We plan to integrate most of the features
+OpenBrush was created by [Supercolony](supercolony.net) to make ink! development faster, safer and easier. We plan to integrate most of the features
 OpenBrush into ink!. OpenBrush provides documentation with FAQ section.
 
 You can ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
@@ -20,7 +20,7 @@ Why use this library?
 - Useful contracts that provide custom logic to be implemented in contracts
 - To **save time** by not writing boilerplate code
 - Useful features which can simplify development
-- All contracts are upgradable by default
+- All contracts are upgradeable by default
 
 Which Standard tokens & useful contracts does it provide?
 - **PSP22** - Fungible Token (*ERC20 equivalent*) with extensions
@@ -75,22 +75,28 @@ to call methods of that trait from some contract in the network
 (do a cross contract call).
 
 ```rust
+// Somewhere defined trait
 #[openbrush::trait_definition]
 pub trait Trait1 {
     #[ink(message)]
     fn foo(&mut self) -> bool;
 }
 
+// You can create wrapper in the place where you defined the trait
+// Or if you import **everything** from the file where you define trait
 #[openbrush::wrapper]
 type Trait1Ref = dyn Trait1;
 
 {
-    // It should be `AccountId` of some contract in the network
+    // It should be `AccountId` of contract in the network that implements `Trait1` trait
     let callee: openbrush::traits::AccountId = [1; 32].into();
     // This code will execute a cross contract call to `callee` contract
     let result_of_foo: bool = Trait1Ref::foo(&callee);
 }
 ```
+
+> **Note**: The trait should be defined with `openbrush::trait_definition`.
+The callee contract should implement that trait.
 
 ### Additional stuff
 
@@ -119,7 +125,7 @@ but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/
 * [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
 * [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
 * [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
-* After [Storage rework](https://github.com/paritytech/ink/pull/1217) we need to refactor upgradable contracts.
+* After [Storage rework](https://github.com/paritytech/ink/pull/1217) we need to refactor upgradeable contracts.
 
 ## Roadmap 🚗
 
@@ -154,16 +160,16 @@ More common roadmap of tasks:
 - [x] Agnostic traits.
 - [x] Wrapper around the trait definition to do a cross-contract calls.
 - [X] PSP for NFT token and refactoring according new interface.
-- [ ] PSP for Multi token and refactoring according new interface.
+- [x] PSP for Multi token and refactoring according new interface.
 - [x] Add extension: `PSP34Enumerable`.
 - [x] Import all extensions for tokens from OpenZeppelin.
-- [x] Add support of upgradable contracts to ink!/contract-pallet level.
+- [x] Add support of upgradeable contracts to ink!/contract-pallet level.
 - [x] Implement `Proxy` pattern.
 - [x] Implement `Diamond` standard.
 - [x] Publish `openbrush` into [crates.io](https://crates.io/crates/openbrush)
-- [ ] Add documentation for upgradable contracts(blocked until [resolving](https://github.com/paritytech/ink/pull/1217)).
-- [ ] Add extension: `AccessControlEnumerable`.
-- [ ] Add extension: `PSP35Enumerable`.
+- [x] Add documentation for upgradeable contracts.
+- [x] Add extension: `AccessControlEnumerable`.
+- [x] Add extension: `PSP35Enumerable`.
 - [ ] Force/help ink! to create new independent events. During this task decide how ink! can generate metadata for
   events/traits from other crates.
 - [ ] Cover everything with UT and integration tests.
