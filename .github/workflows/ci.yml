@@ -128,26 +128,12 @@ jobs:
         with:
           ref: main
 
-      - name: Yarn install dependencies for destination branch
-        run: |
-          yarn
-          yarn add ts-node
-
-      - name: Cache rust artifacts for destination branch
-        id: cache-rust-artifacts-pr
-        uses: actions/cache@v3
-        with:
-          path: /usr/local/cache/target
-          key: cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
-          restore-keys: |
-            cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
-
       - name: Cache contract artifacts for destination branch
-        id: cache-contract-artifacts-pr
+        id: cache-contract-artifacts-destination
         uses: actions/cache@v3
         with:
           path: artifacts
-          key: cache-contract-artifacts-pr-${{ github.sha }}
+          key: cache-contract-artifacts-${{ github.sha }}
 
       - name: Redspot Сompile examples for destination branch
         run: |
