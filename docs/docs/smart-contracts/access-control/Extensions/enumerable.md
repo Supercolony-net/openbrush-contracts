@@ -3,7 +3,7 @@ sidebar_position: 1
 title: AccessControl Enumerable
 ---
 
-This example shows how you can reuse the implementation of [AccessControl](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/access/access_control/access_control.rs) with [AccessControlEnumerable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/access/access_control/extensions/enumerable.rs) extension.
+This example shows how you can reuse the implementation of [AccessControl](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/access/access_control/access_control.rs) with [AccessControlEnumerable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/access/access_control/extensions/enumerable.rs) extension, which enables an easier overview of access control roles.
 
 First, you should implement basic version of [AccessControl](/smart-contracts/access-control).
 
