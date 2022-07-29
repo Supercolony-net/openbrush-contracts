@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 1
 title: Diamond Standard
 ---
 
@@ -54,7 +54,7 @@ with the code hash of your new facet and the selectors of all the functions from
 facet you want to use. The diamond will register them and anytime you call this function 
 on your diamond contract, it will make the delegate call to the facet the function belongs to. 
 You can add, remove or replace these functions anytime with the `diamond_cut` function, 
-some of the limitations are, that you can not add functions with the same selectors, 
+some of limitations are, that you can not add functions with the same selectors, 
 when replacing functions, the new function needs to be from a different contract, 
 then currently in use, and when removing functions, the function needs to be registered in the diamond contract.
 
