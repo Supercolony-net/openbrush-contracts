@@ -132,6 +132,7 @@ jobs:
 
       - name: Yarn install dependencies for destination branch
         run: |
+          echo $( find . -type f -name "*.contract")
           yarn
           yarn add ts-node
 
@@ -153,6 +154,7 @@ jobs:
 
       - name: Redspot Сompile examples for destination branch
         run: |
+          echo $( find . -type f -name "*.contract")
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
