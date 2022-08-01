@@ -151,7 +151,6 @@ jobs:
       - name: Find contract data destination branch
         id: find-data-pr
         run: |
-#          echo $( find . -type f -name "*.contract")
           MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
           echo "$MAIN_DATA" >> $GITHUB_ENV
