@@ -133,14 +133,12 @@ jobs:
           yarn
           yarn add ts-node
 
-      - name: Cache rust artifacts for destination branch
-        id: cache-rust-artifacts-destination
+      - name: Copy rust artifacts
+        id: cache-rust-artifacts
         uses: actions/cache@v3
         with:
           path: /usr/local/cache/target
-          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
-          restore-keys: |
-            cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
 
       - name: Redspot Сompile examples for destination branch
         run: |
