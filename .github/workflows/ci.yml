@@ -21,23 +21,23 @@ jobs:
 #
 #      - name: Rustfmt check
 #        run: cargo +nightly fmt --all -- --check
-  unit-test:
-    concurrency:
-      group: unit-test-${{ github.ref }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
-
-      - name: Build & Run cargo tests
-        run: |
-          RUSTFLAGS="-D warnings" cargo +nightly test --all-features --workspace -- --test-threads=10
+#  unit-test:
+#    concurrency:
+#      group: unit-test-${{ github.ref }}
+#      cancel-in-progress: true
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Install latest nightly
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: nightly
+#          override: true
+#          components: rustfmt, clippy
+#
+#      - name: Build & Run cargo tests
+#        run: |
+#          RUSTFLAGS="-D warnings" cargo +nightly test --all-features --workspace -- --test-threads=10
   examples-builds:
     concurrency:
       group: examples-builds-${{ github.ref }}
@@ -76,6 +76,7 @@ jobs:
 
       - name: Redspot Сompile examples
         run: |
+          echo $( find ./ -type d)
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
@@ -118,7 +119,8 @@ jobs:
 
       - name: Find contract data for source branch
         id: find-data
-        run: |
+        run: |  
+          echo $( find ./ -type d)
           SOURCE_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
           echo "$SOURCE_DATA" >> $GITHUB_ENV
@@ -158,6 +160,7 @@ jobs:
       - name: Find contract data destination branch
         id: find-data-pr
         run: |
+          echo $( find ./ -type d)
           MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
           echo "$MAIN_DATA" >> $GITHUB_ENV
