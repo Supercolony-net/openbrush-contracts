@@ -76,7 +76,7 @@ jobs:
 
       - name: Redspot Сompile examples
         run: |
-          echo $( find ./ -type d)
+          echo $( find . -type f -name "*.contract")
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
@@ -120,7 +120,7 @@ jobs:
       - name: Find contract data for source branch
         id: find-data
         run: |  
-          echo $( find ./ -type d)
+          echo $( find . -type f -name "*.contract")
           SOURCE_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
           echo "$SOURCE_DATA" >> $GITHUB_ENV
@@ -160,7 +160,7 @@ jobs:
       - name: Find contract data destination branch
         id: find-data-pr
         run: |
-          echo $( find ./ -type d)
+          echo $( find . -type f -name "*.contract")
           MAIN_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo "MAIN_DATA<<EOF" >> $GITHUB_ENV
           echo "$MAIN_DATA" >> $GITHUB_ENV
