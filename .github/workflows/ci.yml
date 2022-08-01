@@ -109,12 +109,12 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - name: Copy rust artifacts for source branch
-        id: cache-rust-artifacts
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
         uses: actions/cache@v3
         with:
-          path: /usr/local/cache/target
-          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
 
       - name: Find contract data for source branch
         id: find-data
