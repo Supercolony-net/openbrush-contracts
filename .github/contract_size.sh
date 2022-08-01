@@ -2,21 +2,21 @@
 
 # create table header
 REPORT=$'
-| Contract Name | Merged | Main | Difference |
+| Contract Name | Destination | Source | Difference |
 | --- | --- | --- | --- |
 '
 
-main_file_names=()
-main_file_sizes=()
-# get contract names and sizes from main branch
+destination_file_names=()
+destination_file_sizes=()
+# get contract names and sizes from destination branch
 count=0
-for item in $MAIN_DATA
+for item in $DESTINATION_DATA
 do
   count=$((count+1))
   if [ $((count%2)) -eq 0 ]; then
-    main_file_names+=("$item")
+    destination_file_names+=("$item")
   else
-    main_file_sizes+=("$item")
+    destination_file_sizes+=("$item")
   fi
 done
 
@@ -29,17 +29,17 @@ done
 
 # initialize source_file_sizes by zeros
 source_file_sizes=()
-for (( i=0; i<${#main_file_names[@]}; i++ ))
+for (( i=0; i<${#destination_file_names[@]}; i++ ))
 do
   source_file_sizes+=("0")
 done
 
-# find contracts in source branch, which exist in main branch
-for ((i=0; i < ${#main_file_names[@]}; i+=1));
+# find contracts in source branch, which exist in destination branch
+for ((i=0; i < ${#destination_file_names[@]}; i+=1));
 do
   for ((j=0; j < ${#source_data[@]}; j+=2));
   do
-    if [[ "${main_file_names[i]}" == "${source_data[j+1]}" ]]; then
+    if [[ "${destination_file_names[i]}" == "${source_data[j+1]}" ]]; then
       source_file_sizes[i]=${source_data[j]}
       break
     fi
@@ -48,15 +48,15 @@ done
 
 # calculate the size difference
 dif_sizes=()
-for (( i=0; i<${#main_file_sizes[@]}; i++ ))
+for (( i=0; i<${#destination_file_sizes[@]}; i++ ))
 do
-  dif_sizes+=( $(( source_file_sizes[i] - main_file_sizes[i] )) )
+  dif_sizes+=( $(( source_file_sizes[i] - destination_file_sizes[i] )) )
 done
 
 # finish report table
-for (( i=0; i<${#main_file_names[@]}; i++ ))
+for (( i=0; i<${#destination_file_names[@]}; i++ ))
 do
-  REPORT="$REPORT | ${main_file_names[i]} | ${main_file_sizes[i]} | ${source_file_sizes[i]} | ${dif_sizes[i]} |
+  REPORT="$REPORT | ${destination_file_names[i]} | ${destination_file_sizes[i]} | ${source_file_sizes[i]} | ${dif_sizes[i]} |
   "
 done
 
