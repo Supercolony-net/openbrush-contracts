@@ -20,9 +20,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #![feature(min_specialization)]
-#[cfg(feature = "psp35")]
+#[cfg(feature = "psp37")]
 #[openbrush::contract]
-mod psp35_metadata {
+mod psp37_metadata {
     use ink::codegen::{
         EmitEvent,
         Env,
@@ -30,7 +30,7 @@ mod psp35_metadata {
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::traits::Storage;
-    use openbrush_contracts::psp35::extensions::metadata::*;
+    use openbrush_contracts::psp37::extensions::metadata::*;
 
     #[ink(event)]
     pub struct AttributeSet {
@@ -41,18 +41,18 @@ mod psp35_metadata {
 
     #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct PSP35Struct {
+    pub struct PSP37Struct {
         #[storage_field]
-        psp35: psp35::Data,
+        psp37: psp37::Data,
         #[storage_field]
         metadata: metadata::Data,
     }
 
-    impl PSP35 for PSP35Struct {}
+    impl PSP37 for PSP37Struct {}
 
-    impl PSP35Metadata for PSP35Struct {}
+    impl PSP37Metadata for PSP37Struct {}
 
-    impl metadata::Internal for PSP35Struct {
+    impl metadata::Internal for PSP37Struct {
         fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {
             self.env().emit_event(AttributeSet {
                 id: _id.clone(),
@@ -62,21 +62,21 @@ mod psp35_metadata {
         }
     }
 
-    impl PSP35Struct {
+    impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]
-        pub fn set_attribute(&mut self, id: Id, key: Vec<u8>, data: Vec<u8>) -> Result<(), PSP35Error> {
+        pub fn set_attribute(&mut self, id: Id, key: Vec<u8>, data: Vec<u8>) -> Result<(), PSP37Error> {
             self._set_attribute(&id, &key, &data)
         }
     }
 
     #[ink::test]
     fn metadata_works() {
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
 
         assert!(nft.set_attribute(Id::U128(1), vec![0u8, 0u8], vec![1u8, 0u8]).is_ok());
 

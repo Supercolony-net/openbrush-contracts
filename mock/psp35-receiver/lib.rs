@@ -1,20 +1,20 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[openbrush::contract]
-pub mod psp35_receiver {
+pub mod psp37_receiver {
     use ink_prelude::{
         string::String,
         vec::Vec,
     };
-    use openbrush::contracts::traits::psp35::*;
+    use openbrush::contracts::traits::psp37::*;
 
     #[ink(storage)]
-    pub struct PSP35ReceiverStruct {
+    pub struct PSP37ReceiverStruct {
         call_counter: u64,
         revert_next_transfer: bool,
     }
 
-    impl PSP35ReceiverStruct {
+    impl PSP37ReceiverStruct {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
@@ -34,7 +34,7 @@ pub mod psp35_receiver {
         }
     }
 
-    impl PSP35Receiver for PSP35ReceiverStruct {
+    impl PSP37Receiver for PSP37ReceiverStruct {
         #[ink(message)]
         fn before_received(
             &mut self,
@@ -42,10 +42,10 @@ pub mod psp35_receiver {
             _from: AccountId,
             _ids_to_amounts: Vec<(Id, Balance)>,
             _data: Vec<u8>,
-        ) -> Result<(), PSP35ReceiverError> {
+        ) -> Result<(), PSP37ReceiverError> {
             if self.revert_next_transfer {
                 self.revert_next_transfer = false;
-                return Err(PSP35ReceiverError::TransferRejected(String::from(
+                return Err(PSP37ReceiverError::TransferRejected(String::from(
                     "I should reject next transfer",
                 )))
             }

@@ -20,9 +20,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #![feature(min_specialization)]
-#[cfg(feature = "psp35")]
+#[cfg(feature = "psp37")]
 #[openbrush::contract]
-mod psp35 {
+mod psp37 {
     use ink::codegen::{
         EmitEvent,
         Env,
@@ -36,7 +36,7 @@ mod psp35 {
         },
         traits::Storage,
     };
-    use openbrush_contracts::psp35::*;
+    use openbrush_contracts::psp37::*;
 
     #[ink(event)]
     pub struct Approval {
@@ -60,16 +60,16 @@ mod psp35 {
 
     #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct PSP35Struct {
+    pub struct PSP37Struct {
         #[storage_field]
-        psp35: psp35::Data,
+        psp37: psp37::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
         return_err_on_after: bool,
     }
 
-    impl Internal for PSP35Struct {
+    impl Internal for PSP37Struct {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _id: Id, _amount: Balance) {
             self.env().emit_event(Transfer {
                 from: _from,
@@ -96,20 +96,20 @@ mod psp35 {
             _to: &AccountId,
             _ids_amounts: &Vec<(Id, Balance)>,
             _data: &Vec<u8>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             Ok(())
         }
     }
 
-    impl psp35::Transfer for PSP35Struct {
+    impl psp37::Transfer for PSP37Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _ids: &Vec<(Id, Balance)>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             if self.return_err_on_before {
-                return Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
+                return Err(PSP37Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -119,24 +119,24 @@ mod psp35 {
             _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _ids: &Vec<(Id, Balance)>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             if self.return_err_on_after {
-                return Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
+                return Err(PSP37Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }
     }
 
-    impl PSP35 for PSP35Struct {}
+    impl PSP37 for PSP37Struct {}
 
-    impl PSP35Struct {
+    impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut PSP35Struct| {})
+            ink_lang::codegen::initialize_contract(|_instance: &mut PSP37Struct| {})
         }
 
         #[ink(message)]
-        pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP35Error> {
+        pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP37Error> {
             self._mint_to(acc, vec![(id, amount)])
         }
 
@@ -149,7 +149,7 @@ mod psp35 {
         }
     }
 
-    type Event = <PSP35Struct as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <PSP37Struct as ::ink_lang::reflect::ContractEventBase>::Type;
 
     #[ink::test]
     fn before_token_transfer_should_fail_transfer() {
@@ -159,7 +159,7 @@ mod psp35 {
         let token_2_amount = 20;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id_1.clone(), token_1_amount).is_ok());
         assert!(nft.mint(accounts.alice, token_id_2.clone(), token_2_amount).is_ok());
         // Can transfer tokens
@@ -171,7 +171,7 @@ mod psp35 {
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),
-            Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
+            Err(PSP37Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 
@@ -183,7 +183,7 @@ mod psp35 {
         let token_2_amount = 20;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id_1.clone(), token_1_amount).is_ok());
         assert!(nft.mint(accounts.alice, token_id_2.clone(), token_2_amount).is_ok());
         // Can transfer tokens
@@ -195,7 +195,7 @@ mod psp35 {
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),
-            Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
+            Err(PSP37Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }
 
@@ -208,7 +208,7 @@ mod psp35 {
 
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         // Token 1 does not exists.
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id1.clone())), 0);
         assert_eq!(nft.balance_of(accounts.alice, None), 0);
@@ -255,7 +255,7 @@ mod psp35 {
 
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert_eq!(nft.total_supply(None), 0);
         // mint some token 1
         assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
@@ -277,7 +277,7 @@ mod psp35 {
         let token_id = Id::U128(1);
 
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         // no approvall exists yet
         assert_eq!(nft.allowance(accounts.alice, accounts.bob, None), 0);
         // increase allowance
@@ -319,7 +319,7 @@ mod psp35 {
         let transfer_amount = 1;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id.clone(), transfer_amount).is_ok());
         let result = nft.transfer_from(accounts.alice, accounts.bob, token_id.clone(), transfer_amount, vec![]);
         println!("{:?}", result);
@@ -357,11 +357,11 @@ mod psp35 {
         let transfer_amount = 2;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id.clone(), mint_amount).is_ok());
         assert_eq!(
             nft.transfer_from(accounts.alice, accounts.bob, token_id.clone(), transfer_amount, vec![]),
-            Err(PSP35Error::InsufficientBalance),
+            Err(PSP37Error::InsufficientBalance),
         );
     }
 
@@ -371,10 +371,10 @@ mod psp35 {
         let mint_amount = 1;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.bob, token_id.clone(), mint_amount).is_ok());
         assert_eq!(
-            Err(PSP35Error::NotAllowed),
+            Err(PSP37Error::NotAllowed),
             nft.transfer_from(accounts.bob, accounts.alice, token_id.clone(), mint_amount, vec![])
         );
     }
@@ -385,7 +385,7 @@ mod psp35 {
         let mint_amount = 2;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id.clone(), mint_amount).is_ok());
         assert!(nft.approve(accounts.bob, Some(token_id.clone()), mint_amount).is_ok());
 
@@ -429,7 +429,7 @@ mod psp35 {
 
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
         assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
         assert!(nft.mint(accounts.alice, token_id3.clone(), token_amount3).is_ok());
@@ -552,11 +552,11 @@ mod psp35 {
         let transfer_amount = 1;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.bob, token_id.clone(), mint_amount).is_ok());
         assert_eq!(
             nft.transfer(accounts.alice, token_id.clone(), transfer_amount, vec![]),
-            Err(PSP35Error::InsufficientBalance),
+            Err(PSP37Error::InsufficientBalance),
         );
     }
 
@@ -567,11 +567,11 @@ mod psp35 {
         let transfer_amount = 2;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id.clone(), mint_amount).is_ok());
         assert_eq!(
             nft.transfer(accounts.bob, token_id.clone(), transfer_amount, vec![]),
-            Err(PSP35Error::InsufficientBalance),
+            Err(PSP37Error::InsufficientBalance),
         );
     }
 
@@ -583,7 +583,7 @@ mod psp35 {
         let token_2_amount = 20;
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id_1.clone(), token_1_amount).is_ok());
         assert!(nft.mint(accounts.alice, token_id_2.clone(), token_2_amount).is_ok());
         // Can transfer tokens
@@ -595,7 +595,7 @@ mod psp35 {
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),
-            Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
+            Err(PSP37Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 

@@ -8,7 +8,7 @@ pub mod ownable {
     use openbrush::{
         contracts::{
             ownable::*,
-            psp35::extensions::{
+            psp37::extensions::{
                 burnable::*,
                 mintable::*,
             },
@@ -21,7 +21,7 @@ pub mod ownable {
     #[derive(Default, SpreadAllocate, Storage)]
     pub struct Contract {
         #[storage_field]
-        psp35: psp35::Data,
+        psp37: psp37::Data,
         #[storage_field]
         ownable: ownable::Data,
     }
@@ -38,20 +38,20 @@ pub mod ownable {
 
     impl Ownable for Contract {}
 
-    impl PSP35 for Contract {}
+    impl PSP37 for Contract {}
 
-    impl PSP35Mintable for Contract {
+    impl PSP37Mintable for Contract {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
+        fn mint(&mut self, to: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP37Error> {
             self._mint_to(to, ids_amounts)
         }
     }
 
-    impl PSP35Burnable for Contract {
+    impl PSP37Burnable for Contract {
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn burn(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
+        fn burn(&mut self, from: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP37Error> {
             self._burn_from(from, ids_amounts)
         }
     }

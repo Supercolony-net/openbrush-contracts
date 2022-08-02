@@ -25,7 +25,7 @@ Why use this library?
 Which Standard tokens & useful contracts does it provide?
 - **PSP22** - Fungible Token (*ERC20 equivalent*) with extensions
 - **PSP34** - Non-Fungible Token (*ERC721 equivalent*) with extensions
-- **PSP35** - *ERC1155 equivalent* with extensions
+- **PSP37** - *ERC1155 equivalent* with extensions
 - **Ownable** Restrict access to action for non-owners
 - **Access Control** Define set of roles and restrict access to action by roles
 - **Reentrancy guard** Prevent reentrant calls to a function
@@ -169,7 +169,7 @@ More common roadmap of tasks:
 - [x] Publish `openbrush` into [crates.io](https://crates.io/crates/openbrush)
 - [x] Add documentation for upgradeable contracts.
 - [x] Add extension: `AccessControlEnumerable`.
-- [x] Add extension: `PSP35Enumerable`.
+- [x] Add extension: `PSP37Enumerable`.
 - [ ] Force/help ink! to create new independent events. During this task decide how ink! can generate metadata for
   events/traits from other crates.
 - [ ] Cover everything with UT and integration tests.

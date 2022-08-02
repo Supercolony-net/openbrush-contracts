@@ -231,20 +231,20 @@ you can find instructions on how to work with them:
   * [PSP34Mintable](PSP34/Extensions/mintable.md): creation of new tokens.
   * [PSP34Burnable](PSP34/Extensions/burnable.md): destruction of own tokens.
   * [PSP34Enumerable](PSP34/Extensions/enumerable.md): iterating over contract's tokens.
-* [PSP35](PSP35/psp35.md) is an example of how you can reuse the implementation of
-  [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35). You also can find examples of how to reuse extensions.
-  * [PSP35Metadata](PSP35/Extensions/metadata.md): metadata for PSP35.
-  * [PSP35Mintable](PSP35/Extensions/mintable.md): creation of new tokens.
-  * [PSP35Burnable](PSP35/Extensions/burnable.md): destruction of own tokens.
-  * [PSP35Batch](PSP35/Extensions/batch.md): batch transferring of tokens.
-  * [PSP35Enumerable](PSP35/Extensions/enumerable.md): iterating over contract's tokens.
+* [PSP37](PSP37/psp37.md) is an example of how you can reuse the implementation of
+  [psp37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37). You also can find examples of how to reuse extensions.
+  * [PSP37Metadata](PSP37/Extensions/metadata.md): metadata for PSP37.
+  * [PSP37Mintable](PSP37/Extensions/mintable.md): creation of new tokens.
+  * [PSP37Burnable](PSP37/Extensions/burnable.md): destruction of own tokens.
+  * [PSP37Batch](PSP37/Extensions/batch.md): batch transferring of tokens.
+  * [PSP37Enumerable](PSP37/Extensions/enumerable.md): iterating over contract's tokens.
 * [Access Control](access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/access/access_control) and
   [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) together to provide rights to mint and burn NFT tokens.
   * [AccessControlEnumerable](PSP34/Extensions/enumerable.md): iterating over contract's tokens.
 * [Ownable](ownable.md) shows how you can use the implementation of
   [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
-  [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) together to provide rights to mint and burn tokens.
+  [psp37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37) together to provide rights to mint and burn tokens.
 * [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/security/reentrancy_guard)
   modifier to prevent reentrancy during certain functions.
 * [Pausable](pausable.md) shows how you can use the implementation of

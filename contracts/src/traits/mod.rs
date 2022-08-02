@@ -29,7 +29,7 @@ pub mod payment_splitter;
 pub mod proxy;
 pub mod psp22;
 pub mod psp34;
-pub mod psp35;
+pub mod psp37;
 pub mod timelock_controller;
 
 mod types;

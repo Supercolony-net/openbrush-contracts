@@ -1,23 +1,23 @@
 ---
 sidebar_position: 1
-title: PSP35 Metadata
+title: PSP37 Metadata
 ---
 
-This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) token with [PSP35Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35/extensions/metadata.rs) extension.
+This example shows how you can reuse the implementation of [PSP37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37) token with [PSP37Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37/extensions/metadata.rs) extension.
 
-First, you should implement basic version of [PSP35](/smart-contracts/PSP35).
+First, you should implement basic version of [PSP37](/smart-contracts/PSP37).
 
 ## Step 1: Add imports and enable unstable feature
 
-Import **everything** from `openbrush::contracts::psp35::extensions::metadata`.
+Import **everything** from `openbrush::contracts::psp37::extensions::metadata`.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
 #[openbrush::contract]
-pub mod my_psp35 {
-    use openbrush::contracts::psp35::extensions::metadata::*;
+pub mod my_psp37 {
+    use openbrush::contracts::psp37::extensions::metadata::*;
 ...
 ```
 
@@ -26,8 +26,8 @@ pub mod my_psp35 {
 Declare storage struct and declare the field related to the metadata module. 
 Then you need to derive the `Storage` trait and mark the corresponding field with 
 the `#[storage_field]` attribute. 
-Deriving this trait allows you to reuse the `PSP35Metadata` extension in your 
-`PSP35` implementation.
+Deriving this trait allows you to reuse the `PSP37Metadata` extension in your 
+`PSP37` implementation.
 
 ```rust
 #[derive(Default, SpreadAllocate, Storage)]
@@ -41,15 +41,15 @@ pub struct Contract {
 
 ## Step 3: Inherit logic
 
-Inherit implementation of the `PSP35Metadata` trait. You can customize (override) methods in this `impl` block.
+Inherit implementation of the `PSP37Metadata` trait. You can customize (override) methods in this `impl` block.
 
 ```rust
-impl PSP35Metadata for Contract {}
+impl PSP37Metadata for Contract {}
 ```
 
 ## Step 4: Define constructor
 
-Define constructor. Your `PSP35Metadata` contract is ready!
+Define constructor. Your `PSP37Metadata` contract is ready!
 
 ```rust
 impl Contract {
@@ -69,11 +69,11 @@ impl Contract {
 #![feature(min_specialization)]
 
 #[openbrush::contract]
-pub mod my_psp35 {
+pub mod my_psp37 {
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
-        contracts::psp35::extensions::metadata::*,
+        contracts::psp37::extensions::metadata::*,
         traits::Storage,
     };
 
@@ -81,14 +81,14 @@ pub mod my_psp35 {
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]
-        psp35: psp35::Data,
+        psp37: psp37::Data,
         #[storage_field]
         metadata: metadata::Data,
     }
 
-    impl PSP35 for Contract {}
+    impl PSP37 for Contract {}
 
-    impl PSP35Metadata for Contract {}
+    impl PSP37Metadata for Contract {}
 
     impl Contract {
         /// contract constructor
@@ -98,13 +98,13 @@ pub mod my_psp35 {
         }
 
         #[ink(message)]
-        pub fn set_attribute(&mut self, id: Id, key: Vec<u8>, data: Vec<u8>) -> Result<(), PSP35Error> {
+        pub fn set_attribute(&mut self, id: Id, key: Vec<u8>, data: Vec<u8>) -> Result<(), PSP37Error> {
             self._set_attribute(&id, &key, &data)
         }
     }
 }
 ```
 
-You can check an example of the usage of [PSP35 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp35_extensions/metadata).
+You can check an example of the usage of [PSP37 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp37_extensions/metadata).
 
-You can also check the documentation for the basic implementation of [PSP35](/smart-contracts/PSP35).
+You can also check the documentation for the basic implementation of [PSP37](/smart-contracts/PSP37).

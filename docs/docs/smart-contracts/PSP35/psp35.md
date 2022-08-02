@@ -1,19 +1,19 @@
 ---
 sidebar_position: 1
-title: PSP35
+title: PSP37
 ---
 
-This example shows how you can reuse the implementation of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) 
+This example shows how you can reuse the implementation of [PSP37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37) 
 token. Also, this example shows how you can customize the logic, for example, to 
 track the number of token types with `unique_ids`, adding a new token type with the `add_type` function.
 
 ## Step 1: Import default implementation
 
 With [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush),
-you need to import the `psp35` module, enable the corresponding feature, and embed the module data structure
+you need to import the `psp37` module, enable the corresponding feature, and embed the module data structure
 as described in [that section](/smart-contracts/overview#reuse-implementation-of-traits-from-openbrush).
 
-The main trait is `PSP35`.
+The main trait is `PSP37`.
 
 ## Step 2: Define constructor
 
@@ -40,14 +40,14 @@ If someone tries to mint token with denied id, we will reject transaction.
 #![feature(min_specialization)]
 
 #[openbrush::contract]
-pub mod my_psp35 {
+pub mod my_psp37 {
     use ink_prelude::{
         string::String,
         vec,
     };
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
-        contracts::psp35::*,
+        contracts::psp37::*,
         storage::Mapping,
         traits::Storage,
     };
@@ -56,11 +56,11 @@ pub mod my_psp35 {
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]
-        psp35: psp35::Data,
+        psp37: psp37::Data,
         denied_ids: Mapping<Id, ()>,
     }
 
-    impl PSP35 for Contract {}
+    impl PSP37 for Contract {}
 
     impl Contract {
         #[ink(constructor)]
@@ -74,25 +74,25 @@ pub mod my_psp35 {
         }
 
         #[ink(message)]
-        pub fn mint_tokens(&mut self, id: Id, amount: Balance) -> Result<(), PSP35Error> {
+        pub fn mint_tokens(&mut self, id: Id, amount: Balance) -> Result<(), PSP37Error> {
             if self.denied_ids.get(&id).is_some() {
-                return Err(PSP35Error::Custom(String::from("Id is denied")))
+                return Err(PSP37Error::Custom(String::from("Id is denied")))
             }
             self._mint_to(Self::env().caller(), vec![(id, amount)])
         }
     }
 }
 ```
-You can check an example of the usage of [PSP35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp35).
+You can check an example of the usage of [PSP37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp37).
 
-Also you can use extensions for PSP35 token:
+Also you can use extensions for PSP37 token:
 
-[PSP35Metadata](/smart-contracts/PSP35/extensions/metadata): metadata for PSP35.
+[PSP37Metadata](/smart-contracts/PSP37/extensions/metadata): metadata for PSP37.
 
-[PSP35Mintable](/smart-contracts/PSP35/extensions/mintable): creation of new tokens.
+[PSP37Mintable](/smart-contracts/PSP37/extensions/mintable): creation of new tokens.
 
-[PSP35Burnable](/smart-contracts/PSP35/extensions/burnable): destruction of contract's tokens.
+[PSP37Burnable](/smart-contracts/PSP37/extensions/burnable): destruction of contract's tokens.
 
-[PSP35Batch](/smart-contracts/PSP35/extensions/batch): transfer batch of tokens.
+[PSP37Batch](/smart-contracts/PSP37/extensions/batch): transfer batch of tokens.
 
-[PSP35Enumerable](/smart-contracts/PSP35/extensions/enumerable): iterates over contract's tokens.
+[PSP37Enumerable](/smart-contracts/PSP37/extensions/enumerable): iterates over contract's tokens.

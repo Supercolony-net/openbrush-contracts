@@ -23,5 +23,5 @@
 pub mod psp22;
 #[cfg(feature = "psp34")]
 pub mod psp34;
-#[cfg(feature = "psp35")]
-pub mod psp35;
+#[cfg(feature = "psp37")]
+pub mod psp37;
