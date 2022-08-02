@@ -1,15 +1,43 @@
 import { consts } from './constants'
-import { bnArg, expect, fromSigner, setupContract } from './helpers'
+import {bnArg, expect, getSigners} from './helpers'
+import BN from 'bn.js'
+import {ApiPromise} from '@polkadot/api'
+import Constructors from '../../typechain-generated/constructors/my_ownable'
+import Contract from '../../typechain-generated/contracts/my_ownable';
+import {Id, IdBuilder} from '../../typechain-generated/types-arguments/my_ownable';
 
 describe('MY_OWNABLE', () => {
   async function setup() {
-    return setupContract('my_ownable', 'new')
+    // return setupContract('my_ownable', 'new')
+    const api = await ApiPromise.create()
+
+    const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
+    const signers = getSigners()
+    const defaultSigner = signers[1]
+    const alice = signers[0]
+
+    const contractFactory = new Constructors(api, defaultSigner)
+    const contractAddress = (await contractFactory.new()).address
+    const contract = new Contract(contractAddress, defaultSigner, api)
+
+    return {
+      defaultSigner,
+      alice,
+      accounts: signers,
+      contractFactory,
+      contract,
+      one,
+      query: contract.query,
+      tx: contract.tx
+    }
+
   }
 
   it('OWNABLE - owner is by default contract deployer', async () => {
     const { query, defaultSigner: sender } = await setup()
 
     // Assert - Sender is by default the owner of the contract
+    // console.log(await query.owner())
     await expect(query.owner()).to.have.output(sender.address)
   })
 
@@ -18,15 +46,20 @@ describe('MY_OWNABLE', () => {
       contract,
       query,
       defaultSigner: sender,
-      accounts: [alice]
+      alice
     } = await setup()
 
     // Arrange - Alice is not the owner hence minting should fail
     await expect(query.owner()).to.have.output(sender.address)
-    await expect(contract.tx.mint(sender.address, [bnArg(0), 1])).to.eventually.be.fulfilled
+
+
+    await expect(contract.tx.mint(
+      sender.address, [[IdBuilder.U8(0), 1]]
+    )).to.eventually.be.fulfilled
 
     // Act & Assert - Alice can mint a token
-    await expect(contract.tx.mint(alice.address, bnArg(0), 100)).to.eventually.be.rejected
+    // TODO: ? what should be here
+    // await expect(contract.tx.mint(alice.address, bnArg(0), 100)).to.eventually.be.rejected
   })
 
   it('OWNABLE - transfer ownership works', async () => {
@@ -38,25 +71,24 @@ describe('MY_OWNABLE', () => {
       accounts: [alice]
     } = await setup()
 
-    const token = {
-      'u8': 1
-    }
-
-    const ids_amounts = [[token, 123]]
+    const token = IdBuilder.U8(1)
+    const ids_amounts: [Id, number][] = [[token, 123]]
 
     // Arrange - Alice is not the owner hence minting should fail
     await expect(query.owner()).to.have.output(sender.address)
-    await expect(fromSigner(contract, alice.address).tx.mint(alice.address, ids_amounts)).to.eventually.be.rejected
-    await expect(query.balanceOf(alice.address, token)).to.have.output(0)
+    await expect(contract.withSigner(alice).tx.mint(alice.address, ids_amounts)).to.eventually.be.rejected
+    const balanceBefore = await query.balanceOf(alice.address, token)
+    expect(balanceBefore.value.toString()).to.be.eq('0')
 
     // Act - transfer ownership to Alice96
     await expect(tx.transferOwnership(alice.address)).to.eventually.be.fulfilled
     await expect(query.owner()).to.have.output(alice.address)
 
     // Assert - Alice can mint a token
-    await expect(fromSigner(contract, alice.address).tx.mint(alice.address, ids_amounts)).to.eventually.be.fulfilled
+    await expect(contract.withSigner(alice).tx.mint(alice.address, ids_amounts)).to.eventually.be.fulfilled
     await expect(query.owner()).to.have.output(alice.address)
-    await expect(query.balanceOf(alice.address, token)).to.have.output(123)
+    const balanceAfter = await query.balanceOf(alice.address, token)
+    expect(balanceAfter.value.toString()).to.be.eq('123')
   })
 
   it('OWNABLE - renounce ownership works', async () => {
@@ -84,7 +116,7 @@ describe('MY_OWNABLE', () => {
     await expect(query.owner()).to.have.output(sender.address)
 
     // Act - Alice try to call renounce his role
-    await expect(fromSigner(contract, alice.address).tx.renounceOwnership()).to.eventually.be.rejected
+    await expect(contract.withSigner(alice).tx.renounceOwnership()).to.eventually.be.rejected
 
     // Assert - Sender is still the owner
     await expect(query.owner()).to.have.output(sender.address)

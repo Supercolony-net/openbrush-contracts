@@ -1,12 +1,45 @@
-import { expect, setupContract } from './helpers'
+import {expect, getSigners} from './helpers'
+import {ApiPromise} from '@polkadot/api'
+import ConstructorsFlipperGuard from '../../typechain-generated/constructors/my_flipper_guard'
+import ContractFlipperGuard from '../../typechain-generated/contracts/my_flipper_guard'
+import ConstructorsFlipOnMe from '../../typechain-generated/constructors/flip_on_me'
+import ContractFlipOnMe from '../../typechain-generated/contracts/flip_on_me'
 
 describe('REENTRANCY_GUARD', () => {
   async function setup() {
-    return setupContract('my_flipper_guard', 'new')
+    const api = await ApiPromise.create()
+    
+    const signers = getSigners()
+    
+    const contractFactory = new ConstructorsFlipperGuard(api, signers[0])
+    const contractAddress = (await contractFactory.new()).address
+    
+    const contract = new ContractFlipperGuard(contractAddress, signers[0], api)
+    
+    return {
+      contract,
+      query: contract.query,
+      tx: contract.tx,
+      defaultSigner: signers[0]
+    }
   }
 
   async function setup_flip_on_me() {
-    return setupContract('flip_on_me', 'new')
+    const api = await ApiPromise.create()
+    
+    const signers = getSigners()
+    
+    const contractFactory = new ConstructorsFlipOnMe(api, signers[0])
+    const contractAddress = (await contractFactory.new()).address
+    
+    const contract = new ContractFlipOnMe(contractAddress, signers[0], api)
+    
+    return {
+      contract,
+      query: contract.query,
+      tx: contract.tx,
+      defaultSigner: signers[0]
+    }
   }
 
   it('One flip works correct', async () => {

@@ -1,5 +1,8 @@
-import { bnArg, expect, fromSigner, setupContract } from './helpers'
+import { expect, getSigners } from './helpers'
 import { network, patract } from 'redspot'
+import Constructors from '../../typechain-generated/constructors/my_payment_splitter';
+import Contract from '../../typechain-generated/contracts/my_payment_splitter';
+import {ApiPromise} from '@polkadot/api';
 const { api } = network
 
 const { getRandomSigner } = patract
@@ -8,9 +11,12 @@ const IAN_SHARE = 60
 
 describe('MY_PAYMENT_SPLITTER', () => {
   async function setup() {
-    const ian = await getRandomSigner()
-    const kayne = await getRandomSigner()
-    const contract = await setupContract('my_payment_splitter', 'new', [[kayne.address, KAYNE_SHARE], [ian.address, IAN_SHARE]])
+    const api = await ApiPromise.create()
+    const ian = getSigners()[0]
+    const kayne = getSigners()[1]
+    const contractFactory = new Constructors(api, ian)
+    const { address: contractAddress } = await contractFactory.new([[kayne.address, KAYNE_SHARE], [ian.address, IAN_SHARE]])
+    const contract = new Contract(contractAddress, ian, api)
 
     return { contract, kayne, ian }
   }
@@ -32,18 +38,15 @@ describe('MY_PAYMENT_SPLITTER', () => {
     const { contract, kayne, ian } = await setup()
 
     // Act - Send native token and release them
-    await expect(contract.contract.query.totalReleased()).to.have.output(0)
-    await expect(contract.contract.tx.receive({ value: 1000000000000 })).to.eventually.be.fulfilled
-    await expect(contract.contract.tx.release(kayne.address)).to.eventually.be.fulfilled
-    await expect(contract.contract.tx.release(ian.address)).to.eventually.be.fulfilled
+    await expect(contract.query.totalReleased()).to.have.output(0)
+    await expect(contract.tx.receive({ value: 1000000000000 })).to.eventually.be.fulfilled
+    await expect(contract.tx.release(kayne.address)).to.eventually.be.fulfilled
+    await expect(contract.tx.release(ian.address)).to.eventually.be.fulfilled
 
     // Assert - Ian must hold more tokens than kayne
-    // @ts-ignore
-    const totalReleased = Number.parseInt((await contract.contract.query.totalReleased()).output)
-    // @ts-ignore
-    const kayneReleased = Number.parseInt((await contract.contract.query.released(kayne.address)).output)
-    // @ts-ignore
-    const ianReleased = Number.parseInt((await contract.contract.query.released(ian.address)).output)
+    const totalReleased = ((await contract.query.totalReleased()).value.toNumber())
+    const kayneReleased = ((await contract.query.released(kayne.address)).value).toNumber()
+    const ianReleased = ((await contract.query.released(ian.address)).value).toNumber()
     expect(ianReleased > kayneReleased).to.true
     expect(kayneReleased).to.equal(totalReleased * KAYNE_SHARE / (KAYNE_SHARE + IAN_SHARE))
     expect(ianReleased).to.equal(totalReleased * IAN_SHARE / (KAYNE_SHARE + IAN_SHARE))
@@ -55,17 +58,14 @@ describe('MY_PAYMENT_SPLITTER', () => {
     const { contract, kayne, ian } = await setup()
 
     // Act - Send native token and release them
-    await expect(contract.contract.query.totalReleased()).to.have.output(0)
-    await expect(contract.contract.tx.receive({ value: 1000000000000 })).to.eventually.be.fulfilled
-    await expect(contract.contract.tx.releaseAll()).to.eventually.be.fulfilled
+    await expect(contract.query.totalReleased()).to.have.output(0)
+    await expect(contract.tx.receive({ value: 1000000000000 })).to.eventually.be.fulfilled
+    await expect(contract.tx.releaseAll()).to.eventually.be.fulfilled
 
     // Assert - Ian must hold more tokens than kayne
-    // @ts-ignore
-    const totalReleased = Number.parseInt((await contract.contract.query.totalReleased()).output)
-    // @ts-ignore
-    const kayneReleased = Number.parseInt((await contract.contract.query.released(kayne.address)).output)
-    // @ts-ignore
-    const ianReleased = Number.parseInt((await contract.contract.query.released(ian.address)).output)
+    const totalReleased = ((await contract.query.totalReleased()).value).toNumber()
+    const kayneReleased = ((await contract.query.released(kayne.address)).value).toNumber()
+    const ianReleased = ((await contract.query.released(ian.address)).value).toNumber()
     expect(ianReleased > kayneReleased).to.true
     expect(kayneReleased).to.equal(totalReleased * KAYNE_SHARE / (KAYNE_SHARE + IAN_SHARE))
     expect(ianReleased).to.equal(totalReleased * IAN_SHARE / (KAYNE_SHARE + IAN_SHARE))

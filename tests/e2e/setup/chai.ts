@@ -13,7 +13,7 @@ declare global {
 chai.use(chaiAsPromised)
 chai.use((chai) => {
   chai.Assertion.addMethod('output', async function (param, message) {
-    await new chai.Assertion(this._obj).to.eventually.have.property('output').to.equal(param, message)
+    await new chai.Assertion(this._obj).to.eventually.have.property('value').to.equal(param, message)
   })
 })
 export const { expect } = chai

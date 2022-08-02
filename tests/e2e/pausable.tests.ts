@@ -1,8 +1,23 @@
-import { expect, setupContract } from './helpers'
+import {expect, getSigners} from './helpers'
+import Constructors from '../../typechain-generated/constructors/my_pausable'
+import {ApiPromise} from '@polkadot/api'
+import Contract from '../../typechain-generated/contracts/my_pausable'
 
 describe('MY_PAUSABLE', () => {
   async function setup() {
-    return setupContract('my_pausable', 'new')
+    const api = await ApiPromise.create()
+
+    const signers = getSigners()
+
+    const contractFactories = new Constructors(api, signers[0])
+
+    const contractAddress = (await contractFactories.new()).address
+
+    const contract = new Contract(contractAddress, signers[0], api)
+
+    return {
+      contract
+    }
   }
 
   it('Success flip when not paused', async () => {

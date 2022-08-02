@@ -1,9 +1,8 @@
-import { bnArg, expect, fromSigner, setupContract } from './helpers'
-import { network, patract } from 'redspot'
+import {bnArg, expect, getSigners} from './helpers'
 import BN from 'bn.js'
-
-const { getRandomSigner } = patract
-const { api, getSigners } = network
+import Constructors from "../../typechain-generated/constructors/my_timelock_controller";
+import Contract from "../../typechain-generated/contracts/my_timelock_controller";
+import {ApiPromise} from "@polkadot/api";
 
 function getMessageAbi(contract, ident) {
   return contract.contract.abi.messages.find((message) => message.identifier === ident)!
@@ -11,10 +10,18 @@ function getMessageAbi(contract, ident) {
 
 describe('MY_TIMELOCK_CONTROLLER', () => {
   async function setup() {
-    const one = new BN(10).pow(new BN(api.registry.chainDecimals[0]))
-    const signers = await getSigners()
-    const bob = await getRandomSigner(signers[1], one.muln(10000))
-    const contract = await setupContract('my_timelock_controller', 'new', 0, [bob.address], [bob.address])
+    const api = await ApiPromise.create()
+
+    const signers = getSigners()
+    const bob = signers[1]
+    const defaultSigner = signers[0]
+
+    const contractFactory = new Constructors(api, defaultSigner)
+    const { address: contractAddress } = await contractFactory.new(0, [bob.address], [bob.address]);
+
+    const contract = new Contract(contractAddress, defaultSigner, api)
+
+    // const contract = await setupContract('my_timelock_controller', 'new', 0, [bob.address], [bob.address])
 
     return { contract, bob }
   }
@@ -24,7 +31,7 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
 
     // Arrange - Prepare data for schedule
     const transaction = {
-      callee: contract.contract.address,
+      callee: contract.address,
       selector: [0, 0, 0, 0],
       input: [],
       transferred_value: 0,
@@ -33,9 +40,9 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
     const salt = bnArg(0)
 
     // Act - Bob scheduled the transaction
-    const id = (await contract.query.hashOperation(transaction, undefined, salt)).output!
+    const id = (await contract.query.hashOperation(transaction, null, salt)).value!
     await expect(contract.query.isOperationPending(id)).to.have.output(false)
-    await expect(fromSigner(contract.contract, bob.address).tx.schedule(transaction, undefined, salt, 0)).to.eventually.be.fulfilled
+    await expect(contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
 
     // Assert - Operation must be scheduled, it should be in Pending state and in Ready state(because min delay is zero)
     await expect(contract.query.isOperationPending(id)).to.have.output(true)

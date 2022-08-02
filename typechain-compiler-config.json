@@ -1,0 +1,3 @@
+{
+  "projectFiles": ["example_project_structure/contracts/**", "examples/**/", "mock/**", "!examples/reentrancy_guard/Cargo.toml"]
+}
