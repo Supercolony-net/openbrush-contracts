@@ -144,7 +144,7 @@ jobs:
 
       - name: Test step
         run: |
-          echo $(ls /usr/local/cache/target *)
+          echo $(find /usr/local/cache/target -type f)
 
       - name: Redspot Сompile examples for destination branch
         run: |
