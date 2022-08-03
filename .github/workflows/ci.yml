@@ -79,6 +79,11 @@ jobs:
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
+
+      - name: Test step
+        run: |
+          echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
   caching-artifacts:
     concurrency:
       group: caching-artifacts-${{ github.ref }}
@@ -97,6 +102,11 @@ jobs:
         with:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+
+      - name: Test step
+        run: |
+          echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
   contract-size:
     concurrency:
       group: contract-size-${{ github.ref }}
@@ -106,6 +116,8 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
+      env:
+        CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - name: Cache contract artifacts
         id: cache-contract-artifacts
