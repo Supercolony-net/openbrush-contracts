@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
 title: Access Control
 ---
 
@@ -38,7 +38,7 @@ impl Contract {
 
 ## Step 3: Customize your contract
 
-Customize it by adding access control logic. We will add a `restricted_function` to `Contract` implemenation, 
+Customize it by adding access control logic. We will add a `restricted_function` to `Contract` implementation, 
 which will use the `only_role` modifier with `CALLER` parameter, which verifies that the caller has the `CALLER` role. 
 
 ```rust
