@@ -144,13 +144,19 @@ jobs:
 
       - name: Test step
         run: |
-          echo $(find /usr/local/cache/target -type f)
+          echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
 
       - name: Redspot Сompile examples for destination branch
         run: |
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
+
+      - name: Test step2
+        run: |
+          echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
 
       - name: Find contract data destination branch
         id: find-data-pr
