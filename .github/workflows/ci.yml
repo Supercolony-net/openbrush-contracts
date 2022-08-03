@@ -106,8 +106,6 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      env:
-        CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - name: Cache contract artifacts
         id: cache-contract-artifacts
