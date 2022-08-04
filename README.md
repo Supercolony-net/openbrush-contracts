@@ -1,4 +1,6 @@
-# ![logo-2](https://user-images.githubusercontent.com/24861482/177825604-bf797de0-d14f-44c5-bbdb-e57fa48d39d0.png)
+![OB](https://user-images.githubusercontent.com/24861482/182845142-5e7ed48f-01e5-453f-a34b-56d59e86529a.png)
+
+
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
@@ -133,6 +135,8 @@ OpenBrush participates in the Web3 Grants, you can find the roadmap there:
 - [Grant I](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush.md#current-work---scope-of-this-grant)
 - [Grant II](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up.md#current-work---scope-of-this-grant)
 - [Grant III](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up-2.md#current-work---scope-of-this-grant)
+
+![substarate_web3](https://user-images.githubusercontent.com/24861482/182845370-9e643def-de33-4165-ac30-0f8b5bc70738.png)
 
 More common roadmap of tasks:
 - [x] Implement fungible, non-fungible, and multi tokens.
