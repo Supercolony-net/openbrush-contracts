@@ -1,6 +1,6 @@
 [package]
 name = "my_psp22_upgradeable"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["Supercolony <horacio.lex@supercolony.net>"]
 edition = "2021"
 

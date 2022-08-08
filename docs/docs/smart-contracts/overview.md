@@ -30,7 +30,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-openbrush = { version = "~2.1.0", default-features = false }
+openbrush = { version = "~2.2.0", default-features = false }
 
 [features]
 default = ["std"]
@@ -89,17 +89,17 @@ The name of the feature is the same as the name of the module. For example:
 
 To enable `psp22`:
 ```toml
-openbrush = { version = "~2.1.0", default-features = false, features = ["psp22"] }
+openbrush = { version = "~2.2.0", default-features = false, features = ["psp22"] }
 ```
 
 To enable `ownable`:
 ```toml
-openbrush = { version = "~2.1.0", default-features = false, features = ["ownable"] }
+openbrush = { version = "~2.2.0", default-features = false, features = ["ownable"] }
 ```
 
 To enable both:
 ```toml
-openbrush = { version = "~2.1.0", default-features = false, features = ["psp22", "ownable"] }
+openbrush = { version = "~2.2.0", default-features = false, features = ["psp22", "ownable"] }
 ```
 
 After enabling the feature and importing the corresponding module, you need to embed the module 
@@ -238,10 +238,10 @@ you can find instructions on how to work with them:
   * [PSP35Burnable](PSP35/Extensions/burnable.md): destruction of own tokens.
   * [PSP35Batch](PSP35/Extensions/batch.md): batch transferring of tokens.
   * [PSP35Enumerable](PSP35/Extensions/enumerable.md): iterating over contract's tokens.
-* [Access Control](access-control.md) shows how you can use the implementation of
+* [Access Control](docs/smart-contracts/access-control/access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/access/access_control) and
   [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) together to provide rights to mint and burn NFT tokens.
-  * [AccessControlEnumerable](PSP34/Extensions/enumerable.md): iterating over contract's tokens.
+  * [AccessControlEnumerable](docs/smart-contracts/access-control/Extensions/enumerable.md): iterating over contract's roles.
 * [Ownable](ownable.md) shows how you can use the implementation of
   [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
   [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) together to provide rights to mint and burn tokens.
@@ -256,10 +256,10 @@ you can find instructions on how to work with them:
 * [PaymentSplitter](payment-splitter.md) shows how you can use the implementation of
   [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/finance/payment_splitter)
   to split received native tokens between participants of the contract.
-* [Diamond](diamond.md) shows how you can use the implementation of
+* [Diamond](docs/smart-contracts/diamond/diamond.md) shows how you can use the implementation of
   [diamond](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond)
   pattern to split your contract into small parts and support upgradeability.
-  * [DiamondLoupe](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond/extensions): iterating over contract's facets.
+  * [DiamondLoupe](docs/smart-contracts/diamond/Extensions/loupe.md): iterating over contract's facets.
 * [Proxy](proxy.md) shows how you can use the implementation of
   [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/proxy)
   pattern to support upgradeability of your contract.
