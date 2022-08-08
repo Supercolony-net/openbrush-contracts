@@ -49,7 +49,7 @@ std = [
 ]
 psp22 = []
 psp34 = []
-psp35 = []
+psp37 = []
 access_control = []
 ownable = []
 payment_splitter = []

@@ -20,39 +20,39 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #![feature(min_specialization)]
-#[cfg(feature = "psp35")]
+#[cfg(feature = "psp37")]
 #[openbrush::contract]
-mod psp35_burnable {
+mod psp37_burnable {
     use ink_lang as ink;
     use openbrush::{
         test_utils::accounts,
         traits::Storage,
     };
-    use openbrush_contracts::psp35::extensions::burnable::*;
+    use openbrush_contracts::psp37::extensions::burnable::*;
 
     #[derive(Default, Storage)]
     #[ink(storage)]
-    pub struct PSP35Struct {
+    pub struct PSP37Struct {
         #[storage_field]
-        psp35: psp35::Data,
+        psp37: psp37::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
         return_err_on_after: bool,
     }
 
-    impl PSP35Burnable for PSP35Struct {}
-    impl PSP35 for PSP35Struct {}
+    impl PSP37Burnable for PSP37Struct {}
+    impl PSP37 for PSP37Struct {}
 
-    impl psp35::Transfer for PSP35Struct {
+    impl psp37::Transfer for PSP37Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _ids: &Vec<(Id, Balance)>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             if self.return_err_on_before {
-                return Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
+                return Err(PSP37Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -62,22 +62,22 @@ mod psp35_burnable {
             _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _ids: &Vec<(Id, Balance)>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             if self.return_err_on_after {
-                return Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
+                return Err(PSP37Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }
     }
 
-    impl PSP35Struct {
+    impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self::default()
         }
 
         #[ink(message)]
-        pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP35Error> {
+        pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP37Error> {
             self._mint_to(acc, vec![(id, amount)])
         }
 
@@ -98,7 +98,7 @@ mod psp35_burnable {
         let token_amount2 = 10;
         let accounts = accounts();
 
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
         assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
 
@@ -141,11 +141,11 @@ mod psp35_burnable {
         let burn_amount = 2;
         let accounts = accounts();
 
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
 
         assert_eq!(
             nft.burn(accounts.alice, vec![(token_id_1, burn_amount)]),
-            Err(PSP35Error::InsufficientBalance),
+            Err(PSP37Error::InsufficientBalance),
         );
     }
 
@@ -154,7 +154,7 @@ mod psp35_burnable {
         let accounts = accounts();
         let token_id = Id::U128(123);
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id.clone(), 2).is_ok());
         // Alice can burn tokens
         assert!(nft.burn(accounts.alice, vec![(token_id.clone(), 1)]).is_ok());
@@ -163,7 +163,7 @@ mod psp35_burnable {
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, vec![(token_id.clone(), 1)]),
-            Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
+            Err(PSP37Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 
@@ -172,7 +172,7 @@ mod psp35_burnable {
         let accounts = accounts();
         let token_id = Id::U128(123);
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id.clone(), 2).is_ok());
         // Alice can burn tokens
         assert!(nft.burn(accounts.alice, vec![(token_id.clone(), 1)]).is_ok());
@@ -181,7 +181,7 @@ mod psp35_burnable {
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             nft.burn(accounts.alice, vec![(token_id.clone(), 1)]),
-            Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
+            Err(PSP37Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }
 }

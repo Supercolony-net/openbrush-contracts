@@ -48,8 +48,8 @@ pub use security::reentrancy_guard;
 pub use token::psp22;
 #[cfg(feature = "psp34")]
 pub use token::psp34;
-#[cfg(feature = "psp35")]
-pub use token::psp35;
+#[cfg(feature = "psp37")]
+pub use token::psp37;
 #[cfg(feature = "diamond")]
 pub use upgradeability::diamond;
 #[cfg(feature = "proxy")]

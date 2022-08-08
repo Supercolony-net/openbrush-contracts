@@ -20,9 +20,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #![feature(min_specialization)]
-#[cfg(feature = "psp35")]
+#[cfg(feature = "psp37")]
 #[openbrush::contract]
-mod psp35_batch {
+mod psp37_batch {
     use ink::codegen::{
         EmitEvent,
         Env,
@@ -37,7 +37,7 @@ mod psp35_batch {
         },
         traits::Storage,
     };
-    use openbrush_contracts::psp35::extensions::batch::*;
+    use openbrush_contracts::psp37::extensions::batch::*;
 
     #[ink(event)]
     pub struct Transfer {
@@ -70,12 +70,12 @@ mod psp35_batch {
 
     #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct PSP35Struct {
+    pub struct PSP37Struct {
         #[storage_field]
-        psp35: psp35::Data,
+        psp37: psp37::Data,
     }
 
-    impl psp35::Internal for PSP35Struct {
+    impl psp37::Internal for PSP37Struct {
         fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, _value: Balance) {
             self.env().emit_event(Approval {
                 owner: _owner,
@@ -106,28 +106,28 @@ mod psp35_batch {
             _to: &AccountId,
             _ids_amounts: &Vec<(Id, Balance)>,
             _data: &Vec<u8>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             Ok(())
         }
     }
 
-    impl PSP35 for PSP35Struct {}
+    impl PSP37 for PSP37Struct {}
 
-    impl PSP35Batch for PSP35Struct {}
+    impl PSP37Batch for PSP37Struct {}
 
-    impl PSP35Struct {
+    impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut PSP35Struct| {})
+            ink_lang::codegen::initialize_contract(|_instance: &mut PSP37Struct| {})
         }
 
         #[ink(message)]
-        pub fn mint(&mut self, acc: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP35Error> {
+        pub fn mint(&mut self, acc: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP37Error> {
             self._mint_to(acc, ids_amounts)
         }
     }
 
-    type Event = <PSP35Struct as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <PSP37Struct as ::ink_lang::reflect::ContractEventBase>::Type;
 
     #[ink::test]
     fn batch_transfer() {
@@ -138,7 +138,7 @@ mod psp35_batch {
         let ids_amounts = vec![(token_id1.clone(), id_1_amount), (token_id2.clone(), id_2_amount)];
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, ids_amounts.clone()).is_ok());
 
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
@@ -178,7 +178,7 @@ mod psp35_batch {
         let amounts = vec![token_1_amount, token_2_amount];
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, ids_amounts.clone()).is_ok());
 
         assert_eq!(nft.balance_of(accounts.bob, Some(token_id_1.clone())), 0);
@@ -213,7 +213,7 @@ mod psp35_batch {
         let ids_amounts = vec![(token_id_1, token_1_amount), (token_id_2, token_2_amount)];
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, ids_amounts.clone()).is_ok());
         assert_eq!(
             nft.batch_transfer_from(
@@ -225,7 +225,7 @@ mod psp35_batch {
                     .collect(),
                 vec![]
             ),
-            Err(PSP35Error::InsufficientBalance),
+            Err(PSP37Error::InsufficientBalance),
         );
     }
 
@@ -238,12 +238,12 @@ mod psp35_batch {
         let ids_amounts = vec![(token_id_1, token_1_amount), (token_id_2, token_2_amount)];
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.bob, ids_amounts.clone()).is_ok());
 
         assert_eq!(
             nft.batch_transfer_from(accounts.bob, accounts.alice, ids_amounts, vec![]),
-            Err(PSP35Error::NotAllowed)
+            Err(PSP37Error::NotAllowed)
         );
     }
 
@@ -260,7 +260,7 @@ mod psp35_batch {
         let amounts = vec![token_1_amount, token_2_amount];
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, ids_amounts.clone()).is_ok());
         assert!(nft.approve(accounts.bob, None, Balance::MAX).is_ok());
 
