@@ -84,29 +84,29 @@ jobs:
         run: |
           echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
-#  caching-artifacts:
-#    concurrency:
-#      group: caching-artifacts-${{ github.ref }}
-#      cancel-in-progress: true
-#    runs-on: ubuntu-latest
-#    needs: examples-builds
-#    container:
-#      image: ghcr.io/supercolony-net/openbrush-contracts-ci
-#      options: --user root
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - name: Copy rust artifacts
-#        id: cache-rust-artifacts
-#        uses: actions/cache@v3
-#        with:
-#          path: /usr/local/cache/target
-#          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
-#
-#      - name: Test step
-#        run: |
-#          echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
-#          echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+  caching-artifacts:
+    concurrency:
+      group: caching-artifacts-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    needs: examples-builds
+    container:
+      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      options: --user root
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Copy rust artifacts
+        id: cache-rust-artifacts
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+
+      - name: Test step
+        run: |
+          echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
   contract-size:
     concurrency:
       group: contract-size-${{ github.ref }}
@@ -125,6 +125,11 @@ jobs:
         with:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
+
+      - name: Test step
+        run: |
+          echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
 
       - name: Find contract data for source branch
         id: find-data
@@ -152,7 +157,7 @@ jobs:
           restore-keys: |
             cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
 
-      - name: Test step
+      - name: Test step2
         run: |
           echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
@@ -163,7 +168,7 @@ jobs:
           chmod -R a+rwx .
           yarn build:release
 
-      - name: Test step2
+      - name: Test step3
         run: |
           echo $(find /usr/local/cache/target -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
           echo $(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
