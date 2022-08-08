@@ -1,4 +1,8 @@
-# ![logo-2](https://user-images.githubusercontent.com/24861482/177825604-bf797de0-d14f-44c5-bbdb-e57fa48d39d0.png)
+# 
+
+<p align = "center">
+  <img src="https://user-images.githubusercontent.com/18346821/183483033-2cd46f58-7c29-4cd8-ad1c-b633f9673e13.png"/>
+</p>
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
@@ -134,7 +138,8 @@ OpenBrush participates in the Web3 Grants, you can find the roadmap there:
 - [Grant II](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up.md#current-work---scope-of-this-grant)
 - [Grant III](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up-2.md#current-work---scope-of-this-grant)
 
-More common roadmap of tasks:
+<details><summary>More common roadmap of tasks</summary>
+    
 - [x] Implement fungible, non-fungible, and multi tokens.
 - [x] Implement AccessControl and Ownable.
 - [x] Add examples of how to reuse ERC20, ERC721, AccessControl implementations.
@@ -180,6 +185,8 @@ More common roadmap of tasks:
 - [ ] Implement `UniquesChainExtension` to work with `uniques-pallet`.
 - [ ] Implement `PSP34` via `UniquesChainExtension`.
 - [ ] Audit.
+    
+</details>
 
 ## Installation & Testing
 To work with project you need to install ink! toolchain and NodeJS's dependencies.
