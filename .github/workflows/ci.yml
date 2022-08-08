@@ -64,8 +64,6 @@ jobs:
         with:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
-          restore-keys: |
-            cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
 
       - name: Test step
         run: |
@@ -108,8 +106,6 @@ jobs:
         with:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
-          restore-keys: |
-            cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
 
       - name: Test step
         run: |
@@ -186,8 +182,6 @@ jobs:
         with:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
-          restore-keys: |
-            cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
 
       - name: Test step2
         run: |
