@@ -7,11 +7,11 @@ module.exports = {
   title: 'OpenBrush',
   tagline: 'OpenBrush contracts documentation',
   url: 'https://docs.openbrush.test.io',
-  baseUrl: '/docs/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
-  organizationName: 'o-tsaruk',
+  // organizationName: 'o-tsaruk',
   projectName: 'openbrush-contracts',
   themeConfig: {
     colorMode: {
