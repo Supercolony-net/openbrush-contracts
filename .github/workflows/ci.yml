@@ -113,7 +113,7 @@ jobs:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - name: Cache rust artifacts
-        id: cache-rust-artifacts for source branch
+        id: cache-rust-artifacts-for-source-branch
         uses: actions/cache@v3
         with:
           path: /usr/local/cache/target
@@ -137,7 +137,7 @@ jobs:
           yarn add ts-node
 
       - name: Cache rust artifacts
-        id: cache-rust-artifacts for destination branch
+        id: cache-rust-artifacts-for-destination-branch
         uses: actions/cache@v3
         with:
           path: /usr/local/cache/target
