@@ -1,5 +1,6 @@
 const lightCodeTheme = require('prism-react-renderer/themes/vsLight')
 const darkCodeTheme = require('prism-react-renderer/themes/vsDark')
+const versions = require('./versions.json')
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
@@ -24,6 +25,15 @@ module.exports = {
       },
       items: [
         {
+          type: 'dropdown',
+          label: 'versions',
+          position: 'left',
+          items: [
+            {to: '/'+versions[1], label: versions[1]},
+            {to: '/'+versions[2], label: versions[2]},
+            {to: 'allVersions', label: 'all versions'}]
+        },
+        {
           to: 'smart-contracts/overview',
           position: 'right',
           label: 'Examples',
@@ -35,7 +45,7 @@ module.exports = {
           label: 'Deployment'
         },
         {
-          href: 'https://twitter.com/supercolony_vs',
+          href: 'https://twitter.com/supercolony_net',
           className: 'header-twitter-link',
           position: 'right'
         },
@@ -63,7 +73,8 @@ module.exports = {
         docs: {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/docs'
+          editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/docs',
+          includeCurrentVersion: false
         },
         theme: {
           customCss: [require.resolve('./src/css/custom.scss')]

@@ -5,6 +5,8 @@ title: OpenBrush documentation
 sidebar_label: Getting started
 ---
 
+## VERSION 2.5.0
+
 Welcome to OpenBrush documentation! This documentation aims to guide you through the usage of OpenBrush library.
 
 ## What is OpenBrush
