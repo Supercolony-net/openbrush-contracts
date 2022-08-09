@@ -6,7 +6,7 @@ const versions = require('./versions.json')
 module.exports = {
   title: 'OpenBrush',
   tagline: 'OpenBrush contracts documentation',
-  // url: 'https://docs.openbrush.io',
+  url: 'https://docs.openbrush.test.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
