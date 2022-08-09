@@ -417,7 +417,7 @@ call to the smart contract to the corresponding facet (logic layer).
 `Diamond` contract has a function `diamond_cut` that allows registering each facet.
 
 OpenBrush provides default implementation for `Diamond` standard on ink!.
-For more details you can check [Diamond](docs/smart-contracts/diamond/diamond.md).
+For more details you can check [Diamond](diamond/diamond.md).
 
 All suggestions above ideally describe how to develop an upgradeable contract
 with multi-logic layers and many logic units.

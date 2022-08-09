@@ -238,10 +238,10 @@ you can find instructions on how to work with them:
   * [PSP35Burnable](PSP35/Extensions/burnable.md): destruction of own tokens.
   * [PSP35Batch](PSP35/Extensions/batch.md): batch transferring of tokens.
   * [PSP35Enumerable](PSP35/Extensions/enumerable.md): iterating over contract's tokens.
-* [Access Control](docs/smart-contracts/access-control/access-control.md) shows how you can use the implementation of
+* [Access Control](access-control/access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/access/access_control) and
   [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) together to provide rights to mint and burn NFT tokens.
-  * [AccessControlEnumerable](docs/smart-contracts/access-control/Extensions/enumerable.md): iterating over contract's roles.
+  * [AccessControlEnumerable](access-control/Extensions/enumerable.md): iterating over contract's roles.
 * [Ownable](ownable.md) shows how you can use the implementation of
   [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
   [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) together to provide rights to mint and burn tokens.
@@ -256,10 +256,10 @@ you can find instructions on how to work with them:
 * [PaymentSplitter](payment-splitter.md) shows how you can use the implementation of
   [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/finance/payment_splitter)
   to split received native tokens between participants of the contract.
-* [Diamond](docs/smart-contracts/diamond/diamond.md) shows how you can use the implementation of
+* [Diamond](diamond/diamond.md) shows how you can use the implementation of
   [diamond](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond)
   pattern to split your contract into small parts and support upgradeability.
-  * [DiamondLoupe](docs/smart-contracts/diamond/Extensions/loupe.md): iterating over contract's facets.
+  * [DiamondLoupe](diamond/Extensions/loupe.md): iterating over contract's facets.
 * [Proxy](proxy.md) shows how you can use the implementation of
   [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/proxy)
   pattern to support upgradeability of your contract.
