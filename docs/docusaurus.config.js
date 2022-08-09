@@ -11,7 +11,7 @@ module.exports = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
-  // organizationName: 'supercolony-net',
+  organizationName: 'o-tsaruk',
   projectName: 'openbrush-contracts',
   themeConfig: {
     colorMode: {
