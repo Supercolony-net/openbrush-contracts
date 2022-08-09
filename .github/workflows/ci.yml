@@ -112,17 +112,17 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - name: Cache contract artifacts
-        id: cache-contract-artifacts
+      - name: Cache rust artifacts
+        id: cache-rust-artifacts
         uses: actions/cache@v3
         with:
-          path: artifacts
-          key: cache-contract-artifacts-${{ github.sha }}
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
 
       - name: Find contract data for source branch
         id: find-data
         run: |  
-          SOURCE_DATA=$(find /usr/local/cache/target -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
+          SOURCE_DATA=$(find /usr/local/cache/target/ink -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
           echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
           echo "$SOURCE_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -152,7 +152,7 @@ jobs:
       - name: Find contract data destination branch
         id: find-data-pr
         run: |
-          DESTINATION_DATA=$(find /usr/local/cache/target -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
+          DESTINATION_DATA=$(find /usr/local/cache/target/ink -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
           echo "DESTINATION_DATA<<EOF" >> $GITHUB_ENV
           echo "$DESTINATION_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
