@@ -98,3 +98,24 @@ html button {
 [class*='backToTopButton'] {
   display: none !important;
 }
+
+.dropdown {
+  font-size: 0.75rem;
+}
+
+.all-versions-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 12vh;
+}
+
+.main-versions-block {
+  text-align: center;
+}
+
+.versions-block {
+  display: inline-block;
+  padding: 1rem 8rem;
+  vertical-align: top;
+}
