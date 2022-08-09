@@ -8,10 +8,8 @@ use openbrush::{
     },
     traits::{
         AccountId,
-        AccountIdExt,
         Balance,
         Hash,
-        ZERO_ADDRESS,
     },
 };
 
@@ -82,15 +80,11 @@ pub fn get_reserve_asset<T>(instance: &T, asset_address: &AccountId) -> Result<A
 where
     T: Storage<Data>,
 {
-    let reserve_asset = instance
+    instance
         .data()
         .asset_shares
         .get(&asset_address)
-        .unwrap_or(ZERO_ADDRESS.into());
-    if reserve_asset.is_zero() {
-        return Err(LendingError::AssetNotSupported)
-    }
-    Ok(reserve_asset)
+        .ok_or(LendingError::AssetNotSupported)
 }
 
 /// internal function which will return the address of asset
@@ -99,13 +93,9 @@ pub fn get_asset_from_shares<T>(instance: &T, shares_address: &AccountId) -> Res
 where
     T: Storage<Data>,
 {
-    let token = instance
+    instance
         .data()
         .shares_asset
         .get(shares_address)
-        .unwrap_or(ZERO_ADDRESS.into());
-    if token.is_zero() {
-        return Err(LendingError::AssetNotSupported)
-    }
-    Ok(token)
+        .ok_or(LendingError::AssetNotSupported)
 }

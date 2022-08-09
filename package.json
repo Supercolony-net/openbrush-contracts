@@ -21,6 +21,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
+    "prettier": "^2.7.1",
     "redspot": "^0.13.5",
     "ts-node": "^10.8.0"
   },

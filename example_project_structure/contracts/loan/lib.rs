@@ -103,6 +103,7 @@ pub mod loan {
                     String::from("LoanContract NFT").into_bytes(),
                     String::from("L-NFT").into_bytes(),
                 );
+                instance._init_with_owner(instance.env().caller());
             })
         }
 
