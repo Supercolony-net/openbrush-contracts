@@ -6,12 +6,12 @@ const versions = require('./versions.json')
 module.exports = {
   title: 'OpenBrush',
   tagline: 'OpenBrush contracts documentation',
-  url: 'https://docs.openbrush.io',
+  // url: 'https://docs.openbrush.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
-  organizationName: 'supercolony-net',
+  // organizationName: 'supercolony-net',
   projectName: 'openbrush-contracts',
   themeConfig: {
     colorMode: {
