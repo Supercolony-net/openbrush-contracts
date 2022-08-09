@@ -65,11 +65,6 @@ jobs:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
 
-      - name: Test step
-        run: |
-          echo $(find /usr/local/cache/target -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-          echo $(find . -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-
       - name: Cache contract artifacts
         id: cache-contract-artifacts
         uses: actions/cache@v3
@@ -82,11 +77,6 @@ jobs:
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
-
-      - name: Test step
-        run: |
-          echo $(find /usr/local/cache/target -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-          echo $(find . -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
 #  caching-artifacts:
 #    concurrency:
 #      group: caching-artifacts-${{ github.ref }}
@@ -129,15 +119,10 @@ jobs:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
 
-      - name: Test step
-        run: |
-          echo $(find /usr/local/cache/target -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-          echo $(find . -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-
       - name: Find contract data for source branch
         id: find-data
         run: |  
-          SOURCE_DATA=$(find . -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
+          SOURCE_DATA=$(find /usr/local/cache/target -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
           echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
           echo "$SOURCE_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -158,26 +143,16 @@ jobs:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
 
-      - name: Test step2
-        run: |
-          echo $(find /usr/local/cache/target -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-          echo $(find . -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-
       - name: Redspot Сompile examples for destination branch
         run: |
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
 
-      - name: Test step3
-        run: |
-          echo $(find /usr/local/cache/target -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-          echo $(find . -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
-
       - name: Find contract data destination branch
         id: find-data-pr
         run: |
-          DESTINATION_DATA=$(find . -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
+          DESTINATION_DATA=$(find /usr/local/cache/target -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
           echo "DESTINATION_DATA<<EOF" >> $GITHUB_ENV
           echo "$DESTINATION_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
