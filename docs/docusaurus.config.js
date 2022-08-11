@@ -6,13 +6,14 @@ const versions = require('./versions.json')
 module.exports = {
   title: 'OpenBrush',
   tagline: 'OpenBrush contracts documentation',
-  url: 'https://docs.openbrush.test.io',
-  baseUrl: '/',
+  url: 'https://o-tsaruk.github.io',
+  baseUrl: '/openbrush-contracts/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
-  // organizationName: 'o-tsaruk',
+  organizationName: 'o-tsaruk',
   projectName: 'openbrush-contracts',
+  deploymentBranch: 'gh-pages',
   themeConfig: {
     colorMode: {
       defaultMode: 'dark'
