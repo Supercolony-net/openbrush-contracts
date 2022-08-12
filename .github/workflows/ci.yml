@@ -64,6 +64,8 @@ jobs:
         with:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          restore-keys: |
+            cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
 
       - name: Cache contract artifacts
         id: cache-contract-artifacts
