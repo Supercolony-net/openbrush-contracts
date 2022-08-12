@@ -20,13 +20,13 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #![feature(min_specialization)]
-#[cfg(feature = "psp35")]
+#[cfg(feature = "psp37")]
 #[openbrush::contract]
-mod psp35_enumerable {
+mod psp37_enumerable {
     use ink_lang as ink;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
-        contracts::psp35::{
+        contracts::psp37::{
             extensions::{
                 batch::*,
                 burnable::*,
@@ -44,12 +44,12 @@ mod psp35_enumerable {
 
     #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
-    pub struct PSP35Struct {
+    pub struct PSP37Struct {
         #[storage_field]
-        psp35: psp35::Data<enumerable::Balances>,
+        psp37: psp37::Data<enumerable::Balances>,
     }
 
-    impl psp35::Internal for PSP35Struct {
+    impl psp37::Internal for PSP37Struct {
         fn _do_safe_transfer_check(
             &mut self,
             _operator: &AccountId,
@@ -57,29 +57,29 @@ mod psp35_enumerable {
             _to: &AccountId,
             _ids_amounts: &Vec<(Id, Balance)>,
             _data: &Vec<u8>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             Ok(())
         }
     }
 
-    impl PSP35 for PSP35Struct {}
+    impl PSP37 for PSP37Struct {}
 
-    impl PSP35Mintable for PSP35Struct {}
+    impl PSP37Mintable for PSP37Struct {}
 
-    impl PSP35Burnable for PSP35Struct {}
+    impl PSP37Burnable for PSP37Struct {}
 
-    impl PSP35Batch for PSP35Struct {}
+    impl PSP37Batch for PSP37Struct {}
 
-    impl PSP35Enumerable for PSP35Struct {}
+    impl PSP37Enumerable for PSP37Struct {}
 
-    impl PSP35Struct {
+    impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]
-        pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP35Error> {
+        pub fn mint(&mut self, acc: AccountId, id: Id, amount: Balance) -> Result<(), PSP37Error> {
             self._mint_to(acc, vec![(id, amount)])
         }
     }
@@ -88,7 +88,7 @@ mod psp35_enumerable {
     fn enumerable_should_fail() {
         let accounts = accounts();
         // Create a new contract instance.
-        let nft = PSP35Struct::new();
+        let nft = PSP37Struct::new();
         // check that alice does not have token by index
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), None);
         // token by index 1 does not exists
@@ -99,7 +99,7 @@ mod psp35_enumerable {
     fn enumerable_mint_works() {
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
 
         let token_id = Id::U128(1);
 
@@ -115,7 +115,7 @@ mod psp35_enumerable {
     fn enumerable_transfer_works() {
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         // Create token Id 1 and Id 2 for Alice
 
         let token_id1 = Id::U128(1);
@@ -161,7 +161,7 @@ mod psp35_enumerable {
     fn enumerable_batch_transfer_works() {
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         // Create token Id 1 and Id 2 for Alice
 
         let token_id1 = Id::U128(1);
@@ -204,7 +204,7 @@ mod psp35_enumerable {
     fn enumerable_self_transfer_works() {
         let accounts = accounts();
 
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
 
         let token_id1 = Id::U128(1);
         let token_id2 = Id::U128(2);
@@ -254,7 +254,7 @@ mod psp35_enumerable {
     fn token_by_index_works() {
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
 
         let token_id1 = Id::U128(1);
         let token_id2 = Id::U128(2);
@@ -305,7 +305,7 @@ mod psp35_enumerable {
         let token_id = Id::U128(1);
         let token_amount = 1u128;
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft
             ._mint_to(accounts.alice, vec![(token_id.clone(), token_amount)])
             .is_ok());
@@ -333,7 +333,7 @@ mod psp35_enumerable {
 
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert_eq!(nft.total_supply(None), 0);
         // mint some token 1
         assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
@@ -358,7 +358,7 @@ mod psp35_enumerable {
 
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         // Token 1 does not exists.
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id1.clone())), 0);
         assert_eq!(nft.balance_of(accounts.alice, None), 0);
@@ -383,7 +383,7 @@ mod psp35_enumerable {
 
         let accounts = accounts();
         // Create a new contract instance.
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
         assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
         assert!(nft.mint(accounts.alice, token_id3.clone(), token_amount3).is_ok());
@@ -440,7 +440,7 @@ mod psp35_enumerable {
         let token_amount2 = 10;
         let accounts = accounts();
 
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
         assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
 

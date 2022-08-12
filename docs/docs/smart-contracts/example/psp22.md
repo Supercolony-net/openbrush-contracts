@@ -22,14 +22,15 @@ we will implement that trait to be sure that all super traits are also implement
 ```rust
 use openbrush::contracts::traits::psp22::{
     extensions::metadata::*,
+    extensions::mintable::*,
     *,
 };
 
 #[openbrush::wrapper]
-pub type StableCoinRef = dyn PSP22 + PSP22Metadata;
+pub type StableCoinRef = dyn PSP22 + PSP22Metadata + PSP22Mintable;
 
 #[openbrush::trait_definition]
-pub trait StableCoin: PSP22 + PSP22Metadata {}
+pub trait StableCoin: PSP22 + PSP22Metadata + PSP22Mintable {}
 ```
 
 ## Add dependencies
@@ -58,6 +59,7 @@ pub mod token {
     use lending_project::traits::stable_coin::*;
     use openbrush::{
         contracts::psp22::extensions::metadata::*,
+        contracts::psp22::extensions::mintable::*,
         traits::Storage,
     };
 ```
@@ -91,6 +93,9 @@ impl PSP22 for StableCoinContract {}
 
 /// Implement PSP22Metadata Trait for our coin
 impl PSP22Metadata for StableCoinContract {}
+
+/// implement PSP22Mintable Trait for our coin
+impl PSP22Mintable for StableCoinContract {}
 
 // It forces the compiler to check that you implemented all super traits
 impl StableCoin for StableCoinContract {}

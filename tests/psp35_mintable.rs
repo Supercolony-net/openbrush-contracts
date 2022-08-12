@@ -20,39 +20,39 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #![feature(min_specialization)]
-#[cfg(feature = "psp35")]
+#[cfg(feature = "psp37")]
 #[openbrush::contract]
-mod psp35_mintable {
+mod psp37_mintable {
     use ink_lang as ink;
     use openbrush::{
         test_utils::accounts,
         traits::Storage,
     };
-    use openbrush_contracts::psp35::extensions::mintable::*;
+    use openbrush_contracts::psp37::extensions::mintable::*;
 
     #[derive(Default, Storage)]
     #[ink(storage)]
-    pub struct PSP35Struct {
+    pub struct PSP37Struct {
         #[storage_field]
-        psp35: psp35::Data,
+        psp37: psp37::Data,
         // field for testing _before_token_transfer
         return_err_on_before: bool,
         // field for testing _after_token_transfer
         return_err_on_after: bool,
     }
 
-    impl PSP35Mintable for PSP35Struct {}
-    impl PSP35 for PSP35Struct {}
+    impl PSP37Mintable for PSP37Struct {}
+    impl PSP37 for PSP37Struct {}
 
-    impl psp35::Transfer for PSP35Struct {
+    impl psp37::Transfer for PSP37Struct {
         fn _before_token_transfer(
             &mut self,
             _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _ids: &Vec<(Id, Balance)>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             if self.return_err_on_before {
-                return Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
+                return Err(PSP37Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -62,15 +62,15 @@ mod psp35_mintable {
             _from: Option<&AccountId>,
             _to: Option<&AccountId>,
             _ids: &Vec<(Id, Balance)>,
-        ) -> Result<(), PSP35Error> {
+        ) -> Result<(), PSP37Error> {
             if self.return_err_on_after {
-                return Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
+                return Err(PSP37Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }
     }
 
-    impl PSP35Struct {
+    impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self::default()
@@ -93,7 +93,7 @@ mod psp35_mintable {
         let token_2_amount = 20;
         let accounts = accounts();
 
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id_1.clone())), 0);
         assert_eq!(nft.balance_of(accounts.bob, Some(token_id_2.clone())), 0);
 
@@ -116,7 +116,7 @@ mod psp35_mintable {
         let token_id = Id::U128(123);
         let amount = 1;
         let accounts = accounts();
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         // Can mint
         assert!(nft.mint(accounts.alice, vec![(token_id.clone(), amount)]).is_ok());
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), amount);
@@ -125,7 +125,7 @@ mod psp35_mintable {
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.mint(accounts.alice, vec![(token_id.clone(), amount)]),
-            Err(PSP35Error::Custom(String::from("Error on _before_token_transfer")))
+            Err(PSP37Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 
@@ -134,7 +134,7 @@ mod psp35_mintable {
         let token_id = Id::U128(123);
         let amount = 1;
         let accounts = accounts();
-        let mut nft = PSP35Struct::new();
+        let mut nft = PSP37Struct::new();
         // Can mint
         assert!(nft.mint(accounts.alice, vec![(token_id.clone(), amount)]).is_ok());
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id.clone())), amount);
@@ -143,7 +143,7 @@ mod psp35_mintable {
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             nft.mint(accounts.alice, vec![(token_id.clone(), amount)]),
-            Err(PSP35Error::Custom(String::from("Error on _after_token_transfer")))
+            Err(PSP37Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }
 }
