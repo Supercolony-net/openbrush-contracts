@@ -1,0 +1,41 @@
+name: Update documentation version
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  gh-deploy-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
+      - name: Release to GitHub Pages
+        env:
+          USE_SSH: true
+          GIT_USER: git
+        run: |
+          cd docs
+          git config --global user.email github-actions@github.com
+          git config --global user.name github-actions
+          if [ -e yarn.lock ]; then
+            yarn install --frozen-lockfile
+          elif [ -e package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
+          npm run docusaurus docs:version ${{ github.event.release.tag_name }}
+          npm run build
+          git remote set-url origin git@github.com:o-tsaruk/openbrush-contracts.git
+          git checkout -b gh-deploy-release-branch
+          git add -A
+          git commit -m "New docs version"
+          git checkout main
+          git merge gh-deploy-release-branch
+          git push
