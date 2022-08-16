@@ -121,8 +121,9 @@ jobs:
 
       - name: Find contract data for source branch
         id: find-data
-        run: |  
-          echo $(find /usr/local/cache/target -type f)
+        run: |
+          echo ${{ github.head_ref }}
+          echo $(find /usr/local/cache/target -type d)
           SOURCE_DATA=$(find /usr/local/cache/target -maxdepth 2 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
           echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
           echo "$SOURCE_DATA" >> $GITHUB_ENV
