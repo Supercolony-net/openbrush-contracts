@@ -126,7 +126,7 @@ jobs:
           echo "$SOURCE_NAME" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
           
-          SOURCE_DATA=$(find /usr/local/cache/target/ink -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
+          SOURCE_DATA=$(find /usr/local/cache/target -maxdepth 2 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
           echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
           echo "$SOURCE_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
