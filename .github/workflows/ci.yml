@@ -109,17 +109,24 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - name: Cache contract artifacts for source branch
-        id: cache-contract-artifacts
+      - name: Cache rust artifacts for source branch
+        id: cache-rust-artifacts-source
         uses: actions/cache@v3
         with:
-          path: artifacts
-          key: cache-contract-artifacts-${{ github.sha }}
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          restore-keys: |
+            cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
 
       - name: Find contract data for source branch
-        id: find-data
+        id: find-data-source
         run: |
-          SOURCE_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          SOURCE_NAME=${{ github.head_ref }}
+          echo "SOURCE_NAME<<EOF" >> $GITHUB_ENV
+          echo "$SOURCE_NAME" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          SOURCE_DATA=$(find /usr/local/cache/target/ink -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
           echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
           echo "$SOURCE_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -134,20 +141,13 @@ jobs:
           yarn add ts-node
 
       - name: Cache rust artifacts for destination branch
-        id: cache-rust-artifacts-pr
+        id: cache-rust-artifacts-destination
         uses: actions/cache@v3
         with:
           path: /usr/local/cache/target
           key: cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
           restore-keys: |
             cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
-
-      - name: Cache contract artifacts for destination branch
-        id: cache-contract-artifacts-pr
-        uses: actions/cache@v3
-        with:
-          path: artifacts
-          key: cache-contract-artifacts-pr-${{ github.sha }}
 
       - name: Redspot Сompile examples for destination branch
         run: |
@@ -156,9 +156,9 @@ jobs:
           yarn build:release
 
       - name: Find contract data destination branch
-        id: find-data-pr
+        id: find-data-destination
         run: |
-          DESTINATION_DATA=$(find . -type f -name "*.contract" -printf '%s ' -exec basename \{} .contract \; | sort -k2)
+          DESTINATION_DATA=$(find /usr/local/cache/target/ink -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
           echo "DESTINATION_DATA<<EOF" >> $GITHUB_ENV
           echo "$DESTINATION_DATA" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
