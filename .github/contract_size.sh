@@ -2,7 +2,7 @@
 
 # create table header
 REPORT=$'
-| Contract Name | Destination | Source | Difference |
+| Contract Name | Destination | '$SOURCE_NAME' | Difference |
 | --- | --- | --- | --- |
 '
 
