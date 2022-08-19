@@ -12,7 +12,7 @@ exclude = [
 
 [package]
 name = "openbrush"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 
@@ -38,8 +38,8 @@ ink_engine = { version = "~3.3.0", default-features = false, optional = true }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-openbrush_contracts = { version = "~2.1.0", path = "contracts", default-features = false }
-openbrush_lang = { version = "~2.1.0", path = "lang", default-features = false }
+openbrush_contracts = { version = "~2.2.0", path = "contracts", default-features = false }
+openbrush_lang = { version = "~2.2.0", path = "lang", default-features = false }
 
 [lib]
 name = "openbrush"
@@ -64,7 +64,7 @@ std = [
 access_control = ["openbrush_contracts/access_control"]
 psp22 = ["openbrush_contracts/psp22"]
 psp34 = ["openbrush_contracts/psp34"]
-psp35 = ["openbrush_contracts/psp35"]
+psp37 = ["openbrush_contracts/psp37"]
 ownable = ["openbrush_contracts/ownable"]
 payment_splitter = ["openbrush_contracts/payment_splitter"]
 reentrancy_guard = ["openbrush_contracts/reentrancy_guard"]

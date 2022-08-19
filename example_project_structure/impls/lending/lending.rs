@@ -75,6 +75,14 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         Ok(PSP22Ref::total_supply(&mapped_asset))
     }
 
+    default fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError> {
+        self
+            .data::<data::Data>()
+            .asset_shares
+            .get(&asset_address)
+            .ok_or(LendingError::AssetNotSupported)
+    }
+
     default fn is_accepted_lending(&self, asset_address: AccountId) -> bool {
         !self
             .data::<data::Data>()
@@ -246,7 +254,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
             SharesRef::mint(
                 &reserve_asset,
                 contract,
-                to_repay - repay_amount - loan_info.borrow_amount,
+                to_repay - repay_amount,
             )?;
             LoanRef::update_loan(
                 &loan_account,

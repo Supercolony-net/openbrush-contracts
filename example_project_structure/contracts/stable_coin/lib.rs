@@ -9,6 +9,7 @@ pub mod token {
     use lending_project::traits::stable_coin::*;
     use openbrush::{
         contracts::psp22::extensions::metadata::*,
+        contracts::psp22::extensions::mintable::*,
         traits::Storage,
     };
 
@@ -27,6 +28,9 @@ pub mod token {
 
     /// Implement PSP22Metadata Trait for our coin
     impl PSP22Metadata for StableCoinContract {}
+
+    /// implement PSP22Mintable Trait for our coin
+    impl PSP22Mintable for StableCoinContract {}
 
     // It forces the compiler to check that you implemented all super traits
     impl StableCoin for StableCoinContract {}

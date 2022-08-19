@@ -392,11 +392,33 @@ pub fn storage_layout_derive(storage_key: &TokenStream, mut s: synstructure::Str
 
 pub fn occupy_storage_derive(storage_key: &TokenStream, mut s: synstructure::Structure) -> TokenStream {
     s.add_bounds(synstructure::AddBounds::None).underscore_const(true);
-    s.gen_impl(quote! {
+    let occupy_storage = s.gen_impl(quote! {
         gen impl ::openbrush::traits::OccupyStorage for @Self {
             const KEY: ::core::primitive::u32 = #storage_key;
         }
-    })
+    });
+    let storage = s.gen_impl(quote! {
+        gen impl ::openbrush::traits::Storage<Self> for @Self {
+            fn get(&self) -> &Self {
+                self
+            }
+
+            fn get_mut(&mut self) -> &mut Self {
+                self
+            }
+        }
+    });
+    let occupied_storage = s.gen_impl(quote! {
+        gen impl ::openbrush::traits::OccupiedStorage<{ #storage_key }> for @Self {
+            type WithData = Self;
+        }
+    });
+
+    quote! {
+        #occupy_storage
+        #storage
+        #occupied_storage
+    }
 }
 
 pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
