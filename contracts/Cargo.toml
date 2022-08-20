@@ -28,7 +28,7 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 
 openbrush = { version = "~2.2.0", package = "openbrush_lang", path = "../lang", default-features = false }
 
-pallet-assets-chain-extension = { git = "https://github.com/Supercolony-net/obce", default-features = false, features = ["ink"]  }
+pallet-assets-chain-extension = { git = "https://github.com/Supercolony-net/pallet-assets-chain-extension", default-features = false, features = ["ink"]  }
 
 [lib]
 name = "openbrush_contracts"
