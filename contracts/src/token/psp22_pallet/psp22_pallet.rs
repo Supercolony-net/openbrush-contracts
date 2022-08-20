@@ -48,7 +48,7 @@ pub struct Data {
     /// Default origin of the contract.
     pub origin: Origin,
     /// Extension to interact with `pallet-assets`
-    pub pallet_assets: PalletAssets,
+    pub pallet_assets: AssetsExtension,
     pub _reserved: Option<()>,
 }
 
