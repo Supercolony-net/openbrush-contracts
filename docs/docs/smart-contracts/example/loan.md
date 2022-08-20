@@ -121,7 +121,7 @@ so we will add these to our contract. We will add a `openbrush::contract` macro 
 /// This contract will represent the loan of a user
 #[openbrush::contract]
 pub mod loan {
-    use ink_prelude::string::String;
+    use openbrush::traits::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::traits::loan::*;
     use openbrush::{

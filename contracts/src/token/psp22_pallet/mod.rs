@@ -19,27 +19,12 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// Extension of [`PSP37`] that adds enumerability of all the token ids in the contract as well
-/// as all token ids owned by each account.
-pub use crate::traits::psp37::*;
-use openbrush::traits::AccountId;
+pub mod psp22_pallet;
 
-#[openbrush::wrapper]
-pub type PSP37EnumerableRef = dyn PSP37Enumerable + PSP37;
+pub use psp22_pallet::*;
 
-#[openbrush::trait_definition]
-pub trait PSP37Enumerable: PSP37 {
-    /// Returns a token `Id` owned by `owner` at a given `index` of its token list.
-    /// Use along with `balance_of` to enumerate all of ``owner``'s tokens.
-    ///
-    /// The start index is zero.
-    #[ink(message)]
-    fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Option<Id>;
-
-    /// Returns a token `Id` at a given `index` of all the tokens stored by the contract.
-    /// Use along with `total_supply` to enumerate all tokens.
-    ///
-    /// The start index is zero.
-    #[ink(message)]
-    fn token_by_index(&self, index: u128) -> Option<Id>;
+pub mod extensions {
+    pub mod burnable;
+    pub mod metadata;
+    pub mod mintable;
 }

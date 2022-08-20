@@ -3,14 +3,14 @@
 
 #[openbrush::contract]
 pub mod my_psp34_metadata {
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
-    };
+    use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::metadata::*,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     #[derive(Default, SpreadAllocate, Storage)]

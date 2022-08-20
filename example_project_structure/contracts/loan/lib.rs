@@ -4,7 +4,6 @@
 /// This contract will represent the loan of a user
 #[openbrush::contract]
 pub mod loan {
-    use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::traits::loan::*;
     use openbrush::{
@@ -14,7 +13,10 @@ pub mod loan {
         },
         modifiers,
         storage::Mapping,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     /// Define the storage for PSP34 data, Metadata data and Ownable data

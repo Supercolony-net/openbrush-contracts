@@ -26,7 +26,10 @@ mod psp37_burnable {
     use ink_lang as ink;
     use openbrush::{
         test_utils::accounts,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
     use openbrush_contracts::psp37::extensions::burnable::*;
 

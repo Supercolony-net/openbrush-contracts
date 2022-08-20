@@ -19,27 +19,47 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// Extension of [`PSP37`] that adds enumerability of all the token ids in the contract as well
-/// as all token ids owned by each account.
-pub use crate::traits::psp37::*;
-use openbrush::traits::AccountId;
+pub use crate::{
+    psp22_pallet,
+    psp22_pallet::extensions::metadata,
+    traits::psp22::{
+        extensions::metadata::*,
+        *,
+    },
+};
+pub use psp22_pallet::Internal as _;
 
-#[openbrush::wrapper]
-pub type PSP37EnumerableRef = dyn PSP37Enumerable + PSP37;
+use openbrush::traits::{
+    Storage,
+    String,
+};
+use pallet_assets_chain_extension::traits::AssetPallet;
 
-#[openbrush::trait_definition]
-pub trait PSP37Enumerable: PSP37 {
-    /// Returns a token `Id` owned by `owner` at a given `index` of its token list.
-    /// Use along with `balance_of` to enumerate all of ``owner``'s tokens.
-    ///
-    /// The start index is zero.
-    #[ink(message)]
-    fn owners_token_by_index(&self, owner: AccountId, index: u128) -> Option<Id>;
+impl<T: Storage<psp22_pallet::Data>> PSP22Metadata for T {
+    default fn token_name(&self) -> Option<String> {
+        let self_ = self.data();
+        let name = self_.pallet_assets.metadata_name(self_.asset_id);
 
-    /// Returns a token `Id` at a given `index` of all the tokens stored by the contract.
-    /// Use along with `total_supply` to enumerate all tokens.
-    ///
-    /// The start index is zero.
-    #[ink(message)]
-    fn token_by_index(&self, index: u128) -> Option<Id>;
+        if name.is_empty() {
+            None
+        } else {
+            Some(String::from(name))
+        }
+    }
+
+    default fn token_symbol(&self) -> Option<String> {
+        let self_ = self.data();
+        let symbol = self_.pallet_assets.metadata_symbol(self_.asset_id);
+
+        if symbol.is_empty() {
+            None
+        } else {
+            Some(String::from(symbol))
+        }
+    }
+
+    default fn token_decimals(&self) -> u8 {
+        let self_ = self.data();
+        self_.pallet_assets.metadata_decimals(self_.asset_id)
+    }
 }
