@@ -33,7 +33,7 @@ use openbrush::traits::{
     Storage,
     String,
 };
-use pallet_assets_chain_extension::traits::AssetPallet;
+use pallet_assets_chain_extension::traits::PalletAssets;
 
 impl<T: Storage<psp22_pallet::Data>> PSP22Metadata for T {
     default fn token_name(&self) -> Option<String> {
