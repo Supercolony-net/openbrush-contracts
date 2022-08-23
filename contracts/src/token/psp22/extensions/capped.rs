@@ -56,14 +56,23 @@ impl<T: Storage<Data>> PSP22Capped for T {
 pub trait Internal {
     /// Initializes the token's cap
     fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error>;
+
+    fn _is_cap_exceeded(&self, amount: &Balance) -> bool;
 }
 
-impl<T: Storage<Data>> Internal for T {
+impl<T: Storage<Data> + Storage<psp22::Data>> Internal for T {
     fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
         if cap == 0 {
             return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
         }
-        self.data().cap = cap;
+        self.data::<Data>().cap = cap;
         Ok(())
+    }
+
+    fn _is_cap_exceeded(&self, amount: &Balance) -> bool {
+        if self.total_supply() + amount > self.cap() {
+            return true
+        }
+        false
     }
 }

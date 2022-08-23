@@ -36,7 +36,7 @@ pub mod my_psp22_capped {
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             // `is_none` means that it is minting
-            if _from.is_none() && (self.total_supply() + _amount) > self.cap() {
+            if _from.is_none() && self._is_cap_exceeded(_amount) {
                 return Err(PSP22Error::Custom(String::from("Cap exceeded")))
             }
             Ok(())
