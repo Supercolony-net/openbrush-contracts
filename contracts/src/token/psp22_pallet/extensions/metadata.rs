@@ -27,13 +27,18 @@ pub use crate::{
         *,
     },
 };
+// pub use pallet_assets_chain_extension::{
+//     ink::*,
+//     traits::*,
+// };
 pub use psp22_pallet::Internal as _;
 
 use openbrush::traits::{
     Storage,
     String,
 };
-use pallet_assets_chain_extension::traits::PalletAssets;
+pub use pallet_assets_chain_extension::traits::PalletAssets;
+pub use pallet_assets_chain_extension::traits::Origin;
 
 impl<T: Storage<psp22_pallet::Data>> PSP22Metadata for T {
     default fn token_name(&self) -> Option<String> {

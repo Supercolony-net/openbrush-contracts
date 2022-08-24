@@ -27,6 +27,7 @@ pub use crate::{
     },
 };
 pub use psp22_pallet::Internal as _;
+pub use pallet_assets_chain_extension::traits::Origin;
 
 use openbrush::traits::{
     AccountId,
