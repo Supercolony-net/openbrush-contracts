@@ -125,6 +125,6 @@ pub mod my_psp22_pallet_metadata {
 }
 ```
 
-You can check an example of the usage of [PSP22 PalletMetadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_pallet_extensions/metadata).
+[//]: # (You can check an example of the usage of [PSP22 PalletMetadata]&#40;https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_pallet_extensions/metadata&#41;.)
 
 You can also check the documentation for the basic implementation of [PSP22 Pallet](/smart-contracts/PSP22-Pallet).

@@ -1,17 +1,15 @@
 ---
-sidebar_position: 1
+sidebar_position: 9
 title: PSP22 Pallet
 ---
 
-This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) via `pallet-assets` chain extension. Also, this example shows how you can customize the logic, for example, to reject transferring tokens to `hated_account`.
+This example shows how you can reuse the implementation of [PSP22 Pallet](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) via `pallet-assets` chain extension. Also, this example shows how you can customize the logic, for example, to reject transferring tokens to `hated_account`.
 
 ## Step 1: Import default implementation
 
 With [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush),
 you need to import the `psp22_pallet` module, enable the corresponding feature, and embed the module data structure
 as described in [that section](/smart-contracts/overview#reuse-implementation-of-traits-from-openbrush).
-
-The main trait is `PSP22`.
 
 ## Step 2: Define storage and implement default PSP22 trait
 
@@ -109,8 +107,8 @@ You can check an example of the usage of [PSP22 Pallet](https://github.com/Super
 
 Also you can use extensions for PSP22 token:
 
-[PSP22 Pallet Metadata](/smart-contracts/psp22_pallet/extensions/metadata): metadata for PSP22 Pallet.
+[PSP22 Pallet Metadata](Extensions/metadata): metadata for PSP22 Pallet.
 
-[PSP22 Pallet Mintable](/smart-contracts/psp22_pallet/extensions/mintable): creation of new tokens.
+[PSP22 Pallet Mintable](Extensions/mintable): creation of new tokens.
 
-[PSP22 Pallet Burnable](/smart-contracts/psp22_pallet/extensions/burnable): destruction of own tokens.
+[PSP22 Pallet Burnable](Extensions/burnable): destruction of own tokens.
