@@ -3,7 +3,7 @@ sidebar_position: 9
 title: PSP22 Pallet
 ---
 
-This example shows how you can reuse the implementation of [PSP22 Pallet](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) via `pallet-assets` chain extension. Also, this example shows how you can customize the logic, for example, to reject transferring tokens to `hated_account`.
+This example shows how you can reuse the implementation of [PSP22 Pallet](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) via `pallet-assets` chain extension. Also, this example shows how you can customize the logic, for example, to get current `asset_id`.
 
 ## Step 1: Import default implementation
 
@@ -47,11 +47,10 @@ Add constructor for your contract, create asset and mint tokens to caller.
 #![feature(min_specialization)]
 
 #[openbrush::contract]
-pub mod my_psp22 {
-    use openbrush::traits::String;
+pub mod my_psp22_pallet {
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
-        contracts::psp22::*,
+        contracts::psp22_pallet::*,
         traits::Storage,
     };
 
@@ -59,24 +58,7 @@ pub mod my_psp22 {
     #[derive(Default, SpreadAllocate, Storage)]
     pub struct Contract {
         #[storage_field]
-        psp22: psp22::Data,
-        // fields for hater logic
-        hated_account: AccountId,
-    }
-
-    impl Transfer for Contract {
-        // Let's override method to reject transactions to bad account
-        fn _before_token_transfer(
-            &mut self,
-            _from: Option<&AccountId>,
-            to: Option<&AccountId>,
-            _amount: &Balance,
-        ) -> Result<(), PSP22Error> {
-            if to == Some(&self.hated_account) {
-                return Err(PSP22Error::Custom(String::from("I hate this account!")))
-            }
-            Ok(())
-        }
+        pallet: psp22_pallet::Data,
     }
 
     impl PSP22 for Contract {}
@@ -99,8 +81,15 @@ pub mod my_psp22 {
                     .expect("Should mint");
             })
         }
+
+        /// Asset id of the asset in the `pallet-assets`
+        #[ink(message)]
+        pub fn asset_id(&self) -> u32 {
+            self.pallet.asset_id
+        }
     }
 }
+
 ```
 
 You can check an example of the usage of [PSP22 Pallet](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_pallet).
