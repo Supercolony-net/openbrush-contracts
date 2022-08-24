@@ -36,7 +36,7 @@ pub mod my_psp22_pallet {
                     .expect("Should mint");
             })
         }
-        
+
         /// Asset id of the asset in the `pallet-assets`
         #[ink(message)]
         pub fn asset_id(&self) -> u32 {
