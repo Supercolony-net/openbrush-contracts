@@ -33,6 +33,7 @@ Subsquid is Web3's premier API framework, supercharging dApps across 30+ chains.
   - `Shibuya` - Astar testnet
   - `Shiden` - Astar canary network
   - `Astar` main network (will support pallet contracts in near futures)
+  - `Alephzero` main network and testnet support pallet contracts
   - Other networks which supports pallet contracts
 - Be sure that you have installed `polkadot.js.org` [wallet](#install-polkadot-extention-for-your-browser-and-create-account) extenstion for your browser
 - Here you can find how to [Build](https://ink.substrate.io/cargo-contract-cli/#usage) **ink!** smart contract
