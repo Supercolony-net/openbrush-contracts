@@ -23,5 +23,3 @@ impl PSP22Burnable for Contract {}
 ```
 
 And that's it! Your `PSP22 Pallet` is now extended by the `PSP22Burnable` extension and ready to use its functions!
-
-[//]: # (You can check an example of the usage of [PSP22 Burnable]&#40;https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_pallet_extensions/burnable&#41;.)

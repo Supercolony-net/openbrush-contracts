@@ -22,6 +22,4 @@ use openbrush::contracts::psp22_pallet::extensions::mintable::*;
 impl PSP22Mintable for Contract {}
 ```
 
-[//]: # (You can check an example of the usage of [PSP22 Mintable]&#40;https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_pallet_extensions/mintable&#41;.)
-
 And that's it! Your `PSP22 Pallet` is now extended by the `PSP22Mintable` extension and ready to use its functions!

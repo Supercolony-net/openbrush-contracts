@@ -23,8 +23,8 @@ openbrush = { path = "../../..", default-features = false, features = ["psp22_pa
 name = "my_psp22_pallet_burnable"
 path = "lib.rs"
 crate-type = [
-# Used for normal contract Wasm blobs.
-"cdylib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
 ]
 
 [features]
