@@ -1,8 +1,7 @@
----
 sidebar_position: 4
 title: Deployment
 sidebar_label: Deployment
----
+-------------------------
 
 - Deployment of ink! based smart contracts
 
@@ -16,6 +15,12 @@ about how it works you can find on [official wiki](https://wiki.polkadot.network
 The list of standalone blockchain/parachains that support ink! smart contracts:
 
 * [Astar](https://astar.network/)
+* [Alephzero](https://alephzero.org/)
+
+Subsquid is Web3's premier API framework, supercharging dApps across 30+ chains.
+* [Subsquid](https://subsquid.io/) - is a project that extracts and transforms on-chain data in order to present it as a GraphQL API. Squids are developed using the Subsquid SDK, which provides extensive tooling to define data schemas, data transfomation rules, and the shape of the resulting API.
+* A public gallery of Squids (APIs) developed by the community here : [link](https://app.subsquid.io/aquarium/squids?list=all)
+* [Example](https://docs.subsquid.io/tutorials/create-a-wasm-processing-squid) Squid will track all the token holders and account balances, together with the historical token transfers.
 
 ### Overview
 
@@ -34,6 +39,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 - Let's [deploy to local network](#deployment-on-local-network)
 - You can manuly [call](#call-the-smart-contract) our deployed contract
 - [Canvas](https://github.com/paritytech/cumulus#canvas-) - a Smart Contracts [Parachain](https://wiki.polkadot.network/docs/learn-parachains) which was deployed on [Polkadot](https://polkadot.network/ru/) test network - [Rococo](https://polkadot.network/tag/rococo/). You need to get free `ROC` token using [faucet](#rococo-faucet) to deploy contract to Canvas network. Finally deploy your ink! smart contract to [canvas](#deploy-to-=anvas)
+- [Alephzero](#alephzero) - Proof-of-Stake public blockchain. Alephzero combined an [original, aBFT consensus protocol](https://alephzero.org/blog/aleph-zero-presents-the-peer-reviewed-consensus-protocol-at-aft-2019-conference/) with a customized [Substrate](https://alephzero.org/blog/aleph-zero-accepted-parity-substrate-builders-program/) stack.
 - [Astar](#astar) - [WASM](https://webassembly.org/) + [EVM](https://ethereum.org/en/developers/docs/evm/) Hub on [Polkadot](https://polkadot.network/). More info about astar [here](https://docs.astar.network/)
 - You can deploy **ink!** smart contract to [Shibuya](#deploy-to-shibuya) (astar test network). How to get free `SBY` using [faucet](https://docs.astar.network/integration/testnet-faucet)
 
@@ -115,6 +121,18 @@ The number `1002` is the parachain id of **Canvas on Rococo**, by supplying it t
 
 - Upload `my_psp22.contract` file the same way as to local node but we need some `ROC` tokens
 - Use wallet which contains `ROC` tokens
+
+### Alephzero
+
+* **Aleph Zero** - Aleph Zero is a public blockchain that has been designed to offer superior speed, security, and scalability. It boasts a DAG-based consensus protocol and an integration with customized Substrate modules. The protocol is also distinguished for being peer-reviewed and garnering academic support.
+* **Alephzero testnet** - behaves almost the same as mainnet. Any new features are tested on testnet first and then deployed on Aleph Zero mainnet. `TZERO`, the native token of testnet, has no economic value and is available through our [faucet](https://faucet.test.azero.dev/). The best practice is to testing smart contract on testnet before deploying it on Aleph Zero mainnet to check whether your smart contract works well or not.
+
+### Deploy to Alephzero testnet
+
+- Navigate to the [test.azero.dev](https://test.azero.dev/#/contracts) in a web browser.
+- Verify that you are connected to the **Alephzero testnet Node**.
+- Upload `my_psp22.contract` file the same way as to local node but we need some `TZERO` tokens
+- Use wallet which contains `TZERO` tokens
 
 ### Astar
 
