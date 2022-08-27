@@ -41,8 +41,8 @@ If someone tries to mint token with denied id, we will reject transaction.
 
 #[openbrush::contract]
 pub mod my_psp37 {
+    use openbrush::traits::String;
     use ink_prelude::{
-        string::String,
         vec,
     };
     use ink_storage::traits::SpreadAllocate;

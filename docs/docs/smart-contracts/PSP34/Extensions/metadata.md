@@ -56,8 +56,8 @@ impl Contract {
     #[ink(constructor)]
     pub fn new(id: Id, name: String, symbol: String) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-            instance._set_attribute(id.clone(), String::from("name").into_bytes(), name.into_bytes());
-            instance._set_attribute(id, String::from("symbol").into_bytes(), symbol.into_bytes());
+            instance._set_attribute(id.clone(), String::from("name"), name);
+            instance._set_attribute(id, String::from("symbol"), symbol);
         }
     }
 }
@@ -71,8 +71,8 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp34_metadata {
+    use openbrush::traits::String;
     use ink_prelude::{
-        string::String,
         vec::Vec,
     };
     use ink_storage::traits::SpreadAllocate;
@@ -99,10 +99,10 @@ pub mod my_psp34_metadata {
         #[ink(constructor)]
         pub fn new(id: Id, name: String, symbol: String) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                let name_key: Vec<u8> = String::from("name").into_bytes();
-                let symbol_key: Vec<u8> = String::from("symbol").into_bytes();
-                instance._set_attribute(id.clone(), name_key, name.into_bytes());
-                instance._set_attribute(id, symbol_key, symbol.into_bytes());
+                let name_key: Vec<u8> = String::from("name");
+                let symbol_key: Vec<u8> = String::from("symbol");
+                instance._set_attribute(id.clone(), name_key, name);
+                instance._set_attribute(id, symbol_key, symbol);
             })
         }
     }

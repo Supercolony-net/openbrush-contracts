@@ -3,15 +3,15 @@
 
 #[openbrush::contract]
 pub mod my_psp37 {
-    use ink_prelude::{
-        string::String,
-        vec,
-    };
+    use ink_prelude::vec;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp37::*,
         storage::Mapping,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     #[derive(Default, SpreadAllocate, Storage)]

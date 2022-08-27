@@ -3,7 +3,6 @@
 
 #[openbrush::contract]
 pub mod my_psp22 {
-    use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
@@ -11,7 +10,10 @@ pub mod my_psp22 {
             psp22::extensions::metadata::*,
         },
         modifiers,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     #[ink(storage)]

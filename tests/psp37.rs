@@ -34,7 +34,10 @@ mod psp37 {
             accounts,
             change_caller,
         },
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
     use openbrush_contracts::psp37::*;
 

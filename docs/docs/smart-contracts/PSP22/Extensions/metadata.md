@@ -78,7 +78,7 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp22 {
-    use ink_prelude::string::String;
+    use openbrush::traits::String;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::extensions::metadata::*,
