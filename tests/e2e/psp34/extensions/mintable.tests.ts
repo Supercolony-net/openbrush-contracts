@@ -5,8 +5,8 @@ import ContractPSP34 from '../../../../typechain-generated/contracts/my_psp34_mi
 import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp34_mintable'
 
 describe('MY_PSP34_MINTABLE', () => {
-  const id0 = IdBuilder.U8(0);
-  const id1 = IdBuilder.U8(1);
+  const id0 = IdBuilder.U8(0)
+  const id1 = IdBuilder.U8(1)
   
   async function setup() {
     const api = await ApiPromise.create()

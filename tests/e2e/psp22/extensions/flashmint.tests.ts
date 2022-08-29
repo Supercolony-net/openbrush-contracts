@@ -56,38 +56,38 @@ describe('MY_PSP22_FLASHMINT', () => {
     return { flashmint: await setupFlashmint(), receiver: await setupFlashBorrower() }
   }
   // TODO: implement tests (bug in typechain)
-  // it('New works', async () => {
-  //   const { flashmint } = await setup()
-  //
-  //   // flash fee should be 1%
-  //   const flashFee = await flashmint.query.flashFee(flashmint.contract.address, 100)
-  //   // await expect(flashmint.query.flashFee(flashmint.contract.address, 100)).to.be.bnToNumber(1)
-  // })
-  //
-  // it('Flashloan works', async () => {
-  //   const { flashmint, receiver } = await setup()
-  //   const { contract: flashmintContract, query: flashmintQuery } = flashmint
-  //   const { contract: receiverContract } = receiver
-  //
-  //   const borrowAmount = 100
-  //   const fee = borrowAmount / 100
-  //   const sendAmount = borrowAmount + fee
-  //   const minted = 1000
-  //
-  //   // sender has the initial supply of tokens, we send some to the receiver
-  //   await expect(flashmintContract.tx.transfer(receiverContract.address, sendAmount, [])).to.eventually.be.fulfilled
-  //   await expect(flashmintQuery.balanceOf(receiverContract.address)).to.have.output(sendAmount)
-  //   await expect(flashmintQuery.totalSupply()).to.have.output(minted)
-  //
-  //   // we will do the flashloan
-  //   await expect(flashmintContract.tx.flashloan(receiverContract.address, flashmintContract.address, sendAmount, []))
-  //     .to.eventually.be.fulfilled
-  //
-  //   // receiver should have the fee deducted
-  //   await expect(flashmintQuery.balanceOf(receiverContract.address))
-  //     .to.have.output(sendAmount - fee)
-  //   // one token should be burned
-  //   await expect(flashmintQuery.totalSupply()).to.have.output(minted - fee)
-  // })
+  it('New works', async () => {
+    const { flashmint } = await setup()
+
+    // flash fee should be 1%
+    const flashFee = await flashmint.query.flashFee(flashmint.contract.address, 100)
+    await expect(flashmint.query.flashFee(flashmint.contract.address, 100)).to.be.bnToNumber(1)
+  })
+
+  it('Flashloan works', async () => {
+    const { flashmint, receiver } = await setup()
+    const { contract: flashmintContract, query: flashmintQuery } = flashmint
+    const { contract: receiverContract } = receiver
+
+    const borrowAmount = 100
+    const fee = borrowAmount / 100
+    const sendAmount = borrowAmount + fee
+    const minted = 1000
+
+    // sender has the initial supply of tokens, we send some to the receiver
+    await expect(flashmintContract.tx.transfer(receiverContract.address, sendAmount, [])).to.eventually.be.fulfilled
+    await expect(flashmintQuery.balanceOf(receiverContract.address)).to.have.bnToNumber(sendAmount)
+    await expect(flashmintQuery.totalSupply()).to.have.bnToNumber(minted)
+
+    // we will do the flashloan
+    await expect(flashmintContract.tx.flashloan(receiverContract.address, flashmintContract.address, sendAmount, []))
+      .to.eventually.be.fulfilled
+
+    // receiver should have the fee deducted
+    await expect(flashmintQuery.balanceOf(receiverContract.address))
+      .to.have.bnToNumber(sendAmount - fee)
+    // one token should be burned
+    await expect(flashmintQuery.totalSupply()).to.have.bnToNumber(minted - fee)
+  })
 
 })
