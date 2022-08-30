@@ -27,12 +27,15 @@ describe('MY_PSP35_BURNABLE', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
   it('Burn works', async () => {
-    const { contract, query, defaultSigner: sender, alice } = await setup()
+    const { contract, query, defaultSigner: sender, alice, close } = await setup()
     
     const amount1 = 1
     const amount2 = 20
@@ -62,10 +65,12 @@ describe('MY_PSP35_BURNABLE', () => {
     await expect(query.totalSupply(null)).to.have.bnToNumber(0)
     await expect(query.totalSupply(token1)).to.have.bnToNumber(0)
     await expect(query.totalSupply(token2)).to.have.bnToNumber(0)
+
+    await close()
   })
 
   it('Burn batch works', async () => {
-    const { contract, query, defaultSigner: sender, alice } = await setup()
+    const { contract, query, defaultSigner: sender, alice, close } = await setup()
     
     const amount1 = 1
     const amount2 = 10
@@ -87,10 +92,11 @@ describe('MY_PSP35_BURNABLE', () => {
     await expect(query.balanceOf(alice.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(alice.address, token2)).to.have.bnToNumber(0)
 
+    await close()
   })
 
   it('Burn insufficient balance should fail', async () => {
-    const { contract, defaultSigner: sender, query, alice } = await setup()
+    const { contract, defaultSigner: sender, query, alice, close } = await setup()
     
     const amount1 = 1
     const amount2 = 20
@@ -116,5 +122,7 @@ describe('MY_PSP35_BURNABLE', () => {
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(amount2)
     await expect(query.balanceOf(alice.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(alice.address, token2)).to.have.bnToNumber(0)
+
+    await close()
   })
 })

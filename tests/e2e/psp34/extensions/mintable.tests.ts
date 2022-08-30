@@ -27,7 +27,10 @@ describe('MY_PSP34_MINTABLE', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
@@ -36,7 +39,8 @@ describe('MY_PSP34_MINTABLE', () => {
       contract,
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.balanceOf(sender.address)).to.have.output(0)
@@ -47,6 +51,8 @@ describe('MY_PSP34_MINTABLE', () => {
 
     await expect(query.balanceOf(sender.address)).to.have.output(1)
     await expect(query.balanceOf(alice.address)).to.have.output(1)
+
+    await close()
   })
 
   it('Mint existing should fail', async () => {
@@ -54,7 +60,8 @@ describe('MY_PSP34_MINTABLE', () => {
       contract,
       alice,
       defaultSigner: sender,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(contract.tx.mint(sender.address, id0)).to.eventually.be.fulfilled
@@ -66,6 +73,8 @@ describe('MY_PSP34_MINTABLE', () => {
 
     await expect(query.balanceOf(sender.address)).to.have.output(1)
     await expect(query.balanceOf(alice.address)).to.have.output(0)
+
+    await close()
   })
 
 })

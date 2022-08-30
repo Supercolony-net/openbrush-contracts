@@ -24,7 +24,10 @@ describe('MY_PSP34_BURNABLE', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
@@ -32,7 +35,8 @@ describe('MY_PSP34_BURNABLE', () => {
     const {
       contract,
       defaultSigner: sender,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.balanceOf(sender.address)).to.have.output(3)
@@ -40,6 +44,8 @@ describe('MY_PSP34_BURNABLE', () => {
     await expect(contract.tx.burn(sender.address, IdBuilder.U8(0))).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address)).to.have.output(2)
+
+    await close()
   })
 
   it('Burn from works', async () => {
@@ -47,7 +53,8 @@ describe('MY_PSP34_BURNABLE', () => {
       contract,
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.balanceOf(sender.address)).to.have.output(3)
@@ -55,5 +62,7 @@ describe('MY_PSP34_BURNABLE', () => {
     await expect(contract.withSigner(alice).tx.burn(sender.address, IdBuilder.U8(0))).to.eventually.be.fulfilled
 
     await expect(query.balanceOf(sender.address)).to.have.output(2)
+
+    await close()
   })
 })

@@ -31,7 +31,10 @@ describe('MY_PSP35_ENUMERABLE', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
@@ -39,11 +42,14 @@ describe('MY_PSP35_ENUMERABLE', () => {
     const {
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.ownersTokenByIndex(sender.address, 0)).to.have.output(null)
     await expect(query.ownersTokenByIndex(alice.address, 0)).to.have.output(null)
+
+    await close()
   })
 
   it('Enumerable works', async () => {
@@ -51,7 +57,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
       contract,
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.ownersTokenByIndex(sender.address, 0)).to.have.output(null)
@@ -71,6 +78,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
     expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(token1Return)
     // expect(id((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).u8).equal(2)
     expect((await query.ownersTokenByIndex(alice.address, 1)).value).to.be.deep.equal(token2Return)
+
+    await close()
   })
 
   it('Enumerable works after burn', async () => {
@@ -78,7 +87,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
       contract,
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.ownersTokenByIndex(sender.address, 0)).to.have.output(null)
@@ -99,6 +109,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
     // expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
     expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(token1Return)
     await expect(query.ownersTokenByIndex(alice.address, 1)).to.have.output(null)
+
+    await close()
   })
 
   it('Enumerable transfer works', async () => {
@@ -106,7 +118,8 @@ describe('MY_PSP35_ENUMERABLE', () => {
       contract,
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.ownersTokenByIndex(sender.address, 0)).to.have.output(null)
@@ -133,5 +146,7 @@ describe('MY_PSP35_ENUMERABLE', () => {
     expect((await query.ownersTokenByIndex(sender.address, 0)).value).to.be.deep.equal(token2Return)
     // expect(id((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).u8).equal(2)
     expect((await query.ownersTokenByIndex(alice.address, 1)).value).to.be.deep.equal(token2Return)
+
+    await close()
   })
 })

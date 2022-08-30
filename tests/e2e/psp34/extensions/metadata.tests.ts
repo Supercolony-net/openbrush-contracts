@@ -36,16 +36,21 @@ describe('MY_PSP34_METADATA', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
   it('Metadata works', async () => {
-    const { query } = await setup()
+    const { query, close } = await setup()
 
     let result = bytesToString((await query.getAttribute(IdBuilder.U8(1), 'name' as unknown as string[])).value! as unknown as string)
     expect(result).to.be.eq('Non Fungible Token')
     result = bytesToString((await query.getAttribute(IdBuilder.U8(1), 'symbol' as unknown as string[])).value! as unknown as string)
     expect(result).to.be.eq('NFT')
+
+    await close()
   })
 })

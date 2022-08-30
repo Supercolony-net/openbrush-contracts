@@ -24,12 +24,15 @@ describe('MY_PSP35_MINTABLE', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
   it('Mint works', async () => {
-    const { contract, defaultSigner: sender, query, alice } = await setup()
+    const { contract, defaultSigner: sender, query, alice, close } = await setup()
 
     const token1 = IdBuilder.U8(0)
     const token2 = IdBuilder.U8(1)
@@ -50,5 +53,7 @@ describe('MY_PSP35_MINTABLE', () => {
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(amount2)
     await expect(query.balanceOf(alice.address, token1)).to.have.bnToNumber(amount1)
     await expect(query.balanceOf(alice.address, token2)).to.have.bnToNumber(amount2)
+
+    await close()
   })
 })

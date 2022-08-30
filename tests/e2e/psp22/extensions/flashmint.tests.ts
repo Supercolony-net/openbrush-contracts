@@ -25,7 +25,10 @@ describe('MY_PSP22_FLASHMINT', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
   
@@ -48,20 +51,31 @@ describe('MY_PSP22_FLASHMINT', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
   
   async function setup() {
-    return { flashmint: await setupFlashmint(), receiver: await setupFlashBorrower() }
+    const flashmint = await setupFlashmint()
+    const receiver = await setupFlashBorrower()
+
+    return { flashmint, receiver, close: async () => {
+      await flashmint.close()
+      await receiver.close()
+    } }
   }
   // TODO: implement tests (bug in typechain)
   it('New works', async () => {
-    const { flashmint } = await setup()
+    const { flashmint, close } = await setup()
 
     // flash fee should be 1%
     const flashFee = await flashmint.query.flashFee(flashmint.contract.address, 100)
     await expect(flashmint.query.flashFee(flashmint.contract.address, 100)).to.be.bnToNumber(1)
+
+    await close()
   })
 
   it('Flashloan works', async () => {
@@ -88,6 +102,9 @@ describe('MY_PSP22_FLASHMINT', () => {
       .to.have.bnToNumber(sendAmount - fee)
     // one token should be burned
     await expect(flashmintQuery.totalSupply()).to.have.bnToNumber(minted - fee)
+
+    await flashmint.close()
+    await receiver.close()
   })
 
 })

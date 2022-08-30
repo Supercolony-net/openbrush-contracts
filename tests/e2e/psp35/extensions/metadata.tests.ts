@@ -25,12 +25,15 @@ describe('MY_PSP35_METADATA', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
   it('Metadata works', async () => {
-    const { query, tx } = await setup()
+    const { query, tx, close } = await setup()
     const encoder = new TextEncoder()
     const id = IdBuilder.U8(0)
 
@@ -43,6 +46,8 @@ describe('MY_PSP35_METADATA', () => {
         Uint8Array.from(bnArg(encoder.encode('https://www.supercolony.net/')))
       )
     )
+
+    await close()
   })
 
 })

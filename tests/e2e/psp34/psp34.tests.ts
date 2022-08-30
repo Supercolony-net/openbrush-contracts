@@ -28,7 +28,10 @@ describe('MY_PSP34', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
@@ -51,22 +54,28 @@ describe('MY_PSP34', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
   it('Return collection_id of account', async () => {
-    const { query, contract } = await setup()
+    const { query, contract, close } = await setup()
 
     const expected_collection_id = PSP34Returns.IdBuilder.Bytes(addressToU8a(contract.address) as unknown as number[])
     const actual_collection_id = await query.collectionId()
     expect(expected_collection_id).to.have.output(actual_collection_id)
+
+    await close()
   })
 
   it('Returns total supply', async () => {
     const {
       query,
-      tx
+      tx,
+      close
     } = await setup()
 
     await expect(query.totalSupply()).to.have.bnToNumber(0)
@@ -75,6 +84,8 @@ describe('MY_PSP34', () => {
     await expect(tx.mintToken()).to.eventually.be.fulfilled
 
     await expect(query.totalSupply()).to.have.bnToNumber(3)
+
+    await close()
   })
 
   it('Transfer works', async () => {
@@ -83,7 +94,8 @@ describe('MY_PSP34', () => {
       defaultSigner: sender,
       alice,
       query,
-      tx
+      tx,
+      close
     } = await setup()
 
     await expect(tx.mintToken()).to.eventually.be.fulfilled
@@ -95,6 +107,8 @@ describe('MY_PSP34', () => {
 
     await expect(query.balanceOf(sender.address)).to.have.output(0)
     await expect(query.balanceOf(alice.address)).to.have.output(1)
+
+    await close()
   })
 
   it('Approved transfer works', async () => {
@@ -103,7 +117,8 @@ describe('MY_PSP34', () => {
       defaultSigner: sender,
       query,
       tx,
-      alice
+      alice,
+      close
     } = await setup()
 
     await expect(tx.mintToken()).to.eventually.be.fulfilled
@@ -120,6 +135,8 @@ describe('MY_PSP34', () => {
 
     await expect(query.balanceOf(sender.address)).to.have.output(0)
     await expect(query.balanceOf(alice.address)).to.have.output(1)
+
+    await close()
   })
 
   it('Approved operator transfer works', async () => {
@@ -128,7 +145,8 @@ describe('MY_PSP34', () => {
       defaultSigner: sender,
       alice,
       query,
-      tx
+      tx,
+      close
     } = await setup()
 
     await expect(tx.mintToken()).to.eventually.be.fulfilled
@@ -142,16 +160,19 @@ describe('MY_PSP34', () => {
 
     await expect(query.balanceOf(sender.address)).to.have.output(0)
     await expect(query.balanceOf(alice.address)).to.have.output(1)
+
+    await close()
   })
 
   it('PSP34 - safe transfer works', async () => {
     const {
       tx,
       query,
-      defaultSigner: sender
+      defaultSigner: sender,
+      close: closePSP34
     } = await setup()
 
-    const { contract } = await setup_receiver()
+    const { contract, close: closeReceiver } = await setup_receiver()
 
     // Arrange - Sender mint a Token
     await expect(tx.mintToken()).to.eventually.be.fulfilled
@@ -164,16 +185,20 @@ describe('MY_PSP34', () => {
 
     // Assert - Bob is now owner of the token
     await expect(query.ownerOf(PSP34Args.IdBuilder.U8(0))).to.have.output(contract.address.toString())
+
+    await closePSP34()
+    await closeReceiver()
   })
 
   it('PSP34 - safe transfer works to contract but not PSP34Receiver', async () => {
     const {
       tx,
       query,
-      defaultSigner: sender
+      defaultSigner: sender,
+      close: close1
     } = await setup()
 
-    const { contract } = await setup()
+    const { contract, close: close2 } = await setup()
 
     const id = PSP34Args.IdBuilder.U8(0)
 
@@ -186,12 +211,15 @@ describe('MY_PSP34', () => {
 
     // Assert - Bob is now owner of the token
     await expect(query.ownerOf(id)).to.have.output(contract.address.toString())
+
+    await close1()
+    await close2()
   })
 
   it('PSP 34 - safe transfer works to contract that implements PSP34Receiver', async () => {
-    const { tx, query, defaultSigner: sender } = await setup()
+    const { tx, query, defaultSigner: sender, close: closePSP34 } = await setup()
 
-    const { contract } = await setup_receiver()
+    const { contract, close: closeReceiver } = await setup_receiver()
 
     const id = PSP34Args.IdBuilder.U8(0)
 
@@ -202,12 +230,15 @@ describe('MY_PSP34', () => {
     // Assert - Sender cannot send token to receiver & Sender still own the token
     await expect(tx.transfer(contract.address, id, 'data' as unknown as string[])).to.eventually.be.fulfilled
     await expect(query.ownerOf(id)).to.have.output(contract.address)
+
+    await closePSP34()
+    await closeReceiver()
   })
 
   it('PSP 34 - receiver can reject the transfer', async () => {
-    const { tx, query, defaultSigner: sender } = await setup()
+    const { tx, query, defaultSigner: sender, close: closePSP34 } = await setup()
 
-    const { contract } = await setup_receiver()
+    const { contract, close: closeReceiver } = await setup_receiver()
 
     const id = PSP34Args.IdBuilder.U8(0)
 
@@ -221,6 +252,9 @@ describe('MY_PSP34', () => {
     // Assert - Sender cannot send token to receiver & Sender still own the token
     await expect(tx.transfer(contract.address, id, 'data' as unknown as string[])).to.eventually.be.rejected
     await expect(query.ownerOf(id)).to.have.output(sender.address)
+
+    await closePSP34()
+    await closeReceiver()
   })
 
   it('Can nextot transfer non-existing token', async () => {
@@ -228,7 +262,8 @@ describe('MY_PSP34', () => {
       contract,
       alice: receiver,
       defaultSigner: sender,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.balanceOf(sender.address)).to.have.output(0)
@@ -236,6 +271,8 @@ describe('MY_PSP34', () => {
     await expect(contract.tx.transfer(receiver.address, PSP34Args.IdBuilder.U8(0), [])).to.eventually.be.rejected
 
     await expect(query.balanceOf(sender.address)).to.have.output(0)
+
+    await close()
   })
 
   it('Can not transfer without allowance', async () => {
@@ -244,7 +281,8 @@ describe('MY_PSP34', () => {
       alice,
       defaultSigner: sender,
       query,
-      tx
+      tx,
+      close
     } = await setup()
 
     await expect(tx.mintToken()).to.eventually.be.fulfilled
@@ -254,6 +292,8 @@ describe('MY_PSP34', () => {
       .to.eventually.be.rejected
 
     await expect(query.balanceOf(sender.address)).to.have.output(1)
+
+    await close()
   })
 
   it('Can mint any Id', async () => {
@@ -262,7 +302,8 @@ describe('MY_PSP34', () => {
       alice,
       defaultSigner: sender,
       query,
-      tx
+      tx,
+      close
     } = await setup()
 
     const ids = [
@@ -284,5 +325,7 @@ describe('MY_PSP34', () => {
     }
 
     await expect(query.balanceOf(sender.address)).to.have.output(6)
+
+    await close()
   })
 })

@@ -27,7 +27,10 @@ describe('TOKEN_TIMELOCK', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
@@ -50,7 +53,10 @@ describe('TOKEN_TIMELOCK', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
@@ -63,17 +69,22 @@ describe('TOKEN_TIMELOCK', () => {
 
     const timelock = await setupPSP22TokenTimelock(psp22.contract.address, beneficiary.address, releaseTime)
 
-    return { psp22, timelock, beneficiary, releaseTime }
+    return { psp22, timelock, beneficiary, releaseTime, close: async () => {
+      await psp22.close()
+      await timelock.close()
+    } }
   }
 
   it('New works', async () => {
-    const { psp22: psp22Container, timelock: timelockContainer, beneficiary, releaseTime } = await setup()
+    const { psp22: psp22Container, timelock: timelockContainer, beneficiary, releaseTime, close } = await setup()
     const { contract: psp22 } = psp22Container
     const { query: timelockQuery } = timelockContainer
 
     await expect(timelockQuery.token()).to.have.output(psp22.address)
     await expect(timelockQuery.beneficiary()).to.have.output(beneficiary.address)
     await expect(timelockQuery.releaseTime()).to.have.output(releaseTime)
+
+    await close()
   })
 
   // // this test does not work (we can not set timestamp)
@@ -99,7 +110,7 @@ describe('TOKEN_TIMELOCK', () => {
   // })
 
   it('Release soon should not work', async () => {
-    const { psp22: psp22Container, timelock: timelockContainer, beneficiary } = await setup()
+    const { psp22: psp22Container, timelock: timelockContainer, beneficiary, close } = await setup()
     const { contract: psp22, query: psp22Query } = psp22Container
     const { contract: timelock } = timelockContainer
 
@@ -114,10 +125,12 @@ describe('TOKEN_TIMELOCK', () => {
 
     await expect(psp22Query.balanceOf(timelock.address)).to.have.bnToNumber(depositedTokens)
     await expect(psp22Query.balanceOf(beneficiary.address)).to.have.bnToNumber(0)
+
+    await close()
   })
 
   it('Release without deposit should not work', async () => {
-    const { psp22: psp22Container, timelock: timelockContainer, beneficiary } = await setup()
+    const { psp22: psp22Container, timelock: timelockContainer, beneficiary, close } = await setup()
     const { query: psp22Query } = psp22Container
     const { contract: timelock } = timelockContainer
 
@@ -131,6 +144,8 @@ describe('TOKEN_TIMELOCK', () => {
     // // timelock should be empty
     await expect(psp22Query.balanceOf(timelock.address)).to.have.bnToNumber(0)
     await expect(psp22Query.balanceOf(beneficiary.address)).to.have.bnToNumber(tokens)
+
+    await close()
   })
 
 })

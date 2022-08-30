@@ -4,7 +4,6 @@ import ConstructorsPSP34 from '../../../../typechain-generated/constructors/my_p
 import ContractPSP34 from '../../../../typechain-generated/contracts/my_psp34_enumerable'
 import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp34_enumerable'
 import {IdBuilder as IdBuilderReturns} from '../../../../typechain-generated/types-returns/my_psp34_enumerable'
-import exp from "constants";
 
 interface Result {
   ok: Ok;
@@ -33,7 +32,10 @@ describe('MY_PSP34_ENUMERABLE', () => {
       bob,
       contract,
       query: contract.query,
-      tx: contract.tx
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
     }
   }
 
@@ -42,7 +44,8 @@ describe('MY_PSP34_ENUMERABLE', () => {
       contract,
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(query.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
@@ -54,7 +57,8 @@ describe('MY_PSP34_ENUMERABLE', () => {
       contract,
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(contract.tx.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
@@ -70,6 +74,8 @@ describe('MY_PSP34_ENUMERABLE', () => {
     expect((await query.tokenByIndex(1)).value).to.be.deep.equal(IdBuilderReturns.U8(2))
     expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(IdBuilderReturns.U8(1))
     expect((await query.ownersTokenByIndex(alice.address, 1)).value).to.be.deep.equal(IdBuilderReturns.U8(2))
+
+    await close()
   })
 
   it('Enumerable works after burn', async () => {
@@ -77,7 +83,8 @@ describe('MY_PSP34_ENUMERABLE', () => {
       contract,
       defaultSigner: sender,
       alice,
-      query
+      query,
+      close
     } = await setup()
 
     await expect(contract.tx.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
@@ -97,5 +104,6 @@ describe('MY_PSP34_ENUMERABLE', () => {
     await expect(contract.tx.ownersTokenByIndex(alice.address, 0)).to.eventually.be.fulfilled
     await expect(contract.tx.ownersTokenByIndex(alice.address, 1)).to.eventually.be.rejected
 
+    await close()
   })
 })
