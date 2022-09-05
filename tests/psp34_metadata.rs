@@ -24,10 +24,12 @@
 #[openbrush::contract]
 mod psp34_metadata {
     use ink_lang as ink;
-    use ink_prelude::string::String;
     use openbrush::{
         contracts::psp34::extensions::metadata::*,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     #[derive(Default, Storage)]
@@ -45,7 +47,7 @@ mod psp34_metadata {
         #[ink(constructor)]
         pub fn new(id: Id, key: String, val: String) -> Self {
             let mut instance = Self::default();
-            instance._set_attribute(id, key.into_bytes(), val.into_bytes());
+            instance._set_attribute(id, key, val);
             instance
         }
     }
@@ -56,8 +58,8 @@ mod psp34_metadata {
         let nft = PSP34Struct::new(id.clone(), String::from("KEY"), String::from("VAL"));
 
         assert_eq!(
-            nft.get_attribute(id.clone(), String::from("KEY").into_bytes()),
-            Some(String::from("VAL").into_bytes())
+            nft.get_attribute(id.clone(), String::from("KEY")),
+            Some(String::from("VAL"))
         );
     }
 }

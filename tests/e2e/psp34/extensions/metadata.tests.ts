@@ -1,22 +1,10 @@
-import {expect, getSigners} from '../../helpers'
+import {bytesToString, expect, getSigners} from '../../helpers'
 import {ApiPromise} from '@polkadot/api'
 import ConstructorsPSP34 from '../../../../typechain-generated/constructors/my_psp34_metadata'
 import ContractPSP34 from '../../../../typechain-generated/contracts/my_psp34_metadata'
 import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp34_metadata'
 
 describe('MY_PSP34_METADATA', () => {
-  function bytesToString(bytes: string): string {
-    const outputNumber = bytes.substring(2).split('').map(x => parseInt(x as unknown as string, 16))
-
-    const length = outputNumber.length
-    let result = ''
-    for (let i = 0; i < length; i += 2) {
-      result += String.fromCharCode(outputNumber[i] * 16 + outputNumber[i + 1])
-    }
-
-    return result
-  }
-
   async function setup() {
     const api = await ApiPromise.create()
 
@@ -26,7 +14,7 @@ describe('MY_PSP34_METADATA', () => {
     const bob = signers[1]
 
     const contractFactory = new ConstructorsPSP34(api, defaultSigner)
-    const contractAddress = (await contractFactory.new(IdBuilder.U8(1), 'Non Fungible Token', 'NFT')).address
+    const contractAddress = (await contractFactory.new(IdBuilder.U8(1), 'Non Fungible Token' as unknown as string[], 'NFT' as unknown as string[])).address
     const contract = new ContractPSP34(contractAddress, defaultSigner, api)
 
     return {

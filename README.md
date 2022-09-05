@@ -1,4 +1,8 @@
-# ![logo-2](https://user-images.githubusercontent.com/24861482/177825604-bf797de0-d14f-44c5-bbdb-e57fa48d39d0.png)
+# 
+
+<p align = "center">
+  <img src="https://user-images.githubusercontent.com/18346821/183483033-2cd46f58-7c29-4cd8-ad1c-b633f9673e13.png"/>
+</p>
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://supercolony-net.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
@@ -25,7 +29,7 @@ Why use this library?
 Which Standard tokens & useful contracts does it provide?
 - **PSP22** - Fungible Token (*ERC20 equivalent*) with extensions
 - **PSP34** - Non-Fungible Token (*ERC721 equivalent*) with extensions
-- **PSP35** - *ERC1155 equivalent* with extensions
+- **PSP37** - *ERC1155 equivalent* with extensions
 - **Ownable** Restrict access to action for non-owners
 - **Access Control** Define set of roles and restrict access to action by roles
 - **Reentrancy guard** Prevent reentrant calls to a function
@@ -123,7 +127,7 @@ but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/
 ### Other Issues open:
 
 * [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
-* [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
+* [Library provides implementation in Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
 * [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
 * After [Storage rework](https://github.com/paritytech/ink/pull/1217) we need to refactor upgradeable contracts.
 
@@ -134,7 +138,8 @@ OpenBrush participates in the Web3 Grants, you can find the roadmap there:
 - [Grant II](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up.md#current-work---scope-of-this-grant)
 - [Grant III](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up-2.md#current-work---scope-of-this-grant)
 
-More common roadmap of tasks:
+<details><summary>More common roadmap of tasks</summary>
+    
 - [x] Implement fungible, non-fungible, and multi tokens.
 - [x] Implement AccessControl and Ownable.
 - [x] Add examples of how to reuse ERC20, ERC721, AccessControl implementations.
@@ -169,7 +174,7 @@ More common roadmap of tasks:
 - [x] Publish `openbrush` into [crates.io](https://crates.io/crates/openbrush)
 - [x] Add documentation for upgradeable contracts.
 - [x] Add extension: `AccessControlEnumerable`.
-- [x] Add extension: `PSP35Enumerable`.
+- [x] Add extension: `PSP37Enumerable`.
 - [ ] Force/help ink! to create new independent events. During this task decide how ink! can generate metadata for
   events/traits from other crates.
 - [ ] Cover everything with UT and integration tests.
@@ -180,6 +185,8 @@ More common roadmap of tasks:
 - [ ] Implement `UniquesChainExtension` to work with `uniques-pallet`.
 - [ ] Implement `PSP34` via `UniquesChainExtension`.
 - [ ] Audit.
+    
+</details>
 
 ## Installation & Testing
 To work with project you need to install ink! toolchain and NodeJS's dependencies.
@@ -197,7 +204,7 @@ $ yarn build:release
 
 ### Tests
 
-You can run unit tests by `RUSTFLAGS="-D warnings" cargo test --all-features --workspace -- --test-threads=10` command from the root of the directory.
+You can run unit tests by `RUSTFLAGS="-D warnings" cargo +nightly test --workspace --features test-all -- --test-threads=10` command from the root of the directory.
 
 To run integration test you need to start the node with contract-pallet.
 - [Setup and start the node with contract-pallet](https://github.com/paritytech/substrate-contracts-node)

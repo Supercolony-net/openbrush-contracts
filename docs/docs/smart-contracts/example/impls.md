@@ -61,11 +61,16 @@ pub trait Lending {
   #[ink(message)]
   fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError>;
 
+  /// This function  will return the address of shares
+  /// which is bound to `asset_address` asset token
+  #[ink(message)]
+  fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError>;
+  
   /// This function will return true if the asset is accepted by the contract
   #[ink(message)]
   fn is_accepted_lending(&self, asset_address: AccountId) -> bool;
 
-  /// This function will return true if the asset is accepted by the contract
+  /// This function will return true if the asset is accepted for using as collateral
   #[ink(message)]
   fn is_accepted_collateral(&self, asset_address: AccountId) -> bool;
 
@@ -183,8 +188,9 @@ In this example we will not be using price oracles, we will do
 our own simulated oracle. Since oracles are not the point of this example,
 it will be enough for us. We will store prices info in our data struct.
 
-```rust// Importing everything publicly from traits allows you to import every stuff related to lending
-// by one import
+```rust
+// Importing everything publicly from traits allows you to import 
+// every stuff related to lending by one import
 use crate::traits::lending::*;
 use openbrush::{
     storage::{
@@ -193,10 +199,8 @@ use openbrush::{
     },
     traits::{
         AccountId,
-        AccountIdExt,
         Balance,
         Hash,
-        ZERO_ADDRESS,
     },
 };
 
@@ -263,36 +267,28 @@ where
 
 /// Internal function which will return the address of the shares token
 /// which are minted when `asset_address` is borrowed
-pub fn get_reserve_asset<T>(instance: &T, asset_address: &AccountId) -> Result<AccountId, LendingError>
-where
+pub fn get_reserve_asset<T>(instance: &T, asset_address: &AccountId) -> Result<AccountId, LendingError> 
+where 
     T: Storage<Data>,
 {
-    let reserve_asset = instance
+    instance
         .data()
         .asset_shares
         .get(&asset_address)
-        .unwrap_or(ZERO_ADDRESS.into());
-    if reserve_asset.is_zero() {
-        return Err(LendingError::AssetNotSupported)
-    }
-    Ok(reserve_asset)
+        .ok_or(LendingError::AssetNotSupported)
 }
 
 /// internal function which will return the address of asset
 /// which is bound to `shares_address` shares token
-pub fn get_asset_from_shares<T>(instance: &T, shares_address: &AccountId) -> Result<AccountId, LendingError>
+pub fn get_asset_from_shares<T>(instance: &T, shares_address: &AccountId) -> Result<AccountId, LendingError> 
 where
     T: Storage<Data>,
-{
-    let token = instance
+{ 
+    instance
         .data()
         .shares_asset
         .get(shares_address)
-        .unwrap_or(ZERO_ADDRESS.into());
-    if token.is_zero() {
-        return Err(LendingError::AssetNotSupported)
-    }
-    Ok(token)
+        .ok_or(LendingError::AssetNotSupported)
 }
 
 ```
@@ -476,8 +472,8 @@ The `Storage<pausable::Data>` restriction is required to use `when_paused`, `whe
 from [pausable](https://github.com/Supercolony-net/openbrush-contracts/blob/main/contracts/src/security/pausable/mod.rs#L24).
 
 ```rust
-// Importing everything publicly from traits allows you to import every stuff related to lending
-// by one import
+// Importing everything publicly from traits allows you to import 
+// every stuff related to lending by one import
 pub use crate::{
     impls::lending::{
         data,
@@ -552,7 +548,15 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         }
         Ok(PSP22Ref::total_supply(&mapped_asset))
     }
-
+  
+    default fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError> {
+        self
+            .data::<data::Data>()
+            .asset_shares
+            .get(&asset_address)
+            .ok_or(LendingError::AssetNotSupported)
+    }
+  
     default fn is_accepted_lending(&self, asset_address: AccountId) -> bool {
         !self
             .data::<data::Data>()
@@ -724,7 +728,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
             SharesRef::mint(
                 &reserve_asset,
                 contract,
-                to_repay - repay_amount - loan_info.borrow_amount,
+                to_repay - repay_amount,
             )?;
             LoanRef::update_loan(
                 &loan_account,

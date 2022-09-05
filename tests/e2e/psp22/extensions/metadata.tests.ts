@@ -14,7 +14,7 @@ describe('MY_PSP22_METADATA', () => {
     const bob = signers[1]
 
     const contractFactory = new Constructors(api, defaultSigner)
-    const contractAddress = (await contractFactory.new(1000, 'TOKEN', 'TKN', 18)).address
+    const contractAddress = (await contractFactory.new(1000, 'TOKEN' as unknown as string[], 'TKN' as unknown as string[], 18)).address
     const contract = new Contract(contractAddress, defaultSigner, api)
 
     return {
@@ -31,8 +31,8 @@ describe('MY_PSP22_METADATA', () => {
   it('Metadata works', async () => {
     const { api, query, defaultSigner: sender } = await setup()
 
-    await expect(query.tokenName()).to.have.output('TOKEN')
-    await expect(query.tokenSymbol()).to.have.output('TKN')
+    await expect(query.tokenName()).to.have.bytesToString('TOKEN')
+    await expect(query.tokenSymbol()).to.have.bytesToString('TKN')
     await expect(query.tokenDecimals()).to.have.output(18)
 
     await api.disconnect()

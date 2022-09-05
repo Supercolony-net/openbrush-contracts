@@ -231,20 +231,20 @@ you can find instructions on how to work with them:
   * [PSP34Mintable](PSP34/Extensions/mintable.md): creation of new tokens.
   * [PSP34Burnable](PSP34/Extensions/burnable.md): destruction of own tokens.
   * [PSP34Enumerable](PSP34/Extensions/enumerable.md): iterating over contract's tokens.
-* [PSP35](PSP35/psp35.md) is an example of how you can reuse the implementation of
-  [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35). You also can find examples of how to reuse extensions.
-  * [PSP35Metadata](PSP35/Extensions/metadata.md): metadata for PSP35.
-  * [PSP35Mintable](PSP35/Extensions/mintable.md): creation of new tokens.
-  * [PSP35Burnable](PSP35/Extensions/burnable.md): destruction of own tokens.
-  * [PSP35Batch](PSP35/Extensions/batch.md): batch transferring of tokens.
-  * [PSP35Enumerable](PSP35/Extensions/enumerable.md): iterating over contract's tokens.
-* [Access Control](access-control.md) shows how you can use the implementation of
+* [PSP37](PSP37/psp37.md) is an example of how you can reuse the implementation of
+  [psp37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37). You also can find examples of how to reuse extensions.
+  * [PSP37Metadata](PSP37/Extensions/metadata.md): metadata for PSP37.
+  * [PSP37Mintable](PSP37/Extensions/mintable.md): creation of new tokens.
+  * [PSP37Burnable](PSP37/Extensions/burnable.md): destruction of own tokens.
+  * [PSP37Batch](PSP37/Extensions/batch.md): batch transferring of tokens.
+  * [PSP37Enumerable](PSP37/Extensions/enumerable.md): iterating over contract's tokens.
+* [Access Control](docs/smart-contracts/access-control/access-control.md) shows how you can use the implementation of
   [access-control](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/access/access_control) and
   [psp34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) together to provide rights to mint and burn NFT tokens.
-  * [AccessControlEnumerable](PSP34/Extensions/enumerable.md): iterating over contract's tokens.
+  * [AccessControlEnumerable](docs/smart-contracts/access-control/Extensions/enumerable.md): iterating over contract's roles.
 * [Ownable](ownable.md) shows how you can use the implementation of
   [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/access/ownable) and
-  [psp35](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp35) together to provide rights to mint and burn tokens.
+  [psp37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37) together to provide rights to mint and burn tokens.
 * [ReentrancyGuard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/security/reentrancy_guard)
   modifier to prevent reentrancy during certain functions.
 * [Pausable](pausable.md) shows how you can use the implementation of
@@ -256,10 +256,10 @@ you can find instructions on how to work with them:
 * [PaymentSplitter](payment-splitter.md) shows how you can use the implementation of
   [payment-splitter](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/finance/payment_splitter)
   to split received native tokens between participants of the contract.
-* [Diamond](diamond.md) shows how you can use the implementation of
+* [Diamond](docs/smart-contracts/diamond/diamond.md) shows how you can use the implementation of
   [diamond](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond)
   pattern to split your contract into small parts and support upgradeability.
-  * [DiamondLoupe](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond/extensions): iterating over contract's facets.
+  * [DiamondLoupe](docs/smart-contracts/diamond/Extensions/loupe.md): iterating over contract's facets.
 * [Proxy](proxy.md) shows how you can use the implementation of
   [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/proxy)
   pattern to support upgradeability of your contract.

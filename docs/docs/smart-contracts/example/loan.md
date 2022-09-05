@@ -121,7 +121,7 @@ so we will add these to our contract. We will add a `openbrush::contract` macro 
 /// This contract will represent the loan of a user
 #[openbrush::contract]
 pub mod loan {
-    use ink_prelude::string::String;
+    use openbrush::traits::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::traits::loan::*;
     use openbrush::{
@@ -247,9 +247,10 @@ impl LoanContract {
             instance.last_loan_id = Id::U128(1);
             instance._set_attribute(
                 Id::U8(1u8),
-                String::from("LoanContract NFT").into_bytes(),
-                String::from("L-NFT").into_bytes(),
+                String::from("LoanContract NFT"),
+                String::from("L-NFT"),
             );
+            instance._init_with_owner(instance.env().caller());
         })
     }
 

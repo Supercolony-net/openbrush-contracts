@@ -6,7 +6,6 @@
 /// the amount of borrowed tokens
 #[openbrush::contract]
 pub mod shares {
-    use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::traits::shares::*;
     use openbrush::{
@@ -19,7 +18,10 @@ pub mod shares {
             },
         },
         modifiers,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data

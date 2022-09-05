@@ -28,6 +28,8 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 
 openbrush = { version = "~2.2.0", package = "openbrush_lang", path = "../lang", default-features = false }
 
+pallet-assets-chain-extension = { git = "https://github.com/Supercolony-net/pallet-assets-chain-extension", default-features = false, features = ["ink"]  }
+
 [lib]
 name = "openbrush_contracts"
 path = "src/lib.rs"
@@ -46,10 +48,12 @@ std = [
     "scale-info/std",
 
     "openbrush/std",
+    "pallet-assets-chain-extension/ink-std",
 ]
 psp22 = []
+psp22_pallet = []
 psp34 = []
-psp35 = []
+psp37 = []
 access_control = []
 ownable = []
 payment_splitter = []
@@ -63,4 +67,18 @@ proxy = [
 ]
 diamond = [
     "ownable",
+]
+test-all = [
+    "psp22",
+    # "psp22_pallet", we ignore it during testing. It requries it own run of tests
+    "psp34",
+    "psp37",
+    "access_control",
+    "ownable",
+    "payment_splitter",
+    "reentrancy_guard",
+    "pausable",
+    "timelock_controller",
+    "proxy",
+    "diamond",
 ]

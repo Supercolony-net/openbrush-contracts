@@ -24,6 +24,7 @@ use ::ink_env::{
     Environment,
 };
 use core::mem::ManuallyDrop;
+use ink_prelude::vec::Vec;
 pub use openbrush_lang_macro::Storage;
 
 /// Aliases for types of the default environment
@@ -34,6 +35,7 @@ pub type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
 pub type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 pub type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 pub type EnvAccess = ::ink_lang::EnvAccess<'static, DefaultEnvironment>;
+pub type String = Vec<u8>;
 
 /// Each object has access to default environment via `Self::env()`.
 /// It can be used for interaction with host functions of the blockchain.

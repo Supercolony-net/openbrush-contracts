@@ -30,7 +30,10 @@ mod psp34_mintable {
             Id,
         },
         test_utils::accounts,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     #[derive(Default, Storage)]

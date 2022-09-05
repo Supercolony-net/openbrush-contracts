@@ -61,10 +61,11 @@ std = [
     "openbrush_contracts/std",
     "openbrush_lang/std",
 ]
-access_control = ["openbrush_contracts/access_control"]
 psp22 = ["openbrush_contracts/psp22"]
+psp22_pallet = ["openbrush_contracts/psp22_pallet"]
 psp34 = ["openbrush_contracts/psp34"]
-psp35 = ["openbrush_contracts/psp35"]
+psp37 = ["openbrush_contracts/psp37"]
+access_control = ["openbrush_contracts/access_control"]
 ownable = ["openbrush_contracts/ownable"]
 payment_splitter = ["openbrush_contracts/payment_splitter"]
 reentrancy_guard = ["openbrush_contracts/reentrancy_guard"]
@@ -72,6 +73,21 @@ pausable = ["openbrush_contracts/pausable"]
 timelock_controller = ["openbrush_contracts/timelock_controller"]
 proxy = ["openbrush_contracts/proxy"]
 diamond = ["openbrush_contracts/diamond"]
+
+test-all = [
+    "psp22",
+    # "psp22_pallet", we ignore it during testing. It requries it own run of tests
+    "psp34",
+    "psp37",
+    "access_control",
+    "ownable",
+    "payment_splitter",
+    "reentrancy_guard",
+    "pausable",
+    "timelock_controller",
+    "proxy",
+    "diamond",
+]
 
 [profile.release]
 panic = "abort"

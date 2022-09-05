@@ -3,11 +3,11 @@
 #[openbrush::contract]
 pub mod flash_borrower {
     use ink_lang::codegen::Env;
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
+    use ink_prelude::vec::Vec;
+    use openbrush::{
+        contracts::psp22::extensions::flashmint::*,
+        traits::String,
     };
-    use openbrush::contracts::psp22::extensions::flashmint::*;
 
     #[ink(storage)]
     pub struct FlashBorrowerStruct {}

@@ -31,7 +31,10 @@ mod psp22_mintable {
     use openbrush::{
         contracts::psp22::extensions::mintable::*,
         test_utils::*,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     /// Event emitted when a token transfer occurs.

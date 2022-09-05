@@ -31,7 +31,10 @@ mod psp22_burnable {
     use openbrush::{
         contracts::psp22::extensions::burnable::*,
         test_utils::*,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     /// Event emitted when a token transfer occurs.

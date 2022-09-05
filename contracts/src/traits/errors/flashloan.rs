@@ -27,7 +27,7 @@ use super::{
     PausableError,
     ReentrancyGuardError,
 };
-use ink_prelude::string::String;
+use openbrush::traits::String;
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]

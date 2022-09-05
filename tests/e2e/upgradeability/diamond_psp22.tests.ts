@@ -222,8 +222,8 @@ describe('DIAMOND_PSP22', () => {
     // patch methods
     const proxyPSP22Metadata = setupProxy(metadataFacet, diamondContract.address)
 
-    await expect(proxyPSP22Metadata.query.tokenName()).to.output('PSP22 Diamond')
-    await expect(proxyPSP22Metadata.query.tokenSymbol()).to.output('PSP22D')
+    await expect(proxyPSP22Metadata.query.tokenName()).to.bytesToString('PSP22 Diamond')
+    await expect(proxyPSP22Metadata.query.tokenSymbol()).to.bytesToString('PSP22D')
     await expect(proxyPSP22Metadata.query.tokenDecimals()).to.output(18)
 
     // Test Loupe

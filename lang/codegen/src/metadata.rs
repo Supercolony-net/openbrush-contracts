@@ -109,7 +109,7 @@ impl Drop for LockedTrait {
 /// It stores file in the target folder where `ink_lang` is stored.
 fn get_locked_file(name: String) -> File {
     use crate::internal::INK_PREFIX;
-    const SUFFIX: &str = "target/";
+    const SUFFIX: &str = "target";
 
     let target: String = env::args()
         .find(|arg| arg.contains(INK_PREFIX))

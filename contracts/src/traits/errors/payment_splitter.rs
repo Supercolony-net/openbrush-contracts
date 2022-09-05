@@ -25,7 +25,7 @@ use super::{
     PausableError,
     ReentrancyGuardError,
 };
-use ink_prelude::string::String;
+use openbrush::traits::String;
 
 /// The PaymentSplitter error type. Contract will throw one of this errors.
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]

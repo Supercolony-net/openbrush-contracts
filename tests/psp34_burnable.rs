@@ -27,7 +27,10 @@ mod psp34_burnable {
     use openbrush::{
         contracts::psp34::extensions::burnable::*,
         test_utils::accounts,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     #[derive(Default, Storage)]

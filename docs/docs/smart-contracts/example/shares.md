@@ -62,7 +62,7 @@ we also need these imports:
 /// the amount of borrowed tokens
 #[openbrush::contract]
 pub mod shares {
-    use ink_prelude::string::String;
+    use openbrush::traits::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::traits::shares::*;
     use openbrush::{
@@ -104,28 +104,17 @@ We will be using these extensions in our token, so we will implement them for
 our storage.
 
 ```rust
-/// Implement PSP22 Trait for our coin
-impl PSP22 for StableCoinContract {}
+// Implement PSP22 Trait for our share
+impl PSP22 for SharesContract {}
 
-/// Implement PSP22Metadata Trait for our coin
-impl PSP22Metadata for StableCoinContract {}
+// Implement Ownable Trait for our share
+impl Ownable for SharesContract {}
+
+// Implement Metadata Trait for our share
+impl PSP22Metadata for SharesContract {}
 
 // It forces the compiler to check that you implemented all super traits
-impl StableCoin for StableCoinContract {}
-
-impl StableCoinContract {
-    /// Constructor with name and symbol
-    #[ink(constructor)]
-    pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut StableCoinContract| {
-            instance.metadata.name = name;
-            instance.metadata.symbol = symbol;
-            instance.metadata.decimals = 18;
-            let total_supply = 1_000_000 * 10_u128.pow(18);
-            assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
-        })
-    }
-}
+impl Shares for SharesContract {}
 ```
 
 ## Implement the Burnable and Mintable traits
