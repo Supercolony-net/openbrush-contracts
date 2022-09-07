@@ -28,10 +28,10 @@ pub use crate::{
     },
 };
 pub use capped::Internal as _;
-use ink_prelude::string::String;
 use openbrush::traits::{
     Balance,
     Storage,
+    String,
 };
 pub use psp22::{
     Internal as _,

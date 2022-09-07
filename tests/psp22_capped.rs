@@ -31,7 +31,10 @@ mod psp22_capped {
             mintable::*,
         },
         test_utils::accounts,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     #[ink(storage)]

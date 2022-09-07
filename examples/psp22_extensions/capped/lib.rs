@@ -9,7 +9,6 @@ pub mod my_psp22_capped {
             capped::*,
             mintable::*,
         },
-        traits::Storage,
     };
 
     #[ink(storage)]
