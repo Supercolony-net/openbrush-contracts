@@ -43,7 +43,7 @@ pub mod my_psp22 {
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Contract| {
                 instance
-                    ._mint(instance.env().caller(), total_supply)
+                    ._mint_to(instance.env().caller(), total_supply)
                     .expect("Should mint");
             })
         }

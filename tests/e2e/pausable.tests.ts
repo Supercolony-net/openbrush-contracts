@@ -17,6 +17,12 @@ describe('MY_PAUSABLE', () => {
     await expect(contract.tx.pause()).to.eventually.be.fulfilled
   })
 
+  it('Success change state', async () => {
+    const { contract } = await setup()
+
+    await expect(contract.tx.changeState()).to.eventually.be.fulfilled
+  })
+
   it('Failed double pause', async () => {
     const { contract } = await setup()
 

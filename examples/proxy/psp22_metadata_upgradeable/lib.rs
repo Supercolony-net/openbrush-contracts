@@ -54,7 +54,7 @@ pub mod my_psp22 {
             self.metadata.name = name;
             self.metadata.symbol = symbol;
             self.metadata.decimals = decimal;
-            self._mint(self.owner(), total_supply).expect("Should mint");
+            self._mint_to(self.owner(), total_supply).expect("Should mint");
             Ok(())
         }
     }

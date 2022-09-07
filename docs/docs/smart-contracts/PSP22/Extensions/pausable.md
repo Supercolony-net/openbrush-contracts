@@ -50,7 +50,7 @@ impl Contract {
     #[ink(constructor)]
     pub fn new(total_supply: Balance) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-            assert!(instance._mint(Self::env().caller(), total_supply).is_ok());
+            assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
         })
     }
 }
@@ -125,7 +125,7 @@ pub mod my_psp22_pausable {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._mint(Self::env().caller(), total_supply).is_ok());
+                assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
             })
         }
 

@@ -25,6 +25,7 @@ pub use psp22::*;
 
 pub mod extensions {
     pub mod burnable;
+    pub mod capped;
     pub mod metadata;
     pub mod mintable;
     pub mod wrapper;

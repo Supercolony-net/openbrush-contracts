@@ -21,24 +21,58 @@
 
 pub use crate::{
     psp22,
+    psp22::extensions::capped,
     traits::psp22::{
-        extensions::mintable::*,
+        extensions::capped::*,
         *,
     },
+};
+pub use capped::Internal as _;
+use openbrush::traits::{
+    Balance,
+    Storage,
+    String,
 };
 pub use psp22::{
     Internal as _,
     Transfer as _,
 };
 
-use openbrush::traits::{
-    AccountId,
-    Balance,
-    Storage,
-};
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-impl<T: Storage<psp22::Data>> PSP22Mintable for T {
-    default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        self._mint_to(account, amount)
+#[derive(Default, Debug)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
+pub struct Data {
+    pub cap: Balance,
+    pub _reserved: Option<()>,
+}
+
+impl<T: Storage<Data>> PSP22Capped for T {
+    default fn cap(&self) -> Balance {
+        self.data().cap.clone()
+    }
+}
+
+pub trait Internal {
+    /// Initializes the token's cap
+    fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error>;
+
+    fn _is_cap_exceeded(&self, amount: &Balance) -> bool;
+}
+
+impl<T: Storage<Data> + Storage<psp22::Data>> Internal for T {
+    fn _init_cap(&mut self, cap: Balance) -> Result<(), PSP22Error> {
+        if cap == 0 {
+            return Err(PSP22Error::Custom(String::from("Cap must be above 0")))
+        }
+        self.data::<Data>().cap = cap;
+        Ok(())
+    }
+
+    fn _is_cap_exceeded(&self, amount: &Balance) -> bool {
+        if self.total_supply() + amount > self.cap() {
+            return true
+        }
+        false
     }
 }

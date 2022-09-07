@@ -19,26 +19,15 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub use crate::{
-    psp22,
-    traits::psp22::{
-        extensions::mintable::*,
-        *,
-    },
-};
-pub use psp22::{
-    Internal as _,
-    Transfer as _,
-};
+/// Extension of [`PSP22`] that allows to set a limit on the total funding
+use openbrush::traits::Balance;
 
-use openbrush::traits::{
-    AccountId,
-    Balance,
-    Storage,
-};
+#[openbrush::wrapper]
+pub type PSP22CappedRef = dyn PSP22Capped;
 
-impl<T: Storage<psp22::Data>> PSP22Mintable for T {
-    default fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        self._mint_to(account, amount)
-    }
+#[openbrush::trait_definition]
+pub trait PSP22Capped {
+    /// Returns the token's cap
+    #[ink(message)]
+    fn cap(&self) -> Balance;
 }

@@ -44,18 +44,14 @@ pub mod my_psp22_pausable {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._mint(Self::env().caller(), total_supply).is_ok());
+                assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
             })
         }
 
         /// Function which changes state to unpaused if paused and vice versa
         #[ink(message)]
         pub fn change_state(&mut self) -> Result<(), PSP22Error> {
-            if self.paused() {
-                self._unpause()
-            } else {
-                self._pause()
-            }
+            self._switch_pause()
         }
     }
 }

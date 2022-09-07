@@ -50,7 +50,7 @@ pub struct Data {
 impl<T: Storage<psp22::Data> + Storage<Data>> PSP22Wrapper for T {
     default fn deposit_for(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         self._deposit(amount)?;
-        self._mint(account, amount)
+        self._mint_to(account, amount)
     }
 
     default fn withdraw_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
@@ -85,7 +85,7 @@ pub trait Internal {
 impl<T: Storage<psp22::Data> + Storage<Data>> Internal for T {
     default fn _recover(&mut self, account: AccountId) -> Result<Balance, PSP22Error> {
         let value = self._underlying_balance() - self.total_supply();
-        self._mint(account, value)?;
+        self._mint_to(account, value)?;
         Ok(value)
     }
 
