@@ -3,7 +3,6 @@
 
 #[openbrush::contract]
 pub mod my_psp22_metadata_facet {
-    use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
@@ -11,7 +10,10 @@ pub mod my_psp22_metadata_facet {
             psp22::extensions::metadata::*,
         },
         modifiers,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     #[ink(storage)]
@@ -29,7 +31,7 @@ pub mod my_psp22_metadata_facet {
     impl PSP22Facet {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self | {})
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

@@ -33,10 +33,7 @@ use ink_env::{
     CallFlags,
     Error as EnvError,
 };
-use ink_prelude::{
-    string::String,
-    vec::Vec,
-};
+use ink_prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,
@@ -47,6 +44,7 @@ use openbrush::{
         AccountIdExt,
         Balance,
         Storage,
+        String,
     },
 };
 

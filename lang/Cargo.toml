@@ -19,6 +19,7 @@ openbrush_lang_macro = { version = "~2.2.0", path = "macro", default-features = 
 ink_env = { version = "~3.3.0", default-features = false }
 ink_lang = { version = "~3.3.0", default-features = false }
 ink_primitives = { version = "~3.3.0", default-features = false }
+ink_prelude = { version = "~3.3.0", default-features = false }
 ink_storage = { version = "~3.3.0", default-features = false }
 ink_metadata = { version = "~3.3.0", default-features = false, features = ["derive"], optional = true }
 
@@ -42,6 +43,7 @@ std = [
     "ink_env/std",
     "ink_lang/std",
     "ink_primitives/std",
+    "ink_prelude/std",
     "ink_storage/std",
     "ink_metadata/std",
     "scale/std",

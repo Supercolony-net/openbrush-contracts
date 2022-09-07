@@ -36,7 +36,10 @@ mod psp34 {
             accounts,
             change_caller,
         },
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     /// Event emitted when a token transfer occurs.

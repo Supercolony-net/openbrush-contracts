@@ -35,7 +35,6 @@ use ink_env::{
     Error as EnvError,
 };
 use ink_prelude::{
-    string::String,
     vec,
     vec::Vec,
 };
@@ -50,6 +49,7 @@ use openbrush::{
         Balance,
         OccupiedStorage,
         Storage,
+        String,
     },
 };
 

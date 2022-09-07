@@ -2,11 +2,11 @@
 
 #[openbrush::contract]
 pub mod psp37_receiver {
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
+    use ink_prelude::vec::Vec;
+    use openbrush::{
+        contracts::traits::psp37::*,
+        traits::String,
     };
-    use openbrush::contracts::traits::psp37::*;
 
     #[ink(storage)]
     pub struct PSP37ReceiverStruct {

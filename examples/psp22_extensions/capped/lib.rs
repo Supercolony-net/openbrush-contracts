@@ -3,7 +3,6 @@
 
 #[openbrush::contract]
 pub mod my_psp22_capped {
-    use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::extensions::{

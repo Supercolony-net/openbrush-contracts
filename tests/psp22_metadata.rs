@@ -26,7 +26,10 @@ mod psp22_metadata {
     use ink_lang as ink;
     /// Imports all the definitions from the outer scope so we can use them here.
     use openbrush::contracts::psp22::extensions::metadata::*;
-    use openbrush::traits::Storage;
+    use openbrush::traits::{
+        Storage,
+        String,
+    };
 
     /// A simple PSP-22 contract.
     #[ink(storage)]

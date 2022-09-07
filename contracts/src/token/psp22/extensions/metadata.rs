@@ -32,8 +32,10 @@ pub use psp22::{
     Transfer as _,
 };
 
-use ink_prelude::string::String;
-use openbrush::traits::Storage;
+use openbrush::traits::{
+    Storage,
+    String,
+};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 

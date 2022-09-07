@@ -46,6 +46,8 @@ pub use security::pausable;
 pub use security::reentrancy_guard;
 #[cfg(feature = "psp22")]
 pub use token::psp22;
+#[cfg(feature = "psp22_pallet")]
+pub use token::psp22_pallet;
 #[cfg(feature = "psp34")]
 pub use token::psp34;
 #[cfg(feature = "psp37")]

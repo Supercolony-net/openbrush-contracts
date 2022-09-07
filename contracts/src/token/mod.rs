@@ -21,6 +21,8 @@
 
 #[cfg(feature = "psp22")]
 pub mod psp22;
+#[cfg(feature = "psp22_pallet")]
+pub mod psp22_pallet;
 #[cfg(feature = "psp34")]
 pub mod psp34;
 #[cfg(feature = "psp37")]

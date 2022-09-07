@@ -38,7 +38,6 @@
 #[openbrush::contract]
 pub mod my_lending {
     use ink_lang::ToAccountId;
-    use ink_prelude::string::String;
     use ink_storage::traits::SpreadAllocate;
     use lending_project::impls::lending::*;
     use loan_contract::loan::LoanContractRef;
@@ -47,7 +46,10 @@ pub mod my_lending {
             access_control::*,
             pausable::*,
         },
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
     use shares_contract::shares::SharesContractRef;
 

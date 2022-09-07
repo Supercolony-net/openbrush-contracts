@@ -31,7 +31,10 @@ mod psp22_test {
     use openbrush::{
         contracts::psp22::*,
         test_utils::*,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
     use std::panic;
 

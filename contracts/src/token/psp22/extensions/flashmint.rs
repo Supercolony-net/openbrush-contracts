@@ -37,14 +37,12 @@ use ink_env::{
     CallFlags,
     Error as EnvError,
 };
-use ink_prelude::{
-    string::String,
-    vec::Vec,
-};
+use ink_prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,
     Storage,
+    String,
 };
 
 impl<T: Storage<psp22::Data>> FlashLender for T {

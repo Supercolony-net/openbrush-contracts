@@ -127,7 +127,7 @@ but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/
 ### Other Issues open:
 
 * [#[ink::trait_definition] doesn't support generics and default implementation](https://github.com/Supercolony-net/openbrush-contracts/issues/4)
-* [Library provides implementation on Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
+* [Library provides implementation in Rust level instead of ink! level](https://github.com/Supercolony-net/openbrush-contracts/issues/5)
 * [List of issues, solving each of them can simplify usage of library](https://github.com/Supercolony-net/openbrush-contracts/issues/8)
 * After [Storage rework](https://github.com/paritytech/ink/pull/1217) we need to refactor upgradeable contracts.
 
@@ -204,7 +204,7 @@ $ yarn build:release
 
 ### Tests
 
-You can run unit tests by `RUSTFLAGS="-D warnings" cargo test --all-features --workspace -- --test-threads=10` command from the root of the directory.
+You can run unit tests by `RUSTFLAGS="-D warnings" cargo +nightly test --workspace --features test-all -- --test-threads=10` command from the root of the directory.
 
 To run integration test you need to start the node with contract-pallet.
 - [Setup and start the node with contract-pallet](https://github.com/paritytech/substrate-contracts-node)
