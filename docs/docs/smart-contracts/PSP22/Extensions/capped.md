@@ -50,6 +50,25 @@ impl PSP22 for Contract {}
 impl PSP22Capped for Contract {}
 ```
 
+Override `psp22::Transfer` to check is the cap exceeded before minting.
+
+```rust 
+impl psp22::Transfer for Contract {
+        fn _before_token_transfer(
+            &mut self,
+            _from: Option<&AccountId>,
+            _to: Option<&AccountId>,
+            _amount: &Balance,
+        ) -> Result<(), PSP22Error> {
+            // `is_none` means that it is minting
+            if _from.is_none() && self._is_cap_exceeded(_amount) {
+                return Err(PSP22Error::Custom(String::from("Cap exceeded")))
+            }
+            Ok(())
+        }
+    }
+```
+
 ## Step 4: Define constructor
 
 Define constructor. Your `PSP22Capped` contract is ready!
@@ -60,6 +79,7 @@ impl Contract {
     pub fn new(inital_supply: Balance) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut Self| {
             assert!(instance._init_cap(cap).is_ok());
+            assert!(instance.mint(instance.env().caller(), inital_supply).is_ok());
         })
     }
 }
@@ -99,6 +119,7 @@ pub mod my_psp22 {
         pub fn new(inital_supply: Balance, cap: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
                 assert!(instance._init_cap(cap).is_ok());
+                assert!(instance.mint(instance.env().caller(), inital_supply).is_ok());
             })
         }
     }
