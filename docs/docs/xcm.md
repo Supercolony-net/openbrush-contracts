@@ -56,7 +56,7 @@ So, at first we should send some tokens to our Statemint account. Fortunately, [
 - Set the sender address, destination address and amount of tokens you want to send.
 - Click **Teleport** button.
 
-![](../../pictures/xcm/teleport.png)
+![](pictures/xcm/teleport.png)
 
 ### Creating asset on Statemint
 
@@ -64,13 +64,13 @@ So, at first we should send some tokens to our Statemint account. Fortunately, [
 - Go to **Network** -> **Assets**
 - Click **Create** button.
 - Specify asset's name, symbol, decimals, minimum balance and id(Be sure that id is unique).
-![](../../pictures/xcm/assets.png)
+![](pictures/xcm/assets.png)
 - Click **Next** button and specify asset's admin, issuer and freezer.
 - Click **Create** button and that's it! Your asset is ready for use.
 
 ### Creating derivative assets on other chains
 
-Now you should create derivative assets on other chains as we did it on Statemint, you can change the name or symbol, but other setup should be equal. Also you can use PalletAssets chain extension for it, especially [PSP22Pallet](../PSP22-Pallet/psp22-pallet.md).
+Now you should create derivative assets on other chains as we did it on Statemint, you can change the name or symbol, but other setup should be equal. Also you can use PalletAssets chain extension for it, especially [PSP22Pallet](smart-contracts/PSP22-Pallet/psp22-pallet.md).
 
 ### Sending assets from Statemint to parachain
 
@@ -86,11 +86,11 @@ Here we have 3 fields:
 
 Let's fill them:
 - `dest` - we should specify our parachain id, you can find it in **Network** -> **Parachains**.
-![](../../pictures/xcm/xcm-message-dest.png)
+![](pictures/xcm/xcm-message-dest.png)
 - `beneficiary` - we should specify our parachain account, you can find it in **Accounts** -> **Accounts**.
-![](../../pictures/xcm/xcm-message-beneficiary.png)
+![](pictures/xcm/xcm-message-beneficiary.png)
 - `assets` - we should specify our asset id and amount of assets we want to send.
-![](../../pictures/xcm/xcm-message-assets.png)
+![](pictures/xcm/xcm-message-assets.png)
 
 Now we can click **Submit Transaction** button and wait for the transaction to be included in the block.
 Also this asset should be sufficient, that means that we can pay fees for transactions by it and it can create accounts, 
@@ -106,14 +106,14 @@ our reserve chain is Statemint.
 
 Here we have more complex algorithm:
 - Firstly, we want to withdraw asset from our account on Statemint, so we call `WithdrawAsset` instruction and specify how much money we want to withdraw and from where.
-![](../../pictures/xcm/xcm-transfer-withdraw.png)
+![](pictures/xcm/xcm-transfer-withdraw.png)
 - Then we call `InitiateReserveWithdraw` instruction and specify what parachain is our reserve
-![](../../pictures/xcm/initiate-reserve-withdraw.png)
+![](pictures/xcm/initiate-reserve-withdraw.png)
 - Then we want to buy execution time for our message to be executed by calling `BuyExecution` instruction.
-![](../../pictures/xcm/buy-execution.png)
+![](pictures/xcm/buy-execution.png)
 - Here we are calling `DepositReserveAsset` instruction and specify on what parachain we want to send our assets.
-![](../../pictures/xcm/deposit-reserve-asset.png)
+![](pictures/xcm/deposit-reserve-asset.png)
 - Finally, we call `DepositAsset` instruction and specify who will receive assets.
-![](../../pictures/xcm/deposit-asset.png)
+![](pictures/xcm/deposit-asset.png)
 
 Congratulations! You have successfully created your own asset and transferred it between parachains.
