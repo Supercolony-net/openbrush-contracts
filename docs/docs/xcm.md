@@ -1,3 +1,9 @@
+---
+sidebar_position: 6
+title: XCM usage
+sidebar_label: XCM usage
+---
+
 - Using XCM for asset cross-chain transfers
 
 This document contains description of how to create assets and move them between chains
