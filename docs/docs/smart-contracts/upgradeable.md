@@ -260,7 +260,7 @@ For example, for an upgradeable `PSP22` contract, you can add the `init_with_sup
 ```rust
 #[ink(message)]
 pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Error> {
-    self._mint(Self::env().caller(), total_supply)
+    self._mint_to(Self::env().caller(), total_supply)
 }
 ```
 
@@ -281,7 +281,7 @@ pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Err
     if self.initialized {
         return Err(PSP22Error::Custom(String::from("Already initialized")));
     }
-    self._mint(Self::env().caller(), total_supply)
+    self._mint_to(Self::env().caller(), total_supply)
 }
 ```
 
@@ -298,7 +298,7 @@ pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Err
     if self.initialized {
         return Err(PSP22Error::Custom(String::from("Already initialized")));
     }
-    self._mint(Self::env().caller(), total_supply)
+    self._mint_to(Self::env().caller(), total_supply)
 }
 ```
 

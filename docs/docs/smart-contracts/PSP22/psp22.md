@@ -19,11 +19,11 @@ Define constructor where you mint tokens to caller.
 
 ```rust
 impl Contract {
-   #[ink(constructor)]
+    #[ink(constructor)]
     pub fn new(total_supply: Balance) -> Self {
         ink_lang::codegen::initialize_contract(|instance: &mut Self| {
             instance
-                ._mint(instance.env().caller(), total_supply)
+                ._mint_to(instance.env().caller(), total_supply)
                 .expect("Should mint");
         })
     }
@@ -67,7 +67,7 @@ pub mod my_psp22 {
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             if to == Some(&self.hated_account) {
-                return Err(PSP22Error::Custom(String::from("I hate this account!")))
+                return Err(PSP22Error::Custom(String::from("I hate this account!")));
             }
             Ok(())
         }
@@ -80,7 +80,7 @@ pub mod my_psp22 {
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Contract| {
                 instance
-                    ._mint(instance.env().caller(), total_supply)
+                    ._mint_to(instance.env().caller(), total_supply)
                     .expect("Should mint");
             })
         }

@@ -69,7 +69,7 @@ impl Contract {
             instance.pallet.origin = Origin::Caller;
             assert!(instance.pallet.pallet_assets.set_metadata(asset_id, name, symbol, decimal).is_ok());
             instance
-                ._mint(instance.env().caller(), total_supply)
+                ._mint_to(instance.env().caller(), total_supply)
                 .expect("Should mint");
         })
     }
@@ -117,7 +117,7 @@ pub mod my_psp22_pallet_metadata {
                 instance.pallet.origin = Origin::Caller;
                 assert!(instance.pallet.pallet_assets.set_metadata(asset_id, name, symbol, decimal).is_ok());
                 instance
-                    ._mint(instance.env().caller(), total_supply)
+                    ._mint_to(instance.env().caller(), total_supply)
                     .expect("Should mint");
             })
         }
