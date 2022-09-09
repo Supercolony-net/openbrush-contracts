@@ -1,5 +1,6 @@
 const lightCodeTheme = require('prism-react-renderer/themes/vsLight')
 const darkCodeTheme = require('prism-react-renderer/themes/vsDark')
+const versions = require('./versions.json')
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
@@ -23,6 +24,16 @@ module.exports = {
         srcDark: 'img/logo-dark.svg'
       },
       items: [
+        {
+          type: 'dropdown',
+          label: 'Versions',
+          position: 'right',
+          items: [
+            {to: '/next', label: 'next'},
+            {to: '/'+versions[1], label: versions[1]},
+            {to: '/'+versions[2], label: versions[2]},
+            {to: 'allVersions', label: 'all versions'}]
+        },
         {
           to: 'smart-contracts/overview',
           position: 'right',
@@ -63,7 +74,8 @@ module.exports = {
         docs: {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/docs'
+          editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/docs',
+          includeCurrentVersion: true
         },
         theme: {
           customCss: [require.resolve('./src/css/custom.scss')]
