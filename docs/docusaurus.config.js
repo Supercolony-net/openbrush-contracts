@@ -29,9 +29,18 @@ module.exports = {
           label: 'Versions',
           position: 'right',
           items: [
-            {to: '/next', label: 'next'},
+            {to: '/next', label: 'master branch'},
+            {
+              type: 'html',
+              value: '<hr class="dropdown-separator">',
+            },
+            {to: '/ ', label: versions[0]},
             {to: '/'+versions[1], label: versions[1]},
             {to: '/'+versions[2], label: versions[2]},
+            {
+              type: 'html',
+              value: '<hr class="dropdown-separator">',
+            },
             {to: 'allVersions', label: 'all versions'}]
         },
         {
@@ -75,7 +84,12 @@ module.exports = {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/docs',
-          includeCurrentVersion: true
+          includeCurrentVersion: true,
+          versions: {
+            current: {
+              label: 'master branch'
+            }
+          }
         },
         theme: {
           customCss: [require.resolve('./src/css/custom.scss')]
