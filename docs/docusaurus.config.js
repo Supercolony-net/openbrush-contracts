@@ -29,14 +29,14 @@ module.exports = {
           label: 'Versions',
           position: 'right',
           items: [
-            {to: '/next', label: 'master branch'},
+            {to: '/next', label: versions[0]},
             {
               type: 'html',
               value: '<hr class="dropdown-separator">',
             },
-            {to: '/ ', label: versions[0]},
             {to: '/'+versions[1], label: versions[1]},
             {to: '/'+versions[2], label: versions[2]},
+            {to: '/'+versions[2], label: versions[3]},
             {
               type: 'html',
               value: '<hr class="dropdown-separator">',
@@ -87,7 +87,7 @@ module.exports = {
           includeCurrentVersion: true,
           versions: {
             current: {
-              label: 'master branch'
+              label: versions[0]
             }
           }
         },
