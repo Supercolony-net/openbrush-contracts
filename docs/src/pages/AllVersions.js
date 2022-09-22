@@ -26,7 +26,7 @@ export default function AllVersions() {
                         <tr>
                             <th>{current_version}</th>
                             <td>
-                                <Link to='/'>
+                                <Link to='/next'>
                                     Documentation
                                 </Link>
                             </td>

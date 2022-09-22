@@ -36,7 +36,7 @@ module.exports = {
             },
             {to: '/'+versions[1], label: versions[1]},
             {to: '/'+versions[2], label: versions[2]},
-            {to: '/'+versions[2], label: versions[3]},
+            {to: '/'+versions[3], label: versions[3]},
             {
               type: 'html',
               value: '<hr class="dropdown-separator">',
