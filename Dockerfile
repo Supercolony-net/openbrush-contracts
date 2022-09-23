@@ -6,6 +6,8 @@ RUN apt-get update && \
     apt-get install npm -y && \
     apt-get install binaryen -y
 
+RUN apt install -y libprotobuf-dev protobuf-compiler cmake
+
 RUN npm install -g n && \
     npm install -g yarn && \
     n 15.8.0
