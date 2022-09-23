@@ -19,7 +19,7 @@ RUN rustup target add wasm32-unknown-unknown
 
 RUN cargo install cargo-dylint dylint-link
 
-RUN cargo install contracts-node --git https://github.com/Supercolony-net/substrate-contracts-node --branch feature/pallet-assets-chain-extension --force --locked
+RUN WASM_BUILD_WORKSPACE_HINT=$PWD cargo install contracts-node --git https://github.com/Supercolony-net/substrate-contracts-node --branch feature/pallet-assets-chain-extension --force --locked
 
 # While Redspot didn't merge `--skip-linting` https://github.com/patractlabs/redspot/pull/181
 # we will use our version of `cargo-contract` without linting
