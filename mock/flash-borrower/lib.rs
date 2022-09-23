@@ -1,12 +1,12 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod flash_borrower {
-    use brush::contracts::psp22::extensions::flashmint::*;
     use ink_lang::codegen::Env;
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
+    use ink_prelude::vec::Vec;
+    use openbrush::{
+        contracts::psp22::extensions::flashmint::*,
+        traits::String,
     };
 
     #[ink(storage)]

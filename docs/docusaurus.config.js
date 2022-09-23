@@ -32,10 +32,10 @@ module.exports = {
         {
           to: 'deployment',
           position: 'right',
-          label: 'Deploy'
+          label: 'Deployment'
         },
         {
-          href: 'https://twitter.com/supercolony_net',
+          href: 'https://twitter.com/supercolony_vs',
           className: 'header-twitter-link',
           position: 'right'
         },

@@ -24,7 +24,8 @@ fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &st
     let (hash, _) =
         ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
     let hash = hash.as_ref();
-    let contract = SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+    let contract =
+        SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
             .endowment(0)
             .code_hash(code_hash)
             .salt_bytes(&hash[..4])
@@ -54,14 +55,17 @@ default fn set_asset_price(
     asset_out: AccountId,
     price: Balance,
 ) -> Result<(), LendingError> {
-    set_asset_price(self, asset_in, asset_out, price);
+    set_asset_price(self, &asset_in, &asset_out, &price);
     Ok(())
 }
 
 /// this internal function will be used to set price of `asset_in` when we deposit `asset_out`
 /// we are using this function in our example to simulate an oracle
-pub fn set_asset_price<T: LendingStorage>(instance: &mut T, asset_in: AccountId, asset_out: AccountId, price: Balance) {
-    instance.get_mut().asset_price.insert((&asset_in, &asset_out), &price);
+pub fn set_asset_price<T>(instance: &mut T, asset_in: &AccountId, asset_out: &AccountId, price: &Balance)
+where
+    T: Storage<Data>,
+{
+    instance.data().asset_price.insert(&(asset_in, asset_out), price);
 }
 ```
 
@@ -101,7 +105,7 @@ default fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), Lendin
 ## Lending assets
 
 For lending the assets  we will use the function `lend_assets(asset_address, amount)`, 
-where `asset_address` is the address of `PSP-22` we want to deposit and `amount` 
+where `asset_address` is the address of `PSP22` we want to deposit and `amount` 
 is the amount of asset deposited. Some checks need to be checked to assure the correct 
 behavior of our contract. The asset deposited needs to be recognized by our contract 
 (manager must have approved it). If it is not accepted, an error will be returned. 
@@ -114,7 +118,6 @@ so it can be only called when the contract is not paused.
 The code will look like this:
 
 ```rust
-
 #[modifiers(when_not_paused)]
 default fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> Result<(), LendingError> {
     // we will be using these often so we store them in variables
@@ -132,7 +135,10 @@ default fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> 
     // if the asset is not accepted by the contract, this function will return an error
     let total_asset = self.total_asset(asset_address)?;
     // transfer the assets from user to the contract|
-    PSP22Ref::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
+    PSP22Ref::transfer_from_builder(&asset_address, lender, contract, amount, Vec::<u8>::new())
+        .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+        .fire()
+        .unwrap()?;
     // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
     let new_shares = if total_asset == 0 {
         amount
@@ -206,7 +212,7 @@ default fn borrow_assets(
     let reserve_asset = get_reserve_asset(self, &asset_address)?;
 
     // we will find out the price of deposited collateral
-    let price = get_asset_price(self, amount, collateral_address, asset_address);
+    let price = get_asset_price(self, &amount, &collateral_address, &asset_address);
     // we will set the liquidation price to be 75% of current price
     let liquidation_price = (price * 75) / 100;
     // borrow amount is 70% of collateral
@@ -220,7 +226,10 @@ default fn borrow_assets(
         return Err(LendingError::InsufficientBalanceInContract)
     }
     // we will transfer the collateral to the contract
-    PSP22Ref::transfer_from(&collateral_address, borrower, contract, amount, Vec::<u8>::new())?;
+    PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
+        .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+        .fire()
+        .unwrap()?;
     // create loan info
     let loan_info = LoanInfo {
         borrower,
@@ -233,7 +242,7 @@ default fn borrow_assets(
         liquidated: false,
     };
 
-    let load_account = LendingStorage::get(self).loan_account;
+    let load_account = self.data::<data::Data>().loan_account;
     LoanRef::create_loan(&load_account, loan_info)?;
     // transfer assets to borrower
     PSP22Ref::transfer(&asset_address, borrower, borrow_amount, Vec::<u8>::new())?;

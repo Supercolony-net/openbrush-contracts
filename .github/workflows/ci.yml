@@ -1,53 +1,244 @@
 name: CI/CD
+
 on:
   pull_request:
     branches: [ main ]
+
 jobs:
   rustfmt:
+    concurrency:
+      group: rustfmt-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/supercolony-net/openbrush-contracts-ci
-      options: --user root
-      env:
-        node: /usr/local/bin/node
-        CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt
+
       - name: Rustfmt check
-        run: cargo fmt --all -- --check
+        run: cargo +nightly fmt --all -- --check
   unit-test:
+    concurrency:
+      group: unit-test-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/supercolony-net/openbrush-contracts-ci
-      options: --user root
-      env:
-        node: /usr/local/bin/node
-        CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - uses: actions/checkout@v2
-      - name: Build & Run cargo tests
+      - uses: actions/checkout@v3
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      - name: Build & Run all default unit tests
         run: |
-          RUSTFLAGS="-D warnings" cargo test --all-features --workspace -- --test-threads=10
-  integration-tests:
+          RUSTFLAGS="-D warnings" cargo +nightly test --workspace --features test-all -- --test-threads=10
+      - name: Build & Run pallet unit tests
+        run: |
+          RUSTFLAGS="-D warnings" cargo +nightly test --workspace --features psp22_pallet -- --test-threads=10
+  examples-builds:
+    concurrency:
+      group: examples-builds-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
       env:
-        node: /usr/local/bin/node
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+      - uses: actions/checkout@v3
       - name: Yarn install dependencies
-        run: yarn
-      - name: Redspot Сompile
+        run: |
+          yarn
+          yarn add ts-node
+
+      - name: Cache rust artifacts
+        id: cache-rust-artifacts
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          restore-keys: |
+            cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
+
+      - name: Redspot Сompile examples
         run: |
           chown -R root .
           chmod -R a+rwx .
           yarn build:release
+  caching-artifacts:
+    concurrency:
+      group: caching-artifacts-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    needs: examples-builds
+    container:
+      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      options: --user root
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Copy rust artifacts
+        id: cache-rust-artifacts
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-${{ hashFiles('Cargo.toml') }}
+  contract-size:
+    concurrency:
+      group: contract-size-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    needs: examples-builds
+    container:
+      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      options: --user root
+      env:
+        CARGO_TARGET_DIR: /usr/local/cache/target
+    steps:
+      - name: Cache rust artifacts for source branch
+        id: cache-rust-artifacts-source
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          restore-keys: |
+            cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
+
+      - name: Find contract data for source branch
+        id: find-data-source
+        run: |
+          SOURCE_NAME=${{ github.head_ref }}
+          echo "SOURCE_NAME<<EOF" >> $GITHUB_ENV
+          echo "$SOURCE_NAME" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          SOURCE_DATA=$(find /usr/local/cache/target -maxdepth 2 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
+          echo "SOURCE_DATA<<EOF" >> $GITHUB_ENV
+          echo "$SOURCE_DATA" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Yarn install dependencies for destination branch
+        run: |
+          yarn
+          yarn add ts-node
+
+      - name: Cache rust artifacts for destination branch
+        id: cache-rust-artifacts-destination
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/cache/target
+          key: cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}-${{ github.ref }}
+          restore-keys: |
+            cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
+
+      - name: Redspot Сompile examples for destination branch
+        run: |
+          chown -R root .
+          chmod -R a+rwx .
+          yarn build:release
+
+      - name: Find contract data destination branch
+        id: find-data-destination
+        run: |
+          DESTINATION_DATA=$(find /usr/local/cache/target/ink -maxdepth 1 -type f -name "*.wasm" -printf '%s ' -exec basename \{} .wasm \; | sort -k2)
+          echo "DESTINATION_DATA<<EOF" >> $GITHUB_ENV
+          echo "$DESTINATION_DATA" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+      - name: Create report
+        run: |
+          chmod +x "./.github/contracts_size.sh"
+          "./.github/contracts_size.sh"
+        shell: bash
+
+      - name: Find current PR
+        uses: jwalton/gh-find-current-pr@v1
+        id: find-current-pr
+        with:
+          state: open
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: find-comment
+        with:
+          issue-number: ${{ steps.find-current-pr.outputs.pr }}
+          comment-author: 'github-actions[bot]'
+
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ steps.find-current-pr.outputs.pr }}
+          edit-mode: replace
+          body: |
+            ${{ env.REPORT }}
+  integration-tests:
+    concurrency:
+      group: integration-tests-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    needs: examples-builds
+    container:
+      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      options: --user root
+      env:
+        CARGO_TARGET_DIR: /usr/local/cache/target
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+      - uses: actions/checkout@v3
+      - name: Yarn install dependencies
+        run: |
+          yarn
+          yarn add ts-node
+
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
+
       - name: Run Test Mocha
         run: |
-          substrate-contracts-node --tmp --dev > /dev/null 2>&1 & P1=$!
-          yarn test:mocha & P2=$!
-          wait $P2
-          kill $P1
+          for test in $(find tests -type f -regex ".*\.ts"); do
+            has_timeout=true
+            while $has_timeout
+            do
+              substrate-contracts-node --tmp --dev & P1=$!;
+              set +e;
+              output=$(yarn test:mocha-single ./$test || true);
+              set -e;
+              if echo $output | grep -q 'For async tests and hooks, ensure "done()" is called'; then
+                echo $output;
+                has_timeout=true
+              else
+                yarn test:mocha-single ./$test
+                has_timeout=false
+              fi
+              kill $P1;
+            done
+          done

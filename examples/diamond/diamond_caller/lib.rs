@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod diamond_caller {
-    use brush::contracts::psp22::*;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::psp22::*;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate)]

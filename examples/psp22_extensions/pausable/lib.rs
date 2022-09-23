@@ -1,29 +1,30 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_pausable {
-    use brush::{
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
         contracts::{
             pausable::*,
             psp22::*,
         },
         modifiers,
+        traits::Storage,
     };
-    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, PausableStorage)]
-    pub struct MyPSP22Pausable {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[PausableStorageField]
-        pause: PausableData,
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct Contract {
+        #[storage_field]
+        psp22: psp22::Data,
+        #[storage_field]
+        pause: pausable::Data,
     }
 
-    impl PSP22 for MyPSP22Pausable {}
+    impl PSP22 for Contract {}
 
-    impl PSP22Transfer for MyPSP22Pausable {
+    impl Transfer for Contract {
         /// Return `Paused` error if the token is paused
         #[modifiers(when_not_paused)]
         fn _before_token_transfer(
@@ -37,24 +38,20 @@ pub mod my_psp22_pausable {
         }
     }
 
-    impl Pausable for MyPSP22Pausable {}
+    impl Pausable for Contract {}
 
-    impl MyPSP22Pausable {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._mint(Self::env().caller(), total_supply).is_ok());
+                assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
             })
         }
 
         /// Function which changes state to unpaused if paused and vice versa
         #[ink(message)]
         pub fn change_state(&mut self) -> Result<(), PSP22Error> {
-            if self.paused() {
-                self._unpause()
-            } else {
-                self._pause()
-            }
+            self._switch_pause()
         }
     }
 }

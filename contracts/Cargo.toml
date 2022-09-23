@@ -1,26 +1,38 @@
 [package]
-name = "contracts"
-version = "1.6.1"
+name = "openbrush_contracts"
+version = "2.2.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Supercolony-net/openbrush-contracts"
+documentation = "https://docs.openbrush.io"
+homepage = "https://supercolony.net"
+description = "Reusable implementations of contracts and traits for interaction with them."
+keywords = ["wasm", "supercolony", "smart-contracts", "blockchain", "ink"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs"]
+
 [dependencies]
-ink_primitives = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_primitives = { version = "~3.3.0", default-features = false }
+ink_metadata = { version = "~3.3.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.3.0", default-features = false }
+ink_storage = { version = "~3.3.0", default-features = false }
+ink_lang = { version = "~3.3.0", default-features = false }
+ink_prelude = { version = "~3.3.0", default-features = false }
+ink_engine = { version = "~3.3.0", default-features = false, optional = true }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-derive = { path = "./derive" }
-brush = { package = "brush_lang", path = "../utils/brush_lang", default-features = false }
+openbrush = { version = "~2.2.0", package = "openbrush_lang", path = "../lang", default-features = false }
+
+pallet-assets-chain-extension = { git = "https://github.com/Supercolony-net/pallet-assets-chain-extension", default-features = false, features = ["ink"]  }
 
 [lib]
-name = "contracts"
-path = "lib.rs"
+name = "openbrush_contracts"
+path = "src/lib.rs"
 crate-type = [
     "rlib",
 ]
@@ -35,41 +47,38 @@ std = [
     "scale/std",
     "scale-info/std",
 
-    "brush/std",
+    "openbrush/std",
+    "pallet-assets-chain-extension/ink-std",
 ]
-psp22 = [
-    "derive/psp22",
-]
-psp34 = [
-    "derive/psp34",
-]
-psp1155 = [
-    "derive/psp1155",
-]
-access_control = [
-    "derive/access_control",
-]
-ownable = [
-    "derive/ownable",
-]
-payment_splitter = [
-    "derive/payment_splitter",
-]
-reentrancy_guard = [
-    "derive/reentrancy_guard",
-]
-pausable = [
-    "derive/pausable",
-]
+psp22 = []
+psp22_pallet = []
+psp34 = []
+psp37 = []
+access_control = []
+ownable = []
+payment_splitter = []
+reentrancy_guard = []
+pausable = []
 timelock_controller = [
     "access_control",
-    "derive/timelock_controller",
 ]
 proxy = [
     "ownable",
-    "derive/proxy",
 ]
 diamond = [
     "ownable",
-    "derive/diamond",
+]
+test-all = [
+    "psp22",
+    # "psp22_pallet", we ignore it during testing. It requries it own run of tests
+    "psp34",
+    "psp37",
+    "access_control",
+    "ownable",
+    "payment_splitter",
+    "reentrancy_guard",
+    "pausable",
+    "timelock_controller",
+    "proxy",
+    "diamond",
 ]

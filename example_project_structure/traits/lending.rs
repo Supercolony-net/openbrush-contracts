@@ -1,4 +1,4 @@
-use brush::{
+use openbrush::{
     contracts::traits::{
         access_control::*,
         pausable::*,
@@ -15,13 +15,13 @@ use brush::{
 };
 
 /// Combination of all traits of the contract to simplify calls to the contract
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingContractRef = dyn Lending + LendingPermissioned + AccessControl + Pausable;
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingRef = dyn Lending;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Lending {
     /// This function will return the total amount of assets available to borrow
     /// along with amount of the same asset borrowed
@@ -36,17 +36,22 @@ pub trait Lending {
     #[ink(message)]
     fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError>;
 
+    /// This function  will return the address of shares
+    /// which is bound to `asset_address` asset token
+    #[ink(message)]
+    fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError>;
+
     /// This function will return true if the asset is accepted by the contract
     #[ink(message)]
     fn is_accepted_lending(&self, asset_address: AccountId) -> bool;
 
-    /// This function will return true if the asset is accepted by the contract
+    /// This function will return true if the asset is accepted for using as collateral
     #[ink(message)]
     fn is_accepted_collateral(&self, asset_address: AccountId) -> bool;
 
     /// This function is called by a user who wants to lend tokens and gain interest
     ///
-    /// `asset_address` is the AccountId of the PSP-22 token to be deposited
+    /// `asset_address` is the AccountId of the PSP22 token to be deposited
     /// `amount` is the amount to be deposited
     ///
     /// Returns `InsufficientAllowanceToLend` if the caller does not have enough allowance
@@ -59,8 +64,8 @@ pub trait Lending {
     /// they need to deposit collateral. The value of borrowed assets will be equal to 70%
     /// of the value of deposited collateral.
     ///
-    /// `asset_address` is the AccountId of the PSP-22 token to be borrowed
-    /// `collateral_address` is the AccountId of the PSP-22 token used as collateral
+    /// `asset_address` is the AccountId of the PSP22 token to be borrowed
+    /// `collateral_address` is the AccountId of the PSP22 token used as collateral
     /// `amount` is the amount to be deposited
     ///
     /// Returns `AssetNotSupported` if `asset_address` is not supported for using as collateral
@@ -115,10 +120,10 @@ pub trait Lending {
     fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError>;
 }
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type LendingPermissionedRef = dyn LendingPermissioned;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait LendingPermissioned {
     /// This function will allow an asset to be accepted by the contract
     /// It will also create the contracts for the shares token and lended reserves token

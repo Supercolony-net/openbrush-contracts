@@ -16,17 +16,18 @@ implementation of `Lending` and `LendingPermissioned` traits defined in the `len
 ```toml
 [package]
 name = "lending_contract"
-version = "1.0.0"
+version = "2.2.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
-ink_metadata = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_env = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
-ink_storage = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
-ink_lang = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
-ink_prelude = { tag = "v3.0.1", git = "https://github.com/paritytech/ink", default-features = false }
+ink_primitives = { version = "~3.3.0", default-features = false }
+ink_metadata = { version = "~3.3.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.3.0", default-features = false }
+ink_storage = { version = "~3.3.0", default-features = false }
+ink_lang = { version = "~3.3.0", default-features = false }
+ink_prelude = { version = "~3.3.0", default-features = false }
+ink_engine = { version = "~3.3.0", default-features = false, optional = true }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
@@ -35,7 +36,7 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
 loan_contract = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
 lending_project = { path = "../..", default-features = false }
-brush = { path = "../../..", default-features = false, features = ["psp22", "psp34", "pausable", "access_control"] }
+openbrush = { version = "~2.2.0", default-features = false, features = ["pausable", "access_control"] }
 
 [lib]
 name = "lending_contract"
@@ -60,12 +61,11 @@ std = [
     # These dependencies
     "loan_contract/std",
     "shares_contract/std",
-    "brush/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []
 
 [profile.dev]
-overflow-checks = false
 codegen-units = 16
 
 [profile.release]
@@ -76,26 +76,26 @@ overflow-checks = false
 
 As described earlier, we want our smart contract to be paused by the Manager account. 
 To do that, we need our contract to be `Pausable` and we need a manager role. 
-We can do this with the `AccessControl`. Also, we want to use the `LendingStorage` we have declared. 
+We can do this with the `AccessControl`. Also, we want to use the data from lending that we have declared. 
 So we will declare a struct and derive all the needed traits.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, AccessControlStorage, PausableStorage, LendingStorage)]
+#[derive(Default, SpreadAllocate, Storage)]
 pub struct LendingContract {
-    #[AccessControlStorageField]
-    access: AccessControlData,
-    #[PausableStorageField]
-    pause: PausableData,
-    #[LendingStorageField]
-    lending: LendingData,
+    #[storage_field]
+    access: access_control::Data,
+    #[storage_field]
+    pause: pausable::Data,
+    #[storage_field]
+    lending: lending::data::Data,
 }
 ```
 
 ## Implement traits
 
 We need to "inherit" the implementation of `AccessControll`, `Pausable`, `Lending`, 
-`LendingPermissioned` and `LendingPermissionedInternal`.
+`LendingPermissioned` and `lending::Internal`.
 
 ```rust
 impl AccessControl for LendingContract {}
@@ -106,13 +106,14 @@ impl Lending for LendingContract {}
 
 impl LendingPermissioned for LendingContract {}
 
-impl LendingPermissionedInternal for LendingContract {
+impl lending::Internal for LendingContract {
     fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
         let code_hash = self.lending.shares_contract_code_hash;
         let (hash, _) =
             ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
         let hash = hash.as_ref();
-        let contract = SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+        let contract =
+            SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
                 .endowment(0)
                 .code_hash(code_hash)
                 .salt_bytes(&hash[..4])

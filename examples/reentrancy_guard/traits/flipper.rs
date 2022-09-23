@@ -1,38 +1,22 @@
-pub use brush::contracts::reentrancy_guard::*;
-use brush::{
+pub use openbrush::contracts::reentrancy_guard::*;
+use openbrush::{
     modifiers,
     traits::AccountId,
 };
 
-pub trait FlipperStorage {
-    fn value(&self) -> &bool;
-    fn value_mut(&mut self) -> &mut bool;
-}
-
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type FlipperRef = dyn Flipper;
 
-#[brush::trait_definition]
-pub trait Flipper: FlipperStorage + ReentrancyGuardStorage {
+#[openbrush::trait_definition]
+pub trait Flipper {
     #[ink(message)]
-    fn get_value(&self) -> bool {
-        self.value().clone()
-    }
+    fn get_value(&self) -> bool;
 
     #[ink(message)]
-    #[brush::modifiers(non_reentrant)]
-    fn flip(&mut self) -> Result<(), ReentrancyGuardError> {
-        *self.value_mut() = !self.value().clone();
-        Ok(())
-    }
+    #[openbrush::modifiers(non_reentrant)]
+    fn flip(&mut self) -> Result<(), ReentrancyGuardError>;
 
     #[ink(message)]
     #[modifiers(non_reentrant)]
-    fn call_flip_on_me(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError> {
-        // This method will do a cross-contract call to callee account. It calls method `flip_on_me`.
-        // Callee contract during execution of `flip_on_me` will call `flip` of this contract.
-        // `call_flip_on_me` and `flip` are marked with `non_reentrant` modifier. It means,
-        // that call of `flip` after `call_flip_on_me` must fail.
-        crate::traits::flip_on_me::FlipOnMeRef::flip_on_me(&callee)
-    }
+    fn call_flip_on_me(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError>;
 }

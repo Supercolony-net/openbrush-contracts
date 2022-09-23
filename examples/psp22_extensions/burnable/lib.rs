@@ -1,27 +1,30 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_burnable {
-    use brush::contracts::psp22::extensions::burnable::*;
     use ink_prelude::vec::Vec;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
+        contracts::psp22::extensions::burnable::*,
+        traits::Storage,
+    };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage)]
-    pub struct MyPSP22 {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct Contract {
+        #[storage_field]
+        psp22: psp22::Data,
     }
 
-    impl PSP22 for MyPSP22 {}
-    impl PSP22Burnable for MyPSP22 {}
+    impl PSP22 for Contract {}
+    impl PSP22Burnable for Contract {}
 
-    impl MyPSP22 {
+    impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._mint(instance.env().caller(), total_supply).is_ok());
+                assert!(instance._mint_to(instance.env().caller(), total_supply).is_ok());
             })
         }
 

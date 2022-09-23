@@ -3,103 +3,77 @@ sidebar_position: 3
 title: Proxy
 ---
 
-This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/upgradability/proxy) to to implement proxy pattern for upgradeable contracts.
+This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/proxy) to to implement proxy pattern for upgradeable contracts.
 
-## Step 1: Include dependencies
+## Step 1: Import default implementation
 
-Include `brush` as dependency in the cargo file or you can use [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush) template.
-After you need to enable default implementation of Proxy via `brush` features.
+With [default `Cargo.toml`](/smart-contracts/overview#the-default-toml-of-your-project-with-openbrush),
+you need to import the `proxy` and `ownable` modules, enable the corresponding features, and embed data structures
+as described in [that section](/smart-contracts/overview#reuse-implementation-of-traits-from-openbrush).
 
-```toml
-brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["proxy"] }
+The main traits are `Ownable` and `Proxy`.
+
+## Step 2: Define constructor
+
+Define the constructor where you initialize the owner with the contract initiator
+and passing code hash of the logic layer.
+
+```rust
+impl Contract {
+    #[ink(constructor)]
+    pub fn new(forward_to: Hash) -> Self {
+        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            let caller = instance.env().caller();
+            instance._init_with_forward_to(forward_to);
+            instance._init_with_owner(caller);
+        })
+    }
+}
 ```
 
-## Step 2: Add imports and enable unstable feature
+## Step 3: Define forward function
 
-Use `brush::contract` macro instead of `ink::contract`. Import **everything** from `brush::contracts::ownable` and `brush::contracts::proxy`
+Define the forward function to make delegate calls of upgradeable contract through proxy contract.
 
 ```rust
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
-pub mod my_proxy {
-    use brush::{
-        contracts::{
-            ownable::*,
-            proxy::*,
-        },
-        modifiers,
-    };
-...
-```
+#[openbrush::contract]
+pub mod proxy {
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::ownable::*;
+    use openbrush::contracts::proxy::*;
+    use openbrush::traits::Storage;
 
-## Step 3: Define storage
-
-Declare storage struct and declare the field related to `ProxyStorage` trait. Then you need to derive the `ProxyStorage` trait and mark the corresponding field with the `#[ProxyStorageField]` attribute. Deriving this trait allows you to reuse the default implementation of `Proxy`.
-
-```rust
-use ink_storage::traits::SpreadAllocate;
-
-#[ink(storage)]
-#[derive(Default, SpreadAllocate, ProxyStorage)]
-pub struct ProxyContract {
-    #[ProxyStorageField]
-    proxy: ProxyData,
-}
-```
-
-## Step 4: Inherit logic
-
-Inherit implementation of the `Proxy` trait and of the `Ownable` trait. You can customize (override) methods in this `impl` block.
-
-```rust
-impl Ownable for ProxyContract {}
-
-impl Proxy for ProxyContract {}
-```
-
-## Step 5: Define constructor
-
-Define the constructor and initialize the owner with the contract initiator. Your basic version of `Proxy` contract is ready!
-
-```rust
-impl ProxyContract {
-    #[ink(constructor)]
-    pub fn new(forward_to: Hash) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-            let caller = instance.env().caller();
-            instance._init_with_forward_to(forward_to);
-            instance._init_with_owner(caller);
-        })
-    }
-}
-```
-
-## Step 6: Define forward function
-
-Define the forward function to make delegate calls of upgradeable contract through proxy contract.
-
-```rust
-impl ProxyContract {
-    #[ink(constructor)]
-    pub fn new(forward_to: Hash) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
-            let caller = instance.env().caller();
-            instance._init_with_forward_to(forward_to);
-            instance._init_with_owner(caller);
-        })
+    #[ink(storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct Contract {
+        #[storage_field]
+        proxy: proxy::Data,
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
-    #[ink(message, payable, selector = _)]
-    pub fn forward(&self) {
-        ProxyInternal::_fallback(self);
+    impl Contract {
+        #[ink(constructor)]
+        pub fn new(forward_to: Hash) -> Self {
+            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+                let caller = instance.env().caller();
+                instance._init_with_forward_to(forward_to);
+                instance._init_with_owner(caller);
+            })
+        }
+        #[ink(message, payable, selector = _)]
+        pub fn forward(&self) {
+            self._fallback()
+        }
     }
+
+    impl Ownable for Contract {}
+
+    impl Proxy for Contract {}
 }
 ```
-## Step 6: Customize your contract
-
-Generally, proxy doesn't need other functionality, but if you need something you can customize it by adding proxy logic. We will add a `proxy_function` to `ProxyContract` implemenation.
-
 
 You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/proxy).

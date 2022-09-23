@@ -1,39 +1,37 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_metadata_facet {
-    use brush::{
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
         contracts::{
             ownable::*,
             psp22::extensions::metadata::*,
         },
         modifiers,
+        traits::{
+            Storage,
+            String,
+        },
     };
-    use ink_prelude::string::String;
-
-    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22MetadataStorage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct PSP22Facet {
-        #[PSP22MetadataStorageField]
-        metadata: PSP22MetadataData,
-        #[OwnableStorageField]
-        ownable: OwnableData,
+        #[storage_field]
+        metadata: metadata::Data,
+        // Ownable is used only internally without exposing it to the world
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
     impl PSP22Metadata for PSP22Facet {}
 
-    impl Ownable for PSP22Facet {}
-
     impl PSP22Facet {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut PSP22Facet| {
-                instance._init_with_owner(instance.env().caller());
-                instance.init_metadata().expect("Can not set metadata");
-            })
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

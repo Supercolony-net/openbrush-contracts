@@ -1,4 +1,4 @@
-use brush::contracts::traits::{
+use openbrush::contracts::traits::{
     ownable::*,
     psp22::{
         extensions::{
@@ -10,8 +10,8 @@ use brush::contracts::traits::{
     },
 };
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type SharesRef = dyn PSP22 + PSP22Mintable + PSP22Burnable + PSP22Metadata + Ownable;
 
-#[brush::trait_definition]
+#[openbrush::trait_definition]
 pub trait Shares: PSP22 + PSP22Mintable + PSP22Burnable + PSP22Metadata + Ownable {}

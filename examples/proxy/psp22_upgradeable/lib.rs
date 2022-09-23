@@ -1,24 +1,25 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_upgradeable {
-    use brush::{
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
         contracts::{
             ownable::*,
             psp22::*,
         },
         modifiers,
+        traits::Storage,
     };
-    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct MyPSP22 {
-        #[OwnableStorageField]
-        ownable: OwnableData,
-        #[PSP22StorageField]
-        psp22: PSP22Data,
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        psp22: psp22::Data,
     }
 
     impl Ownable for MyPSP22 {}
@@ -37,7 +38,7 @@ pub mod my_psp22_upgradeable {
         #[ink(message)]
         #[modifiers(only_owner)]
         pub fn initialize(&mut self, total_supply: Balance) -> Result<(), OwnableError> {
-            self._mint(self.owner(), total_supply).expect("Should mint");
+            self._mint_to(self.owner(), total_supply).expect("Should mint");
             Ok(())
         }
     }

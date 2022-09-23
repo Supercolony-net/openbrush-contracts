@@ -1,7 +1,19 @@
-// importing everything publicly from traits allows you to import every stuff related to lending
+// Importing everything publicly from traits allows you to import every stuff related to lending
 // by one import
-pub use super::data::*;
-pub use crate::traits::lending::*;
+pub use crate::{
+    impls::lending::{
+        data,
+        data::*,
+        lending,
+        lending_permissioned::{
+            Internal,
+            *,
+        },
+        *,
+    },
+    traits::lending::*,
+};
+
 use crate::traits::{
     loan::{
         LoanInfo,
@@ -9,7 +21,8 @@ use crate::traits::{
     },
     shares::SharesRef,
 };
-use brush::{
+use ink_prelude::vec::Vec;
+use openbrush::{
     contracts::{
         pausable::*,
         traits::{
@@ -22,18 +35,19 @@ use brush::{
         AccountId,
         AccountIdExt,
         Balance,
+        Storage,
         Timestamp,
         ZERO_ADDRESS,
     },
 };
-use ink_prelude::vec::Vec;
 
 pub const YEAR: Timestamp = 60 * 60 * 24 * 365;
 
-impl<T: LendingStorage + PausableStorage> Lending for T {
+impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
     default fn total_asset(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
-        let mapped_asset = LendingStorage::get(self)
+        let mapped_asset = self
+            .data::<data::Data>()
             .assets_lended
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into());
@@ -49,7 +63,8 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
 
     default fn total_shares(&self, asset_address: AccountId) -> Result<Balance, LendingError> {
         // get asset from mapping
-        let mapped_asset = LendingStorage::get(self)
+        let mapped_asset = self
+            .data::<data::Data>()
             .asset_shares
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into());
@@ -60,8 +75,17 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         Ok(PSP22Ref::total_supply(&mapped_asset))
     }
 
+    default fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError> {
+        self
+            .data::<data::Data>()
+            .asset_shares
+            .get(&asset_address)
+            .ok_or(LendingError::AssetNotSupported)
+    }
+
     default fn is_accepted_lending(&self, asset_address: AccountId) -> bool {
-        !LendingStorage::get(self)
+        !self
+            .data::<data::Data>()
             .asset_shares
             .get(&asset_address)
             .unwrap_or(ZERO_ADDRESS.into())
@@ -69,7 +93,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
     }
 
     default fn is_accepted_collateral(&self, asset_address: AccountId) -> bool {
-        LendingStorage::get(self)
+        self.data::<data::Data>()
             .collateral_accepted
             .get(&asset_address)
             .unwrap_or(false)
@@ -92,7 +116,10 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         // if the asset is not accepted by the contract, this function will return an error
         let total_asset = self.total_asset(asset_address)?;
         // transfer the assets from user to the contract|
-        PSP22Ref::transfer_from(&asset_address, lender, contract, amount, Vec::<u8>::new())?;
+        PSP22Ref::transfer_from_builder(&asset_address, lender, contract, amount, Vec::<u8>::new())
+            .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+            .fire()
+            .unwrap()?;
         // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
         let new_shares = if total_asset == 0 {
             amount
@@ -131,7 +158,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let reserve_asset = get_reserve_asset(self, &asset_address)?;
 
         // we will find out the price of deposited collateral
-        let price = get_asset_price(self, amount, collateral_address, asset_address);
+        let price = get_asset_price(self, &amount, &collateral_address, &asset_address);
         // we will set the liquidation price to be 75% of current price
         let liquidation_price = (price * 75) / 100;
         // borrow amount is 70% of collateral
@@ -145,7 +172,10 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
             return Err(LendingError::InsufficientBalanceInContract)
         }
         // we will transfer the collateral to the contract
-        PSP22Ref::transfer_from(&collateral_address, borrower, contract, amount, Vec::<u8>::new())?;
+        PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
+            .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+            .fire()
+            .unwrap()?;
         // create loan info
         let loan_info = LoanInfo {
             borrower,
@@ -158,7 +188,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
             liquidated: false,
         };
 
-        let load_account = LendingStorage::get(self).loan_account;
+        let load_account = self.data::<data::Data>().loan_account;
         LoanRef::create_loan(&load_account, loan_info)?;
         // transfer assets to borrower
         PSP22Ref::transfer(&asset_address, borrower, borrow_amount, Vec::<u8>::new())?;
@@ -171,7 +201,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         // REPAYING (borrower: B, nft, repayAmount: X):
         let initiator = Self::env().caller();
         let contract = Self::env().account_id();
-        let loan_account = LendingStorage::get(self).loan_account;
+        let loan_account = self.data::<data::Data>().loan_account;
         let apy = 1000;
         // initiator must own the nft
         if LoanRef::owner_of(&loan_account, loan_id.clone()).unwrap_or(ZERO_ADDRESS.into()) != initiator {
@@ -196,7 +226,10 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         let to_repay = (((loan_info.borrow_amount) * (10000 + total_apy)) / 10000) + 1;
         let reserve_asset = get_reserve_asset(self, &loan_info.borrow_token)?;
         if repay_amount >= to_repay {
-            PSP22Ref::transfer_from(&loan_info.borrow_token, initiator, contract, to_repay, Vec::<u8>::new())?;
+            PSP22Ref::transfer_from_builder(&loan_info.borrow_token, initiator, contract, to_repay, Vec::<u8>::new())
+                .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+                .fire()
+                .unwrap()?;
             PSP22Ref::transfer(
                 &loan_info.collateral_token,
                 initiator,
@@ -206,19 +239,22 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
             LoanRef::delete_loan(&loan_account, initiator, loan_id)?;
             SharesRef::burn(&reserve_asset, Self::env().caller(), loan_info.borrow_amount)?;
         } else {
-            PSP22Ref::transfer_from(
+            PSP22Ref::transfer_from_builder(
                 &loan_info.borrow_token,
                 initiator,
                 contract,
                 repay_amount,
                 Vec::<u8>::new(),
-            )?;
+            )
+            .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+            .fire()
+            .unwrap()?;
             let to_return = (repay_amount * loan_info.collateral_amount) / to_repay;
             PSP22Ref::transfer(&loan_info.collateral_token, initiator, to_return, Vec::<u8>::new())?;
             SharesRef::mint(
                 &reserve_asset,
                 contract,
-                to_repay - repay_amount - loan_info.borrow_amount,
+                to_repay - repay_amount,
             )?;
             LoanRef::update_loan(
                 &loan_account,
@@ -236,7 +272,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
         shares_address: AccountId,
         shares_amount: Balance,
     ) -> Result<(), LendingError> {
-        let withdraw_asset = get_asset_from_shares(self, shares_address)?;
+        let withdraw_asset = get_asset_from_shares(self, &shares_address)?;
         let withdraw_amount =
             (shares_amount * self.total_asset(withdraw_asset)?) / PSP22Ref::total_supply(&shares_address);
         if withdraw_amount > PSP22Ref::balance_of(&withdraw_asset, Self::env().account_id()) {
@@ -249,7 +285,7 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
     }
 
     default fn liquidate_loan(&mut self, loan_id: Id) -> Result<(), LendingError> {
-        let loan_account = LendingStorage::get(self).loan_account;
+        let loan_account = self.data::<data::Data>().loan_account;
         let loan_info = LoanRef::get_loan_info(&loan_account, loan_id.clone())?;
 
         if loan_info.liquidated {
@@ -258,9 +294,9 @@ impl<T: LendingStorage + PausableStorage> Lending for T {
 
         let price = get_asset_price(
             self,
-            loan_info.collateral_amount,
-            loan_info.collateral_token,
-            loan_info.borrow_token,
+            &loan_info.collateral_amount,
+            &loan_info.collateral_token,
+            &loan_info.borrow_token,
         );
 
         if price <= loan_info.liquidation_price {

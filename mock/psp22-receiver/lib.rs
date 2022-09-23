@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod erc20_receiver {
-    use brush::contracts::traits::psp22::*;
-    use ink_prelude::{
-        string::String,
-        vec::Vec,
+    use ink_prelude::vec::Vec;
+    use openbrush::{
+        contracts::traits::psp22::*,
+        traits::String,
     };
 
     #[ink(storage)]

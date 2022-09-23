@@ -1,26 +1,30 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-#[brush::contract]
+#[openbrush::contract]
 pub mod my_psp22_facet_v2 {
-    use brush::{
+    use ink_lang::codegen::Env;
+    use ink_prelude::vec::Vec;
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::{
         contracts::{
             ownable::*,
             psp22::*,
         },
-        traits::ZERO_ADDRESS,
+        traits::{
+            Storage,
+            ZERO_ADDRESS,
+        },
     };
-    use ink_lang::codegen::Env;
-    use ink_prelude::vec::Vec;
-    use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, PSP22Storage, OwnableStorage)]
+    #[derive(Default, SpreadAllocate, Storage)]
     pub struct PSP22FacetV2 {
-        #[PSP22StorageField]
-        psp22: PSP22Data,
-        #[OwnableStorageField]
-        ownable: OwnableData,
+        #[storage_field]
+        psp22: psp22::Data,
+        // Ownable is used only internally without exposing it to the world
+        #[storage_field]
+        ownable: ownable::Data,
     }
 
     impl PSP22 for PSP22FacetV2 {
@@ -38,14 +42,10 @@ pub mod my_psp22_facet_v2 {
         }
     }
 
-    impl Ownable for PSP22FacetV2 {}
-
     impl PSP22FacetV2 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut PSP22FacetV2| {
-                instance._init_with_owner(instance.env().caller());
-            })
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 }

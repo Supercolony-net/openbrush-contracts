@@ -20,19 +20,12 @@ If the contract contains several simple functions, better to implement
 them in the body of the contract. But if the contract contains a lot of logic
 and methods, better to move(and maybe split on parts) the implementation to that directory.
 Better to store the implementation of one contract in its own directory and not mix it with others.
-- `derive` - is optional directory. OpenBrush provides the [macro](https://github.com/Supercolony-net/openbrush-contracts/blob/main/utils/brush_derive/lib.rs#L11) 
-to define a procedure derive macro of the storage trait. 
-That derive can be used to implement the storage trait for the data structure 
-in two lines(more details about it later). 
-If the developer prefers to use derive macro for his data structures 
-then he can define them in that directory to import later in the project
-(procedure macros in Rust requires a separate crate).
 - `contracts` - contains the bodies of the contracts. Each contract should be defined 
 in its own crate(it is a rule of the ink!). Each folder in that directory is a 
 crate(contract). These contracts can have the implementation inside themselves 
 or they can import the implementation from `impls`.
 
-In that structure `traits`, `impls`, and `derive` directories are the parts of on `PROJECT_NAME` crate.
+In that structure `traits` and `impls` directories are the parts of on `PROJECT_NAME` crate.
 Each contract in the `contracts` directory imports the crate `PROJECT_NAME` and use it inside.
 
 Based on the rules above the structure will look like the following:
@@ -50,9 +43,6 @@ Based on the rules above the structure will look like the following:
 │   │   ├── lending_permissioned.rs
 │   │   └── mod.rs
 │   └── mod.rs
-├── derive
-│   ├── Cargo.toml
-│   └── lib.rs
 ├── contracts
 │   ├── lending
 │   │   ├── Cargo.toml
@@ -72,7 +62,7 @@ Based on the rules above the structure will look like the following:
 
 `traits` directory contains 4 traits with logic from the [overview](/smart-contracts/example/overview).
 In the example:
-- `LendingContract` is a big contract and we moved the main logic into `impls/lending` folder. That logic is split into two traits(`Lending` and `LendingPermissione`) to show how it can be done. Also, the implementation requires the usage of `derive`.
+- `LendingContract` is a big contract and we moved the main logic into `impls/lending` folder. That logic is split into two traits(`Lending` and `LendingPermissione`) to show how it can be done.
 - `LoanContract` contains few methods, so the implementation is defined directly in the body of the contract.
 - `SharesContract` is `PSP22` token with public `mint` and `burn` functions that require ownership.
 - `StableCoinContract` is a pure `PSP22` token.

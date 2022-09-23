@@ -3,7 +3,7 @@ import '@redspot/patract'
 import '@redspot/chai'
 import '@redspot/gas-reporter'
 const types = {
-  ContractsPsp34Id: {
+  OpenbrushContractsTypesId: {
     _enum: {
       U8: 'u8',
       U16: 'u16',
@@ -13,7 +13,7 @@ const types = {
       Bytes: 'Vec<u8>'
     }
   },
-  ContractsDiamondFacetCut: {
+  OpenbrushContractsDiamondFacetCut: {
     hash: '[u8; 32]',
     selectors: 'Vec<[u8; 4]>'
   }
@@ -24,7 +24,7 @@ export default {
   contract: {
     ink: {
       toolchain: 'nightly',
-      sources: ['example_project_structure/contracts/**', 'examples/**/', 'mock/**', `!examples/reentrancy_guard/Cargo.toml`]
+      sources: ['example_project_structure/contracts/**', 'examples/**/', 'mock/**', '!examples/reentrancy_guard/Cargo.toml']
     }
   },
   networks: {

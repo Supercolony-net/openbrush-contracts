@@ -1,23 +1,14 @@
-pub use brush::contracts::reentrancy_guard::*;
-use brush::traits::{
-    AccountId,
-    InkStorage,
-};
+pub use openbrush::contracts::reentrancy_guard::*;
+use openbrush::traits::AccountId;
 
-#[brush::wrapper]
+#[openbrush::wrapper]
 pub type FlipOnMeRef = dyn FlipOnMe;
 
-#[brush::trait_definition]
-pub trait FlipOnMe: InkStorage {
+#[openbrush::trait_definition]
+pub trait FlipOnMe {
     #[ink(message)]
-    fn flip_on_me(&mut self) -> Result<(), ReentrancyGuardError> {
-        let caller = Self::env().caller();
-        self.flip_on_target(caller)
-    }
+    fn flip_on_me(&mut self) -> Result<(), ReentrancyGuardError>;
 
     #[ink(message)]
-    fn flip_on_target(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError> {
-        // This method does a cross-contract call to caller contract and calls the `flip` method.
-        crate::traits::flipper::FlipperRef::flip(&callee)
-    }
+    fn flip_on_target(&mut self, callee: AccountId) -> Result<(), ReentrancyGuardError>;
 }

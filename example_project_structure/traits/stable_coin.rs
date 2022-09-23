@@ -1,10 +1,11 @@
-use brush::contracts::traits::psp22::{
+use openbrush::contracts::traits::psp22::{
     extensions::metadata::*,
+    extensions::mintable::*,
     *,
 };
 
-#[brush::wrapper]
-pub type StableCoinRef = dyn PSP22 + PSP22Metadata;
+#[openbrush::wrapper]
+pub type StableCoinRef = dyn PSP22 + PSP22Metadata + PSP22Mintable;
 
-#[brush::trait_definition]
-pub trait StableCoin: PSP22 + PSP22Metadata {}
+#[openbrush::trait_definition]
+pub trait StableCoin: PSP22 + PSP22Metadata + PSP22Mintable {}
