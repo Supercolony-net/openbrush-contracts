@@ -260,7 +260,7 @@ For example, for an upgradeable `PSP22` contract, you can add the `init_with_sup
 ```rust
 #[ink(message)]
 pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Error> {
-    self._mint(Self::env().caller(), total_supply)
+    self._mint_to(Self::env().caller(), total_supply)
 }
 ```
 
@@ -281,7 +281,7 @@ pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Err
     if self.initialized {
         return Err(PSP22Error::Custom(String::from("Already initialized")));
     }
-    self._mint(Self::env().caller(), total_supply)
+    self._mint_to(Self::env().caller(), total_supply)
 }
 ```
 
@@ -298,7 +298,7 @@ pub fn init_with_supply(&mut self, total_supply: Balance) -> Result<(), PSP22Err
     if self.initialized {
         return Err(PSP22Error::Custom(String::from("Already initialized")));
     }
-    self._mint(Self::env().caller(), total_supply)
+    self._mint_to(Self::env().caller(), total_supply)
 }
 ```
 
@@ -417,7 +417,7 @@ call to the smart contract to the corresponding facet (logic layer).
 `Diamond` contract has a function `diamond_cut` that allows registering each facet.
 
 OpenBrush provides default implementation for `Diamond` standard on ink!.
-For more details you can check [Diamond](docs/smart-contracts/diamond/diamond.md).
+For more details you can check [Diamond](diamond/diamond.md).
 
 All suggestions above ideally describe how to develop an upgradeable contract
 with multi-logic layers and many logic units.

@@ -69,7 +69,7 @@ impl<T: Storage<psp22::Data>> FlashLender for T {
         data: Vec<u8>,
     ) -> Result<(), FlashLenderError> {
         let fee = self.flash_fee(token, amount)?;
-        self._mint(receiver_account, amount)?;
+        self._mint_to(receiver_account, amount)?;
         self._on_flashloan(receiver_account, token, fee, amount, data)?;
         let this = Self::env().account_id();
         let current_allowance = self.allowance(receiver_account, this);

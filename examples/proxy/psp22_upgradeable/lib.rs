@@ -38,7 +38,7 @@ pub mod my_psp22_upgradeable {
         #[ink(message)]
         #[modifiers(only_owner)]
         pub fn initialize(&mut self, total_supply: Balance) -> Result<(), OwnableError> {
-            self._mint(self.owner(), total_supply).expect("Should mint");
+            self._mint_to(self.owner(), total_supply).expect("Should mint");
             Ok(())
         }
     }

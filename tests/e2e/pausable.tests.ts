@@ -37,6 +37,12 @@ describe('MY_PAUSABLE', () => {
     await api.disconnect()
   })
 
+  it('Success change state', async () => {
+    const { contract } = await setup()
+
+    await expect(contract.tx.changeState()).to.eventually.be.fulfilled
+  })
+
   it('Failed double pause', async () => {
     const { api, contract } = await setup()
 

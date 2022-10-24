@@ -32,7 +32,7 @@ pub mod my_psp22_pallet_mintable {
                 instance.pallet.asset_id = asset_id;
                 instance.pallet.origin = Origin::Caller;
                 instance
-                    ._mint(instance.env().caller(), total_supply)
+                    ._mint_to(instance.env().caller(), total_supply)
                     .expect("Should mint");
             })
         }

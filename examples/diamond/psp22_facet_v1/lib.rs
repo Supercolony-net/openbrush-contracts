@@ -34,7 +34,7 @@ pub mod my_psp22_facet_v1 {
         #[ink(message)]
         #[modifiers(only_owner)]
         pub fn init_psp22(&mut self) -> Result<(), PSP22Error> {
-            self._mint(Self::env().caller(), 1000)
+            self._mint_to(Self::env().caller(), 1000)
         }
     }
 }

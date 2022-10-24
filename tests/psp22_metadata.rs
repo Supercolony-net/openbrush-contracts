@@ -31,7 +31,7 @@ mod psp22_metadata {
         String,
     };
 
-    /// A simple PSP-20 contract.
+    /// A simple PSP-22 contract.
     #[ink(storage)]
     #[derive(Default, Storage)]
     pub struct PSP22Struct {

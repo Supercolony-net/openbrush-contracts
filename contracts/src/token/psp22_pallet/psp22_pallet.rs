@@ -164,7 +164,7 @@ pub trait Internal {
     fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance);
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance);
 
-    fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
+    fn _mint_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
     fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
@@ -182,7 +182,7 @@ impl<T: Storage<Data>> Internal for T {
     fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {}
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
 
-    fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+    fn _mint_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         let self_ = self.data();
         self_.pallet_assets.mint(self_.asset_id, account.clone(), amount)?;
         self._emit_transfer_event(None, Some(account), amount);

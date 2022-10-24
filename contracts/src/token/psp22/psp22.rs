@@ -152,7 +152,7 @@ pub trait Internal {
 
     fn _approve_from_to(&mut self, owner: AccountId, spender: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
-    fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
+    fn _mint_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
     fn _burn_from(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }
@@ -266,7 +266,7 @@ impl<T: Storage<Data>> Internal for T {
         Ok(())
     }
 
-    default fn _mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+    default fn _mint_to(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
         if account.is_zero() {
             return Err(PSP22Error::ZeroRecipientAddress)
         }
