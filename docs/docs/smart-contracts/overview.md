@@ -5,7 +5,7 @@ title: Overview
 
 This doc contains description of how the OpenBrush library can be imported and used. 
 
-The OpenBrush is using ink! stable release `3.3.0` at the moment.
+The OpenBrush is using ink! stable release `3.4.0` at the moment.
 So you should use the same version of the ink! across your project.
 If you use an old version of ink, you need to use the old version of OpenBrush.
 OpenBrush had several significant changes in API, so you check the [Wizard](https://openbrush.io)
