@@ -18,13 +18,13 @@ It doesn't contain [versioning](https://github.com/Supercolony-net/openbrush-con
 ```toml
 [dependencies]
 # Import of all ink! crates
-ink_primitives = { version = "~3.3.0", default-features = false }
-ink_metadata = { version = "~3.3.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "~3.3.0", default-features = false }
-ink_storage = { version = "~3.3.0", default-features = false }
-ink_lang = { version = "~3.3.0", default-features = false }
-ink_prelude = { version = "~3.3.0", default-features = false }
-ink_engine = { version = "~3.3.0", default-features = false, optional = true }
+ink_primitives = { version = "~3.4.0", default-features = false }
+ink_metadata = { version = "~3.4.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.4.0", default-features = false }
+ink_storage = { version = "~3.4.0", default-features = false }
+ink_lang = { version = "~3.4.0", default-features = false }
+ink_prelude = { version = "~3.4.0", default-features = false }
+ink_engine = { version = "~3.4.0", default-features = false, optional = true }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
