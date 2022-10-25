@@ -1,10 +1,10 @@
 import {expect, getSigners} from '../helpers'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../typechain-generated/constructors/my_psp35'
-import ContractPSP35 from '../../../typechain-generated/contracts/my_psp35'
-import ConstructorsPSP35Receiver from '../../../typechain-generated/constructors/psp35_receiver'
-import ContractPSP35Receiver from '../../../typechain-generated/contracts/psp35_receiver'
-import {IdBuilder} from '../../../typechain-generated/types-arguments/my_psp35'
+import ConstructorsPSP35 from '../../../typechain-generated/constructors/my_psp37'
+import ContractPSP35 from '../../../typechain-generated/contracts/my_psp37'
+import ConstructorsPSP35Receiver from '../../../typechain-generated/constructors/psp37_receiver'
+import ContractPSP35Receiver from '../../../typechain-generated/contracts/psp37_receiver'
+import {IdBuilder} from '../../../typechain-generated/types-arguments/my_psp37'
 
 describe('MY_PSP37', () => {
   async function setup() {

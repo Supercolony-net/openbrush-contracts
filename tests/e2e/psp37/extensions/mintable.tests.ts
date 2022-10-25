@@ -1,8 +1,8 @@
 import {expect, getSigners} from '../../helpers'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp35_mintable'
-import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp35_mintable'
-import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp35_mintable'
+import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp37_mintable'
+import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp37_mintable'
+import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp37_mintable'
 
 describe('MY_PSP37_MINTABLE', () => {
   async function setup() {

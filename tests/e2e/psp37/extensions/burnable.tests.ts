@@ -1,8 +1,8 @@
 import {expect, getSigners} from '../../helpers'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp35_burnable'
-import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp35_burnable'
-import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp35_burnable'
+import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp37_burnable'
+import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp37_burnable'
+import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp37_burnable'
 
 describe('MY_PSP37_BURNABLE', () => {
   const token1 = IdBuilder.U8(0)

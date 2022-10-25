@@ -1,8 +1,8 @@
 import {bnArg, expect, getSigners} from '../../helpers'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp35_metadata'
-import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp35_metadata'
-import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp35_metadata'
+import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp37_metadata'
+import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp37_metadata'
+import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp37_metadata'
 import {bytesToHex} from '@noble/hashes/utils'
 
 describe('MY_PSP37_METADATA', () => {

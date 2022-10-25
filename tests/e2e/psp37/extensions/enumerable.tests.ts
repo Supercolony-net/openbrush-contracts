@@ -1,9 +1,9 @@
 import {expect, getSigners} from '../../helpers'
-import {IdBuilder as IdBuilderArgs} from '../../../../typechain-generated/types-arguments/my_psp35_enumerable'
-import {IdBuilder} from '../../../../typechain-generated/types-returns/my_psp35_enumerable'
+import {IdBuilder as IdBuilderArgs} from '../../../../typechain-generated/types-arguments/my_psp37_enumerable'
+import {IdBuilder} from '../../../../typechain-generated/types-returns/my_psp37_enumerable'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp35_enumerable'
-import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp35_enumerable'
+import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp37_enumerable'
+import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp37_enumerable'
 
 
 describe('MY_PSP37_ENUMERABLE', () => {
