@@ -1,7 +1,7 @@
 import {expect, getSigners} from '../../helpers'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp37_batch'
-import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp37_batch'
+import ConstructorsPSP37 from '../../../../typechain-generated/constructors/my_psp37_batch'
+import ContractPSP37 from '../../../../typechain-generated/contracts/my_psp37_batch'
 import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp37_batch'
 
 describe('MY_PSP37_BATCH', () => {
@@ -16,9 +16,9 @@ describe('MY_PSP37_BATCH', () => {
     const alice = signers[0]
     const bob = signers[1]
 
-    const contractFactory = new ConstructorsPSP35(api, defaultSigner)
+    const contractFactory = new ConstructorsPSP37(api, defaultSigner)
     const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP35(contractAddress, defaultSigner, api)
+    const contract = new ContractPSP37(contractAddress, defaultSigner, api)
 
     return {
       api,

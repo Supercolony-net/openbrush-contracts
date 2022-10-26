@@ -1,9 +1,9 @@
 import {expect, getSigners} from '../helpers'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../typechain-generated/constructors/my_psp37'
-import ContractPSP35 from '../../../typechain-generated/contracts/my_psp37'
-import ConstructorsPSP35Receiver from '../../../typechain-generated/constructors/psp37_receiver'
-import ContractPSP35Receiver from '../../../typechain-generated/contracts/psp37_receiver'
+import ConstructorsPSP37 from '../../../typechain-generated/constructors/my_psp37'
+import ContractPSP37 from '../../../typechain-generated/contracts/my_psp37'
+import ConstructorsPSP37Receiver from '../../../typechain-generated/constructors/psp37_receiver'
+import ContractPSP37Receiver from '../../../typechain-generated/contracts/psp37_receiver'
 import {IdBuilder} from '../../../typechain-generated/types-arguments/my_psp37'
 
 describe('MY_PSP37', () => {
@@ -15,9 +15,9 @@ describe('MY_PSP37', () => {
     const alice = signers[0]
     const bob = signers[1]
 
-    const contractFactory = new ConstructorsPSP35(api, defaultSigner)
+    const contractFactory = new ConstructorsPSP37(api, defaultSigner)
     const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP35(contractAddress, defaultSigner, api)
+    const contract = new ContractPSP37(contractAddress, defaultSigner, api)
 
     return {
       api,
@@ -41,9 +41,9 @@ describe('MY_PSP37', () => {
     const alice = signers[0]
     const bob = signers[1]
 
-    const contractFactory = new ConstructorsPSP35Receiver(api, defaultSigner)
+    const contractFactory = new ConstructorsPSP37Receiver(api, defaultSigner)
     const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP35Receiver(contractAddress, defaultSigner, api)
+    const contract = new ContractPSP37Receiver(contractAddress, defaultSigner, api)
 
     return {
       api,
@@ -115,7 +115,7 @@ describe('MY_PSP37', () => {
     await close()
   })
 
-  it('PSP35 - contract(not receiver) can accept the transfer', async () => {
+  it('PSP37 - contract(not receiver) can accept the transfer', async () => {
     const { tx, query, defaultSigner: sender, close: close1 } = await setup()
 
     const { contract, close: close2 } = await setup()
@@ -137,8 +137,8 @@ describe('MY_PSP37', () => {
     await close2()
   })
 
-  it('PSP35 - receiver can accept the transfer', async () => {
-    const { tx, query, defaultSigner: sender, close: closePSP35 } = await setup()
+  it('PSP37 - receiver can accept the transfer', async () => {
+    const { tx, query, defaultSigner: sender, close: closePSP37 } = await setup()
 
     const { contract, close: closeReceiver } = await setup_receiver()
 
@@ -155,12 +155,12 @@ describe('MY_PSP37', () => {
     await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(1)
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(0)
 
-    await closePSP35()
+    await closePSP37()
     await closeReceiver()
   })
 
-  it('PSP35 - receiver can reject the transfer', async () => {
-    const { tx, query, defaultSigner: sender, close: closePSP35 } = await setup()
+  it('PSP37 - receiver can reject the transfer', async () => {
+    const { tx, query, defaultSigner: sender, close: closePSP37 } = await setup()
 
     const { contract, close: closeReceiver } = await setup_receiver()
 
@@ -179,7 +179,7 @@ describe('MY_PSP37', () => {
     await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
 
-    await closePSP35()
+    await closePSP37()
     await closeReceiver()
   })
 
