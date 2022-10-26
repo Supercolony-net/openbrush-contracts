@@ -1,8 +1,8 @@
 import {bnArg, expect, getSigners} from '../../helpers'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp35_metadata'
-import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp35_metadata'
-import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp35_metadata'
+import ConstructorsPSP37 from '../../../../typechain-generated/constructors/my_psp37_metadata'
+import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp37_metadata'
+import ContractPSP37 from '../../../../typechain-generated/contracts/my_psp37_metadata'
 import {bytesToHex} from '@noble/hashes/utils'
 
 describe('MY_PSP37_METADATA', () => {
@@ -14,9 +14,9 @@ describe('MY_PSP37_METADATA', () => {
     const alice = signers[0]
     const bob = signers[1]
 
-    const contractFactory = new ConstructorsPSP35(api, defaultSigner)
+    const contractFactory = new ConstructorsPSP37(api, defaultSigner)
     const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP35(contractAddress, defaultSigner, api)
+    const contract = new ContractPSP37(contractAddress, defaultSigner, api)
 
     return {
       api,
