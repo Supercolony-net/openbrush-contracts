@@ -218,6 +218,7 @@ jobs:
 
       - name: Run Test Mocha
         run: |
+          yarn build:release:no-compile
           for test in $(find tests -type f -regex ".*\.ts"); do
             has_timeout=true
             while $has_timeout
