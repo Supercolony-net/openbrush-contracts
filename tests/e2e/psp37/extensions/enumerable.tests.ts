@@ -1,9 +1,9 @@
 import {expect, getSigners} from '../../helpers'
-import {IdBuilder as IdBuilderArgs} from '../../../../typechain-generated/types-arguments/my_psp35_enumerable'
-import {IdBuilder} from '../../../../typechain-generated/types-returns/my_psp35_enumerable'
+import {IdBuilder as IdBuilderArgs} from '../../../../typechain-generated/types-arguments/my_psp37_enumerable'
+import {IdBuilder} from '../../../../typechain-generated/types-returns/my_psp37_enumerable'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP35 from '../../../../typechain-generated/constructors/my_psp35_enumerable'
-import ContractPSP35 from '../../../../typechain-generated/contracts/my_psp35_enumerable'
+import ConstructorsPSP37 from '../../../../typechain-generated/constructors/my_psp37_enumerable'
+import ContractPSP37 from '../../../../typechain-generated/contracts/my_psp37_enumerable'
 
 
 describe('MY_PSP37_ENUMERABLE', () => {
@@ -20,9 +20,9 @@ describe('MY_PSP37_ENUMERABLE', () => {
     const alice = signers[0]
     const bob = signers[1]
 
-    const contractFactory = new ConstructorsPSP35(api, defaultSigner)
+    const contractFactory = new ConstructorsPSP37(api, defaultSigner)
     const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP35(contractAddress, defaultSigner, api)
+    const contract = new ContractPSP37(contractAddress, defaultSigner, api)
 
     return {
       api,

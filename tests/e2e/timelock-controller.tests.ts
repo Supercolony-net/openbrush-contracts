@@ -33,8 +33,8 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
       callee: contract.address,
       selector: [0, 0, 0, 0],
       input: [],
-      transferred_value: 0,
-      gas_limit: 0
+      transferredValue: 0,
+      gasLimit: 0
     }
     const salt = bnArg(0)
 
@@ -60,8 +60,8 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
       callee: contract.address,
       selector: message.selector.toU8a() as unknown as number[],
       input: [],
-      transferred_value: 0,
-      gas_limit: 0
+      transferredValue: 0,
+      gasLimit: 0
     }
     const salt = bnArg(0)
 
@@ -98,8 +98,8 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
       callee: contract.address,
       selector: message.selector.toU8a() as unknown as number[],
       input: data as unknown as number[],
-      transferred_value: 0,
-      gas_limit: 0
+      transferredValue: 0,
+      gasLimit: 0
     }
     const salt = bnArg(0)
 
@@ -122,8 +122,8 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
       callee: contract.address,
       selector: [0, 0, 0, 0],
       input: [],
-      transferred_value: 0,
-      gas_limit: 0
+      transferredValue: 0,
+      gasLimit: 0
     }
     const salt = bnArg(0)
 
@@ -141,8 +141,8 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
       callee: contract.address,
       selector: [0, 0, 0, 0],
       input: [],
-      transferred_value: 0,
-      gas_limit: 0
+      transferredValue: 0,
+      gasLimit: 0
     }
     const salt = bnArg(0)
 
