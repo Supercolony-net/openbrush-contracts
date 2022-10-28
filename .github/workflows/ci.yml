@@ -49,8 +49,6 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      env:
-        CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - uses: actions/setup-node@v1
         with:
@@ -109,8 +107,6 @@ jobs:
     container:
       image: ghcr.io/supercolony-net/openbrush-contracts-ci
       options: --user root
-      env:
-        CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
       - name: Cache rust artifacts for source branch
         id: cache-rust-artifacts-source
