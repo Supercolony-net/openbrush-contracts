@@ -73,7 +73,7 @@ describe('MY_PSP22_FLASHMINT', () => {
 
     // flash fee should be 1%
     const flashFee = await flashmint.query.flashFee(flashmint.contract.address, 100)
-    expect((await flashmint.query.flashFee(flashmint.contract.address, 100)).value.Ok).to.be.bnToNumber(1)
+    expect((await flashmint.query.flashFee(flashmint.contract.address, 100)).value.ok).to.be.bnToNumber(1)
 
     await close()
   })
