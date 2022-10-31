@@ -356,13 +356,15 @@ describe('LENDING_CONTRACT', () => {
     await expect(lending.withSigner(alice).tx.lendAssets(stablecoin.address, amount)).to.eventually.be.fulfilled
     // Act - Alice withdraws stablecoin token
     const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.rawNumber
-    const sharesAddress = ((await lending.query.getAssetShares(stablecoin.address)).value.toString())
+    const sharesAddress = ((await lending.query.getAssetShares(stablecoin.address)).value.ok!)
     const withdrawAmount = 1
+    console.log(alice.address, sharesAddress)
     await expect(lending.withSigner(alice).tx.withdrawAsset(sharesAddress, withdrawAmount)).to.eventually.be.fulfilled
 
     // Assert - Balance of lending contract decreased at withdraw amount
     await expect(stablecoin.query.balanceOf(lending.address)).to.have.bnToNumber(amount - withdrawAmount)
     // Assert - Alice balance increased at withdraw amount
+
     expect((await stablecoin.query.balanceOf(alice.address)).value.toString()).to.be.eq(alice_balance.add(new BN(withdrawAmount)).toString())
 
     await close()

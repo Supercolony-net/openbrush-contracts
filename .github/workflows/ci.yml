@@ -222,6 +222,10 @@ jobs:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
 
+      - name: Generate Typechain code
+        run:
+          yarn build:release:no-compile
+
       - name: Run Test Mocha
         run: |
           for test in $(find tests -type f -regex ".*\.ts"); do
