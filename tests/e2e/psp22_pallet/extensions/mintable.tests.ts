@@ -1,40 +1,69 @@
 /* eslint-disable */
-import {bnArg, expect, fromSigner, setupContract} from '../../helpers'
+import {bnArg, expect, getSigners} from '../../helpers'
+import {ApiPromise} from "@polkadot/api";
+import ConstructorsPSP22 from "../../../../typechain-generated/constructors/my_psp22_pallet_mintable";
+import ContractPSP22 from "../../../../typechain-generated/contracts/my_psp22_pallet_mintable";
 
 describe('MY_PSP22_MINTABLE', () => {
     async function setup() {
-        return setupContract('my_psp22_pallet', 'new', 1, 1, 1000, {value: 10000})
+        const api = await ApiPromise.create()
+
+        const signers = getSigners()
+        const defaultSigner = signers[2]
+        const alice = signers[0]
+        const bob = signers[1]
+
+
+        const contractFactory = new ConstructorsPSP22(api, defaultSigner)
+        const contractAddress = (await contractFactory.new(Math.floor(Math.random() * 10000) + 1, 1, 1000, {value: '10000000000000000'})).address
+        const contract = new ContractPSP22(contractAddress, defaultSigner, api)
+
+        return {
+            api,
+            defaultSigner,
+            alice,
+            bob,
+            contract,
+            query: contract.query,
+            tx: contract.tx
+        }
     }
 
     it('Assigns initial balance', async () => {
-        const { query, defaultSigner: sender } = await setup()
+        const { api, query, defaultSigner: sender } = await setup()
 
-        await expect(query.balanceOf(sender.address)).to.have.output(1000)
+        await expect(query.balanceOf(sender.address)).to.have.bnToNumber(1000)
+
+        await api.disconnect()
     })
 
     it('Minting requested amount', async () => {
-        const { contract, query, accounts: [alice] } = await setup()
+        const { api, contract, query, alice } = await setup()
 
         // Arrange - Ensure receiver balance is 0
-        await expect(query.balanceOf(alice.address, bnArg(0))).to.have.output(0)
+        await expect(query.balanceOf(alice.address)).to.have.bnToNumber(0)
 
         // Act - Sender mint a token
-        await expect(contract.tx.mint(alice.address, 1)).to.eventually.be.fulfilled
+        await expect(contract.tx.mintTo(alice.address, 1)).to.eventually.be.fulfilled
 
         // Assert - Sender balance is now 1
-        await expect(query.balanceOf(alice.address, bnArg(0))).to.have.output(1)
+        await expect(query.balanceOf(alice.address)).to.have.bnToNumber(1)
+
+        await api.disconnect()
     })
 
     it('Increases total supply after minting', async () => {
-        const { contract, query, defaultSigner: sender } = await setup()
+        const { api, contract, query, defaultSigner: sender } = await setup()
 
         // Arrange - Ensure initial supply is correct
-        await expect(query.totalSupply()).to.have.output(1000)
+        await expect(query.totalSupply()).to.have.bnToNumber(1000)
 
         // Act - Sender mint a token
-        await expect(contract.tx.mint(sender.address, 1)).to.eventually.be.fulfilled
+        await expect(contract.tx.mintTo(sender.address, 1)).to.eventually.be.fulfilled
 
         // Assert - Sender balance is now 1
-        await expect(query.totalSupply()).to.have.output(1001)
+        await expect(query.totalSupply()).to.have.bnToNumber(1001)
+
+        await api.disconnect()
     })
 })

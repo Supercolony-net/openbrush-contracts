@@ -22,3 +22,5 @@ package-lock.json
 
 yarn.lock
 .cargo/config.toml
+
+typechain-generated/

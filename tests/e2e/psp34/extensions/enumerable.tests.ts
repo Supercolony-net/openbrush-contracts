@@ -1,90 +1,102 @@
-import { bnArg, expect, fromSigner, setupContract } from '../../helpers'
-
-interface Result {
-  ok: Ok;
-}
-interface Ok{
-  u8 : number;
-}
+import {expect, getSigners} from '../../helpers'
+import {ApiPromise} from '@polkadot/api'
+import ConstructorsPSP34 from '../../../../typechain-generated/constructors/my_psp34_enumerable'
+import ContractPSP34 from '../../../../typechain-generated/contracts/my_psp34_enumerable'
+import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp34_enumerable'
+import {IdBuilder as IdBuilderReturns} from '../../../../typechain-generated/types-returns/my_psp34_enumerable'
 
 describe('MY_PSP34_ENUMERABLE', () => {
   async function setup() {
-    return setupContract('my_psp34_enumerable', 'new')
-  }
+    const api = await ApiPromise.create()
 
-  function result(s: string | undefined) {
-    const result: Result = s != null ? JSON.parse(s) : null
-    return result
+    const signers = getSigners()
+    const defaultSigner = signers[2]
+    const alice = signers[0]
+    const bob = signers[1]
+
+    const contractFactory = new ConstructorsPSP34(api, defaultSigner)
+    const contractAddress = (await contractFactory.new()).address
+    const contract = new ContractPSP34(contractAddress, defaultSigner, api)
+
+    return {
+      api,
+      defaultSigner,
+      alice,
+      bob,
+      contract,
+      query: contract.query,
+      tx: contract.tx,
+      close: async () => {
+        await api.disconnect()
+      }
+    }
   }
 
   it('Enumerable should fail', async () => {
     const {
       contract,
       defaultSigner: sender,
-      accounts: [alice],
-      query
+      alice,
+      query,
+      close
     } = await setup()
 
-    await expect(query.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
-    await expect(query.ownersTokenByIndex(alice.address, 0)).to.eventually.be.rejected
+    expect((await query.ownersTokenByIndex(sender.address, 0)).value.ok).to.be.undefined
+    expect((await query.ownersTokenByIndex(alice.address, 0)).value.ok).to.be.undefined
   })
 
   it('Enumerable works', async () => {
     const {
       contract,
       defaultSigner: sender,
-      accounts: [alice],
-      query
+      alice,
+      query,
+      close
     } = await setup()
 
     await expect(contract.tx.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
     await expect(contract.tx.ownersTokenByIndex(alice.address, 0)).to.eventually.be.rejected
 
-    const psp34_id1 = {
-      'u8': 1
-    }
-    const psp34_id2 = {
-      'u8': 2
-    }
+    const psp34_id1 = IdBuilder.U8(1)
+    const psp34_id2 = IdBuilder.U8(2)
 
     await expect(contract.tx.mint(alice.address, psp34_id1)).to.eventually.be.fulfilled
     await expect(contract.tx.mint(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
-    expect(result((await query.tokenByIndex(0)).output?.toString()).ok.u8).equal(1)
-    expect(result((await query.tokenByIndex(1)).output?.toString()).ok.u8).equal(2)
+    expect((await query.tokenByIndex(0)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(1))
+    expect((await query.tokenByIndex(1)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(2))
+    expect((await query.ownersTokenByIndex(alice.address, 0)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(1))
+    expect((await query.ownersTokenByIndex(alice.address, 1)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(2))
 
-    expect(result((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).ok.u8).equal(1)
-    expect(result((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).ok.u8).equal(2)
+    await close()
   })
 
   it('Enumerable works after burn', async () => {
     const {
       contract,
       defaultSigner: sender,
-      accounts: [alice],
-      query
+      alice,
+      query,
+      close
     } = await setup()
 
     await expect(contract.tx.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
     await expect(contract.tx.ownersTokenByIndex(alice.address, 0)).to.eventually.be.rejected
 
-    const psp34_id1 = {
-      'u8': 1
-    }
-    const psp34_id2 = {
-      'u8': 2
-    }
+    const psp34_id1 = IdBuilder.U8(1)
+    const psp34_id2 = IdBuilder.U8(2)
 
     await expect(contract.tx.mint(alice.address, psp34_id1)).to.eventually.be.fulfilled
     await expect(contract.tx.mint(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
-    expect(result((await query.tokenByIndex(0)).output?.toString()).ok.u8).equal(1)
-    expect(result((await query.tokenByIndex(1)).output?.toString()).ok.u8).equal(2)
+    expect((await query.tokenByIndex(0)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(1))
+    expect((await query.tokenByIndex(1)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(2))
 
     await expect(contract.tx.burn(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
     await expect(contract.tx.ownersTokenByIndex(alice.address, 0)).to.eventually.be.fulfilled
     await expect(contract.tx.ownersTokenByIndex(alice.address, 1)).to.eventually.be.rejected
 
+    await close()
   })
 })

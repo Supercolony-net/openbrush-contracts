@@ -1,35 +1,61 @@
-import { expect, setupContract } from '../../helpers'
+import {expect, getSigners} from '../../helpers'
 
 import { Roles } from '../../constants'
+import {ApiPromise} from '@polkadot/api'
+import Constructors from '../../../../typechain-generated/constructors/my_access_control_enumerable'
+import Contract from '../../../../typechain-generated/contracts/my_access_control_enumerable'
 
 describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
   async function setup() {
-    return setupContract('my_access_control_enumerable', 'new')
+    const api = await ApiPromise.create()
+
+    const signers = getSigners()
+    const defaultSigner = signers[1]
+    const alice = signers[0]
+
+    const contractFactory = new Constructors(api, defaultSigner)
+    const contractAddress = (await contractFactory.new()).address
+    const contract = new Contract(contractAddress, defaultSigner, api)
+
+    return {
+      api,
+      defaultSigner,
+      alice,
+      contract,
+      query: contract.query,
+      tx: contract.tx
+    }
   }
 
   it('ACCESS CONTROL ENUMERABLE - should have not member', async () => {
     const {
+      api,
       query
     } = await setup()
 
     // Assert - No minter member for index 1
     await expect(query.getRoleMember(Roles.Minter, 1)).to.have.output(null)
+
+    await api.disconnect()
   })
 
   it('ACCESS CONTROL ENUMERABLE - should get role member', async () => {
     const {
+      api,
       defaultSigner: sender,
       query
     } = await setup()
 
     // Assert - Minter role for sender was granter in contract constructor
-    const minter = await query.getRoleMember(Roles.Minter, 0)
-    await expect(minter.output).equal(sender.address)
+    await expect(query.getRoleMember(Roles.Minter, 0)).to.have.output(sender.address)
+
+    await api.disconnect()
   })
 
   it('ACCESS CONTROL ENUMERABLE - should grant roles and get role members', async () => {
     const {
-      accounts: [alice],
+      api,
+      alice,
       query,
       tx
     } = await setup()
@@ -42,13 +68,16 @@ describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
 
     // Assert - Now Alice is the second on the minter list
     const minter = await query.getRoleMember(Roles.Minter, 1)
-    await expect(minter.output).equal(alice.address)
+    await expect(minter.value).equal(alice.address)
+
+    await api.disconnect()
   })
 
   it('ACCESS CONTROL ENUMERABLE - should revoke and count roles', async () => {
     const {
+      api,
       defaultSigner: sender,
-      accounts: [alice],
+      alice,
       query,
       tx
     } = await setup()
@@ -63,5 +92,7 @@ describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
 
     // Assert - no minter members
     await expect(query.getRoleMemberCount(Roles.Minter)).to.have.output(0)
+
+    await api.disconnect()
   })
 })

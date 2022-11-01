@@ -77,7 +77,7 @@ jobs:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
 
-      - name: Redspot Сompile examples
+      - name: Typechain Сompile examples
         run: |
           chown -R root .
           chmod -R a+rwx .
@@ -152,7 +152,7 @@ jobs:
           restore-keys: |
             cache-rust-artifacts-pr-${{ hashFiles('Cargo.toml') }}
 
-      - name: Redspot Сompile examples for destination branch
+      - name: Typechain Сompile examples for destination branch
         run: |
           chown -R root .
           chmod -R a+rwx .
@@ -221,6 +221,10 @@ jobs:
         with:
           path: artifacts
           key: cache-contract-artifacts-${{ github.sha }}
+
+      - name: Generate Typechain code
+        run:
+          yarn build:release:no-compile
 
       - name: Run Test Mocha
         run: |

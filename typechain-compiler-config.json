@@ -1,0 +1,5 @@
+{
+  "projectFiles": ["example_project_structure/contracts/**", "examples/**", "examples/**/**", "examples/**/**/**", "mock/**", "!examples/reentrancy_guard/Cargo.toml"],
+  "artifactsPath": "./artifacts",
+  "typechainGeneratedPath": "./typechain-generated"
+}
