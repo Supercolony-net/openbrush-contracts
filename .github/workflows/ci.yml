@@ -223,7 +223,7 @@ jobs:
           key: cache-contract-artifacts-${{ github.sha }}
 
       - name: Generate Typechain code
-        run: |
+        run:
           yarn build:release:no-compile
 
       - name: Run Test Mocha

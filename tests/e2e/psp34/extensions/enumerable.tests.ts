@@ -5,13 +5,6 @@ import ContractPSP34 from '../../../../typechain-generated/contracts/my_psp34_en
 import {IdBuilder} from '../../../../typechain-generated/types-arguments/my_psp34_enumerable'
 import {IdBuilder as IdBuilderReturns} from '../../../../typechain-generated/types-returns/my_psp34_enumerable'
 
-interface Result {
-  ok: Ok;
-}
-interface Ok{
-  u8 : number;
-}
-
 describe('MY_PSP34_ENUMERABLE', () => {
   async function setup() {
     const api = await ApiPromise.create()
@@ -48,8 +41,8 @@ describe('MY_PSP34_ENUMERABLE', () => {
       close
     } = await setup()
 
-    await expect(query.ownersTokenByIndex(sender.address, 0)).to.eventually.be.rejected
-    await expect(query.ownersTokenByIndex(alice.address, 0)).to.eventually.be.rejected
+    expect((await query.ownersTokenByIndex(sender.address, 0)).value.ok).to.be.undefined
+    expect((await query.ownersTokenByIndex(alice.address, 0)).value.ok).to.be.undefined
   })
 
   it('Enumerable works', async () => {
@@ -70,10 +63,10 @@ describe('MY_PSP34_ENUMERABLE', () => {
     await expect(contract.tx.mint(alice.address, psp34_id1)).to.eventually.be.fulfilled
     await expect(contract.tx.mint(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
-    expect((await query.tokenByIndex(0)).value).to.be.deep.equal(IdBuilderReturns.U8(1))
-    expect((await query.tokenByIndex(1)).value).to.be.deep.equal(IdBuilderReturns.U8(2))
-    expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(IdBuilderReturns.U8(1))
-    expect((await query.ownersTokenByIndex(alice.address, 1)).value).to.be.deep.equal(IdBuilderReturns.U8(2))
+    expect((await query.tokenByIndex(0)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(1))
+    expect((await query.tokenByIndex(1)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(2))
+    expect((await query.ownersTokenByIndex(alice.address, 0)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(1))
+    expect((await query.ownersTokenByIndex(alice.address, 1)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(2))
 
     await close()
   })
@@ -96,8 +89,8 @@ describe('MY_PSP34_ENUMERABLE', () => {
     await expect(contract.tx.mint(alice.address, psp34_id1)).to.eventually.be.fulfilled
     await expect(contract.tx.mint(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
-    expect((await query.tokenByIndex(0)).value).to.be.deep.equal(IdBuilderReturns.U8(1))
-    expect((await query.tokenByIndex(1)).value).to.be.deep.equal(IdBuilderReturns.U8(2))
+    expect((await query.tokenByIndex(0)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(1))
+    expect((await query.tokenByIndex(1)).value.ok).to.be.deep.equal(IdBuilderReturns.U8(2))
 
     await expect(contract.tx.burn(alice.address, psp34_id2)).to.eventually.be.fulfilled
 
