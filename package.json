@@ -7,9 +7,8 @@
     "@babel/plugin-transform-runtime": "^7.14.2",
     "@babel/preset-env": "^7.7.4",
     "@babel/register": "^7.7.4",
-    "@redspot/chai": "^0.13.4",
-    "@redspot/gas-reporter": "^0.13.5",
-    "@redspot/patract": "^0.13.5",
+    "@supercolony/typechain-compiler": "^0.5.1-beta.1",
+    "@supercolony/typechain-types": "^0.0.16",
     "@types/chai": "^4.3.0",
     "@types/chai-as-promised": "^7.1.5",
     "@types/mocha": "^8.0.3",
@@ -23,13 +22,14 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "prettier": "^2.7.1",
-    "redspot": "^0.13.5",
-    "ts-node": "^10.8.0"
+    "ts-node": "^10.8.0",
+    "mocha": "10.1.0"
   },
   "scripts": {
-    "build:release": "npx redspot compile --release",
-    "build": "npx redspot compile",
-    "test:redspot": "npx redspot test",
+    "build": "npx @supercolony/typechain-compiler --config ./typechain-compiler-config.json",
+    "build:release:no-compile": "npx @supercolony/typechain-compiler --config ./typechain-compiler-config.json --release --noCompile",
+    "build:release": "npx @supercolony/typechain-compiler --config ./typechain-compiler-config.json --release",
+    "typechain": "npx @supercolony/typechain-polkadot --in artifacts --out ./typechain-generated",
     "test:mocha": "mocha --require @babel/register --require ts-node/register --recursive ./tests --extension \".ts\" --exit --timeout 20000",
     "test:mocha-single": "mocha --require @babel/register --require ts-node/register --extension \".ts\" --exit --timeout 20000",
     "test": "yarn build:release && yarn test:mocha"

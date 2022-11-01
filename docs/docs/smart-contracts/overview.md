@@ -5,7 +5,7 @@ title: Overview
 
 This doc contains description of how the OpenBrush library can be imported and used. 
 
-The OpenBrush is using ink! stable release `3.3.0` at the moment.
+The OpenBrush is using ink! stable release `3.4.0` at the moment.
 So you should use the same version of the ink! across your project.
 If you use an old version of ink, you need to use the old version of OpenBrush.
 OpenBrush had several significant changes in API, so you check the [Wizard](https://openbrush.io)
@@ -18,13 +18,13 @@ It doesn't contain [versioning](https://github.com/Supercolony-net/openbrush-con
 ```toml
 [dependencies]
 # Import of all ink! crates
-ink_primitives = { version = "~3.3.0", default-features = false }
-ink_metadata = { version = "~3.3.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "~3.3.0", default-features = false }
-ink_storage = { version = "~3.3.0", default-features = false }
-ink_lang = { version = "~3.3.0", default-features = false }
-ink_prelude = { version = "~3.3.0", default-features = false }
-ink_engine = { version = "~3.3.0", default-features = false, optional = true }
+ink_primitives = { version = "~3.4.0", default-features = false }
+ink_metadata = { version = "~3.4.0", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "~3.4.0", default-features = false }
+ink_storage = { version = "~3.4.0", default-features = false }
+ink_lang = { version = "~3.4.0", default-features = false }
+ink_prelude = { version = "~3.4.0", default-features = false }
+ink_engine = { version = "~3.4.0", default-features = false, optional = true }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
