@@ -54,7 +54,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v1
         with:
-          node-version: '16.x'
+          node-version: '16.14.2'
       - uses: actions/checkout@v3
       - name: Yarn install dependencies
         run: |
