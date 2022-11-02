@@ -140,7 +140,7 @@ jobs:
 
       - name: Yarn install dependencies for destination branch
         run: |
-          yarn
+          yarn --ignore-engines
           yarn add ts-node
 
       - name: Cache rust artifacts for destination branch
