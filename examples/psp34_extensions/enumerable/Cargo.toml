@@ -1,6 +1,6 @@
 [package]
 name = "my_psp34_enumerable"
-version = "2.2.0"
+version = "2.3.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
