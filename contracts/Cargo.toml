@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_contracts"
-version = "2.2.0"
+version = "2.3.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -26,7 +26,7 @@ ink_engine = { version = "~3.4.0", default-features = false, optional = true }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-openbrush = { version = "~2.2.0", package = "openbrush_lang", path = "../lang", default-features = false }
+openbrush = { version = "~2.3.0", package = "openbrush_lang", path = "../lang", default-features = false }
 
 pallet-assets-chain-extension = { git = "https://github.com/Supercolony-net/pallet-assets-chain-extension", default-features = false, features = ["ink"]  }
 

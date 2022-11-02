@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_lang_macro"
-version = "2.2.0"
+version = "2.3.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2021"
 
@@ -14,7 +14,7 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
-openbrush_lang_codegen = { version = "~2.2.0", path = "../codegen", default-features = false }
+openbrush_lang_codegen = { version = "~2.3.0", path = "../codegen", default-features = false }
 syn = "1"
 proc-macro2 = "1"
 synstructure = "0.12"
