@@ -112,6 +112,9 @@ jobs:
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
     steps:
+      - uses: actions/setup-node@v1
+        with:
+            node-version: '16.x'
       - name: Cache rust artifacts for source branch
         id: cache-rust-artifacts-source
         uses: actions/cache@v3
@@ -140,8 +143,8 @@ jobs:
 
       - name: Yarn install dependencies for destination branch
         run: |
-          npm install
-          npm install ts-node
+          yarn
+          yarn add ts-node
 
       - name: Cache rust artifacts for destination branch
         id: cache-rust-artifacts-destination
