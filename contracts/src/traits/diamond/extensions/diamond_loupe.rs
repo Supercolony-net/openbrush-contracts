@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::traits::diamond::*;
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::traits::Hash;
 
 #[openbrush::wrapper]

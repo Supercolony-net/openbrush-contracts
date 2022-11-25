@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use ink_env::{
+use ink::env::{
     hash::{
         Blake2x256,
         CryptoHash,
@@ -30,7 +30,7 @@ use ink_env::{
 };
 
 #[cfg(feature = "std")]
-use ink_env::{
+use ink::env::{
     test::DefaultAccounts,
     DefaultEnvironment,
     Environment,
@@ -79,10 +79,10 @@ where
 
 #[cfg(feature = "std")]
 pub fn accounts() -> DefaultAccounts<DefaultEnvironment> {
-    ink_env::test::default_accounts::<DefaultEnvironment>()
+    ink::env::test::default_accounts::<DefaultEnvironment>()
 }
 
 #[cfg(feature = "std")]
 pub fn change_caller(new_caller: <DefaultEnvironment as Environment>::AccountId) {
-    ink_env::test::set_caller::<ink_env::DefaultEnvironment>(new_caller);
+    ink::env::test::set_caller::<ink::env::DefaultEnvironment>(new_caller);
 }

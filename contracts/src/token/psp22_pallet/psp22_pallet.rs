@@ -29,8 +29,8 @@ pub use pallet_assets_chain_extension::{
 };
 pub use psp22_pallet::Internal as _;
 
-use ink_env::DefaultEnvironment;
-use ink_prelude::vec::Vec;
+use ink::env::DefaultEnvironment;
+use ink::prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,

@@ -376,7 +376,7 @@ contract, but you have only one facet. You can read about it in [that section](#
 
 ### Usage of `set_code_hash` method
 
-ink! has the `ink_env::set_code_hash` method, which allows replacing the code hash 
+ink! has the `ink::env::set_code_hash` method, which allows replacing the code hash 
 of the current contract. So you can change the logic layer by specifying a new code 
 hash on demand. After setting a new code hash, the next call to your contract will execute updated logic.
 
@@ -386,7 +386,7 @@ For example, you can add that method, and it is done:
 ```rust
 #[ink(message)]
 pub fn upgrade_my_contract(&mut self, new_code_hash: Hash) {
-    ink_env::set_code_hash(&new_code_hash)
+    ink::env::set_code_hash(&new_code_hash)
 }
 ```
 
@@ -552,7 +552,7 @@ pub mod facet_b {
             // It does a cross-contract call to itself with `owner` as an argument.
             // It needs to allow reentrancy if it wants to execute itself.
             PSP22Ref::balance_of_builder(&address_of_current_contract, owner)
-                .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+                .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
                 .fire()
                 .unwrap();
 

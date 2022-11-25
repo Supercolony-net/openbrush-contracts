@@ -3,9 +3,9 @@
 
 #[openbrush::contract]
 pub mod my_psp22_facet_v2 {
-    use ink_lang::codegen::Env;
-    use ink_prelude::vec::Vec;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::codegen::Env;
+    use ink::prelude::vec::Vec;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             ownable::*,
@@ -45,7 +45,7 @@ pub mod my_psp22_facet_v2 {
     impl PSP22FacetV2 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 }

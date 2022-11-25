@@ -27,8 +27,7 @@ mod psp37_metadata {
         EmitEvent,
         Env,
     };
-    use ink_lang as ink;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::traits::Storage;
     use openbrush_contracts::psp37::extensions::metadata::*;
 
@@ -65,7 +64,7 @@ mod psp37_metadata {
     impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

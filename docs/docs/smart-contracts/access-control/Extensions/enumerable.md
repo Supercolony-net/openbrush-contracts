@@ -53,7 +53,7 @@ impl AccessControlEnumerable for Contract {}
 
 #[openbrush::contract]
 pub mod my_access_control {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::access_control::extensions::enumerable::*,
         traits::Storage,

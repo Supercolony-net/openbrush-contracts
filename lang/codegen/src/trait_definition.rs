@@ -109,7 +109,7 @@ pub fn generate(_attrs: TokenStream, _input: TokenStream) -> TokenStream {
                 #wrapper_trait
 
                 // This trait contains only ink! methods without other attributes.
-                #[ink_lang::trait_definition(#attrs)]
+                #[ink::trait_definition(#attrs)]
                 #ink_trait
             }
         };
@@ -191,7 +191,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 syn::ReturnType::Type(_, return_type) => quote! { #return_type },
             };
             let selector_string = format!("{}::{}", trait_ident, message_ident);
-            let selector_bytes = ::ink_lang_ir::Selector::compute(&selector_string.into_bytes()).hex_lits();
+            let selector_bytes = ::ink_ir::Selector::compute(&selector_string.into_bytes()).hex_lits();
             let input_bindings = method
                 .sig
                 .inputs
@@ -222,10 +222,10 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 .map(|pat_type| pat_type.ty.clone())
                 .collect::<Vec<_>>();
             let arg_list = input_types.iter().cloned().into_iter().fold(
-                quote! { ::ink_env::call::utils::EmptyArgumentList },
+                quote! { ::ink::env::call::utils::EmptyArgumentList },
                 |rest, arg| {
                     quote! {
-                        ::ink_env::call::utils::ArgumentList<::ink_env::call::utils::Argument<#arg>, #rest>
+                        ::ink::env::call::utils::ArgumentList<::ink::env::call::utils::Argument<#arg>, #rest>
                     }
                 },
             );
@@ -244,11 +244,11 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 fn #message_builder_ident(
                     & self
                     #( , #input_bindings : #input_types )*
-                ) -> ::ink_env::call::CallBuilder<
-                    ::ink_env::DefaultEnvironment,
-                    ::ink_env::call::utils::Set< ::ink_env::call::Call< ::ink_env::DefaultEnvironment > >,
-                    ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
-                    ::ink_env::call::utils::Set<::ink_env::call::utils::ReturnType<#output_ty>>,
+                ) -> ::ink::env::call::CallBuilder<
+                    ::ink::env::DefaultEnvironment,
+                    ::ink::env::call::utils::Set< ::ink::env::call::Call< ::ink::env::DefaultEnvironment > >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#output_ty>>,
                 >;
             });
 
@@ -267,19 +267,19 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 fn #message_builder_ident(
                     & self
                     #( , #input_bindings : #input_types )*
-                ) -> ::ink_env::call::CallBuilder<
-                    ::ink_env::DefaultEnvironment,
-                    ::ink_env::call::utils::Set< ::ink_env::call::Call< ::ink_env::DefaultEnvironment > >,
-                    ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
-                    ::ink_env::call::utils::Set<::ink_env::call::utils::ReturnType<#output_ty>>,
+                ) -> ::ink::env::call::CallBuilder<
+                    ::ink::env::DefaultEnvironment,
+                    ::ink::env::call::utils::Set< ::ink::env::call::Call< ::ink::env::DefaultEnvironment > >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#output_ty>>,
                 > {
-                    ::ink_env::call::build_call::<::ink_env::DefaultEnvironment>()
+                    ::ink::env::call::build_call::<::ink::env::DefaultEnvironment>()
                         .call_type(
-                            ::ink_env::call::Call::new()
+                            ::ink::env::call::Call::new()
                                 .callee(self.clone()))
                         .exec_input(
-                            ::ink_env::call::ExecutionInput::new(
-                                ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
+                            ::ink::env::call::ExecutionInput::new(
+                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                             )
                             #(
                                 .push_arg(#input_bindings)
@@ -315,7 +315,7 @@ fn add_selectors_attribute(trait_item: &mut ItemTrait) {
 
                 if contains_selector.is_none() {
                     let selector_string = format!("{}::{}", trait_ident, method.sig.ident);
-                    let selector_id = ::ink_lang_ir::Selector::compute(&selector_string.into_bytes()).into_be_u32();
+                    let selector_id = ::ink_ir::Selector::compute(&selector_string.into_bytes()).into_be_u32();
                     method.attrs.push(crate::internal::new_attribute(
                         quote! { #[ink(selector = #selector_id)] },
                     ));

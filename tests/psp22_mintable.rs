@@ -27,7 +27,6 @@ mod psp22_mintable {
         EmitEvent,
         Env,
     };
-    use ink_lang as ink;
     use openbrush::{
         contracts::psp22::extensions::mintable::*,
         test_utils::*,
@@ -59,7 +58,7 @@ mod psp22_mintable {
         return_err_on_after: bool,
     }
 
-    type Event = <PSP22Struct as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <PSP22Struct as ::ink::reflect::ContractEventBase>::Type;
 
     impl psp22::Internal for PSP22Struct {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
@@ -119,7 +118,7 @@ mod psp22_mintable {
     impl PSP22Mintable for PSP22Struct {}
 
     fn assert_transfer_event(
-        event: &ink_env::test::EmittedEvent,
+        event: &ink::env::test::EmittedEvent,
         expected_from: Option<AccountId>,
         expected_to: Option<AccountId>,
         expected_value: Balance,
@@ -182,7 +181,7 @@ mod psp22_mintable {
 
         assert!(psp22.mint(accounts.bob, amount_to_mint).is_ok());
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
         // Check first transfer event related to PSP22 instantiation.
         assert_transfer_event(

@@ -22,7 +22,7 @@
 /// Metadata for PSP34
 pub use crate::traits::errors::PSP34Error;
 pub use crate::traits::psp34::Id;
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 
 #[openbrush::wrapper]
 pub type PSP34MetadataRef = dyn PSP34Metadata;

@@ -23,8 +23,7 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_flashmint {
-    use ink_lang as ink;
-    use ink_lang::codegen::Env;
+    use ink::codegen::Env;
     use openbrush::{
         contracts::psp22::extensions::flashmint::*,
         test_utils::accounts,

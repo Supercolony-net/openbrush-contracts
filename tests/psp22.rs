@@ -27,7 +27,6 @@ mod psp22_test {
         EmitEvent,
         Env,
     };
-    use ink_lang as ink;
     use openbrush::{
         contracts::psp22::*,
         test_utils::*,
@@ -71,7 +70,7 @@ mod psp22_test {
         return_err_on_after: bool,
     }
 
-    type Event = <PSP22Struct as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <PSP22Struct as ::ink::reflect::ContractEventBase>::Type;
 
     impl psp22::Internal for PSP22Struct {
         fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
@@ -148,7 +147,7 @@ mod psp22_test {
     }
 
     fn assert_transfer_event(
-        event: &ink_env::test::EmittedEvent,
+        event: &ink::env::test::EmittedEvent,
         expected_from: Option<AccountId>,
         expected_to: Option<AccountId>,
         expected_value: Balance,
@@ -197,7 +196,7 @@ mod psp22_test {
         let _psp22 = PSP22Struct::new(100);
 
         // Transfer event triggered during initial construction.
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(1, emitted_events.len());
 
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
@@ -209,7 +208,7 @@ mod psp22_test {
         // Constructor works.
         let psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
         // Get the token total supply.
         assert_eq!(psp22.total_supply(), 100);
@@ -221,7 +220,7 @@ mod psp22_test {
         // Constructor works
         let psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
         let accounts = accounts();
         // Alice owns all the tokens on deployment
@@ -242,7 +241,7 @@ mod psp22_test {
         // Bob owns 10 tokens.
         assert_eq!(psp22.balance_of(accounts.bob), 10);
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
         // Check first transfer event related to PSP-20 instantiation.
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
@@ -295,7 +294,7 @@ mod psp22_test {
         assert!(psp22.approve(accounts.bob, 10).is_ok());
 
         // The approve event takes place.
-        assert_eq!(ink_env::test::recorded_events().count(), 2);
+        assert_eq!(ink::env::test::recorded_events().count(), 2);
 
         change_caller(accounts.bob);
 
@@ -307,7 +306,7 @@ mod psp22_test {
         assert_eq!(psp22.balance_of(accounts.eve), 10);
 
         // Check all transfer events that happened during the previous calls:
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 4);
         assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
         // The second and third events (`emitted_events[1]` and `emitted_events[2]`) are an Approve event

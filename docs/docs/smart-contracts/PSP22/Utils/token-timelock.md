@@ -67,7 +67,7 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp22_token_timelock {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::utils::token_timelock::*,
         traits::Storage,

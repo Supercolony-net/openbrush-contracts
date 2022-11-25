@@ -74,7 +74,7 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp22_wrapper {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::extensions::wrapper::*,
         traits::Storage,

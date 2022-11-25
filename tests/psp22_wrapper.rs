@@ -23,7 +23,6 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_wrapper {
-    use ink_lang as ink;
     use openbrush::{
         contracts::psp22::extensions::wrapper::*,
         test_utils::accounts,

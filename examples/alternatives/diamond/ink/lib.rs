@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod diamond {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::diamond::*,
         traits::Storage,
@@ -21,7 +21,7 @@ pub mod diamond {
     impl Contract {
         #[ink(constructor)]
         pub fn new(diamond_facet: FacetCut) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 instance._diamond_cut_facet(&diamond_facet).expect("Init diamond cut");
                 instance._init_with_owner(Self::env().caller());
             })

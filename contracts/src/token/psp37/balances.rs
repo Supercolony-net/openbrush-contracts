@@ -23,7 +23,7 @@ use crate::psp37::{
     Id,
     PSP37Error,
 };
-use ink_storage::traits::{
+use ink::storage::traits::{
     SpreadAllocate,
     SpreadLayout,
 };

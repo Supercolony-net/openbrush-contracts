@@ -59,7 +59,7 @@ fn footprint(s: &synstructure::Structure) -> TokenStream {
                 .fields
                 .iter()
                 .map(|field| &field.ty)
-                .map(|ty| quote! { <#ty as ::ink_storage::traits::SpreadLayout>::FOOTPRINT })
+                .map(|ty| quote! { <#ty as ::ink::storage::traits::SpreadLayout>::FOOTPRINT })
                 .fold(quote! { 0u64 }, |lhs, rhs| {
                     quote! { (#lhs + #rhs) }
                 })
@@ -78,7 +78,7 @@ fn requires_deep_clean_up(s: &synstructure::Structure) -> TokenStream {
                 .fields
                 .iter()
                 .map(|field| &field.ty)
-                .map(|ty| quote! { <#ty as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP })
+                .map(|ty| quote! { <#ty as ::ink::storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP })
                 .fold(quote! { false }, |lhs, rhs| {
                     quote! { (#lhs || #rhs) }
                 })
@@ -97,48 +97,48 @@ fn spread_layout_struct_derive(storage_key: &TokenStream, s: &synstructure::Stru
     let pull_body = variant.construct(|field, _index| {
         let ty = &field.ty;
         quote! {
-            <#ty as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
+            <#ty as ::ink::storage::traits::SpreadLayout>::pull_spread(__key_ptr)
         }
     });
     let push_body = variant.each(|binding| {
         quote! {
-            ::ink_storage::traits::SpreadLayout::push_spread(#binding, __key_ptr);
+            ::ink::storage::traits::SpreadLayout::push_spread(#binding, __key_ptr);
         }
     });
     let clear_body = s.each(|field| {
         quote! {
-            ::ink_storage::traits::SpreadLayout::clear_spread(#field, __key_ptr);
+            ::ink::storage::traits::SpreadLayout::clear_spread(#field, __key_ptr);
         }
     });
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::SpreadLayout for @Self {
+        gen impl ::ink::storage::traits::SpreadLayout for @Self {
             #[allow(unused_comparisons)]
             const FOOTPRINT: ::core::primitive::u64 = #footprint_body;
             const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = #requires_deep_clean_up_body;
 
-            fn pull_spread(_: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+            fn pull_spread(_: &mut ::ink::storage::traits::KeyPtr) -> Self {
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
 
-                if ::ink_env::get_contract_storage::<()>(__key_ptr.key())
+                if ::ink::env::get_contract_storage::<()>(__key_ptr.key())
                     .expect("could not properly decode storage entry")
                     .is_none()
                 {
-                    return <Self as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr);
+                    return <Self as ::ink::storage::traits::SpreadAllocate>::allocate_spread(__key_ptr);
                 }
 
                 #pull_body
             }
-            fn push_spread(&self, _: &mut ::ink_storage::traits::KeyPtr) {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+            fn push_spread(&self, _: &mut ::ink::storage::traits::KeyPtr) {
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
-                ::ink_env::set_contract_storage_return_size::<()>(__key_ptr.key(), &());
+                ::ink::env::set_contract_storage_return_size::<()>(__key_ptr.key(), &());
                 match self { #push_body }
             }
-            fn clear_spread(&self, _: &mut ::ink_storage::traits::KeyPtr) {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+            fn clear_spread(&self, _: &mut ::ink::storage::traits::KeyPtr) {
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
                 match self { #clear_body }
@@ -162,7 +162,7 @@ fn spread_layout_enum_derive(storage_key: &TokenStream, s: &synstructure::Struct
             variant.construct(|field, _index| {
                 let ty = &field.ty;
                 quote! {
-                    <#ty as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
+                    <#ty as ::ink::storage::traits::SpreadLayout>::pull_spread(__key_ptr)
                 }
             })
         })
@@ -180,12 +180,12 @@ fn spread_layout_enum_derive(storage_key: &TokenStream, s: &synstructure::Struct
         let index = index as u8;
         let fields = variant.bindings().iter().map(|field| {
             quote! {
-                ::ink_storage::traits::SpreadLayout::push_spread(#field, __key_ptr);
+                ::ink::storage::traits::SpreadLayout::push_spread(#field, __key_ptr);
             }
         });
         quote! {
             #pat => {
-                { <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(&#index, __key_ptr); }
+                { <::core::primitive::u8 as ::ink::storage::traits::SpreadLayout>::push_spread(&#index, __key_ptr); }
                 #(
                     { #fields }
                 )*
@@ -194,35 +194,35 @@ fn spread_layout_enum_derive(storage_key: &TokenStream, s: &synstructure::Struct
     });
     let clear_body = s.each(|field| {
         quote! {
-            ::ink_storage::traits::SpreadLayout::clear_spread(#field, __key_ptr);
+            ::ink::storage::traits::SpreadLayout::clear_spread(#field, __key_ptr);
         }
     });
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::SpreadLayout for @Self {
+        gen impl ::ink::storage::traits::SpreadLayout for @Self {
             #[allow(unused_comparisons)]
             const FOOTPRINT: ::core::primitive::u64 = 1 + #footprint_body;
 
             const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = #requires_deep_clean_up_body;
 
-            fn pull_spread(_: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+            fn pull_spread(_: &mut ::ink::storage::traits::KeyPtr) -> Self {
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
 
-                if ::ink_env::get_contract_storage::<::core::primitive::u8>(__key_ptr.key())
+                if ::ink::env::get_contract_storage::<::core::primitive::u8>(__key_ptr.key())
                     .expect("could not properly decode storage entry")
                     .is_none()
                 {
-                    return <Self as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr);
+                    return <Self as ::ink::storage::traits::SpreadAllocate>::allocate_spread(__key_ptr);
                 }
 
-                match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr) {
+                match <::core::primitive::u8 as ::ink::storage::traits::SpreadLayout>::pull_spread(__key_ptr) {
                     #pull_body
                     _ => unreachable!("encountered invalid enum discriminant"),
                 }
             }
-            fn push_spread(&self, _: &mut ::ink_storage::traits::KeyPtr) {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+            fn push_spread(&self, _: &mut ::ink::storage::traits::KeyPtr) {
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
                 match self {
@@ -231,8 +231,8 @@ fn spread_layout_enum_derive(storage_key: &TokenStream, s: &synstructure::Struct
                     )*
                 }
             }
-            fn clear_spread(&self, _: &mut ::ink_storage::traits::KeyPtr) {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+            fn clear_spread(&self, _: &mut ::ink::storage::traits::KeyPtr) {
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
                 match self {
@@ -243,7 +243,7 @@ fn spread_layout_enum_derive(storage_key: &TokenStream, s: &synstructure::Struct
     })
 }
 
-/// Derives `ink_storage`'s `SpreadAllocate` trait for the given type.
+/// Derives `ink::storage`'s `SpreadAllocate` trait for the given type.
 pub fn spread_allocate_derive(storage_key: &TokenStream, mut s: synstructure::Structure) -> TokenStream {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::Generics)
@@ -259,21 +259,21 @@ pub fn spread_allocate_derive(storage_key: &TokenStream, mut s: synstructure::St
     }
 }
 
-/// Derives `ink_storage`'s `SpreadAllocate` trait for the given `struct`.
+/// Derives `ink::storage`'s `SpreadAllocate` trait for the given `struct`.
 fn derive_struct(storage_key: &TokenStream, s: synstructure::Structure) -> TokenStream {
     assert!(s.variants().len() == 1, "can only operate on structs");
     let variant = &s.variants()[0];
     let allocate_body = variant.construct(|field, _index| {
         let ty = &field.ty;
         quote! {
-            <#ty as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr)
+            <#ty as ::ink::storage::traits::SpreadAllocate>::allocate_spread(__key_ptr)
         }
     });
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::SpreadAllocate for @Self {
+        gen impl ::ink::storage::traits::SpreadAllocate for @Self {
             #[inline(never)]
             fn allocate_spread(_: &mut ::ink_primitives::KeyPtr) -> Self {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
                 #allocate_body
@@ -306,9 +306,9 @@ fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Ite
         };
         let ty = &field.ty;
         quote! {
-            ::ink_metadata::layout::FieldLayout::new(
+            ::ink::metadata::layout::FieldLayout::new(
                 #ident,
-                <#ty as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                <#ty as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
             )
         }
     })
@@ -320,13 +320,13 @@ fn storage_layout_struct(storage_key: &TokenStream, s: &synstructure::Structure)
     let variant: &synstructure::VariantInfo = &s.variants()[0];
     let field_layouts = field_layout(variant);
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::StorageLayout for @Self {
-            fn layout(_: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+        gen impl ::ink::storage::traits::StorageLayout for @Self {
+            fn layout(_: &mut ::ink::storage::traits::KeyPtr) -> ::ink::metadata::layout::Layout {
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
-                ::ink_metadata::layout::Layout::Struct(
-                    ::ink_metadata::layout::StructLayout::new([
+                ::ink::metadata::layout::Layout::Struct(
+                    ::ink::metadata::layout::StructLayout::new([
                         #(#field_layouts ,)*
                     ])
                 )
@@ -350,8 +350,8 @@ fn storage_layout_enum(storage_key: &TokenStream, s: &synstructure::Structure) -
                 let mut __variant_key_ptr = *__key_ptr;
                 let mut __key_ptr = &mut __variant_key_ptr;
                 (
-                    ::ink_metadata::layout::Discriminant::from(#discriminant),
-                    ::ink_metadata::layout::StructLayout::new([
+                    ::ink::metadata::layout::Discriminant::from(#discriminant),
+                    ::ink::metadata::layout::StructLayout::new([
                         #(#field_layouts ,)*
                     ]),
                 )
@@ -359,16 +359,16 @@ fn storage_layout_enum(storage_key: &TokenStream, s: &synstructure::Structure) -
         }
     });
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::StorageLayout for @Self {
-            fn layout(_: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
-                let __key_ptr = &mut ::ink_storage::traits::KeyPtr::from(
+        gen impl ::ink::storage::traits::StorageLayout for @Self {
+            fn layout(_: &mut ::ink::storage::traits::KeyPtr) -> ::ink::metadata::layout::Layout {
+                let __key_ptr = &mut ::ink::storage::traits::KeyPtr::from(
                     ::ink_primitives::Key::from(#storage_key)
                 );
 
                 let dispatch_key = __key_ptr.advance_by(1);
-                ::ink_metadata::layout::Layout::Enum(
-                    ::ink_metadata::layout::EnumLayout::new(
-                        ::ink_metadata::layout::LayoutKey::from(dispatch_key),
+                ::ink::metadata::layout::Layout::Enum(
+                    ::ink::metadata::layout::EnumLayout::new(
+                        ::ink::metadata::layout::LayoutKey::from(dispatch_key),
                         [
                             #(#variant_layouts ,)*
                         ]

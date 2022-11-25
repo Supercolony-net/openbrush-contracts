@@ -23,7 +23,6 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34_mintable {
-    use ink_lang as ink;
     use openbrush::{
         contracts::psp34::{
             extensions::mintable::*,

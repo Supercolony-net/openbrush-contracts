@@ -24,7 +24,7 @@ use crate::traits::psp37::{
     Id,
     PSP37Error,
 };
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,

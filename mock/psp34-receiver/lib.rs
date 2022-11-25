@@ -2,7 +2,7 @@
 
 #[openbrush::contract]
 pub mod erc721_receiver {
-    use ink_prelude::vec::Vec;
+    use ink::prelude::vec::Vec;
     use openbrush::{
         contracts::traits::psp34::*,
         traits::String,

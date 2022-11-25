@@ -37,8 +37,8 @@
 /// Users can still repay their loans, liquidate loans or withdraw their deposits
 #[openbrush::contract]
 pub mod my_lending {
-    use ink_lang::ToAccountId;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::ToAccountId;
+    use ink::storage::traits::SpreadAllocate;
     use lending_project::impls::lending::*;
     use loan_contract::loan::LoanContractRef;
     use openbrush::{
@@ -76,7 +76,7 @@ pub mod my_lending {
         fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
             let code_hash = self.lending.shares_contract_code_hash;
             let (hash, _) =
-                ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
+                ink::env::random::<ink::env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
             let hash = hash.as_ref();
             let contract =
                 SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
@@ -93,7 +93,7 @@ pub mod my_lending {
         /// constructor with name and symbol
         #[ink(constructor, payable)]
         pub fn new(shares_hash: Hash, loan_hash: Hash) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut LendingContract| {
+            ink::codegen::initialize_contract(|instance: &mut LendingContract| {
                 let caller = instance.env().caller();
                 instance._init_with_admin(caller);
                 instance.grant_role(MANAGER, caller).expect("Can not set manager role");

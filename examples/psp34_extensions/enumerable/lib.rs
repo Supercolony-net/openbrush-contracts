@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp34_enumerable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::{
             burnable::*,
@@ -31,7 +31,7 @@ pub mod my_psp34_enumerable {
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 }

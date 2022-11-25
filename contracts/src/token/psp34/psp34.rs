@@ -33,11 +33,11 @@ use crate::psp34::{
     Operator,
     Owner,
 };
-use ink_env::{
+use ink::env::{
     CallFlags,
     Error as EnvError,
 };
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,

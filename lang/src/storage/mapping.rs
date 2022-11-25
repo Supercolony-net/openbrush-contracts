@@ -25,7 +25,7 @@ use super::{
     ValueGuard,
 };
 use core::marker::PhantomData;
-use ink_storage::traits::{
+use ink::storage::traits::{
     ExtKeyPtr,
     KeyPtr,
     PackedLayout,
@@ -184,12 +184,12 @@ impl<K, V, TGK, TGV> SpreadAllocate for Mapping<K, V, TGK, TGV> {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use ink_metadata::layout::{
+    use ink::metadata::layout::{
         CellLayout,
         Layout,
         LayoutKey,
     };
-    use ink_storage::traits::StorageLayout;
+    use ink::storage::traits::StorageLayout;
     use scale_info::{
         build::Fields,
         type_params,
@@ -232,7 +232,7 @@ const _: () = {
 mod tests {
     use super::*;
 
-    #[ink_lang::test]
+    #[ink::test]
     fn insert_and_get_work() {
         let mut mapping: Mapping<u128, u128> = Mapping::default();
 
@@ -244,7 +244,7 @@ mod tests {
         assert_eq!(mapping.get(&3), None);
     }
 
-    #[ink_lang::test]
+    #[ink::test]
     fn remove_and_contains_works() {
         let mut mapping: Mapping<u128, u128> = Mapping::default();
 

@@ -3,8 +3,8 @@
 #[openbrush::contract]
 pub mod flip_on_me {
     use flipper::traits::flip_on_me::*;
-    use ink_lang::codegen::Env;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::codegen::Env;
+    use ink::storage::traits::SpreadAllocate;
 
     #[ink(storage)]
     #[derive(Default, SpreadAllocate)]
@@ -13,7 +13,7 @@ pub mod flip_on_me {
     impl FlipOnMeContract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 

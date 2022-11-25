@@ -58,7 +58,7 @@ pub fn generate(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
     module.content = Some((braces.clone(), generated_items));
 
     let result = quote! {
-        #[::ink_lang::contract(#attrs)]
+        #[::ink::contract(#attrs)]
         #module
     };
     result.into()

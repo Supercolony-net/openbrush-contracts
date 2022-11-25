@@ -44,7 +44,7 @@ pub mod my_ownable {
         contracts::ownable::*,
         modifiers,
     };
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::traits::Storage;
 
 

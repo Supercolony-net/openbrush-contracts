@@ -23,7 +23,7 @@ pub use crate::traits::{
     access_control::*,
     errors::TimelockControllerError,
 };
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,

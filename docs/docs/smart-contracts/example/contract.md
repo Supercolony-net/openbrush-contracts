@@ -22,11 +22,11 @@ edition = "2021"
 
 [dependencies]
 ink_primitives = { version = "~3.4.0", default-features = false }
-ink_metadata = { version = "~3.4.0", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "~3.4.0", default-features = false }
-ink_storage = { version = "~3.4.0", default-features = false }
+ink::metadata = { version = "~3.4.0", default-features = false, features = ["derive"], optional = true }
+ink::env = { version = "~3.4.0", default-features = false }
+ink::storage = { version = "~3.4.0", default-features = false }
 ink_lang = { version = "~3.4.0", default-features = false }
-ink_prelude = { version = "~3.4.0", default-features = false }
+ink::prelude = { version = "~3.4.0", default-features = false }
 ink_engine = { version = "~3.4.0", default-features = false, optional = true }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
@@ -49,10 +49,10 @@ crate-type = [
 default = ["std"]
 std = [
     "ink_primitives/std",
-    "ink_metadata",
-    "ink_metadata/std",
-    "ink_env/std",
-    "ink_storage/std",
+    "ink::metadata",
+    "ink::metadata/std",
+    "ink::env/std",
+    "ink::storage/std",
     "ink_lang/std",
     "scale/std",
     "scale-info",
@@ -110,7 +110,7 @@ impl lending::Internal for LendingContract {
     fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
         let code_hash = self.lending.shares_contract_code_hash;
         let (hash, _) =
-            ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
+            ink::env::random::<ink::env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
         let hash = hash.as_ref();
         let contract =
             SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))

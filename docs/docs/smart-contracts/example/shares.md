@@ -63,7 +63,7 @@ we also need these imports:
 #[openbrush::contract]
 pub mod shares {
     use openbrush::traits::String;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::shares::*;
     use openbrush::{
         contracts::{

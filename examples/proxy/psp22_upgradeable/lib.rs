@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp22_upgradeable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             ownable::*,
@@ -29,7 +29,7 @@ pub mod my_psp22_upgradeable {
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
+            ink::codegen::initialize_contract(|instance: &mut MyPSP22| {
                 instance._init_with_owner(instance.env().caller());
                 instance.initialize(total_supply).ok().unwrap()
             })

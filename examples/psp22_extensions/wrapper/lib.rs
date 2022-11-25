@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp22_wrapper {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::extensions::wrapper::*,
         traits::Storage,
@@ -25,7 +25,7 @@ pub mod my_psp22_wrapper {
     impl Contract {
         #[ink(constructor)]
         pub fn new(token_address: AccountId) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 instance._init(token_address);
             })
         }

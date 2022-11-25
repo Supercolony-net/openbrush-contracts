@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp22_capped {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::extensions::{
             capped::*,
@@ -47,7 +47,7 @@ pub mod my_psp22_capped {
         /// Will set the token's cap to `cap`
         #[ink(constructor)]
         pub fn new(inital_supply: Balance, cap: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 assert!(instance._init_cap(cap).is_ok());
                 assert!(instance.mint(instance.env().caller(), inital_supply).is_ok());
             })

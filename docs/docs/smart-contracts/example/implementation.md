@@ -22,7 +22,7 @@ this:
 fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
     let code_hash = self.lending.shares_contract_code_hash;
     let (hash, _) =
-        ink_env::random::<ink_env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
+        ink::env::random::<ink::env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
     let hash = hash.as_ref();
     let contract =
         SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
@@ -136,7 +136,7 @@ default fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> 
     let total_asset = self.total_asset(asset_address)?;
     // transfer the assets from user to the contract|
     PSP22Ref::transfer_from_builder(&asset_address, lender, contract, amount, Vec::<u8>::new())
-        .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+        .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
         .fire()
         .unwrap()?;
     // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
@@ -227,7 +227,7 @@ default fn borrow_assets(
     }
     // we will transfer the collateral to the contract
     PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
-        .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+        .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
         .fire()
         .unwrap()?;
     // create loan info

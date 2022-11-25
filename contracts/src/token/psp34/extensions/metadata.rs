@@ -36,7 +36,7 @@ pub use psp34::{
     Transfer as _,
 };
 
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,

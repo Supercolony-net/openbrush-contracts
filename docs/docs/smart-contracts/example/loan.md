@@ -33,7 +33,7 @@ so it is defined in the `traits` instead of the body of the contract).
 `LoanRef` can be used by other developers to do a cross contract call to `LoanContract`.
 
 ```rust
-use ink_storage::traits::{
+use ink::storage::traits::{
     PackedLayout,
     SpreadLayout,
 };
@@ -53,7 +53,7 @@ use openbrush::{
 };
 
 #[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+use ink::storage::traits::StorageLayout;
 
 #[derive(Default, Debug, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout, scale_info::TypeInfo))]
@@ -122,7 +122,7 @@ so we will add these to our contract. We will add a `openbrush::contract` macro 
 #[openbrush::contract]
 pub mod loan {
     use openbrush::traits::String;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::loan::*;
     use openbrush::{
         contracts::{

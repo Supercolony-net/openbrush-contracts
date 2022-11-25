@@ -28,7 +28,6 @@ mod proxy {
         EmitEvent,
         Env,
     };
-    use ink_lang as ink;
     use openbrush::{
         contracts::{
             ownable::*,
@@ -58,7 +57,7 @@ mod proxy {
         proxy: proxy::Data,
     }
 
-    type Event = <MyProxy as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <MyProxy as ::ink::reflect::ContractEventBase>::Type;
 
     impl MyProxy {
         #[ink(constructor)]
@@ -86,7 +85,7 @@ mod proxy {
     }
 
     fn assert_code_changed_event(
-        event: &ink_env::test::EmittedEvent,
+        event: &ink::env::test::EmittedEvent,
         expected_previous_code_hash: Option<Hash>,
         expected_new_code_hash: Option<Hash>,
     ) {
@@ -111,7 +110,7 @@ mod proxy {
         let hash = Hash::try_from(CODE_HASH_0).unwrap();
         let instance = MyProxy::new(hash);
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(1, emitted_events.len());
 
         assert_code_changed_event(&emitted_events[0], None, Some(instance.get_delegate_code()))
@@ -131,7 +130,7 @@ mod proxy {
         let mut my_proxy = MyProxy::new(hash);
         assert!(my_proxy.change_delegate_code(new_hash).is_ok());
         assert_eq!(my_proxy.get_delegate_code(), new_hash);
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(2, emitted_events.len());
         assert_code_changed_event(&emitted_events[0], None, Some(hash));
         assert_code_changed_event(&emitted_events[1], Some(hash), Some(new_hash));

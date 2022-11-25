@@ -21,7 +21,7 @@ use crate::traits::{
     },
     shares::SharesRef,
 };
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::{
     contracts::{
         pausable::*,
@@ -117,7 +117,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         let total_asset = self.total_asset(asset_address)?;
         // transfer the assets from user to the contract|
         PSP22Ref::transfer_from_builder(&asset_address, lender, contract, amount, Vec::<u8>::new())
-            .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+            .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .fire()
             .unwrap()?;
         // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
@@ -173,7 +173,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         }
         // we will transfer the collateral to the contract
         PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
-            .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+            .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .fire()
             .unwrap()?;
         // create loan info
@@ -227,7 +227,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         let reserve_asset = get_reserve_asset(self, &loan_info.borrow_token)?;
         if repay_amount >= to_repay {
             PSP22Ref::transfer_from_builder(&loan_info.borrow_token, initiator, contract, to_repay, Vec::<u8>::new())
-                .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+                .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
                 .fire()
                 .unwrap()?;
             PSP22Ref::transfer(
@@ -246,7 +246,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
                 repay_amount,
                 Vec::<u8>::new(),
             )
-            .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
+            .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .fire()
             .unwrap()?;
             let to_return = (repay_amount * loan_info.collateral_amount) / to_repay;

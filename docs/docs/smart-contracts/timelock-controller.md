@@ -41,8 +41,8 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_timelock_controller {
-    use ink_prelude::vec::Vec;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::prelude::vec::Vec;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::timelock_controller::*,
         traits::Storage,

@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp22 {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::*,
         traits::{
@@ -41,7 +41,7 @@ pub mod my_psp22 {
     impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Contract| {
+            ink::codegen::initialize_contract(|instance: &mut Contract| {
                 instance
                     ._mint_to(instance.env().caller(), total_supply)
                     .expect("Should mint");

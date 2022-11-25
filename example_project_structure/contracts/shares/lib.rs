@@ -6,7 +6,7 @@
 /// the amount of borrowed tokens
 #[openbrush::contract]
 pub mod shares {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::shares::*;
     use openbrush::{
         contracts::{
@@ -72,7 +72,7 @@ pub mod shares {
         /// constructor with name and symbol
         #[ink(constructor)]
         pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut SharesContract| {
+            ink::codegen::initialize_contract(|instance: &mut SharesContract| {
                 let caller = instance.env().caller();
                 instance.metadata.name = name;
                 instance.metadata.symbol = symbol;

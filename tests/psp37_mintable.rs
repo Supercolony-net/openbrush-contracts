@@ -23,7 +23,6 @@
 #[cfg(feature = "psp37")]
 #[openbrush::contract]
 mod psp37_mintable {
-    use ink_lang as ink;
     use openbrush::{
         test_utils::accounts,
         traits::{

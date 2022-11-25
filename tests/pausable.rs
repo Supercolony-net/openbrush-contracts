@@ -23,9 +23,8 @@
 #[cfg(feature = "pausable")]
 #[openbrush::contract]
 mod pausable {
-    use ::ink_env::DefaultEnvironment;
-    use ink_env::test::DefaultAccounts;
-    use ink_lang as ink;
+    use ::ink::env::DefaultEnvironment;
+    use ink::env::test::DefaultAccounts;
     use openbrush::{
         contracts::pausable::*,
         test_utils::accounts,
@@ -85,9 +84,9 @@ mod pausable {
         }
     }
 
-    type Event = <MyFlipper as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <MyFlipper as ::ink::reflect::ContractEventBase>::Type;
 
-    fn assert_paused_event(event: &ink_env::test::EmittedEvent, expected_account: AccountId) {
+    fn assert_paused_event(event: &ink::env::test::EmittedEvent, expected_account: AccountId) {
         if let Event::Paused(Paused { account }) = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer")
         {
@@ -99,7 +98,7 @@ mod pausable {
         }
     }
 
-    fn assert_unpaused_event(event: &ink_env::test::EmittedEvent, expected_account: AccountId) {
+    fn assert_unpaused_event(event: &ink::env::test::EmittedEvent, expected_account: AccountId) {
         if let Event::Unpaused(Unpaused { account }) = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer")
         {
@@ -124,7 +123,7 @@ mod pausable {
         assert!(inst._pause::<PausableError>().is_ok());
         assert!(inst.pause.paused);
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_paused_event(&emitted_events[0], accounts.alice);
     }
 
@@ -168,7 +167,7 @@ mod pausable {
         assert!(inst._unpause::<PausableError>().is_ok());
         assert!(!inst.pause.paused);
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_unpaused_event(&emitted_events[0], accounts.alice);
     }
 
@@ -181,7 +180,7 @@ mod pausable {
         assert!(inst._switch_pause::<PausableError>().is_ok());
         assert!(!inst.pause.paused);
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_unpaused_event(&emitted_events[0], accounts.alice);
     }
 }

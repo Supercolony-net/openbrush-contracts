@@ -23,7 +23,7 @@ use crate::psp34::{
     Id,
     Owner,
 };
-use ink_storage::traits::{
+use ink::storage::traits::{
     SpreadAllocate,
     SpreadLayout,
 };

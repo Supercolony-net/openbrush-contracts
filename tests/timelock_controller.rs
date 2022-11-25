@@ -23,9 +23,8 @@
 #[cfg(feature = "timelock_controller")]
 #[openbrush::contract]
 mod timelock_controller {
-    use ::ink_env::DefaultEnvironment;
-    use ink_env::test::DefaultAccounts;
-    use ink_lang as ink;
+    use ::ink::env::DefaultEnvironment;
+    use ink::env::test::DefaultAccounts;
     use openbrush::{
         contracts::{
             access_control::extensions::enumerable::*,
@@ -88,7 +87,7 @@ mod timelock_controller {
         timelock: timelock_controller::Data,
     }
 
-    type Event = <TimelockControllerStruct as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <TimelockControllerStruct as ::ink::reflect::ContractEventBase>::Type;
 
     impl AccessControl for TimelockControllerStruct {}
     impl TimelockController for TimelockControllerStruct {}
@@ -135,7 +134,7 @@ mod timelock_controller {
     }
 
     fn assert_min_delay_change_event(
-        event: &ink_env::test::EmittedEvent,
+        event: &ink::env::test::EmittedEvent,
         expected_old_delay: Timestamp,
         expected_new_delay: Timestamp,
     ) {
@@ -157,7 +156,7 @@ mod timelock_controller {
     }
 
     fn assert_call_scheduled_event(
-        event: &ink_env::test::EmittedEvent,
+        event: &ink::env::test::EmittedEvent,
         expected_id: OperationId,
         expected_index: u8,
         expected_transaction: Transaction,
@@ -201,7 +200,7 @@ mod timelock_controller {
         }
     }
 
-    fn assert_cancelled_event(event: &ink_env::test::EmittedEvent, expected_id: OperationId) {
+    fn assert_cancelled_event(event: &ink::env::test::EmittedEvent, expected_id: OperationId) {
         if let Event::Cancelled(Cancelled { id }) = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer")
         {
@@ -243,7 +242,7 @@ mod timelock_controller {
         assert!(timelock.has_role(EXECUTOR_ROLE, accounts.charlie));
         assert!(!timelock.has_role(EXECUTOR_ROLE, accounts.bob));
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_min_delay_change_event(&emitted_events[0], 0, 10);
     }
 
@@ -263,7 +262,7 @@ mod timelock_controller {
         assert!(timelock.is_operation_pending(id));
         assert_eq!(timelock.get_timestamp(id), min_delay + 1);
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_call_scheduled_event(&emitted_events[1], id, 0, Transaction::default(), None, min_delay + 1);
     }
 
@@ -325,7 +324,7 @@ mod timelock_controller {
         assert!(timelock.is_operation_pending(id));
         assert_eq!(timelock.get_timestamp(id), min_delay + 1);
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
 
         assert_eq!(emitted_events.len(), 3);
         for (i, transaction) in transactions.into_iter().enumerate() {
@@ -360,7 +359,7 @@ mod timelock_controller {
             .is_ok());
         assert!(timelock.cancel(id).is_ok());
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_call_scheduled_event(&emitted_events[1], id, 0, Transaction::default(), None, min_delay + 1);
         assert_cancelled_event(&emitted_events[2], id);
     }
@@ -376,7 +375,7 @@ mod timelock_controller {
             .schedule(Transaction::default(), None, [0; 32], min_delay + 1)
             .is_ok());
 
-        let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
+        let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_call_scheduled_event(&emitted_events[1], id, 0, Transaction::default(), None, min_delay + 1);
 
         assert!(timelock.revoke_role(PROPOSER_ROLE, accounts.alice).is_ok());

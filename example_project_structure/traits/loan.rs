@@ -1,4 +1,4 @@
-use ink_storage::traits::{
+use ink::storage::traits::{
     PackedLayout,
     SpreadLayout,
 };
@@ -18,7 +18,7 @@ use openbrush::{
 };
 
 #[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+use ink::storage::traits::StorageLayout;
 
 #[derive(Default, Debug, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
 #[cfg_attr(feature = "std", derive(StorageLayout, scale_info::TypeInfo))]

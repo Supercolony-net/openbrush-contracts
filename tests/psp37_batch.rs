@@ -27,9 +27,8 @@ mod psp37_batch {
         EmitEvent,
         Env,
     };
-    use ink_lang as ink;
-    use ink_prelude::vec::Vec;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::prelude::vec::Vec;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         test_utils::{
             accounts,
@@ -118,7 +117,7 @@ mod psp37_batch {
     impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut PSP37Struct| {})
+            ink::codegen::initialize_contract(|_instance: &mut PSP37Struct| {})
         }
 
         #[ink(message)]
@@ -127,7 +126,7 @@ mod psp37_batch {
         }
     }
 
-    type Event = <PSP37Struct as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <PSP37Struct as ::ink::reflect::ContractEventBase>::Type;
 
     #[ink::test]
     fn batch_transfer() {
@@ -155,14 +154,14 @@ mod psp37_batch {
         assert_eq!(nft.balance_of(accounts.bob, None), 2);
 
         // EVENTS ASSERTS
-        let mut events_iter = ink_env::test::recorded_events();
+        let mut events_iter = ink::env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
         assert_batch_transfer_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
 
         let emmited_event = events_iter.next().unwrap();
         assert_batch_transfer_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
 
-        assert_eq!(ink_env::test::recorded_events().count(), 2);
+        assert_eq!(ink::env::test::recorded_events().count(), 2);
     }
 
     #[ink::test]
@@ -278,7 +277,7 @@ mod psp37_batch {
         assert_eq!(nft.balance_of(accounts.bob, None), 2);
 
         // EVENTS ASSERTS
-        let mut events_iter = ink_env::test::recorded_events();
+        let mut events_iter = ink::env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
         assert_batch_transfer_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
 
@@ -288,11 +287,11 @@ mod psp37_batch {
         let emmited_event = events_iter.next().unwrap();
         assert_batch_transfer_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
 
-        assert_eq!(ink_env::test::recorded_events().count(), 3);
+        assert_eq!(ink::env::test::recorded_events().count(), 3);
     }
 
     fn assert_batch_transfer_event(
-        event: ink_env::test::EmittedEvent,
+        event: ink::env::test::EmittedEvent,
         expected_from: Option<AccountId>,
         expected_to: Option<AccountId>,
         expected_token_ids_and_values: &[(Id, Balance)],
@@ -312,7 +311,7 @@ mod psp37_batch {
     }
 
     fn assert_approval_event(
-        event: ink_env::test::EmittedEvent,
+        event: ink::env::test::EmittedEvent,
         expected_owner: AccountId,
         expected_operator: AccountId,
         expected_id: Option<Id>,

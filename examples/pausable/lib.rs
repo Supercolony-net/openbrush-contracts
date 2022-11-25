@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_pausable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::pausable::*,
         traits::Storage,
@@ -20,7 +20,7 @@ pub mod my_pausable {
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

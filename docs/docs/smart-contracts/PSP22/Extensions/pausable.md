@@ -84,7 +84,7 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp22_pausable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             pausable::*,

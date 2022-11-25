@@ -21,7 +21,7 @@
 
 /// Metadata for PSP37
 pub use crate::traits::psp37::Id;
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 
 #[openbrush::wrapper]
 pub type PSP37MetadataRef = dyn PSP37Metadata;

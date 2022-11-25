@@ -27,8 +27,7 @@ mod psp37 {
         EmitEvent,
         Env,
     };
-    use ink_lang as ink;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         test_utils::{
             accounts,
@@ -135,7 +134,7 @@ mod psp37 {
     impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut PSP37Struct| {})
+            ink::codegen::initialize_contract(|_instance: &mut PSP37Struct| {})
         }
 
         #[ink(message)]
@@ -152,7 +151,7 @@ mod psp37 {
         }
     }
 
-    type Event = <PSP37Struct as ::ink_lang::reflect::ContractEventBase>::Type;
+    type Event = <PSP37Struct as ::ink::reflect::ContractEventBase>::Type;
 
     #[ink::test]
     fn before_token_transfer_should_fail_transfer() {
@@ -224,7 +223,7 @@ mod psp37 {
 
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
 
-        let mut events_iter = ink_env::test::recorded_events();
+        let mut events_iter = ink::env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
         assert_transfer_event(
             emmited_event,
@@ -243,7 +242,7 @@ mod psp37 {
             token_amount2,
         );
 
-        assert_eq!(ink_env::test::recorded_events().count(), 2);
+        assert_eq!(ink::env::test::recorded_events().count(), 2);
     }
 
     #[ink::test]
@@ -302,7 +301,7 @@ mod psp37 {
         );
 
         // EVENTS ASSERTS
-        let mut events_iter = ink_env::test::recorded_events();
+        let mut events_iter = ink::env::test::recorded_events();
 
         let emmited_event = events_iter.next().unwrap();
         assert_approval_event(emmited_event, accounts.alice, accounts.bob, Some(token_id.clone()), 1);
@@ -313,7 +312,7 @@ mod psp37 {
         let emmited_event = events_iter.next().unwrap();
         assert_approval_event(emmited_event, accounts.alice, accounts.bob, None, Balance::MAX);
 
-        assert_eq!(ink_env::test::recorded_events().count(), 3);
+        assert_eq!(ink::env::test::recorded_events().count(), 3);
     }
 
     #[ink::test]
@@ -331,7 +330,7 @@ mod psp37 {
         assert_eq!(nft.balance_of(accounts.bob, Some(token_id.clone())), transfer_amount);
 
         // EVENTS ASSERTS
-        let mut events_iter = ink_env::test::recorded_events();
+        let mut events_iter = ink::env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
         assert_transfer_event(
             emmited_event,
@@ -350,7 +349,7 @@ mod psp37 {
             transfer_amount,
         );
 
-        assert_eq!(ink_env::test::recorded_events().count(), 2);
+        assert_eq!(ink::env::test::recorded_events().count(), 2);
     }
 
     #[ink::test]
@@ -402,7 +401,7 @@ mod psp37 {
         assert_eq!(nft.allowance(accounts.alice, accounts.bob, Some(token_id.clone())), 1);
 
         // EVENTS ASSERTS
-        let mut events_iter = ink_env::test::recorded_events();
+        let mut events_iter = ink::env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
         assert_transfer_event(emmited_event, None, Some(accounts.alice), token_id.clone(), 2);
 
@@ -418,7 +417,7 @@ mod psp37 {
             1,
         );
 
-        assert_eq!(ink_env::test::recorded_events().count(), 3);
+        assert_eq!(ink::env::test::recorded_events().count(), 3);
     }
 
     #[ink::test]
@@ -481,7 +480,7 @@ mod psp37 {
         assert_eq!(nft.total_supply(None), 3);
 
         // EVENTS ASSERTS
-        let mut events_iter = ink_env::test::recorded_events();
+        let mut events_iter = ink::env::test::recorded_events();
         let emmited_event = events_iter.next().unwrap();
         assert_transfer_event(
             emmited_event,
@@ -545,7 +544,7 @@ mod psp37 {
             10,
         );
 
-        assert_eq!(ink_env::test::recorded_events().count(), 7);
+        assert_eq!(ink::env::test::recorded_events().count(), 7);
     }
 
     #[ink::test]
@@ -603,7 +602,7 @@ mod psp37 {
     }
 
     fn assert_transfer_event(
-        event: ink_env::test::EmittedEvent,
+        event: ink::env::test::EmittedEvent,
         expected_from: Option<AccountId>,
         expected_to: Option<AccountId>,
         expected_token_id: Id,
@@ -622,7 +621,7 @@ mod psp37 {
     }
 
     fn assert_approval_event(
-        event: ink_env::test::EmittedEvent,
+        event: ink::env::test::EmittedEvent,
         expected_owner: AccountId,
         expected_operator: AccountId,
         expected_id: Option<Id>,

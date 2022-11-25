@@ -29,11 +29,11 @@ pub use psp22::{
     Transfer as _,
 };
 
-use ink_env::{
+use ink::env::{
     CallFlags,
     Error as EnvError,
 };
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,

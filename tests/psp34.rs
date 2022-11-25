@@ -27,9 +27,8 @@ mod psp34 {
         EmitEvent,
         Env,
     };
-    use ink_env::DefaultEnvironment;
-    use ink_lang as ink;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::env::DefaultEnvironment;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::*,
         test_utils::{
@@ -128,7 +127,7 @@ mod psp34 {
     impl PSP34Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut PSP34Struct| {})
+            ink::codegen::initialize_contract(|_instance: &mut PSP34Struct| {})
         }
 
         pub fn change_state_err_on_before(&mut self) {
@@ -144,7 +143,7 @@ mod psp34 {
     fn collection_id_works() {
         assert_eq!(
             PSP34Struct::new().collection_id(),
-            Id::Bytes(<_ as AsRef<[u8; 32]>>::as_ref(&ink_env::account_id::<DefaultEnvironment>()).to_vec())
+            Id::Bytes(<_ as AsRef<[u8; 32]>>::as_ref(&ink::env::account_id::<DefaultEnvironment>()).to_vec())
         );
     }
 
@@ -160,11 +159,11 @@ mod psp34 {
         // Bob does not owns any token
         assert_eq!(nft.balance_of(accounts.bob), 0);
         // The first Transfer event takes place
-        assert_eq!(1, ink_env::test::recorded_events().count());
+        assert_eq!(1, ink::env::test::recorded_events().count());
         // Alice transfers token 1 to Bob
         assert!(nft.transfer(accounts.bob, Id::U8(1u8), vec![]).is_ok());
         // The second Transfer event takes place
-        assert_eq!(2, ink_env::test::recorded_events().count());
+        assert_eq!(2, ink::env::test::recorded_events().count());
         // Bob owns token 1
         assert_eq!(nft.balance_of(accounts.bob), 1);
         // Alice doesn't own token 1

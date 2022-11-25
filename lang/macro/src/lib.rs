@@ -63,7 +63,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///
 /// ```
 /// mod doc {
-/// use ink_prelude::collections::BTreeMap;
+/// use ink::prelude::collections::BTreeMap;
 /// use openbrush::traits::{ AccountId, Balance, Storage, OccupyStorage };
 ///
 /// #[derive(Default, Debug)]
@@ -105,7 +105,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// ```
 /// #[openbrush::contract]
 /// mod base_psp22 {
-///     use ink_prelude::collections::BTreeMap;
+///     use ink::prelude::collections::BTreeMap;
 ///     use openbrush::traits::Storage;
 ///
 ///     const STORAGE_KEY: u32 = 123;
@@ -397,8 +397,8 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 ///
 /// // Example how to get ink! call builder
 /// let to: AccountId = [0; 32].into();
-/// let builder_for_foo: ::ink_env::call::CallBuilder<_, _, _, _> = Trait1and2Ref::foo_builder(&to);
-/// let ink_result: Result<bool, ink_env::Error> = builder_for_foo.fire();
+/// let builder_for_foo: ::ink::env::call::CallBuilder<_, _, _, _> = Trait1and2Ref::foo_builder(&to);
+/// let ink_result: Result<bool, ink::env::Error> = builder_for_foo.fire();
 /// }
 /// ```
 #[proc_macro_attribute]
@@ -465,14 +465,14 @@ synstructure::decl_attribute!(
 /// #[openbrush::upgradeable_storage(openbrush::storage_unique_key!(Automatically))]
 /// pub struct Automatically;
 ///
-/// #[derive(Default, Debug, ::ink_storage::traits::SpreadLayout)]
+/// #[derive(Default, Debug, ::ink::storage::traits::SpreadLayout)]
 /// pub struct Manual;
 ///
 /// impl openbrush::traits::OccupyStorage for Manual {
 ///     const KEY: u32 = openbrush::storage_unique_key!(Manual);
 /// }
 ///
-/// #[derive(Default, Debug, Storage, ::ink_storage::traits::SpreadLayout)]
+/// #[derive(Default, Debug, Storage, ::ink::storage::traits::SpreadLayout)]
 /// pub struct Contract {
 ///    #[storage_field]
 ///    automatically: Automatically,

@@ -2,7 +2,7 @@
 
 #[openbrush::contract]
 pub mod psp37_receiver {
-    use ink_prelude::vec::Vec;
+    use ink::prelude::vec::Vec;
     use openbrush::{
         contracts::traits::psp37::*,
         traits::String,

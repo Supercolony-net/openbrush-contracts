@@ -84,7 +84,7 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp22_pallet_metadata {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22_pallet::extensions::metadata::*,
         traits::Storage,

@@ -23,7 +23,6 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34_burnable {
-    use ink_lang as ink;
     use openbrush::{
         contracts::psp34::extensions::burnable::*,
         test_utils::accounts,

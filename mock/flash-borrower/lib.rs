@@ -2,8 +2,8 @@
 
 #[openbrush::contract]
 pub mod flash_borrower {
-    use ink_lang::codegen::Env;
-    use ink_prelude::vec::Vec;
+    use ink::codegen::Env;
+    use ink::prelude::vec::Vec;
     use openbrush::{
         contracts::psp22::extensions::flashmint::*,
         traits::String,

@@ -23,7 +23,6 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_timelock {
-    use ink_lang as ink;
     use openbrush::{
         contracts::psp22::utils::token_timelock::*,
         test_utils::accounts,
@@ -135,7 +134,7 @@ mod psp22_timelock {
         assert_eq!(timelock.release(), Err(PSP22TokenTimelockError::NoTokensToRelease));
     }
 
-    type DefEnv = ink_env::DefaultEnvironment;
+    type DefEnv = ink::env::DefaultEnvironment;
 
     fn day_blocks() -> u32 {
         (60 * 60 * 24) / 5
@@ -146,10 +145,10 @@ mod psp22_timelock {
     }
 
     fn advance_block() {
-        let _ = ink_env::test::advance_block::<DefEnv>();
+        let _ = ink::env::test::advance_block::<DefEnv>();
     }
 
     fn get_time() -> Timestamp {
-        ink_env::block_timestamp::<DefEnv>()
+        ink::env::block_timestamp::<DefEnv>()
     }
 }

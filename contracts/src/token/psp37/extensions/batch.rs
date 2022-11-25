@@ -36,7 +36,7 @@ pub use psp37::{
     Transfer as _,
 };
 
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     AccountIdExt,

@@ -30,7 +30,7 @@ pub use crate::{
 pub use diamond::Internal as _;
 pub use ownable::Internal as _;
 
-use ink_env::{
+use ink::env::{
     call::{
         DelegateCall,
         ExecutionInput,
@@ -38,8 +38,8 @@ use ink_env::{
     },
     Clear,
 };
-use ink_prelude::vec::Vec;
-use ink_storage::traits::{
+use ink::prelude::vec::Vec;
+use ink::storage::traits::{
     SpreadAllocate,
     SpreadLayout,
 };
@@ -156,7 +156,7 @@ where
     }
 
     default fn _fallback(&self) -> ! {
-        let selector = ink_env::decode_input::<Selector>().unwrap_or_else(|_| panic!("Calldata error"));
+        let selector = ink::env::decode_input::<Selector>().unwrap_or_else(|_| panic!("Calldata error"));
 
         let delegate_code = self.data().selector_to_hash.get(&selector);
 
@@ -164,10 +164,10 @@ where
             panic!("Function is not registered");
         }
 
-        ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+        ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(DelegateCall::new().code_hash(delegate_code.unwrap()))
             .call_flags(
-                ink_env::CallFlags::default()
+                ink::env::CallFlags::default()
                 // We don't plan to use the input data after the delegated call, so the 
                 // input data can be forwarded to delegated contract to reduce the gas usage.
                 .set_forward_input(true)
@@ -181,10 +181,10 @@ where
     }
 
     default fn _init_call(&self, call: InitCall) -> ! {
-        ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+        ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(DelegateCall::new().code_hash(call.hash))
             .exec_input(ExecutionInput::new(InkSelector::new(call.selector)).push_arg(call.input))
-            .call_flags(ink_env::CallFlags::default()
+            .call_flags(ink::env::CallFlags::default()
             // We don't plan to return back to that contract after execution, so we
             // marked delegated call as "tail", to end the execution of the contract.
             .set_tail_call(true))

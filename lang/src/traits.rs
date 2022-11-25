@@ -19,12 +19,12 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use ::ink_env::{
+use ::ink::env::{
     DefaultEnvironment,
     Environment,
 };
 use core::mem::ManuallyDrop;
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 pub use openbrush_lang_macro::Storage;
 
 /// Aliases for types of the default environment
@@ -34,7 +34,7 @@ pub type Hash = <DefaultEnvironment as Environment>::Hash;
 pub type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
 pub type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 pub type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
-pub type EnvAccess = ::ink_lang::EnvAccess<'static, DefaultEnvironment>;
+pub type EnvAccess = ::ink::EnvAccess<'static, DefaultEnvironment>;
 pub type String = Vec<u8>;
 
 /// Each object has access to default environment via `Self::env()`.
@@ -128,14 +128,14 @@ impl AccountIdExt for AccountId {
 }
 
 /// This trait is automatically implemented for storage structs.
-pub trait Flush: ::ink_storage::traits::SpreadLayout + Sized {
+pub trait Flush: ::ink::storage::traits::SpreadLayout + Sized {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate a key of each field.
     /// So if you want to flush the correct state of the contract,
     /// you have to this method on storage struct.
     fn flush(&self) {
         let root_key = ::ink_primitives::Key::from([0x00; 32]);
-        ::ink_storage::traits::push_spread_root::<Self>(self, &root_key);
+        ::ink::storage::traits::push_spread_root::<Self>(self, &root_key);
     }
 
     /// Method loads the current state of `Self` from storage.
@@ -144,10 +144,10 @@ pub trait Flush: ::ink_storage::traits::SpreadLayout + Sized {
     /// you have to this method on storage struct.
     fn load(&mut self) {
         let root_key = ::ink_primitives::Key::from([0x00; 32]);
-        let mut state = ::ink_storage::traits::pull_spread_root::<Self>(&root_key);
+        let mut state = ::ink::storage::traits::pull_spread_root::<Self>(&root_key);
         core::mem::swap(self, &mut state);
         let _ = ManuallyDrop::new(state);
     }
 }
 
-impl<T: ::ink_storage::traits::SpreadLayout + Sized> Flush for T {}
+impl<T: ::ink::storage::traits::SpreadLayout + Sized> Flush for T {}

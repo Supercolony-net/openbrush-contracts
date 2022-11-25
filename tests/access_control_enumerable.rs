@@ -23,10 +23,9 @@
 #[cfg(feature = "access_control")]
 #[openbrush::contract]
 mod access_control_enumerable {
-    use ::ink_env::DefaultEnvironment;
-    use ink_env::test::DefaultAccounts;
-    use ink_lang as ink;
-    use ink_storage::traits::SpreadAllocate;
+    use ::ink::env::DefaultEnvironment;
+    use ink::env::test::DefaultAccounts;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::access_control::extensions::enumerable::*,
         test_utils::accounts,
@@ -37,8 +36,8 @@ mod access_control_enumerable {
     // But better to use a hash of the variable name.
     // It will generate a unique identifier of this role.
     // And will reduce the chance to have overlapping roles.
-    const MINTER: RoleType = ink_lang::selector_id!("MINTER");
-    const PAUSER: RoleType = ink_lang::selector_id!("PAUSER");
+    const MINTER: RoleType = ink::selector_id!("MINTER");
+    const PAUSER: RoleType = ink::selector_id!("PAUSER");
 
     #[derive(Default, SpreadAllocate, Storage)]
     #[ink(storage)]
@@ -54,7 +53,7 @@ mod access_control_enumerable {
     impl AccessControlStruct {
         #[ink(constructor)]
         pub fn new(admin: AccountId) -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {
+            ink::codegen::initialize_contract(|_instance: &mut Self| {
                 _instance._init_with_admin(admin);
             })
         }

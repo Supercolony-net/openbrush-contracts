@@ -20,13 +20,13 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::marker::PhantomData;
-use ink_storage::traits::{
+use ink::storage::traits::{
     push_packed_root,
     PackedLayout,
     SpreadLayout,
 };
 
-use ink_env::hash::{
+use ink::env::hash::{
     Blake2x256,
     HashOutput,
 };
@@ -96,7 +96,7 @@ where
     where
         K: scale::Encode,
     {
-        ink_env::contract_storage_contains(&self.storage_key(key))
+        ink::env::contract_storage_contains(&self.storage_key(key))
     }
 
     /// Checks if a value is stored at the given `key` in the contract storage.
@@ -107,7 +107,7 @@ where
     where
         K: scale::Encode,
     {
-        ink_env::contract_storage_contains(&self.storage_key(key)).is_some()
+        ink::env::contract_storage_contains(&self.storage_key(key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
@@ -125,7 +125,7 @@ where
                 <V as PackedLayout>::clear_packed(&value, &storage_key);
             }
         }
-        ink_env::clear_contract_storage(&storage_key);
+        ink::env::clear_contract_storage(&storage_key);
     }
 
     /// Returns a `Key` pointer used internally by the storage API.
@@ -147,7 +147,7 @@ where
         E: scale::Encode,
     {
         let mut output = <Blake2x256 as HashOutput>::Type::default();
-        ink_env::hash_encoded::<Blake2x256, _>(key, &mut output);
+        ink::env::hash_encoded::<Blake2x256, _>(key, &mut output);
         output.into()
     }
 
@@ -156,7 +156,7 @@ where
         K: scale::Encode,
         V: PackedLayout,
     {
-        ink_env::get_contract_storage::<V>(key)
+        ink::env::get_contract_storage::<V>(key)
             .unwrap_or_else(|error| panic!("failed to pull packed from root key {}: {:?}", key, error))
             .map(|mut value| {
                 // In case the contract storage is occupied at the root key

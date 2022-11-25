@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp22_pallet_mintable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22_pallet::extensions::mintable::*,
         traits::Storage,
@@ -24,7 +24,7 @@ pub mod my_psp22_pallet_mintable {
         #[ink(constructor)]
         #[ink(payable)]
         pub fn new(asset_id: u32, min_balance: Balance, total_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Contract| {
+            ink::codegen::initialize_contract(|instance: &mut Contract| {
                 // The contract is admin of the asset
                 instance
                     ._create(asset_id, Self::env().account_id(), min_balance)

@@ -4,7 +4,7 @@
 /// This contract will represent the loan of a user
 #[openbrush::contract]
 pub mod loan {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::loan::*;
     use openbrush::{
         contracts::{
@@ -98,7 +98,7 @@ pub mod loan {
         /// constructor with name and symbol
         #[ink(constructor, payable)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut LoanContract| {
+            ink::codegen::initialize_contract(|instance: &mut LoanContract| {
                 instance.last_loan_id = Id::U128(1);
                 instance._set_attribute(Id::U8(1u8), String::from("LoanContract NFT"), String::from("L-NFT"));
                 instance._init_with_owner(instance.env().caller());

@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp22_mintable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::extensions::mintable::*,
         traits::Storage,
@@ -22,7 +22,7 @@ pub mod my_psp22_mintable {
     impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 assert!(instance._mint_to(instance.env().caller(), total_supply).is_ok());
             })
         }

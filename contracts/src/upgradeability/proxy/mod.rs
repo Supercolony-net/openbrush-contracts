@@ -30,7 +30,7 @@ pub use crate::{
 pub use ownable::Internal as _;
 pub use proxy::Internal as _;
 
-use ink_env::call::DelegateCall;
+use ink::env::call::DelegateCall;
 use openbrush::{
     modifiers,
     traits::{
@@ -78,10 +78,10 @@ impl<T: Storage<Data>> Internal for T {
     }
 
     default fn _fallback(&self) -> ! {
-        ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+        ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(DelegateCall::new().code_hash(self.data().forward_to.clone()))
             .call_flags(
-                ink_env::CallFlags::default()
+                ink::env::CallFlags::default()
                 // We don't plan to use the input data after the delegated call, so the 
                 // input data can be forwarded to delegated contract to reduce the gas usage.
                 .set_forward_input(true)

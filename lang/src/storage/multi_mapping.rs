@@ -30,7 +30,7 @@ use ink_primitives::{
     Key,
     KeyPtr,
 };
-use ink_storage::traits::{
+use ink::storage::traits::{
     ExtKeyPtr,
     PackedLayout,
     SpreadAllocate,
@@ -365,12 +365,12 @@ impl<K, V, TGK, TGV> SpreadAllocate for MultiMapping<K, V, TGK, TGV> {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use ink_metadata::layout::{
+    use ink::metadata::layout::{
         CellLayout,
         Layout,
         LayoutKey,
     };
-    use ink_storage::traits::StorageLayout;
+    use ink::storage::traits::StorageLayout;
     use scale_info::{
         build::Fields,
         type_params,
@@ -413,7 +413,7 @@ const _: () = {
 mod tests {
     use super::*;
 
-    #[ink_lang::test]
+    #[ink::test]
     fn insert_and_count_works() {
         let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
         mapping.insert(&1, &1);
@@ -421,7 +421,7 @@ mod tests {
         assert_eq!(mapping.count(&1), 2);
     }
 
-    #[ink_lang::test]
+    #[ink::test]
     fn double_insert_and_count_works() {
         let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
         mapping.insert(&1, &1);
@@ -429,7 +429,7 @@ mod tests {
         assert_eq!(mapping.count(&1), 1);
     }
 
-    #[ink_lang::test]
+    #[ink::test]
     fn get_works() {
         let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
         mapping.insert(&1, &1);
@@ -444,7 +444,7 @@ mod tests {
         assert_eq!(mapping.get_value(&1, &1), Some(2));
     }
 
-    #[ink_lang::test]
+    #[ink::test]
     fn remove_works() {
         let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
         mapping.insert(&1, &1);
@@ -470,7 +470,7 @@ mod tests {
         assert_eq!(mapping.get_value(&1, &0), Some(1));
     }
 
-    #[ink_lang::test]
+    #[ink::test]
     fn remove_non_exist_works() {
         let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
         mapping.insert(&1, &1);
@@ -487,7 +487,7 @@ mod tests {
         assert_eq!(mapping.count(&1), 2);
     }
 
-    #[ink_lang::test]
+    #[ink::test]
     fn contain_works() {
         let mut mapping: MultiMapping<u128, u128> = MultiMapping::default();
 

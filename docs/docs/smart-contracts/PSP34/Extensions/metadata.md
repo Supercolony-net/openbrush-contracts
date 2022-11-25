@@ -72,10 +72,10 @@ impl Contract {
 #[openbrush::contract]
 pub mod my_psp34_metadata {
     use openbrush::traits::String;
-    use ink_prelude::{
+    use ink::prelude::{
         vec::Vec,
     };
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::metadata::*,
         traits::Storage,

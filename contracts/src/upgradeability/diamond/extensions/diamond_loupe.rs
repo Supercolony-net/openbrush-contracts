@@ -31,7 +31,7 @@ pub use crate::{
 pub use diamond::Internal as _;
 pub use ownable::Internal as _;
 
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,

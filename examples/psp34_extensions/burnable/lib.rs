@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp34_burnable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::burnable::*,
         traits::Storage,
@@ -24,7 +24,7 @@ pub mod my_psp34_burnable {
         /// The constructor
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 instance
                     ._mint_to(Self::env().caller(), Id::U8(0u8))
                     .expect("Should mint token with id 0");

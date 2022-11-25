@@ -30,11 +30,11 @@ pub use psp37::{
 };
 
 use core::result::Result;
-use ink_env::{
+use ink::env::{
     CallFlags,
     Error as EnvError,
 };
-use ink_prelude::{
+use ink::prelude::{
     vec,
     vec::Vec,
 };

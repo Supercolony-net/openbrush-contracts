@@ -3,8 +3,8 @@
 
 #[openbrush::contract]
 pub mod diamond_caller {
-    use ink_prelude::vec::Vec;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::prelude::vec::Vec;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::contracts::psp22::*;
 
     #[ink(storage)]
@@ -15,7 +15,7 @@ pub mod diamond_caller {
     impl DiamondCaller {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_: &mut DiamondCaller| {})
+            ink::codegen::initialize_contract(|_: &mut DiamondCaller| {})
         }
 
         #[ink(message)]

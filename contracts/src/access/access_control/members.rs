@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::traits::access_control::*;
-use ink_storage::traits::{
+use ink::storage::traits::{
     SpreadAllocate,
     SpreadLayout,
 };

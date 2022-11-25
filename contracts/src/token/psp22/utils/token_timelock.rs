@@ -31,8 +31,8 @@ pub use crate::{
 pub use psp22::Internal as _;
 pub use token_timelock::Internal as _;
 
-use ink_env::CallFlags;
-use ink_prelude::vec::Vec;
+use ink::env::CallFlags;
+use ink::prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,

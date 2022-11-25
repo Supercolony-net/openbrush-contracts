@@ -55,7 +55,7 @@ and add some imports:
 #[openbrush::contract]
 pub mod token {
     use openbrush::traits::String;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::stable_coin::*;
     use openbrush::{
         contracts::psp22::extensions::metadata::*,

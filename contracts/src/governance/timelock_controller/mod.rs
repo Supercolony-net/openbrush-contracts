@@ -31,7 +31,7 @@ pub use access_control::Internal as _;
 pub use timelock_controller::Internal as _;
 
 use core::convert::TryFrom;
-use ink_env::{
+use ink::env::{
     call::{
         build_call,
         Call,
@@ -41,7 +41,7 @@ use ink_env::{
     CallFlags,
     DefaultEnvironment,
 };
-use ink_prelude::{
+use ink::prelude::{
     vec,
     vec::Vec,
 };
@@ -89,9 +89,9 @@ where
     body(instance)
 }
 
-pub const TIMELOCK_ADMIN_ROLE: RoleType = ink_lang::selector_id!("TIMELOCK_ADMIN_ROLE");
-pub const PROPOSER_ROLE: RoleType = ink_lang::selector_id!("PROPOSER_ROLE");
-pub const EXECUTOR_ROLE: RoleType = ink_lang::selector_id!("EXECUTOR_ROLE");
+pub const TIMELOCK_ADMIN_ROLE: RoleType = ink::selector_id!("TIMELOCK_ADMIN_ROLE");
+pub const PROPOSER_ROLE: RoleType = ink::selector_id!("PROPOSER_ROLE");
+pub const EXECUTOR_ROLE: RoleType = ink::selector_id!("EXECUTOR_ROLE");
 
 pub const DONE_TIMESTAMP: Timestamp = 1;
 

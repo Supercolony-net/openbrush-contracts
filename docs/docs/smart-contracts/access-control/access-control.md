@@ -47,7 +47,7 @@ which will use the `only_role` modifier with `CALLER` parameter, which verifies 
 
 #[openbrush::contract]
 pub mod my_access_control {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::access_control::*,
         modifiers,

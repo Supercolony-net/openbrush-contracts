@@ -24,7 +24,7 @@ pub use crate::{
     traits::errors::ReentrancyGuardError,
 };
 
-use ink_storage::traits::push_spread_root;
+use ink::storage::traits::push_spread_root;
 use openbrush::{
     modifier_definition,
     traits::Storage,

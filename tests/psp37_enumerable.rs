@@ -23,8 +23,7 @@
 #[cfg(feature = "psp37")]
 #[openbrush::contract]
 mod psp37_enumerable {
-    use ink_lang as ink;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp37::{
             extensions::{
@@ -75,7 +74,7 @@ mod psp37_enumerable {
     impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

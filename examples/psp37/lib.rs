@@ -3,8 +3,8 @@
 
 #[openbrush::contract]
 pub mod my_psp37 {
-    use ink_prelude::vec;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::prelude::vec;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp37::*,
         storage::Mapping,
@@ -27,7 +27,7 @@ pub mod my_psp37 {
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

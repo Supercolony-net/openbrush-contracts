@@ -3,7 +3,7 @@
 
 #[openbrush::contract]
 pub mod my_psp22_facet_v1 {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             ownable::*,
@@ -28,7 +28,7 @@ pub mod my_psp22_facet_v1 {
     impl PSP22FacetV1 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

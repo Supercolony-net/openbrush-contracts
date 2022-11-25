@@ -43,7 +43,7 @@ and we will add the `hated_account: AccountId` field to the structure.
 #[openbrush::contract]
 pub mod my_psp22 {
     use openbrush::traits::String;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::*,
         traits::Storage,

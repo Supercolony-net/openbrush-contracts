@@ -3,8 +3,8 @@
 
 #[openbrush::contract]
 pub mod my_timelock_controller {
-    use ink_prelude::vec::Vec;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::prelude::vec::Vec;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::timelock_controller::*,
         traits::Storage,
@@ -22,7 +22,7 @@ pub mod my_timelock_controller {
     impl Contract {
         #[ink(constructor)]
         pub fn new(min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 let caller = instance.env().caller();
                 // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
                 // You need to call it for each trait separately, to initialize everything for these traits.

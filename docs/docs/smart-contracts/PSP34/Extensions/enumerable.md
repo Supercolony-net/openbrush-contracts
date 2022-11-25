@@ -51,7 +51,7 @@ impl PSP34Enumerable for Contract {}
 
 #[openbrush::contract]
 pub mod my_psp34_enumerable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::enumerable::*,
         traits::Storage,

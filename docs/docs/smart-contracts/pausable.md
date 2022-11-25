@@ -37,7 +37,7 @@ Customize it by adding flipper logic. We will implement `flip` method marked wit
 
 #[openbrush::contract]
 pub mod my_pausable {
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::contracts::pausable::*;
     use openbrush::traits::Storage;
 

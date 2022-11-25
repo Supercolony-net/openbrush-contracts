@@ -23,8 +23,7 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34_enumerable {
-    use ink_lang as ink;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::{
             extensions::{
@@ -72,7 +71,7 @@ mod psp34_enumerable {
     impl PSP34Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
     }
 

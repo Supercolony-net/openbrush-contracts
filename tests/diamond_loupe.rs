@@ -23,12 +23,11 @@
 #[cfg(feature = "diamond")]
 #[openbrush::contract]
 mod diamond {
-    use ink_env::{
+    use ink::env::{
         test::DefaultAccounts,
         DefaultEnvironment,
     };
-    use ink_lang as ink;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::diamond::extensions::diamond_loupe::*,
         test_utils::accounts,
@@ -47,7 +46,7 @@ mod diamond {
     impl DiamondContract {
         #[ink(constructor)]
         pub fn new(owner: AccountId) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 instance._init_with_owner(owner);
             })
         }

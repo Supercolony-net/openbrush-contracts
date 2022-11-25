@@ -19,13 +19,13 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use ink_prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use ink_primitives::Key;
 
 #[cfg(feature = "std")]
-use ink_storage::traits::StorageLayout;
+use ink::storage::traits::StorageLayout;
 
-use ink_storage::traits::{
+use ink::storage::traits::{
     ExtKeyPtr,
     KeyPtr,
     PackedAllocate,
