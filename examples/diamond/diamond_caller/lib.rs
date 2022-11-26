@@ -4,11 +4,10 @@
 #[openbrush::contract]
 pub mod diamond_caller {
     use ink::prelude::vec::Vec;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::contracts::psp22::*;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     /// The purpose of this contract is to call a function of a facet of diamond standard contract
     pub struct DiamondCaller {}
 

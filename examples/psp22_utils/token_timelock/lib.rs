@@ -3,14 +3,13 @@
 
 #[openbrush::contract]
 pub mod my_psp22_token_timelock {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::utils::token_timelock::*,
         traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         timelock: token_timelock::Data,

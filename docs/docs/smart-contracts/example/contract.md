@@ -81,7 +81,7 @@ So we will declare a struct and derive all the needed traits.
 
 ```rust
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 pub struct LendingContract {
     #[storage_field]
     access: access_control::Data,

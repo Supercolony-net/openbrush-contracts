@@ -31,7 +31,7 @@ the `#[storage_field]` attribute. Deriving this trait allows you to reuse the
 
 ```rust
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 pub struct Contract {
     #[storage_field]
     psp22: psp22::Data,
@@ -74,14 +74,13 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp22_wrapper {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::extensions::wrapper::*,
         traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,

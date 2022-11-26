@@ -3,14 +3,13 @@
 #[openbrush::contract]
 pub mod my_flipper_guard {
     use flipper::traits::flipper::*;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         modifiers,
         traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct MyFlipper {
         #[storage_field]
         guard: reentrancy_guard::Data,

@@ -25,7 +25,6 @@
 mod access_control_enumerable {
     use ::ink::env::DefaultEnvironment;
     use ink::env::test::DefaultAccounts;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::access_control::extensions::enumerable::*,
         test_utils::accounts,
@@ -39,7 +38,7 @@ mod access_control_enumerable {
     const MINTER: RoleType = ink::selector_id!("MINTER");
     const PAUSER: RoleType = ink::selector_id!("PAUSER");
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct AccessControlStruct {
         #[storage_field]

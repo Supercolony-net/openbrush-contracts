@@ -4,7 +4,6 @@
 #[openbrush::contract]
 pub mod ownable {
     use ink::prelude::vec::Vec;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             ownable::*,
@@ -18,7 +17,7 @@ pub mod ownable {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         psp37: psp37::Data,

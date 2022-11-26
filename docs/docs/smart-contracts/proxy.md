@@ -41,13 +41,12 @@ Define the forward function to make delegate calls of upgradeable contract throu
 
 #[openbrush::contract]
 pub mod proxy {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::contracts::ownable::*;
     use openbrush::contracts::proxy::*;
     use openbrush::traits::Storage;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         proxy: proxy::Data,

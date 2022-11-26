@@ -4,7 +4,6 @@
 /// This contract will represent the loan of a user
 #[openbrush::contract]
 pub mod loan {
-    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::loan::*;
     use openbrush::{
         contracts::{
@@ -21,7 +20,7 @@ pub mod loan {
 
     /// Define the storage for PSP34 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(SpreadAllocate, Storage)]
+    #[derive(Storage)]
     pub struct LoanContract {
         #[storage_field]
         psp34: psp34::Data,

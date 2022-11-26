@@ -63,7 +63,6 @@ we also need these imports:
 #[openbrush::contract]
 pub mod shares {
     use openbrush::traits::String;
-    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::shares::*;
     use openbrush::{
         contracts::{
@@ -87,7 +86,7 @@ and declare the field related to this trait.
 ```rust
 /// Define the storage for PSP22 data, Metadata data and Ownable data
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 pub struct SharesContract {
     #[storage_field]
     psp22: psp22::Data,

@@ -10,7 +10,7 @@ pub mod my_psp22_pallet {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         pallet: psp22_pallet::Data,

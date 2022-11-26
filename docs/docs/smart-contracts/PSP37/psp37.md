@@ -45,14 +45,13 @@ pub mod my_psp37 {
     use ink::prelude::{
         vec,
     };
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp37::*,
         storage::Mapping,
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

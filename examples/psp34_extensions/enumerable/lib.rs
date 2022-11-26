@@ -3,7 +3,6 @@
 
 #[openbrush::contract]
 pub mod my_psp34_enumerable {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::{
             burnable::*,
@@ -13,7 +12,7 @@ pub mod my_psp34_enumerable {
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

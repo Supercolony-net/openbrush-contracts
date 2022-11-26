@@ -84,7 +84,6 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp22_pausable {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             pausable::*,
@@ -95,7 +94,7 @@ pub mod my_psp22_pausable {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,

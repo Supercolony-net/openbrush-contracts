@@ -26,7 +26,7 @@ pub mod my_access_control {
 Pass `enumerable::Members` into `access_control::Data` to be able to use `AcessControlEnumerable` extension in your `AccessControl` implementation.
 
 ```rust
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 #[ink(storage)]
 pub struct Contract {
     #[storage_field]
@@ -53,13 +53,12 @@ impl AccessControlEnumerable for Contract {}
 
 #[openbrush::contract]
 pub mod my_access_control {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::access_control::extensions::enumerable::*,
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

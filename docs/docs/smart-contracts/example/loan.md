@@ -122,7 +122,6 @@ so we will add these to our contract. We will add a `openbrush::contract` macro 
 #[openbrush::contract]
 pub mod loan {
     use openbrush::traits::String;
-    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::loan::*;
     use openbrush::{
         contracts::{
@@ -144,7 +143,7 @@ fields related to `Loan` itself.
 ```rust
 /// Define the storage for PSP34 data, Metadata data and Ownable data
 #[ink(storage)]
-#[derive(SpreadAllocate, Storage)]
+#[derive(Storage)]
 pub struct LoanContract {
     #[storage_field]
     psp34: psp34::Data,

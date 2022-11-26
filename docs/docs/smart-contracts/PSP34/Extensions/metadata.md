@@ -31,7 +31,7 @@ the `#[storage_field]` attribute. Deriving this trait allows you to reuse the
 
 ```rust
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 pub struct Contract {
     ...
     #[storage_field]
@@ -75,13 +75,12 @@ pub mod my_psp34_metadata {
     use ink::prelude::{
         vec::Vec,
     };
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::metadata::*,
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

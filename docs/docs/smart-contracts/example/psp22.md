@@ -55,7 +55,6 @@ and add some imports:
 #[openbrush::contract]
 pub mod token {
     use openbrush::traits::String;
-    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::stable_coin::*;
     use openbrush::{
         contracts::psp22::extensions::metadata::*,
@@ -72,7 +71,7 @@ the fields related to these traits.
 ```rust
 /// Define the storage for PSP22 data and Metadata data
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 pub struct StableCoinContract {
     #[storage_field]
     psp22: psp22::Data,

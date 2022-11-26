@@ -4,7 +4,6 @@
 #[openbrush::contract]
 pub mod my_psp34_metadata {
     use ink::prelude::vec::Vec;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::metadata::*,
         traits::{
@@ -13,7 +12,7 @@ pub mod my_psp34_metadata {
         },
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

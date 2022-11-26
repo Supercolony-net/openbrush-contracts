@@ -27,7 +27,6 @@ mod psp37_metadata {
         EmitEvent,
         Env,
     };
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::traits::Storage;
     use openbrush_contracts::psp37::extensions::metadata::*;
 
@@ -38,7 +37,7 @@ mod psp37_metadata {
         data: Vec<u8>,
     }
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP37Struct {
         #[storage_field]

@@ -38,7 +38,6 @@
 #[openbrush::contract]
 pub mod my_lending {
     use ink::ToAccountId;
-    use ink::storage::traits::SpreadAllocate;
     use lending_project::impls::lending::*;
     use loan_contract::loan::LoanContractRef;
     use openbrush::{
@@ -54,7 +53,7 @@ pub mod my_lending {
     use shares_contract::shares::SharesContractRef;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct LendingContract {
         #[storage_field]
         access: access_control::Data,

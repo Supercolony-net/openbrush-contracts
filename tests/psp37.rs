@@ -27,7 +27,6 @@ mod psp37 {
         EmitEvent,
         Env,
     };
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         test_utils::{
             accounts,
@@ -60,7 +59,7 @@ mod psp37 {
         value: Balance,
     }
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP37Struct {
         #[storage_field]

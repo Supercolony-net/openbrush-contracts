@@ -30,16 +30,11 @@ use ink::primitives::{
     Key,
     KeyPtr,
 };
-use ink::storage::traits::{
-    ExtKeyPtr,
-    PackedLayout,
-    SpreadAllocate,
-    SpreadLayout,
-};
 
 // TODO: More doc
 /// A mapping of one key to many values. The mapping provides iteration functionality over all
 /// key's values.
+#[derive(scale::Encode, scale::Decode)]
 pub struct MultiMapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
     offset_key: Key,
     _marker: PhantomData<fn() -> (K, V, TGK, TGV)>,
@@ -328,49 +323,16 @@ where
     }
 }
 
-impl<K, V, TGK, TGV> SpreadLayout for MultiMapping<K, V, TGK, TGV> {
-    const FOOTPRINT: u64 = 1;
-    const REQUIRES_DEEP_CLEAN_UP: bool = false;
-
-    #[inline(always)]
-    fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        // Note: There is no need to pull anything from the storage for the
-        //       mapping type since it initializes itself entirely by the
-        //       given key pointer.
-        Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
-    }
-
-    #[inline(always)]
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        // Note: The mapping type does not store any state in its associated
-        //       storage region, therefore only the pointer has to be incremented.
-        ptr.advance_by(Self::FOOTPRINT);
-    }
-
-    #[inline(always)]
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        // Note: The mapping type is not aware of its elements, therefore
-        //       it is not possible to clean up after itself.
-        ptr.advance_by(Self::FOOTPRINT);
-    }
-}
-
-impl<K, V, TGK, TGV> SpreadAllocate for MultiMapping<K, V, TGK, TGV> {
-    #[inline(always)]
-    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        // Note: The mapping type initializes itself entirely by the key pointer.
-        Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
-    }
-}
-
 #[cfg(feature = "std")]
 const _: () = {
-    use ink::metadata::layout::{
-        CellLayout,
-        Layout,
-        LayoutKey,
+    use ink::{
+        metadata::layout::{
+            CellLayout,
+            Layout,
+            LayoutKey,
+        },
+        storage::traits::StorageLayout,
     };
-    use ink::storage::traits::StorageLayout;
     use scale_info::{
         build::Fields,
         type_params,

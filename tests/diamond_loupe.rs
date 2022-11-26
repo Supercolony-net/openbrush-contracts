@@ -27,7 +27,6 @@ mod diamond {
         test::DefaultAccounts,
         DefaultEnvironment,
     };
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::diamond::extensions::diamond_loupe::*,
         test_utils::accounts,
@@ -35,7 +34,7 @@ mod diamond {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct DiamondContract {
         #[storage_field]
         ownable: ownable::Data,

@@ -3,14 +3,13 @@
 
 #[openbrush::contract]
 pub mod diamond {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::diamond::extensions::diamond_loupe::*,
         traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         ownable: ownable::Data,

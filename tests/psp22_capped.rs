@@ -23,7 +23,6 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_capped {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22::extensions::{
             capped::*,
@@ -37,7 +36,7 @@ mod psp22_capped {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct PSP22Struct {
         #[storage_field]
         psp22: psp22::Data,

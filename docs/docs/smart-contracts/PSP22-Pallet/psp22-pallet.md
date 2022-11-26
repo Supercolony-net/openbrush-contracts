@@ -21,14 +21,13 @@ Use `psp22_pallet` storage and implement `PSP22` trait for your contract.
 
 #[openbrush::contract]
 pub mod my_psp22_pallet {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22_pallet::*,
         traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         pallet: psp22_pallet::Data,
@@ -48,14 +47,13 @@ Add constructor for your contract, create asset and mint tokens to caller.
 
 #[openbrush::contract]
 pub mod my_psp22_pallet {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22_pallet::*,
         traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         pallet: psp22_pallet::Data,

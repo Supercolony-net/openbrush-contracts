@@ -408,7 +408,7 @@ pub fn wrapper(attrs: TokenStream, input: TokenStream) -> TokenStream {
 
 synstructure::decl_attribute!(
     [upgradeable_storage] =>
-    /// That macro implemented `SpreadLayout`, `SpreadAllocate`, `StorageLayout` and `OccupyStorage`
+    /// That macro implemented `OccupyStorage`
     /// with a specified storage key instead of the default one (All data is stored under
     /// the provided storage key).
     ///

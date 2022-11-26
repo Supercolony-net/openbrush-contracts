@@ -3,15 +3,16 @@
 
 #[openbrush::contract]
 pub mod my_psp22_pallet_metadata {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22_pallet::extensions::metadata::*,
-        traits::Storage,
+        traits::{
+            Storage,
+            String,
+        },
     };
-    use openbrush::traits::String;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         pallet: psp22_pallet::Data,
@@ -26,7 +27,14 @@ pub mod my_psp22_pallet_metadata {
         /// for asset creation.
         #[ink(constructor)]
         #[ink(payable)]
-        pub fn new(asset_id: u32, min_balance: Balance, total_supply: Balance, name: String, symbol: String, decimal: u8) -> Self {
+        pub fn new(
+            asset_id: u32,
+            min_balance: Balance,
+            total_supply: Balance,
+            name: String,
+            symbol: String,
+            decimal: u8,
+        ) -> Self {
             ink::codegen::initialize_contract(|instance: &mut Contract| {
                 // The contract is admin of the asset
                 instance
@@ -34,7 +42,11 @@ pub mod my_psp22_pallet_metadata {
                     .expect("Should create an asset");
                 instance.pallet.asset_id = asset_id;
                 instance.pallet.origin = Origin::Caller;
-                assert!(instance.pallet.pallet_assets.set_metadata(asset_id, name, symbol, decimal).is_ok());
+                assert!(instance
+                    .pallet
+                    .pallet_assets
+                    .set_metadata(asset_id, name, symbol, decimal)
+                    .is_ok());
                 instance
                     ._mint_to(instance.env().caller(), total_supply)
                     .expect("Should mint");

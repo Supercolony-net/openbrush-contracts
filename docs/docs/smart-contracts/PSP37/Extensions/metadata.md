@@ -30,7 +30,7 @@ Deriving this trait allows you to reuse the `PSP37Metadata` extension in your
 `PSP37` implementation.
 
 ```rust
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 #[ink(storage)]
 pub struct Contract {
     ...
@@ -71,13 +71,12 @@ impl Contract {
 #[openbrush::contract]
 pub mod my_psp37 {
     use ink::prelude::vec::Vec;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp37::extensions::metadata::*,
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

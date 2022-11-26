@@ -3,9 +3,10 @@
 
 #[openbrush::contract]
 pub mod my_psp22_facet_v2 {
-    use ink::codegen::Env;
-    use ink::prelude::vec::Vec;
-    use ink::storage::traits::SpreadAllocate;
+    use ink::{
+        codegen::Env,
+        prelude::vec::Vec,
+    };
     use openbrush::{
         contracts::{
             ownable::*,
@@ -18,7 +19,7 @@ pub mod my_psp22_facet_v2 {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct PSP22FacetV2 {
         #[storage_field]
         psp22: psp22::Data,

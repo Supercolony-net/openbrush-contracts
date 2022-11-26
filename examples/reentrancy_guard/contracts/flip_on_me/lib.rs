@@ -4,10 +4,9 @@
 pub mod flip_on_me {
     use flipper::traits::flip_on_me::*;
     use ink::codegen::Env;
-    use ink::storage::traits::SpreadAllocate;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct FlipOnMeContract {}
 
     impl FlipOnMeContract {

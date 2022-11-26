@@ -3,14 +3,13 @@
 
 #[openbrush::contract]
 pub mod my_access_control {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::access_control::extensions::enumerable::*,
         traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         access: access_control::Data<enumerable::Members>,

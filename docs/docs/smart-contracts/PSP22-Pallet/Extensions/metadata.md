@@ -29,7 +29,7 @@ the `#[storage_field]` attribute. Deriving this trait allows you to reuse the
 
 ```rust
 #[ink(storage)]
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 pub struct Contract {
     #[storage_field]
     pallet: psp22_pallet::Data,
@@ -84,7 +84,6 @@ impl Contract {
 
 #[openbrush::contract]
 pub mod my_psp22_pallet_metadata {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22_pallet::extensions::metadata::*,
         traits::Storage,
@@ -92,7 +91,7 @@ pub mod my_psp22_pallet_metadata {
     use openbrush::traits::String;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         pallet: psp22_pallet::Data,

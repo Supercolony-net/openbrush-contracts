@@ -3,7 +3,6 @@
 
 #[openbrush::contract]
 pub mod my_access_control {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             access_control::*,
@@ -17,7 +16,7 @@ pub mod my_access_control {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         psp34: psp34::Data,

@@ -44,12 +44,11 @@ pub mod my_ownable {
         contracts::ownable::*,
         modifiers,
     };
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::traits::Storage;
 
 
    #[ink(storage)]
-   #[derive(Default, SpreadAllocate, Storage)]
+   #[derive(Default, Storage)]
    pub struct Contract {
       #[storage_field]
       ownable: ownable::Data,

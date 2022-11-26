@@ -46,12 +46,11 @@ function (i.e. `#[ink(message)]`) called `release_all` and have it call the inte
 #[openbrush::contract]
 pub mod my_payment_splitter {
     use ink::prelude::vec::Vec;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::contracts::payment_splitter::*;
     use openbrush::traits::Storage;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         splitter: payment_splitter::Data,

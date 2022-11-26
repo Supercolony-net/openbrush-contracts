@@ -23,7 +23,6 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34_enumerable {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::{
             extensions::{
@@ -40,7 +39,7 @@ mod psp34_enumerable {
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP34Struct {
         #[storage_field]

@@ -23,12 +23,13 @@
 #[cfg(feature = "psp37")]
 #[openbrush::contract]
 mod psp37_batch {
-    use ink::codegen::{
-        EmitEvent,
-        Env,
+    use ink::{
+        codegen::{
+            EmitEvent,
+            Env,
+        },
+        prelude::vec::Vec,
     };
-    use ink::prelude::vec::Vec;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         test_utils::{
             accounts,
@@ -67,7 +68,7 @@ mod psp37_batch {
         value: Balance,
     }
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP37Struct {
         #[storage_field]

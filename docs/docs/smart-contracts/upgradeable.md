@@ -483,7 +483,6 @@ pub mod facet_a {
     ...
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
     pub struct FacetA {
         psp22: PSP22Data,
         ownable: OwnableData,
@@ -579,7 +578,6 @@ pub mod facet_b {
     ...
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
     pub struct FacetB {
         // You embed `PSP22Data` logic unit from `FacetA`. 
         // It works with the same storage as `FacetA`. 
@@ -634,7 +632,6 @@ pub mod facet_a {
     ...
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
     pub struct FacetA {
         psp22: psp22::Data,
         ownable: ownable::Data,
@@ -665,7 +662,6 @@ pub mod facet_b {
     ...
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
     pub struct FacetB {
         // The same logic unit is used in `FacetA`.
         psp22: psp22::Data,

@@ -23,7 +23,6 @@
 #[cfg(feature = "payment_splitter")]
 #[openbrush::contract]
 mod payment_splitter {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::payment_splitter::*,
         test_utils::accounts,
@@ -54,7 +53,7 @@ mod payment_splitter {
     }
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct MySplitter {
         #[storage_field]
         splitter: Data,

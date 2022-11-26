@@ -40,14 +40,13 @@ there will always be added a token with a unique id.
 
 #[openbrush::contract]
 pub mod my_psp34 {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::metadata::*,
         traits::Storage,
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         psp34: psp34::Data,

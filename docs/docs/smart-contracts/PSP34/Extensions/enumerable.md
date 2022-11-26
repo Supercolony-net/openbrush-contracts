@@ -27,7 +27,7 @@ Pass `enumerable::Balances` into `psp34::Data` to be able to use `PSP34Enumerabl
 in your `PSP34` implementation.
 
 ```rust
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 #[ink(storage)]
 pub struct Contract {
     #[storage_field]
@@ -51,13 +51,12 @@ impl PSP34Enumerable for Contract {}
 
 #[openbrush::contract]
 pub mod my_psp34_enumerable {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::extensions::enumerable::*,
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

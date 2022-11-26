@@ -23,12 +23,13 @@
 #[cfg(feature = "psp34")]
 #[openbrush::contract]
 mod psp34 {
-    use ink::codegen::{
-        EmitEvent,
-        Env,
+    use ink::{
+        codegen::{
+            EmitEvent,
+            Env,
+        },
+        env::DefaultEnvironment,
     };
-    use ink::env::DefaultEnvironment;
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp34::*,
         test_utils::{
@@ -64,7 +65,7 @@ mod psp34 {
         approved: bool,
     }
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct PSP34Struct {
         #[storage_field]

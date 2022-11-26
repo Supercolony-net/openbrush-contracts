@@ -4,7 +4,6 @@
 /// This is a simple `PSP22` which will be used as a stable coin and a collateral token in our lending contract
 #[openbrush::contract]
 pub mod token {
-    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::stable_coin::*;
     use openbrush::{
         contracts::psp22::extensions::{
@@ -19,7 +18,7 @@ pub mod token {
 
     /// Define the storage for PSP22 data and Metadata data
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct StableCoinContract {
         #[storage_field]
         psp22: psp22::Data,

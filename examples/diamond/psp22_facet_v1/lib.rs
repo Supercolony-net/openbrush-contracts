@@ -3,7 +3,6 @@
 
 #[openbrush::contract]
 pub mod my_psp22_facet_v1 {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             ownable::*,
@@ -14,7 +13,7 @@ pub mod my_psp22_facet_v1 {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct PSP22FacetV1 {
         #[storage_field]
         psp22: psp22::Data,

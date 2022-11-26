@@ -26,7 +26,7 @@ pub mod my_psp37 {
 Pass `enumerable::Balances` into `psp37::Data` to be able to use `PSP37Enumerable` extension in your `PSP37` implementation.
 
 ```rust
-#[derive(Default, SpreadAllocate, Storage)]
+#[derive(Default, Storage)]
 #[ink(storage)]
 pub struct Contract {
     #[storage_field]
@@ -53,13 +53,12 @@ impl PSP37Enumerable for Contract {}
 
 #[openbrush::contract]
 pub mod my_psp37_enumerable {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp37::extensions::enumerable::*,
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

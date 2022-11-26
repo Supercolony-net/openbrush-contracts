@@ -6,7 +6,6 @@
 /// the amount of borrowed tokens
 #[openbrush::contract]
 pub mod shares {
-    use ink::storage::traits::SpreadAllocate;
     use lending_project::traits::shares::*;
     use openbrush::{
         contracts::{
@@ -26,7 +25,7 @@ pub mod shares {
 
     /// Define the storage for PSP22 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct SharesContract {
         #[storage_field]
         psp22: psp22::Data,

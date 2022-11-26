@@ -37,12 +37,11 @@ Customize it by adding flipper logic. We will implement `flip` method marked wit
 
 #[openbrush::contract]
 pub mod my_pausable {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::contracts::pausable::*;
     use openbrush::traits::Storage;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         pause: pausable::Data,

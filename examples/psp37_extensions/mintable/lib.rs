@@ -3,13 +3,12 @@
 
 #[openbrush::contract]
 pub mod my_psp37 {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp37::extensions::mintable::*,
         traits::Storage,
     };
 
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     #[ink(storage)]
     pub struct Contract {
         #[storage_field]

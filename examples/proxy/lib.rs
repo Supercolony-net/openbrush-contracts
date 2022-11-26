@@ -3,7 +3,6 @@
 
 #[openbrush::contract]
 pub mod proxy {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::{
             ownable::*,
@@ -13,7 +12,7 @@ pub mod proxy {
     };
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate, Storage)]
+    #[derive(Default, Storage)]
     pub struct Contract {
         #[storage_field]
         proxy: proxy::Data,
