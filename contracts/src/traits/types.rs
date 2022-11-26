@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use ink::prelude::vec::Vec;
-use ink_primitives::Key;
+use ink::primitives::Key;
 
 #[cfg(feature = "std")]
 use ink::storage::traits::StorageLayout;
@@ -29,13 +29,10 @@ use ink::storage::traits::{
     ExtKeyPtr,
     KeyPtr,
     PackedAllocate,
-    PackedLayout,
-    SpreadAllocate,
-    SpreadLayout,
 };
 
 /// `Id` represents the identifier of the NFT. `Id::U8(1)` and `Id::U16(1)` are two different identifiers.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
 pub enum Id {
     U8(u8),
@@ -44,21 +41,4 @@ pub enum Id {
     U64(u64),
     U128(u128),
     Bytes(Vec<u8>),
-}
-
-impl SpreadAllocate for Id
-where
-    Self: SpreadLayout,
-{
-    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        ptr.next_for::<Id>();
-        Id::U8(0)
-    }
-}
-impl PackedAllocate for Id
-where
-    Self: PackedLayout,
-{
-    #[inline]
-    fn allocate_packed(&mut self, _at: &Key) {}
 }

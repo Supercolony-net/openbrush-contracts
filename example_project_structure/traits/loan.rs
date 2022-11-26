@@ -1,7 +1,3 @@
-use ink::storage::traits::{
-    PackedLayout,
-    SpreadLayout,
-};
 use openbrush::{
     contracts::traits::{
         ownable::*,
@@ -20,7 +16,7 @@ use openbrush::{
 #[cfg(feature = "std")]
 use ink::storage::traits::StorageLayout;
 
-#[derive(Default, Debug, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
+#[derive(Default, Debug, Clone, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(StorageLayout, scale_info::TypeInfo))]
 pub struct LoanInfo {
     pub borrower: AccountId,

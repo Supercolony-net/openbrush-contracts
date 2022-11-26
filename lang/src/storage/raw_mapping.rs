@@ -30,7 +30,7 @@ use ink::env::hash::{
     Blake2x256,
     HashOutput,
 };
-use ink_primitives::Key;
+use ink::primitives::Key;
 
 pub struct RawMapping<K, V, T = Key> {
     prefix: T,

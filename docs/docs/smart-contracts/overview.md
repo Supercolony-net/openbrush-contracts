@@ -18,7 +18,7 @@ It doesn't contain [versioning](https://github.com/Supercolony-net/openbrush-con
 ```toml
 [dependencies]
 # Import of all ink! crates
-ink_primitives = { version = "~3.4.0", default-features = false }
+ink::primitives = { version = "~3.4.0", default-features = false }
 ink::metadata = { version = "~3.4.0", default-features = false, features = ["derive"], optional = true }
 ink::env = { version = "~3.4.0", default-features = false }
 ink::storage = { version = "~3.4.0", default-features = false }
@@ -35,7 +35,7 @@ openbrush = { version = "~2.3.0", default-features = false }
 [features]
 default = ["std"]
 std = [
-  "ink_primitives/std",
+  "ink::primitives/std",
   "ink::metadata",
   "ink::metadata/std",
   "ink::env/std",

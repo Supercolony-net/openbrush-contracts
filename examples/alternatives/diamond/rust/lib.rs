@@ -5,7 +5,7 @@
 mod ext;
 
 #[cfg(not(feature = "std"))]
-use ink_primitives::{
+use ink::primitives::{
     Key,
     KeyPtr,
 };
@@ -86,8 +86,8 @@ const _: () = {
         <::ink::metadata::InkProject as ::core::convert::Into<::ink::metadata::MetadataVersioned>>::into(
             ::ink::metadata::InkProject::new(
                 <Contract as ::ink::storage::traits::StorageLayout>::layout(
-                    &mut <::ink_primitives::KeyPtr as ::core::convert::From<::ink_primitives::Key>>::from(
-                        <::ink_primitives::Key as ::core::convert::From<[::core::primitive::u8; 32usize]>>::from(
+                    &mut <::ink::primitives::KeyPtr as ::core::convert::From<::ink::primitives::Key>>::from(
+                        <::ink::primitives::Key as ::core::convert::From<[::core::primitive::u8; 32usize]>>::from(
                             [0x00_u8; 32usize],
                         ),
                     ),

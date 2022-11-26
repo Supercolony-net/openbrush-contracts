@@ -23,10 +23,6 @@ use crate::psp34::{
     Id,
     Owner,
 };
-use ink::storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
 use openbrush::{
     storage::Mapping,
     traits::Balance,
@@ -34,7 +30,7 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
-pub trait BalancesManager: SpreadLayout + SpreadAllocate {
+pub trait BalancesManager{
     fn balance_of(&self, owner: &Owner) -> u32;
     fn increase_balance(&mut self, owner: &Owner, id: &Id, increase_supply: bool);
     fn decrease_balance(&mut self, owner: &Owner, id: &Id, decrease_supply: bool);

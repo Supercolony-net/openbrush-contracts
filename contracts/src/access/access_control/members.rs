@@ -20,16 +20,16 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::traits::access_control::*;
-use ink::storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
 use openbrush::{
     storage::{
         Mapping,
         TypeGuard,
     },
     traits::AccountId,
+};
+use scale::{
+    Error,
+    Input,
 };
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Members);
@@ -47,7 +47,7 @@ impl<'a> TypeGuard<'a> for MembersKey {
     type Type = &'a (RoleType, &'a AccountId);
 }
 
-pub trait MembersManager: SpreadLayout + SpreadAllocate {
+pub trait MembersManager {
     fn has_role(&self, role: RoleType, address: &AccountId) -> bool;
 
     fn add(&mut self, role: RoleType, member: &AccountId);

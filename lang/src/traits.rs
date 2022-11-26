@@ -134,7 +134,7 @@ pub trait Flush: ::ink::storage::traits::SpreadLayout + Sized {
     /// So if you want to flush the correct state of the contract,
     /// you have to this method on storage struct.
     fn flush(&self) {
-        let root_key = ::ink_primitives::Key::from([0x00; 32]);
+        let root_key = ::ink::primitives::Key::from([0x00; 32]);
         ::ink::storage::traits::push_spread_root::<Self>(self, &root_key);
     }
 
@@ -143,7 +143,7 @@ pub trait Flush: ::ink::storage::traits::SpreadLayout + Sized {
     /// So if you want to load the correct state of the contract,
     /// you have to this method on storage struct.
     fn load(&mut self) {
-        let root_key = ::ink_primitives::Key::from([0x00; 32]);
+        let root_key = ::ink::primitives::Key::from([0x00; 32]);
         let mut state = ::ink::storage::traits::pull_spread_root::<Self>(&root_key);
         core::mem::swap(self, &mut state);
         let _ = ManuallyDrop::new(state);

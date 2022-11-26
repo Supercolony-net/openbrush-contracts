@@ -26,19 +26,18 @@ use super::{
 };
 use core::marker::PhantomData;
 use ink::storage::traits::{
-    ExtKeyPtr,
-    KeyPtr,
-    PackedLayout,
-    SpreadAllocate,
-    SpreadLayout,
+    Packed,
+    Storable,
+    StorageLayout,
 };
 
 use crate::storage::RefGuard;
-use ink_primitives::Key;
+use ink::primitives::Key;
 
 /// It is a more restricted version of the `Mapping` from ink!. That mapping can be used to unify
 /// the API calls to the `Mapping` to avoid monomorphization to reduce the size of contracts.
 /// It verifies that all calls are done with the same type during compilation.
+#[derive(scale::Encode, scale::Decode)]
 pub struct Mapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
     offset_key: Key,
     _marker: PhantomData<fn() -> (K, V, TGK, TGV)>,
@@ -72,8 +71,8 @@ impl<K, V, TGK, TGV> Mapping<K, V, TGK, TGV> {
 
 impl<K, V, TGK, TGV> Mapping<K, V, TGK, TGV>
 where
-    K: PackedLayout,
-    V: PackedLayout,
+    K: scale::Encode + scale::Decode,
+    V: scale::Encode + scale::Decode,
 {
     /// Insert the given `value` to the contract storage.
     #[inline]
@@ -82,7 +81,7 @@ where
         TGK: TypeGuard<'a>,
         TGV: TypeGuard<'b>,
         TGK::Type: scale::Encode,
-        TGV::Type: PackedLayout,
+        TGV::Type: scale::Encode + scale::Decode,
     {
         RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert(key, value)
     }
@@ -96,7 +95,7 @@ where
     //     TGK: TypeGuard<'a>,
     //     TGV: TypeGuard<'b>,
     //     TGK::Type: scale::Encode,
-    //     TGV::Type: PackedLayout,
+    //     TGV::Type: Packed,
     // {
     //     RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert_return_size(key, value)
     // }
@@ -147,49 +146,16 @@ where
     }
 }
 
-impl<K, V, TGK, TGV> SpreadLayout for Mapping<K, V, TGK, TGV> {
-    const FOOTPRINT: u64 = 1;
-    const REQUIRES_DEEP_CLEAN_UP: bool = false;
-
-    #[inline(always)]
-    fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        // Note: There is no need to pull anything from the storage for the
-        //       mapping type since it initializes itself entirely by the
-        //       given key pointer.
-        Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
-    }
-
-    #[inline(always)]
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        // Note: The mapping type does not store any state in its associated
-        //       storage region, therefore only the pointer has to be incremented.
-        ptr.advance_by(Self::FOOTPRINT);
-    }
-
-    #[inline(always)]
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        // Note: The mapping type is not aware of its elements, therefore
-        //       it is not possible to clean up after itself.
-        ptr.advance_by(Self::FOOTPRINT);
-    }
-}
-
-impl<K, V, TGK, TGV> SpreadAllocate for Mapping<K, V, TGK, TGV> {
-    #[inline(always)]
-    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        // Note: The mapping type initializes itself entirely by the key pointer.
-        Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
-    }
-}
-
 #[cfg(feature = "std")]
 const _: () = {
-    use ink::metadata::layout::{
-        CellLayout,
-        Layout,
-        LayoutKey,
+    use ink::{
+        metadata::layout::{
+            CellLayout,
+            Layout,
+            LayoutKey,
+        },
+        storage::traits::StorageLayout,
     };
-    use ink::storage::traits::StorageLayout;
     use scale_info::{
         build::Fields,
         type_params,

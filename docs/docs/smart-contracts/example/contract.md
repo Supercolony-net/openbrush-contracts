@@ -21,7 +21,7 @@ authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { version = "~3.4.0", default-features = false }
+ink::primitives = { version = "~3.4.0", default-features = false }
 ink::metadata = { version = "~3.4.0", default-features = false, features = ["derive"], optional = true }
 ink::env = { version = "~3.4.0", default-features = false }
 ink::storage = { version = "~3.4.0", default-features = false }
@@ -48,7 +48,7 @@ crate-type = [
 [features]
 default = ["std"]
 std = [
-    "ink_primitives/std",
+    "ink::primitives/std",
     "ink::metadata",
     "ink::metadata/std",
     "ink::env/std",

@@ -37,10 +37,10 @@ jobs:
 
       - name: Build & Run all default unit tests
         run: |
-          RUSTFLAGS="-D warnings" cargo +nightly test --workspace --features test-all -- --test-threads=10
+          RUSTFLAGS="-D warnings" cargo test --workspace --features test-all -- --test-threads=10
       - name: Build & Run pallet unit tests
         run: |
-          RUSTFLAGS="-D warnings" cargo +nightly test --workspace --features psp22_pallet -- --test-threads=10
+          RUSTFLAGS="-D warnings" cargo test --workspace --features psp22_pallet -- --test-threads=10
   examples-builds:
     concurrency:
       group: examples-builds-${{ github.ref }}

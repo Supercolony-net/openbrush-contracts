@@ -39,10 +39,6 @@ use ink::env::{
     Clear,
 };
 use ink::prelude::vec::Vec;
-use ink::storage::traits::{
-    SpreadAllocate,
-    SpreadLayout,
-};
 use openbrush::{
     modifiers,
     storage::Mapping,
@@ -217,7 +213,7 @@ where
     }
 }
 
-pub trait DiamondCut: SpreadLayout + SpreadAllocate {
+pub trait DiamondCut {
     fn on_add_facet(&mut self, code_hash: Hash);
 
     fn on_remove_facet(&mut self, code_hash: Hash);

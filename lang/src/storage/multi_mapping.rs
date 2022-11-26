@@ -26,7 +26,7 @@ use super::{
 };
 use crate::storage::RawMapping;
 use core::marker::PhantomData;
-use ink_primitives::{
+use ink::primitives::{
     Key,
     KeyPtr,
 };
