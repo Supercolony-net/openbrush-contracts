@@ -103,7 +103,7 @@ impl StableCoinContract {
     /// Constructor with name and symbol
     #[ink(constructor)]
     pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut StableCoinContract| {
+        ink::codegen::initialize_contract(|instance: &mut StableCoinContract| {
             instance.metadata.name = name;
             instance.metadata.symbol = symbol;
             instance.metadata.decimals = 18;

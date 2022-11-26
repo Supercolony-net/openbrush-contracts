@@ -53,7 +53,7 @@ Define constructor. Your implementation of `PSP22TokenTimelock` contract is read
 impl Contract {
     #[ink(constructor)]
     pub fn new(token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        ink::codegen::initialize_contract(|instance: &mut Self| {
             assert!(instance._init(token_address, beneficiary, release_time).is_ok());
         })
     }
@@ -84,7 +84,7 @@ pub mod my_psp22_token_timelock {
     impl Contract {
         #[ink(constructor)]
         pub fn new(token_address: AccountId, beneficiary: AccountId, release_time: Timestamp) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 assert!(instance._init(token_address, beneficiary, release_time).is_ok());
             })
         }

@@ -22,7 +22,7 @@ Define constructor where you init admin of the contract.
 impl Contract {
     #[ink(constructor)]
     pub fn new(min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        ink::codegen::initialize_contract(|instance: &mut Self| {
             let caller = instance.env().caller();
             // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
             // You need to call it for each trait separately, to initialize everything for these traits.
@@ -59,7 +59,7 @@ pub mod my_timelock_controller {
     impl Contract {
         #[ink(constructor)]
         pub fn new(min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 let caller = instance.env().caller();
                 // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
                 // You need to call it for each trait separately, to initialize everything for these traits.

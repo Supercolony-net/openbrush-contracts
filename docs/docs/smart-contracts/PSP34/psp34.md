@@ -21,7 +21,7 @@ Define empty constructor.
 impl Contract {
     #[ink(constructor)]
     pub fn new() -> Self {
-        ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+        ink::codegen::initialize_contract(|_instance: &mut Self| {})
     }
 }
 ```
@@ -60,7 +60,7 @@ pub mod my_psp34 {
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_instance: &mut Self| {})
+            ink::codegen::initialize_contract(|_instance: &mut Self| {})
         }
 
         #[ink(message)]

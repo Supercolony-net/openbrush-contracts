@@ -22,12 +22,12 @@ Define constructor where you grant `CALLER` role(or any another role) to the cal
 // But better to use a hash of the variable name.
 // It will generate a unique identifier of this role.
 // And will reduce the chance to have overlapping roles.
-const CALLER: RoleType = ink_lang::selector_id!("CALLER");
+const CALLER: RoleType = ink::selector_id!("CALLER");
 
 impl Contract {
     #[ink(constructor)]
     pub fn new() -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        ink::codegen::initialize_contract(|instance: &mut Self| {
             let caller = instance.env().caller();
             instance._init_with_admin(caller);
             instance.grant_role(CALLER, caller).expect("Should grant CALLER role");
@@ -64,14 +64,14 @@ pub mod my_access_control {
     // But better to use a hash of the variable name.
     // It will generate a unique identifier of this role.
     // And will reduce the chance to have overlapping roles.
-    const CALLER: RoleType = ink_lang::selector_id!("CALLER");
+    const CALLER: RoleType = ink::selector_id!("CALLER");
 
     impl AccessControl for Contract {}
 
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 let caller = instance.env().caller();
                 instance._init_with_admin(caller);
                 instance.grant_role(CALLER, caller).expect("Should grant the role");

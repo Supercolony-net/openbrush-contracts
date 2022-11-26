@@ -22,7 +22,7 @@ and passing code hash of the logic layer.
 impl Contract {
     #[ink(constructor)]
     pub fn new(forward_to: Hash) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        ink::codegen::initialize_contract(|instance: &mut Self| {
             let caller = instance.env().caller();
             instance._init_with_forward_to(forward_to);
             instance._init_with_owner(caller);
@@ -57,7 +57,7 @@ pub mod proxy {
     impl Contract {
         #[ink(constructor)]
         pub fn new(forward_to: Hash) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 let caller = instance.env().caller();
                 instance._init_with_forward_to(forward_to);
                 instance._init_with_owner(caller);

@@ -242,7 +242,7 @@ impl LoanContract {
     /// constructor with name and symbol
     #[ink(constructor, payable)]
     pub fn new() -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut LoanContract| {
+        ink::codegen::initialize_contract(|instance: &mut LoanContract| {
             instance.last_loan_id = Id::U128(1);
             instance._set_attribute(
                 Id::U8(1u8),

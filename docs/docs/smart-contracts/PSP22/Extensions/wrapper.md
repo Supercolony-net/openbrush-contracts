@@ -59,7 +59,7 @@ Define constructor where you init address of wrapper fungible token(PSP22).
 impl Contract {
    #[ink(constructor)]
    pub fn new(token_address: AccountId) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        ink::codegen::initialize_contract(|instance: &mut Self| {
             instance._init(token_address);
         })
     }
@@ -95,7 +95,7 @@ pub mod my_psp22_wrapper {
     impl Contract {
         #[ink(constructor)]
         pub fn new(token_address: AccountId) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+            ink::codegen::initialize_contract(|instance: &mut Self| {
                 instance._init(token_address);
             })
         }

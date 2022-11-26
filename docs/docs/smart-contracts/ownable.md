@@ -21,7 +21,7 @@ Define the constructor and initialize the owner with the contract initiator.
 impl Contract {
     #[ink(constructor)]
     pub fn new() -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        ink::codegen::initialize_contract(|instance: &mut Self| {
             let caller = instance.env().caller();
             instance._init_with_owner(caller);
         })
@@ -59,7 +59,7 @@ pub mod my_ownable {
    impl Contract {
       #[ink(constructor)]
       pub fn new() -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        ink::codegen::initialize_contract(|instance: &mut Self| {
             let caller = instance.env().caller();
             instance._init_with_owner(caller);
         })

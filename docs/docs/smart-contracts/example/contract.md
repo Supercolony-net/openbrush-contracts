@@ -25,7 +25,7 @@ ink::primitives = { version = "~3.4.0", default-features = false }
 ink::metadata = { version = "~3.4.0", default-features = false, features = ["derive"], optional = true }
 ink::env = { version = "~3.4.0", default-features = false }
 ink::storage = { version = "~3.4.0", default-features = false }
-ink_lang = { version = "~3.4.0", default-features = false }
+ink = { version = "~3.4.0", default-features = false }
 ink::prelude = { version = "~3.4.0", default-features = false }
 ink_engine = { version = "~3.4.0", default-features = false, optional = true }
 
@@ -53,7 +53,7 @@ std = [
     "ink::metadata/std",
     "ink::env/std",
     "ink::storage/std",
-    "ink_lang/std",
+    "ink/std",
     "scale/std",
     "scale-info",
     "scale-info/std",
@@ -138,7 +138,7 @@ impl LendingContract {
     /// constructor with name and symbol
     #[ink(constructor, payable)]
     pub fn new(shares_hash: Hash, loan_hash: Hash) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut LendingContract| {
+        ink::codegen::initialize_contract(|instance: &mut LendingContract| {
             let caller = instance.env().caller();
             instance._init_with_admin(caller);
             instance.grant_role(MANAGER, caller).expect("Can not set manager role");

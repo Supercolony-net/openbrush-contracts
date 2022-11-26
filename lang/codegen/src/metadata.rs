@@ -106,7 +106,7 @@ impl Drop for LockedTrait {
 }
 
 /// Function returns exclusively locked file for metadata.
-/// It stores file in the target folder where `ink_lang` is stored.
+/// It stores file in the target folder where `ink` is stored.
 fn get_locked_file(name: String) -> File {
     use crate::internal::INK_PREFIX;
     const SUFFIX: &str = "target";

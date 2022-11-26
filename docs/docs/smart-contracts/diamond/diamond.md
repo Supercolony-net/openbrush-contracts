@@ -21,7 +21,7 @@ Define the constructor and initialize the owner with the contract initiator.
 impl Contract {
     #[ink(constructor)]
     pub fn new(owner: AccountId, diamond_hash: Hash) -> Self {
-        ink_lang::codegen::initialize_contract(|instance: &mut Self| {
+        ink::codegen::initialize_contract(|instance: &mut Self| {
             instance._init_with_owner(owner);
             instance.diamond.self_hash = diamond_hash;
         })

@@ -67,7 +67,7 @@ pub mod my_psp22_pallet {
         #[ink(constructor)]
         #[ink(payable)]
         pub fn new(asset_id: u32, min_balance: Balance, total_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut Contract| {
+            ink::codegen::initialize_contract(|instance: &mut Contract| {
                 // The contract is admin of the asset
                 instance
                     ._create(asset_id, Self::env().account_id(), min_balance)

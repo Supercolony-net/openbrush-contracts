@@ -362,7 +362,7 @@ use openbrush::{
     },
 };
 
-pub const MANAGER: RoleType = ink_lang::selector_id!("MANAGER");
+pub const MANAGER: RoleType = ink::selector_id!("MANAGER");
 
 impl<T, M> LendingPermissioned for T
 where

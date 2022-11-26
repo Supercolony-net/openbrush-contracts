@@ -308,7 +308,7 @@ pub(crate) fn new_attribute(attr_stream: TokenStream) -> syn::Attribute {
     syn::parse2::<Attributes>(attr_stream).unwrap().attr()[0].clone()
 }
 
-pub(crate) const INK_PREFIX: &str = "ink_lang=";
+pub(crate) const INK_PREFIX: &str = "ink=";
 
 #[inline]
 pub(crate) fn skip() -> bool {

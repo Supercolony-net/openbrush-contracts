@@ -65,7 +65,7 @@ fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Ite
         quote! {
             ::ink::metadata::layout::FieldLayout::new(
                 #ident,
-                <#ty as ::ink_storage::traits::StorageLayout>::layout(__key),
+                <#ty as ::ink::storage::traits::StorageLayout>::layout(__key),
             )
         }
     })
@@ -79,7 +79,7 @@ fn storage_layout_struct(storage_key: &TokenStream, s: &synstructure::Structure)
     let field_layouts = field_layout(variant);
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::StorageLayout for @Self {
-            fn layout(__key: &::ink::primitives::Key) -> ::ink_metadata::layout::Layout {
+            fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
                 let __key = &mut ::ink::primitives::Key::from(#storage_key)
                 ::ink::metadata::layout::Layout::Struct(
                     ::ink::metadata::layout::StructLayout::new(
@@ -118,7 +118,7 @@ fn storage_layout_enum(storage_key: &TokenStream, s: &synstructure::Structure) -
             {
                 (
                     ::ink::metadata::layout::Discriminant::from(#discriminant),
-                    ::ink_metadata::layout::StructLayout::new(
+                    ::ink::metadata::layout::StructLayout::new(
                         ::core::stringify!(#variant_ident),
                         [
                             #(#field_layouts ,)*
@@ -136,7 +136,7 @@ fn storage_layout_enum(storage_key: &TokenStream, s: &synstructure::Structure) -
                 ::ink::metadata::layout::Layout::Enum(
                     ::ink::metadata::layout::EnumLayout::new(
                         ::core::stringify!(#enum_ident),
-                        ::ink_metadata::layout::LayoutKey::from(__key),
+                        ::ink::metadata::layout::LayoutKey::from(__key),
                         [
                             #(#variant_layouts ,)*
                         ]
