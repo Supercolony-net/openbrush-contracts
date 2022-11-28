@@ -29,10 +29,6 @@ use ink::{
     storage::traits::Packed,
 };
 pub use openbrush_lang_macro::Storage;
-use scale::{
-    WrapperTypeDecode,
-    WrapperTypeEncode,
-};
 
 /// Aliases for types of the default environment
 pub type AccountId = <DefaultEnvironment as Environment>::AccountId;
@@ -135,7 +131,7 @@ impl AccountIdExt for AccountId {
 }
 
 /// This trait is automatically implemented for storage structs.
-pub trait Flush: WrapperTypeEncode + WrapperTypeDecode + Packed + Sized {
+pub trait Flush: Packed + Sized {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate a key of each field.
     /// So if you want to flush the correct state of the contract,
@@ -159,4 +155,4 @@ pub trait Flush: WrapperTypeEncode + WrapperTypeDecode + Packed + Sized {
     }
 }
 
-impl<T: WrapperTypeEncode + WrapperTypeDecode + Packed + Sized> Flush for T {}
+impl<T: Packed + Sized> Flush for T {}

@@ -36,7 +36,7 @@ use openbrush::{
 
 pub const BALANCES_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
-pub trait BalancesManager{
+pub trait BalancesManager {
     fn balance_of(&self, owner: &AccountId, id: &Option<&Id>) -> Balance;
     fn total_supply(&self, id: &Option<&Id>) -> Balance;
     fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP37Error>;

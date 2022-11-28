@@ -56,8 +56,8 @@ fn storage_layout_struct(storage_key: &TokenStream, s: &synstructure::Structure)
     let field_layouts = field_layout(variant);
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::StorageLayout for @Self {
-            fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
-                let __key = &mut ::ink::primitives::Key::from(#storage_key)
+            fn layout(_: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                let __key = &mut ::ink::primitives::Key::from(#storage_key);
                 ::ink::metadata::layout::Layout::Struct(
                     ::ink::metadata::layout::StructLayout::new(
                         ::core::stringify!(#struct_ident),
@@ -108,8 +108,8 @@ fn storage_layout_enum(storage_key: &TokenStream, s: &synstructure::Structure) -
     let enum_ident = s.ast().ident.clone();
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::StorageLayout for @Self {
-            fn layout(_: &mut ::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
-                let __key = &mut ::ink::primitives::Key::from(#storage_key)
+            fn layout(_: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                let __key = &mut ::ink::primitives::Key::from(#storage_key);
                 ::ink::metadata::layout::Layout::Enum(
                     ::ink::metadata::layout::EnumLayout::new(
                         ::core::stringify!(#enum_ident),

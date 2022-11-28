@@ -60,6 +60,7 @@ impl<K, V, TGK, TGV> core::fmt::Debug for Mapping<K, V, TGK, TGV> {
 
 impl<K, V, TGK, TGV> Mapping<K, V, TGK, TGV> {
     /// Creates a new empty `Mapping`.
+    #[allow(dead_code)]
     fn new(offset_key: Key) -> Self {
         Self {
             offset_key,

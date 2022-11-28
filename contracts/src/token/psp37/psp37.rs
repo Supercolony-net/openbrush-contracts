@@ -30,13 +30,15 @@ pub use psp37::{
 };
 
 use core::result::Result;
-use ink::env::{
-    CallFlags,
-    Error as EnvError,
-};
-use ink::prelude::{
-    vec,
-    vec::Vec,
+use ink::{
+    env::{
+        CallFlags,
+        Error as EnvError,
+    },
+    prelude::{
+        vec,
+        vec::Vec,
+    },
 };
 use openbrush::{
     storage::{

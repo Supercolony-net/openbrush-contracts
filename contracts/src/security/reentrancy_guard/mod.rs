@@ -23,8 +23,6 @@ pub use crate::{
     reentrancy_guard,
     traits::errors::ReentrancyGuardError,
 };
-
-use ink::storage::traits::push_spread_root;
 use openbrush::{
     modifier_definition,
     traits::Storage,
@@ -65,7 +63,7 @@ where
 
     // We want to flush storage before execution of inner function,
     // because ink! doesn't do it by default and `status` will not be updated in child calls
-    push_spread_root(instance.data(), &Default::default());
+    ink::env::set_contract_storage(Default::default(), &instance.data());
 
     let result = body(instance);
     instance.data().status = NOT_ENTERED;

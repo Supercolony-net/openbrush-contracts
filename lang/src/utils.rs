@@ -20,43 +20,18 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use const_format;
-pub use sha2_const;
+pub use xxhash_rust;
 
-use sha2_const::Sha256;
+use xxhash_rust::const_xxh32::xxh32;
+
+/// The value 0 is a valid seed.
+const XXH32_SEED: u32 = 0;
 
 pub struct ConstHasher;
 
 impl ConstHasher {
-    pub const fn u8(str: &str) -> u8 {
-        let hash = Sha256::new().update(str.as_bytes()).finalize();
-        hash[0]
-    }
-
-    pub const fn u16(str: &str) -> u16 {
-        let hash = Sha256::new().update(str.as_bytes()).finalize();
-        u16::from_le_bytes([hash[0], hash[1]])
-    }
-
-    pub const fn u32(str: &str) -> u32 {
-        let hash = Sha256::new().update(str.as_bytes()).finalize();
-        u32::from_le_bytes([hash[0], hash[1], hash[2], hash[3]])
-    }
-
-    pub const fn u64(str: &str) -> u64 {
-        let hash = Sha256::new().update(str.as_bytes()).finalize();
-        u64::from_le_bytes([hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7]])
-    }
-
-    pub const fn u128(str: &str) -> u128 {
-        let hash = Sha256::new().update(str.as_bytes()).finalize();
-        u128::from_le_bytes([
-            hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7], hash[8], hash[9], hash[10],
-            hash[11], hash[12], hash[13], hash[14], hash[15],
-        ])
-    }
-
-    pub const fn hash(str: &str) -> [u8; 32] {
-        Sha256::new().update(str.as_bytes()).finalize()
+    pub const fn hash(str: &str) -> u32 {
+        xxh32(str.as_bytes(), XXH32_SEED)
     }
 }
 

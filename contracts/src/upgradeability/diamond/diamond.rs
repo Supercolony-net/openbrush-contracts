@@ -30,15 +30,15 @@ pub use crate::{
 pub use diamond::Internal as _;
 pub use ownable::Internal as _;
 
-use ink::env::{
-    call::{
+use ink::{
+    env::call::{
         DelegateCall,
         ExecutionInput,
         Selector as InkSelector,
     },
-    Clear,
+    prelude::vec::Vec,
+    primitives::Clear,
 };
-use ink::prelude::vec::Vec;
 use openbrush::{
     modifiers,
     storage::Mapping,

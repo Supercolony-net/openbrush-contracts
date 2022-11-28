@@ -20,7 +20,7 @@ ink = { version = "~4.0.0-beta", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"] }
 
-sha2-const = "0.1.2"
+xxhash-rust = { version = "0.8", features = ["const_xxh32"] }
 const_format = "0.2.21"
 
 [lib]

@@ -24,7 +24,7 @@
 #[macro_export]
 macro_rules! storage_unique_key {
     ($struct:ident) => {
-        $crate::utils::ConstHasher::u32($crate::utils::const_format::concatcp!(
+        $crate::utils::ConstHasher::hash($crate::utils::const_format::concatcp!(
             ::core::module_path!(),
             "::",
             ::core::stringify!($struct)
@@ -59,9 +59,9 @@ fn correct_storage_key() {
         }
     }
 
-    let expected_hash_psp22 = ConstHasher::u32("openbrush_lang::macros::contracts::psp22::Data");
+    let expected_hash_psp22 = ConstHasher::hash("openbrush_lang::macros::contracts::psp22::Data");
     assert_eq!(expected_hash_psp22, <contracts::psp22::Data as OccupyStorage>::KEY);
 
-    let expected_hash_psp34 = ConstHasher::u32("openbrush_lang::macros::contracts::psp34::Data");
+    let expected_hash_psp34 = ConstHasher::hash("openbrush_lang::macros::contracts::psp34::Data");
     assert_eq!(expected_hash_psp34, <contracts::psp34::Data as OccupyStorage>::KEY);
 }

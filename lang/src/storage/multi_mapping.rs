@@ -45,6 +45,7 @@ type ValueToIndex<'a, TGK, TGV> = &'a (<TGK as TypeGuard<'a>>::Type, &'a <TGV as
 type IndexToValue<'a, TGK> = &'a (<TGK as TypeGuard<'a>>::Type, &'a u128);
 
 impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV> {
+    #[allow(dead_code)]
     fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
