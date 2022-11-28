@@ -62,7 +62,7 @@ where
     /// Insert the given `value` to the contract storage.
     #[inline(always)]
     pub fn insert(&mut self, key: K, value: &V) {
-        ink::env::set_contract_storage(&(KeyType::KEY, key), value);
+        ink::env::set_contract_storage(&self.storage_key(key), value);
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -70,7 +70,7 @@ where
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
     pub fn get(&self, key: K) -> Option<V> {
-        ink::env::get_contract_storage(&(&KeyType::KEY, key))
+        ink::env::get_contract_storage(&self.storage_key(key))
             .unwrap_or_else(|error| panic!("Failed to get value in RawMapping: {:?}", error))
     }
 
@@ -79,7 +79,7 @@ where
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
     pub fn size(&self, key: K) -> Option<u32> {
-        ink::env::contains_contract_storage(&(&KeyType::KEY, key))
+        ink::env::contains_contract_storage(&self.storage_key(key))
     }
 
     /// Checks if a value is stored at the given `key` in the contract storage.
@@ -87,7 +87,7 @@ where
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
     pub fn contains(&self, key: K) -> bool {
-        ink::env::contains_contract_storage(&(&KeyType::KEY, key)).is_some()
+        ink::env::contains_contract_storage(&self.storage_key(key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
@@ -96,7 +96,7 @@ where
     where
         K: scale::Encode,
     {
-        ink::env::clear_contract_storage(&(&KeyType::KEY, key));
+        ink::env::clear_contract_storage(&self.storage_key(key));
     }
 
     /// Returns a `Key` pointer used internally by the storage API.
