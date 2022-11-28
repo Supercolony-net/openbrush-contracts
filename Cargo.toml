@@ -31,8 +31,8 @@ ink = { version = "~4.0.0-beta", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-openbrush_contracts = { version = "~2.3.0", path = "contracts", default-features = false }
-openbrush_lang = { version = "~2.3.0", path = "lang", default-features = false }
+openbrush_contracts = { version = "~2.4.0", path = "contracts", default-features = false }
+openbrush_lang = { version = "~2.4.0", path = "lang", default-features = false }
 
 [lib]
 name = "openbrush"

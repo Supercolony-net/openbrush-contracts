@@ -20,16 +20,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use ink::prelude::vec::Vec;
-use ink::primitives::Key;
 
 #[cfg(feature = "std")]
 use ink::storage::traits::StorageLayout;
-
-use ink::storage::traits::{
-    ExtKeyPtr,
-    KeyPtr,
-    PackedAllocate,
-};
 
 /// `Id` represents the identifier of the NFT. `Id::U8(1)` and `Id::U16(1)` are two different identifiers.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, scale::Encode, scale::Decode)]

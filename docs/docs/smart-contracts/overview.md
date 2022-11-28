@@ -24,7 +24,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-openbrush = { version = "~2.3.0", default-features = false }
+openbrush = { version = "~2.4.0", default-features = false }
 
 [features]
 default = ["std"]
@@ -83,17 +83,17 @@ The name of the feature is the same as the name of the module. For example:
 
 To enable `psp22`:
 ```toml
-openbrush = { version = "~2.3.0", default-features = false, features = ["psp22"] }
+openbrush = { version = "~2.4.0", default-features = false, features = ["psp22"] }
 ```
 
 To enable `ownable`:
 ```toml
-openbrush = { version = "~2.3.0", default-features = false, features = ["ownable"] }
+openbrush = { version = "~2.4.0", default-features = false, features = ["ownable"] }
 ```
 
 To enable both:
 ```toml
-openbrush = { version = "~2.3.0", default-features = false, features = ["psp22", "ownable"] }
+openbrush = { version = "~2.4.0", default-features = false, features = ["psp22", "ownable"] }
 ```
 
 After enabling the feature and importing the corresponding module, you need to embed the module 

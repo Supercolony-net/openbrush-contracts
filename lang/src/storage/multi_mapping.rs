@@ -26,9 +26,10 @@ use super::{
 };
 use crate::storage::RawMapping;
 use core::marker::PhantomData;
-use ink::primitives::{
-    Key,
-    KeyPtr,
+use ink::{
+    metadata::layout::RootLayout,
+    primitives::Key,
+    storage::traits::Packed,
 };
 
 // TODO: More doc
@@ -100,8 +101,8 @@ impl<K, V, TGK, TGV> core::fmt::Debug for MultiMapping<K, V, TGK, TGV> {
 
 impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV>
 where
-    K: PackedLayout,
-    V: PackedLayout,
+    K: Packed,
+    V: Packed,
 {
     /// Insert the given `value` to the contract storage at `key`.
     pub fn insert<'b>(&'b mut self, key: <TGK as TypeGuard<'b>>::Type, value: &<TGV as TypeGuard<'b>>::Type)
@@ -109,7 +110,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
-        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed,
     {
         let index: u128 = match self.get_index(key, value) {
             None => {
@@ -123,33 +124,6 @@ where
         let size = self.index_to_value().insert(&(key, &index), value);
         size
     }
-
-    // /// Insert the given `value` to the contract storage at `key`.
-    // ///
-    // /// Returns the size of the pre-existing value at the specified key if any.
-    // pub fn insert_return_size<'b>(
-    //     &'b mut self,
-    //     key: <TGK as TypeGuard<'b>>::Type,
-    //     value: &<TGV as TypeGuard<'b>>::Type,
-    // ) -> Option<u32>
-    // where
-    //     for<'a> TGK: TypeGuard<'a>,
-    //     for<'a> TGV: TypeGuard<'a>,
-    //     for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
-    //     for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
-    // {
-    //     let index: u128 = match self.get_index(key, value) {
-    //         None => {
-    //             let count = self.count(key);
-    //             self.key_count().insert(key, &(count + 1));
-    //             count
-    //         }
-    //         Some(index) => index,
-    //     };
-    //     self.value_to_index().insert_return_size(&(key, value), &index);
-    //     let size = self.index_to_value().insert_return_size(&(key, &index), value);
-    //     size
-    // }
 
     /// Returns the count of values stored under the `key`.
     #[inline]
@@ -183,7 +157,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
-        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed,
     {
         RawMapping::<ValueToIndex<TGK, TGV>, u128, _>::new((&self.offset_key, &1)).get(&(key, value))
     }
@@ -201,7 +175,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
-        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed,
     {
         if let Some(index) = self.get_index(key, value) {
             self.index_to_value().size(&(key, &index))
@@ -219,6 +193,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed,
     {
         self.index_to_value().size(&(key, index))
     }
@@ -240,7 +215,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode,
-        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed,
     {
         self.value_to_index().contains(&(key, value))
     }
@@ -252,6 +227,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed,
     {
         self.index_to_value().contains(&(key, index))
     }
@@ -262,7 +238,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
-        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout + From<V>,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed + From<V>,
     {
         let op_index = self.get_index(key, value);
 
@@ -282,7 +258,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
-        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout + From<V>,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed + From<V>,
     {
         let op_value = self.get_value(key, index);
 
@@ -304,7 +280,7 @@ where
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
-        for<'a> <TGV as TypeGuard<'a>>::Type: PackedLayout + From<V>,
+        for<'a> <TGV as TypeGuard<'a>>::Type: Packed + From<V>,
     {
         let last_index = &(self.count(key) - 1);
 
@@ -327,7 +303,6 @@ where
 const _: () = {
     use ink::{
         metadata::layout::{
-            CellLayout,
             Layout,
             LayoutKey,
         },
@@ -361,12 +336,12 @@ const _: () = {
     impl<K, V, TGK, TGV> StorageLayout for MultiMapping<K, V, TGK, TGV>
     where
         K: scale_info::TypeInfo + 'static,
-        V: scale_info::TypeInfo + 'static,
+        V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
         TGK: 'static,
         TGV: 'static,
     {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+        fn layout(key: &Key) -> Layout {
+            Layout::Root(RootLayout::new(LayoutKey::from(key), <V as StorageLayout>::layout(key)))
         }
     }
 };

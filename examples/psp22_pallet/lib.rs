@@ -3,7 +3,6 @@
 
 #[openbrush::contract]
 pub mod my_psp22_pallet {
-    use ink::storage::traits::SpreadAllocate;
     use openbrush::{
         contracts::psp22_pallet::*,
         traits::Storage,

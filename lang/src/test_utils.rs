@@ -19,14 +19,10 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use ink::env::{
-    hash::{
-        Blake2x256,
-        CryptoHash,
-        HashOutput,
-    },
-    Clear,
-    Hash,
+use ink::env::hash::{
+    Blake2x256,
+    CryptoHash,
+    HashOutput,
 };
 
 #[cfg(feature = "std")]
@@ -34,6 +30,10 @@ use ink::env::{
     test::DefaultAccounts,
     DefaultEnvironment,
     Environment,
+};
+use ink::primitives::{
+    Clear,
+    Hash,
 };
 
 pub fn encoded_into_hash<T>(entity: &T) -> Hash

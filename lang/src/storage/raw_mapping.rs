@@ -29,11 +29,11 @@ use ink::{
     storage::traits::{
         AutoKey,
         Packed,
-        Storable,
         StorageKey,
     },
 };
 
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct RawMapping<K, V, T, KeyType: StorageKey = AutoKey> {
     prefix: T,
     _marker: PhantomData<fn() -> (K, V, KeyType)>,
@@ -54,40 +54,22 @@ impl<K, V, T> RawMapping<K, V, T> {
 
 impl<K, V, T, KeyType> RawMapping<K, V, T, KeyType>
 where
-    T: scale::Encode + Copy,
     K: scale::Encode,
     V: Packed,
+    T: scale::Encode + Copy,
+    KeyType: StorageKey,
 {
     /// Insert the given `value` to the contract storage.
     #[inline(always)]
-    pub fn insert<Q, R>(&self, key: Q, value: &R)
-    where
-        Q: scale::EncodeLike<K>,
-        R: Storable + scale::EncodeLike<V>,
-    {
+    pub fn insert(&mut self, key: K, value: &V) {
         ink::env::set_contract_storage(&(KeyType::KEY, key), value);
     }
-
-    // /// Insert the given `value` to the contract storage.
-    // ///
-    // /// Returns the size of the pre-existing value at the specified key if any.
-    // #[inline(always)]
-    // pub fn insert_return_size(&self, key: K, value: &V) -> Option<u32>
-    // where
-    //     K: scale::Encode,
-    //     V: PackedLayout,
-    // {
-    //     push_packed_root(value, &self.storage_key(key))
-    // }
 
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
-    pub fn get<Q>(&self, key: Q) -> Option<V>
-    where
-        Q: scale::EncodeLike<K>,
-    {
+    pub fn get(&self, key: K) -> Option<V> {
         ink::env::get_contract_storage(&(&KeyType::KEY, key))
             .unwrap_or_else(|error| panic!("Failed to get value in RawMapping: {:?}", error))
     }
@@ -96,10 +78,7 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
-    pub fn size<Q>(&self, key: Q) -> Option<u32>
-    where
-        Q: scale::EncodeLike<K>,
-    {
+    pub fn size(&self, key: K) -> Option<u32> {
         ink::env::contains_contract_storage(&(&KeyType::KEY, key))
     }
 
@@ -107,18 +86,15 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
-    pub fn contains<Q>(&self, key: Q) -> bool
-    where
-        Q: scale::EncodeLike<K>,
-    {
+    pub fn contains(&self, key: K) -> bool {
         ink::env::contains_contract_storage(&(&KeyType::KEY, key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
     #[inline(always)]
-    pub fn remove<Q>(&self, key: Q)
+    pub fn remove(&self, key: K)
     where
-        Q: scale::EncodeLike<K>,
+        K: scale::Encode,
     {
         ink::env::clear_contract_storage(&(&KeyType::KEY, key));
     }
@@ -132,8 +108,8 @@ where
     where
         K: scale::Encode,
     {
-        let encodedable_key = (self.prefix, key);
-        Self::storage_key_inline(&encodedable_key)
+        let encodable_key = (self.prefix, key);
+        Self::storage_key_inline(&encodable_key)
     }
 
     #[inline(never)]
@@ -143,6 +119,6 @@ where
     {
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         ink::env::hash_encoded::<Blake2x256, _>(key, &mut output);
-        output.into()
+        output.key()
     }
 }

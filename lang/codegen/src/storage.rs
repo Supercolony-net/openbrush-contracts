@@ -26,31 +26,8 @@ use quote::{
 };
 use syn::spanned::Spanned;
 
-/// Generates the tokens to compute the maximum of the numbers given via
-/// their token streams at compilation time.
-///
-/// # Note
-///
-/// Since Rust currently does not allow conditionals in const contexts
-/// we use the array indexing trick to compute the maximum element:
-///
-/// ```no_compile
-/// max(a, b) = [a, b][(a < b) as usize]
-/// ```
-fn max_n(args: &[TokenStream]) -> TokenStream {
-    match args.split_first() {
-        Some((head, rest)) => {
-            let rest = max_n(rest);
-            quote! {
-                [#head, #rest][(#head < #rest) as ::core::primitive::usize]
-            }
-        }
-        None => quote! { 0u64 },
-    }
-}
-
 fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Item = TokenStream> + 'a {
-    variant.ast().fields.iter().enumerate().map(|i, field| {
+    variant.ast().fields.iter().enumerate().map(|(i, field)| {
         let ident = match field.ident.as_ref() {
             Some(ident) => {
                 let ident_str = ident.to_string();

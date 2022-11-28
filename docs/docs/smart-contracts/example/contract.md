@@ -29,7 +29,7 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
 loan_contract = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
 lending_project = { path = "../..", default-features = false }
-openbrush = { version = "~2.3.0", default-features = false, features = ["pausable", "access_control"] }
+openbrush = { version = "~2.4.0", default-features = false, features = ["pausable", "access_control"] }
 
 [lib]
 name = "lending_contract"

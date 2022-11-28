@@ -14,7 +14,7 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
-openbrush_lang_macro = { version = "~2.3.0", path = "macro", default-features = false }
+openbrush_lang_macro = { version = "~2.4.0", path = "macro", default-features = false }
 
 ink = { version = "~4.0.0-beta", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }

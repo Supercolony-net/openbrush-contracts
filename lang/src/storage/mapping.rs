@@ -25,17 +25,13 @@ use super::{
     ValueGuard,
 };
 use core::marker::PhantomData;
-use ink::{
-    metadata::layout::RootLayout,
-    storage::traits::{
-        Packed,
-        Storable,
-        StorageLayout,
-    },
-};
+use ink::metadata::layout::RootLayout;
 
 use crate::storage::RefGuard;
-use ink::primitives::Key;
+use ink::{
+    primitives::Key,
+    storage::traits::Packed,
+};
 
 /// It is a more restricted version of the `Mapping` from ink!. That mapping can be used to unify
 /// the API calls to the `Mapping` to avoid monomorphization to reduce the size of contracts.
@@ -74,8 +70,8 @@ impl<K, V, TGK, TGV> Mapping<K, V, TGK, TGV> {
 
 impl<K, V, TGK, TGV> Mapping<K, V, TGK, TGV>
 where
-    K: scale::Encode + scale::Decode,
-    V: scale::Encode + scale::Decode,
+    K: Packed,
+    V: Packed,
 {
     /// Insert the given `value` to the contract storage.
     #[inline]
@@ -84,24 +80,10 @@ where
         TGK: TypeGuard<'a>,
         TGV: TypeGuard<'b>,
         TGK::Type: scale::Encode,
-        TGV::Type: scale::Encode + scale::Decode,
+        TGV::Type: Packed,
     {
         RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert(key, value)
     }
-
-    // /// Insert the given `value` to the contract storage.
-    // ///
-    // /// Returns the size of the pre-existing value at the specified key if any.
-    // #[inline]
-    // pub fn insert_return_size<'a, 'b>(&mut self, key: TGK::Type, value: &TGV::Type) -> Option<u32>
-    // where
-    //     TGK: TypeGuard<'a>,
-    //     TGV: TypeGuard<'b>,
-    //     TGK::Type: scale::Encode,
-    //     TGV::Type: Packed,
-    // {
-    //     RawMapping::<TGK::Type, TGV::Type, &Key>::new(&self.offset_key).insert_return_size(key, value)
-    // }
 
     /// Get the `value` at `key` from the contract storage.
     ///
@@ -153,7 +135,6 @@ where
 const _: () = {
     use ink::{
         metadata::layout::{
-            CellLayout,
             Layout,
             LayoutKey,
         },
@@ -187,15 +168,12 @@ const _: () = {
     impl<K, V, TGK, TGV> StorageLayout for Mapping<K, V, TGK, TGV>
     where
         K: scale_info::TypeInfo + 'static,
-        V: scale_info::TypeInfo + 'static,
+        V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
         TGK: 'static,
         TGV: 'static,
     {
-        fn layout(key: &mut Key) -> Layout {
-            Layout::Root(RootLayout::new(
-                LayoutKey::from(&KeyType::KEY),
-                <V as StorageLayout>::layout(&KeyType::KEY),
-            ))
+        fn layout(key: &Key) -> Layout {
+            Layout::Root(RootLayout::new(LayoutKey::from(key), <V as StorageLayout>::layout(key)))
         }
     }
 };
