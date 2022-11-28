@@ -25,10 +25,13 @@ use super::{
     ValueGuard,
 };
 use core::marker::PhantomData;
-use ink::storage::traits::{
-    Packed,
-    Storable,
-    StorageLayout,
+use ink::{
+    metadata::layout::RootLayout,
+    storage::traits::{
+        Packed,
+        Storable,
+        StorageLayout,
+    },
 };
 
 use crate::storage::RefGuard;
@@ -188,8 +191,11 @@ const _: () = {
         TGK: 'static,
         TGV: 'static,
     {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+        fn layout(key: &mut Key) -> Layout {
+            Layout::Root(RootLayout::new(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
         }
     }
 };

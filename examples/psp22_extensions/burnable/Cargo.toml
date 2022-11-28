@@ -1,6 +1,6 @@
 [package]
 name = "my_psp22_burnable"
-version = "2.3.0"
+version = "2.4.0"
 authors = ["Supercolony <m.konstantinovna@supercolony.net>"]
 edition = "2021"
 

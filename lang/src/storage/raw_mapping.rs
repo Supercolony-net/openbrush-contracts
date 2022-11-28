@@ -20,21 +20,23 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::marker::PhantomData;
-use ink::storage::traits::{
-    push_packed_root,
-    PackedLayout,
-    SpreadLayout,
+use ink::{
+    env::hash::{
+        Blake2x256,
+        HashOutput,
+    },
+    primitives::Key,
+    storage::traits::{
+        AutoKey,
+        Packed,
+        Storable,
+        StorageKey,
+    },
 };
 
-use ink::env::hash::{
-    Blake2x256,
-    HashOutput,
-};
-use ink::primitives::Key;
-
-pub struct RawMapping<K, V, T = Key> {
+pub struct RawMapping<K, V, T, KeyType: StorageKey = AutoKey> {
     prefix: T,
-    _marker: PhantomData<fn() -> (K, V)>,
+    _marker: PhantomData<fn() -> (K, V, KeyType)>,
 }
 
 /// It is the implementation of `Mapping` functionality without storing it as a storage field.
@@ -50,18 +52,20 @@ impl<K, V, T> RawMapping<K, V, T> {
     }
 }
 
-impl<K, V, T> RawMapping<K, V, T>
+impl<K, V, T, KeyType> RawMapping<K, V, T, KeyType>
 where
     T: scale::Encode + Copy,
+    K: scale::Encode,
+    V: Packed,
 {
     /// Insert the given `value` to the contract storage.
     #[inline(always)]
-    pub fn insert(&self, key: K, value: &V)
+    pub fn insert<Q, R>(&self, key: Q, value: &R)
     where
-        K: scale::Encode,
-        V: PackedLayout,
+        Q: scale::EncodeLike<K>,
+        R: Storable + scale::EncodeLike<V>,
     {
-        push_packed_root(value, &self.storage_key(key))
+        ink::env::set_contract_storage(&(KeyType::KEY, key), value);
     }
 
     // /// Insert the given `value` to the contract storage.
@@ -80,52 +84,43 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
-    pub fn get(&self, key: K) -> Option<V>
+    pub fn get<Q>(&self, key: Q) -> Option<V>
     where
-        K: scale::Encode,
-        V: PackedLayout,
+        Q: scale::EncodeLike<K>,
     {
-        self.get_contract_storage(&self.storage_key(key))
+        ink::env::get_contract_storage(&(&KeyType::KEY, key))
+            .unwrap_or_else(|error| panic!("Failed to get value in RawMapping: {:?}", error))
     }
 
     /// Get the size of a value stored at `key` in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
-    pub fn size(&self, key: K) -> Option<u32>
+    pub fn size<Q>(&self, key: Q) -> Option<u32>
     where
-        K: scale::Encode,
+        Q: scale::EncodeLike<K>,
     {
-        ink::env::contract_storage_contains(&self.storage_key(key))
+        ink::env::contains_contract_storage(&(&KeyType::KEY, key))
     }
 
     /// Checks if a value is stored at the given `key` in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline(always)]
-    pub fn contains(&self, key: K) -> bool
+    pub fn contains<Q>(&self, key: Q) -> bool
     where
-        K: scale::Encode,
+        Q: scale::EncodeLike<K>,
     {
-        ink::env::contract_storage_contains(&self.storage_key(key)).is_some()
+        ink::env::contains_contract_storage(&(&KeyType::KEY, key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
     #[inline(always)]
-    pub fn remove(&self, key: K)
+    pub fn remove<Q>(&self, key: Q)
     where
-        K: scale::Encode,
-        V: PackedLayout,
+        Q: scale::EncodeLike<K>,
     {
-        let storage_key = self.storage_key(key);
-        if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
-            // There are types which need to perform some action before being cleared. Here we
-            // indicate to those types that they should start tidying up.
-            if let Some(value) = self.get_contract_storage(&storage_key) {
-                <V as PackedLayout>::clear_packed(&value, &storage_key);
-            }
-        }
-        ink::env::clear_contract_storage(&storage_key);
+        ink::env::clear_contract_storage(&(&KeyType::KEY, key));
     }
 
     /// Returns a `Key` pointer used internally by the storage API.
@@ -149,20 +144,5 @@ where
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         ink::env::hash_encoded::<Blake2x256, _>(key, &mut output);
         output.into()
-    }
-
-    fn get_contract_storage(&self, key: &Key) -> Option<V>
-    where
-        K: scale::Encode,
-        V: PackedLayout,
-    {
-        ink::env::get_contract_storage::<V>(key)
-            .unwrap_or_else(|error| panic!("failed to pull packed from root key {}: {:?}", key, error))
-            .map(|mut value| {
-                // In case the contract storage is occupied at the root key
-                // we handle the Option<T> as if it was a T.
-                <V as PackedLayout>::pull_packed(&mut value, key);
-                value
-            })
     }
 }

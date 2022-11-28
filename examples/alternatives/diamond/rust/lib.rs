@@ -9,8 +9,6 @@ use ink::primitives::{
     Key,
     KeyPtr,
 };
-#[cfg(not(feature = "std"))]
-use ink::storage::traits::SpreadLayout;
 use openbrush::contracts::diamond::*;
 #[cfg(not(feature = "std"))]
 use openbrush::traits::{
@@ -32,7 +30,6 @@ const _: () = {
         let mut root_key: KeyPtr = KeyPtr::from(ROOT_KEY);
         let mut storage = <diamond::Data as SpreadLayout>::pull_spread(&mut root_key);
         storage._diamond_cut_facet(&facet_cut).expect("Init diamond cut");
-        storage.flush();
 
         // Support of ownable
         let mut ownable = <ownable::Data as SpreadLayout>::pull_spread(&mut root_key);

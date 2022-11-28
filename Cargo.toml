@@ -12,7 +12,7 @@ exclude = [
 
 [package]
 name = "openbrush"
-version = "2.3.0"
+version = "2.4.0"
 authors = ["Supercolony <green.baneling@supercolony.net>"]
 edition = "2018"
 

@@ -16,19 +16,12 @@ implementation of `Lending` and `LendingPermissioned` traits defined in the `len
 ```toml
 [package]
 name = "lending_contract"
-version = "2.3.0"
+version = "2.4.0"
 authors = ["Supercolony <dominik.krizo@supercolony.net>"]
 edition = "2021"
 
 [dependencies]
-ink::primitives = { version = "~3.4.0", default-features = false }
-ink::metadata = { version = "~3.4.0", default-features = false, features = ["derive"], optional = true }
-ink::env = { version = "~3.4.0", default-features = false }
-ink::storage = { version = "~3.4.0", default-features = false }
-ink = { version = "~3.4.0", default-features = false }
-ink::prelude = { version = "~3.4.0", default-features = false }
-ink_engine = { version = "~3.4.0", default-features = false, optional = true }
-
+ink = { version = "~4.0.0-beta", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 

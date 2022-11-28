@@ -465,14 +465,14 @@ synstructure::decl_attribute!(
 /// #[openbrush::upgradeable_storage(openbrush::storage_unique_key!(Automatically))]
 /// pub struct Automatically;
 ///
-/// #[derive(Default, Debug, ::ink::storage::traits::SpreadLayout)]
+/// #[derive(Default, Debug)]
 /// pub struct Manual;
 ///
 /// impl openbrush::traits::OccupyStorage for Manual {
 ///     const KEY: u32 = openbrush::storage_unique_key!(Manual);
 /// }
 ///
-/// #[derive(Default, Debug, Storage, ::ink::storage::traits::SpreadLayout)]
+/// #[derive(Default, Debug, Storage)]
 /// pub struct Contract {
 ///    #[storage_field]
 ///    automatically: Automatically,
