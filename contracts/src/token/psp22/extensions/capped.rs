@@ -28,6 +28,7 @@ pub use crate::{
     },
 };
 pub use capped::Internal as _;
+
 use openbrush::traits::{
     Balance,
     Storage,
@@ -40,7 +41,7 @@ pub use psp22::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub cap: Balance,

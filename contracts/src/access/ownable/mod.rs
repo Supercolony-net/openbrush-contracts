@@ -23,8 +23,6 @@ pub use crate::{
     ownable,
     traits::ownable::*,
 };
-pub use ownable::Internal as _;
-
 use openbrush::{
     modifier_definition,
     modifiers,
@@ -35,10 +33,11 @@ use openbrush::{
         ZERO_ADDRESS,
     },
 };
+pub use ownable::Internal as _;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub owner: AccountId,

@@ -27,14 +27,10 @@ use openbrush::{
     },
     traits::AccountId,
 };
-use scale::{
-    Error,
-    Input,
-};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Members);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Members {
     pub members: Mapping<(RoleType, AccountId), (), MembersKey>,
@@ -47,7 +43,7 @@ impl<'a> TypeGuard<'a> for MembersKey {
     type Type = &'a (RoleType, &'a AccountId);
 }
 
-pub trait MembersManager {
+pub trait MembersManager: scale::Decode + scale::Encode {
     fn has_role(&self, role: RoleType, address: &AccountId) -> bool;
 
     fn add(&mut self, role: RoleType, member: &AccountId);

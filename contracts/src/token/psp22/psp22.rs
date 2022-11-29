@@ -24,16 +24,13 @@ pub use crate::{
     psp22::Internal as _,
     traits::psp22::*,
 };
-pub use psp22::{
-    Internal as _,
-    Transfer as _,
+use ink::{
+    env::{
+        CallFlags,
+        Error as EnvError,
+    },
+    prelude::vec::Vec,
 };
-
-use ink::env::{
-    CallFlags,
-    Error as EnvError,
-};
-use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,
@@ -47,10 +44,14 @@ use openbrush::{
         String,
     },
 };
+pub use psp22::{
+    Internal as _,
+    Transfer as _,
+};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub supply: Balance,

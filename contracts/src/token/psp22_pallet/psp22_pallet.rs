@@ -23,24 +23,25 @@ pub use crate::{
     psp22_pallet,
     traits::psp22::*,
 };
-pub use pallet_assets_chain_extension::{
-    ink::*,
-    traits::*,
+use ink::{
+    env::DefaultEnvironment,
+    prelude::vec::Vec,
 };
-pub use psp22_pallet::Internal as _;
-
-use ink::env::DefaultEnvironment;
-use ink::prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,
     Storage,
     String,
 };
+pub use pallet_assets_chain_extension::{
+    ink::*,
+    traits::*,
+};
+pub use psp22_pallet::Internal as _;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     /// Asset id of the token on the pallet.

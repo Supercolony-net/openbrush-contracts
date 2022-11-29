@@ -33,11 +33,13 @@ use crate::psp34::{
     Operator,
     Owner,
 };
-use ink::env::{
-    CallFlags,
-    Error as EnvError,
+use ink::{
+    env::{
+        CallFlags,
+        Error as EnvError,
+    },
+    prelude::vec::Vec,
 };
-use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,
@@ -54,7 +56,7 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Encode, scale::Decode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data<B = balances::Balances>
 where

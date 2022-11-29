@@ -21,7 +21,7 @@ It doesn't contain [versioning](https://github.com/Supercolony-net/openbrush-con
 ink = { version = "~4.0.0-beta", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
 openbrush = { version = "~2.4.0", default-features = false }

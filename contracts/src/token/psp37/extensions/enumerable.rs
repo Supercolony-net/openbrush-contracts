@@ -30,10 +30,6 @@ pub use crate::{
         *,
     },
 };
-pub use psp37::{
-    Internal as _,
-    Transfer as _,
-};
 
 use openbrush::{
     storage::{
@@ -48,10 +44,14 @@ use openbrush::{
         Storage,
     },
 };
+pub use psp37::{
+    Internal as _,
+    Transfer as _,
+};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Balances {
     pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey>,

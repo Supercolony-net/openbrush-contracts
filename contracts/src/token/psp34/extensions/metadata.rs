@@ -30,6 +30,7 @@ pub use crate::{
         *,
     },
 };
+
 pub use metadata::Internal as _;
 pub use psp34::{
     Internal as _,
@@ -47,7 +48,7 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>, AttributesKey>,

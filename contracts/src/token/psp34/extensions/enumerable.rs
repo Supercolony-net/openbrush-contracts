@@ -19,6 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use crate::psp34::Owner;
 pub use crate::{
     psp34,
     psp34::{
@@ -30,12 +31,7 @@ pub use crate::{
         *,
     },
 };
-pub use psp34::{
-    Internal as _,
-    Transfer as _,
-};
 
-use crate::psp34::Owner;
 use openbrush::{
     storage::{
         MultiMapping,
@@ -48,10 +44,14 @@ use openbrush::{
         Storage,
     },
 };
+pub use psp34::{
+    Internal as _,
+    Transfer as _,
+};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Balances {
     pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey /* optimization */>,

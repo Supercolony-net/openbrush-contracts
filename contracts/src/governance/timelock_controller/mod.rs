@@ -31,19 +31,21 @@ pub use access_control::Internal as _;
 pub use timelock_controller::Internal as _;
 
 use core::convert::TryFrom;
-use ink::env::{
-    call::{
-        build_call,
-        Call,
-        ExecutionInput,
+use ink::{
+    env::{
+        call::{
+            build_call,
+            Call,
+            ExecutionInput,
+        },
+        hash::Blake2x256,
+        CallFlags,
+        DefaultEnvironment,
     },
-    hash::Blake2x256,
-    CallFlags,
-    DefaultEnvironment,
-};
-use ink::prelude::{
-    vec,
-    vec::Vec,
+    prelude::{
+        vec,
+        vec::Vec,
+    },
 };
 use openbrush::{
     modifier_definition,
@@ -62,7 +64,7 @@ use scale::Encode;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub min_delay: Timestamp,

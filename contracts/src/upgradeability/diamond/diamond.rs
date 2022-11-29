@@ -52,7 +52,7 @@ use openbrush::{
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 // TODO: Add support of Erc165
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data<D: DiamondCut = ()> {
     // Selector mapped to its facet
@@ -213,7 +213,7 @@ where
     }
 }
 
-pub trait DiamondCut {
+pub trait DiamondCut: scale::Encode + scale::Decode {
     fn on_add_facet(&mut self, code_hash: Hash);
 
     fn on_remove_facet(&mut self, code_hash: Hash);

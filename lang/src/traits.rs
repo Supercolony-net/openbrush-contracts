@@ -24,10 +24,7 @@ use ::ink::env::{
     Environment,
 };
 use core::mem::ManuallyDrop;
-use ink::{
-    prelude::vec::Vec,
-    storage::traits::Packed,
-};
+use ink::prelude::vec::Vec;
 pub use openbrush_lang_macro::Storage;
 
 /// Aliases for types of the default environment
@@ -131,14 +128,14 @@ impl AccountIdExt for AccountId {
 }
 
 /// This trait is automatically implemented for storage structs.
-pub trait Flush: Packed + Sized {
+pub trait Flush: scale::Encode + scale::Decode + Sized {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate a key of each field.
     /// So if you want to flush the correct state of the contract,
     /// you have to this method on storage struct.
     fn flush(&self) {
         let root_key = ::ink::primitives::KeyComposer::from_bytes(&[0x00; 32]);
-        ::ink::env::set_contract_storage(&root_key, self);
+        ink::env::set_contract_storage(&root_key, self);
     }
 
     /// Method loads the current state of `Self` from storage.
@@ -146,8 +143,8 @@ pub trait Flush: Packed + Sized {
     /// So if you want to load the correct state of the contract,
     /// you have to this method on storage struct.
     fn load(&mut self) {
-        let root_key = ::ink::primitives::KeyComposer::from_bytes(&[0x00; 32]);
-        let mut state = ::ink::env::get_contract_storage(&root_key)
+        let root_key = ink::primitives::KeyComposer::from_bytes(&[0x00; 32]);
+        let mut state = ink::env::get_contract_storage(&root_key)
             .unwrap_or_else(|error| panic!("Failed to load contract state: {:?}", error))
             .unwrap_or_else(|| panic!("Contract state is not initialized"));
         core::mem::swap(self, &mut state);
@@ -155,4 +152,4 @@ pub trait Flush: Packed + Sized {
     }
 }
 
-impl<T: Packed + Sized> Flush for T {}
+impl<T: scale::Encode + scale::Decode + Sized> Flush for T {}

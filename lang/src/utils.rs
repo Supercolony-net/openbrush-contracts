@@ -34,15 +34,3 @@ impl ConstHasher {
         xxh32(str.as_bytes(), XXH32_SEED)
     }
 }
-
-pub struct StorageKeyConvertor;
-
-impl StorageKeyConvertor {
-    pub const fn old_key(new_key: u32) -> [u8; 32] {
-        let bytes = new_key.to_le_bytes();
-        [
-            bytes[0], bytes[1], bytes[2], bytes[3], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0,
-        ]
-    }
-}

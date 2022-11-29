@@ -113,7 +113,7 @@ fn storage_layout_enum(storage_key: &TokenStream, s: &synstructure::Structure) -
                 ::ink::metadata::layout::Layout::Enum(
                     ::ink::metadata::layout::EnumLayout::new(
                         ::core::stringify!(#enum_ident),
-                        ::ink::metadata::layout::LayoutKey::from(__key),
+                        ::ink::metadata::lay    out::LayoutKey::from(__key),
                         [
                             #(#variant_layouts ,)*
                         ]
@@ -167,22 +167,19 @@ pub fn occupy_storage_derive(storage_key: &TokenStream, mut s: synstructure::Str
 }
 
 pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
-    let storage_key_u32 = attrs.clone();
-    let storage_key = quote! {
-        ::openbrush::utils::StorageKeyConvertor::old_key(#attrs)
-    };
+    let storage_key = attrs.clone();
 
     let storage_layout = storage_layout_derive(&storage_key, s.clone());
-    let occupy_storage = occupy_storage_derive(&storage_key_u32, s.clone());
+    let occupy_storage = occupy_storage_derive(&storage_key, s.clone());
     let item = s.ast().to_token_stream();
 
-    (quote! {
+    let out = quote! {
         #item
 
         #[cfg(feature = "std")]
         #storage_layout
 
         #occupy_storage
-    })
-    .into()
+    };
+    out.into()
 }

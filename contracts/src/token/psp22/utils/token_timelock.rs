@@ -28,21 +28,22 @@ pub use crate::{
         *,
     },
 };
-pub use psp22::Internal as _;
-pub use token_timelock::Internal as _;
-
-use ink::env::CallFlags;
-use ink::prelude::vec::Vec;
+use ink::{
+    env::CallFlags,
+    prelude::vec::Vec,
+};
 use openbrush::traits::{
     AccountId,
     Balance,
     Storage,
     Timestamp,
 };
+pub use psp22::Internal as _;
+pub use token_timelock::Internal as _;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, scale::Decode, scale::Encode)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     token: AccountId,
