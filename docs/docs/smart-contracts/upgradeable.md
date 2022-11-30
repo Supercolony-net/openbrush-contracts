@@ -362,7 +362,7 @@ the contract. Only the owner is able to call the `change_delegate_call` method.
 ```rust
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 #[openbrush::storage(STORAGE_KEY)]
 pub struct Data {
     pub forward_to: Hash,

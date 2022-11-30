@@ -38,6 +38,7 @@ use ink::{
     },
     prelude::vec::Vec,
     primitives::Clear,
+    storage::traits::Storable,
 };
 use openbrush::{
     modifiers,
@@ -52,9 +53,9 @@ use openbrush::{
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 // TODO: Add support of Erc165
-#[derive(Default, Debug, scale::Decode, scale::Encode)]
+#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
-pub struct Data<D: DiamondCut = ()> {
+pub struct Data<D: DiamondCut + Storable = ()> {
     // Selector mapped to its facet
     pub selector_to_hash: Mapping<Selector, Hash>,
     // Facet mapped to all functions it supports
@@ -66,7 +67,7 @@ pub struct Data<D: DiamondCut = ()> {
 
 impl<D, T> Diamond for T
 where
-    D: DiamondCut,
+    D: DiamondCut + Storable,
     T: Storage<ownable::Data>,
     T: Storage<Data<D>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<D>>,
@@ -95,7 +96,7 @@ pub trait Internal {
 
 impl<D, T> Internal for T
 where
-    D: DiamondCut,
+    D: DiamondCut + Storable,
     T: Storage<Data<D>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<D>>,
 {
@@ -213,7 +214,7 @@ where
     }
 }
 
-pub trait DiamondCut: scale::Encode + scale::Decode {
+pub trait DiamondCut {
     fn on_add_facet(&mut self, code_hash: Hash);
 
     fn on_remove_facet(&mut self, code_hash: Hash);

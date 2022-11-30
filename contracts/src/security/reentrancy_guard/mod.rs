@@ -30,7 +30,7 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug, scale::Encode, scale::Decode)]
+#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub status: u8,
@@ -63,7 +63,7 @@ where
 
     // We want to flush storage before execution of inner function,
     // because ink! doesn't do it by default and `status` will not be updated in child calls
-    ink::env::set_contract_storage(Default::default(), &instance.data());
+    // todo: ink::env::set_contract_storage(Default::default(), &instance.data());
 
     let result = body(instance);
     instance.data().status = NOT_ENTERED;

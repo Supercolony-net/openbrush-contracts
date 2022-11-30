@@ -39,6 +39,7 @@ use ink::{
         Error as EnvError,
     },
     prelude::vec::Vec,
+    storage::traits::Storable,
 };
 use openbrush::{
     storage::{
@@ -56,11 +57,11 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug, scale::Encode, scale::Decode)]
+#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data<B = balances::Balances>
 where
-    B: balances::BalancesManager,
+    B: balances::BalancesManager + Storable,
 {
     pub token_owner: Mapping<Id, Owner>,
     pub operator_approvals: Mapping<(Owner, Operator, Option<Id>), (), ApprovalsKey /* optimization */>,
@@ -76,7 +77,7 @@ impl<'a> TypeGuard<'a> for ApprovalsKey {
 
 impl<B, T> PSP34 for T
 where
-    B: balances::BalancesManager,
+    B: balances::BalancesManager + Storable,
     T: Storage<Data<B>>,
     T: OccupiedStorage<{ STORAGE_KEY }, WithData = Data<B>>,
 {
@@ -146,7 +147,7 @@ pub trait Internal {
 
 impl<B, T> Internal for T
 where
-    B: balances::BalancesManager,
+    B: balances::BalancesManager + Storable,
     T: Storage<Data<B>>,
     T: OccupiedStorage<{ STORAGE_KEY }, WithData = Data<B>>,
 {
@@ -303,7 +304,7 @@ pub trait Transfer {
 
 impl<B, T> Transfer for T
 where
-    B: balances::BalancesManager,
+    B: balances::BalancesManager + Storable,
     T: Storage<Data<B>>,
     T: OccupiedStorage<{ STORAGE_KEY }, WithData = Data<B>>,
 {

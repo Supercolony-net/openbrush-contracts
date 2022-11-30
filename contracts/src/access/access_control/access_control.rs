@@ -25,6 +25,7 @@ pub use crate::{
     traits::access_control::*,
 };
 pub use access_control::Internal as _;
+use ink::storage::traits::Storable;
 
 use openbrush::{
     modifier_definition,
@@ -42,11 +43,11 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug, scale::Decode, scale::Encode)]
+#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data<M = members::Members>
 where
-    M: members::MembersManager,
+    M: members::MembersManager + Storable,
 {
     pub admin_roles: Mapping<RoleType, RoleType, ValueGuard<RoleType>>,
     pub members: M,
@@ -59,7 +60,7 @@ pub const DEFAULT_ADMIN_ROLE: RoleType = 0;
 #[modifier_definition]
 pub fn only_role<T, M, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    M: members::MembersManager,
+    M: members::MembersManager + Storable,
     T: Storage<Data<M>>,
     F: FnOnce(&mut T) -> Result<R, E>,
     E: From<AccessControlError>,
@@ -72,7 +73,7 @@ where
 
 impl<T, M> AccessControl for T
 where
-    M: members::MembersManager,
+    M: members::MembersManager + Storable,
     T: Storage<Data<M>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<M>>,
 {
@@ -132,7 +133,7 @@ pub trait Internal {
 
 impl<T, M> Internal for T
 where
-    M: members::MembersManager,
+    M: members::MembersManager + Storable,
     T: Storage<Data<M>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<M>>,
 {
@@ -179,7 +180,7 @@ where
 
 pub fn check_role<T, M>(instance: &T, role: RoleType, account: AccountId) -> Result<(), AccessControlError>
 where
-    M: members::MembersManager,
+    M: members::MembersManager + Storable,
     T: Storage<Data<M>>,
 {
     if !instance.data().members.has_role(role, &account) {
@@ -190,7 +191,7 @@ where
 
 pub fn get_role_admin<T, M>(instance: &T, role: RoleType) -> RoleType
 where
-    M: members::MembersManager,
+    M: members::MembersManager + Storable,
     T: Storage<Data<M>> + Internal,
 {
     instance.data().admin_roles.get(role).unwrap_or(T::_default_admin())

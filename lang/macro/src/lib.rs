@@ -66,7 +66,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 /// use ink::prelude::collections::BTreeMap;
 /// use openbrush::traits::{ AccountId, Balance, Storage, OccupyStorage };
 ///
-/// #[derive(Default, Debug)]
+/// #[derive(Debug)]
 /// pub struct Data {
 ///     pub balances: BTreeMap<AccountId, Balance>,
 /// }
@@ -110,7 +110,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///
 ///     const STORAGE_KEY: u32 = 123;
 ///
-///     #[derive(Default, Debug)]
+///     #[derive(Debug)]
 ///     #[openbrush::upgradeable_storage(STORAGE_KEY)]
 ///     pub struct Data {
 ///         pub supply: Balance,
@@ -422,21 +422,21 @@ synstructure::decl_attribute!(
     /// use openbrush::traits::AccountId;
     /// pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(OwnableData);
     ///
-    /// #[derive(Default, Debug)]
+    /// #[derive(Debug)]
     /// #[openbrush::upgradeable_storage(STORAGE_KEY)]
     /// pub struct OwnableData {
     ///    pub owner: AccountId,
     ///    pub _reserved: Option<()>,
     /// }
     ///
-    /// #[derive(Default, Debug)]
+    /// #[derive(Debug)]
     /// #[openbrush::upgradeable_storage(openbrush::storage_unique_key!(ProxyData))]
     /// pub struct ProxyData {
     ///    pub forward: AccountId,
     ///    pub _reserved: Option<()>,
     /// }
     ///
-    /// #[derive(Default, Debug)]
+    /// #[derive(Debug)]
     /// #[openbrush::upgradeable_storage(123)]
     /// pub struct SomeData {
     ///    pub _reserved: Option<()>,
@@ -461,11 +461,11 @@ synstructure::decl_attribute!(
 /// use openbrush::traits::StorageAsRef;
 /// use openbrush::traits::StorageAsMut;
 ///
-/// #[derive(Default, Debug)]
+/// #[derive(Debug)]
 /// #[openbrush::upgradeable_storage(openbrush::storage_unique_key!(Automatically))]
 /// pub struct Automatically;
 ///
-/// #[derive(Default, Debug)]
+/// #[derive(Debug)]
 /// pub struct Manual;
 ///
 /// impl openbrush::traits::OccupyStorage for Manual {

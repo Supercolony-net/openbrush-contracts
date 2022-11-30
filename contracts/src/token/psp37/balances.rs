@@ -37,14 +37,14 @@ use openbrush::{
 
 pub const BALANCES_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
-pub trait BalancesManager: scale::Decode + scale::Encode {
+pub trait BalancesManager {
     fn balance_of(&self, owner: &AccountId, id: &Option<&Id>) -> Balance;
     fn total_supply(&self, id: &Option<&Id>) -> Balance;
     fn increase_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, mint: bool) -> Result<(), PSP37Error>;
     fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP37Error>;
 }
 
-#[derive(Default, Debug, scale::Decode, scale::Encode)]
+#[derive(Debug)]
 #[openbrush::upgradeable_storage(BALANCES_KEY)]
 pub struct Balances {
     pub balances: Mapping<(AccountId, Option<Id>), Balance, BalancesKey>,

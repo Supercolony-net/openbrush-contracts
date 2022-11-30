@@ -46,6 +46,7 @@ use ink::{
         vec,
         vec::Vec,
     },
+    storage::traits::Storable,
 };
 use openbrush::{
     modifier_definition,
@@ -60,11 +61,10 @@ use openbrush::{
         ZERO_ADDRESS,
     },
 };
-use scale::Encode;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug, scale::Decode, scale::Encode)]
+#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub min_delay: Timestamp,
@@ -79,7 +79,7 @@ pub struct Data {
 #[modifier_definition]
 pub fn only_role_or_open_role<T, M, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    M: access_control::members::MembersManager,
+    M: access_control::members::MembersManager + Storable,
     T: Storage<access_control::Data<M>>,
     T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
     F: FnOnce(&mut T) -> Result<R, E>,
@@ -99,7 +99,7 @@ pub const DONE_TIMESTAMP: Timestamp = 1;
 
 impl<T, M> TimelockController for T
 where
-    M: access_control::members::MembersManager,
+    M: access_control::members::MembersManager + Storable,
     T: Storage<Data>,
     T: Storage<access_control::Data<M>>,
     T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
@@ -299,7 +299,7 @@ pub trait Internal {
 
 impl<T, M> Internal for T
 where
-    M: access_control::members::MembersManager,
+    M: access_control::members::MembersManager + Storable,
     T: Storage<Data>,
     T: Storage<access_control::Data<M>>,
     T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
@@ -364,11 +364,11 @@ where
     ) -> OperationId {
         let mut hash_data: Vec<u8> = vec![];
 
-        hash_data.append(&mut transaction.encode());
+        hash_data.append(&mut scale::Encode::encode(&transaction));
         if predecessor.is_some() {
-            hash_data.append(&mut predecessor.unwrap().encode());
+            hash_data.append(&mut scale::Encode::encode(&predecessor.unwrap()));
         }
-        hash_data.append(&mut salt.encode());
+        hash_data.append(&mut scale::Encode::encode(&salt));
 
         Hash::try_from(Self::env().hash_bytes::<Blake2x256>(&hash_data).as_ref()).unwrap()
     }
@@ -381,11 +381,11 @@ where
     ) -> OperationId {
         let mut hash_data: Vec<u8> = vec![];
 
-        hash_data.append(&mut transactions.encode());
+        hash_data.append(&mut scale::Encode::encode(&transactions));
         if predecessor.is_some() {
-            hash_data.append(&mut predecessor.unwrap().encode());
+            hash_data.append(&mut scale::Encode::encode(&predecessor.unwrap()));
         }
-        hash_data.append(&mut salt.encode());
+        hash_data.append(&mut scale::Encode::encode(&salt));
 
         Hash::try_from(Self::env().hash_bytes::<Blake2x256>(&hash_data).as_ref()).unwrap()
     }

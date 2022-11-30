@@ -27,6 +27,7 @@ pub use crate::{
         *,
     },
 };
+use ink::storage::traits::Storable;
 pub use psp34::{
     Internal as _,
     Transfer as _,
@@ -40,7 +41,7 @@ use openbrush::traits::{
 
 impl<B, T> PSP34Burnable for T
 where
-    B: balances::BalancesManager,
+    B: balances::BalancesManager + Storable,
     T: Storage<psp34::Data<B>>,
     T: OccupiedStorage<{ psp34::STORAGE_KEY }, WithData = psp34::Data<B>>,
 {

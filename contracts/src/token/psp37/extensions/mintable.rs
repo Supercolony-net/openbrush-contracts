@@ -32,7 +32,10 @@ pub use psp37::{
     Transfer as _,
 };
 
-use ink::prelude::vec::Vec;
+use ink::{
+    prelude::vec::Vec,
+    storage::traits::Storable,
+};
 use openbrush::traits::{
     AccountId,
     Balance,
@@ -42,7 +45,7 @@ use openbrush::traits::{
 
 impl<B, T> PSP37Mintable for T
 where
-    B: balances::BalancesManager,
+    B: balances::BalancesManager + Storable,
     T: Storage<psp37::Data<B>>,
     T: OccupiedStorage<{ psp37::STORAGE_KEY }, WithData = psp37::Data<B>>,
 {

@@ -24,7 +24,10 @@ use ::ink::env::{
     Environment,
 };
 use core::mem::ManuallyDrop;
-use ink::prelude::vec::Vec;
+use ink::{
+    prelude::vec::Vec,
+    storage::traits::Storable,
+};
 pub use openbrush_lang_macro::Storage;
 
 /// Aliases for types of the default environment
@@ -128,7 +131,7 @@ impl AccountIdExt for AccountId {
 }
 
 /// This trait is automatically implemented for storage structs.
-pub trait Flush: scale::Encode + scale::Decode + Sized {
+pub trait Flush: Storable + Sized {
     /// Method flushes the current state of `Self` into storage.
     /// ink! recursively calculate a key of each field.
     /// So if you want to flush the correct state of the contract,
@@ -152,4 +155,4 @@ pub trait Flush: scale::Encode + scale::Decode + Sized {
     }
 }
 
-impl<T: scale::Encode + scale::Decode + Sized> Flush for T {}
+impl<T: Storable + Sized> Flush for T {}

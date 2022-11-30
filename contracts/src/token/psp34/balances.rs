@@ -31,14 +31,14 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
-pub trait BalancesManager: scale::Decode + scale::Encode {
+pub trait BalancesManager {
     fn balance_of(&self, owner: &Owner) -> u32;
     fn increase_balance(&mut self, owner: &Owner, id: &Id, increase_supply: bool);
     fn decrease_balance(&mut self, owner: &Owner, id: &Id, decrease_supply: bool);
     fn total_supply(&self) -> Balance;
 }
 
-#[derive(Default, Debug, scale::Decode, scale::Encode)]
+#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Balances {
     owned_tokens_count: Mapping<Owner, u32>,
