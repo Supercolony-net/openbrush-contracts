@@ -52,9 +52,11 @@ mod access_control_enumerable {
     impl AccessControlStruct {
         #[ink(constructor)]
         pub fn new(admin: AccountId) -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut Self| {
-                _instance._init_with_admin(admin);
-            })
+            let mut instance = Self::default();
+
+            instance._init_with_admin(admin);
+
+            instance
         }
     }
 

@@ -70,10 +70,12 @@ mod psp22_capped {
         /// Will set the token's cap to `cap`
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._init_cap(CAP).is_ok());
-                assert!(instance.mint(instance.env().caller(), 1).is_ok());
-            })
+            let mut instance = Self::default();
+
+            assert!(instance._init_cap(CAP).is_ok());
+            assert!(instance.mint(Self::env().caller(), 1).is_ok());
+
+            instance
         }
     }
 

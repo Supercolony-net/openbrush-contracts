@@ -73,7 +73,7 @@ mod psp37_enumerable {
     impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut Self| {})
+            Self::default()
         }
 
         #[ink(message)]

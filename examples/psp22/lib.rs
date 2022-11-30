@@ -40,11 +40,13 @@ pub mod my_psp22 {
     impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Contract| {
-                instance
-                    ._mint_to(instance.env().caller(), total_supply)
-                    .expect("Should mint");
-            })
+            let mut instance = Self::default();
+
+            instance
+                ._mint_to(Self::env().caller(), total_supply)
+                .expect("Should mint");
+
+            instance
         }
 
         #[ink(message)]

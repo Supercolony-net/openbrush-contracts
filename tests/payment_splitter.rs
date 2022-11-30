@@ -62,9 +62,11 @@ mod payment_splitter {
     impl MySplitter {
         #[ink(constructor)]
         pub fn new(payees_and_shares: Vec<(AccountId, Balance)>) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut MySplitter| {
-                instance._init(payees_and_shares).unwrap();
-            })
+            let mut instance = Self::default();
+
+            instance._init(payees_and_shares).unwrap();
+
+            instance
         }
     }
 

@@ -14,7 +14,7 @@ pub mod diamond_caller {
     impl DiamondCaller {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_: &mut DiamondCaller| {})
+            Self::default()
         }
 
         #[ink(message)]

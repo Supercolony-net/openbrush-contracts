@@ -71,7 +71,7 @@ pub mod my_access_control {
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut Self| {})
+            Self::default()
         }
     }
 }

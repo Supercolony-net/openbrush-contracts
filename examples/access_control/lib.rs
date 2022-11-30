@@ -33,12 +33,14 @@ pub mod my_access_control {
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                let caller = instance.env().caller();
-                instance._init_with_admin(caller);
-                // We grant minter role to caller in constructor, so he can mint/burn tokens
-                instance.grant_role(MINTER, caller).expect("Should grant MINTER role");
-            })
+            let mut instance = Self::default();
+
+            let caller = instance.env().caller();
+            instance._init_with_admin(caller);
+            // We grant minter role to caller in constructor, so he can mint/burn tokens
+            instance.grant_role(MINTER, caller).expect("Should grant MINTER role");
+
+            instance
         }
     }
 

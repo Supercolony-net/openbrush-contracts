@@ -28,10 +28,12 @@ pub mod my_psp22_upgradeable {
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut MyPSP22| {
-                instance._init_with_owner(instance.env().caller());
-                instance.initialize(total_supply).ok().unwrap()
-            })
+            let mut instance = Self::default();
+
+            instance._init_with_owner(Self::env().caller());
+            instance.initialize(total_supply).ok().unwrap();
+
+            instance
         }
 
         #[ink(message)]

@@ -45,9 +45,11 @@ mod diamond {
     impl DiamondContract {
         #[ink(constructor)]
         pub fn new(owner: AccountId) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                instance._init_with_owner(owner);
-            })
+            let mut instance = Self::default();
+
+            instance._init_with_owner(owner);
+
+            instance
         }
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) {

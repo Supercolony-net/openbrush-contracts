@@ -24,9 +24,11 @@ pub mod my_psp22_wrapper {
     impl Contract {
         #[ink(constructor)]
         pub fn new(token_address: AccountId) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                instance._init(token_address);
-            })
+            let mut instance = Self::default();
+
+            instance._init(token_address);
+
+            instance
         }
 
         /// Exposes the `_recover` function for message caller

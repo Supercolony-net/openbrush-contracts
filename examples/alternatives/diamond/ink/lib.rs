@@ -20,10 +20,11 @@ pub mod diamond {
     impl Contract {
         #[ink(constructor)]
         pub fn new(diamond_facet: FacetCut) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                instance._diamond_cut_facet(&diamond_facet).expect("Init diamond cut");
-                instance._init_with_owner(Self::env().caller());
-            })
+            let mut instance = Self::default();
+            instance._diamond_cut_facet(&diamond_facet).expect("Init diamond cut");
+            instance._init_with_owner(Self::env().caller());
+
+            instance
         }
 
         #[ink(message, payable, selector = _)]

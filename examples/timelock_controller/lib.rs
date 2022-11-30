@@ -21,13 +21,15 @@ pub mod my_timelock_controller {
     impl Contract {
         #[ink(constructor)]
         pub fn new(min_delay: Timestamp, proposers: Vec<AccountId>, executors: Vec<AccountId>) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                let caller = instance.env().caller();
-                // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
-                // You need to call it for each trait separately, to initialize everything for these traits.
-                access_control::Internal::_init_with_admin(instance, caller);
-                timelock_controller::Internal::_init_with_admin(instance, caller, min_delay, proposers, executors);
-            })
+            let mut instance = Self::default();
+
+            let caller = Self::env().caller();
+            // `TimelockController` and `AccessControl` have `_init_with_admin` methods.
+            // You need to call it for each trait separately, to initialize everything for these traits.
+            access_control::Internal::_init_with_admin(instance, caller);
+            timelock_controller::Internal::_init_with_admin(instance, caller, min_delay, proposers, executors);
+
+            instance
         }
     }
 

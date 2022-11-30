@@ -19,9 +19,9 @@ pub mod my_payment_splitter {
     impl Contract {
         #[ink(constructor)]
         pub fn new(payees_and_shares: Vec<(AccountId, Balance)>) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                instance._init(payees_and_shares).expect("Should init");
-            })
+            let mut instance = Self::default();
+            instance._init(payees_and_shares).expect("Should init");
+            instance
         }
 
         /// Payout all payees at once.

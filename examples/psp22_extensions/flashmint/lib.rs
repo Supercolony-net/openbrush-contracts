@@ -31,9 +31,10 @@ pub mod my_psp22_flashmint {
     impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._mint_to(instance.env().caller(), total_supply).is_ok());
-            })
+            let mut instance = Self::default();
+            assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
+
+            instance
         }
     }
 }

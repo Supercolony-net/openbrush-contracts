@@ -30,7 +30,8 @@ pub mod my_psp22_metadata_facet {
     impl PSP22Facet {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut Self| {})
+            Self::default()
+            Self::default()
         }
 
         #[ink(message)]

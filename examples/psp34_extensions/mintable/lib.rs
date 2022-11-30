@@ -23,7 +23,7 @@ pub mod my_psp34_mintable {
         /// The constructor
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut Self| {})
+            Self::default()
         }
     }
 }

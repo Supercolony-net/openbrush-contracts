@@ -49,10 +49,12 @@ pub mod my_psp22_capped {
         /// Will set the token's cap to `cap`
         #[ink(constructor)]
         pub fn new(inital_supply: Balance, cap: Balance) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._init_cap(cap).is_ok());
-                assert!(instance.mint(instance.env().caller(), inital_supply).is_ok());
-            })
+            let mut instance = Self::default();
+
+            assert!(instance._init_cap(cap).is_ok());
+            assert!(instance.mint(Self::env().caller(), inital_supply).is_ok());
+
+            instance
         }
     }
 }

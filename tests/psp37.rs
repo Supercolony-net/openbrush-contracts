@@ -133,7 +133,7 @@ mod psp37 {
     impl PSP37Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut PSP37Struct| {})
+            Self::default()
         }
 
         #[ink(message)]

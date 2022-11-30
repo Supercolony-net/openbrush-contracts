@@ -42,13 +42,15 @@ pub mod token {
         /// Constructor with name and symbol
         #[ink(constructor)]
         pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut StableCoinContract| {
-                instance.metadata.name = name;
-                instance.metadata.symbol = symbol;
-                instance.metadata.decimals = 18;
-                let total_supply = 1_000_000 * 10_u128.pow(18);
-                assert!(instance._mint_to(instance.env().caller(), total_supply).is_ok());
-            })
+            let mut instance = Self::default();
+
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance.metadata.decimals = 18;
+            let total_supply = 1_000_000 * 10_u128.pow(18);
+            assert!(instance._mint_to(Self::env().caller, total_supply).is_ok());
+
+            instance
         }
     }
 }

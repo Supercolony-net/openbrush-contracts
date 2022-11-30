@@ -35,10 +35,12 @@ pub mod my_psp22 {
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                instance._init_with_owner(instance.env().caller());
-                instance.initialize(total_supply, name, symbol, decimal).ok().unwrap()
-            })
+            let mut instance = Self::default();
+
+            instance._init_with_owner(Self::env().caller());
+            instance.initialize(total_supply, name, symbol, decimal).ok().unwrap();
+
+            instance
         }
 
         #[ink(message)]

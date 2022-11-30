@@ -35,22 +35,23 @@ pub mod my_psp22_pallet_metadata {
             symbol: String,
             decimal: u8,
         ) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Contract| {
-                // The contract is admin of the asset
-                instance
-                    ._create(asset_id, Self::env().account_id(), min_balance)
-                    .expect("Should create an asset");
-                instance.pallet.asset_id = asset_id;
-                instance.pallet.origin = Origin::Caller;
-                assert!(instance
-                    .pallet
-                    .pallet_assets
-                    .set_metadata(asset_id, name, symbol, decimal)
-                    .is_ok());
-                instance
-                    ._mint_to(instance.env().caller(), total_supply)
-                    .expect("Should mint");
-            })
+            let mut instance = Self::default();
+
+            instance
+                ._create(asset_id, Self::env().account_id(), min_balance)
+                .expect("Should create an asset");
+            instance.pallet.asset_id = asset_id;
+            instance.pallet.origin = Origin::Caller;
+            assert!(instance
+                .pallet
+                .pallet_assets
+                .set_metadata(asset_id, name, symbol, decimal)
+                .is_ok());
+            instance
+                ._mint_to(Self::env().caller(), total_supply)
+                .expect("Should mint");
+
+            instance
         }
     }
 }

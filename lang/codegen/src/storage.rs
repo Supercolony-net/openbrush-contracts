@@ -47,7 +47,7 @@ fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Ite
         quote! {
             ::ink::metadata::layout::FieldLayout::new(
                 #ident,
-                <#ty as ::ink::storage::traits::StorageLayout>::layout(__key),
+                <#ty as ::ink::storage::traits::StorageLayout>::layout(& __key),
             )
         }
     })
@@ -62,7 +62,7 @@ fn storage_layout_struct(storage_key: &TokenStream, s: &synstructure::Structure)
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::StorageLayout for @Self {
             fn layout(_: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
-                let __key = &mut ::ink::primitives::Key::from(#storage_key);
+                let mut __key: ::ink::primitives::Key = #storage_key;
                 ::ink::metadata::layout::Layout::Struct(
                     ::ink::metadata::layout::StructLayout::new(
                         ::core::stringify!(#struct_ident),
@@ -114,11 +114,11 @@ fn storage_layout_enum(storage_key: &TokenStream, s: &synstructure::Structure) -
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::StorageLayout for @Self {
             fn layout(_: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
-                let __key = &mut ::ink::primitives::Key::from(#storage_key);
+                let mut __key: ::ink::primitives::Key = & #storage_key;
                 ::ink::metadata::layout::Layout::Enum(
                     ::ink::metadata::layout::EnumLayout::new(
                         ::core::stringify!(#enum_ident),
-                        ::ink::metadata::lay    out::LayoutKey::from(__key),
+                        ::ink::metadata::layout::LayoutKey::from(__key),
                         [
                             #(#variant_layouts ,)*
                         ]
@@ -176,7 +176,7 @@ pub fn storage_key_derive(storage_key: &TokenStream, mut s: synstructure::Struct
 
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::StorageKey for @Self {
-            const KEY: ::ink::primitives::Key = ::ink::primitives::Key::from(#storage_key);
+            const KEY: ::ink::primitives::Key = #storage_key;
         }
     })
 }
@@ -339,6 +339,7 @@ pub fn storable_hint_derive(storage_key: &TokenStream, s: synstructure::Structur
     }
 }
 
+#[allow(unreachable_code)]
 pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
     let storage_key = attrs.clone();
 
@@ -350,6 +351,7 @@ pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> To
     let item = s.ast().to_token_stream();
 
     let out = quote! {
+        #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
         #item
 
         #storage_key_derived

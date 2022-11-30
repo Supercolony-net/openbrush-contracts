@@ -29,12 +29,14 @@ pub mod my_psp34_metadata {
         /// A constructor which mints the first token to the owner
         #[ink(constructor)]
         pub fn new(id: Id, name: String, symbol: String) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                let name_key: Vec<u8> = String::from("name");
-                let symbol_key: Vec<u8> = String::from("symbol");
-                instance._set_attribute(id.clone(), name_key, name);
-                instance._set_attribute(id, symbol_key, symbol);
-            })
+            let mut instance = Self::default();
+
+            let name_key: Vec<u8> = String::from("name");
+            let symbol_key: Vec<u8> = String::from("symbol");
+            instance._set_attribute(id.clone(), name_key, name);
+            instance._set_attribute(id, symbol_key, symbol);
+
+            instance
         }
     }
 }

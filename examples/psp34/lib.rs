@@ -23,7 +23,7 @@ pub mod my_psp34 {
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut Self| {})
+            Self::default()
         }
 
         #[ink(message)]

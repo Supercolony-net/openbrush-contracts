@@ -128,7 +128,7 @@ mod psp34 {
     impl PSP34Struct {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut PSP34Struct| {})
+            Self::default()
         }
 
         pub fn change_state_err_on_before(&mut self) {

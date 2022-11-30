@@ -27,7 +27,7 @@ pub mod my_psp22_facet_v1 {
     impl PSP22FacetV1 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|_instance: &mut Self| {})
+            Self::default()
         }
 
         #[ink(message)]

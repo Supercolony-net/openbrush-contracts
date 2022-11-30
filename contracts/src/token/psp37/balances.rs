@@ -44,7 +44,7 @@ pub trait BalancesManager {
     fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP37Error>;
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(BALANCES_KEY)]
 pub struct Balances {
     pub balances: Mapping<(AccountId, Option<Id>), Balance, BalancesKey>,
