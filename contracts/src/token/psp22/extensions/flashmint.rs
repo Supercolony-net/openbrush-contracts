@@ -33,11 +33,13 @@ pub use psp22::{
     Transfer as _,
 };
 
-use ink::env::{
-    CallFlags,
-    Error as EnvError,
+use ink::{
+    env::{
+        CallFlags,
+        Error as EnvError,
+    },
+    prelude::vec::Vec,
 };
-use ink::prelude::vec::Vec;
 use openbrush::traits::{
     AccountId,
     Balance,
