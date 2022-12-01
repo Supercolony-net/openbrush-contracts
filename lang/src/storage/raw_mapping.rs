@@ -21,22 +21,14 @@
 
 use core::marker::PhantomData;
 use ink::{
-    env::hash::{
-        Blake2x256,
-        HashOutput,
-    },
     primitives::Key,
-    storage::traits::{
-        AutoKey,
-        Packed,
-        StorageKey,
-    },
+    storage::traits::Packed,
 };
 
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct RawMapping<K, V, T, KeyType: StorageKey = AutoKey> {
+pub struct RawMapping<K, V, T = Key> {
     prefix: T,
-    _marker: PhantomData<fn() -> (K, V, KeyType)>,
+    _marker: PhantomData<fn() -> (K, V)>,
 }
 
 /// It is the implementation of `Mapping` functionality without storing it as a storage field.
@@ -52,12 +44,11 @@ impl<K, V, T> RawMapping<K, V, T> {
     }
 }
 
-impl<K, V, T, KeyType> RawMapping<K, V, T, KeyType>
+impl<K, V, T> RawMapping<K, V, T>
 where
     K: scale::Encode,
     V: Packed,
     T: scale::Encode + Copy,
-    KeyType: StorageKey,
 {
     /// Insert the given `value` to the contract storage.
     #[inline(always)]
@@ -104,21 +95,10 @@ where
     /// This key is a combination of the `RawMapping`'s internal `offset_key`
     /// and the user provided `key`.
     #[inline(always)]
-    fn storage_key(&self, key: K) -> Key
+    fn storage_key(&self, key: K) -> (T, K)
     where
         K: scale::Encode,
     {
-        let encodable_key = (self.prefix, key);
-        Self::storage_key_inline(&encodable_key)
-    }
-
-    #[inline(never)]
-    fn storage_key_inline<E>(key: &E) -> Key
-    where
-        E: scale::Encode,
-    {
-        let mut output = <Blake2x256 as HashOutput>::Type::default();
-        ink::env::hash_encoded::<Blake2x256, _>(key, &mut output);
-        output.key()
+        (self.prefix, key)
     }
 }

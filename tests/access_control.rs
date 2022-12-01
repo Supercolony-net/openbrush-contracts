@@ -246,7 +246,7 @@ mod access_control {
         let alice = accounts.alice;
         let mut access_control = AccessControlStruct::new(alice);
 
-        assert!(access_control.grant_role(PAUSER, alice).is_ok());
+        assert_eq!(access_control.grant_role(PAUSER, alice), Ok(()));
         assert_eq!(
             access_control.grant_role(PAUSER, alice),
             Err(AccessControlError::RoleRedundant)
