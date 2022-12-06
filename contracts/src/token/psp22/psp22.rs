@@ -30,6 +30,7 @@ use ink::{
         Error as EnvError,
     },
     prelude::vec::Vec,
+    storage::traits::AutoKey,
 };
 use openbrush::{
     storage::{
@@ -56,7 +57,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 pub struct Data {
     pub supply: Balance,
     pub balances: Mapping<AccountId, Balance>,
-    pub allowances: Mapping<(AccountId, AccountId), Balance, AllowancesKey>,
+    pub allowances: Mapping<(AccountId, AccountId), Balance, AutoKey, AllowancesKey>,
     pub _reserved: Option<()>,
 }
 

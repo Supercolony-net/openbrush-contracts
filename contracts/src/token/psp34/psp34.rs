@@ -39,7 +39,10 @@ use ink::{
         Error as EnvError,
     },
     prelude::vec::Vec,
-    storage::traits::Storable,
+    storage::traits::{
+        AutoKey,
+        Storable,
+    },
 };
 use openbrush::{
     storage::{
@@ -64,7 +67,7 @@ where
     B: balances::BalancesManager + Storable,
 {
     pub token_owner: Mapping<Id, Owner>,
-    pub operator_approvals: Mapping<(Owner, Operator, Option<Id>), (), ApprovalsKey /* optimization */>,
+    pub operator_approvals: Mapping<(Owner, Operator, Option<Id>), (), AutoKey, ApprovalsKey /* optimization */>,
     pub balances: B,
     pub _reserved: Option<()>,
 }

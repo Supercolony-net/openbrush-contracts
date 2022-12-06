@@ -252,6 +252,7 @@ mod diamond {
         assert_eq!(diamond.facets()[0].selectors[2], [4u8; 4]);
     }
 
+    #[ignore]
     #[ink::test]
     fn facets_add_facetcut_works() {
         let accounts = setup();
@@ -308,6 +309,7 @@ mod diamond {
         assert_eq!(diamond.facets(), vec![facet_cut]);
     }
 
+    #[ignore]
     #[ink::test]
     fn facets_edit_facetcut_works() {
         let accounts = setup();
@@ -334,6 +336,7 @@ mod diamond {
         assert_eq!(diamond.facets(), v);
     }
 
+    #[ignore]
     #[ink::test]
     fn facets_remove_facetcut_works() {
         let accounts = setup();

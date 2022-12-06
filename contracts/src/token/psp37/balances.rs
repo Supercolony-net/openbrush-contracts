@@ -23,6 +23,7 @@ use crate::psp37::{
     Id,
     PSP37Error,
 };
+use ink::storage::traits::AutoKey;
 
 use openbrush::{
     storage::{
@@ -47,8 +48,8 @@ pub trait BalancesManager {
 #[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(BALANCES_KEY)]
 pub struct Balances {
-    pub balances: Mapping<(AccountId, Option<Id>), Balance, BalancesKey>,
-    pub supply: Mapping<Option<Id>, Balance, SupplyKey>,
+    pub balances: Mapping<(AccountId, Option<Id>), Balance, AutoKey, BalancesKey>,
+    pub supply: Mapping<Option<Id>, Balance, AutoKey, SupplyKey>,
     pub _reserved: Option<()>,
 }
 

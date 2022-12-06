@@ -25,7 +25,10 @@ pub use crate::{
     traits::access_control::*,
 };
 pub use access_control::Internal as _;
-use ink::storage::traits::Storable;
+use ink::storage::traits::{
+    AutoKey,
+    Storable,
+};
 
 use openbrush::{
     modifier_definition,
@@ -49,7 +52,7 @@ pub struct Data<M = members::Members>
 where
     M: members::MembersManager + Storable,
 {
-    pub admin_roles: Mapping<RoleType, RoleType, ValueGuard<RoleType>>,
+    pub admin_roles: Mapping<RoleType, RoleType, AutoKey, ValueGuard<RoleType>>,
     pub members: M,
     pub _reserved: Option<()>,
 }

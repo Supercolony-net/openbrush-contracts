@@ -29,26 +29,37 @@ use core::marker::PhantomData;
 use ink::{
     metadata::layout::RootLayout,
     primitives::Key,
-    storage::traits::Packed,
+    storage::traits::{
+        AutoKey,
+        Packed,
+        Storable,
+        StorableHint,
+        StorageKey,
+    },
+};
+use scale::{
+    Error,
+    Input,
+    Output,
 };
 
 // TODO: More doc
 /// A mapping of one key to many values. The mapping provides iteration functionality over all
 /// key's values.
-#[derive(scale::Encode, scale::Decode)]
-pub struct MultiMapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
-    offset_key: Key,
-    _marker: PhantomData<fn() -> (K, V, TGK, TGV)>,
+pub struct MultiMapping<K, V, KeyType: StorageKey = AutoKey, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
+    _marker: PhantomData<fn() -> (K, V, KeyType, TGK, TGV)>,
 }
 
 type ValueToIndex<'a, TGK, TGV> = &'a (<TGK as TypeGuard<'a>>::Type, &'a <TGV as TypeGuard<'a>>::Type);
 type IndexToValue<'a, TGK> = &'a (<TGK as TypeGuard<'a>>::Type, &'a u128);
 
-impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV> {
+impl<K, V, KeyType, TGK, TGV> MultiMapping<K, V, KeyType, TGK, TGV>
+where
+    KeyType: StorageKey,
+{
     #[allow(dead_code)]
-    fn new(offset_key: Key) -> Self {
+    fn new() -> Self {
         Self {
-            offset_key,
             _marker: Default::default(),
         }
     }
@@ -59,7 +70,7 @@ impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV> {
     where
         for<'a> TGK: TypeGuard<'a>,
     {
-        RawMapping::new((&self.offset_key, &0))
+        RawMapping::new((&KeyType::KEY, &0))
     }
 
     // Mapping from key's value to local index.
@@ -69,7 +80,7 @@ impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV> {
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
     {
-        RawMapping::new((&self.offset_key, &1))
+        RawMapping::new((&KeyType::KEY, &1))
     }
 
     // Mapping from local key's index to value.
@@ -79,31 +90,35 @@ impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV> {
         for<'a> TGK: TypeGuard<'a>,
         for<'a> TGV: TypeGuard<'a>,
     {
-        RawMapping::new((&self.offset_key, &2))
+        RawMapping::new((&KeyType::KEY, &2))
     }
 }
 
-impl<K, V, TGK, TGV> Default for MultiMapping<K, V, TGK, TGV> {
+impl<K, V, KeyType, TGK, TGV> Default for MultiMapping<K, V, KeyType, TGK, TGV>
+where
+    KeyType: StorageKey,
+{
     fn default() -> Self {
         Self {
-            offset_key: Default::default(),
             _marker: Default::default(),
         }
     }
 }
 
-impl<K, V, TGK, TGV> core::fmt::Debug for MultiMapping<K, V, TGK, TGV> {
+impl<K, V, KeyType, TGK, TGV> core::fmt::Debug for MultiMapping<K, V, KeyType, TGK, TGV>
+where
+    KeyType: StorageKey,
+{
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("MultiMapping")
-            .field("offset_key", &self.offset_key)
-            .finish()
+        f.debug_struct("MultiMapping").field("key", &KeyType::KEY).finish()
     }
 }
 
-impl<K, V, TGK, TGV> MultiMapping<K, V, TGK, TGV>
+impl<K, V, KeyType, TGK, TGV> MultiMapping<K, V, KeyType, TGK, TGV>
 where
     K: Packed,
     V: Packed,
+    KeyType: StorageKey,
 {
     /// Insert the given `value` to the contract storage at `key`.
     pub fn insert<'b>(&'b mut self, key: <TGK as TypeGuard<'b>>::Type, value: &<TGV as TypeGuard<'b>>::Type)
@@ -146,7 +161,7 @@ where
         for<'a> TGV: TypeGuard<'a>,
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
     {
-        RawMapping::<IndexToValue<TGK>, V, _>::new((&self.offset_key, &2)).get(&(key, index))
+        RawMapping::<IndexToValue<TGK>, V, _>::new((&KeyType::KEY, &2)).get(&(key, index))
     }
 
     /// Get the `index` of (`key`, `value`) from the contract storage.
@@ -160,7 +175,7 @@ where
         for<'a> <TGK as TypeGuard<'a>>::Type: scale::Encode + Copy,
         for<'a> <TGV as TypeGuard<'a>>::Type: Packed,
     {
-        RawMapping::<ValueToIndex<TGK, TGV>, u128, _>::new((&self.offset_key, &1)).get(&(key, value))
+        RawMapping::<ValueToIndex<TGK, TGV>, u128, _>::new((&KeyType::KEY, &1)).get(&(key, value))
     }
 
     /// Get the size of a value stored at (`key`, `value`) in the contract storage.
@@ -317,10 +332,11 @@ const _: () = {
         TypeInfo,
     };
 
-    impl<K, V, TGK, TGV> TypeInfo for MultiMapping<K, V, TGK, TGV>
+    impl<K, V, KeyType, TGK, TGV> TypeInfo for MultiMapping<K, V, KeyType, TGK, TGV>
     where
         K: TypeInfo + 'static,
         V: TypeInfo + 'static,
+        KeyType: StorageKey + 'static,
         TGK: 'static,
         TGV: 'static,
     {
@@ -334,10 +350,11 @@ const _: () = {
         }
     }
 
-    impl<K, V, TGK, TGV> StorageLayout for MultiMapping<K, V, TGK, TGV>
+    impl<K, V, KeyType, TGK, TGV> StorageLayout for MultiMapping<K, V, KeyType, TGK, TGV>
     where
         K: scale_info::TypeInfo + 'static,
         V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
+        KeyType: StorageKey + 'static,
         TGK: 'static,
         TGV: 'static,
     {
@@ -346,6 +363,38 @@ const _: () = {
         }
     }
 };
+
+impl<K, V, KeyType, TGK, TGV> Storable for MultiMapping<K, V, KeyType, TGK, TGV>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    #[inline]
+    fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
+
+    #[inline]
+    fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
+        Ok(Default::default())
+    }
+}
+
+impl<K, V, Key, InnerKey, TGK, TGV> StorableHint<Key> for MultiMapping<K, V, InnerKey, TGK, TGV>
+where
+    V: Packed,
+    Key: StorageKey,
+    InnerKey: StorageKey,
+{
+    type Type = MultiMapping<K, V, Key>;
+    type PreferredKey = InnerKey;
+}
+
+impl<K, V, KeyType, TGK, TGV> StorageKey for MultiMapping<K, V, KeyType, TGK, TGV>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    const KEY: Key = KeyType::KEY;
+}
 
 #[cfg(test)]
 mod tests {

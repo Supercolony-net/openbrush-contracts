@@ -352,6 +352,7 @@ pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> To
 
     let out = quote! {
         #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+        #[::ink::storage_item(derive = false)]
         #item
 
         #storage_key_derived

@@ -39,7 +39,10 @@ use ink::{
         vec,
         vec::Vec,
     },
-    storage::traits::Storable,
+    storage::traits::{
+        AutoKey,
+        Storable,
+    },
 };
 use openbrush::{
     storage::{
@@ -65,7 +68,8 @@ where
     B: balances::BalancesManager + Storable,
 {
     pub balances: B,
-    pub operator_approvals: Mapping<(AccountId, AccountId, Option<Id>), Balance, ApprovalsKey /* optimization */>,
+    pub operator_approvals:
+        Mapping<(AccountId, AccountId, Option<Id>), Balance, AutoKey, ApprovalsKey /* optimization */>,
     pub _reserved: Option<()>,
 }
 

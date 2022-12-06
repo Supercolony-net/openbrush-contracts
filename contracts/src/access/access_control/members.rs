@@ -20,6 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub use crate::traits::access_control::*;
+use ink::storage::traits::AutoKey;
 use openbrush::{
     storage::{
         Mapping,
@@ -33,7 +34,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Members);
 #[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Members {
-    pub members: Mapping<(RoleType, AccountId), (), MembersKey>,
+    pub members: Mapping<(RoleType, AccountId), (), AutoKey, MembersKey>,
     pub _reserved: Option<()>,
 }
 
