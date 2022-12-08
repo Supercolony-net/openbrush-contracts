@@ -38,7 +38,6 @@ use syn::{
     DataUnion,
     Field,
     Fields,
-    Type,
 };
 
 fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Item = TokenStream> + 'a {
@@ -438,40 +437,31 @@ fn generate_union(s: &synstructure::Structure, union_item: DataUnion, storage_ke
 }
 
 fn convert_into_storage_field(
-    struct_ident: &Ident,
+    _struct_ident: &Ident,
     variant_ident: Option<&syn::Ident>,
-    storage_key: &TokenStream,
+    _storage_key: &TokenStream,
     index: usize,
     field: &Field,
 ) -> Field {
-    let field_name = if let Some(field_ident) = &field.ident {
+    let _field_name = if let Some(field_ident) = &field.ident {
         field_ident.to_string()
     } else {
         index.to_string()
     };
 
-    let variant_name = if let Some(variant_ident) = variant_ident {
+    let _variant_name = if let Some(variant_ident) = variant_ident {
         variant_ident.to_string()
     } else {
         "".to_string()
     };
 
-    let key = ink::primitives::KeyComposer::compute_key(
-        struct_ident.to_string().as_str(),
-        variant_name.as_str(),
-        field_name.as_str(),
-    )
-    .expect("unable to compute the storage key for the field");
-
     let mut new_field = field.clone();
-    let ty = field.ty.clone().to_token_stream();
-    let span = field.ty.span();
-    let new_ty = Type::Verbatim(quote_spanned!(span =>
-        <#ty as ::ink::storage::traits::AutoStorableHint<
-            ::ink::storage::traits::ManualKey<#key, ::ink::storage::traits::ManualKey<#storage_key>>,
-        >>::Type
-    ));
-    new_field.ty = new_ty;
+    let _ty = field.ty.clone().to_token_stream();
+
+    new_field.ty = match field {
+        _ => field.clone().ty,
+    };
+
     new_field
 }
 
@@ -484,15 +474,17 @@ pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> To
     let storable_hint = storable_hint_derive(&storage_key, s.clone());
     let storable = storable_derive(s.clone());
 
-    let generated_struct = match s.ast().data.clone() {
+    let _generated_struct = match s.ast().data.clone() {
         Data::Struct(struct_item) => generate_struct(&s, struct_item, &storage_key),
         Data::Enum(enum_item) => generate_enum(&s, enum_item, &storage_key),
         Data::Union(union_item) => generate_union(&s, union_item, &storage_key),
     };
 
+    let item = s.ast().to_token_stream();
+
     let out = quote! {
         #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
-        #generated_struct
+        #item
 
         #storage_key_derived
         #storable_hint
@@ -504,6 +496,5 @@ pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> To
         #occupy_storage
     };
 
-    println!("{}", out);
     out.into()
 }

@@ -46,7 +46,10 @@ use ink::{
         vec,
         vec::Vec,
     },
-    storage::traits::Storable,
+    storage::traits::{
+        ManualKey,
+        Storable,
+    },
 };
 use openbrush::{
     modifier_definition,
@@ -68,7 +71,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub min_delay: Timestamp,
-    pub timestamps: Mapping<OperationId, Timestamp>,
+    pub timestamps: Mapping<OperationId, Timestamp, ManualKey<{ STORAGE_KEY + 1 }>>,
     pub _reserved: Option<()>,
 }
 

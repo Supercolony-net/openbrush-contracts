@@ -40,7 +40,7 @@ use ink::{
         vec::Vec,
     },
     storage::traits::{
-        AutoKey,
+        ManualKey,
         Storable,
     },
 };
@@ -68,8 +68,12 @@ where
     B: balances::BalancesManager + Storable,
 {
     pub balances: B,
-    pub operator_approvals:
-        Mapping<(AccountId, AccountId, Option<Id>), Balance, AutoKey, ApprovalsKey /* optimization */>,
+    pub operator_approvals: Mapping<
+        (AccountId, AccountId, Option<Id>),
+        Balance,
+        ManualKey<{ STORAGE_KEY + 1 }>,
+        ApprovalsKey, // optimization
+    >,
     pub _reserved: Option<()>,
 }
 

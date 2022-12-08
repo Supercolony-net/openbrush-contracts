@@ -236,8 +236,6 @@ const _: () = {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::traits::AccountId;
-
     #[ink::test]
     fn insert_and_get_work() {
         let mut mapping: Mapping<u128, u128> = Mapping::default();
@@ -264,25 +262,5 @@ mod tests {
 
         assert_eq!(mapping.contains(&1), false);
         assert_eq!(mapping.contains(&2), true);
-    }
-
-    #[ink::test]
-    fn test_different_mappings() {
-        ink::env::test::run_test::<ink::env::DefaultEnvironment, _>(|_| {
-            let mut mapping1 = Mapping::<u128, u128>::new();
-            let mut mapping2 = Mapping::<u128, AccountId>::new();
-
-            mapping1.insert(&1, &1);
-            mapping2.insert(&1, &AccountId::from([0x1; 32]));
-
-            let value1 = mapping1.get(&1);
-            let value2 = mapping2.get(&1);
-
-            assert_eq!(value1, Some(1));
-            assert_eq!(value2, Some(AccountId::from([0x1; 32])));
-
-            Ok(())
-        })
-        .unwrap()
     }
 }

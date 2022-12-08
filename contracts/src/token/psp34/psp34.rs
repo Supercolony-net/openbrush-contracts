@@ -40,7 +40,7 @@ use ink::{
     },
     prelude::vec::Vec,
     storage::traits::{
-        AutoKey,
+        ManualKey,
         Storable,
     },
 };
@@ -66,8 +66,13 @@ pub struct Data<B = balances::Balances>
 where
     B: balances::BalancesManager + Storable,
 {
-    pub token_owner: Mapping<Id, Owner>,
-    pub operator_approvals: Mapping<(Owner, Operator, Option<Id>), (), AutoKey, ApprovalsKey /* optimization */>,
+    pub token_owner: Mapping<Id, Owner, ManualKey<{ STORAGE_KEY + 1 }>>,
+    pub operator_approvals: Mapping<
+        (Owner, Operator, Option<Id>),
+        (),
+        ManualKey<{ STORAGE_KEY + 2 }>,
+        ApprovalsKey, // optimization
+    >,
     pub balances: B,
     pub _reserved: Option<()>,
 }

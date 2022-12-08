@@ -38,7 +38,10 @@ use ink::{
     },
     prelude::vec::Vec,
     primitives::Clear,
-    storage::traits::Storable,
+    storage::traits::{
+        ManualKey,
+        Storable,
+    },
 };
 use openbrush::{
     modifiers,
@@ -57,9 +60,9 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data<D: DiamondCut + Storable = ()> {
     // Selector mapped to its facet
-    pub selector_to_hash: Mapping<Selector, Hash>,
+    pub selector_to_hash: Mapping<Selector, Hash, ManualKey<{ STORAGE_KEY + 1 }>>,
     // Facet mapped to all functions it supports
-    pub hash_to_selectors: Mapping<Hash, Vec<Selector>>,
+    pub hash_to_selectors: Mapping<Hash, Vec<Selector>, ManualKey<{ STORAGE_KEY + 2 }>>,
     // Handler of each facet add and remove.
     // It is empty by default but can be extended with loup logic.
     pub handler: D,

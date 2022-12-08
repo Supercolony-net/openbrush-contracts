@@ -110,7 +110,7 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///
 ///     const STORAGE_KEY: u32 = 123;
 ///
-///     #[derive(Debug)]
+///     #[derive(Default, Debug)]
 ///     #[openbrush::upgradeable_storage(STORAGE_KEY)]
 ///     pub struct Data {
 ///         pub supply: Balance,
@@ -429,8 +429,10 @@ synstructure::decl_attribute!(
     ///    pub _reserved: Option<()>,
     /// }
     ///
+    /// const PROXY_KEY : u32 = openbrush::storage_unique_key!(ProxyData);
+    ///
     /// #[derive(Debug)]
-    /// #[openbrush::upgradeable_storage(openbrush::storage_unique_key!(ProxyData))]
+    /// #[openbrush::upgradeable_storage(PROXY_KEY)]
     /// pub struct ProxyData {
     ///    pub forward: AccountId,
     ///    pub _reserved: Option<()>,
@@ -457,31 +459,24 @@ synstructure::decl_attribute!(
 ///
 /// # Example:
 /// ```
+/// use syn::custom_keyword;
 /// use openbrush::traits::Storage;
 /// use openbrush::traits::StorageAsRef;
 /// use openbrush::traits::StorageAsMut;
 ///
+/// const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Automatically);
+///
 /// #[derive(Debug)]
-/// #[openbrush::upgradeable_storage(openbrush::storage_unique_key!(Automatically))]
+/// #[openbrush::upgradeable_storage(STORAGE_KEY)]  
 /// pub struct Automatically;
-///
-/// #[derive(Debug)]
-/// pub struct Manual;
-///
-/// impl openbrush::traits::OccupyStorage for Manual {
-///     const KEY: u32 = openbrush::storage_unique_key!(Manual);
-/// }
 ///
 /// #[derive(Default, Debug, Storage)]
 /// pub struct Contract {
 ///    #[storage_field]
 ///    automatically: Automatically,
-///    #[storage_field]
-///    manual: Manual,
 /// }
 ///
 /// let mut contract = &mut Contract::default();
-/// let manual: &Manual = contract.data::<Manual>();
 /// let automatically: &mut Automatically = contract.data::<Automatically>();
 /// ```
 #[proc_macro_derive(Storage, attributes(storage_field))]

@@ -23,6 +23,7 @@ use crate::psp34::{
     Id,
     Owner,
 };
+use ink::storage::traits::ManualKey;
 
 use openbrush::{
     storage::Mapping,
@@ -41,7 +42,7 @@ pub trait BalancesManager {
 #[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Balances {
-    owned_tokens_count: Mapping<Owner, u32>,
+    owned_tokens_count: Mapping<Owner, u32, ManualKey<{ STORAGE_KEY + 1 }>>,
     total_supply: Balance,
 }
 

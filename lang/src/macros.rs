@@ -23,13 +23,13 @@
 /// It cam be used to generate unique storage key of the struct.
 #[macro_export]
 macro_rules! storage_unique_key {
-    ($struct:ident) => {
+    ($struct:ident) => {{
         $crate::utils::ConstHasher::hash($crate::utils::const_format::concatcp!(
             ::core::module_path!(),
             "::",
             ::core::stringify!($struct)
         ))
-    };
+    }};
 }
 
 #[test]

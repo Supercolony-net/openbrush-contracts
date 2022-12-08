@@ -25,7 +25,10 @@ pub use crate::{
 };
 pub use payment_splitter::Internal as _;
 
-use ink::prelude::vec::Vec;
+use ink::{
+    prelude::vec::Vec,
+    storage::traits::ManualKey,
+};
 use openbrush::{
     storage::Mapping,
     traits::{
@@ -44,8 +47,8 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 pub struct Data {
     pub total_shares: Balance,
     pub total_released: Balance,
-    pub shares: Mapping<AccountId, Balance>,
-    pub released: Mapping<AccountId, Balance>,
+    pub shares: Mapping<AccountId, Balance, ManualKey<{ STORAGE_KEY + 1 }>>,
+    pub released: Mapping<AccountId, Balance, ManualKey<{ STORAGE_KEY + 2 }>>,
     pub payees: Vec<AccountId>,
     pub _reserved: Option<()>,
 }
