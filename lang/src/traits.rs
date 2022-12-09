@@ -26,6 +26,7 @@ use ::ink::env::{
 use core::mem::ManuallyDrop;
 use ink::{
     prelude::vec::Vec,
+    primitives::Key,
     storage::traits::Storable,
 };
 pub use openbrush_lang_macro::Storage;
@@ -138,7 +139,7 @@ pub trait Flush: Storable + Sized {
     /// you have to this method on storage struct.
     fn flush(&self) {
         let root_key = ::ink::primitives::KeyComposer::from_bytes(&[0x00; 32]);
-        ink::env::set_contract_storage(&root_key, self);
+        ink::env::set_contract_storage::<Key, Self>(&root_key, self);
     }
 
     /// Method loads the current state of `Self` from storage.
@@ -147,7 +148,7 @@ pub trait Flush: Storable + Sized {
     /// you have to this method on storage struct.
     fn load(&mut self) {
         let root_key = ink::primitives::KeyComposer::from_bytes(&[0x00; 32]);
-        let mut state = ink::env::get_contract_storage(&root_key)
+        let mut state = ink::env::get_contract_storage::<Key, Self>(&root_key)
             .unwrap_or_else(|error| panic!("Failed to load contract state: {:?}", error))
             .unwrap_or_else(|| panic!("Contract state is not initialized"));
         core::mem::swap(self, &mut state);

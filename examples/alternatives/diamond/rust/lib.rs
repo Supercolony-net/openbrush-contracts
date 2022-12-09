@@ -4,6 +4,7 @@
 #[cfg(not(feature = "std"))]
 mod ext;
 
+use ink::primitives::KeyComposer;
 #[cfg(not(feature = "std"))]
 use ink::primitives::{
     Key,
@@ -27,12 +28,16 @@ const _: () = {
         let (_, facet_cut) = ink::env::decode_input::<([u8; 4], FacetCut)>().unwrap();
 
         // Support of diamond
-        let mut root_key: KeyPtr = KeyPtr::from(ROOT_KEY);
-        let mut storage = <diamond::Data as SpreadLayout>::pull_spread(&mut root_key);
+        let mut root_key = ROOT_KEY;
+        let mut storage = ink::env::get_contract_storage::<Key, diamond::Data>(&root_key)
+            .unwrap()
+            .unwrap();
         storage._diamond_cut_facet(&facet_cut).expect("Init diamond cut");
 
         // Support of ownable
-        let mut ownable = <ownable::Data as SpreadLayout>::pull_spread(&mut root_key);
+        let mut ownable = ink::env::get_contract_storage::<Key, ownable::Data>(&root_key)
+            .unwrap()
+            .unwrap();
         ownable._init_with_owner(<ownable::Data as DefaultEnv>::env().caller());
         ownable.flush();
     }
@@ -42,8 +47,10 @@ const _: () = {
     fn call() {
         let selector = ink::env::decode_input::<[u8; 4]>().unwrap();
 
-        let mut root_key: KeyPtr = KeyPtr::from(ROOT_KEY);
-        let storage = <diamond::Data as SpreadLayout>::pull_spread(&mut root_key);
+        let mut root_key = ROOT_KEY;
+        let storage = ink::env::get_contract_storage::<Key, diamond::Data>(&root_key)
+            .unwrap()
+            .unwrap();
         let hash = storage.selector_to_hash.get(&selector).expect("Can't find code hash");
 
         // Better than usage of `CallBuilder`.
@@ -63,13 +70,14 @@ pub struct Contract;
 #[cfg(feature = "std")]
 const _: () = {
     impl ::ink::storage::traits::StorageLayout for Contract {
-        fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink::metadata::layout::Layout {
-            ::ink::metadata::layout::Layout::Struct(::ink::metadata::layout::StructLayout::new([
-                ::ink::metadata::layout::FieldLayout::new(
+        fn layout(key: &mut ::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+            ::ink::metadata::layout::Layout::Struct(::ink::metadata::layout::StructLayout::new(
+                core::option::Option::Some("Contract"),
+                [::ink::metadata::layout::FieldLayout::new(
                     ::core::option::Option::Some("diamond"),
-                    <diamond::Data as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
-                ),
-            ]))
+                    <diamond::Data as ::ink::storage::traits::StorageLayout>::layout(key),
+                )],
+            ))
         }
     }
 };

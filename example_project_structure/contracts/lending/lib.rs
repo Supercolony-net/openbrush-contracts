@@ -46,6 +46,7 @@ pub mod my_lending {
             pausable::*,
         },
         traits::{
+            DefaultEnv,
             Storage,
             String,
         },

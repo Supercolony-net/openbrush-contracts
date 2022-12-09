@@ -456,29 +456,6 @@ synstructure::decl_attribute!(
 ///
 /// `OccupyStorage` can be implemented for the type manually or automatically via
 /// [`#[openbrush::upgradeable_storage]`](`macro@crate::upgradeable_storage`) macro.
-///
-/// # Example:
-/// ```
-/// use syn::custom_keyword;
-/// use openbrush::traits::Storage;
-/// use openbrush::traits::StorageAsRef;
-/// use openbrush::traits::StorageAsMut;
-///
-/// const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Automatically);
-///
-/// #[derive(Debug)]
-/// #[openbrush::upgradeable_storage(STORAGE_KEY)]  
-/// pub struct Automatically;
-///
-/// #[derive(Default, Debug, Storage)]
-/// pub struct Contract {
-///    #[storage_field]
-///    automatically: Automatically,
-/// }
-///
-/// let mut contract = &mut Contract::default();
-/// let automatically: &mut Automatically = contract.data::<Automatically>();
-/// ```
 #[proc_macro_derive(Storage, attributes(storage_field))]
 pub fn storage_derive(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     storage_derive::storage_derive(item.into()).into()
