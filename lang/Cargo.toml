@@ -18,7 +18,7 @@ openbrush_lang_macro = { version = "~2.4.0", path = "macro", default-features = 
 
 ink = { version = "~4.0.0-beta", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2", default-features = false, features = ["derive"] }
+scale-info = { version = "2.3", default-features = false, features = ["derive"] }
 
 xxhash-rust = { version = "0.8", features = ["const_xxh32"] }
 const_format = "0.2.21"
