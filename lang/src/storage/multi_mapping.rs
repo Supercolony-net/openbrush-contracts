@@ -27,7 +27,6 @@ use super::{
 use crate::storage::RawMapping;
 use core::marker::PhantomData;
 use ink::{
-    metadata::layout::RootLayout,
     primitives::Key,
     storage::traits::{
         AutoKey,
@@ -321,6 +320,7 @@ const _: () = {
         metadata::layout::{
             Layout,
             LayoutKey,
+            RootLayout,
         },
         storage::traits::StorageLayout,
     };
