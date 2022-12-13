@@ -25,7 +25,6 @@ use super::{
     ValueGuard,
 };
 use core::marker::PhantomData;
-use ink::metadata::layout::RootLayout;
 
 use crate::storage::RefGuard;
 use ink::{
@@ -190,6 +189,7 @@ const _: () = {
         metadata::layout::{
             Layout,
             LayoutKey,
+            RootLayout,
         },
         storage::traits::StorageLayout,
     };
