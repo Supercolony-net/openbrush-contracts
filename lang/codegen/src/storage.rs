@@ -20,24 +20,17 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use proc_macro2::{
-    Ident,
     TokenStream,
 };
 use quote::{
     format_ident,
     quote,
     quote_spanned,
-    ToTokens,
 };
 use syn::{
+    parse_quote,
     parse2,
     spanned::Spanned,
-    Data,
-    DataEnum,
-    DataStruct,
-    DataUnion,
-    Field,
-    Fields,
 };
 
 fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Item = TokenStream> + 'a {
@@ -348,150 +341,27 @@ pub fn storable_hint_derive(storage_key: &TokenStream, s: synstructure::Structur
     }
 }
 
-fn generate_struct(s: &synstructure::Structure, struct_item: DataStruct, storage_key: &TokenStream) -> TokenStream {
-    let struct_ident = s.ast().ident.clone();
-    let vis = s.ast().vis.clone();
-    let generics = s.ast().generics.clone();
-
-    let fields = struct_item
-        .fields
-        .iter()
-        .enumerate()
-        .map(|(i, field)| convert_into_storage_field(&struct_ident, None, &storage_key, i, field));
-
-    match struct_item.fields {
-        Fields::Unnamed(_) => {
-            quote! {
-                #vis struct #struct_ident #generics (
-                    #(#fields),*
-                );
-            }
-        }
-        _ => {
-            quote! {
-                #vis struct #struct_ident #generics {
-                    #(#fields),*
-                }
-            }
-        }
-    }
-}
-
-fn generate_enum(s: &synstructure::Structure, enum_item: DataEnum, storage_key: &TokenStream) -> TokenStream {
-    let enum_ident = s.ast().ident.clone();
-    let vis = s.ast().vis.clone();
-    let generics = s.ast().generics.clone();
-
-    let variants = enum_item.variants.into_iter().map(|variant| {
-        let attrs = variant.attrs;
-        let variant_ident = &variant.ident;
-        let discriminant = if let Some((eq, expr)) = variant.discriminant {
-            quote! { #eq #expr}
-        } else {
-            quote! {}
-        };
-
-        let fields: Vec<_> = variant
-            .fields
-            .iter()
-            .enumerate()
-            .map(|(i, field)| convert_into_storage_field(&enum_ident, Some(variant_ident), &storage_key, i, field))
-            .collect();
-
-        let fields = match variant.fields {
-            Fields::Named(_) => quote! { { #(#fields),* } },
-            Fields::Unnamed(_) => quote! { ( #(#fields),* ) },
-            Fields::Unit => quote! {},
-        };
-
-        quote! {
-            #(#attrs)*
-            #variant_ident #fields #discriminant
-        }
-    });
-
-    quote! {
-        #vis enum #enum_ident #generics {
-            #(#variants),*
-        }
-    }
-}
-
-fn generate_union(s: &synstructure::Structure, union_item: DataUnion, storage_key: &TokenStream) -> TokenStream {
-    let union_ident = s.ast().ident.clone();
-    let vis = s.ast().vis.clone();
-    let generics = s.ast().generics.clone();
-
-    let fields = union_item
-        .fields
-        .named
-        .iter()
-        .enumerate()
-        .map(|(i, field)| convert_into_storage_field(&union_ident, None, &storage_key, i, field));
-
-    quote! {
-        #vis union #union_ident #generics {
-            #(#fields),*
-        }
-    }
-}
-
-fn convert_into_storage_field(
-    _struct_ident: &Ident,
-    variant_ident: Option<&syn::Ident>,
-    _storage_key: &TokenStream,
-    index: usize,
-    field: &Field,
-) -> Field {
-    let _field_name = if let Some(field_ident) = &field.ident {
-        field_ident.to_string()
-    } else {
-        index.to_string()
-    };
-
-    let _variant_name = if let Some(variant_ident) = variant_ident {
-        variant_ident.to_string()
-    } else {
-        "".to_string()
-    };
-
-    let mut new_field = field.clone();
-    let _ty = field.ty.clone().to_token_stream();
-
-    new_field.ty = match field {
-        _ => field.clone().ty,
-    };
-
-    new_field
-}
-
 pub fn upgradeable_storage(attrs: TokenStream, s: synstructure::Structure) -> TokenStream {
     let storage_key = attrs.clone();
 
-    let storage_layout = storage_layout_derive(&storage_key, s.clone());
     let occupy_storage = occupy_storage_derive(&storage_key, s.clone());
     let storage_key_derived = storage_key_derive(&storage_key, s.clone());
     let storable_hint = storable_hint_derive(&storage_key, s.clone());
-    let storable = storable_derive(s.clone());
 
-    let _generated_struct = match s.ast().data.clone() {
-        Data::Struct(struct_item) => generate_struct(&s, struct_item, &storage_key),
-        Data::Enum(enum_item) => generate_enum(&s, enum_item, &storage_key),
-        Data::Union(union_item) => generate_union(&s, union_item, &storage_key),
-    };
-
-    let item = s.ast().to_token_stream();
+    let mut item = s.ast().clone();
+    item.generics.params.push(parse_quote!(
+        __brush_Parent_Key : ::ink::storage::traits::StorageKey = ::ink::storage::traits::ManualKey<#storage_key>
+    ));
 
     let out = quote! {
+        #[::ink::storage_item(derive = false)]
+        #[derive(::ink::storage::traits::Storable)]
         #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+        #[cfg_attr(feature = "std", derive(::ink::storage::traits::StorageLayout))]
         #item
 
         #storage_key_derived
         #storable_hint
-        #storable
-
-        #[cfg(feature = "std")]
-        #storage_layout
 
         #occupy_storage
     };

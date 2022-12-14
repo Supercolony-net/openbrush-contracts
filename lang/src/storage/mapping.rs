@@ -46,13 +46,13 @@ use scale::{
 /// It is a more restricted version of the `Mapping` from ink!. That mapping can be used to unify
 /// the API calls to the `Mapping` to avoid monomorphization to reduce the size of contracts.
 /// It verifies that all calls are done with the same type during compilation.
-pub struct Mapping<K, V, KeyType: StorageKey = AutoKey, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
+pub struct Mapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>, KeyType: StorageKey = AutoKey> {
     #[allow(clippy::type_complexity)]
     _marker: PhantomData<fn() -> (K, V, KeyType, TGK, TGV)>,
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
-impl<K, V, KeyType, TGK, TGV> Default for Mapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> Default for Mapping<K, V, TGK, TGV, KeyType>
 where
     V: Packed,
     KeyType: StorageKey,
@@ -64,7 +64,7 @@ where
     }
 }
 
-impl<K, V, KeyType, TGK, TGV> core::fmt::Debug for Mapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> core::fmt::Debug for Mapping<K, V, TGK, TGV, KeyType>
 where
     V: Packed,
     KeyType: StorageKey,
@@ -74,7 +74,7 @@ where
     }
 }
 
-impl<K, V, KeyType, TGK, TGV> Mapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> Mapping<K, V, TGK, TGV, KeyType>
 where
     KeyType: StorageKey,
 {
@@ -87,7 +87,7 @@ where
     }
 }
 
-impl<K, V, KeyType, TGK, TGV> Mapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> Mapping<K, V, TGK, TGV, KeyType>
 where
     K: Packed,
     V: Packed,
@@ -151,7 +151,7 @@ where
     }
 }
 
-impl<K, V, KeyType, TGK, TGV> Storable for Mapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> Storable for Mapping<K, V, TGK, TGV, KeyType>
 where
     V: Packed,
     KeyType: StorageKey,
@@ -165,17 +165,17 @@ where
     }
 }
 
-impl<K, V, Key, TGK, TGV, InnerKey> StorableHint<Key> for Mapping<K, V, InnerKey, TGK, TGV>
+impl<K, V, Key, TGK, TGV, InnerKey> StorableHint<Key> for Mapping<K, V, TGK, TGV, InnerKey>
 where
     V: Packed,
     Key: StorageKey,
     InnerKey: StorageKey,
 {
-    type Type = Mapping<K, V, Key, TGK, TGV>;
+    type Type = Mapping<K, V, TGK, TGV, Key>;
     type PreferredKey = InnerKey;
 }
 
-impl<K, V, KeyType, TGK, TGV> StorageKey for Mapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> StorageKey for Mapping<K, V, TGK, TGV, KeyType>
 where
     V: Packed,
     KeyType: StorageKey,
@@ -201,7 +201,7 @@ const _: () = {
         TypeInfo,
     };
 
-    impl<K, V, KeyType, TGK, TGV> TypeInfo for Mapping<K, V, KeyType, TGK, TGV>
+    impl<K, V, TGK, TGV, KeyType> TypeInfo for Mapping<K, V, TGK, TGV, KeyType>
     where
         K: TypeInfo + 'static,
         V: TypeInfo + 'static,
@@ -219,7 +219,7 @@ const _: () = {
         }
     }
 
-    impl<K, V, KeyType, TGK, TGV> StorageLayout for Mapping<K, V, KeyType, TGK, TGV>
+    impl<K, V, TGK, TGV, KeyType> StorageLayout for Mapping<K, V, TGK, TGV, KeyType>
     where
         K: scale_info::TypeInfo + 'static,
         V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
@@ -227,8 +227,11 @@ const _: () = {
         TGK: 'static,
         TGV: 'static,
     {
-        fn layout(key: &Key) -> Layout {
-            Layout::Root(RootLayout::new(LayoutKey::from(key), <V as StorageLayout>::layout(key)))
+        fn layout(_: &Key) -> Layout {
+            Layout::Root(RootLayout::new(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
         }
     }
 };
