@@ -44,6 +44,8 @@ use ink::{
         Storable,
     },
 };
+use ink::storage::Lazy;
+use ink::storage::traits::StorableHint;
 use openbrush::{
     storage::{
         Mapping,
@@ -60,20 +62,15 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
+#[derive(Default, Debug)]
 pub struct Data<B = balances::Balances>
 where
     B: balances::BalancesManager + Storable,
 {
-    pub token_owner: Mapping<Id, Owner, ManualKey<{ STORAGE_KEY + 1 }>>,
-    pub operator_approvals: Mapping<
-        (Owner, Operator, Option<Id>),
-        (),
-        ManualKey<{ STORAGE_KEY + 2 }>,
-        ApprovalsKey, // optimization
-    >,
-    pub balances: B,
+    pub token_owner: Mapping<Id, Owner>,
+    pub operator_approvals: Mapping<(Owner, Operator, Option<Id>), (), ApprovalsKey>,
+    pub balances: Lazy<B>,
     pub _reserved: Option<()>,
 }
 

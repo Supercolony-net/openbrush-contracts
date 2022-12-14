@@ -30,7 +30,6 @@ use ink::{
         Error as EnvError,
     },
     prelude::vec::Vec,
-    storage::traits::ManualKey,
 };
 use openbrush::{
     storage::{
@@ -52,12 +51,12 @@ pub use psp22::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
+#[derive(Default, Debug)]
 pub struct Data {
     pub supply: Balance,
-    pub balances: Mapping<AccountId, Balance, ManualKey<{ STORAGE_KEY + 1 }>>,
-    pub allowances: Mapping<(AccountId, AccountId), Balance, ManualKey<{ STORAGE_KEY + 2 }>, AllowancesKey>,
+    pub balances: Mapping<AccountId, Balance>,
+    pub allowances: Mapping<(AccountId, AccountId), Balance, AllowancesKey>,
     pub _reserved: Option<()>,
 }
 
