@@ -27,7 +27,12 @@ pub use crate::{
         *,
     },
 };
-use ink::storage::traits::Storable;
+use ink::storage::traits::{
+    AutoStorableHint,
+    ManualKey,
+    Storable,
+    StorableHint,
+};
 pub use psp34::{
     Internal as _,
     Transfer as _,
@@ -41,7 +46,10 @@ use openbrush::traits::{
 
 impl<B, T> PSP34Mintable for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ psp34::STORAGE_KEY }>>, Type = B>
+        + StorableHint<ManualKey<{ psp34::STORAGE_KEY }>>,
     T: Storage<psp34::Data<B>>,
     T: OccupiedStorage<{ psp34::STORAGE_KEY }, WithData = psp34::Data<B>>,
 {

@@ -25,6 +25,7 @@ unwrap = "1.2.1"
 blake2 = "0.9"
 heck = "0.3.1"
 ink_ir = { version = "~4.0.0-beta", default-features = false }
+ink_primitives = { version = "~4.0.0-beta", default-features = false }
 synstructure = "0.12"
 
 [lib]
