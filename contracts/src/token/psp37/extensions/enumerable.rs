@@ -30,7 +30,6 @@ pub use crate::{
         *,
     },
 };
-use ink::storage::traits::ManualKey;
 
 use openbrush::{
     storage::{
@@ -52,12 +51,12 @@ pub use psp37::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Balances);
 
-#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
+#[derive(Default, Debug)]
 pub struct Balances {
-    pub enumerable: MultiMapping<Option<AccountId>, Id, ManualKey<{ STORAGE_KEY + 1 }>, EnumerableKey>,
-    pub balances: Mapping<(AccountId, Id), Balance, ManualKey<{ STORAGE_KEY + 2 }>, BalancesKey>,
-    pub supply: Mapping<Id, Balance, ManualKey<{ STORAGE_KEY + 3 }>>,
+    pub enumerable: MultiMapping<Option<AccountId>, Id, EnumerableKey>,
+    pub balances: Mapping<(AccountId, Id), Balance, BalancesKey>,
+    pub supply: Mapping<Id, Balance>,
     pub _reserved: Option<()>,
 }
 

@@ -39,15 +39,11 @@ use ink::{
         Error as EnvError,
     },
     prelude::vec::Vec,
-    storage::{
-        traits::{
-            AutoStorableHint,
-            ManualKey,
-            Storable,
-            StorableHint,
-            StorageKey,
-        },
-        Lazy,
+    storage::traits::{
+        AutoStorableHint,
+        ManualKey,
+        Storable,
+        StorableHint,
     },
 };
 use openbrush::{

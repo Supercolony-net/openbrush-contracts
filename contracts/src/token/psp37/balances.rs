@@ -23,7 +23,6 @@ use crate::psp37::{
     Id,
     PSP37Error,
 };
-use ink::storage::traits::ManualKey;
 
 use openbrush::{
     storage::{
@@ -45,11 +44,11 @@ pub trait BalancesManager {
     fn decrease_balance(&mut self, owner: &AccountId, id: &Id, amount: &Balance, burn: bool) -> Result<(), PSP37Error>;
 }
 
-#[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(BALANCES_KEY)]
+#[derive(Default, Debug)]
 pub struct Balances {
-    pub balances: Mapping<(AccountId, Option<Id>), Balance, ManualKey<{ BALANCES_KEY + 1 }>, BalancesKey>,
-    pub supply: Mapping<Option<Id>, Balance, ManualKey<{ BALANCES_KEY + 2 }>, SupplyKey>,
+    pub balances: Mapping<(AccountId, Option<Id>), Balance, BalancesKey>,
+    pub supply: Mapping<Option<Id>, Balance, SupplyKey>,
     pub _reserved: Option<()>,
 }
 

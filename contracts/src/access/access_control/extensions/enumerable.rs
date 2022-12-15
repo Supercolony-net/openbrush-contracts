@@ -31,7 +31,6 @@ pub use crate::{
     },
 };
 pub use access_control::Internal as _;
-use ink::storage::traits::ManualKey;
 
 use openbrush::{
     storage::{
@@ -50,7 +49,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Members);
 #[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Members {
-    pub role_members: MultiMapping<RoleType, AccountId, ManualKey<{ STORAGE_KEY + 1 }>, ValueGuard<RoleType>>,
+    pub role_members: MultiMapping<RoleType, AccountId, ValueGuard<RoleType>>,
     pub _reserved: Option<()>,
 }
 

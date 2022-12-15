@@ -39,8 +39,10 @@ use ink::{
     prelude::vec::Vec,
     primitives::Clear,
     storage::traits::{
+        AutoStorableHint,
         ManualKey,
         Storable,
+        StorableHint,
     },
 };
 use openbrush::{
@@ -58,11 +60,15 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 // TODO: Add support of Erc165
 #[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
-pub struct Data<D: DiamondCut + Storable = ()> {
-    // Selector mapped to its facet
-    pub selector_to_hash: Mapping<Selector, Hash, ManualKey<{ STORAGE_KEY + 1 }>>,
+pub struct Data<D = ()>
+where
+    D: Storable
+        + StorableHint<ManualKey<913099263>>
+        + AutoStorableHint<ManualKey<1826024066, ManualKey<{ STORAGE_KEY }>>, Type = D>,
+{
+    pub selector_to_hash: Mapping<Selector, Hash>,
     // Facet mapped to all functions it supports
-    pub hash_to_selectors: Mapping<Hash, Vec<Selector>, ManualKey<{ STORAGE_KEY + 2 }>>,
+    pub hash_to_selectors: Mapping<Hash, Vec<Selector>>,
     // Handler of each facet add and remove.
     // It is empty by default but can be extended with loup logic.
     pub handler: D,
@@ -70,7 +76,10 @@ pub struct Data<D: DiamondCut + Storable = ()> {
 
 impl<D, T> Diamond for T
 where
-    D: DiamondCut + Storable,
+    D: DiamondCut,
+    D: Storable
+        + StorableHint<ManualKey<913099263>>
+        + AutoStorableHint<ManualKey<1826024066, ManualKey<{ STORAGE_KEY }>>, Type = D>,
     T: Storage<ownable::Data>,
     T: Storage<Data<D>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<D>>,
@@ -99,7 +108,10 @@ pub trait Internal {
 
 impl<D, T> Internal for T
 where
-    D: DiamondCut + Storable,
+    D: DiamondCut,
+    D: Storable
+        + StorableHint<ManualKey<913099263>>
+        + AutoStorableHint<ManualKey<1826024066, ManualKey<{ STORAGE_KEY }>>, Type = D>,
     T: Storage<Data<D>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<D>>,
 {

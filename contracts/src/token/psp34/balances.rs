@@ -23,8 +23,6 @@ use crate::psp34::{
     Id,
     Owner,
 };
-use ink::storage::traits::ManualKey;
-
 use openbrush::{
     storage::Mapping,
     traits::Balance,

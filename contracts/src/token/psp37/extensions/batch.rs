@@ -38,7 +38,12 @@ pub use psp37::{
 
 use ink::{
     prelude::vec::Vec,
-    storage::traits::Storable,
+    storage::traits::{
+        AutoStorableHint,
+        ManualKey,
+        Storable,
+        StorableHint,
+    },
 };
 use openbrush::traits::{
     AccountId,
@@ -50,7 +55,10 @@ use openbrush::traits::{
 
 impl<B, T> PSP37Batch for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + StorableHint<ManualKey<{ psp37::STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ psp37::STORAGE_KEY }>>, Type = B>,
     T: Storage<psp37::Data<B>>,
     T: OccupiedStorage<{ psp37::STORAGE_KEY }, WithData = psp37::Data<B>>,
 {
@@ -86,7 +94,10 @@ pub trait Internal {
 
 impl<B, T> Internal for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + StorableHint<ManualKey<{ psp37::STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ psp37::STORAGE_KEY }>>, Type = B>,
     T: Storage<psp37::Data<B>>,
     T: OccupiedStorage<{ psp37::STORAGE_KEY }, WithData = psp37::Data<B>>,
 {

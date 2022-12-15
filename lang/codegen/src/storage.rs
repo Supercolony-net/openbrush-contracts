@@ -31,7 +31,6 @@ use quote::{
 };
 use syn::{
     parse2,
-    parse_quote,
     spanned::Spanned,
     Data,
     DataEnum,

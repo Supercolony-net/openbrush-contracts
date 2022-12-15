@@ -30,10 +30,7 @@ pub use crate::{
         *,
     },
 };
-use ink::{
-    prelude::vec::Vec,
-    storage::traits::ManualKey,
-};
+use ink::prelude::vec::Vec;
 pub use metadata::Internal as _;
 use openbrush::{
     storage::{
@@ -52,7 +49,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
-    pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>, ManualKey<{ STORAGE_KEY + 1 }>, AttributesKey>,
+    pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>, AttributesKey>,
     pub _reserved: Option<()>,
 }
 

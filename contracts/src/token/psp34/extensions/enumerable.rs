@@ -31,7 +31,6 @@ pub use crate::{
         *,
     },
 };
-use ink::storage::traits::ManualKey;
 
 use openbrush::{
     storage::{

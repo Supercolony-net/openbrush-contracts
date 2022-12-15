@@ -47,8 +47,10 @@ use ink::{
         vec::Vec,
     },
     storage::traits::{
+        AutoStorableHint,
         ManualKey,
         Storable,
+        StorableHint,
     },
 };
 use openbrush::{
@@ -71,7 +73,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub min_delay: Timestamp,
-    pub timestamps: Mapping<OperationId, Timestamp, ManualKey<{ STORAGE_KEY + 1 }>>,
+    pub timestamps: Mapping<OperationId, Timestamp>,
     pub _reserved: Option<()>,
 }
 
@@ -82,7 +84,10 @@ pub struct Data {
 #[modifier_definition]
 pub fn only_role_or_open_role<T, M, F, R, E>(instance: &mut T, body: F, role: RoleType) -> Result<R, E>
 where
-    M: access_control::members::MembersManager + Storable,
+    M: access_control::members::MembersManager,
+    M: Storable
+        + StorableHint<ManualKey<{ access_control::STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<3218979580, ManualKey<{ access_control::STORAGE_KEY }>>, Type = M>,
     T: Storage<access_control::Data<M>>,
     T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
     F: FnOnce(&mut T) -> Result<R, E>,
@@ -102,7 +107,10 @@ pub const DONE_TIMESTAMP: Timestamp = 1;
 
 impl<T, M> TimelockController for T
 where
-    M: access_control::members::MembersManager + Storable,
+    M: access_control::members::MembersManager,
+    M: Storable
+        + StorableHint<ManualKey<{ access_control::STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<3218979580, ManualKey<{ access_control::STORAGE_KEY }>>, Type = M>,
     T: Storage<Data>,
     T: Storage<access_control::Data<M>>,
     T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
@@ -302,7 +310,10 @@ pub trait Internal {
 
 impl<T, M> Internal for T
 where
-    M: access_control::members::MembersManager + Storable,
+    M: access_control::members::MembersManager,
+    M: Storable
+        + StorableHint<ManualKey<{ access_control::STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<3218979580, ManualKey<{ access_control::STORAGE_KEY }>>, Type = M>,
     T: Storage<Data>,
     T: Storage<access_control::Data<M>>,
     T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,

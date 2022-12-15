@@ -40,8 +40,10 @@ use ink::{
         vec::Vec,
     },
     storage::traits::{
+        AutoStorableHint,
         ManualKey,
         Storable,
+        StorableHint,
     },
 };
 use openbrush::{
@@ -65,13 +67,14 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data<B = balances::Balances>
 where
-    B: balances::BalancesManager + Storable,
+    B: Storable
+        + StorableHint<ManualKey<{ STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ STORAGE_KEY }>>, Type = B>,
 {
     pub balances: B,
     pub operator_approvals: Mapping<
         (AccountId, AccountId, Option<Id>),
         Balance,
-        ManualKey<{ STORAGE_KEY + 1 }>,
         ApprovalsKey, // optimization
     >,
     pub _reserved: Option<()>,
@@ -85,7 +88,10 @@ impl<'a> TypeGuard<'a> for ApprovalsKey {
 
 impl<B, T> PSP37 for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + StorableHint<ManualKey<{ STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ STORAGE_KEY }>>, Type = B>,
     T: Storage<Data<B>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<B>>,
 {
@@ -197,7 +203,10 @@ pub trait Internal {
 
 impl<B, T> Internal for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + StorableHint<ManualKey<{ STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ STORAGE_KEY }>>, Type = B>,
     T: Storage<Data<B>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<B>>,
 {
@@ -436,7 +445,10 @@ pub trait Transfer {
 
 impl<B, T> Transfer for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + StorableHint<ManualKey<{ STORAGE_KEY }>>
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ STORAGE_KEY }>>, Type = B>,
     T: Storage<Data<B>>,
     T: OccupiedStorage<STORAGE_KEY, WithData = Data<B>>,
 {

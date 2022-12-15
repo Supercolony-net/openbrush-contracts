@@ -31,10 +31,7 @@ pub use crate::{
 pub use diamond::Internal as _;
 pub use ownable::Internal as _;
 
-use ink::{
-    prelude::vec::Vec,
-    storage::traits::ManualKey,
-};
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,
@@ -54,9 +51,9 @@ pub struct Loupe {
     // number of registered code hashes
     pub code_hashes: u32,
     // mapping of facet to its position in all facets list
-    pub hash_to_id: Mapping<Hash, u32, ManualKey<{ STORAGE_KEY + 1 }>>,
+    pub hash_to_id: Mapping<Hash, u32>,
     // mapping of facet id to its facet
-    pub id_to_hash: Mapping<u32, Hash, ManualKey<{ STORAGE_KEY + 2 }>, ValueGuard<u32>>,
+    pub id_to_hash: Mapping<u32, Hash, ValueGuard<u32>>,
     pub _reserved: Option<()>,
 }
 

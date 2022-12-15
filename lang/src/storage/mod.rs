@@ -20,15 +20,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::marker::PhantomData;
-use ink::{
-    primitives::Key,
-    storage::traits::{
-        ManualKey,
-        ResolverKey,
-        StorageKey,
-    },
-};
-
 mod mapping;
 mod multi_mapping;
 mod raw_mapping;
