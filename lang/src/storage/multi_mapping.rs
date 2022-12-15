@@ -45,14 +45,14 @@ use scale::{
 // TODO: More doc
 /// A mapping of one key to many values. The mapping provides iteration functionality over all
 /// key's values.
-pub struct MultiMapping<K, V, KeyType: StorageKey = AutoKey, TGK = RefGuard<K>, TGV = ValueGuard<V>> {
-    _marker: PhantomData<fn() -> (K, V, KeyType, TGK, TGV)>,
+pub struct MultiMapping<K, V, TGK = RefGuard<K>, TGV = ValueGuard<V>, KeyType: StorageKey = AutoKey> {
+    _marker: PhantomData<fn() -> (K, V, TGK, TGV, KeyType)>,
 }
 
 type ValueToIndex<'a, TGK, TGV> = &'a (<TGK as TypeGuard<'a>>::Type, &'a <TGV as TypeGuard<'a>>::Type);
 type IndexToValue<'a, TGK> = &'a (<TGK as TypeGuard<'a>>::Type, &'a u128);
 
-impl<K, V, KeyType, TGK, TGV> MultiMapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> MultiMapping<K, V, TGK, TGV, KeyType>
 where
     KeyType: StorageKey,
 {
@@ -93,7 +93,7 @@ where
     }
 }
 
-impl<K, V, KeyType, TGK, TGV> Default for MultiMapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> Default for MultiMapping<K, V, TGK, TGV, KeyType>
 where
     KeyType: StorageKey,
 {
@@ -104,7 +104,7 @@ where
     }
 }
 
-impl<K, V, KeyType, TGK, TGV> core::fmt::Debug for MultiMapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> core::fmt::Debug for MultiMapping<K, V, TGK, TGV, KeyType>
 where
     KeyType: StorageKey,
 {
@@ -113,7 +113,7 @@ where
     }
 }
 
-impl<K, V, KeyType, TGK, TGV> MultiMapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> MultiMapping<K, V, TGK, TGV, KeyType>
 where
     K: Packed,
     V: Packed,
@@ -332,7 +332,7 @@ const _: () = {
         TypeInfo,
     };
 
-    impl<K, V, KeyType, TGK, TGV> TypeInfo for MultiMapping<K, V, KeyType, TGK, TGV>
+    impl<K, V, TGK, TGV, KeyType> TypeInfo for MultiMapping<K, V, TGK, TGV, KeyType>
     where
         K: TypeInfo + 'static,
         V: TypeInfo + 'static,
@@ -350,7 +350,7 @@ const _: () = {
         }
     }
 
-    impl<K, V, KeyType, TGK, TGV> StorageLayout for MultiMapping<K, V, KeyType, TGK, TGV>
+    impl<K, V, TGK, TGV, KeyType> StorageLayout for MultiMapping<K, V, TGK, TGV, KeyType>
     where
         K: scale_info::TypeInfo + 'static,
         V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
@@ -364,7 +364,7 @@ const _: () = {
     }
 };
 
-impl<K, V, KeyType, TGK, TGV> Storable for MultiMapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> Storable for MultiMapping<K, V, TGK, TGV, KeyType>
 where
     V: Packed,
     KeyType: StorageKey,
@@ -378,17 +378,17 @@ where
     }
 }
 
-impl<K, V, Key, InnerKey, TGK, TGV> StorableHint<Key> for MultiMapping<K, V, InnerKey, TGK, TGV>
+impl<K, V, Key, InnerKey, TGK, TGV> StorableHint<Key> for MultiMapping<K, V, TGK, TGV, InnerKey>
 where
     V: Packed,
     Key: StorageKey,
     InnerKey: StorageKey,
 {
-    type Type = MultiMapping<K, V, Key>;
+    type Type = MultiMapping<K, V, TGK, TGV, Key>;
     type PreferredKey = InnerKey;
 }
 
-impl<K, V, KeyType, TGK, TGV> StorageKey for MultiMapping<K, V, KeyType, TGK, TGV>
+impl<K, V, TGK, TGV, KeyType> StorageKey for MultiMapping<K, V, TGK, TGV, KeyType>
 where
     V: Packed,
     KeyType: StorageKey,

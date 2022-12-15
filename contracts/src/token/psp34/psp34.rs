@@ -39,13 +39,17 @@ use ink::{
         Error as EnvError,
     },
     prelude::vec::Vec,
-    storage::traits::{
-        ManualKey,
-        Storable,
+    storage::{
+        traits::{
+            AutoStorableHint,
+            ManualKey,
+            Storable,
+            StorableHint,
+            StorageKey,
+        },
+        Lazy,
     },
 };
-use ink::storage::Lazy;
-use ink::storage::traits::StorableHint;
 use openbrush::{
     storage::{
         Mapping,
@@ -66,11 +70,13 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Default, Debug)]
 pub struct Data<B = balances::Balances>
 where
-    B: balances::BalancesManager + Storable,
+    B: Storable
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ STORAGE_KEY }>>, Type = B>
+        + StorableHint<ManualKey<{ STORAGE_KEY }>>,
 {
     pub token_owner: Mapping<Id, Owner>,
     pub operator_approvals: Mapping<(Owner, Operator, Option<Id>), (), ApprovalsKey>,
-    pub balances: Lazy<B>,
+    pub balances: B,
     pub _reserved: Option<()>,
 }
 
@@ -82,7 +88,10 @@ impl<'a> TypeGuard<'a> for ApprovalsKey {
 
 impl<B, T> PSP34 for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ STORAGE_KEY }>>, Type = B>
+        + StorableHint<ManualKey<{ STORAGE_KEY }>>,
     T: Storage<Data<B>>,
     T: OccupiedStorage<{ STORAGE_KEY }, WithData = Data<B>>,
 {
@@ -152,7 +161,10 @@ pub trait Internal {
 
 impl<B, T> Internal for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ STORAGE_KEY }>>, Type = B>
+        + StorableHint<ManualKey<{ STORAGE_KEY }>>,
     T: Storage<Data<B>>,
     T: OccupiedStorage<{ STORAGE_KEY }, WithData = Data<B>>,
 {
@@ -309,7 +321,10 @@ pub trait Transfer {
 
 impl<B, T> Transfer for T
 where
-    B: balances::BalancesManager + Storable,
+    B: balances::BalancesManager,
+    B: Storable
+        + AutoStorableHint<ManualKey<453953544, ManualKey<{ STORAGE_KEY }>>, Type = B>
+        + StorableHint<ManualKey<{ STORAGE_KEY }>>,
     T: Storage<Data<B>>,
     T: OccupiedStorage<{ STORAGE_KEY }, WithData = Data<B>>,
 {
