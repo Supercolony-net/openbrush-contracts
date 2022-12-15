@@ -35,3 +35,9 @@ pub enum Id {
     U128(u128),
     Bytes(Vec<u8>),
 }
+
+impl Default for Id {
+    fn default() -> Self {
+        Self::U8(0)
+    }
+}

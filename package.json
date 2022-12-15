@@ -26,10 +26,10 @@
     "mocha": "10.1.0"
   },
   "scripts": {
-    "build": "npx @supercolony/typechain-compiler --config ./typechain-compiler-config.json",
-    "build:release:no-compile": "npx @supercolony/typechain-compiler --config ./typechain-compiler-config.json --release --noCompile",
-    "build:release": "npx @supercolony/typechain-compiler --config ./typechain-compiler-config.json --release",
-    "typechain": "npx @supercolony/typechain-polkadot --in artifacts --out ./typechain-generated",
+    "build": "npx @727-ventures/typechain-compiler --config ./typechain-compiler-config.json",
+    "build:release:no-compile": "npx @727-ventures/typechain-compiler --config ./typechain-compiler-config.json --release --noCompile",
+    "build:release": "npx @727-ventures/typechain-compiler --config ./typechain-compiler-config.json --release",
+    "typechain": "npx @727-ventures/typechain-polkadot --in artifacts --out ./typechain-generated",
     "test:mocha": "mocha --require @babel/register --require ts-node/register --recursive ./tests --extension \".ts\" --exit --timeout 20000",
     "test:mocha-single": "mocha --require @babel/register --require ts-node/register --extension \".ts\" --exit --timeout 20000",
     "test": "yarn build:release && yarn test:mocha"

@@ -3,6 +3,12 @@ use super::{
     data::*,
 };
 use crate::traits::lending::*;
+use ink::storage::traits::{
+    ManualKey,
+    ResolverKey,
+    Storable,
+    StorableHint,
+};
 use openbrush::{
     contracts::{
         access_control::*,
@@ -27,6 +33,15 @@ where
     T: Storage<data::Data> + Storage<pausable::Data> + Storage<access_control::Data<M>>,
     T: OccupiedStorage<{ access_control::STORAGE_KEY }, WithData = access_control::Data<M>>,
     M: members::MembersManager,
+    M: Storable
+        + StorableHint<ManualKey<{ access_control::STORAGE_KEY }>>
+        + StorableHint<
+            ResolverKey<
+                <M as StorableHint<ManualKey<{ access_control::STORAGE_KEY }>>>::PreferredKey,
+                ManualKey<3218979580, ManualKey<{ access_control::STORAGE_KEY }>>,
+            >,
+            Type = M,
+        >,
 {
     #[modifiers(only_role(MANAGER))]
     default fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError> {

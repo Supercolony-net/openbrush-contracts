@@ -20,7 +20,7 @@ pub mod loan {
 
     /// Define the storage for PSP34 data, Metadata data and Ownable data
     #[ink(storage)]
-    #[derive(Storage)]
+    #[derive(Default, Storage)]
     pub struct LoanContract {
         #[storage_field]
         psp34: psp34::Data,
