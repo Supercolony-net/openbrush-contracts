@@ -47,7 +47,6 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
-
     "openbrush_contracts/std",
     "openbrush_lang/std",
 ]

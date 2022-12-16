@@ -21,7 +21,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 
 openbrush = { version = "~2.4.0", package = "openbrush_lang", path = "../lang", default-features = false }
 
-pallet-assets-chain-extension = { git = "https://github.com/727-ventures/pallet-assets-chain-extension", branch = "feature/update-to-ink-4", default-features = false, features = ["ink"]  }
+pallet-assets-chain-extension = { git = "https://github.com/727-ventures/pallet-assets-chain-extension", branch = "feature/ink-4", default-features = false, features = ["ink-lang"]  }
 
 [lib]
 name = "openbrush_contracts"
@@ -36,7 +36,6 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
-
     "openbrush/std",
     "pallet-assets-chain-extension/ink-std",
 ]
