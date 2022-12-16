@@ -25,11 +25,9 @@ crate-type = [
 default = ["std"]
 std = [
     "ink/std",
-    "ink_lang/std",
     "scale/std",
     "scale-info",
     "scale-info/std",
-
     # These dependencies
     "openbrush/std",
 ]
