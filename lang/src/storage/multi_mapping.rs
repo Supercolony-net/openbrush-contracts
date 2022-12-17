@@ -358,8 +358,11 @@ const _: () = {
         TGK: 'static,
         TGV: 'static,
     {
-        fn layout(key: &Key) -> Layout {
-            Layout::Root(RootLayout::new(LayoutKey::from(key), <V as StorageLayout>::layout(key)))
+        fn layout(_: &Key) -> Layout {
+            Layout::Root(RootLayout::new(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
         }
     }
 };
