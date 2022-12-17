@@ -31,7 +31,6 @@ pub mod my_psp22_metadata_facet {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self::default()
-            Self::default()
         }
 
         #[ink(message)]
