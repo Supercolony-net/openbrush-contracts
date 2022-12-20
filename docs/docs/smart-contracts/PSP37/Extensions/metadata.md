@@ -55,9 +55,11 @@ Define constructor. Your `PSP37Metadata` contract is ready!
 impl Contract {
     #[ink(constructor)]
     pub fn new(id: Id, key: Vec<u8>, attribute: Vec<u8>) -> Self {
-        ink::codegen::initialize_contract(|instance: &mut Self| {
-            instance._set_attribute(&id, &key, &data)
-        })
+        let mut instance = Self::default();
+
+        instance._set_attribute(&id, &key, &data);
+        
+        instance
     }
 }
 ```

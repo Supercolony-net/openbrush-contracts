@@ -502,7 +502,7 @@ pub mod facet_a {
         #[ink(constructor)]
         pub fn new() -> Self {
             // Empty constructor, we do here nothing
-            ink::codegen::initialize_contract(|instance: &mut Self| {})
+            Self::default()
         }
 
         // Initialization method to grant `total_supply` tokens to someone.
@@ -591,7 +591,7 @@ pub mod facet_b {
         #[ink(constructor)]
         pub fn new() -> Self {
             // Empty constructor, we do here nothing
-            ink::codegen::initialize_contract(|instance: &mut Self| {})
+            Self::default()
         }
 
         #[ink(message)]
@@ -643,7 +643,7 @@ pub mod facet_a {
         #[ink(constructor)]
         pub fn new() -> Self {
             // Empty constructor, we do here nothing
-            ink::codegen::initialize_contract(|instance: &mut Self| {})
+            Self::default()
         }
 
         // Initialization method to grant `total_supply` tokens to someone.
@@ -673,7 +673,7 @@ pub mod facet_b {
         #[ink(constructor)]
         pub fn new() -> Self {
             // Empty constructor, we do here nothing
-            ink::codegen::initialize_contract(|instance: &mut Self| {})
+            Self::default()
         }
 
         #[ink(message)]

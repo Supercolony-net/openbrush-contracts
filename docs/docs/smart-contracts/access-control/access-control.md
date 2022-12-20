@@ -27,11 +27,13 @@ const CALLER: RoleType = ink::selector_id!("CALLER");
 impl Contract {
     #[ink(constructor)]
     pub fn new() -> Self {
-        ink::codegen::initialize_contract(|instance: &mut Self| {
-            let caller = instance.env().caller();
-            instance._init_with_admin(caller);
-            instance.grant_role(CALLER, caller).expect("Should grant CALLER role");
-        })
+        let mut instance = Self::default();
+
+        let caller = Self::env().caller();
+        instance._init_with_admin(caller);
+        instance.grant_role(CALLER, caller).expect("Should grant CALLER role");
+        
+        instance
     }
 }
 ```
@@ -71,11 +73,13 @@ pub mod my_access_control {
     impl Contract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                let caller = instance.env().caller();
-                instance._init_with_admin(caller);
-                instance.grant_role(CALLER, caller).expect("Should grant the role");
-            })
+            let mut instance = Self::default();
+
+            let caller = Self::env().caller();
+            instance._init_with_admin(caller);
+            instance.grant_role(CALLER, caller).expect("Should grant the role");
+            
+            instance
         }
 
         #[ink(message)]

@@ -49,9 +49,11 @@ Define constructor and add contract functions for pausing and unpausing the cont
 impl Contract {
     #[ink(constructor)]
     pub fn new(total_supply: Balance) -> Self {
-        ink::codegen::initialize_contract(|instance: &mut Self| {
-            assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
-        })
+        let mut instance = Self::default();
+
+        assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
+        
+        instance
     }
 }
 ```
@@ -123,9 +125,11 @@ pub mod my_psp22_pausable {
     impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
-            })
+            let mut instance = Self::default();
+
+            assert!(instance._mint_to(Self::env().caller(), total_supply).is_ok());
+            
+            instance
         }
 
         /// Function which changes state to unpaused if paused and vice versa

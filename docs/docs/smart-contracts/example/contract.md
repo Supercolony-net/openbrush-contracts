@@ -41,11 +41,6 @@ crate-type = [
 [features]
 default = ["std"]
 std = [
-    "ink::primitives/std",
-    "ink::metadata",
-    "ink::metadata/std",
-    "ink::env/std",
-    "ink::storage/std",
     "ink/std",
     "scale/std",
     "scale-info",
@@ -131,20 +126,23 @@ impl LendingContract {
     /// constructor with name and symbol
     #[ink(constructor, payable)]
     pub fn new(shares_hash: Hash, loan_hash: Hash) -> Self {
-        ink::codegen::initialize_contract(|instance: &mut LendingContract| {
-            let caller = instance.env().caller();
-            instance._init_with_admin(caller);
-            instance.grant_role(MANAGER, caller).expect("Can not set manager role");
-            instance.lending.shares_contract_code_hash = shares_hash;
-            // instantiate NFT contract and store its account id
-            let nft = LoanContractRef::new()
-                .endowment(0)
-                .code_hash(loan_hash)
-                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-                .instantiate()
-                .unwrap();
-            instance.lending.loan_account = nft.to_account_id();
-        })
+        
+        let mut instance = Self::default();
+
+        let caller = Self::env().caller();
+        instance._init_with_admin(caller);
+        instance.grant_role(MANAGER, caller).expect("Can not set manager role");
+        instance.lending.shares_contract_code_hash = shares_hash;
+        // instantiate NFT contract and store its account id
+        let nft = LoanContractRef::new()
+            .endowment(0)
+            .code_hash(loan_hash)
+            .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+            .instantiate()
+            .unwrap();
+        instance.lending.loan_account = nft.to_account_id();
+       
+        instance
     }
 }
 ```

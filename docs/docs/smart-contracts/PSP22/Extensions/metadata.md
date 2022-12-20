@@ -58,14 +58,16 @@ Define constructor. Your `PSP22Metadata` contract is ready!
 impl Contract {
     #[ink(constructor)]
     pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
-        ink::codegen::initialize_contract(|instance: &mut Self| {
-            instance.metadata.name = name;
-            instance.metadata.symbol = symbol;
-            instance.metadata.decimals = decimal;
-            instance
-                ._mint_to(instance.env().caller(), total_supply)
-                .expect("Should mint total_supply");
-        })
+        let mut instance = Self::default();
+
+        instance.metadata.name = name;
+        instance.metadata.symbol = symbol;
+        instance.metadata.decimals = decimal;
+        instance
+            ._mint_to(Self::env().caller(), total_supply)
+            .expect("Should mint total_supply");
+        
+        instance
     }
 }
 ```
@@ -100,14 +102,16 @@ pub mod my_psp22 {
     impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance, name: Option<String>, symbol: Option<String>, decimal: u8) -> Self {
-            ink::codegen::initialize_contract(|instance: &mut Self| {
-                instance.metadata.name = name;
-                instance.metadata.symbol = symbol;
-                instance.metadata.decimals = decimal;
-                instance
-                    ._mint_to(instance.env().caller(), total_supply)
-                    .expect("Should mint total_supply");
-            })
+            let mut instance = Self::default();
+
+            instance.metadata.name = name;
+            instance.metadata.symbol = symbol;
+            instance.metadata.decimals = decimal;
+            instance
+                ._mint_to(Self::env().caller(), total_supply)
+                .expect("Should mint total_supply");
+            
+            instance
         }
     }
 }

@@ -161,13 +161,15 @@ impl SharesContract {
     /// constructor with name and symbol
     #[ink(constructor)]
     pub fn new(name: Option<String>, symbol: Option<String>) -> Self {
-        ink::codegen::initialize_contract(|instance: &mut SharesContract| {
-            let caller = instance.env().caller();
-            instance.metadata.name = name;
-            instance.metadata.symbol = symbol;
-            instance.metadata.decimals = 18;
-            instance._init_with_owner(caller);
-        })
+        let mut instance = Self::default();
+
+        let caller = Self::env().caller();
+        instance.metadata.name = name;
+        instance.metadata.symbol = symbol;
+        instance.metadata.decimals = 18;
+        instance._init_with_owner(caller);
+        
+        instance
     }
 }
 ```

@@ -238,15 +238,17 @@ impl LoanContract {
     /// constructor with name and symbol
     #[ink(constructor, payable)]
     pub fn new() -> Self {
-        ink::codegen::initialize_contract(|instance: &mut LoanContract| {
-            instance.last_loan_id = Id::U128(1);
-            instance._set_attribute(
-                Id::U8(1u8),
-                String::from("LoanContract NFT"),
-                String::from("L-NFT"),
-            );
-            instance._init_with_owner(instance.env().caller());
-        })
+        let mut instance = Self::default();
+
+        instance.last_loan_id = Id::U128(1);
+        instance._set_attribute(
+            Id::U8(1u8),
+            String::from("LoanContract NFT"),
+            String::from("L-NFT"),
+        );
+        instance._init_with_owner(Self::env().caller());
+        
+        instance
     }
 
     /// Internal function to update data of a loan
