@@ -27,14 +27,13 @@ const _: () = {
         let (_, facet_cut) = ink::env::decode_input::<([u8; 4], FacetCut)>().unwrap();
 
         // Support of diamond
-        let mut root_key = ROOT_KEY;
-        let mut storage = ink::env::get_contract_storage::<Key, diamond::Data>(&root_key)
+        let mut storage = ink::env::get_contract_storage::<Key, diamond::Data>(&ROOT_KEY)
             .unwrap()
             .unwrap();
         storage._diamond_cut_facet(&facet_cut).expect("Init diamond cut");
 
         // Support of ownable
-        let mut ownable = ink::env::get_contract_storage::<Key, ownable::Data>(&root_key)
+        let mut ownable = ink::env::get_contract_storage::<Key, ownable::Data>(&ROOT_KEY)
             .unwrap()
             .unwrap();
         ownable._init_with_owner(<ownable::Data as DefaultEnv>::env().caller());
@@ -46,8 +45,7 @@ const _: () = {
     fn call() {
         let selector = ink::env::decode_input::<[u8; 4]>().unwrap();
 
-        let mut root_key = ROOT_KEY;
-        let storage = ink::env::get_contract_storage::<Key, diamond::Data>(&root_key)
+        let storage = ink::env::get_contract_storage::<Key, diamond::Data>(&ROOT_KEY)
             .unwrap()
             .unwrap();
         let hash = storage.selector_to_hash.get(&selector).expect("Can't find code hash");
