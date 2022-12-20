@@ -318,18 +318,20 @@ To avoid that we will import `SharesContract` into `LendingContract` and in `Len
 ```rust    
 impl lending::Internal for LendingContract {
     fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
-        let code_hash = self.lending.shares_contract_code_hash;
-        let (hash, _) =
-            ink::env::random::<ink::env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
-        let hash = hash.as_ref();
-        let contract =
-            SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
-                .endowment(0)
-                .code_hash(code_hash)
-                .salt_bytes(&hash[..4])
-                .instantiate()
-                .unwrap();
-        contract.to_account_id()
+      let code_hash = self.lending.shares_contract_code_hash;
+
+      let salt = (<Self as DefaultEnv>::env().block_timestamp(), contract_name).encode();
+
+      let hash = xxh32(&salt, 0).to_le_bytes();
+
+      let contract =
+              SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
+                      .endowment(0)
+                      .code_hash(code_hash)
+                      .salt_bytes(&hash[..4])
+                      .instantiate()
+                      .unwrap();
+      contract.to_account_id()
     }
 }
 ```
