@@ -28,9 +28,7 @@ default = ["std"]
 std = [
     "ink/std",
     "scale/std",
-    "scale-info",
     "scale-info/std",
-
     # These dependencies
     "loan_contract/std",
     "shares_contract/std",
