@@ -36,7 +36,7 @@ jobs:
           npm run docusaurus docs:version ${{ github.event.release.tag_name }}
           npm run build
           npm run deploy
-          git remote set-url origin git@github.com:Supercolony-net/openbrush-contracts.git
+          git remote set-url origin git@github.com:727-Ventures/openbrush-contracts.git
           git checkout -b gh-deploy-release-branch
           git add -A
           git commit -m "New docs version"

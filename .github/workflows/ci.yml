@@ -47,7 +47,7 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      image: ghcr.io/727-ventures/openbrush-contracts-ci
       options: --user root
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: examples-builds
     container:
-      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      image: ghcr.io/727-ventures/openbrush-contracts-ci
       options: --user root
     steps:
       - uses: actions/checkout@v3
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: examples-builds
     container:
-      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      image: ghcr.io/727-ventures/openbrush-contracts-ci
       options: --user root
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target
@@ -206,7 +206,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: examples-builds
     container:
-      image: ghcr.io/supercolony-net/openbrush-contracts-ci
+      image: ghcr.io/727-ventures/openbrush-contracts-ci
       options: --user root
       env:
         CARGO_TARGET_DIR: /usr/local/cache/target

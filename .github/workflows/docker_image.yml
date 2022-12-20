@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: files
         uses: jitterbit/get-changed-files@v1
-      - name: Build & Push Docker Image
+      - name: Build & Push DockerF Image
         if: contains(steps.files.outputs.all, 'Dockerfile')
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
@@ -17,6 +17,6 @@ jobs:
           dockerfile: Dockerfile
           tags: latest
           registry: ghcr.io
-          githubOrg: Supercolony-net
+          githubOrg: 727-Ventures
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}

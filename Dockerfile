@@ -4,7 +4,8 @@ RUN apt-get update && \
     apt-get install libclang-dev -y && \
     apt-get install nodejs -y && \
     apt-get install npm -y && \
-    apt-get install binaryen -y
+    apt-get install binaryen -y && \
+    apt-get install protobuf-compiler -y
 
 RUN npm install -g n && \
     npm install -g yarn && \
