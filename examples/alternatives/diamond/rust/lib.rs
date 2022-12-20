@@ -7,8 +7,10 @@
 mod ext;
 
 #[cfg(not(feature = "std"))]
-use ink::primitives::Key;
-use ink::primitives::KeyComposer;
+use ink::primitives::{
+    Key,
+    KeyComposer,
+};
 use openbrush::contracts::diamond::*;
 #[cfg(not(feature = "std"))]
 use openbrush::traits::{
@@ -31,6 +33,7 @@ const _: () = {
             .unwrap()
             .unwrap();
         storage._diamond_cut_facet(&facet_cut).expect("Init diamond cut");
+        storage.flush();
 
         // Support of ownable
         let mut ownable = ink::env::get_contract_storage::<Key, ownable::Data>(&ROOT_KEY)
