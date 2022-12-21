@@ -22,7 +22,7 @@ chai.use((chai) => {
     const value = await new chai.Assertion(this._obj).to.eventually.have.property('value')
     const unwrapped = await value.unwrapRecursively()
 
-    await new chai.Assertion(unwrapped).to.equal(param, message)
+    new chai.Assertion(unwrapped).to.equal(param, message)
   })
 
   chai.Assertion.addMethod('bnToNumber', async function (param, message) {
@@ -31,25 +31,25 @@ chai.use((chai) => {
     const value = await new chai.Assertion(this._obj).to.eventually.have.property('value')
     const valueToNumber = await value.unwrapRecursively().toNumber()
 
-    await new chai.Assertion(valueToNumber).to.equal(param, message)
+    new chai.Assertion(valueToNumber).to.equal(param, message)
   })
 
   chai.Assertion.addMethod('bnToString', async function (param, message) {
     await new chai.Assertion(this._obj).to.eventually.have.property('value')
 
     const value = await new chai.Assertion(this._obj).to.eventually.have.property('value')
-    const valueToNumber = await value.toString()
+    const valueToNumber = await value.unwrapRecursively().toString()
 
-    await new chai.Assertion(valueToNumber).to.equal(param, message)
+    new chai.Assertion(valueToNumber).to.equal(param, message)
   })
 
   chai.Assertion.addMethod('bytesToString', async function (param, message) {
     await new chai.Assertion(this._obj).to.eventually.have.property('value')
 
     const value = await new chai.Assertion(this._obj).to.eventually.have.property('value')
-    const valueToNumber = await bytesToString(value.toString())
+    const valueToNumber = bytesToString(value.unwrapRecursively().toString())
 
-    await new chai.Assertion(valueToNumber).to.equal(param, message)
+    new chai.Assertion(valueToNumber).to.equal(param, message)
   })
 })
 export const { expect } = chai
