@@ -190,6 +190,11 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 syn::ReturnType::Default => quote! { () },
                 syn::ReturnType::Type(_, return_type) => quote! { #return_type },
             };
+
+            let return_ty = quote! {
+                ::ink::MessageResult<#output_ty>
+            };
+
             let selector_string = format!("{}::{}", trait_ident, message_ident);
             let selector_bytes = ::ink_ir::Selector::compute(&selector_string.into_bytes()).hex_lits();
             let input_bindings = method
@@ -248,7 +253,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     ::ink::env::DefaultEnvironment,
                     ::ink::env::call::utils::Set< ::ink::env::call::Call< ::ink::env::DefaultEnvironment > >,
                     ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
-                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#output_ty>>,
+                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#return_ty>>,
                 >;
             });
 
@@ -261,6 +266,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     Self::#message_builder_ident(self #( , #input_bindings)*)
                         .fire()
                         .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
+                        .unwrap_or_else(|err| ::core::panic!("Can't decode ::ink::LangErr: {:?}", err))
                 }
 
                 #[inline]
@@ -271,7 +277,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     ::ink::env::DefaultEnvironment,
                     ::ink::env::call::utils::Set< ::ink::env::call::Call< ::ink::env::DefaultEnvironment > >,
                     ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
-                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#output_ty>>,
+                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#return_ty>>,
                 > {
                     ::ink::env::call::build_call::<::ink::env::DefaultEnvironment>()
                         .call_type(
@@ -285,7 +291,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                                 .push_arg(#input_bindings)
                             )*
                         )
-                        .returns::<#output_ty>()
+                        .returns::<#return_ty>()
                 }
             });
         });

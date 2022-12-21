@@ -300,7 +300,13 @@ pub(crate) fn remove_attr(attrs: &Vec<syn::Attribute>, ident: &str) -> Vec<syn::
 
 #[inline]
 pub(crate) fn extract_attr(attrs: &mut Vec<syn::Attribute>, ident: &str) -> Vec<syn::Attribute> {
-    attrs.drain_filter(|attr| is_attr(&vec![attr.clone()], ident)).collect()
+    let extracted = attrs
+        .clone()
+        .into_iter()
+        .filter(|attr| is_attr(&vec![attr.clone()], ident))
+        .collect();
+    attrs.retain(|attr| !is_attr(&vec![attr.clone()], ident));
+    extracted
 }
 
 #[inline]
