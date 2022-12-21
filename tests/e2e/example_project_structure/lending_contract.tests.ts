@@ -297,7 +297,9 @@ describe('LENDING_CONTRACT', () => {
     await expect(stablecoin.query.balanceOf(lending.address)).to.have.bnToNumber(amount)
     // Assert - A
 
-    expect((await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().toString()).to.be.eq(alice_balance.sub(new BN(amount)).toString())
+    expect((await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().toString()).to.be.eq(
+      alice_balance.sub(new BN(amount)).toString()
+    )
 
     await close()
   })
@@ -365,11 +367,8 @@ describe('LENDING_CONTRACT', () => {
     await lending.withSigner(alice).tx.lendAssets(stablecoin.address, amount)
     // Act - Alice withdraws stablecoin token
     const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().rawNumber
-    const sharesAddress = (await lending.query.getAssetShares(stablecoin.address)).value.unwrapRecursively().ok!
+    const sharesAddress = (await lending.query.getAssetShares(stablecoin.address)).value.unwrapRecursively().toString()
     const withdrawAmount = 1
-
-    console.log(sharesAddress)
-    console.log((await lending.withSigner(alice).query.withdrawAsset(sharesAddress, withdrawAmount)).value)
 
     await lending.withSigner(alice).tx.withdrawAsset(sharesAddress, withdrawAmount)
 
@@ -377,7 +376,9 @@ describe('LENDING_CONTRACT', () => {
     await expect(stablecoin.query.balanceOf(lending.address)).to.have.bnToNumber(amount - withdrawAmount)
     // Assert - Alice balance increased at withdraw amount
 
-    expect((await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().toString()).to.be.eq(alice_balance.add(new BN(withdrawAmount)).toString())
+    expect((await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().toString()).to.be.eq(
+      alice_balance.add(new BN(withdrawAmount)).toString()
+    )
 
     await close()
   })
