@@ -7,7 +7,7 @@ function getMessageAbi(contract: Contract, identifier: string) {
   return contract.abi.findMessage(identifier)!
 }
 
-describe.only('MY_TIMELOCK_CONTROLLER', () => {
+describe('MY_TIMELOCK_CONTROLLER', () => {
   async function setup() {
     const api = await ApiPromise.create()
 
