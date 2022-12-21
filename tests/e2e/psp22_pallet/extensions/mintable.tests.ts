@@ -4,7 +4,7 @@ import {ApiPromise} from "@polkadot/api";
 import ConstructorsPSP22 from "../../../../typechain-generated/constructors/my_psp22_pallet_mintable";
 import ContractPSP22 from "../../../../typechain-generated/contracts/my_psp22_pallet_mintable";
 
-describe('MY_PSP22_MINTABLE', () => {
+describe('MY_PSP22_PALLET_MINTABLE', () => {
     async function setup() {
         const api = await ApiPromise.create()
 

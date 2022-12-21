@@ -56,7 +56,7 @@ describe('MY_PSP22', () => {
   it('Assigns initial balance', async () => {
     const { api, query, defaultSigner: sender } = await setup()
 
-    expect((await query.balanceOf(sender.address)).value.unwrapRecursively().toNumber()).to.have.output(1000)
+    await expect(query.balanceOf(sender.address)).to.have.bnToNumber(1000)
 
     await api.disconnect()
   })

@@ -38,7 +38,6 @@ describe('MY_OWNABLE', () => {
     const { api, query, defaultSigner: sender } = await setup()
 
     // Assert - Sender is by default the owner of the contract
-    // console.log(await query.owner())
     await expect(query.owner()).to.have.output(sender.address)
 
     await api.disconnect()
