@@ -41,7 +41,7 @@ describe('MY_PSP34_BURNABLE', () => {
 
     await expect(query.balanceOf(sender.address)).to.have.output(3)
 
-    await expect(contract.tx.burn(sender.address, IdBuilder.U8(0))).to.eventually.be.fulfilled
+    await contract.tx.burn(sender.address, IdBuilder.U8(0))
 
     await expect(query.balanceOf(sender.address)).to.have.output(2)
 
@@ -59,7 +59,7 @@ describe('MY_PSP34_BURNABLE', () => {
 
     await expect(query.balanceOf(sender.address)).to.have.output(3)
 
-    await expect(contract.withSigner(alice).tx.burn(sender.address, IdBuilder.U8(0))).to.eventually.be.fulfilled
+    await contract.withSigner(alice).tx.burn(sender.address, IdBuilder.U8(0))
 
     await expect(query.balanceOf(sender.address)).to.have.output(2)
 

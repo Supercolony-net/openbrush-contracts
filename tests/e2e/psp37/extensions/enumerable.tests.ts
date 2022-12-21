@@ -67,7 +67,7 @@ describe('MY_PSP37_ENUMERABLE', () => {
     const amount1 = 1
     const amount2 = 20
 
-    await expect(contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
+    await contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])
 
     // expect(id((await query.tokenByIndex(0)).output?.toString()).u8).equal(1)
     expect((await query.tokenByIndex(0)).value).to.be.deep.equal(token1Return)
@@ -97,14 +97,14 @@ describe('MY_PSP37_ENUMERABLE', () => {
     const amount1 = 1
     const amount2 = 20
 
-    await expect(contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
+    await contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])
 
     // expect(id((await query.tokenByIndex(0)).output?.toString()).u8).equal(1)
     expect((await query.tokenByIndex(0)).value).to.be.deep.equal(token1Return)
     // expect(id((await query.tokenByIndex(1)).output?.toString()).u8).equal(2)
     expect((await query.tokenByIndex(1)).value).to.be.deep.equal(token2Return)
 
-    await expect(contract.tx.burn(alice.address, [[token2, amount2]])).to.eventually.be.fulfilled
+    await contract.tx.burn(alice.address, [[token2, amount2]])
 
     // expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
     expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(token1Return)
@@ -128,19 +128,19 @@ describe('MY_PSP37_ENUMERABLE', () => {
     const amount1 = 1
     const amount2 = 20
 
-    await expect(contract.tx.mint(sender.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
+    await contract.tx.mint(sender.address, [[token1, amount1], [token2, amount2]])
 
     // expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(1)
     expect((await query.ownersTokenByIndex(sender.address, 0)).value).to.be.deep.equal(token1Return)
 
-    await expect(contract.tx.transfer(alice.address, token1, amount1, [])).to.eventually.be.fulfilled
+    await contract.tx.transfer(alice.address, token1, amount1, [])
 
     // expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
     expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(token1Return)
     // expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(2)
     expect((await query.ownersTokenByIndex(sender.address, 0)).value).to.be.deep.equal(token2Return)
 
-    await expect(contract.tx.transfer(alice.address, token2, 10, [])).to.eventually.be.fulfilled
+    await contract.tx.transfer(alice.address, token2, 10, [])
 
     // expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(2)
     expect((await query.ownersTokenByIndex(sender.address, 0)).value).to.be.deep.equal(token2Return)

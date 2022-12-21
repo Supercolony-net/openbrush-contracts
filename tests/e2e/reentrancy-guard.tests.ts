@@ -51,7 +51,7 @@ describe('REENTRANCY_GUARD', () => {
     await expect(query.getValue()).to.have.output(false)
 
     // Act - Flip
-    await expect(contract.tx.flip()).to.eventually.be.fulfilled
+    await contract.tx.flip()
 
     // Assert - Flip value must be true after flip
     await expect(query.getValue()).to.have.output(true)
@@ -66,8 +66,8 @@ describe('REENTRANCY_GUARD', () => {
     await expect(query.getValue()).to.have.output(false)
 
     // Act - Flip
-    await expect(contract.tx.flip()).to.eventually.be.fulfilled
-    await expect(contract.tx.flip()).to.eventually.be.fulfilled
+    await contract.tx.flip()
+    await contract.tx.flip()
 
     // Assert - After two flips value must be false again
     await expect(query.getValue()).to.have.output(false)
@@ -84,7 +84,7 @@ describe('REENTRANCY_GUARD', () => {
     await expect(query.getValue()).to.have.output(false)
 
     // Act
-    await expect(tx.flipOnTarget(contract.address)).to.eventually.be.fulfilled
+    await tx.flipOnTarget(contract.address)
 
     // Assert - Value still must be true
     await expect(query.getValue()).to.have.output(true)

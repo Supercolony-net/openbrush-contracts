@@ -79,9 +79,9 @@ describe('MY_PSP34', () => {
     } = await setup()
 
     await expect(query.totalSupply()).to.have.bnToNumber(0)
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
+    await tx.mintToken()
+    await tx.mintToken()
 
     await expect(query.totalSupply()).to.have.bnToNumber(3)
 
@@ -98,12 +98,12 @@ describe('MY_PSP34', () => {
       close
     } = await setup()
 
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
 
     await expect(query.balanceOf(sender.address)).to.have.output(1)
     await expect(query.balanceOf(alice.address)).to.have.output(0)
 
-    await expect(contract.tx.transfer(alice.address, PSP34Args.IdBuilder.U8(0), [])).to.eventually.be.fulfilled
+    await contract.tx.transfer(alice.address, PSP34Args.IdBuilder.U8(0), [])
 
     await expect(query.balanceOf(sender.address)).to.have.output(0)
     await expect(query.balanceOf(alice.address)).to.have.output(1)
@@ -121,7 +121,7 @@ describe('MY_PSP34', () => {
       close
     } = await setup()
 
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
 
     await expect(query.balanceOf(sender.address)).to.have.output(1)
     await expect(query.balanceOf(alice.address)).to.have.output(0)
@@ -129,7 +129,7 @@ describe('MY_PSP34', () => {
     const token_id = PSP34Args.IdBuilder.U8(0)
 
     // Approve only transfer for token 1
-    await expect(contract.tx.approve(alice.address, token_id, true)).to.eventually.be.fulfilled
+    await contract.tx.approve(alice.address, token_id, true)
 
     await contract.withSigner(alice).tx.transfer(alice.address, token_id, [])
 
@@ -149,12 +149,12 @@ describe('MY_PSP34', () => {
       close
     } = await setup()
 
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
 
     await expect(query.balanceOf(sender.address)).to.have.output(1)
     await expect(query.balanceOf(alice.address)).to.have.output(0)
     // Approved transfer for any token
-    await expect(contract.tx.approve(alice.address, null, true)).to.eventually.be.fulfilled
+    await contract.tx.approve(alice.address, null, true)
 
     await contract.withSigner(alice).tx.transfer(alice.address, PSP34Args.IdBuilder.U8(0), [])
 
@@ -175,12 +175,12 @@ describe('MY_PSP34', () => {
     const { contract, close: closeReceiver } = await setup_receiver()
 
     // Arrange - Sender mint a Token
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
     await expect(query.ownerOf(PSP34Args.IdBuilder.U8(0))).to.have.output(sender.address)
 
     // Act - Alice transfers the token form sender to bob
     await expect(contract.query.getCallCounter()).to.have.output(0)
-    await expect(tx.transfer(contract.address, PSP34Args.IdBuilder.U8(0), 'data' as unknown as string[])).to.eventually.be.fulfilled
+    await tx.transfer(contract.address, PSP34Args.IdBuilder.U8(0), 'data' as unknown as string[])
     await expect(contract.query.getCallCounter()).to.have.output(1)
 
     // Assert - Bob is now owner of the token
@@ -203,11 +203,11 @@ describe('MY_PSP34', () => {
     const id = PSP34Args.IdBuilder.U8(0)
 
     // Arrange - Sender mint a Token
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
     await expect(query.ownerOf(id)).to.have.output(sender.address)
 
     // Act - Alice transfers the token form sender to bob
-    await expect(tx.transfer(contract.address, id, 'data' as unknown as string[])).to.eventually.be.fulfilled
+    await tx.transfer(contract.address, id, 'data' as unknown as string[])
 
     // Assert - Bob is now owner of the token
     await expect(query.ownerOf(id)).to.have.output(contract.address.toString())
@@ -224,11 +224,11 @@ describe('MY_PSP34', () => {
     const id = PSP34Args.IdBuilder.U8(0)
 
     // Arrange - Sender mint a token
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
     await expect(query.ownerOf(id)).to.have.output(sender.address)
 
     // Assert - Sender cannot send token to receiver & Sender still own the token
-    await expect(tx.transfer(contract.address, id, 'data' as unknown as string[])).to.eventually.be.fulfilled
+    await tx.transfer(contract.address, id, 'data' as unknown as string[])
     await expect(query.ownerOf(id)).to.have.output(contract.address)
 
     await closePSP34()
@@ -243,11 +243,11 @@ describe('MY_PSP34', () => {
     const id = PSP34Args.IdBuilder.U8(0)
 
     // Arrange - Sender mint a token
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
     await expect(query.ownerOf(id)).to.have.output(sender.address)
 
     // Act - Receiver wants to reject the next transfer
-    await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
+    await contract.tx.revertNextTransfer()
 
     // Assert - Sender cannot send token to receiver & Sender still own the token
     await expect(tx.transfer(contract.address, id, 'data' as unknown as string[])).to.eventually.be.rejected
@@ -285,7 +285,7 @@ describe('MY_PSP34', () => {
       close
     } = await setup()
 
-    await expect(tx.mintToken()).to.eventually.be.fulfilled
+    await tx.mintToken()
     await expect(query.balanceOf(sender.address)).to.have.output(1)
 
     await expect(contract.withSigner(alice).tx.transfer(alice.address, PSP34Args.IdBuilder.U8(0), []))
@@ -319,7 +319,7 @@ describe('MY_PSP34', () => {
     for (const id of ids) {
       await expect(query.balanceOf(sender.address)).to.have.output(index)
       await expect(query.ownerOf(id)).to.have.output(null)
-      await expect(tx.mint(id)).to.eventually.be.fulfilled
+      await tx.mint(id)
       await expect(query.ownerOf(id)).to.have.output(sender.address)
       index++
     }

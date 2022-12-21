@@ -41,7 +41,7 @@ describe('MY_PSP37_BURNABLE', () => {
     const amount2 = 20
     
     await expect(contract.tx.mintTo(sender.address, [[token1, amount1], [token2, amount2]])).to.be.fulfilled
-    await expect(contract.tx.transferFrom(sender.address, alice.address, token1, amount1, [])).to.eventually.be.fulfilled
+    await contract.tx.transferFrom(sender.address, alice.address, token1, amount1, [])
 
     await expect(query.balanceOf(sender.address, null)).to.have.bnToNumber(1)
     await expect(query.balanceOf(alice.address, null)).to.have.bnToNumber(1)
@@ -50,7 +50,7 @@ describe('MY_PSP37_BURNABLE', () => {
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(amount2)
     await expect(query.totalSupply(null)).to.have.bnToNumber(2)
 
-    await expect(contract.tx.burn(sender.address, [[token2, amount2]])).to.eventually.be.fulfilled
+    await contract.tx.burn(sender.address, [[token2, amount2]])
 
     await expect(query.balanceOf(sender.address, null)).to.have.bnToNumber(0)
     await expect(query.balanceOf(alice.address, null)).to.have.bnToNumber(1)
@@ -58,7 +58,7 @@ describe('MY_PSP37_BURNABLE', () => {
     await expect(query.totalSupply(token2)).to.have.bnToNumber(0)
     await expect(query.totalSupply(token1)).to.have.bnToNumber(amount1)
 
-    await expect(contract.tx.burn(alice.address, [[token1, amount1]])).to.eventually.be.fulfilled
+    await contract.tx.burn(alice.address, [[token1, amount1]])
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(alice.address, token2)).to.have.bnToNumber(0)
@@ -75,17 +75,17 @@ describe('MY_PSP37_BURNABLE', () => {
     const amount1 = 1
     const amount2 = 10
 
-    await expect(contract.tx.mintTo(sender.address, [[token1, amount1], [token2, 20]])).to.eventually.be.fulfilled
+    await contract.tx.mintTo(sender.address, [[token1, amount1], [token2, 20]])
 
-    await expect(contract.tx.transferFrom(sender.address, alice.address, token2, amount2, [])).to.eventually.be.fulfilled
+    await contract.tx.transferFrom(sender.address, alice.address, token2, amount2, [])
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(amount1)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(amount2)
     await expect(query.balanceOf(alice.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(alice.address, token2)).to.have.bnToNumber(amount2)
 
-    await expect(contract.tx.burn(sender.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
-    await expect(contract.tx.burn(alice.address, [[token1, 0], [token2, amount2]])).to.eventually.be.fulfilled
+    await contract.tx.burn(sender.address, [[token1, amount1], [token2, amount2]])
+    await contract.tx.burn(alice.address, [[token1, 0], [token2, amount2]])
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(0)

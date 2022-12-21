@@ -88,11 +88,11 @@ describe('MY_OWNABLE', () => {
     expect(balanceBefore.value.toString()).to.be.eq('0')
 
     // Act - transfer ownership to Alice96
-    await expect(tx.transferOwnership(alice.address)).to.eventually.be.fulfilled
+    await tx.transferOwnership(alice.address)
     await expect(query.owner()).to.have.output(alice.address)
 
     // Assert - Alice can mint a token
-    await expect(contract.withSigner(alice).tx.mint(alice.address, ids_amounts)).to.eventually.be.fulfilled
+    await contract.withSigner(alice).tx.mint(alice.address, ids_amounts)
     await expect(query.owner()).to.have.output(alice.address)
     const balanceAfter = await query.balanceOf(alice.address, token)
     expect(balanceAfter.value.toString()).to.be.eq('123')
@@ -107,7 +107,7 @@ describe('MY_OWNABLE', () => {
     await expect(query.owner()).to.have.output(sender.address)
 
     // Act - Sender renounce his role
-    await expect(tx.renounceOwnership()).to.eventually.be.fulfilled
+    await tx.renounceOwnership()
 
     // Assert - Zero account is now the owner
     await expect(query.owner()).to.have.output(consts.EMPTY_ADDRESS)

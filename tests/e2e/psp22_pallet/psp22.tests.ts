@@ -81,7 +81,7 @@ describe('MY_PSP22_PALLET', () => {
 
     const { api: api2, contract } = await setup_receiver()
 
-    await expect(tx.transfer(contract.address, 7, [])).to.eventually.be.fulfilled
+    await tx.transfer(contract.address, 7, [])
 
     await api1.disconnect()
     await api2.disconnect()
@@ -92,7 +92,7 @@ describe('MY_PSP22_PALLET', () => {
 
     const { api: api2, contract } = await setup()
 
-    await expect(tx.transfer(contract.address, 7, [])).to.eventually.be.fulfilled
+    await tx.transfer(contract.address, 7, [])
 
     await api1.disconnect()
     await api2.disconnect()

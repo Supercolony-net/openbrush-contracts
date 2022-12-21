@@ -89,7 +89,7 @@ describe('MY_PSP22_FLASHMINT', () => {
     const minted = 1000
 
     // sender has the initial supply of tokens, we send some to the receiver
-    await expect(flashmintContract.tx.transfer(receiverContract.address, sendAmount, [])).to.eventually.be.fulfilled
+    await flashmintContract.tx.transfer(receiverContract.address, sendAmount, [])
     await expect(flashmintQuery.balanceOf(receiverContract.address)).to.have.bnToNumber(sendAmount)
     await expect(flashmintQuery.totalSupply()).to.have.bnToNumber(minted)
 

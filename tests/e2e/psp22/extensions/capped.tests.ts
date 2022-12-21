@@ -46,7 +46,7 @@ describe('MY_PSP22_CAPPED', () => {
     await expect(query.totalSupply()).to.have.bnToNumber(mintAmount)
 
     // mint tokens to sender
-    await expect(contract.tx.mint(sender.address, mintAmount)).to.eventually.be.fulfilled
+    await contract.tx.mint(sender.address, mintAmount)
 
     // sender's balance changed
     await expect(query.balanceOf(sender.address)).to.have.bnToNumber(mintAmount + mintAmount)

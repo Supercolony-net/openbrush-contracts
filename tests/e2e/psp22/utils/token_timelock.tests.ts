@@ -95,14 +95,14 @@ describe('TOKEN_TIMELOCK', () => {
   //
   //   const depositedTokens = 1000
   //   // deposit tokens to the contract
-  //   await expect(psp22.withSigner(beneficiary).tx.transfer(timelock.address, depositedTokens, [])).to.eventually.be.fulfilled
+  //   await psp22.withSigner(beneficiary).tx.transfer(timelock.address, depositedTokens, [])
   //   await expect(psp22Query.balanceOf(timelock.address)).to.have.bnToNumber(depositedTokens)
   //   await expect(psp22Query.balanceOf(beneficiary.address)).to.have.bnToNumber(0)
   //   // TODO this does not work, so the test will fail
   //   console.log((psp22Container.api.tx.timestamp))
   //   await psp22Container.api.tx.timestamp.set(releaseTime).signAndSend(beneficiary)
   //   // release the tokens
-  //   await expect(timelock.withSigner(beneficiary).tx.release()).to.eventually.be.fulfilled
+  //   await timelock.withSigner(beneficiary).tx.release()
   //
   //   // // timelock should be empty
   //   await expect(psp22Query.balanceOf(timelock.address)).to.have.bnToNumber(0)
@@ -116,7 +116,7 @@ describe('TOKEN_TIMELOCK', () => {
 
     const depositedTokens = 1000
     // deposit tokens to the contract
-    await expect(psp22.withSigner(beneficiary).tx.transfer(timelock.address, depositedTokens, [])).to.eventually.be.fulfilled
+    await psp22.withSigner(beneficiary).tx.transfer(timelock.address, depositedTokens, [])
     await expect(psp22Query.balanceOf(timelock.address)).to.have.bnToNumber(depositedTokens)
     await expect(psp22Query.balanceOf(beneficiary.address)).to.have.bnToNumber(0)
 

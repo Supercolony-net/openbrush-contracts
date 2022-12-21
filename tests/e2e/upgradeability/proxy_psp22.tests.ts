@@ -155,7 +155,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract: psp22, abi, close: closePSP22 } = await setupPSP22()
     const { contract, defaultSigner: sender, close: closeProxy } = await setupProxyContract(abi.info.source.wasmHash.toString())
     const proxy = setupProxy(psp22, contract.address)
-    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
+    await proxy.tx.initialize(1000)
 
     await expect(proxy.query.totalSupply()).to.have.bnToNumber(1000)
     await expect(proxy.query.balanceOf(sender.address)).to.have.bnToNumber(1000)
@@ -182,9 +182,9 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract, close: closeProxy } = await setupProxyContract(abi.info.source.wasmHash.toString())
     const proxy = setupProxy(psp22, contract.address)
 
-    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
+    await proxy.tx.initialize(1000)
 
-    await expect(proxy.tx.transfer(receiver.address, 7, [])).to.eventually.be.fulfilled
+    await proxy.tx.transfer(receiver.address, 7, [])
     await expect(proxy.query.balanceOf(defaultSigner.address)).to.have.bnToNumber(1000 - 7)
     await expect(proxy.query.balanceOf(receiver.address)).to.have.bnToNumber(7)
 
@@ -198,9 +198,9 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract, close: closeProxy } = await setupProxyContract(abi.info.source.wasmHash.toString())
     const proxy = setupProxy(psp22, contract.address)
     const { contract: psp22_receiver, close: closeReceiver } = await setup_receiver()
-    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
+    await proxy.tx.initialize(1000)
 
-    await expect(proxy.tx.transfer(psp22_receiver.address, 7, [])).to.eventually.be.fulfilled
+    await proxy.tx.transfer(psp22_receiver.address, 7, [])
 
     // Close
     await closeProxy()
@@ -213,9 +213,9 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract: psp22_1, close: closePSP22V2 } = await setupPSP22()
     const { contract, close: closeProxy } = await setupProxyContract(abi.info.source.wasmHash.toString())
     const proxy = setupProxy(psp22_0, contract.address)
-    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
+    await proxy.tx.initialize(1000)
 
-    await expect(proxy.tx.transfer(psp22_1.address, 7, [])).to.eventually.be.fulfilled
+    await proxy.tx.transfer(psp22_1.address, 7, [])
 
     // Close
     await closeProxy()
@@ -227,7 +227,7 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract: psp22, abi, bob: receiver, close: closePSP22 } = await setupPSP22()
     const { contract, close: closeProxy } = await setupProxyContract(abi.info.source.wasmHash.toString())
     const proxy = setupProxy(psp22, contract.address)
-    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
+    await proxy.tx.initialize(1000)
 
     await expect(proxy.tx.transfer(receiver.address, 1007, [])).to.eventually.be.rejected
 
@@ -240,19 +240,19 @@ describe('MY_UPGRADEABLE_PSP22', () => {
     const { contract: psp22, abi: abi_psp22, bob: receiver, close: closePSP22 } = await setupPSP22()
     const { contract, close: closeProxy } = await setupProxyContract(abi_psp22.info.source.wasmHash.toString())
     const proxy = setupProxy(psp22, contract.address)
-    await expect(proxy.tx.initialize(1000)).to.eventually.be.fulfilled
+    await proxy.tx.initialize(1000)
 
     await expect(proxy.query.totalSupply()).to.have.bnToNumber(1000)
-    await expect(proxy.tx.transfer(receiver.address, 100, [])).to.eventually.be.fulfilled
+    await proxy.tx.transfer(receiver.address, 100, [])
 
     const { contract: psp22_metadata, abi: abi_psp22_metadata, close: closeMetadata } = await setupPSP22Metadata()
     const hash = abi_psp22_metadata.info.source.wasmHash.toString()
 
-    await expect(contract.tx.changeDelegateCode(hash)).to.eventually.be.fulfilled
+    await contract.tx.changeDelegateCode(hash)
     await expect(contract.query.getDelegateCode()).to.have.output(hash)
 
     const proxy_metadata = setupProxy(psp22_metadata, contract.address)
-    await expect(proxy_metadata.tx.initialize(0,'COLONY' as unknown as string[], 'COL' as unknown as string[], 18)).to.eventually.be.fulfilled
+    await proxy_metadata.tx.initialize(0,'COLONY' as unknown as string[], 'COL' as unknown as string[], 18)
 
     await expect(proxy_metadata.query.totalSupply()).to.have.bnToNumber(1000)
     await expect(proxy_metadata.query.tokenName()).to.have.bytesToString('COLONY')

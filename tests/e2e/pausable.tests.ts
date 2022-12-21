@@ -24,7 +24,7 @@ describe('MY_PAUSABLE', () => {
   it('Success flip when not paused', async () => {
     const { api, contract } = await setup()
 
-    await expect(contract.tx.flip()).to.eventually.be.fulfilled
+    await contract.tx.flip()
 
     await api.disconnect()
   })
@@ -32,7 +32,7 @@ describe('MY_PAUSABLE', () => {
   it('Success pause when not paused', async () => {
     const { api, contract } = await setup()
 
-    await expect(contract.tx.pause()).to.eventually.be.fulfilled
+    await contract.tx.pause()
 
     await api.disconnect()
   })
@@ -40,13 +40,13 @@ describe('MY_PAUSABLE', () => {
   it('Success change state', async () => {
     const { contract } = await setup()
 
-    await expect(contract.tx.changeState()).to.eventually.be.fulfilled
+    await contract.tx.changeState()
   })
 
   it('Failed double pause', async () => {
     const { api, contract } = await setup()
 
-    await expect(contract.tx.pause()).to.eventually.be.fulfilled
+    await contract.tx.pause()
     await expect(contract.tx.pause()).to.eventually.be.rejected
 
     await api.disconnect()
@@ -55,8 +55,8 @@ describe('MY_PAUSABLE', () => {
   it('Success pause and unpause', async () => {
     const { api, contract } = await setup()
 
-    await expect(contract.tx.pause()).to.eventually.be.fulfilled
-    await expect(contract.tx.unpause()).to.eventually.be.fulfilled
+    await contract.tx.pause()
+    await contract.tx.unpause()
 
     await api.disconnect()
   })
@@ -72,7 +72,7 @@ describe('MY_PAUSABLE', () => {
   it('Failed flip when paused', async () => {
     const { api, contract } = await setup()
 
-    await expect(contract.tx.pause()).to.eventually.be.fulfilled
+    await contract.tx.pause()
     await expect(contract.tx.flip()).to.eventually.be.rejected
 
     await api.disconnect()

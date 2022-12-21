@@ -44,11 +44,11 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(contract.withSigner(alice).tx.mint(alice.address, IdBuilder.U8(0))).to.eventually.be.rejected
 
     // Act - Grant Alice the minter role
-    await expect(tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
 
     // Assert - Alice can mint a token
-    await expect(contract.withSigner(alice).tx.mint(alice.address, IdBuilder.U8(0))).to.eventually.be.fulfilled
+    await contract.withSigner(alice).tx.mint(alice.address, IdBuilder.U8(0))
     await expect(query.ownerOf(IdBuilder.U8(0))).to.have.output(alice.address)
 
     await api.disconnect()
@@ -91,7 +91,7 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
 
     // Act - Grant Alice the minter Role
-    await expect(tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.grantRole(Roles.Minter, alice.address)
 
     // Assert - Alice has minter role
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
@@ -114,7 +114,7 @@ describe('MY_ACCESS_CONTROL', () => {
     await expect(query.hasRole(Roles.Minter, defaultSigner.address)).to.have.output(true)
 
     // Act - Grant Alice the minter role
-    await expect(tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.grantRole(Roles.Minter, alice.address)
 
     // Assert - Alice has minter role, and sender still have gra
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
@@ -133,11 +133,11 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Grant Alice minter role
-    await expect(tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
 
     // Act - Revoke Alice minter role
-    await expect(tx.revokeRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.revokeRole(Roles.Minter, alice.address)
 
     // Assert - Alice don't have minter role
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
@@ -154,11 +154,11 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Grant Alice minter role
-    await expect(contract.tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await contract.tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
 
     // Act - Alice renounce his minter role
-    await expect(contract.withSigner(alice).tx.renounceRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await contract.withSigner(alice).tx.renounceRole(Roles.Minter, alice.address)
 
     // Assert - Alice don't have minter role
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
@@ -176,7 +176,7 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Assert - Only sender has admin role
-    await expect(tx.grantRole(Roles.Minter, bob.address)).to.eventually.be.fulfilled
+    await tx.grantRole(Roles.Minter, bob.address)
 
     // Act & Assert - Alice & Bob can't grant or revoke roles
     await expect(contract.withSigner(alice).tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.rejected
@@ -196,7 +196,7 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Arrange - Grant Alice minter role
-    await expect(tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
 
     // Act & Assert - Sender calling renounce for Alice should fail
@@ -215,13 +215,13 @@ describe('MY_ACCESS_CONTROL', () => {
     } = await setup()
 
     // Assert - Grant Alice minter role & mint a token
-    await expect(tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.grantRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
-    await expect(contract.withSigner(alice).tx.mint(alice.address, IdBuilder.U8(0))).to.eventually.be.fulfilled
+    await contract.withSigner(alice).tx.mint(alice.address, IdBuilder.U8(0))
     await expect(query.ownerOf(IdBuilder.U8(0))).to.have.output(alice.address)
 
     // Act - revoke Alice minter role
-    await expect(tx.revokeRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.revokeRole(Roles.Minter, alice.address)
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
 
     // Assert - Alice cannot burn token

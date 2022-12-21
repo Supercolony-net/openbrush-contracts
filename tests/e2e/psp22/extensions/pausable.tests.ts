@@ -37,7 +37,7 @@ describe('MY_PSP22_PAUSABLE', () => {
     await expect(query.balanceOf(receiver.address)).to.have.bnToNumber(0)
 
     // sender sends tokens to the receiver
-    await expect(pausable.tx.transfer(receiver.address, 100, [])).to.eventually.be.fulfilled
+    await pausable.tx.transfer(receiver.address, 100, [])
 
     // sender has 900 tokens
     await expect(query.balanceOf(sender.address)).to.have.bnToNumber(900)
@@ -55,7 +55,7 @@ describe('MY_PSP22_PAUSABLE', () => {
     // receiver has 0 tokens
     await expect(query.balanceOf(receiver.address)).to.have.bnToNumber(0)
     // we pause the contract
-    await expect(pausable.tx.changeState()).to.eventually.be.fulfilled
+    await pausable.tx.changeState()
 
     // sender sends tokens to the receiver
     await expect(pausable.tx.transfer(receiver.address, 100, [])).to.eventually.be.rejected

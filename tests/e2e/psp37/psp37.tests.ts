@@ -69,8 +69,8 @@ describe('MY_PSP37', () => {
     const amount2 = 20
 
     await expect(query.balanceOf(sender.address, null)).to.have.bnToNumber(0)
-    await expect(tx.mintTokens(token1, amount1)).to.eventually.be.fulfilled
-    await expect(tx.mintTokens(token2, amount2)).to.eventually.be.fulfilled
+    await tx.mintTokens(token1, amount1)
+    await tx.mintTokens(token2, amount2)
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(amount1)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(amount2)
@@ -89,12 +89,12 @@ describe('MY_PSP37', () => {
     const amount2 = 20
 
     await expect(query.totalSupply(null)).to.have.bnToNumber(0)
-    await expect(tx.mintTokens(token1, amount1)).to.eventually.be.fulfilled
+    await tx.mintTokens(token1, amount1)
     
     await expect(query.totalSupply(token1)).to.have.bnToNumber(amount1)
     await expect(query.totalSupply(null)).to.have.bnToNumber(1)
 
-    await expect(tx.mintTokens(token2, amount2)).to.eventually.be.fulfilled
+    await tx.mintTokens(token2, amount2)
 
     await expect(query.totalSupply(token2)).to.have.bnToNumber(amount2)
     await expect(query.totalSupply(null)).to.have.bnToNumber(2)
@@ -109,7 +109,7 @@ describe('MY_PSP37', () => {
 
 
     await expect(query.allowance(sender.address, alice.address, token)).to.have.bnToNumber(0)
-    await expect(tx.approve(alice.address, token, 10)).to.eventually.be.fulfilled
+    await tx.approve(alice.address, token, 10)
     await expect(query.allowance(sender.address, alice.address, token)).to.have.bnToNumber(10)
 
     await close()
@@ -124,12 +124,12 @@ describe('MY_PSP37', () => {
 
 
     // Arrange
-    await expect(tx.mintTokens(token, 1)).to.eventually.be.fulfilled
+    await tx.mintTokens(token, 1)
     await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
 
     // Assert - Sender can send token to receiver
-    await expect(tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])).to.eventually.be.fulfilled
+    await tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])
     await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(1)
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(0)
 
@@ -145,13 +145,13 @@ describe('MY_PSP37', () => {
     const token = IdBuilder.U8(0)
 
     // Arrange
-    await expect(tx.mintTokens(token, 1)).to.eventually.be.fulfilled
+    await tx.mintTokens(token, 1)
     await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
 
 
     // Assert - Sender can send token to receiver
-    await expect(tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])).to.eventually.be.fulfilled
+    await tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])
     await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(1)
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(0)
 
@@ -167,12 +167,12 @@ describe('MY_PSP37', () => {
     const token = IdBuilder.U8(0)
 
     // Arrange
-    await expect(tx.mintTokens(token, 1)).to.eventually.be.fulfilled
+    await tx.mintTokens(token, 1)
     await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
 
     // Act - Receiver wants to reject the next transfer
-    await expect(contract.tx.revertNextTransfer()).to.eventually.be.fulfilled
+    await contract.tx.revertNextTransfer()
 
     // Assert - Sender cannot send token to receiver
     await expect(tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])).to.eventually.be.rejected
@@ -193,11 +193,11 @@ describe('MY_PSP37', () => {
     await expect(query.allowance(sender.address, alice.address, token))
       .to.have.bnToNumber(0)
 
-    await expect(contract.tx.approve(alice.address, token, tokenAmount)).to.eventually.be.fulfilled
+    await contract.tx.approve(alice.address, token, tokenAmount)
     await expect(query.allowance(sender.address, alice.address, token))
       .to.have.bnToNumber(tokenAmount)
 
-    await expect(contract.tx.approve(alice.address, null, 1)).to.eventually.be.fulfilled
+    await contract.tx.approve(alice.address, null, 1)
     await expect(query.allowance(sender.address, alice.address, token))
       .to.have.bnToString('340282366920938463463374607431768211455')
 
@@ -212,15 +212,15 @@ describe('MY_PSP37', () => {
 
     const token1Amount = 1
     const token2Amount = 10
-    await expect(tx.mintTokens(token1, token1Amount)).to.eventually.be.fulfilled
-    await expect(tx.mintTokens(token2, token2Amount)).to.eventually.be.fulfilled
+    await tx.mintTokens(token1, token1Amount)
+    await tx.mintTokens(token2, token2Amount)
 
     await expect(query.balanceOf(sender.address, null)).to.have.bnToNumber(2)
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(token1Amount)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(token2Amount)
     await expect(query.totalSupply(null)).to.have.bnToNumber(2)
 
-    await expect(contract.tx.transfer(alice.address, token2, token2Amount, [])).to.eventually.be.fulfilled
+    await contract.tx.transfer(alice.address, token2, token2Amount, [])
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(token1Amount)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(0)
@@ -229,8 +229,8 @@ describe('MY_PSP37', () => {
     await expect(query.balanceOf(sender.address, null)).to.have.bnToNumber(1)
     await expect(query.balanceOf(alice.address, null)).to.have.bnToNumber(1)
 
-    await expect(contract.tx.transfer(alice.address, token1, token1Amount, [])).to.eventually.be.fulfilled
-    await expect(contract.withSigner(alice).tx.transfer(sender.address, token2, token1Amount, [])).to.eventually.be.fulfilled
+    await contract.tx.transfer(alice.address, token1, token1Amount, [])
+    await contract.withSigner(alice).tx.transfer(sender.address, token2, token1Amount, [])
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(token1Amount)
@@ -251,19 +251,19 @@ describe('MY_PSP37', () => {
     const token1Amount = 1
     const token2Amount = 10
 
-    await expect(tx.mintTokens(token1, token1Amount)).to.eventually.be.fulfilled
-    await expect(tx.mintTokens(token2, token2Amount)).to.eventually.be.fulfilled
+    await tx.mintTokens(token1, token1Amount)
+    await tx.mintTokens(token2, token2Amount)
 
-    await expect(contract.withSigner(alice).tx.approve(sender.address, null, 1)).to.eventually.be.fulfilled
-    await expect(contract.tx.transferFrom(sender.address, alice.address, token2, token2Amount, [])).to.eventually.be.fulfilled
+    await contract.withSigner(alice).tx.approve(sender.address, null, 1)
+    await contract.tx.transferFrom(sender.address, alice.address, token2, token2Amount, [])
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(token1Amount)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(0)
     await expect(query.balanceOf(alice.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(alice.address, token2)).to.have.bnToNumber(token2Amount)
 
-    await expect(contract.tx.transferFrom(sender.address, alice.address, token1, token1Amount, [])).to.eventually.be.fulfilled
-    await expect(contract.tx.transferFrom(alice.address, sender.address, token2, token1Amount, [])).to.eventually.be.fulfilled
+    await contract.tx.transferFrom(sender.address, alice.address, token1, token1Amount, [])
+    await contract.tx.transferFrom(alice.address, sender.address, token2, token1Amount, [])
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(token1Amount)
@@ -279,7 +279,7 @@ describe('MY_PSP37', () => {
     const token = IdBuilder.U8(0)
 
     const tokenAmount = 1
-    await expect(tx.mintTokens(token, tokenAmount)).to.eventually.be.fulfilled
+    await tx.mintTokens(token, tokenAmount)
 
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(tokenAmount)
     await contract.withSigner(alice).tx.approve(sender.address, token, tokenAmount)
@@ -298,7 +298,7 @@ describe('MY_PSP37', () => {
     const token = IdBuilder.U8(0)
 
     const tokenAmount = 1
-    await expect(tx.mintTokens(token, tokenAmount)).to.eventually.be.fulfilled
+    await tx.mintTokens(token, tokenAmount)
 
     await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(tokenAmount)
 

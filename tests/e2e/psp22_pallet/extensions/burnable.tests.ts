@@ -71,7 +71,7 @@ describe('MY_PSP22_PALLET_BURNABLE', () => {
         expect(result.value.unwrapRecursively().toNumber()).to.be.eq(1000);
 
         // Act - Burn sender's tokens
-        await expect(contract.tx.burn(sender.address, 10)).to.eventually.be.fulfilled
+        await contract.tx.burn(sender.address, 10)
 
         // Assert - Ensure sender balance is now 990
         await expect(query.balanceOf(sender.address)).to.have.bnToNumber(990)
@@ -102,7 +102,7 @@ describe('MY_PSP22_PALLET_BURNABLE', () => {
         await expect(query.totalSupply()).to.have.bnToNumber(1000)
 
         // Act - Burn token from owner
-        await expect(contract.tx.burn(sender.address, 1)).to.eventually.be.fulfilled
+        await contract.tx.burn(sender.address, 1)
 
         // Assert - Ensure sender balance is now 999
         await expect(query.totalSupply()).to.have.bnToNumber(999)
@@ -114,10 +114,10 @@ describe('MY_PSP22_PALLET_BURNABLE', () => {
         const { api, query, tx, alice } = await setup();
 
         // Arrange - Transfer tokens to Alice
-        await expect(tx.transfer(alice.address, 10, [])).to.eventually.be.fulfilled
+        await tx.transfer(alice.address, 10, [])
 
         // Act - burn from Alice address
-        await expect(tx.burn(alice.address, 10)).to.eventually.be.fulfilled
+        await tx.burn(alice.address, 10)
 
         // Assert - ensure needed amount was burnt
         await expect(query.balanceOf(alice.address)).to.have.bnToNumber(0)
@@ -128,11 +128,11 @@ describe('MY_PSP22_PALLET_BURNABLE', () => {
     it('Can burn from many', async () => {
         const { api, query, tx, contract, alice, bob } = await setup();
 
-        await expect(tx.transfer(alice.address, 10, [])).to.eventually.be.fulfilled
-        await expect(tx.transfer(bob.address, 10, [])).to.eventually.be.fulfilled
+        await tx.transfer(alice.address, 10, [])
+        await tx.transfer(bob.address, 10, [])
 
         // Act - burn tokens from Alice and Bob
-        await expect(contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])).to.eventually.be.fulfilled
+        await contract.tx.burnFromMany([[alice.address, 10], [bob.address, 10]])
 
         // Assert - ensure needed amount was burnt
         await expect(query.balanceOf(alice.address)).to.have.bnToNumber(0)

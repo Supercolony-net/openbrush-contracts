@@ -72,9 +72,9 @@ describe('MY_PSP22_WRAPPER', () => {
     await expect(psp22Query.balanceOf(wrapperContract.address)).to.have.bnToNumber(0)
 
     // sender allows the contract to spend their tokens
-    await expect(psp22Contract.tx.approve(wrapperContract.address, 100)).to.eventually.be.fulfilled
+    await psp22Contract.tx.approve(wrapperContract.address, 100)
     // sender wraps 100 tokens
-    await expect(wrapperContract.withSigner(sender).tx.depositFor(sender.address, 100)).to.eventually.be.fulfilled
+    await wrapperContract.withSigner(sender).tx.depositFor(sender.address, 100)
 
     // sender has 900 tokens
     await expect(psp22Query.balanceOf(sender.address)).to.have.bnToNumber(900)
@@ -120,7 +120,7 @@ describe('MY_PSP22_WRAPPER', () => {
     await expect(psp22Query.balanceOf(wrapperContract.address)).to.have.bnToNumber(0)
 
     // sender approves contract to spend their tokens, sender deposits 1001 tokens
-    await expect(psp22Contract.tx.approve(wrapperContract.address, 100)).to.eventually.be.fulfilled
+    await psp22Contract.tx.approve(wrapperContract.address, 100)
     await expect(wrapperContract.withSigner(sender).tx.depositFor(sender.address, 1001)).to.eventually.be.rejected
 
     // sender has 1000 tokens and 0 wrapper tokens, contract has 0 tokens
@@ -138,9 +138,9 @@ describe('MY_PSP22_WRAPPER', () => {
     const { contract: psp22Contract, query: psp22Query, defaultSigner: sender } = psp22
 
     // sender allows the contract to spend their tokens
-    await expect(psp22Contract.tx.approve(wrapperContract.address, 100)).to.eventually.be.fulfilled
+    await psp22Contract.tx.approve(wrapperContract.address, 100)
     // sender wraps 100 tokens
-    await expect(wrapperContract.withSigner(sender).tx.depositFor(sender.address, 100)).to.eventually.be.fulfilled
+    await wrapperContract.withSigner(sender).tx.depositFor(sender.address, 100)
     // sender has 900 tokens
     await expect(psp22Query.balanceOf(sender.address)).to.have.bnToNumber(900)
     // sender has 100 wrapper tokens
@@ -149,7 +149,7 @@ describe('MY_PSP22_WRAPPER', () => {
     await expect(psp22Query.balanceOf(wrapperContract.address)).to.have.bnToNumber(100)
 
     // sender withdraws 100 tokens
-    await expect(wrapperContract.withSigner(sender).tx.withdrawTo(sender.address, 100)).to.eventually.be.fulfilled
+    await wrapperContract.withSigner(sender).tx.withdrawTo(sender.address, 100)
 
     // sender has 1000 tokens
     await expect(psp22Query.balanceOf(sender.address)).to.have.bnToNumber(1000)
@@ -190,7 +190,7 @@ describe('MY_PSP22_WRAPPER', () => {
     const { contract: psp22Contract, query: psp22Query, defaultSigner: sender } = psp22
 
     // sender send 100 tokens to the wrapper contract
-    await expect(psp22Contract.tx.transfer(wrapperContract.address, 100, [])).to.eventually.be.fulfilled
+    await psp22Contract.tx.transfer(wrapperContract.address, 100, [])
     // sender has 900 tokens
     await expect(psp22Query.balanceOf(sender.address)).to.have.bnToNumber(900)
     // sender has 0 wrapper tokens
@@ -199,7 +199,7 @@ describe('MY_PSP22_WRAPPER', () => {
     await expect(psp22Query.balanceOf(wrapperContract.address)).to.have.bnToNumber(100)
 
     // sender calls recover function
-    await expect(wrapperContract.withSigner(sender).tx.recover()).to.eventually.be.fulfilled
+    await wrapperContract.withSigner(sender).tx.recover()
 
     // sender has 900 tokens
     await expect(psp22Query.balanceOf(sender.address)).to.have.bnToNumber(900)

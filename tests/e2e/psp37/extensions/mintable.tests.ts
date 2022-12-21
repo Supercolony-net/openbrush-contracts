@@ -45,9 +45,9 @@ describe('MY_PSP37_MINTABLE', () => {
     await expect(query.balanceOf(alice.address, token1)).to.have.bnToNumber(0)
     await expect(query.balanceOf(alice.address, token2)).to.have.bnToNumber(0)
 
-    await expect(contract.tx.mint(sender.address, [[token1, amount1]])).to.eventually.be.fulfilled
-    await expect(contract.tx.mint(sender.address, [[token2, amount2]])).to.eventually.be.fulfilled
-    await expect(contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])).to.eventually.be.fulfilled
+    await contract.tx.mint(sender.address, [[token1, amount1]])
+    await contract.tx.mint(sender.address, [[token2, amount2]])
+    await contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])
 
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(amount1)
     await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(amount2)

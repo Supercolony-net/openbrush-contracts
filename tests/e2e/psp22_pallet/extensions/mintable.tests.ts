@@ -44,7 +44,7 @@ describe('MY_PSP22_MINTABLE', () => {
         await expect(query.balanceOf(alice.address)).to.have.bnToNumber(0)
 
         // Act - Sender mint a token
-        await expect(contract.tx.mintTo(alice.address, 1)).to.eventually.be.fulfilled
+        await contract.tx.mintTo(alice.address, 1)
 
         // Assert - Sender balance is now 1
         await expect(query.balanceOf(alice.address)).to.have.bnToNumber(1)
@@ -59,7 +59,7 @@ describe('MY_PSP22_MINTABLE', () => {
         await expect(query.totalSupply()).to.have.bnToNumber(1000)
 
         // Act - Sender mint a token
-        await expect(contract.tx.mintTo(sender.address, 1)).to.eventually.be.fulfilled
+        await contract.tx.mintTo(sender.address, 1)
 
         // Assert - Sender balance is now 1
         await expect(query.totalSupply()).to.have.bnToNumber(1001)

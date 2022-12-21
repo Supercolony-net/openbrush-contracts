@@ -41,7 +41,7 @@ describe.only('MY_TIMELOCK_CONTROLLER', () => {
     // Act - Bob scheduled the transaction
     const id = (await contract.query.hashOperation(transaction, null, salt)).value.unwrapRecursively()
     expect((await contract.query.isOperationPending(id)).value.unwrapRecursively()).to.be.eq(false)
-    await expect(contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
+    await contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)
 
     // Assert - Operation must be scheduled, it should be in Pending state and in Ready state(because min delay is zero)
     expect((await contract.query.isOperationPending(id)).value.unwrapRecursively()).to.be.eq(true)
@@ -67,11 +67,11 @@ describe.only('MY_TIMELOCK_CONTROLLER', () => {
 
     // Act - Bob scheduled the transaction
     const id = (await contract.query.hashOperation(transaction, null, salt)).value.unwrapRecursively()
-    await expect(contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
+    await contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)
 
     // Assert - Transaction must be updated and now the state is Done
     await expect(contract.query.isOperationDone(id)).to.have.output(false)
-    await expect(contract.withSigner(bob).tx.execute(transaction, null, salt)).to.eventually.be.fulfilled
+    await contract.withSigner(bob).tx.execute(transaction, null, salt)
     await expect(contract.query.isOperationDone(id)).to.have.output(true)
 
     await api.disconnect()
@@ -104,11 +104,11 @@ describe.only('MY_TIMELOCK_CONTROLLER', () => {
     const salt = bnArg(0)
 
     // Act - Bob scheduled the transaction
-    await expect(contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
+    await contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)
 
     // Assert - Min delay must be updated via `execute` method
     await expect(contract.query.getMinDelay()).to.have.output(0)
-    await expect(contract.withSigner(bob).tx.execute(transaction, null, salt)).to.eventually.be.fulfilled
+    await contract.withSigner(bob).tx.execute(transaction, null, salt)
     await expect(contract.query.getMinDelay()).to.have.output(new_min_delay)
 
     await api.disconnect()
@@ -147,7 +147,7 @@ describe.only('MY_TIMELOCK_CONTROLLER', () => {
     const salt = bnArg(0)
 
     // Act - Bob scheduled the transaction
-    await expect(contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
+    await contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)
 
     // Assert - Alice can't execute the transaction
     await expect(contract.withSigner(alice).tx.execute(transaction, null, salt)).to.eventually.be.rejected

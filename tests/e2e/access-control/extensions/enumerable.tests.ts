@@ -64,7 +64,7 @@ describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
     await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
 
     // Act - Grant Alice the minter Role
-    await expect(tx.grantRole(Roles.Minter, alice.address)).to.eventually.be.fulfilled
+    await tx.grantRole(Roles.Minter, alice.address)
 
     // Assert - Now Alice is the second on the minter list
     const minter = await query.getRoleMember(Roles.Minter, 1)
@@ -88,7 +88,7 @@ describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
     await expect(query.getRoleMemberCount(Roles.Minter)).to.have.output(1)
 
     // Act - Revoke sender the minter role
-    await expect(tx.revokeRole(Roles.Minter, sender.address)).to.eventually.be.fulfilled
+    await tx.revokeRole(Roles.Minter, sender.address)
 
     // Assert - no minter members
     await expect(query.getRoleMemberCount(Roles.Minter)).to.have.output(0)

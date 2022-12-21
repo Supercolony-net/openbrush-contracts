@@ -45,9 +45,9 @@ describe('MY_PAYMENT_SPLITTER', () => {
     // Act - Send native token and release them
     const totalReleasedBefore = (await contract.query.totalReleased()).value.unwrapRecursively().toNumber()
     await expect(totalReleasedBefore).to.be.eq(0)
-    await expect(contract.tx.receive({ value: 1000000000000 })).to.eventually.be.fulfilled
-    await expect(contract.tx.release(kayne.address)).to.eventually.be.fulfilled
-    await expect(contract.tx.release(ian.address)).to.eventually.be.fulfilled
+    await contract.tx.receive({ value: 1000000000000 })
+    await contract.tx.release(kayne.address)
+    await contract.tx.release(ian.address)
 
     // Assert - Ian must hold more tokens than kayne
     const totalReleased = (await contract.query.totalReleased()).value.unwrapRecursively().toNumber()
@@ -68,8 +68,8 @@ describe('MY_PAYMENT_SPLITTER', () => {
     // Act - Send native token and release them
     const totalReleasedBefore = (await contract.query.totalReleased()).value.unwrapRecursively().toNumber()
     await expect(totalReleasedBefore).to.be.eq(0)
-    await expect(contract.tx.receive({ value: 1000000000000 })).to.eventually.be.fulfilled
-    await expect(contract.tx.releaseAll()).to.eventually.be.fulfilled
+    await contract.tx.receive({ value: 1000000000000 })
+    await contract.tx.releaseAll()
 
     // Assert - Ian must hold more tokens than kayne
     const totalReleased = (await contract.query.totalReleased()).value.unwrapRecursively().toNumber()

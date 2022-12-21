@@ -209,12 +209,12 @@ describe('RAW_DIAMOND', () => {
     const diamondContract = await setupProxy(diamondFacet, diamondContractOriginal.address)
 
     // add diamond facet
-    await expect(diamondContract.withSigner(defaultSigner).tx.diamondCut([diamondCut], null)).to.eventually.be.fulfilled
+    await diamondContract.withSigner(defaultSigner).tx.diamondCut([diamondCut], null)
 
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
 
     // add psp22 facet
-    await expect(diamondContract.withSigner(defaultSigner).tx.diamondCut([psp22Cut], {hash: psp22Hash, selector: psp22Init, input: []})).to.eventually.be.fulfilled
+    await diamondContract.withSigner(defaultSigner).tx.diamondCut([psp22Cut], {hash: psp22Hash, selector: psp22Init, input: []})
 
     // patch methods
     const proxyPSP22Facet = setupProxy(psp22Facet, diamondContract.address)
@@ -290,12 +290,12 @@ describe('RAW_DIAMOND', () => {
     const diamondContract = setupProxy(diamondFacet, diamondContractOriginal.address)
 
     // add diamond facet
-    await expect(diamondContract.withSigner(defaultSigner).tx.diamondCut([diamondCut], null)).to.eventually.be.fulfilled
+    await diamondContract.withSigner(defaultSigner).tx.diamondCut([diamondCut], null)
 
     await expect(diamondContract.query.owner()).to.output(defaultSigner.address)
 
     // add psp22 facet
-    await expect(diamondContract.withSigner(defaultSigner).tx.diamondCut(psp22Cut, {hash: psp22Hash, selector: psp22Init, input: []})).to.eventually.be.fulfilled
+    await diamondContract.withSigner(defaultSigner).tx.diamondCut(psp22Cut, {hash: psp22Hash, selector: psp22Init, input: []})
 
     // patch methods
     const proxyPSP22 = setupProxy(psp22Facet, diamondContract.address)
