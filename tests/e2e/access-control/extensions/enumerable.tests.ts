@@ -68,7 +68,7 @@ describe('MY_ACCESS_CONTROL_ENUMERABLE', () => {
 
     // Assert - Now Alice is the second on the minter list
     const minter = await query.getRoleMember(Roles.Minter, 1)
-    await expect(minter.value).equal(alice.address)
+    await expect(minter.value.unwrapRecursively()).to.be.equal(alice.address)
 
     await api.disconnect()
   })

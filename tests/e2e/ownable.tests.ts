@@ -85,7 +85,7 @@ describe('MY_OWNABLE', () => {
     await expect(query.owner()).to.have.output(sender.address)
     await expect(contract.withSigner(alice).tx.mint(alice.address, ids_amounts)).to.eventually.be.rejected
     const balanceBefore = await query.balanceOf(alice.address, token)
-    expect(balanceBefore.value.toString()).to.be.eq('0')
+    expect(balanceBefore.value.unwrapRecursively().toString()).to.be.eq('0')
 
     // Act - transfer ownership to Alice96
     await tx.transferOwnership(alice.address)
@@ -95,7 +95,7 @@ describe('MY_OWNABLE', () => {
     await contract.withSigner(alice).tx.mint(alice.address, ids_amounts)
     await expect(query.owner()).to.have.output(alice.address)
     const balanceAfter = await query.balanceOf(alice.address, token)
-    expect(balanceAfter.value.toString()).to.be.eq('123')
+    expect(balanceAfter.value.unwrapRecursively().toString()).to.be.eq('123')
 
     await api.disconnect()
   })

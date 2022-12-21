@@ -204,7 +204,7 @@ describe('LENDING_CONTRACT', () => {
     await expect(lendingContract.withSigner(user).tx.borrowAssets(borrowedToken.address, collateralToken.address, collateralAmount)).to.eventually.be
       .fulfilled
 
-    await expect((await collateralToken.query.balanceOf(user.address)).value.toString()).to.be.eq(
+    await expect((await collateralToken.query.balanceOf(user.address)).value.unwrapRecursively().toString()).to.be.eq(
       alice_balance.sub(new BN(collateralAmount)).toString()
     )
   }
@@ -297,7 +297,7 @@ describe('LENDING_CONTRACT', () => {
     await expect(stablecoin.query.balanceOf(lending.address)).to.have.bnToNumber(amount)
     // Assert - A
 
-    expect((await stablecoin.query.balanceOf(alice.address)).value.toString()).to.be.eq(alice_balance.sub(new BN(amount)).toString())
+    expect((await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().toString()).to.be.eq(alice_balance.sub(new BN(amount)).toString())
 
     await close()
   })
@@ -320,7 +320,7 @@ describe('LENDING_CONTRACT', () => {
 
     // Assert - Alice received borrowed tokens
 
-    await expect((await stablecoin.query.balanceOf(alice.address)).value.toString()).to.be.eq(alice_balance.toString())
+    await expect((await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().toString()).to.be.eq(alice_balance.toString())
 
     await close()
   })
@@ -345,7 +345,7 @@ describe('LENDING_CONTRACT', () => {
     await lending.withSigner(alice).tx.repay(IdBuilder.U128(1), halfOfLoan)
 
     // Assert - Alice received half of collateral tokens
-    expect((await stablecoin.query.balanceOf(alice.address)).value.toString()).to.be.eq(
+    expect((await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().toString()).to.be.eq(
       alice_balance.sub(new BN(collateralAmount / 2 + 1)).toString()
     )
 
@@ -367,14 +367,17 @@ describe('LENDING_CONTRACT', () => {
     const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().rawNumber
     const sharesAddress = (await lending.query.getAssetShares(stablecoin.address)).value.unwrapRecursively().ok!
     const withdrawAmount = 1
-    console.log(alice.address, sharesAddress)
+
+    console.log(sharesAddress)
+    console.log((await lending.withSigner(alice).query.withdrawAsset(sharesAddress, withdrawAmount)).value)
+
     await lending.withSigner(alice).tx.withdrawAsset(sharesAddress, withdrawAmount)
 
     // Assert - Balance of lending contract decreased at withdraw amount
     await expect(stablecoin.query.balanceOf(lending.address)).to.have.bnToNumber(amount - withdrawAmount)
     // Assert - Alice balance increased at withdraw amount
 
-    expect((await stablecoin.query.balanceOf(alice.address)).value.toString()).to.be.eq(alice_balance.add(new BN(withdrawAmount)).toString())
+    expect((await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().toString()).to.be.eq(alice_balance.add(new BN(withdrawAmount)).toString())
 
     await close()
   })
