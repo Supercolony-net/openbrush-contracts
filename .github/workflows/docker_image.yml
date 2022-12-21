@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: files
         uses: jitterbit/get-changed-files@v1
-      - name: Build & Push DockerF Image
+      - name: Build & Push Docker Image
         if: contains(steps.files.outputs.all, 'Dockerfile')
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
