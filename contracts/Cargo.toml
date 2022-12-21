@@ -21,7 +21,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 
 openbrush = { version = "~2.4.0", package = "openbrush_lang", path = "../lang", default-features = false }
 
-pallet-assets-chain-extension = { git = "https://github.com/727-ventures/pallet-assets-chain-extension", branch = "feature/ink-master", default-features = false, features = ["ink-lang"]  }
+pallet-assets-chain-extension = { git = "https://github.com/727-ventures/pallet-assets-chain-extension", branch = "main", default-features = false, features = ["ink-lang"]  }
 
 [lib]
 name = "openbrush_contracts"
