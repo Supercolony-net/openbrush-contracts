@@ -58,7 +58,7 @@ describe('MY_PSP22_PALLET_BURNABLE', () => {
     it('Assigns initial balance', async () => {
         const { api, query, defaultSigner: sender } = await setup()
 
-        expect((await query.balanceOf(sender.address)).value.toNumber()).to.be.eq(1000)
+        expect((await query.balanceOf(sender.address)).value.unwrapRecursively().toNumber()).to.be.eq(1000)
 
         await api.disconnect()
     })
@@ -68,7 +68,7 @@ describe('MY_PSP22_PALLET_BURNABLE', () => {
 
         // Assert - Ensure sender initial balance is 1000
         let result = await query.balanceOf(sender.address);
-        expect(result.value.toNumber()).to.be.eq(1000);
+        expect(result.value.unwrapRecursively().toNumber()).to.be.eq(1000);
 
         // Act - Burn sender's tokens
         await expect(contract.tx.burn(sender.address, 10)).to.eventually.be.fulfilled

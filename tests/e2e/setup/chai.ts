@@ -24,7 +24,7 @@ chai.use((chai) => {
     await new chai.Assertion(this._obj).to.eventually.have.property('value')
 
     const value = await new chai.Assertion(this._obj).to.eventually.have.property('value')
-    const valueToNumber = await value.toNumber()
+    const valueToNumber = await value.unwrapRecursively().toNumber()
 
     await new chai.Assertion(valueToNumber).to.equal(param, message)
   })

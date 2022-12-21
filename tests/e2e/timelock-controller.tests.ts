@@ -1,13 +1,13 @@
-import {bnArg, expect, getSigners} from './helpers'
+import { bnArg, expect, getSigners } from './helpers'
 import Constructors from '../../typechain-generated/constructors/my_timelock_controller'
 import Contract from '../../typechain-generated/contracts/my_timelock_controller'
-import {ApiPromise} from '@polkadot/api'
+import { ApiPromise } from '@polkadot/api'
 
 function getMessageAbi(contract: Contract, identifier: string) {
   return contract.abi.findMessage(identifier)!
 }
 
-describe('MY_TIMELOCK_CONTROLLER', () => {
+describe.only('MY_TIMELOCK_CONTROLLER', () => {
   async function setup() {
     const api = await ApiPromise.create()
 
@@ -39,14 +39,14 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
     const salt = bnArg(0)
 
     // Act - Bob scheduled the transaction
-    const id = (await contract.query.hashOperation(transaction, null, salt)).value!
-    await expect(contract.query.isOperationPending(id)).to.have.output(false)
+    const id = (await contract.query.hashOperation(transaction, null, salt)).value.unwrapRecursively()
+    expect((await contract.query.isOperationPending(id)).value.unwrapRecursively()).to.be.eq(false)
     await expect(contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
 
     // Assert - Operation must be scheduled, it should be in Pending state and in Ready state(because min delay is zero)
-    await expect(contract.query.isOperationPending(id)).to.have.output(true)
-    await expect(contract.query.isOperationReady(id)).to.have.output(true)
-    await expect(contract.query.isOperationDone(id)).to.have.output(false)
+    expect((await contract.query.isOperationPending(id)).value.unwrapRecursively()).to.be.eq(true)
+    expect((await contract.query.isOperationReady(id)).value.unwrapRecursively()).to.be.eq(true)
+    expect((await contract.query.isOperationDone(id)).value.unwrapRecursively()).to.be.eq(false)
 
     await api.disconnect()
   })
@@ -66,7 +66,7 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
     const salt = bnArg(0)
 
     // Act - Bob scheduled the transaction
-    const id = (await contract.query.hashOperation(transaction, null, salt)).value!
+    const id = (await contract.query.hashOperation(transaction, null, salt)).value.unwrapRecursively()
     await expect(contract.withSigner(bob).tx.schedule(transaction, null, salt, 0)).to.eventually.be.fulfilled
 
     // Assert - Transaction must be updated and now the state is Done

@@ -70,8 +70,8 @@ describe('MY_PSP22_PALLET', () => {
     } = await setup()
 
     await contract.tx.transfer(receiver.address, 7, [])
-    await expect((await contract.query.balanceOf(receiver.address)).value.toNumber()).to.be.equal(7)
-    await expect((await contract.query.balanceOf(contract.signer.address)).value.toNumber()).to.be.equal(1000 - 7) // =)
+    await expect((await contract.query.balanceOf(receiver.address)).value.unwrapRecursively().toNumber()).to.be.equal(7)
+    await expect((await contract.query.balanceOf(contract.signer.address)).value.unwrapRecursively().toNumber()).to.be.equal(1000 - 7) // =)
 
     await api.disconnect()
   })

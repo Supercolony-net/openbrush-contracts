@@ -1,7 +1,7 @@
-import {expect, getSigners} from '../helpers'
+import { expect, getSigners } from '../helpers'
 import BN from 'bn.js'
 import { Roles } from '../constants'
-import {ApiPromise} from '@polkadot/api'
+import { ApiPromise } from '@polkadot/api'
 
 import ConstructorsCoin from '../../../typechain-generated/constructors/stable_coin_contract'
 import ContractCoin from '../../../typechain-generated/contracts/stable_coin_contract'
@@ -14,9 +14,8 @@ import ContractLending from '../../../typechain-generated/contracts/lending_cont
 
 import ConstructorsShares from '../../../typechain-generated/constructors/shares_contract'
 import ContractShares from '../../../typechain-generated/contracts/shares_contract'
-import {assert} from 'chai'
-import {IdBuilder} from '../../../typechain-generated/types-arguments/loan_contract'
-
+import { assert } from 'chai'
+import { IdBuilder } from '../../../typechain-generated/types-arguments/loan_contract'
 
 describe('LENDING_CONTRACT', () => {
   async function setupCoin() {
@@ -44,7 +43,7 @@ describe('LENDING_CONTRACT', () => {
       }
     }
   }
-  
+
   async function setupLoan() {
     const api = await ApiPromise.create()
 
@@ -149,7 +148,6 @@ describe('LENDING_CONTRACT', () => {
     }
   }
 
-  
   async function setup() {
     const stablecoin = await setupCoin()
     const loan = await setupLoan()
@@ -173,7 +171,15 @@ describe('LENDING_CONTRACT', () => {
     }
   }
 
-  async function borrow(lendingContract: ContractLending, borrowedToken: ContractCoin, collateralToken: ContractCoin, user, approveAmount, collateralAmount, price) {
+  async function borrow(
+    lendingContract: ContractLending,
+    borrowedToken: ContractCoin,
+    collateralToken: ContractCoin,
+    user,
+    approveAmount,
+    collateralAmount,
+    price
+  ) {
     // collateralToken approves amount of tokens for lending contact
     await expect(collateralToken.tx.approve(lendingContract.address, approveAmount)).to.eventually.be.fulfilled
 
@@ -192,13 +198,15 @@ describe('LENDING_CONTRACT', () => {
     // Set the price of collateralToken for borrowedToken
     await expect(lendingContract.withSigner(user).tx.setAssetPrice(collateralToken.address, borrowedToken.address, price)).to.eventually.be.fulfilled
 
-    const alice_balance = (await collateralToken.query.balanceOf(user.address)).value.rawNumber
+    const alice_balance = (await collateralToken.query.balanceOf(user.address)).value.unwrapRecursively().rawNumber
     // user borrow borrowedToken
 
     await expect(lendingContract.withSigner(user).tx.borrowAssets(borrowedToken.address, collateralToken.address, collateralAmount)).to.eventually.be
       .fulfilled
 
-    await expect((await collateralToken.query.balanceOf(user.address)).value.toString()).to.be.eq(alice_balance.sub(new BN(collateralAmount)).toString())
+    await expect((await collateralToken.query.balanceOf(user.address)).value.toString()).to.be.eq(
+      alice_balance.sub(new BN(collateralAmount)).toString()
+    )
   }
 
   it('LENDING CONTRACT - accept lending', async () => {
@@ -216,7 +224,6 @@ describe('LENDING_CONTRACT', () => {
 
   it('LENDING CONTRACT - disallow lending', async () => {
     const { lending, stablecoin, bob: alice, close } = await setup()
-
 
     // Arrange - Stablecoin is accepted for lending
     await expect(lending.tx.allowAsset(stablecoin.address)).to.eventually.be.fulfilled
@@ -274,7 +281,7 @@ describe('LENDING_CONTRACT', () => {
     const amount = 100
 
     // Arrange - Alice balance should be >= than lending amount
-    const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.rawNumber
+    const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().rawNumber
     assert(alice_balance.gte(new BN(amount)))
 
     // Act - Stablecoin contract approves amount for lending contact
@@ -305,7 +312,7 @@ describe('LENDING_CONTRACT', () => {
     await greencoin.tx.mint(alice.address, 1000000)
 
     // Act - Alice borrows greencoin
-    const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.rawNumber
+    const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().rawNumber
     await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
 
     // Act - Alice repays loan
@@ -328,7 +335,7 @@ describe('LENDING_CONTRACT', () => {
     await greencoin.tx.mint(alice.address, new BN('1000000'))
 
     // Act - Alice borrows greencoin
-    const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.rawNumber
+    const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().rawNumber
     await borrow(lending, greencoin, stablecoin, alice, amount, collateralAmount, price)
 
     // Act - Calculate half of the amount Alice should repay (borrowed amount = 70% of collateral amount)
@@ -338,7 +345,9 @@ describe('LENDING_CONTRACT', () => {
     await expect(lending.withSigner(alice).tx.repay(IdBuilder.U128(1), halfOfLoan)).to.eventually.be.fulfilled
 
     // Assert - Alice received half of collateral tokens
-    expect((await stablecoin.query.balanceOf(alice.address)).value.toString()).to.be.eq(alice_balance.sub(new BN(collateralAmount / 2 + 1)).toString())
+    expect((await stablecoin.query.balanceOf(alice.address)).value.toString()).to.be.eq(
+      alice_balance.sub(new BN(collateralAmount / 2 + 1)).toString()
+    )
 
     await close()
   })
@@ -355,8 +364,8 @@ describe('LENDING_CONTRACT', () => {
     // Act - Alice lends the amount of stablecoin tokens
     await expect(lending.withSigner(alice).tx.lendAssets(stablecoin.address, amount)).to.eventually.be.fulfilled
     // Act - Alice withdraws stablecoin token
-    const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.rawNumber
-    const sharesAddress = ((await lending.query.getAssetShares(stablecoin.address)).value.ok!)
+    const alice_balance = (await stablecoin.query.balanceOf(alice.address)).value.unwrapRecursively().rawNumber
+    const sharesAddress = (await lending.query.getAssetShares(stablecoin.address)).value.unwrapRecursively().ok!
     const withdrawAmount = 1
     console.log(alice.address, sharesAddress)
     await expect(lending.withSigner(alice).tx.withdrawAsset(sharesAddress, withdrawAmount)).to.eventually.be.fulfilled

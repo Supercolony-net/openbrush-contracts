@@ -1,6 +1,6 @@
 import { consts } from '../constants'
-import {expect, getSigners} from '../helpers'
-import {ApiPromise} from '@polkadot/api'
+import { expect, getSigners } from '../helpers'
+import { ApiPromise } from '@polkadot/api'
 import ConstructorsPSP22 from '../../../typechain-generated/constructors/my_psp22'
 import ContractPSP22 from '../../../typechain-generated/contracts/my_psp22'
 import ConstructorsPSP22Receiver from '../../../typechain-generated/constructors/psp22_receiver'
@@ -56,21 +56,17 @@ describe('MY_PSP22', () => {
   it('Assigns initial balance', async () => {
     const { api, query, defaultSigner: sender } = await setup()
 
-    expect((await query.balanceOf(sender.address)).value.toNumber()).to.have.output(1000)
+    expect((await query.balanceOf(sender.address)).value.unwrapRecursively().toNumber()).to.have.output(1000)
 
     await api.disconnect()
   })
 
   it('Transfer adds amount to destination account', async () => {
-    const {
-      api,
-      contract,
-      alice: receiver
-    } = await setup()
+    const { api, contract, alice: receiver } = await setup()
 
     await contract.tx.transfer(receiver.address, 7, [])
-    await expect((await contract.query.balanceOf(receiver.address)).value.toNumber()).to.be.equal(7)
-    await expect((await contract.query.balanceOf(contract.signer.address)).value.toNumber()).to.be.equal(1000 - 7) // =)
+    await expect((await contract.query.balanceOf(receiver.address)).value.unwrapRecursively().toNumber()).to.be.equal(7)
+    await expect((await contract.query.balanceOf(contract.signer.address)).value.unwrapRecursively().toNumber()).to.be.equal(1000 - 7) // =)
 
     await api.disconnect()
   })
@@ -98,11 +94,7 @@ describe('MY_PSP22', () => {
   })
 
   it('Can not transfer above the amount', async () => {
-    const {
-      api,
-      contract,
-      alice: receiver
-    } = await setup()
+    const { api, contract, alice: receiver } = await setup()
 
     await expect(contract.tx.transfer(receiver.address, 1007, [])).to.eventually.be.rejected
 
@@ -110,17 +102,12 @@ describe('MY_PSP22', () => {
   })
 
   it('Can not transfer to hated account', async () => {
-    const {
-      api,
-      query,
-      tx,
-      bob: hated_account
-    } = await setup()
+    const { api, query, tx, bob: hated_account } = await setup()
 
     // Check that we can transfer money while account is not hated
     await expect(tx.transfer(hated_account.address, 10, [])).to.eventually.be.fulfilled
     let result = await query.balanceOf(hated_account.address)
-    expect(result.value.toNumber()).to.equal(10)
+    expect(result.value.unwrapRecursively().toNumber()).to.equal(10)
     await expect(query.getHatedAccount()).to.have.output(consts.EMPTY_ADDRESS)
 
     // Hate account
@@ -132,7 +119,7 @@ describe('MY_PSP22', () => {
 
     // Amount of tokens must be the same
     result = await query.balanceOf(hated_account.address)
-    expect(result.value.toNumber()).to.equal(10)
+    expect(result.value.unwrapRecursively().toNumber()).to.equal(10)
 
     await api.disconnect()
   })
