@@ -399,6 +399,8 @@ where
         let result = match builder.fire() {
             Ok(Ok(Ok(_))) => Ok(()),
             Ok(Ok(Err(e))) => Err(e.into()),
+            // `NotCallable` means that the receiver is not a contract.
+            Err(ink::env::Error::NotCallable) => Ok(()),
             // Means unknown method
             Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
             _ => {
