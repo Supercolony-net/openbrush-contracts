@@ -17,7 +17,12 @@ declare global {
 chai.use(chaiAsPromised)
 chai.use((chai) => {
   chai.Assertion.addMethod('output', async function (param, message) {
-    await new chai.Assertion(this._obj).to.eventually.have.property('value').to.equal(param, message)
+    await new chai.Assertion(this._obj).to.eventually.have.property('value')
+
+    const value = await new chai.Assertion(this._obj).to.eventually.have.property('value')
+    const unwrapped = await value.unwrapRecursively()
+
+    await new chai.Assertion(unwrapped).to.equal(param, message)
   })
 
   chai.Assertion.addMethod('bnToNumber', async function (param, message) {
