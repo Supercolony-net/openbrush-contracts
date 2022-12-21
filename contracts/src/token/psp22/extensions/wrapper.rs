@@ -96,6 +96,7 @@ impl<T: Storage<psp22::Data> + Storage<Data>> Internal for T {
             .call_flags(CallFlags::default().set_allow_reentry(true))
             .fire()
             .unwrap()
+            .unwrap()
     }
 
     default fn _withdraw(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
@@ -103,6 +104,7 @@ impl<T: Storage<psp22::Data> + Storage<Data>> Internal for T {
             .transfer_builder(account, amount, Vec::<u8>::new())
             .call_flags(CallFlags::default().set_allow_reentry(true))
             .fire()
+            .unwrap()
             .unwrap()
     }
 

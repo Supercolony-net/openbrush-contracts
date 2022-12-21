@@ -106,6 +106,7 @@ impl<T: Storage<Data>> Internal for T {
             .transfer_builder(beneficairy, amount, Vec::<u8>::new())
             .call_flags(CallFlags::default().set_allow_reentry(true))
             .fire()
+            .unwrap()
             .unwrap()?;
         Ok(())
     }

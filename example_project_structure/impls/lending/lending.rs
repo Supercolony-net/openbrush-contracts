@@ -76,8 +76,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
     }
 
     default fn get_asset_shares(&self, asset_address: AccountId) -> Result<AccountId, LendingError> {
-        self
-            .data::<data::Data>()
+        self.data::<data::Data>()
             .asset_shares
             .get(&asset_address)
             .ok_or(LendingError::AssetNotSupported)
@@ -119,6 +118,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         PSP22Ref::transfer_from_builder(&asset_address, lender, contract, amount, Vec::<u8>::new())
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .fire()
+            .unwrap()
             .unwrap()?;
         // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
         let new_shares = if total_asset == 0 {
@@ -175,6 +175,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .fire()
+            .unwrap()
             .unwrap()?;
         // create loan info
         let loan_info = LoanInfo {
@@ -229,6 +230,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
             PSP22Ref::transfer_from_builder(&loan_info.borrow_token, initiator, contract, to_repay, Vec::<u8>::new())
                 .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
                 .fire()
+                .unwrap()
                 .unwrap()?;
             PSP22Ref::transfer(
                 &loan_info.collateral_token,
@@ -248,14 +250,11 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
             )
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .fire()
+            .unwrap()
             .unwrap()?;
             let to_return = (repay_amount * loan_info.collateral_amount) / to_repay;
             PSP22Ref::transfer(&loan_info.collateral_token, initiator, to_return, Vec::<u8>::new())?;
-            SharesRef::mint(
-                &reserve_asset,
-                contract,
-                to_repay - repay_amount,
-            )?;
+            SharesRef::mint(&reserve_asset, contract, to_repay - repay_amount)?;
             LoanRef::update_loan(
                 &loan_account,
                 loan_id.clone(),

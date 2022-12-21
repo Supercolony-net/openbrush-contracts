@@ -34,10 +34,7 @@ use crate::psp34::{
     Owner,
 };
 use ink::{
-    env::{
-        CallFlags,
-        Error as EnvError,
-    },
+    env::CallFlags,
     prelude::vec::Vec,
     storage::traits::{
         AutoStorableHint,
@@ -237,26 +234,14 @@ where
                 .call_flags(CallFlags::default().set_allow_reentry(true));
         let b = builder.fire();
         let result = match b {
-            Ok(result) => {
-                match result {
-                    Ok(_) => Ok(()),
-                    Err(e) => Err(e.into()),
-                }
-            }
-            Err(e) => {
-                match e {
-                    // `NotCallable` means that the receiver is not a contract.
-
-                    // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
-                    // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
-                    // https://github.com/paritytech/ink/issues/1002
-                    EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
-                    _ => {
-                        Err(PSP34Error::SafeTransferCheckFailed(String::from(
-                            "Error during call to receiver",
-                        )))
-                    }
-                }
+            Ok(Ok(Ok(_))) => Ok(()),
+            Ok(Ok(Err(e))) => Err(e.into()),
+            // Means unknown method
+            Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
+            _ => {
+                Err(PSP34Error::SafeTransferCheckFailed(String::from(
+                    "Error during call to receiver",
+                )))
             }
         };
         self.load();

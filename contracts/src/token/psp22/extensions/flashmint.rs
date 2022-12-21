@@ -34,10 +34,7 @@ pub use psp22::{
 };
 
 use ink::{
-    env::{
-        CallFlags,
-        Error as EnvError,
-    },
+    env::CallFlags,
     prelude::vec::Vec,
 };
 use openbrush::traits::{
@@ -115,28 +112,16 @@ impl<T: Storage<psp22::Data>> Internal for T {
             FlashBorrowerRef::on_flashloan_builder(&receiver_account, Self::env().caller(), token, amount, fee, data)
                 .call_flags(CallFlags::default().set_allow_reentry(true));
         let result = match builder.fire() {
-            Ok(result) => {
-                match result {
-                    Ok(_) => Ok(()),
-                    Err(FlashBorrowerError::FlashloanRejected(message)) => {
-                        Err(FlashLenderError::BorrowerRejected(message))
-                    }
-                }
+            Ok(Ok(Ok(_))) => Ok(()),
+            Ok(Ok(Err(FlashBorrowerError::FlashloanRejected(message)))) => {
+                Err(FlashLenderError::BorrowerRejected(message))
             }
-            Err(e) => {
-                match e {
-                    // `NotCallable` means that the receiver is not a contract.
-
-                    // `CalleeTrapped` means that the receiver has no method called `before_received` or it failed inside.
-                    // First case is expected. Second - not. But we can't tell them apart so it is a positive case for now.
-                    // https://github.com/paritytech/ink/issues/1002
-                    EnvError::NotCallable | EnvError::CalleeTrapped => Ok(()),
-                    _ => {
-                        Err(FlashLenderError::BorrowerRejected(String::from(
-                            "Error while performing the `on_flashloan`",
-                        )))
-                    }
-                }
+            // Means unknown method
+            Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
+            _ => {
+                Err(FlashLenderError::BorrowerRejected(String::from(
+                    "Error while performing the `on_flashloan`",
+                )))
             }
         };
         self.load();
