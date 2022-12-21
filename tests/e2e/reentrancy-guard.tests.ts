@@ -46,7 +46,6 @@ describe('REENTRANCY_GUARD', () => {
 
   it('One flip works correct', async () => {
     const { api, contract, query, defaultSigner: sender } = await setup()
-
     // Arrange - Ensure flip value is false
     await expect(query.getValue()).to.have.output(false)
 

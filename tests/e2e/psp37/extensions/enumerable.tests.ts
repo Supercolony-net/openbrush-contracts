@@ -70,14 +70,14 @@ describe('MY_PSP37_ENUMERABLE', () => {
     await contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])
 
     // expect(id((await query.tokenByIndex(0)).output?.toString()).u8).equal(1)
-    expect((await query.tokenByIndex(0)).value).to.be.deep.equal(token1Return)
+    expect((await query.tokenByIndex(0)).value.unwrapRecursively()).to.be.deep.equal(token1Return)
     // expect(id((await query.tokenByIndex(1)).output?.toString()).u8).equal(2)
-    expect((await query.tokenByIndex(1)).value).to.be.deep.equal(token2Return)
+    expect((await query.tokenByIndex(1)).value.unwrapRecursively()).to.be.deep.equal(token2Return)
 
     // expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
-    expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(token1Return)
+    expect((await query.ownersTokenByIndex(alice.address, 0)).value.unwrapRecursively()).to.be.deep.equal(token1Return)
     // expect(id((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).u8).equal(2)
-    expect((await query.ownersTokenByIndex(alice.address, 1)).value).to.be.deep.equal(token2Return)
+    expect((await query.ownersTokenByIndex(alice.address, 1)).value.unwrapRecursively()).to.be.deep.equal(token2Return)
 
     await close()
   })
@@ -100,14 +100,14 @@ describe('MY_PSP37_ENUMERABLE', () => {
     await contract.tx.mint(alice.address, [[token1, amount1], [token2, amount2]])
 
     // expect(id((await query.tokenByIndex(0)).output?.toString()).u8).equal(1)
-    expect((await query.tokenByIndex(0)).value).to.be.deep.equal(token1Return)
+    expect((await query.tokenByIndex(0)).value.unwrapRecursively()).to.be.deep.equal(token1Return)
     // expect(id((await query.tokenByIndex(1)).output?.toString()).u8).equal(2)
-    expect((await query.tokenByIndex(1)).value).to.be.deep.equal(token2Return)
+    expect((await query.tokenByIndex(1)).value.unwrapRecursively()).to.be.deep.equal(token2Return)
 
     await contract.tx.burn(alice.address, [[token2, amount2]])
 
     // expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
-    expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(token1Return)
+    expect((await query.ownersTokenByIndex(alice.address, 0)).value.unwrapRecursively()).to.be.deep.equal(token1Return)
     await expect(query.ownersTokenByIndex(alice.address, 1)).to.have.output(null)
 
     await close()
@@ -131,21 +131,21 @@ describe('MY_PSP37_ENUMERABLE', () => {
     await contract.tx.mint(sender.address, [[token1, amount1], [token2, amount2]])
 
     // expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(1)
-    expect((await query.ownersTokenByIndex(sender.address, 0)).value).to.be.deep.equal(token1Return)
+    expect((await query.ownersTokenByIndex(sender.address, 0)).value.unwrapRecursively()).to.be.deep.equal(token1Return)
 
     await contract.tx.transfer(alice.address, token1, amount1, [])
 
     // expect(id((await query.ownersTokenByIndex(alice.address, 0)).output?.toString()).u8).equal(1)
-    expect((await query.ownersTokenByIndex(alice.address, 0)).value).to.be.deep.equal(token1Return)
+    expect((await query.ownersTokenByIndex(alice.address, 0)).value.unwrapRecursively()).to.be.deep.equal(token1Return)
     // expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(2)
-    expect((await query.ownersTokenByIndex(sender.address, 0)).value).to.be.deep.equal(token2Return)
+    expect((await query.ownersTokenByIndex(sender.address, 0)).value.unwrapRecursively()).to.be.deep.equal(token2Return)
 
     await contract.tx.transfer(alice.address, token2, 10, [])
 
     // expect(id((await query.ownersTokenByIndex(sender.address, 0)).output?.toString()).u8).equal(2)
-    expect((await query.ownersTokenByIndex(sender.address, 0)).value).to.be.deep.equal(token2Return)
+    expect((await query.ownersTokenByIndex(sender.address, 0)).value.unwrapRecursively()).to.be.deep.equal(token2Return)
     // expect(id((await query.ownersTokenByIndex(alice.address, 1)).output?.toString()).u8).equal(2)
-    expect((await query.ownersTokenByIndex(alice.address, 1)).value).to.be.deep.equal(token2Return)
+    expect((await query.ownersTokenByIndex(alice.address, 1)).value.unwrapRecursively()).to.be.deep.equal(token2Return)
 
     await close()
   })

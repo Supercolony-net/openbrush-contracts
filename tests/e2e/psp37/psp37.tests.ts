@@ -190,16 +190,16 @@ describe('MY_PSP37', () => {
 
     const tokenAmount = 20
 
-    await expect(query.allowance(sender.address, alice.address, token))
-      .to.have.bnToNumber(0)
+    expect((await query.allowance(sender.address, alice.address, token)).value.unwrapRecursively().toNumber())
+      .to.be.eq(0)
 
     await contract.tx.approve(alice.address, token, tokenAmount)
-    await expect(query.allowance(sender.address, alice.address, token))
-      .to.have.bnToNumber(tokenAmount)
+    expect((await query.allowance(sender.address, alice.address, token)).value.unwrapRecursively().toNumber())
+      .to.be.eq(tokenAmount)
 
     await contract.tx.approve(alice.address, null, 1)
-    await expect(query.allowance(sender.address, alice.address, token))
-      .to.have.bnToString('340282366920938463463374607431768211455')
+    expect((await query.allowance(sender.address, alice.address, token)).value.unwrapRecursively().toString())
+      .to.be.eq('340282366920938463463374607431768211455')
 
     await close()
   })
