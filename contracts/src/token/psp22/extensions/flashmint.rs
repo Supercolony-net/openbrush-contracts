@@ -118,6 +118,8 @@ impl<T: Storage<psp22::Data>> Internal for T {
             }
             // Means unknown method
             Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
+            // `NotCallable` means that the receiver is not a contract.
+            Err(ink::env::Error::NotCallable) => Ok(()),
             _ => {
                 Err(FlashLenderError::BorrowerRejected(String::from(
                     "Error while performing the `on_flashloan`",

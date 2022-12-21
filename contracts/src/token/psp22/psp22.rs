@@ -188,6 +188,8 @@ impl<T: Storage<Data>> Internal for T {
             Ok(Ok(Err(e))) => Err(e.into()),
             // Means unknown method
             Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
+            // `NotCallable` means that the receiver is not a contract.
+            Err(ink::env::Error::NotCallable) => Ok(()),
             _ => {
                 Err(PSP22Error::SafeTransferCheckFailed(String::from(
                     "Error during call to receiver",
