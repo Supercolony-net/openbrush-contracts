@@ -83,21 +83,11 @@ describe('MY_TIMELOCK_CONTROLLER', () => {
     // Arrange - Prepare data for execute `update_delay` with a new `min_delay`
     const message = getMessageAbi(contract, 'TimelockController::update_delay')
     const new_min_delay = 15
-    const dataWithSelector = message.toU8a([new_min_delay])
-
-    // --------
-    // Remove selector id
-    const data = new Uint8Array(dataWithSelector.length - 4)
-    let dataLength = dataWithSelector[0]
-    dataLength -= 4 * 4
-    data.set([dataLength])
-    data.set(dataWithSelector.slice(5), 1)
-    // --------
 
     const transaction = {
       callee: contract.address,
-      selector: message.selector.toU8a() as unknown as number[],
-      input: data as unknown as number[],
+      selector: Array.from(message.selector.toU8a()),
+      input: Array.from(api.createType('u64', new_min_delay).toU8a()),
       transferredValue: 0,
       gasLimit: 0
     }
