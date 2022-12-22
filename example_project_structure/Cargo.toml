@@ -1,6 +1,6 @@
 [package]
 name = "lending_project"
-version = "2.4.0"
+version = "3.0.0-beta"
 authors = ["Supercolony <green.baneling@supercolony.net, dominik.krizo@supercolony.net>"]
 edition = "2021"
 
