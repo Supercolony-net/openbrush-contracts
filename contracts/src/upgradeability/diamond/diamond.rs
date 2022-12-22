@@ -19,6 +19,9 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// Delegate calls were marked as a possible attack vector in ink!
+// Therefore the proxy and diamond contracts will be disabled within OpenBrush until this is reimplemented in ink! 4.
+
 pub use crate::{
     diamond,
     ownable,

@@ -1,3 +1,5 @@
+Delegate calls [were marked](https://github.com/paritytech/ink/pull/1331#discussion_r953736863) as a possible attack vector in ink! Therefore the proxy and diamond contracts will be disabled within OpenBrush until this is reimplemented in ink! 4.
+
 ## Proxy contract
 
 Contract module which provides am implementation of Proxy pattern for upgradeable contracts.

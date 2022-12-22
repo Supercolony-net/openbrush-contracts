@@ -28,6 +28,9 @@ use openbrush::traits::Hash;
 #[openbrush::wrapper]
 pub type ProxyRef = dyn Proxy + Ownable;
 
+// Delegate calls were marked as a possible attack vector in ink!
+// Therefore the proxy and diamond contracts will be disabled within OpenBrush until this is reimplemented in ink! 4.
+
 #[openbrush::trait_definition]
 pub trait Proxy: Ownable {
     #[ink(message)]

@@ -38,7 +38,7 @@ const getSelectorByName = (messages: AbiMessage[], name: string) => {
   })[0].selector.toU8a() as unknown as number[]
 }
 
-describe('RAW_DIAMOND', () => {
+describe.skip('RAW_DIAMOND', () => {
   async function setupPSP22Facet() {
     const api = await ApiPromise.create()
 

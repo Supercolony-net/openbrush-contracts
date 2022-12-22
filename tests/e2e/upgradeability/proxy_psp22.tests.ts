@@ -13,7 +13,7 @@ import {ApiPromise} from '@polkadot/api'
 import ConstructorsPSP22Receiver from '../../../typechain-generated/constructors/psp22_receiver'
 import ContractPSP22Receiver from '../../../typechain-generated/contracts/psp22_receiver'
 
-describe('MY_UPGRADEABLE_PSP22', () => {
+describe.skip('MY_UPGRADEABLE_PSP22', () => {
   async function setupPSP22() {
     const api = await ApiPromise.create()
 

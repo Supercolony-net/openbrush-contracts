@@ -36,7 +36,7 @@ const getSelectorByNameString = (messages: AbiMessage[], name: string): string =
   })[0].selector.toString()
 }
 
-describe('DIAMOND_PSP22', () => {
+describe.skip('DIAMOND_PSP22', () => {
   async function setupPSP22Facet() {
     const api = await ApiPromise.create()
 
