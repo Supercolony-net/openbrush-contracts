@@ -6,7 +6,7 @@ module.exports = {
   title: 'OpenBrush',
   tagline: 'OpenBrush contracts documentation',
   url: 'https://docs.openbrush.io',
-  baseUrl: '/',
+  baseUrl: '/openbrus-contracts/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
