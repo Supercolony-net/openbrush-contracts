@@ -17,7 +17,7 @@ implementation of `Lending` and `LendingPermissioned` traits defined in the `len
 [package]
 name = "lending_contract"
 version = "3.0.0-beta"
-authors = ["Supercolony <dominik.krizo@supercolony.net>"]
+authors = ["Brushfam <dominik.krizo@727.ventures>"]
 edition = "2021"
 
 [dependencies]
@@ -97,9 +97,9 @@ impl LendingPermissioned for LendingContract {}
 impl lending::Internal for LendingContract {
     fn _instantiate_shares_contract(&self, contract_name: &str, contract_symbol: &str) -> AccountId {
         let code_hash = self.lending.shares_contract_code_hash;
-        let (hash, _) =
-            ink::env::random::<ink::env::DefaultEnvironment>(contract_name.as_bytes()).expect("Failed to get salt");
-        let hash = hash.as_ref();
+        let salt = (<Self as DefaultEnv>::env().block_timestamp(), contract_name).encode();
+        let hash = xxh32(&salt, 0).to_le_bytes();
+        
         let contract =
             SharesContractRef::new(Some(String::from(contract_name)), Some(String::from(contract_symbol)))
                 .endowment(0)

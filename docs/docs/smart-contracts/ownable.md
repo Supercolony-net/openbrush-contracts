@@ -3,7 +3,7 @@ sidebar_position: 3
 title: Ownable
 ---
 
-This example shows how you can use the implementation of [ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/access/ownable) to provide `only owner` rights for contract's functions.
+This example shows how you can use the implementation of [ownable](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/access/ownable) to provide `only owner` rights for contract's functions.
 
 ## Step 1: Import default implementation
 
@@ -79,4 +79,4 @@ pub mod my_ownable {
 
 ```
 
-You can check an example of the usage of [Ownable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/ownable).
+You can check an example of the usage of [Ownable](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/ownable).

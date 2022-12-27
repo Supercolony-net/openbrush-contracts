@@ -4,7 +4,7 @@ title: Pausable
 ---
 
 This example shows how you can reuse the implementation of
-[pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/security/pausable) in `Flipper` contract to `flip` only if the contract is not paused.
+[pausable](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/security/pausable) in `Flipper` contract to `flip` only if the contract is not paused.
 
 ## Step 1: Import default implementation
 
@@ -76,4 +76,4 @@ pub mod my_pausable {
 }
 ```
 
-You can check an example of the usage of [Pausable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/pausable).
+You can check an example of the usage of [Pausable](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/pausable).

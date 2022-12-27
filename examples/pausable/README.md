@@ -7,5 +7,5 @@ This module is used through the embedding of `pausable::Data` and implementation
 `Storage` traits. It will make available the modifier `when_not_paused` and `when_paused`,
 which can be applied to your functions to restrict their usage.
 
-[See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/pausable)
+[See example](https://727-Ventures.github.io/openbrush-contracts/smart-contracts/pausable)
 

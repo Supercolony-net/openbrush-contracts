@@ -16,4 +16,4 @@ This module is used through embedding of `timelock_controller::Data`, `access_co
 implementation of `TimelockController`, `AccessControl` and
 `Storage` traits.
 
-[See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/timelock-controller)
+[See example](https://727-Ventures.github.io/openbrush-contracts/smart-contracts/timelock-controller)

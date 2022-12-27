@@ -2,4 +2,4 @@
 
 Implementation of 'Mintable' extension for [PSP22](https://github.com/w3f/PSPs/blob/master/PSPs/psp-22.md) token standard in Polkadot blockchain, which allows to create new tokens and assigns them to particular account, increasing the total supply.
 
-[See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/psp22/extensions/mintable)
+[See example](https://727-Ventures.github.io/openbrush-contracts/smart-contracts/psp22/extensions/mintable)

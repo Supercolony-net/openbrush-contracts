@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP37
 ---
 
-This example shows how you can reuse the implementation of [PSP37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37) 
+This example shows how you can reuse the implementation of [PSP37](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/token/psp37) 
 token. Also, this example shows how you can customize the logic, for example, to 
 track the number of token types with `unique_ids`, adding a new token type with the `add_type` function.
 
@@ -82,7 +82,7 @@ pub mod my_psp37 {
     }
 }
 ```
-You can check an example of the usage of [PSP37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp37).
+You can check an example of the usage of [PSP37](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/psp37).
 
 Also you can use extensions for PSP37 token:
 

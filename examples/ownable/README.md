@@ -8,4 +8,4 @@ This module is used through the embedding of `ownable::Data` and implementation 
 `Storage` traits. It will make the modifier `only_owner` available, which can be applied
 to your functions to restrict their use to the owner.
 
-[See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/ownable)
+[See example](https://727-Ventures.github.io/openbrush-contracts/smart-contracts/ownable)

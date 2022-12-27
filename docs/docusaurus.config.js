@@ -10,7 +10,7 @@ module.exports = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
-  organizationName: 'supercolony-net',
+  organizationName: '727-Ventures',
   projectName: 'openbrush-contracts',
   themeConfig: {
     colorMode: {
@@ -35,12 +35,12 @@ module.exports = {
           label: 'Deployment'
         },
         {
-          href: 'https://twitter.com/supercolony_vs',
+          href: 'https://twitter.com/brushfam_io',
           className: 'header-twitter-link',
           position: 'right'
         },
         {
-          href: 'https://github.com/Supercolony-net/openbrush-contracts',
+          href: 'https://github.com/727-Ventures/openbrush-contracts',
           className: 'header-github-link',
           position: 'right'
         }
@@ -63,7 +63,7 @@ module.exports = {
         docs: {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/Supercolony-net/openbrush-contracts/tree/main/docs'
+          editUrl: 'https://github.com/727-Ventures/openbrush-contracts/tree/main/docs'
         },
         theme: {
           customCss: [require.resolve('./src/css/custom.scss')]

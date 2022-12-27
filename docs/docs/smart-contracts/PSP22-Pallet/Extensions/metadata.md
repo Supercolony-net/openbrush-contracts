@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP22 Metadata
 ---
 
-This example shows how you can reuse the implementation of [PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) token with the [PSP22Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet/extensions/metadata.rs) extension via `pallet-assets` chain extension.
+This example shows how you can reuse the implementation of [PSP22](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) token with the [PSP22Metadata](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet/extensions/metadata.rs) extension via `pallet-assets` chain extension.
 
 First, you should implement basic version of [PSP22 Pallet](/smart-contracts/PSP22-Pallet).
 

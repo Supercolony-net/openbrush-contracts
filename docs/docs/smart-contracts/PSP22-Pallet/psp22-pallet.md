@@ -3,7 +3,7 @@ sidebar_position: 9
 title: PSP22 Pallet
 ---
 
-This example shows how you can reuse the implementation of [PSP22 Pallet](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) via `pallet-assets` chain extension. Also, this example shows how you can customize the logic, for example, to get current `asset_id`.
+This example shows how you can reuse the implementation of [PSP22 Pallet](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) via `pallet-assets` chain extension. Also, this example shows how you can customize the logic, for example, to get current `asset_id`.
 
 ## Step 1: Import default implementation
 
@@ -91,7 +91,7 @@ pub mod my_psp22_pallet {
 
 ```
 
-You can check an example of the usage of [PSP22 Pallet](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_pallet).
+You can check an example of the usage of [PSP22 Pallet](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/psp22_pallet).
 
 Also you can use extensions for PSP22 token:
 

@@ -2,4 +2,4 @@
 
 Implementation of [EIP-721](https://eips.ethereum.org/EIPS/eip-721) token standard with burnable extension in Polkadot blockchain.
 
-[See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/psp34/extensions/burnable)
+[See example](https://727-Ventures.github.io/openbrush-contracts/smart-contracts/psp34/extensions/burnable)

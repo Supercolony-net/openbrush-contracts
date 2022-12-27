@@ -1,7 +1,7 @@
 [package]
 name = "my_proxy"
 version = "3.0.0-beta"
-authors = ["Supercolony <horacio.lex@supercolony.net>"]
+authors = ["Brushfam <horacio.lex@727.ventures>"]
 edition = "2021"
 
 [dependencies]

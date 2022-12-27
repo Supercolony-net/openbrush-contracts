@@ -1,7 +1,7 @@
 [package]
 name = "my_access_control_enumerable"
 version = "3.0.0-beta"
-authors = ["Supercolony <nameless.endless@supercolony.net>"]
+authors = ["Brushfam <nameless.endless@727.ventures>"]
 edition = "2021"
 
 [dependencies]

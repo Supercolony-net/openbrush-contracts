@@ -4,7 +4,7 @@ title: PSP22 Mintable
 ---
 
 This example shows how you can reuse the implementation of
-[PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22) token with [PSP22Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22/extensions/mintable.rs) extension.
+[PSP22](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/token/psp22) token with [PSP22Mintable](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/token/psp22/extensions/mintable.rs) extension.
 
 ## How to use this extension
 
@@ -22,6 +22,6 @@ use openbrush::contracts::psp22::extensions::mintable::*;
 impl PSP22Mintable for Contract {}
 ```
 
-You can check an example of the usage of [PSP22 Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp22_extensions/mintable).
+You can check an example of the usage of [PSP22 Mintable](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/psp22_extensions/mintable).
 
 And that's it! Your `PSP22` is now extended by the `PSP22Mintable` extension and ready to use its functions!

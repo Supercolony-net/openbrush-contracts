@@ -15,4 +15,4 @@ want to use the `releaseAll` method instead to save you a lot of time.
 This module is used through embedding of `payment_splitter::Data` and implementation of `PaymentSplitter` and
 `Storage` traits.
 
-[See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/payment-splitter)
+[See example](https://727-Ventures.github.io/openbrush-contracts/smart-contracts/payment-splitter)

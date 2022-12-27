@@ -7,23 +7,13 @@ title: Upgradeable contract
 
 ## Overview
 
-Smart contracts are immutable by default, adding a layer of security and trust to the 
-contracts. But software quality depends on the ability to upgrade source code to 
-produce iterative releases. A certain degree of mutability is needed for bug fixing 
-and potential product improvements.
+Code of a smart contract deployed on chain is immutable, however, we can update the code hash of a contract to point to a different code (therefore changing the code of the smart contract). This functionality can be used for bug fixing and potential product improvements. To do this, we need to first deploy a smart contract with the new code to register its code hash to the chain, and then call the `ink::env::set_code_hash` function. This function needs to be exposed in the smart contract API. You can check an example [here](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts/set-code-hash).
 
-Upgradeability allows experimenting and deploying the product at the early stage, 
-always leaving the chance to fix vulnerabilities and progressively add features. 
-It is more actual right now while ink! and contract-pallet are under active development. 
-Upgradeable contracts are not a Bug if they are developed consciously with 
-decentralization in mind.
+Upgradeability allows experimenting and deploying the product at the early stage, always leaving the chance to fix vulnerabilities and progressively add features. It is more actual right now while ink! and contract-pallet are under active development. Upgradeable contracts are not a Bug if they are developed consciously with decentralization in mind.
 
-Decentralization can be achieved by providing the right to upgrade only to 
-decentralized authority like governance, multisig, or another analog.
+Decentralization can be achieved by providing the right to upgrade only to decentralized authority like governance, multisig, or another analog.
 
-It is not hard to upgrade the logic of contracts. It can be achieved via `Proxy` and `Diamond` 
-patterns or via the `set_code_hash` function provided by contract-pallet. The hardest 
-part is to save the contract's state and make it compatible with new logic.
+There is also a possibility of smart contract upgradeability via `Proxy` and `Diamond` patterns, but these use `DelegateCall`. Delegate calls [were marked](https://github.com/paritytech/ink/pull/1331#discussion_r953736863) as a possible attack vector in ink! Therefore the `Proxy` and `Diamond` patterns will not work within OpenBrush until this is reimplemented in ink! 4.
 
 ## Storage layout
 
@@ -94,7 +84,7 @@ With this approach, you can order your units as you wish. You can add/remove/swa
 logic units and don't worry about storage layout because each logic unit will have its space 
 in the blockchain's storage. If storage keys are unique, those spaces don't overlap.
 
-OpenBrush provides [`openbrush::upgradeable_storage`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/macro/src/lib.rs#L447) 
+OpenBrush provides [`openbrush::upgradeable_storage`](https://github.com/727-Ventures/openbrush-contracts/blob/main/lang/macro/src/lib.rs#L447) 
 attribute macro that implements all required traits with specified storage key(storage key is required input argument to macro). 
 Also, macro initializes the field with a default value if the field is not initialized before
 (it can be actual during the upgrade because new fields are not initialized yet).
@@ -188,7 +178,7 @@ and maybe you have a lot of unique structures :D
 The storage key should be unique per each logic unit. You can assign each key manually or 
 use some hash function to automate it.
 
-OpenBrush provides [`openbrush::storage_unique_key!`](https://github.com/Supercolony-net/openbrush-contracts/blob/main/lang/src/macros.rs#L25) 
+OpenBrush provides [`openbrush::storage_unique_key!`](https://github.com/727-Ventures/openbrush-contracts/blob/main/lang/src/macros.rs#L25) 
 macro that generates a storage key based on the path to the structure. 
 It has one required input argument - the name of the structure.
 
@@ -215,6 +205,10 @@ pub struct Data {
 ```
 
 ## Constructor and initialization
+
+### Disclaimer
+
+The following information describes `Proxy` and `Diamond` patterns of upgradeable storage, which currently don't work in ink! 4 due to `DelegateCall`, but we will leave it here for the future updates of this feature (and also for the OpenBrush versions before `3.0.0-beta`).
 
 Uploading your contract on the blockchain with `contract-pallet` has two phases:
 - Deploy - deploys source code to the blockchain. After deploying, the network uses the hash of the source code as an identifier for future instantiation of the contract. Now anyone can instantiate the contract by source code hash.
@@ -531,7 +525,7 @@ You have two options for how to do that:
 ##### Cross-contract call to itself
 
 If your `FacetA` implements some trait, then you can use the 
-[wrapper around trait](https://github.com/Supercolony-net/openbrush-contracts#wrapper-around-traits) 
+[wrapper around trait](https://github.com/727-Ventures/openbrush-contracts#wrapper-around-traits) 
 feature of OpenBrush to do cross-contract call.
 
 > **Note**: The trait should be defined with `openbrush::trait_definition`.

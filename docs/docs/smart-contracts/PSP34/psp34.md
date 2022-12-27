@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP34
 ---
 
-This example shows how you can reuse the implementation of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp34) token. Also, this example shows how you can customize the logic, for example, to track the number of tokens minted with `next_id`, increasing it with each new token minted, securing a unique id for each token.
+This example shows how you can reuse the implementation of [PSP34](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/token/psp34) token. Also, this example shows how you can customize the logic, for example, to track the number of tokens minted with `next_id`, increasing it with each new token minted, securing a unique id for each token.
 
 ## Step 1: Import default implementation
 
@@ -78,7 +78,7 @@ pub mod my_psp34 {
 }
 ```
 
-You can check an example of the usage of [PSP34](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp34).
+You can check an example of the usage of [PSP34](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/psp34).
 Also you can use extensions for psp34 token:
 
 [PSP34Metadata](/smart-contracts/PSP34/extensions/metadata): metadata for PSP34.

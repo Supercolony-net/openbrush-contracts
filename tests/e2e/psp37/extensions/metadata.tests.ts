@@ -39,11 +39,11 @@ describe('MY_PSP37_METADATA', () => {
 
     await expect(query.getAttribute(id, bnArg(1))).to.have.output(null)
 
-    await tx.setAttribute(id, bnArg(1), bnArg(encoder.encode('https://www.supercolony.net/')))
+    await tx.setAttribute(id, bnArg(1), bnArg(encoder.encode('https://www.727.ventures/')))
 
     await expect(query.getAttribute(id, bnArg(1))).to.have.output(
       '0x' + bytesToHex(
-        Uint8Array.from(bnArg(encoder.encode('https://www.supercolony.net/')))
+        Uint8Array.from(bnArg(encoder.encode('https://www.727.ventures/')))
       )
     )
 

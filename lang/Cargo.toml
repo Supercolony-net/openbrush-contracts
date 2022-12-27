@@ -1,15 +1,15 @@
 [package]
 name = "openbrush_lang"
 version = "3.0.0-beta"
-authors = ["Supercolony <green.baneling@supercolony.net>"]
+authors = ["Brushfam <green@727.ventures>"]
 edition = "2021"
 
 license = "MIT"
-repository = "https://github.com/Supercolony-net/openbrush-contracts"
+repository = "https://github.com/727-Ventures/openbrush-contracts"
 documentation = "https://docs.openbrush.io"
-homepage = "https://supercolony.net"
+homepage = "https://727.ventures"
 description = "Aggregator of all openbrush functionality and utils."
-keywords = ["wasm", "supercolony", "smart-contracts", "blockchain", "ink"]
+keywords = ["wasm", "brushfam", "smart-contracts", "blockchain", "ink"]
 categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 

@@ -3,7 +3,7 @@ sidebar_position: 1
 title: PSP37 Metadata
 ---
 
-This example shows how you can reuse the implementation of [PSP37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37) token with [PSP37Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37/extensions/metadata.rs) extension.
+This example shows how you can reuse the implementation of [PSP37](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/token/psp37) token with [PSP37Metadata](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/token/psp37/extensions/metadata.rs) extension.
 
 First, you should implement basic version of [PSP37](/smart-contracts/PSP37).
 
@@ -106,6 +106,6 @@ pub mod my_psp37 {
 }
 ```
 
-You can check an example of the usage of [PSP37 Metadata](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp37_extensions/metadata).
+You can check an example of the usage of [PSP37 Metadata](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/psp37_extensions/metadata).
 
 You can also check the documentation for the basic implementation of [PSP37](/smart-contracts/PSP37).

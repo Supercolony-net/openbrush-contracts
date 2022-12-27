@@ -3,7 +3,11 @@ sidebar_position: 1
 title: Diamond Standard
 ---
 
-This example shows how you can use the implementation of [diamond standard](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond) to implement diamond standard pattern for upgradeable and unlimited contracts.
+This example shows how you can use the implementation of [diamond standard](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/upgradeability/diamond) to implement diamond standard pattern for upgradeable and unlimited contracts.
+
+## Disclaimer
+
+Delegate calls [were marked](https://github.com/paritytech/ink/pull/1331#discussion_r953736863) as a possible attack vector in ink! Therefore the `Diamond` pattern will not work within OpenBrush until this is reimplemented in ink! 4.
 
 ## Step 1: Import default implementation
 
@@ -60,4 +64,4 @@ some of limitations are, that you can not add functions with the same selectors,
 when replacing functions, the new function needs to be from a different contract, 
 then currently in use, and when removing functions, the function needs to be registered in the diamond contract.
 
-You can check an example of the usage of [Diamond](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/diamond).
+You can check an example of the usage of [Diamond](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/diamond).

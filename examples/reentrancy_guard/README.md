@@ -9,4 +9,4 @@ by making the `non_reentrant` function external, and make it call a
 This modifier flushes the struct into storage with `ENTERED`
 status before calling the original method.
 
-[See example](https://supercolony-net.github.io/openbrush-contracts/smart-contracts/reentrancy-guard)
+[See example](https://727-Ventures.github.io/openbrush-contracts/smart-contracts/reentrancy-guard)

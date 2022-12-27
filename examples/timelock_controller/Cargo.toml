@@ -1,7 +1,7 @@
 [package]
 name = "my_timelock_controller"
 version = "3.0.0-beta"
-authors = ["Supercolony <green.baneling@supercolony.net>"]
+authors = ["Brushfam <green@727.ventures>"]
 edition = "2021"
 
 [dependencies]

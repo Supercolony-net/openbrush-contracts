@@ -4,7 +4,7 @@ title: PSP22 Mintable
 ---
 
 This example shows how you can reuse the implementation of
-[PSP22](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) token with [PSP22Mintable](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet/extensions/mintable.rs) extension via `pallet-assets` chain extension.
+[PSP22](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet) token with [PSP22Mintable](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/token/psp22_pallet/extensions/mintable.rs) extension via `pallet-assets` chain extension.
 
 ## How to use this extension
 

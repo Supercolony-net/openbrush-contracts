@@ -19,7 +19,7 @@ The list of standalone blockchain/parachains that support ink! smart contracts:
 
 ### Overview
 
-- To deploy contract you should build your own contract or get some example from [Openbrush](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples). You can find instruction how to build ink! smart contract in [docs](https://ink.substrate.io/getting-started/building-your-contract)
+- To deploy contract you should build your own contract or get some example from [Openbrush](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples). You can find instruction how to build ink! smart contract in [docs](https://ink.substrate.io/getting-started/building-your-contract)
 - You have to choose substrate network to deploy your contract.
   There are several option you have:
 

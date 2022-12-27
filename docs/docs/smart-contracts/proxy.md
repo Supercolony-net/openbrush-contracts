@@ -3,7 +3,11 @@ sidebar_position: 3
 title: Proxy
 ---
 
-This example shows how you can use the implementation of [proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/src/upgradeability/proxy) to to implement proxy pattern for upgradeable contracts.
+This example shows how you can use the implementation of [proxy](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/src/upgradeability/proxy) to to implement proxy pattern for upgradeable contracts.
+
+## Disclaimer
+
+Delegate calls [were marked](https://github.com/paritytech/ink/pull/1331#discussion_r953736863) as a possible attack vector in ink! Therefore the `Proxy` pattern will not work within OpenBrush until this is reimplemented in ink! 4.
 
 ## Step 1: Import default implementation
 
@@ -79,4 +83,4 @@ pub mod proxy {
 }
 ```
 
-You can check an example of the usage of [Proxy](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/proxy).
+You can check an example of the usage of [Proxy](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/proxy).

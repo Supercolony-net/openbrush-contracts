@@ -13,16 +13,16 @@ exclude = [
 [package]
 name = "openbrush"
 version = "3.0.0-beta"
-authors = ["Supercolony <green.baneling@supercolony.net>"]
+authors = ["Brushfam <green@727.ventures>"]
 edition = "2018"
 
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/Supercolony-net/openbrush-contracts"
+repository = "https://github.com/727-Ventures/openbrush-contracts"
 documentation = "https://docs.openbrush.io"
-homepage = "https://supercolony.net"
+homepage = "https://727.ventures"
 description = "OpenBrush library for smart contract development on ink!."
-keywords = ["wasm", "supercolony", "smart-contracts", "blockchain", "ink"]
+keywords = ["wasm", "brushfam", "smart-contracts", "blockchain", "ink"]
 categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 

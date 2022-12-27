@@ -3,7 +3,7 @@ sidebar_position: 2
 title: PSP37 Batch
 ---
 
-This example shows how you can reuse the implementation of [PSP37](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37) token with [PSP37Batch](https://github.com/Supercolony-net/openbrush-contracts/tree/main/contracts/token/psp37/extensions/batch.rs) extension, which allows batch transferring of PSP37 tokens.
+This example shows how you can reuse the implementation of [PSP37](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/token/psp37) token with [PSP37Batch](https://github.com/727-Ventures/openbrush-contracts/tree/main/contracts/token/psp37/extensions/batch.rs) extension, which allows batch transferring of PSP37 tokens.
 
 ## How to use this extension
 
@@ -21,4 +21,4 @@ impl PSP37Batch for Contract {}
 ```
 
 And that's it! Your `PSP37` is now extended by the `PSP37Batch` extension and ready to use its functions!
-You can check an example of the usage of [PSP37 Batch](https://github.com/Supercolony-net/openbrush-contracts/tree/main/examples/psp37_extensions/batch).
+You can check an example of the usage of [PSP37 Batch](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/psp37_extensions/batch).

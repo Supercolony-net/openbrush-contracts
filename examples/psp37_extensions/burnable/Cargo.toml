@@ -1,7 +1,7 @@
 [package]
 name = "my_psp37_burnable"
 version = "3.0.0-beta"
-authors = ["Supercolony <dominik.krizo@supercolony.net>"]
+authors = ["Brushfam <dominik.krizo@727.ventures>"]
 edition = "2021"
 
 [dependencies]
