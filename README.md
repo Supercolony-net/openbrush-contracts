@@ -12,7 +12,7 @@
 OpenBrush was created by [Brushfam](727.ventures) to make ink! development faster, safer and easier. We plan to integrate most of the features
 OpenBrush into ink!. OpenBrush provides documentation with FAQ section.
 
-You can ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
+If you have any questions regarding OpenBruh, you can join the [Brushfam Element channel](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=web3.foundation) to find your answers and meet other ink! smart contracts developers, or ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
 
 ## Summary
 **OpenBrush is a library for smart contract development on ink!.**
