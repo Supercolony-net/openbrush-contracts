@@ -18,7 +18,7 @@ It doesn't contain [versioning](https://github.com/supercolony-net/openbrush-con
 ```toml
 [dependencies]
 # Import ink!
-ink = { git = "https://github.com/paritytech/ink", commit = "4655a8b4413cb50cbc38d1b7c173ad426ab06cde", default-features = false}
+ink = { git = "https://github.com/paritytech/ink", rev = "4655a8b4413cb50cbc38d1b7c173ad426ab06cde", default-features = false}
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
