@@ -9,8 +9,7 @@
 [![element chat](https://img.shields.io/badge/Element-green.svg?style=flat-square)](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=matrix.parity.io)
 [![discord chat](https://img.shields.io/badge/Discord-purple.svg?style=flat-square)](https://discord.gg/ZGdpEwFrJ8)
 
-OpenBrush was created by [Brushfam](727.ventures) to make ink! development faster, safer and easier. We plan to integrate most of the features
-OpenBrush into ink!. OpenBrush provides documentation with FAQ section.
+OpenBrush was created by [Supercolony](https://supercolony.net/) and is maintained by [Brushfam](https://www.brushfam.io/) to make ink! development faster, safer and easier. We plan to integrate most of the features OpenBrush into ink!. OpenBrush provides documentation with FAQ section.
 
 If you have any questions regarding OpenBruh, you can join the [Brushfam Element channel](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=web3.foundation) to find your answers and meet other ink! smart contracts developers, or ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
 
