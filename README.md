@@ -1,15 +1,11 @@
 # 
 
-<p align = "center">
-  <img src="https://user-images.githubusercontent.com/18346821/183483033-2cd46f58-7c29-4cd8-ad1c-b633f9673e13.png"/>
-</p>
-
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://727-Ventures.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
 [![element chat](https://img.shields.io/badge/Element-green.svg?style=flat-square)](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=matrix.parity.io)
-[![discord chat](https://img.shields.io/badge/Discord-purple.svg?style=flat-square)](https://discord.gg/ZGdpEwFrJ8)
+[![discord chat](https://img.shields.io/badge/Discord-purple.svg?style=flat-square)](https://discord.com/invite/EARg6RCThP)
 
-OpenBrush was created by [Supercolony](https://supercolony.net/) and is maintained by [Brushfam](https://www.brushfam.io/) to make ink! development faster, safer and easier. We plan to integrate most of the features OpenBrush into ink!. OpenBrush provides documentation with FAQ section.
+OpenBrush maintained by [Brushfam](https://www.brushfam.io/) team it's created to make ink! development faster, safer and easier. We plan to integrate most of the features OpenBrush into ink!. OpenBrush provides documentation with FAQ section.
 
 If you have any questions regarding OpenBruh, you can join the [Brushfam Element channel](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=web3.foundation) to find your answers and meet other ink! smart contracts developers, or ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
 
@@ -132,10 +128,7 @@ but it must be fixed with this [issue](https://github.com/paritytech/ink/issues/
 
 ## Roadmap 🚗
 
-OpenBrush participates in the Web3 Grants, you can find the roadmap there:
-- [Grant I](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush.md#current-work---scope-of-this-grant)
-- [Grant II](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up.md#current-work---scope-of-this-grant)
-- [Grant III](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up-2.md#current-work---scope-of-this-grant)
+OpenBrush participates in the Web3 Grants, you can find the roadmap [here](https://github.com/w3f/Grants-Program/blob/master/applications/openbrush-follow-up-2.md)
 
 <details><summary>More common roadmap of tasks</summary>
     
@@ -209,11 +202,6 @@ To run integration test you need to start the node with contract-pallet.
 - [Setup and start the node with contract-pallet](https://github.com/paritytech/substrate-contracts-node)
 
 After you can run tests by `yarn run test` command. It will build all contracts required for integration tests and run them.
-
-## History behind
-
-- [OpenZeppelin in ink!](https://medium.com/supercolony/ink-has-most-of-the-features-required-for-usage-however-the-usability-of-ink-is-low-95f4bc974e22)
-- [Openopenbrush was born](https://supercolony.medium.com/openbrush-an-early-alpha-of-our-openzeppelin-library-for-ink-a0c3f4f9432)
 
 ## FAQ
 
