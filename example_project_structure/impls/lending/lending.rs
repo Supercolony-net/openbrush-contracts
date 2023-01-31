@@ -119,6 +119,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .try_invoke()
             .unwrap()
+            .unwrap()
             .unwrap()?;
         // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
         let new_shares = if total_asset == 0 {
@@ -176,6 +177,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .try_invoke()
             .unwrap()
+            .unwrap()
             .unwrap()?;
         // create loan info
         let loan_info = LoanInfo {
@@ -231,6 +233,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
                 .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
                 .try_invoke()
                 .unwrap()
+                .unwrap()
                 .unwrap()?;
             PSP22Ref::transfer(
                 &loan_info.collateral_token,
@@ -250,6 +253,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
             )
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
             .try_invoke()
+            .unwrap()
             .unwrap()
             .unwrap()?;
             let to_return = (repay_amount * loan_info.collateral_amount) / to_repay;
