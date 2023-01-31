@@ -396,12 +396,13 @@ where
             data.clone(),
         )
         .call_flags(CallFlags::default().set_allow_reentry(true));
-        let result = match builder.fire() {
-            Ok(Ok(Ok(_))) => Ok(()),
-            Ok(Ok(Err(e))) => Err(e.into()),
+        let result = match builder.try_invoke() {
+            Ok(Ok(Ok(Ok(_)))) => Ok(()),
+            Ok(Ok(Ok(Err(e)))) => Err(e.into()),
             // `NotCallable` means that the receiver is not a contract.
             Err(ink::env::Error::NotCallable) => Ok(()),
             // Means unknown method
+            Ok(Ok(Err(ink::LangError::CouldNotReadInput))) => Ok(()),
             Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
             _ => {
                 Err(PSP37Error::SafeTransferCheckFailed(String::from(

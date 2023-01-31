@@ -208,7 +208,7 @@ pub struct Data {
 
 ### Disclaimer
 
-The following information describes `Proxy` and `Diamond` patterns of upgradeable storage, which currently don't work in ink! 4 due to `DelegateCall`, but we will leave it here for the future updates of this feature (and also for the OpenBrush versions before `3.0.0-beta`).
+The following information describes `Proxy` and `Diamond` patterns of upgradeable storage, which currently don't work in ink! 4 due to `DelegateCall`, but we will leave it here for the future updates of this feature (and also for the OpenBrush versions before `3.0.0-beta.1`).
 
 Uploading your contract on the blockchain with `contract-pallet` has two phases:
 - Deploy - deploys source code to the blockchain. After deploying, the network uses the hash of the source code as an identifier for future instantiation of the contract. Now anyone can instantiate the contract by source code hash.
@@ -546,7 +546,7 @@ pub mod facet_b {
             // It needs to allow reentrancy if it wants to execute itself.
             PSP22Ref::balance_of_builder(&address_of_current_contract, owner)
                 .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
-                .fire()
+                .try_invoke()
                 .unwrap();
 
         }

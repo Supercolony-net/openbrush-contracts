@@ -92,7 +92,7 @@ impl<T: Storage<Data>> Internal for T {
                 // marked delegated call as "tail", to end the execution of the contract.
                 .set_tail_call(true),
             )
-            .fire()
+            .try_invoke()
             .unwrap_or_else(|err| {
                 panic!(
                     "delegate call to {:?} failed due to {:?}",

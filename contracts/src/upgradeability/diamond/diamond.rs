@@ -190,7 +190,7 @@ where
                 // marked delegated call as "tail", to end the execution of the contract.
                 .set_tail_call(true),
             )
-            .fire()
+            .try_invoke()
             .unwrap_or_else(|err| panic!("delegate call to {:?} failed due to {:?}", delegate_code, err));
         unreachable!("the _fallback call will never return since `tail_call` was set");
     }
@@ -204,7 +204,7 @@ where
             // marked delegated call as "tail", to end the execution of the contract.
             .set_tail_call(true))
             .returns::<()>()
-            .fire()
+            .try_invoke()
             .unwrap_or_else(|err| panic!("init call failed due to {:?}", err));
         unreachable!("the _init_call call will never return since `tail_call` was set");
     }

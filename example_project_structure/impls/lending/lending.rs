@@ -117,7 +117,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         // transfer the assets from user to the contract|
         PSP22Ref::transfer_from_builder(&asset_address, lender, contract, amount, Vec::<u8>::new())
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
-            .fire()
+            .try_invoke()
             .unwrap()
             .unwrap()?;
         // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
@@ -174,7 +174,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         // we will transfer the collateral to the contract
         PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
-            .fire()
+            .try_invoke()
             .unwrap()
             .unwrap()?;
         // create loan info
@@ -229,7 +229,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
         if repay_amount >= to_repay {
             PSP22Ref::transfer_from_builder(&loan_info.borrow_token, initiator, contract, to_repay, Vec::<u8>::new())
                 .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
-                .fire()
+                .try_invoke()
                 .unwrap()
                 .unwrap()?;
             PSP22Ref::transfer(
@@ -249,7 +249,7 @@ impl<T: Storage<data::Data> + Storage<pausable::Data>> Lending for T {
                 Vec::<u8>::new(),
             )
             .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
-            .fire()
+            .try_invoke()
             .unwrap()
             .unwrap()?;
             let to_return = (repay_amount * loan_info.collateral_amount) / to_repay;

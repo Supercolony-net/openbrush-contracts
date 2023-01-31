@@ -137,7 +137,7 @@ default fn lend_assets(&mut self, asset_address: AccountId, amount: Balance) -> 
     // transfer the assets from user to the contract|
     PSP22Ref::transfer_from_builder(&asset_address, lender, contract, amount, Vec::<u8>::new())
         .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
-        .fire()
+        .try_invoke()
         .unwrap()?;
     // if no assets were deposited yet we will mint the same amount of shares as deposited `amount`
     let new_shares = if total_asset == 0 {
@@ -228,7 +228,7 @@ default fn borrow_assets(
     // we will transfer the collateral to the contract
     PSP22Ref::transfer_from_builder(&collateral_address, borrower, contract, amount, Vec::<u8>::new())
         .call_flags(ink::env::CallFlags::default().set_allow_reentry(true))
-        .fire()
+        .try_invoke()
         .unwrap()?;
     // create loan info
     let loan_info = LoanInfo {

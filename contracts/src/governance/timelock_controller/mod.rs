@@ -453,13 +453,13 @@ where
             .exec_input(ExecutionInput::new(transaction.selector.into()).push_arg(CallInput(&transaction.input)))
             .returns::<()>()
             .call_flags(CallFlags::default().set_allow_reentry(true))
-            .fire()
+            .try_invoke()
             .map_err(|_| TimelockControllerError::UnderlyingTransactionReverted);
 
         // Load the sate of the contract after the cross call.
         self.load();
 
-        result?;
+        result?.unwrap();
         self._emit_call_executed_event(id, i, transaction);
         Ok(())
     }

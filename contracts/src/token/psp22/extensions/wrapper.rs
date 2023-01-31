@@ -94,7 +94,8 @@ impl<T: Storage<psp22::Data> + Storage<Data>> Internal for T {
         self._underlying()
             .transfer_from_builder(Self::env().caller(), Self::env().account_id(), amount, Vec::<u8>::new())
             .call_flags(CallFlags::default().set_allow_reentry(true))
-            .fire()
+            .try_invoke()
+            .unwrap()
             .unwrap()
             .unwrap()
     }
@@ -103,7 +104,8 @@ impl<T: Storage<psp22::Data> + Storage<Data>> Internal for T {
         self._underlying()
             .transfer_builder(account, amount, Vec::<u8>::new())
             .call_flags(CallFlags::default().set_allow_reentry(true))
-            .fire()
+            .try_invoke()
+            .unwrap()
             .unwrap()
             .unwrap()
     }

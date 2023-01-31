@@ -248,6 +248,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 #[inline]
                 fn #message_builder_ident(
                     & self
+
                     #( , #input_bindings : #input_types )*
                 ) -> ::ink::env::call::CallBuilder<
                     ::ink::env::DefaultEnvironment,
@@ -264,8 +265,9 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                     #( , #input_bindings : #input_types )*
                 ) -> #output_ty {
                     Self::#message_builder_ident(self #( , #input_bindings)*)
-                        .fire()
+                        .try_invoke()
                         .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
+                        .unwrap_or_else(|err| ::core::panic!("Can't decode ::ink::LangErr: {:?}", err))
                         .unwrap_or_else(|err| ::core::panic!("Can't decode ::ink::LangErr: {:?}", err))
                 }
 

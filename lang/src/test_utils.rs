@@ -40,7 +40,7 @@ pub fn encoded_into_hash<T>(entity: &T) -> Hash
 where
     T: scale::Encode,
 {
-    let mut result = Hash::clear();
+    let mut result = Hash::CLEAR_HASH;
     let len_result = result.as_ref().len();
     let encoded = entity.encode();
     let len_encoded = encoded.len();

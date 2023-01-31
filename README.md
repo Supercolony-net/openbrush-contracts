@@ -201,7 +201,7 @@ You can run unit tests by `RUSTFLAGS="-D warnings" cargo +nightly test --workspa
 To run integration test you need to start the node with contract-pallet.
 - [Setup and start the node with contract-pallet](https://github.com/paritytech/substrate-contracts-node)
 
-After you can run tests by `yarn run test` command. It will build all contracts required for integration tests and run them.
+After you can run tests by `npm run test` command. It will build all contracts required for integration tests and run them.
 
 ## FAQ
 

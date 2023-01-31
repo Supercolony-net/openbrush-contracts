@@ -1,11 +1,11 @@
 [package]
 name = "my_psp22_mintable"
-version = "3.0.0-beta"
+version = "3.0.0-beta.1"
 authors = ["Brushfam <m.konstantinovna@727.ventures>"]
 edition = "2021"
 
 [dependencies]
-ink = { git = "https://github.com/paritytech/ink", rev = "4655a8b4413cb50cbc38d1b7c173ad426ab06cde", default-features = false}
+ink = { version = "4.0.0-beta.1", default-features = false}
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
