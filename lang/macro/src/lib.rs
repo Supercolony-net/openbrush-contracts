@@ -398,7 +398,7 @@ pub fn modifiers(_attrs: TokenStream, method: TokenStream) -> TokenStream {
 /// // Example how to get ink! call builder
 /// let to: AccountId = [0; 32].into();
 /// let builder_for_foo: ::ink::env::call::CallBuilder<_, _, _, _> = Trait1and2Ref::foo_builder(&to);
-/// let ink_result: Result<bool, ink::LangError> = builder_for_foo.try_invoke().unwrap().unwrap();
+/// let ink_result: Result<bool, ink::LangError> = builder_for_foo.try_invoke().unwrap();
 /// }
 /// ```
 #[proc_macro_attribute]

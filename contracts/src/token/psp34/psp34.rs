@@ -234,9 +234,8 @@ where
                 .call_flags(CallFlags::default().set_allow_reentry(true));
         let b = builder.try_invoke();
         let result = match b {
-            Ok(Ok(Ok(Ok(_)))) => Ok(()),
-            Ok(Ok(Ok(Err(e)))) => Err(e.into()),
-            Ok(Ok(Err(ink::LangError::CouldNotReadInput))) => Ok(()),
+            Ok(Ok(Ok(_))) => Ok(()),
+            Ok(Ok(Err(e))) => Err(e.into()),
             // Means unknown method
             Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
             // `NotCallable` means that the receiver is not a contract.

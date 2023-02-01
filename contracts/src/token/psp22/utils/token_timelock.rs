@@ -107,7 +107,6 @@ impl<T: Storage<Data>> Internal for T {
             .call_flags(CallFlags::default().set_allow_reentry(true))
             .try_invoke()
             .unwrap()
-            .unwrap()
             .unwrap()?;
         Ok(())
     }

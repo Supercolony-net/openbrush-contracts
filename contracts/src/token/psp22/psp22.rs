@@ -184,10 +184,9 @@ impl<T: Storage<Data>> Internal for T {
         )
         .call_flags(CallFlags::default().set_allow_reentry(true));
         let result = match builder.try_invoke() {
-            Ok(Ok(Ok(Ok(_)))) => Ok(()),
-            Ok(Ok(Ok(Err(e)))) => Err(e.into()),
+            Ok(Ok(Ok(_))) => Ok(()),
+            Ok(Ok(Err(e))) => Err(e.into()),
             // Means unknown method
-            Ok(Ok(Err(ink::LangError::CouldNotReadInput))) => Ok(()),
             Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
             // `NotCallable` means that the receiver is not a contract.
             Err(ink::env::Error::NotCallable) => Ok(()),
