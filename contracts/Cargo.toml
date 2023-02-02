@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_contracts"
-version = "3.0.0-rc"
+version = "3.0.0-beta.1"
 authors = ["Brushfam <green@727.ventures>"]
 edition = "2021"
 
@@ -19,7 +19,7 @@ ink = { version = "~4.0.0-rc", default-features = false}
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
-openbrush = { version = "~3.0.0-rc", package = "openbrush_lang", path = "../lang", default-features = false }
+openbrush = { version = "~3.0.0-beta.1", package = "openbrush_lang", path = "../lang", default-features = false }
 
 pallet-assets-chain-extension = { git = "https://github.com/727-ventures/pallet-assets-chain-extension", branch = "ink-4-beta", default-features = false, features = ["ink-lang"]  }
 

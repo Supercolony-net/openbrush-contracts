@@ -1,6 +1,6 @@
 [package]
 name = "my_psp37_enumerable"
-version = "3.0.0-rc"
+version = "3.0.0-beta.1"
 authors = ["Brushfam <artem.lech@727.ventures>"]
 edition = "2021"
 
