@@ -56,10 +56,10 @@ jobs:
         with:
           node-version: '16.x'
       - uses: actions/checkout@v3
-      - name: Yarn install dependencies
+      - name: NPM install dependencies
         run: |
-          yarn
-          yarn add ts-node
+          npm i
+          npm i ts-node
 
       - name: Cache rust artifacts
         id: cache-rust-artifacts
@@ -144,10 +144,10 @@ jobs:
         with:
           ref: main
 
-      - name: Yarn install dependencies for destination branch
+      - name: NPM install dependencies for destination branch
         run: |
-          yarn
-          yarn add ts-node
+          npm i
+          npm i ts-node
 
       - name: Cache rust artifacts for destination branch
         id: cache-rust-artifacts-destination
@@ -162,7 +162,7 @@ jobs:
         run: |
           chown -R root .
           chmod -R a+rwx .
-          yarn build:release
+          npm run build:release
 
       - name: Find contract data destination branch
         id: find-data-destination
@@ -216,10 +216,10 @@ jobs:
         with:
           node-version: '16.x'
       - uses: actions/checkout@v3
-      - name: Yarn install dependencies
+      - name: NPM install dependencies
         run: |
-          yarn
-          yarn add ts-node
+          npm i
+          npm i ts-node
 
       - name: Cache contract artifacts
         id: cache-contract-artifacts
@@ -240,13 +240,13 @@ jobs:
             do
               substrate-contracts-node --tmp --dev & P1=$!;
               set +e;
-              output=$(yarn test:mocha-single ./$test || true);
+              output=$(npm run test:mocha-single ./$test || true);
               set -e;
               if echo $output | grep -q 'For async tests and hooks, ensure "done()" is called'; then
                 echo $output;
                 has_timeout=true
               else
-                yarn test:mocha-single ./$test
+                npm run test:mocha-single ./$test
                 has_timeout=false
               fi
               kill $P1;
