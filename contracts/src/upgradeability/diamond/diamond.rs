@@ -180,7 +180,7 @@ where
         }
 
         ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-            .call_type(DelegateCall::new(delegate_code.unwrap()))
+            .delegate(delegate_code.unwrap())
             .call_flags(
                 ink::env::CallFlags::default()
                 // We don't plan to use the input data after the delegated call, so the 
@@ -197,7 +197,7 @@ where
 
     default fn _init_call(&self, call: InitCall) -> ! {
         ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-            .call_type(DelegateCall::new(call.hash))
+            .delegate(call.hash)
             .exec_input(ExecutionInput::new(InkSelector::new(call.selector)).push_arg(call.input))
             .call_flags(ink::env::CallFlags::default()
             // We don't plan to return back to that contract after execution, so we

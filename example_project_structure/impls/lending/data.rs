@@ -52,13 +52,8 @@ pub struct Data {
 impl Default for Data {
     fn default() -> Self {
         Self {
-            assets_lended: Default::default(),
-            asset_shares: Default::default(),
-            shares_asset: Default::default(),
-            collateral_accepted: Default::default(),
-            asset_price: Default::default(),
-            shares_contract_code_hash: Hash::default(),
             loan_account: [0u8; 32].into(),
+            ..Default::default()
         }
     }
 }

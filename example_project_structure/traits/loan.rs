@@ -34,12 +34,8 @@ impl Default for LoanInfo {
         Self {
             borrower: [0u8; 32].into(),
             collateral_token: [0u8; 32].into(),
-            collateral_amount: Balance::default(),
             borrow_token: [0u8; 32].into(),
-            borrow_amount: Balance::default(),
-            liquidation_price: Balance::default(),
-            timestamp: Timestamp::default(),
-            liquidated: false,
+            ..Defalt::default()
         }
     }
 }

@@ -20,15 +20,6 @@ pub mod my_psp22 {
         hated_account: AccountId,
     }
 
-    impl Default for Contract {
-        fn default() -> Self {
-            Self {
-                psp22: Default::default(),
-                hated_account: [0u8; 32].into(),
-            }
-        }
-    }
-
     impl Transfer for Contract {
         // Let's override method to reject transactions to bad account
         fn _before_token_transfer(
@@ -49,7 +40,10 @@ pub mod my_psp22 {
     impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            let mut instance = Self::default();
+            let mut instance = Self {
+                psp22: Default::default(),
+                hated_account: [0u8; 32].into(),
+            };
 
             instance
                 ._mint_to(Self::env().caller(), total_supply)

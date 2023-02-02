@@ -244,7 +244,6 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 #[inline]
                 fn #message_builder_ident(
                     & self
-
                     #( , #input_bindings : #input_types )*
                 ) -> ::ink::env::call::CallBuilder<
                     ::ink::env::DefaultEnvironment,
