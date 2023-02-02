@@ -32,7 +32,13 @@ use ink::{
     env::CallFlags,
     prelude::vec::Vec,
 };
-use openbrush::traits::{AccountId, Balance, Storage, Timestamp, ZERO_ADDRESS};
+use openbrush::traits::{
+    AccountId,
+    Balance,
+    Storage,
+    Timestamp,
+    ZERO_ADDRESS,
+};
 pub use psp22::Internal as _;
 pub use token_timelock::Internal as _;
 

@@ -16,7 +16,7 @@ use openbrush::{
 #[cfg(feature = "std")]
 use ink::storage::traits::StorageLayout;
 
-#[derive(Default, Debug, Clone, scale::Encode, scale::Decode)]
+#[derive(Debug, Clone, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(StorageLayout, scale_info::TypeInfo))]
 pub struct LoanInfo {
     pub borrower: AccountId,
@@ -27,6 +27,21 @@ pub struct LoanInfo {
     pub liquidation_price: Balance,
     pub timestamp: Timestamp,
     pub liquidated: bool,
+}
+
+impl Default for LoanInfo {
+    fn default() -> Self {
+        Self {
+            borrower: [0u8; 32].into(),
+            collateral_token: [0u8; 32].into(),
+            collateral_amount: Balance::default(),
+            borrow_token: [0u8; 32].into(),
+            borrow_amount: Balance::default(),
+            liquidation_price: Balance::default(),
+            timestamp: Timestamp::default(),
+            liquidated: false,
+        }
+    }
 }
 
 #[openbrush::wrapper]

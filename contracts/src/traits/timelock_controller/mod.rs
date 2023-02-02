@@ -24,7 +24,13 @@ pub use crate::traits::{
     errors::TimelockControllerError,
 };
 use ink::prelude::vec::Vec;
-use openbrush::traits::{AccountId, Balance, Hash, Timestamp, ZERO_ADDRESS};
+use openbrush::traits::{
+    AccountId,
+    Balance,
+    Hash,
+    Timestamp,
+    ZERO_ADDRESS,
+};
 
 pub type OperationId = Hash;
 

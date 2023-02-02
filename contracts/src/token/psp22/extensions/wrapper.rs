@@ -31,7 +31,12 @@ use ink::{
     env::CallFlags,
     prelude::vec::Vec,
 };
-use openbrush::traits::{AccountId, Balance, Storage, ZERO_ADDRESS};
+use openbrush::traits::{
+    AccountId,
+    Balance,
+    Storage,
+    ZERO_ADDRESS,
+};
 pub use psp22::Internal as _;
 pub use wrapper::Internal as _;
 

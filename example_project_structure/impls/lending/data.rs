@@ -17,7 +17,7 @@ use openbrush::traits::Storage;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 /// define the struct with the data that our smart contract will be using
 /// this will isolate the logic of our smart contract from its storage
@@ -47,6 +47,20 @@ pub struct Data {
     pub shares_contract_code_hash: Hash,
     /// the `AccountId` of the `Loan`
     pub loan_account: AccountId,
+}
+
+impl Default for Data {
+    fn default() -> Self {
+        Self {
+            assets_lended: Default::default(),
+            asset_shares: Default::default(),
+            shares_asset: Default::default(),
+            collateral_accepted: Default::default(),
+            asset_price: Default::default(),
+            shares_contract_code_hash: Hash::default(),
+            loan_account: [0u8; 32].into(),
+        }
+    }
 }
 
 pub struct AssetPriceKey;
