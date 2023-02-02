@@ -5,7 +5,7 @@ title: Overview
 
 This doc contains description of how the OpenBrush library can be imported and used. 
 
-The OpenBrush is using ink! version `4.0.0-beta` from `main` branch from commit `4655a8b4413cb50cbc38d1b7c173ad426ab06cde` at the moment. We are not using the stable release of ink! because of changes made in [this PR](https://github.com/paritytech/ink/pull/1531) which is not in release yet.
+The OpenBrush is using ink! version `4.0.0-rc` at the moment.
 You will need to use the same version of the ink! in your project.
 If you use a different version of ink, you need to use a different version of OpenBrush which uses the same version of ink!.
 OpenBrush had several significant changes in API, so you check the [Wizard](https://openbrush.io)
