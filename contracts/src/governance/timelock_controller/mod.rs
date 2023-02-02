@@ -445,21 +445,20 @@ where
         self.flush();
         let result = build_call::<DefaultEnvironment>()
             .call_type(
-                Call::new()
-                    .callee(transaction.callee)
+                Call::new(transaction.callee)
                     .gas_limit(transaction.gas_limit)
                     .transferred_value(transaction.transferred_value),
             )
             .exec_input(ExecutionInput::new(transaction.selector.into()).push_arg(CallInput(&transaction.input)))
             .returns::<()>()
             .call_flags(CallFlags::default().set_allow_reentry(true))
-            .fire()
+            .try_invoke()
             .map_err(|_| TimelockControllerError::UnderlyingTransactionReverted);
 
         // Load the sate of the contract after the cross call.
         self.load();
 
-        result?;
+        result?.unwrap();
         self._emit_call_executed_event(id, i, transaction);
         Ok(())
     }

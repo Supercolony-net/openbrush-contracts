@@ -35,7 +35,6 @@ pub use ownable::Internal as _;
 
 use ink::{
     env::call::{
-        DelegateCall,
         ExecutionInput,
         Selector as InkSelector,
     },
@@ -180,7 +179,7 @@ where
         }
 
         ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-            .call_type(DelegateCall::new().code_hash(delegate_code.unwrap()))
+            .delegate(delegate_code.unwrap())
             .call_flags(
                 ink::env::CallFlags::default()
                 // We don't plan to use the input data after the delegated call, so the 
@@ -190,21 +189,21 @@ where
                 // marked delegated call as "tail", to end the execution of the contract.
                 .set_tail_call(true),
             )
-            .fire()
+            .try_invoke()
             .unwrap_or_else(|err| panic!("delegate call to {:?} failed due to {:?}", delegate_code, err));
         unreachable!("the _fallback call will never return since `tail_call` was set");
     }
 
     default fn _init_call(&self, call: InitCall) -> ! {
         ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-            .call_type(DelegateCall::new().code_hash(call.hash))
+            .delegate(call.hash)
             .exec_input(ExecutionInput::new(InkSelector::new(call.selector)).push_arg(call.input))
             .call_flags(ink::env::CallFlags::default()
             // We don't plan to return back to that contract after execution, so we
             // marked delegated call as "tail", to end the execution of the contract.
             .set_tail_call(true))
             .returns::<()>()
-            .fire()
+            .try_invoke()
             .unwrap_or_else(|err| panic!("init call failed due to {:?}", err));
         unreachable!("the _init_call call will never return since `tail_call` was set");
     }

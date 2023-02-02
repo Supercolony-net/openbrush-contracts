@@ -232,7 +232,7 @@ where
         let builder =
             PSP34ReceiverRef::before_received_builder(to, operator.clone(), from.clone(), id.clone(), data.clone())
                 .call_flags(CallFlags::default().set_allow_reentry(true));
-        let b = builder.fire();
+        let b = builder.try_invoke();
         let result = match b {
             Ok(Ok(Ok(_))) => Ok(()),
             Ok(Ok(Err(e))) => Err(e.into()),

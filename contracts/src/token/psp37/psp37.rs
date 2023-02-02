@@ -396,7 +396,7 @@ where
             data.clone(),
         )
         .call_flags(CallFlags::default().set_allow_reentry(true));
-        let result = match builder.fire() {
+        let result = match builder.try_invoke() {
             Ok(Ok(Ok(_))) => Ok(()),
             Ok(Ok(Err(e))) => Err(e.into()),
             // `NotCallable` means that the receiver is not a contract.

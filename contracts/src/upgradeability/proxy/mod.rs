@@ -33,7 +33,6 @@ pub use crate::{
 pub use ownable::Internal as _;
 pub use proxy::Internal as _;
 
-use ink::env::call::DelegateCall;
 use openbrush::{
     modifiers,
     traits::{
@@ -82,7 +81,7 @@ impl<T: Storage<Data>> Internal for T {
 
     default fn _fallback(&self) -> ! {
         ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-            .call_type(DelegateCall::new().code_hash(self.data().forward_to.clone()))
+            .delegate(self.data().forward_to.clone())
             .call_flags(
                 ink::env::CallFlags::default()
                 // We don't plan to use the input data after the delegated call, so the 
@@ -92,7 +91,7 @@ impl<T: Storage<Data>> Internal for T {
                 // marked delegated call as "tail", to end the execution of the contract.
                 .set_tail_call(true),
             )
-            .fire()
+            .try_invoke()
             .unwrap_or_else(|err| {
                 panic!(
                     "delegate call to {:?} failed due to {:?}",

@@ -87,8 +87,7 @@ pub mod my_lending {
                     .endowment(0)
                     .code_hash(code_hash)
                     .salt_bytes(&hash[..4])
-                    .instantiate()
-                    .unwrap();
+                    .instantiate();
             contract.to_account_id()
         }
     }
@@ -107,8 +106,7 @@ pub mod my_lending {
                 .endowment(0)
                 .code_hash(loan_hash)
                 .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-                .instantiate()
-                .unwrap();
+                .instantiate();
             instance.lending.loan_account = nft.to_account_id();
 
             instance

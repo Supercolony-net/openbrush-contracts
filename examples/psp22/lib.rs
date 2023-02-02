@@ -12,7 +12,7 @@ pub mod my_psp22 {
     };
 
     #[ink(storage)]
-    #[derive(Default, Storage)]
+    #[derive(Storage)]
     pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
@@ -40,7 +40,10 @@ pub mod my_psp22 {
     impl Contract {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            let mut instance = Self::default();
+            let mut instance = Self {
+                psp22: Default::default(),
+                hated_account: [0u8; 32].into(),
+            };
 
             instance
                 ._mint_to(Self::env().caller(), total_supply)

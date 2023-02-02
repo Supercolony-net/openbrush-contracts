@@ -18,13 +18,13 @@ It doesn't contain [versioning](https://github.com/supercolony-net/openbrush-con
 ```toml
 [dependencies]
 # Import ink!
-ink = { git = "https://github.com/paritytech/ink", rev = "4655a8b4413cb50cbc38d1b7c173ad426ab06cde", default-features = false}
+ink = { version = "~4.0.0-rc", default-features = false}
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 # Brush dependency
-openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "~3.0.0-beta", default-features = false }
+openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "~3.0.0-beta.1", default-features = false }
 
 [features]
 default = ["std"]
@@ -73,17 +73,17 @@ The name of the feature is the same as the name of the module. For example:
 
 To enable `psp22`:
 ```toml
-openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "~3.0.0-beta", default-features = false, features = ["psp22"] }
+openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "~3.0.0-beta.1", default-features = false, features = ["psp22"] }
 ```
 
 To enable `ownable`:
 ```toml
-openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "~3.0.0-beta", default-features = false, features = ["ownable"] }
+openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "~3.0.0-beta.1", default-features = false, features = ["ownable"] }
 ```
 
 To enable both:
 ```toml
-openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "~3.0.0-beta", default-features = false, features = ["psp22, ownable"] }
+openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "~3.0.0-beta.1", default-features = false, features = ["psp22, ownable"] }
 ```
 
 After enabling the feature and importing the corresponding module, you need to embed the module 

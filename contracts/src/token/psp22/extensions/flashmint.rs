@@ -111,7 +111,7 @@ impl<T: Storage<psp22::Data>> Internal for T {
         let builder =
             FlashBorrowerRef::on_flashloan_builder(&receiver_account, Self::env().caller(), token, amount, fee, data)
                 .call_flags(CallFlags::default().set_allow_reentry(true));
-        let result = match builder.fire() {
+        let result = match builder.try_invoke() {
             Ok(Ok(Ok(_))) => Ok(()),
             Ok(Ok(Err(FlashBorrowerError::FlashloanRejected(message)))) => {
                 Err(FlashLenderError::BorrowerRejected(message))
