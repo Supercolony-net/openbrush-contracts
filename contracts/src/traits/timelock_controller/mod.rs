@@ -54,7 +54,10 @@ impl Default for Transaction {
     fn default() -> Self {
         Self {
             callee: ZERO_ADDRESS.into(),
-            ..Default::default()
+            selector: Default::default(),
+            input: Default::default(),
+            transferred_value: Default::default(),
+            gas_limit: Default::default(),
         }
     }
 }

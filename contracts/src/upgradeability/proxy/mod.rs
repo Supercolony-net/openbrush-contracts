@@ -33,13 +33,11 @@ pub use crate::{
 pub use ownable::Internal as _;
 pub use proxy::Internal as _;
 
-use ink::env::call::DelegateCall;
 use openbrush::{
     modifiers,
     traits::{
         Hash,
         Storage,
-        StorageAsRef,
     },
 };
 

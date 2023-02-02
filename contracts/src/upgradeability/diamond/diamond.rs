@@ -35,7 +35,6 @@ pub use ownable::Internal as _;
 
 use ink::{
     env::call::{
-        DelegateCall,
         ExecutionInput,
         Selector as InkSelector,
     },
