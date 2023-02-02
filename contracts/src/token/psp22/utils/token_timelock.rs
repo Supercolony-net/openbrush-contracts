@@ -32,23 +32,28 @@ use ink::{
     env::CallFlags,
     prelude::vec::Vec,
 };
-use openbrush::traits::{
-    AccountId,
-    Balance,
-    Storage,
-    Timestamp,
-};
+use openbrush::traits::{AccountId, Balance, Storage, Timestamp, ZERO_ADDRESS};
 pub use psp22::Internal as _;
 pub use token_timelock::Internal as _;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     token: AccountId,
     beneficiary: AccountId,
     release_time: Timestamp,
+}
+
+impl Default for Data {
+    fn default() -> Self {
+        Self {
+            token: ZERO_ADDRESS.into(),
+            beneficiary: ZERO_ADDRESS.into(),
+            release_time: Default::default(),
+        }
+    }
 }
 
 impl<T: Storage<Data>> PSP22TokenTimelock for T {
@@ -101,9 +106,9 @@ pub trait Internal {
 
 impl<T: Storage<Data>> Internal for T {
     default fn _withdraw(&mut self, amount: Balance) -> Result<(), PSP22TokenTimelockError> {
-        let beneficairy = self.beneficiary();
+        let beneficiary = self.beneficiary();
         self._token()
-            .transfer_builder(beneficairy, amount, Vec::<u8>::new())
+            .transfer_builder(beneficiary, amount, Vec::<u8>::new())
             .call_flags(CallFlags::default().set_allow_reentry(true))
             .try_invoke()
             .unwrap()

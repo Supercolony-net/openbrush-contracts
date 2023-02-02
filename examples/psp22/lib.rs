@@ -12,12 +12,21 @@ pub mod my_psp22 {
     };
 
     #[ink(storage)]
-    #[derive(Default, Storage)]
+    #[derive(Storage)]
     pub struct Contract {
         #[storage_field]
         psp22: psp22::Data,
         // fields for hater logic
         hated_account: AccountId,
+    }
+
+    impl Default for Contract {
+        fn default() -> Self {
+            Self {
+                psp22: Default::default(),
+                hated_account: [0u8; 32].into(),
+            }
+        }
     }
 
     impl Transfer for Contract {

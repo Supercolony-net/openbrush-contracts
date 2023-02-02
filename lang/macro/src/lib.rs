@@ -143,11 +143,20 @@ pub fn contract(_attrs: TokenStream, ink_module: TokenStream) -> TokenStream {
 ///     }
 ///
 ///     #[ink(storage)]
-///     #[derive(Default, Storage)]
+///     #[derive(Storage)]
 ///     pub struct PSP22Struct {
 ///         #[storage_field]
 ///         example: Data,
 ///         hated_account: AccountId,
+///     }
+///
+///     impl Default for PSP22Struct {
+///         fn default() -> Self {
+///             Self {
+///                 example: Data::default(),
+///                 hated_account: AccountId::from([0x0; 32]),
+///             }
+///         }
 ///     }
 ///
 ///     impl PSP22Example for PSP22Struct {
@@ -310,10 +319,18 @@ pub fn modifier_definition(_attrs: TokenStream, _input: TokenStream) -> TokenStr
 /// #[openbrush::contract]
 /// mod example {
 ///     #[ink(storage)]
-///     #[derive(Default)]
 ///     pub struct Contract {
 ///         initialized: bool,
 ///         owner: AccountId,
+///     }
+///
+///     impl Default for Contract {
+///         fn default() -> Self {
+///             Self {
+///                 initialized: false,
+///                 owner: [0u8; 32].into(),
+///             }
+///         }
 ///     }
 ///
 ///     #[openbrush::modifier_definition]

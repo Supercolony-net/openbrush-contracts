@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_lang_macro"
-version = "3.0.0-beta.1"
+version = "3.0.0-rc"
 authors = ["Brushfam <green@727.ventures>"]
 edition = "2021"
 
@@ -14,13 +14,13 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
-openbrush_lang_codegen = { version = "~3.0.0-beta.1", path = "../codegen", default-features = false }
+openbrush_lang_codegen = { version = "~3.0.0-rc", path = "../codegen", default-features = false }
 syn = "1"
 proc-macro2 = "1"
 synstructure = "0.12"
 
 [dev-dependencies]
-ink = { version = "4.0.0-beta.1", default-features = false}
+ink = { version = "~4.0.0-rc", default-features = false}
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"] }

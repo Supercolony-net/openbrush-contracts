@@ -445,8 +445,7 @@ where
         self.flush();
         let result = build_call::<DefaultEnvironment>()
             .call_type(
-                Call::new()
-                    .callee(transaction.callee)
+                Call::new(transaction.callee)
                     .gas_limit(transaction.gas_limit)
                     .transferred_value(transaction.transferred_value),
             )

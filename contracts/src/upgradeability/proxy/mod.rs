@@ -82,7 +82,7 @@ impl<T: Storage<Data>> Internal for T {
 
     default fn _fallback(&self) -> ! {
         ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-            .call_type(DelegateCall::new().code_hash(self.data().forward_to.clone()))
+            .call_type(DelegateCall::new(self.data().forward_to.clone()))
             .call_flags(
                 ink::env::CallFlags::default()
                 // We don't plan to use the input data after the delegated call, so the 

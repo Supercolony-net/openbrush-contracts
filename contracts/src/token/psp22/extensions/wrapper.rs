@@ -31,21 +31,26 @@ use ink::{
     env::CallFlags,
     prelude::vec::Vec,
 };
-use openbrush::traits::{
-    AccountId,
-    Balance,
-    Storage,
-};
+use openbrush::traits::{AccountId, Balance, Storage, ZERO_ADDRESS};
 pub use psp22::Internal as _;
 pub use wrapper::Internal as _;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub underlying: AccountId,
     pub _reserved: Option<()>,
+}
+
+impl Default for Data {
+    fn default() -> Self {
+        Self {
+            underlying: ZERO_ADDRESS.into(),
+            _reserved: Default::default(),
+        }
+    }
 }
 
 impl<T: Storage<psp22::Data> + Storage<Data>> PSP22Wrapper for T {

@@ -278,8 +278,7 @@ fn generate_wrapper(ink_trait: ItemTrait) -> proc_macro2::TokenStream {
                 > {
                     ::ink::env::call::build_call::<::ink::env::DefaultEnvironment>()
                         .call_type(
-                            ::ink::env::call::Call::new()
-                                .callee(self.clone()))
+                            ::ink::env::call::Call::new(self.clone()))
                         .exec_input(
                             ::ink::env::call::ExecutionInput::new(
                                 ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])

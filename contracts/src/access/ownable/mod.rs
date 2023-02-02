@@ -37,11 +37,20 @@ pub use ownable::Internal as _;
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub owner: AccountId,
     pub _reserved: Option<()>,
+}
+
+impl Default for Data {
+    fn default() -> Self {
+        Self {
+            owner: ZERO_ADDRESS.into(),
+            _reserved: Default::default(),
+        }
+    }
 }
 
 /// Throws if called by any account other than the owner.
