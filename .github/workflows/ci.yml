@@ -81,7 +81,7 @@ jobs:
         run: |
           chown -R root .
           chmod -R a+rwx .
-          yarn build:release
+          npm run build:release
   caching-artifacts:
     concurrency:
       group: caching-artifacts-${{ github.ref }}
@@ -230,7 +230,7 @@ jobs:
 
       - name: Generate Typechain code
         run:
-          yarn build:release:no-compile
+          npm run build:release:no-compile
 
       - name: Run Test Mocha
         run: |
