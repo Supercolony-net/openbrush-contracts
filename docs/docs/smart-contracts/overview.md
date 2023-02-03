@@ -58,7 +58,7 @@ You can enable it by adding `#![feature(min_specialization)]` at the top of your
 
 The doc contains links to the examples of how to reuse and customize the default implementation of traits.
 
-All default implementations of the traits provided by OpenBursh have the same pattern. 
+All default implementations of the traits provided by OpenBrush have the same pattern. 
 Consequently, the re-usage of each implementation in your contract also has the same pattern.
 
 Each implementation of the contract has its module and its feature that enables that 
