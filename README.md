@@ -1,6 +1,6 @@
 # 
 
-![OpenBrush](https://user-images.githubusercontent.com/43150707/215464584-2fe4f227-5240-42d1-828d-894d4d7e257d.png)
+![OpenBrush](https://user-images.githubusercontent.com/88630083/218825486-accc2d8c-bc5c-4b92-a278-a5b9009fd6f5.png)
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://727-Ventures.github.io/openbrush-contracts)
 [![telegram chat](https://img.shields.io/badge/Telegram-blue.svg?style=flat-square)](https://t.me/openbrush)
