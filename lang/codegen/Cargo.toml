@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_lang_codegen"
-version = "3.0.0-beta.1"
+version = "3.0.0"
 authors = ["Brushfam <green@727.ventures>"]
 edition = "2021"
 

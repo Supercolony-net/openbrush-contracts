@@ -16,7 +16,7 @@ implementation of `Lending` and `LendingPermissioned` traits defined in the `len
 ```toml
 [package]
 name = "lending_contract"
-version = "3.0.0-beta.1"
+version = "3.0.0"
 authors = ["Brushfam <dominik.krizo@727.ventures>"]
 edition = "2021"
 
@@ -29,7 +29,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 shares_contract = { path = "../shares", default-features = false, features = ["ink-as-dependency"]  }
 loan_contract = { path = "../loan", default-features = false, features = ["ink-as-dependency"]  }
 lending_project = { path = "../..", default-features = false }
-openbrush = { version = "~3.0.0-beta.1", default-features = false, features = ["pausable", "access_control"] }
+openbrush = { version = "~3.0.0", default-features = false, features = ["pausable", "access_control"] }
 
 [lib]
 name = "lending_contract"

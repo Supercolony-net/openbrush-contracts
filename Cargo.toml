@@ -12,7 +12,7 @@ exclude = [
 
 [package]
 name = "openbrush"
-version = "3.0.0-beta.1"
+version = "3.0.0"
 authors = ["Brushfam <green@727.ventures>"]
 edition = "2018"
 
@@ -27,12 +27,12 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
-ink = { version = "~4.0.0-rc", default-features = false}
+ink = { version = "~4.0.0", default-features = false}
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
-openbrush_contracts = { version = "~3.0.0-beta.1", path = "contracts", default-features = false }
-openbrush_lang = { version = "~3.0.0-beta.1", path = "lang", default-features = false }
+openbrush_contracts = { version = "~3.0.0", path = "contracts", default-features = false }
+openbrush_lang = { version = "~3.0.0", path = "lang", default-features = false }
 
 [lib]
 name = "openbrush"
