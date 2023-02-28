@@ -4,6 +4,7 @@ use super::{
 };
 use crate::traits::lending::*;
 use ink::storage::traits::{
+    AutoStorableHint,
     ManualKey,
     ResolverKey,
     Storable,
@@ -35,13 +36,7 @@ where
     M: members::MembersManager,
     M: Storable
         + StorableHint<ManualKey<{ access_control::STORAGE_KEY }>>
-        + StorableHint<
-            ResolverKey<
-                <M as StorableHint<ManualKey<{ access_control::STORAGE_KEY }>>>::PreferredKey,
-                ManualKey<3218979580, ManualKey<{ access_control::STORAGE_KEY }>>,
-            >,
-            Type = M,
-        >,
+        + AutoStorableHint<ManualKey<3218979580, ManualKey<{ access_control::STORAGE_KEY }>>, Type = M>,
 {
     #[modifiers(only_role(MANAGER))]
     default fn allow_asset(&mut self, asset_address: AccountId) -> Result<(), LendingError> {
