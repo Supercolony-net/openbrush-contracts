@@ -6,7 +6,6 @@ use crate::traits::lending::*;
 use ink::storage::traits::{
     AutoStorableHint,
     ManualKey,
-    ResolverKey,
     Storable,
     StorableHint,
 };
