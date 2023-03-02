@@ -1,5 +1,7 @@
-# 
-
+## **Please note**: this repozitory is no longer maintained. Please use this [repo](https://github.com/727-Ventures/openbrush-contracts) instead.
+ 
+ 
+ 
 <p align = "center">
   <img src="https://user-images.githubusercontent.com/18346821/183483033-2cd46f58-7c29-4cd8-ad1c-b633f9673e13.png"/>
 </p>
