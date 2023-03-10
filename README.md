@@ -11,6 +11,16 @@ OpenBrush is maintained by the [Brushfam](https://www.brushfam.io/) team, and wa
 
 If you have any questions regarding OpenBrush, you can join the [Brushfam Element channel](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=web3.foundation) to find your answers and meet other ink! smart contracts developers, or ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
 
+# Announcement!!! :smiley:
+
+## Kusama Treasury Proposal
+
+Next OpenBrush milestones are going to be funded by Kusama OpenGov Treasury.
+We will be very grateful for community support, any feedback will be appreciated, so together we 
+will make OpenBrush even better than it is now.
+
+You can find the proposal [here](https://kusama.polkassembly.io/post/2522).
+
 ## Summary
 **OpenBrush is a library for smart contract development on ink!.**
 
@@ -171,11 +181,11 @@ OpenBrush participates in the Web3 Grants, you can find the roadmap [here](https
 - [x] Add extension: `PSP37Enumerable`.
 - [ ] Force/help ink! to create new independent events. During this task decide how ink! can generate metadata for
   events/traits from other crates.
-- [ ] Cover everything with UT and integration tests.
+- [x] Cover everything with UT and integration tests.
 - [ ] Improve ink! to allow code injection to have default implementation on ink! level instead Rust level.
 - [ ] Refactor the OpenBrush to use default implementation from the ink!.
-- [ ] Implement `AssetChainExtension` to work with `asset-pallet`.
-- [ ] Implement `PSP22` via `AssetChainExtension`.
+- [x] Implement `AssetChainExtension` to work with `asset-pallet`.
+- [x] Implement `PSP22` via `AssetChainExtension`.
 - [ ] Implement `UniquesChainExtension` to work with `uniques-pallet`.
 - [ ] Implement `PSP34` via `UniquesChainExtension`.
 - [ ] Audit.
