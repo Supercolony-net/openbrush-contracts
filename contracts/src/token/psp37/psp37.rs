@@ -31,7 +31,6 @@ pub use psp37::{
 
 use core::result::Result;
 use ink::{
-    env::CallFlags,
     prelude::{
         vec,
         vec::Vec,
@@ -54,7 +53,6 @@ use openbrush::{
         Balance,
         OccupiedStorage,
         Storage,
-        String,
     },
 };
 
@@ -362,10 +360,9 @@ where
         to: &AccountId,
         id: Id,
         value: Balance,
-        data: &Vec<u8>,
+        _data: &Vec<u8>,
     ) -> Result<(), PSP37Error> {
         self.data().balances.decrease_balance(from, &id, &value, false)?;
-
         self.data().balances.increase_balance(to, &id, &value, false)?;
         Ok(())
     }

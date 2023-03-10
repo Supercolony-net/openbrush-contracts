@@ -24,10 +24,7 @@ pub use crate::{
     psp22::Internal as _,
     traits::psp22::*,
 };
-use ink::{
-    env::CallFlags,
-    prelude::vec::Vec,
-};
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,
@@ -38,7 +35,6 @@ use openbrush::{
         AccountIdExt,
         Balance,
         Storage,
-        String,
     },
 };
 pub use psp22::{
@@ -164,7 +160,7 @@ impl<T: Storage<Data>> Internal for T {
         from: AccountId,
         to: AccountId,
         amount: Balance,
-        data: Vec<u8>,
+        _data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
         if from.is_zero() {
             return Err(PSP22Error::ZeroSenderAddress)

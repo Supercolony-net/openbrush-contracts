@@ -24,13 +24,22 @@
 #[openbrush::contract]
 mod psp34 {
     use ink::{
-        codegen::{EmitEvent, Env},
+        codegen::{
+            EmitEvent,
+            Env,
+        },
         env::DefaultEnvironment,
     };
     use openbrush::{
         contracts::psp34::*,
-        test_utils::{accounts, change_caller},
-        traits::{Storage, String},
+        test_utils::{
+            accounts,
+            change_caller,
+        },
+        traits::{
+            Storage,
+            String,
+        },
     };
 
     /// Event emitted when a token transfer occurs.
@@ -72,19 +81,8 @@ mod psp34 {
             self.env().emit_event(Transfer { from, to, id });
         }
 
-        fn _emit_approval_event(
-            &self,
-            from: AccountId,
-            to: AccountId,
-            id: Option<Id>,
-            approved: bool,
-        ) {
-            self.env().emit_event(Approval {
-                from,
-                to,
-                id,
-                approved,
-            });
+        fn _emit_approval_event(&self, from: AccountId, to: AccountId, id: Option<Id>, approved: bool) {
+            self.env().emit_event(Approval { from, to, id, approved });
         }
     }
 
@@ -96,9 +94,7 @@ mod psp34 {
             _id: &Id,
         ) -> Result<(), PSP34Error> {
             if self.return_err_on_before {
-                return Err(PSP34Error::Custom(String::from(
-                    "Error on _before_token_transfer",
-                )));
+                return Err(PSP34Error::Custom(String::from("Error on _before_token_transfer")))
             }
             Ok(())
         }
@@ -110,9 +106,7 @@ mod psp34 {
             _id: &Id,
         ) -> Result<(), PSP34Error> {
             if self.return_err_on_after {
-                return Err(PSP34Error::Custom(String::from(
-                    "Error on _after_token_transfer",
-                )));
+                return Err(PSP34Error::Custom(String::from("Error on _after_token_transfer")))
             }
             Ok(())
         }
@@ -139,10 +133,7 @@ mod psp34 {
     fn collection_id_works() {
         assert_eq!(
             PSP34Struct::new().collection_id(),
-            Id::Bytes(
-                <_ as AsRef<[u8; 32]>>::as_ref(&ink::env::account_id::<DefaultEnvironment>())
-                    .to_vec()
-            )
+            Id::Bytes(<_ as AsRef<[u8; 32]>>::as_ref(&ink::env::account_id::<DefaultEnvironment>()).to_vec())
         );
     }
 
@@ -210,16 +201,10 @@ mod psp34 {
         assert!(nft._mint_to(accounts.alice, Id::U8(1u8)).is_ok());
 
         // Token 1 is not approved
-        assert_eq!(
-            nft.allowance(accounts.alice, accounts.bob, Some(Id::U8(1u8))),
-            false
-        );
+        assert_eq!(nft.allowance(accounts.alice, accounts.bob, Some(Id::U8(1u8))), false);
 
         assert!(nft.approve(accounts.bob, Some(Id::U8(1u8)), true).is_ok());
-        assert_eq!(
-            nft.allowance(accounts.alice, accounts.bob, Some(Id::U8(1u8))),
-            true
-        );
+        assert_eq!(nft.allowance(accounts.alice, accounts.bob, Some(Id::U8(1u8))), true);
     }
 
     #[ink::test]
@@ -344,18 +329,12 @@ mod psp34 {
         assert_eq!(nft.allowance(accounts.alice, accounts.bob, None), true);
 
         // Eve is not approved to send token 1 from Alice
-        assert_eq!(
-            nft.allowance(accounts.alice, accounts.eve, Some(Id::U8(1u8))),
-            false
-        );
+        assert_eq!(nft.allowance(accounts.alice, accounts.eve, Some(Id::U8(1u8))), false);
         change_caller(accounts.bob);
         // Approve token Id 1 Eve by operator Bob.
         assert!(nft.approve(accounts.eve, Some(Id::U8(1u8)), true).is_ok());
         // Eve is approved to send token 1 from Alice by operator
-        assert_eq!(
-            nft.allowance(accounts.alice, accounts.eve, Some(Id::U8(1u8))),
-            true
-        );
+        assert_eq!(nft.allowance(accounts.alice, accounts.eve, Some(Id::U8(1u8))), true);
     }
 
     #[ink::test]
@@ -396,9 +375,7 @@ mod psp34 {
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             nft.transfer(accounts.bob, Id::U8(4u8), vec![]),
-            Err(PSP34Error::Custom(String::from(
-                "Error on _before_token_transfer"
-            )))
+            Err(PSP34Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 
@@ -418,9 +395,7 @@ mod psp34 {
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             nft.transfer(accounts.bob, Id::U8(4u8), vec![]),
-            Err(PSP34Error::Custom(String::from(
-                "Error on _after_token_transfer"
-            )))
+            Err(PSP34Error::Custom(String::from("Error on _after_token_transfer")))
         );
     }
 }

@@ -34,7 +34,6 @@ use crate::psp34::{
     Owner,
 };
 use ink::{
-    env::CallFlags,
     prelude::vec::Vec,
     storage::traits::{
         AutoStorableHint,
@@ -53,7 +52,6 @@ use openbrush::{
         Balance,
         OccupiedStorage,
         Storage,
-        String,
     },
 };
 
@@ -186,7 +184,7 @@ where
         self.data().token_owner.get(id)
     }
 
-    default fn _transfer_token(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error> {
+    default fn _transfer_token(&mut self, to: AccountId, id: Id, _data: Vec<u8>) -> Result<(), PSP34Error> {
         let owner = self._check_token_exists(&id)?;
         let caller = Self::env().caller();
 

@@ -106,7 +106,7 @@ where
         from: AccountId,
         to: AccountId,
         ids_amounts: Vec<(Id, Balance)>,
-        data: Vec<u8>,
+        _data: Vec<u8>,
     ) -> Result<(), PSP37Error> {
         let operator = Self::env().caller();
 
