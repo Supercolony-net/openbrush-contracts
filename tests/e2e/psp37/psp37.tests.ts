@@ -175,9 +175,9 @@ describe('MY_PSP37', () => {
     await contract.tx.revertNextTransfer()
 
     // Assert - Sender cannot send token to receiver
-    await expect(tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])).to.eventually.be.rejected
-    await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
-    await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
+    await expect(tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])).to.eventually.be.fulfilled
+    await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(1)
+    await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(0)
 
     await closePSP37()
     await closeReceiver()

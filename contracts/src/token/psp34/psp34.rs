@@ -133,16 +133,6 @@ pub trait Internal {
     /// Gets an operator on other Account's behalf.
     fn _transfer_token(&mut self, to: AccountId, id: Id, data: Vec<u8>) -> Result<(), PSP34Error>;
 
-    /// Child contract can override that if they don't want to do a cross call
-    fn _do_safe_transfer_check(
-        &mut self,
-        operator: &AccountId,
-        from: &AccountId,
-        to: &AccountId,
-        id: &Id,
-        data: &Vec<u8>,
-    ) -> Result<(), PSP34Error>;
-
     fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error>;
 
     fn _burn_from(&mut self, from: AccountId, id: Id) -> Result<(), PSP34Error>;
@@ -210,44 +200,12 @@ where
         self.data().balances.decrease_balance(&owner, &id, false);
         self.data().token_owner.remove(&id);
 
-        self._do_safe_transfer_check(&caller, &owner, &to, &id, &data)?;
-
         self.data().balances.increase_balance(&to, &id, false);
         self.data().token_owner.insert(&id, &to);
         self._after_token_transfer(Some(&owner), Some(&to), &id)?;
         self._emit_transfer_event(Some(owner), Some(to), id);
 
         Ok(())
-    }
-
-    default fn _do_safe_transfer_check(
-        &mut self,
-        operator: &AccountId,
-        from: &AccountId,
-        to: &AccountId,
-        id: &Id,
-        data: &Vec<u8>,
-    ) -> Result<(), PSP34Error> {
-        self.flush();
-        let builder =
-            PSP34ReceiverRef::before_received_builder(to, operator.clone(), from.clone(), id.clone(), data.clone())
-                .call_flags(CallFlags::default().set_allow_reentry(true));
-        let b = builder.try_invoke();
-        let result = match b {
-            Ok(Ok(Ok(_))) => Ok(()),
-            Ok(Ok(Err(e))) => Err(e.into()),
-            // Means unknown method
-            Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
-            // `NotCallable` means that the receiver is not a contract.
-            Err(ink::env::Error::NotCallable) => Ok(()),
-            _ => {
-                Err(PSP34Error::SafeTransferCheckFailed(String::from(
-                    "Error during call to receiver",
-                )))
-            }
-        };
-        self.load();
-        result
     }
 
     default fn _mint_to(&mut self, to: AccountId, id: Id) -> Result<(), PSP34Error> {

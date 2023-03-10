@@ -25,18 +25,10 @@
 mod psp37_enumerable {
     use openbrush::{
         contracts::psp37::{
-            extensions::{
-                batch::*,
-                burnable::*,
-                enumerable::*,
-                mintable::*,
-            },
+            extensions::{batch::*, burnable::*, enumerable::*, mintable::*},
             Id,
         },
-        test_utils::{
-            accounts,
-            change_caller,
-        },
+        test_utils::{accounts, change_caller},
         traits::Storage,
     };
 
@@ -47,18 +39,7 @@ mod psp37_enumerable {
         psp37: psp37::Data<enumerable::Balances>,
     }
 
-    impl psp37::Internal for PSP37Struct {
-        fn _do_safe_transfer_check(
-            &mut self,
-            _operator: &AccountId,
-            _from: &AccountId,
-            _to: &AccountId,
-            _ids_amounts: &Vec<(Id, Balance)>,
-            _data: &Vec<u8>,
-        ) -> Result<(), PSP37Error> {
-            Ok(())
-        }
-    }
+    impl psp37::Internal for PSP37Struct {}
 
     impl PSP37 for PSP37Struct {}
 
@@ -102,9 +83,14 @@ mod psp37_enumerable {
         let token_id = Id::U128(1);
 
         // Create token Id 1 for Alice
-        assert!(nft._mint_to(accounts.alice, vec![(token_id.clone(), 20)]).is_ok());
+        assert!(nft
+            ._mint_to(accounts.alice, vec![(token_id.clone(), 20)])
+            .is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Some(token_id.clone()));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id.clone())
+        );
         // check token by index
         assert_eq!(nft.token_by_index(0u128), Some(token_id));
     }
@@ -124,7 +110,10 @@ mod psp37_enumerable {
         assert!(nft
             ._mint_to(
                 accounts.alice,
-                vec![(token_id1.clone(), token_amount1), (token_id2.clone(), token_amount2)]
+                vec![
+                    (token_id1.clone(), token_amount1),
+                    (token_id2.clone(), token_amount2)
+                ]
             )
             .is_ok());
         // check Alice token by index
@@ -137,7 +126,10 @@ mod psp37_enumerable {
             .transfer(accounts.bob, token_id1.clone(), token_amount1, vec![])
             .is_ok());
         // bob owns token
-        assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Some(token_id1));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.bob, 0u128),
+            Some(token_id1)
+        );
         // alice does not own token Id 1
         assert_eq!(
             nft.owners_token_by_index(accounts.alice, 0u128),
@@ -145,14 +137,19 @@ mod psp37_enumerable {
         );
         assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), None);
         // act. transfer token from alice to alice
-        assert!(nft.transfer(accounts.bob, token_id2.clone(), 10, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.bob, token_id2.clone(), 10, vec![])
+            .is_ok());
         // check Alice token by index
         assert_eq!(
             nft.owners_token_by_index(accounts.alice, 0u128),
             Some(token_id2.clone())
         );
         // check Bob token by index
-        assert_eq!(nft.owners_token_by_index(accounts.bob, 1u128), Some(token_id2.clone()));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.bob, 1u128),
+            Some(token_id2.clone())
+        );
     }
 
     #[ink::test]
@@ -170,7 +167,10 @@ mod psp37_enumerable {
         assert!(nft
             ._mint_to(
                 accounts.alice,
-                vec![(token_id1.clone(), token_amount1), (token_id2.clone(), token_amount2)]
+                vec![
+                    (token_id1.clone(), token_amount1),
+                    (token_id2.clone(), token_amount2)
+                ]
             )
             .is_ok());
         // check Alice token by index
@@ -183,7 +183,10 @@ mod psp37_enumerable {
             .transfer(accounts.bob, token_id1.clone(), token_amount1, vec![])
             .is_ok());
         // bob owns token
-        assert_eq!(nft.owners_token_by_index(accounts.bob, 0u128), Some(token_id1));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.bob, 0u128),
+            Some(token_id1)
+        );
         // alice does not own token Id 1
         assert_eq!(
             nft.owners_token_by_index(accounts.alice, 0u128),
@@ -195,7 +198,10 @@ mod psp37_enumerable {
             .transfer(accounts.alice, token_id2.clone(), token_amount2, vec![])
             .is_ok());
         // check Alice token by index
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Some(token_id2));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id2)
+        );
     }
 
     #[ink::test]
@@ -221,7 +227,9 @@ mod psp37_enumerable {
             )
             .is_ok());
 
-        assert!(nft.transfer(accounts.alice, token_id2.clone(), 1, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.alice, token_id2.clone(), 1, vec![])
+            .is_ok());
 
         assert_eq!(
             nft.owners_token_by_index(accounts.alice, 0u128),
@@ -240,12 +248,26 @@ mod psp37_enumerable {
             Some(token_id4.clone())
         );
 
-        assert!(nft.transfer(accounts.alice, token_id2.clone(), 2, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.alice, token_id2.clone(), 2, vec![])
+            .is_ok());
 
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Some(token_id1));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 1u128), Some(token_id4));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 2u128), Some(token_id3));
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 3u128), Some(token_id2));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id1)
+        );
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 1u128),
+            Some(token_id4)
+        );
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 2u128),
+            Some(token_id3)
+        );
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 3u128),
+            Some(token_id2)
+        );
     }
 
     #[ink::test]
@@ -283,7 +305,9 @@ mod psp37_enumerable {
         assert!(nft
             .transfer(accounts.alice, token_id1.clone(), token_amount1, vec![])
             .is_ok());
-        assert!(nft.burn(accounts.alice, vec![(token_id2, token_amount2)]).is_ok());
+        assert!(nft
+            .burn(accounts.alice, vec![(token_id2, token_amount2)])
+            .is_ok());
         assert!(nft
             .transfer(accounts.alice, token_id3.clone(), token_amount3, vec![])
             .is_ok());
@@ -308,11 +332,16 @@ mod psp37_enumerable {
             ._mint_to(accounts.alice, vec![(token_id.clone(), token_amount)])
             .is_ok());
         // alice still owns token id 1
-        assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), Some(token_id.clone()));
+        assert_eq!(
+            nft.owners_token_by_index(accounts.alice, 0u128),
+            Some(token_id.clone())
+        );
         // index 0 points to token with id 1
         assert_eq!(nft.token_by_index(0u128), Some(token_id.clone()));
         // Destroy token Id 1.
-        assert!(nft.burn(accounts.alice, vec![(token_id, token_amount)]).is_ok());
+        assert!(nft
+            .burn(accounts.alice, vec![(token_id, token_amount)])
+            .is_ok());
         // alice does not owns any tokens
         assert_eq!(nft.owners_token_by_index(accounts.alice, 0u128), None);
         // token by index 1 does not exists
@@ -334,14 +363,20 @@ mod psp37_enumerable {
         let mut nft = PSP37Struct::new();
         assert_eq!(nft.total_supply(None), 0);
         // mint some token 1
-        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
-        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id1.clone(), token_amount1)
+            .is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id2.clone(), token_amount2)
+            .is_ok());
 
         assert_eq!(nft.total_supply(None), 2);
         assert_eq!(nft.total_supply(Some(token_id1.clone())), token_amount1);
         assert_eq!(nft.total_supply(Some(token_id2.clone())), token_amount2);
 
-        assert!(nft.mint(accounts.bob, token_id3.clone(), token_amount3).is_ok());
+        assert!(nft
+            .mint(accounts.bob, token_id3.clone(), token_amount3)
+            .is_ok());
 
         assert_eq!(nft.total_supply(None), 3);
         assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
@@ -361,11 +396,21 @@ mod psp37_enumerable {
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id1.clone())), 0);
         assert_eq!(nft.balance_of(accounts.alice, None), 0);
         // mint some token 1
-        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
-        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id1.clone(), token_amount1)
+            .is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id2.clone(), token_amount2)
+            .is_ok());
 
-        assert_eq!(nft.balance_of(accounts.alice, Some(token_id1.clone())), token_amount1);
-        assert_eq!(nft.balance_of(accounts.alice, Some(token_id2.clone())), token_amount2);
+        assert_eq!(
+            nft.balance_of(accounts.alice, Some(token_id1.clone())),
+            token_amount1
+        );
+        assert_eq!(
+            nft.balance_of(accounts.alice, Some(token_id2.clone())),
+            token_amount2
+        );
 
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
     }
@@ -382,9 +427,15 @@ mod psp37_enumerable {
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP37Struct::new();
-        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
-        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
-        assert!(nft.mint(accounts.alice, token_id3.clone(), token_amount3).is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id1.clone(), token_amount1)
+            .is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id2.clone(), token_amount2)
+            .is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id3.clone(), token_amount3)
+            .is_ok());
 
         assert_eq!(nft.balance_of(accounts.alice, None), 3);
         assert_eq!(nft.total_supply(Some(token_id1.clone())), token_amount1);
@@ -392,8 +443,12 @@ mod psp37_enumerable {
         assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
         assert_eq!(nft.total_supply(None), 3);
 
-        assert!(nft.transfer(accounts.bob, token_id2.clone(), 10, vec![]).is_ok());
-        assert!(nft.transfer(accounts.bob, token_id3.clone(), 10, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.bob, token_id2.clone(), 10, vec![])
+            .is_ok());
+        assert!(nft
+            .transfer(accounts.bob, token_id3.clone(), 10, vec![])
+            .is_ok());
 
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id2.clone())), 10);
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 20);
@@ -406,20 +461,30 @@ mod psp37_enumerable {
         assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
         assert_eq!(nft.total_supply(None), 3);
 
-        assert!(nft.transfer(accounts.charlie, token_id3.clone(), 10, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.charlie, token_id3.clone(), 10, vec![])
+            .is_ok());
 
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 10);
-        assert_eq!(nft.balance_of(accounts.charlie, Some(token_id3.clone())), 10);
+        assert_eq!(
+            nft.balance_of(accounts.charlie, Some(token_id3.clone())),
+            10
+        );
         assert_eq!(nft.balance_of(accounts.alice, None), 3);
         assert_eq!(nft.balance_of(accounts.bob, None), 2);
         assert_eq!(nft.balance_of(accounts.charlie, None), 1);
 
         assert_eq!(nft.total_supply(Some(token_id3.clone())), token_amount3);
 
-        assert!(nft.transfer(accounts.charlie, token_id3.clone(), 10, vec![]).is_ok());
+        assert!(nft
+            .transfer(accounts.charlie, token_id3.clone(), 10, vec![])
+            .is_ok());
 
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id3.clone())), 0);
-        assert_eq!(nft.balance_of(accounts.charlie, Some(token_id3.clone())), 20);
+        assert_eq!(
+            nft.balance_of(accounts.charlie, Some(token_id3.clone())),
+            20
+        );
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
         assert_eq!(nft.balance_of(accounts.bob, None), 2);
         assert_eq!(nft.balance_of(accounts.charlie, None), 1);
@@ -439,13 +504,19 @@ mod psp37_enumerable {
         let accounts = accounts();
 
         let mut nft = PSP37Struct::new();
-        assert!(nft.mint(accounts.alice, token_id1.clone(), token_amount1).is_ok());
-        assert!(nft.mint(accounts.alice, token_id2.clone(), token_amount2).is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id1.clone(), token_amount1)
+            .is_ok());
+        assert!(nft
+            .mint(accounts.alice, token_id2.clone(), token_amount2)
+            .is_ok());
 
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
         assert_eq!(nft.total_supply(None), 2);
 
-        assert!(nft.mint(accounts.bob, token_id2.clone(), token_amount2).is_ok());
+        assert!(nft
+            .mint(accounts.bob, token_id2.clone(), token_amount2)
+            .is_ok());
 
         assert_eq!(nft.total_supply(None), 2);
         assert_eq!(nft.total_supply(Some(token_id1.clone())), 1);

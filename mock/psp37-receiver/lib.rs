@@ -33,24 +33,4 @@ pub mod psp37_receiver {
             self.revert_next_transfer = true
         }
     }
-
-    impl PSP37Receiver for PSP37ReceiverStruct {
-        #[ink(message)]
-        fn before_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _ids_to_amounts: Vec<(Id, Balance)>,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP37ReceiverError> {
-            if self.revert_next_transfer {
-                self.revert_next_transfer = false;
-                return Err(PSP37ReceiverError::TransferRejected(String::from(
-                    "I should reject next transfer",
-                )))
-            }
-            self.call_counter += 1;
-            Ok(())
-        }
-    }
 }

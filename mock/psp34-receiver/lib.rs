@@ -33,24 +33,4 @@ pub mod erc721_receiver {
             self.revert_next_transfer = true
         }
     }
-
-    impl PSP34Receiver for PSP34ReceiverStruct {
-        #[ink(message)]
-        fn before_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _id: Id,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP34ReceiverError> {
-            if self.revert_next_transfer {
-                self.revert_next_transfer = false;
-                return Err(PSP34ReceiverError::TransferRejected(String::from(
-                    "I should reject next transfer",
-                )))
-            }
-            self.call_counter += 1;
-            Ok(())
-        }
-    }
 }

@@ -90,29 +90,3 @@ pub trait PSP34 {
     #[ink(message)]
     fn total_supply(&self) -> Balance;
 }
-
-#[openbrush::wrapper]
-pub type PSP34ReceiverRef = dyn PSP34Receiver;
-
-/// PSP34Receiver is a trait for any contract that wants to support safe transfers from a PSP34
-/// token smart contract to avoid unexpected tokens in the balance of contract.
-/// This method is called before a transfer to ensure the recipient of the tokens acknowledges the receipt.
-#[openbrush::trait_definition]
-pub trait PSP34Receiver {
-    /// Ensures that the smart contract allows reception of PSP34 token(s).
-    /// Returns `Ok(())` if the contract allows the reception of the token(s) and Error `TransferRejected(String))` otherwise.
-    ///
-    /// This method will get called on every transfer to check whether the recipient in `transfer`
-    /// or `transfer_from` is a contract, and if it is, does it accept tokens.
-    /// This is done to prevent contracts from locking tokens forever.
-    ///
-    /// Returns `PSP34ReceiverError` if the contract does not accept the tokens.
-    #[ink(message)]
-    fn before_received(
-        &mut self,
-        operator: AccountId,
-        from: AccountId,
-        id: Id,
-        data: Vec<u8>,
-    ) -> Result<(), PSP34ReceiverError>;
-}

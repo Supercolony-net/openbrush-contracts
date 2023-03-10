@@ -24,17 +24,11 @@
 #[openbrush::contract]
 mod psp37_batch {
     use ink::{
-        codegen::{
-            EmitEvent,
-            Env,
-        },
+        codegen::{EmitEvent, Env},
         prelude::vec::Vec,
     };
     use openbrush::{
-        test_utils::{
-            accounts,
-            change_caller,
-        },
+        test_utils::{accounts, change_caller},
         traits::Storage,
     };
     use openbrush_contracts::psp37::extensions::batch::*;
@@ -76,7 +70,13 @@ mod psp37_batch {
     }
 
     impl psp37::Internal for PSP37Struct {
-        fn _emit_approval_event(&self, _owner: AccountId, _operator: AccountId, _id: Option<Id>, _value: Balance) {
+        fn _emit_approval_event(
+            &self,
+            _owner: AccountId,
+            _operator: AccountId,
+            _id: Option<Id>,
+            _value: Balance,
+        ) {
             self.env().emit_event(Approval {
                 owner: _owner,
                 operator: _operator,
@@ -97,18 +97,6 @@ mod psp37_batch {
                 ids_amounts: _ids_amounts,
             });
         }
-
-        // Don't do cross call in test
-        fn _do_safe_transfer_check(
-            &mut self,
-            _operator: &AccountId,
-            _from: &AccountId,
-            _to: &AccountId,
-            _ids_amounts: &Vec<(Id, Balance)>,
-            _data: &Vec<u8>,
-        ) -> Result<(), PSP37Error> {
-            Ok(())
-        }
     }
 
     impl PSP37 for PSP37Struct {}
@@ -122,7 +110,11 @@ mod psp37_batch {
         }
 
         #[ink(message)]
-        pub fn mint(&mut self, acc: AccountId, ids_amounts: Vec<(Id, Balance)>) -> Result<(), PSP37Error> {
+        pub fn mint(
+            &mut self,
+            acc: AccountId,
+            ids_amounts: Vec<(Id, Balance)>,
+        ) -> Result<(), PSP37Error> {
             self._mint_to(acc, ids_amounts)
         }
     }
@@ -135,7 +127,10 @@ mod psp37_batch {
         let token_id2 = Id::U128(2);
         let id_1_amount = 1;
         let id_2_amount = 20;
-        let ids_amounts = vec![(token_id1.clone(), id_1_amount), (token_id2.clone(), id_2_amount)];
+        let ids_amounts = vec![
+            (token_id1.clone(), id_1_amount),
+            (token_id2.clone(), id_2_amount),
+        ];
         let accounts = accounts();
         // Create a new contract instance.
         let mut nft = PSP37Struct::new();
@@ -143,7 +138,9 @@ mod psp37_batch {
 
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
 
-        assert!(nft.batch_transfer(accounts.bob, ids_amounts.clone(), vec![]).is_ok());
+        assert!(nft
+            .batch_transfer(accounts.bob, ids_amounts.clone(), vec![])
+            .is_ok());
 
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id1.clone())), 0);
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id2.clone())), 0);
@@ -160,7 +157,12 @@ mod psp37_batch {
         assert_batch_transfer_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
 
         let emmited_event = events_iter.next().unwrap();
-        assert_batch_transfer_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
+        assert_batch_transfer_event(
+            emmited_event,
+            Some(accounts.alice),
+            Some(accounts.bob),
+            &ids_amounts,
+        );
 
         assert_eq!(ink::env::test::recorded_events().count(), 2);
     }
@@ -184,8 +186,14 @@ mod psp37_batch {
         assert_eq!(nft.balance_of(accounts.bob, Some(token_id_1.clone())), 0);
         assert_eq!(nft.balance_of(accounts.bob, Some(token_id_2.clone())), 0);
 
-        assert_eq!(nft.balance_of(accounts.alice, Some(token_id_1.clone())), amounts[0]);
-        assert_eq!(nft.balance_of(accounts.alice, Some(token_id_2.clone())), amounts[1]);
+        assert_eq!(
+            nft.balance_of(accounts.alice, Some(token_id_1.clone())),
+            amounts[0]
+        );
+        assert_eq!(
+            nft.balance_of(accounts.alice, Some(token_id_2.clone())),
+            amounts[1]
+        );
 
         assert_eq!(nft.balance_of(accounts.alice, None), 2);
         assert_eq!(nft.balance_of(accounts.bob, None), 0);
@@ -194,8 +202,14 @@ mod psp37_batch {
             .batch_transfer_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![])
             .is_ok());
 
-        assert_eq!(nft.balance_of(accounts.bob, Some(token_id_1.clone())), amounts[0]);
-        assert_eq!(nft.balance_of(accounts.bob, Some(token_id_2.clone())), amounts[1]);
+        assert_eq!(
+            nft.balance_of(accounts.bob, Some(token_id_1.clone())),
+            amounts[0]
+        );
+        assert_eq!(
+            nft.balance_of(accounts.bob, Some(token_id_2.clone())),
+            amounts[1]
+        );
 
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id_1.clone())), 0);
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id_2.clone())), 0);
@@ -269,8 +283,14 @@ mod psp37_batch {
             .batch_transfer_from(accounts.alice, accounts.bob, ids_amounts.clone(), vec![])
             .is_ok());
 
-        assert_eq!(nft.balance_of(accounts.bob, Some(token_id_1.clone())), amounts[0]);
-        assert_eq!(nft.balance_of(accounts.bob, Some(token_id_2.clone())), amounts[1]);
+        assert_eq!(
+            nft.balance_of(accounts.bob, Some(token_id_1.clone())),
+            amounts[0]
+        );
+        assert_eq!(
+            nft.balance_of(accounts.bob, Some(token_id_2.clone())),
+            amounts[1]
+        );
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id_1)), 0);
         assert_eq!(nft.balance_of(accounts.alice, Some(token_id_2)), 0);
 
@@ -283,10 +303,21 @@ mod psp37_batch {
         assert_batch_transfer_event(emmited_event, None, Some(accounts.alice), &ids_amounts);
 
         let emmited_event = events_iter.next().unwrap();
-        assert_approval_event(emmited_event, accounts.alice, accounts.bob, None, Balance::MAX);
+        assert_approval_event(
+            emmited_event,
+            accounts.alice,
+            accounts.bob,
+            None,
+            Balance::MAX,
+        );
 
         let emmited_event = events_iter.next().unwrap();
-        assert_batch_transfer_event(emmited_event, Some(accounts.alice), Some(accounts.bob), &ids_amounts);
+        assert_batch_transfer_event(
+            emmited_event,
+            Some(accounts.alice),
+            Some(accounts.bob),
+            &ids_amounts,
+        );
 
         assert_eq!(ink::env::test::recorded_events().count(), 3);
     }
@@ -299,8 +330,16 @@ mod psp37_batch {
     ) {
         let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
             .expect("encountered invalid contract event data buffer");
-        if let Event::TransferBatch(TransferBatch { from, to, ids_amounts }) = decoded_event {
-            assert_eq!(from, expected_from, "encountered invalid TransferBatch.from");
+        if let Event::TransferBatch(TransferBatch {
+            from,
+            to,
+            ids_amounts,
+        }) = decoded_event
+        {
+            assert_eq!(
+                from, expected_from,
+                "encountered invalid TransferBatch.from"
+            );
             assert_eq!(to, expected_to, "encountered invalid TransferBatch.to");
             assert_eq!(
                 ids_amounts, expected_token_ids_and_values,
@@ -328,7 +367,10 @@ mod psp37_batch {
         }) = decoded_event
         {
             assert_eq!(owner, expected_owner, "encountered invalid Approval.owner");
-            assert_eq!(operator, expected_operator, "encountered invalid Approval.to");
+            assert_eq!(
+                operator, expected_operator,
+                "encountered invalid Approval.to"
+            );
             assert_eq!(id, expected_id, "encountered invalid Approval.id");
             assert_eq!(value, expected_value, "encountered invalid Approval.value");
         } else {

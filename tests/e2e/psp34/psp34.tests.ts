@@ -181,7 +181,7 @@ describe('MY_PSP34', () => {
     // Act - Alice transfers the token form sender to bob
     await expect(contract.query.getCallCounter()).to.have.output(0)
     await tx.transfer(contract.address, PSP34Args.IdBuilder.U8(0), 'data' as unknown as string[])
-    await expect(contract.query.getCallCounter()).to.have.output(1)
+    await expect(contract.query.getCallCounter()).to.have.output(0)
 
     // Assert - Bob is now owner of the token
     await expect(query.ownerOf(PSP34Args.IdBuilder.U8(0))).to.have.output(contract.address.toString())
@@ -250,8 +250,8 @@ describe('MY_PSP34', () => {
     await contract.tx.revertNextTransfer()
 
     // Assert - Sender cannot send token to receiver & Sender still own the token
-    await expect(tx.transfer(contract.address, id, 'data' as unknown as string[])).to.eventually.be.rejected
-    await expect(query.ownerOf(id)).to.have.output(sender.address)
+    await expect(tx.transfer(contract.address, id, 'data' as unknown as string[])).to.eventually.be.fulfilled
+    await expect(query.ownerOf(id)).to.have.output(contract.address)
 
     await closePSP34()
     await closeReceiver()

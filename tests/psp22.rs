@@ -23,17 +23,11 @@
 #[cfg(feature = "psp22")]
 #[openbrush::contract]
 mod psp22_test {
-    use ink::codegen::{
-        EmitEvent,
-        Env,
-    };
+    use ink::codegen::{EmitEvent, Env};
     use openbrush::{
         contracts::psp22::*,
         test_utils::*,
-        traits::{
-            Storage,
-            String,
-        },
+        traits::{Storage, String},
     };
     use std::panic;
 
@@ -73,7 +67,12 @@ mod psp22_test {
     type Event = <PSP22Struct as ::ink::reflect::ContractEventBase>::Type;
 
     impl psp22::Internal for PSP22Struct {
-        fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {
+        fn _emit_transfer_event(
+            &self,
+            _from: Option<AccountId>,
+            _to: Option<AccountId>,
+            _amount: Balance,
+        ) {
             self.env().emit_event(Transfer {
                 from: _from,
                 to: _to,
@@ -88,17 +87,6 @@ mod psp22_test {
                 value: _amount,
             });
         }
-
-        // Override this function with an empty body to omit error (cross-contract calls are not supported in off-chain environment)
-        fn _do_safe_transfer_check(
-            &mut self,
-            _from: &AccountId,
-            _to: &AccountId,
-            _value: &Balance,
-            _data: &Vec<u8>,
-        ) -> Result<(), PSP22Error> {
-            Ok(())
-        }
     }
 
     impl psp22::Transfer for PSP22Struct {
@@ -109,7 +97,9 @@ mod psp22_test {
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             if self.return_err_on_before {
-                return Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
+                return Err(PSP22Error::Custom(String::from(
+                    "Error on _before_token_transfer",
+                )));
             }
             Ok(())
         }
@@ -121,7 +111,9 @@ mod psp22_test {
             _amount: &Balance,
         ) -> Result<(), PSP22Error> {
             if self.return_err_on_after {
-                return Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
+                return Err(PSP22Error::Custom(String::from(
+                    "Error on _after_token_transfer",
+                )));
             }
             Ok(())
         }
@@ -133,7 +125,9 @@ mod psp22_test {
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
             let mut instance = Self::default();
-            assert!(instance._mint_to(instance.env().caller(), total_supply).is_ok());
+            assert!(instance
+                ._mint_to(instance.env().caller(), total_supply)
+                .is_ok());
             instance
         }
 
@@ -179,7 +173,9 @@ mod psp22_test {
                 value: &expected_value,
             }),
         ];
-        for (n, (actual_topic, expected_topic)) in event.topics.iter().zip(expected_topics).enumerate() {
+        for (n, (actual_topic, expected_topic)) in
+            event.topics.iter().zip(expected_topics).enumerate()
+        {
             assert_eq!(
                 &actual_topic[..],
                 expected_topic.as_ref(),
@@ -199,7 +195,12 @@ mod psp22_test {
         let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(1, emitted_events.len());
 
-        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
+        assert_transfer_event(
+            &emitted_events[0],
+            None,
+            Some(AccountId::from([0x01; 32])),
+            100,
+        );
     }
 
     /// The total supply was applied.
@@ -209,7 +210,12 @@ mod psp22_test {
         let psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction.
         let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
-        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
+        assert_transfer_event(
+            &emitted_events[0],
+            None,
+            Some(AccountId::from([0x01; 32])),
+            100,
+        );
         // Get the token total supply.
         assert_eq!(psp22.total_supply(), 100);
     }
@@ -221,7 +227,12 @@ mod psp22_test {
         let psp22 = PSP22Struct::new(100);
         // Transfer event triggered during initial construction
         let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
-        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
+        assert_transfer_event(
+            &emitted_events[0],
+            None,
+            Some(AccountId::from([0x01; 32])),
+            100,
+        );
         let accounts = accounts();
         // Alice owns all the tokens on deployment
         assert_eq!(psp22.balance_of(accounts.alice), 100);
@@ -244,7 +255,12 @@ mod psp22_test {
         let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 2);
         // Check first transfer event related to PSP-20 instantiation.
-        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
+        assert_transfer_event(
+            &emitted_events[0],
+            None,
+            Some(AccountId::from([0x01; 32])),
+            100,
+        );
         // Check the second transfer event relating to the actual transfer.
         assert_transfer_event(
             &emitted_events[1],
@@ -308,7 +324,12 @@ mod psp22_test {
         // Check all transfer events that happened during the previous calls:
         let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
         assert_eq!(emitted_events.len(), 4);
-        assert_transfer_event(&emitted_events[0], None, Some(AccountId::from([0x01; 32])), 100);
+        assert_transfer_event(
+            &emitted_events[0],
+            None,
+            Some(AccountId::from([0x01; 32])),
+            100,
+        );
         // The second and third events (`emitted_events[1]` and `emitted_events[2]`) are an Approve event
         // that we skip checking.
         assert_transfer_event(
@@ -331,7 +352,12 @@ mod psp22_test {
         change_caller(accounts.bob);
 
         assert_eq!(
-            psp22.transfer_from(accounts.alice, accounts.eve, alice_balance + 1, Vec::<u8>::new()),
+            psp22.transfer_from(
+                accounts.alice,
+                accounts.eve,
+                alice_balance + 1,
+                Vec::<u8>::new()
+            ),
             Err(PSP22Error::InsufficientBalance)
         );
     }
@@ -349,7 +375,9 @@ mod psp22_test {
         // Alice gets an error on _before_token_transfer
         assert_eq!(
             psp22.transfer(accounts.bob, 10, Vec::<u8>::new()),
-            Err(PSP22Error::Custom(String::from("Error on _before_token_transfer")))
+            Err(PSP22Error::Custom(String::from(
+                "Error on _before_token_transfer"
+            )))
         );
     }
 
@@ -366,7 +394,9 @@ mod psp22_test {
         // Alice gets an error on _after_token_transfer
         assert_eq!(
             psp22.transfer(accounts.bob, 10, Vec::<u8>::new()),
-            Err(PSP22Error::Custom(String::from("Error on _after_token_transfer")))
+            Err(PSP22Error::Custom(String::from(
+                "Error on _after_token_transfer"
+            )))
         );
     }
 }

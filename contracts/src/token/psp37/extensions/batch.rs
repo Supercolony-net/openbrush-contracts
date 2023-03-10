@@ -128,8 +128,6 @@ where
             self.data().balances.decrease_balance(&from, id, value, false)?;
         }
 
-        self._do_safe_transfer_check(&operator, &from, &to, &ids_amounts, &data)?;
-
         for (id, value) in &ids_amounts {
             self.data().balances.increase_balance(&to, id, value, false)?;
         }

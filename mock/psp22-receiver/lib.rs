@@ -33,24 +33,4 @@ pub mod erc20_receiver {
             self.revert_next_transfer = true
         }
     }
-
-    impl PSP22Receiver for PSP22ReceiverStruct {
-        #[ink(message)]
-        fn before_received(
-            &mut self,
-            _operator: AccountId,
-            _from: AccountId,
-            _value: Balance,
-            _data: Vec<u8>,
-        ) -> Result<(), PSP22ReceiverError> {
-            if self.revert_next_transfer {
-                self.revert_next_transfer = false;
-                return Err(PSP22ReceiverError::TransferRejected(String::from(
-                    "I should reject next transfer",
-                )))
-            }
-            self.call_counter += 1;
-            Ok(())
-        }
-    }
 }
