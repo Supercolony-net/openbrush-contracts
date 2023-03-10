@@ -11,7 +11,9 @@ OpenBrush is maintained by the [Brushfam](https://www.brushfam.io/) team, and wa
 
 If you have any questions regarding OpenBrush, you can join the [Brushfam Element channel](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=web3.foundation) to find your answers and meet other ink! smart contracts developers, or ask questions regarding ink! development on Element, Discord, or Telegram OpenBrush channels by the links above.
 
-## Kusama Treasury
+# Announcement!!! :smiley:
+
+## Kusama Treasury Proposal
 
 Next OpenBrush milestones are going to be funded by Kusama OpenGov Treasury.
 We will be very grateful for community support, any feedback will be appreciated, so together we 
