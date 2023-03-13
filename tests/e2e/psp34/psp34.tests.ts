@@ -164,7 +164,7 @@ describe('MY_PSP34', () => {
     await close()
   })
 
-  it('PSP34 - safe transfer works', async () => {
+  it('PSP34 - transfer works', async () => {
     const {
       tx,
       query,
@@ -185,73 +185,6 @@ describe('MY_PSP34', () => {
 
     // Assert - Bob is now owner of the token
     await expect(query.ownerOf(PSP34Args.IdBuilder.U8(0))).to.have.output(contract.address.toString())
-
-    await closePSP34()
-    await closeReceiver()
-  })
-
-  it('PSP34 - safe transfer works to contract but not PSP34Receiver', async () => {
-    const {
-      tx,
-      query,
-      defaultSigner: sender,
-      close: close1
-    } = await setup()
-
-    const { contract, close: close2 } = await setup()
-
-    const id = PSP34Args.IdBuilder.U8(0)
-
-    // Arrange - Sender mint a Token
-    await tx.mintToken()
-    await expect(query.ownerOf(id)).to.have.output(sender.address)
-
-    // Act - Alice transfers the token form sender to bob
-    await tx.transfer(contract.address, id, 'data' as unknown as string[])
-
-    // Assert - Bob is now owner of the token
-    await expect(query.ownerOf(id)).to.have.output(contract.address.toString())
-
-    await close1()
-    await close2()
-  })
-
-  it('PSP 34 - safe transfer works to contract that implements PSP34Receiver', async () => {
-    const { tx, query, defaultSigner: sender, close: closePSP34 } = await setup()
-
-    const { contract, close: closeReceiver } = await setup_receiver()
-
-    const id = PSP34Args.IdBuilder.U8(0)
-
-    // Arrange - Sender mint a token
-    await tx.mintToken()
-    await expect(query.ownerOf(id)).to.have.output(sender.address)
-
-    // Assert - Sender cannot send token to receiver & Sender still own the token
-    await tx.transfer(contract.address, id, 'data' as unknown as string[])
-    await expect(query.ownerOf(id)).to.have.output(contract.address)
-
-    await closePSP34()
-    await closeReceiver()
-  })
-
-  it('PSP 34 - receiver can reject the transfer', async () => {
-    const { tx, query, defaultSigner: sender, close: closePSP34 } = await setup()
-
-    const { contract, close: closeReceiver } = await setup_receiver()
-
-    const id = PSP34Args.IdBuilder.U8(0)
-
-    // Arrange - Sender mint a token
-    await tx.mintToken()
-    await expect(query.ownerOf(id)).to.have.output(sender.address)
-
-    // Act - Receiver wants to reject the next transfer
-    await contract.tx.revertNextTransfer()
-
-    // Assert - Sender cannot send token to receiver & Sender still own the token
-    await expect(tx.transfer(contract.address, id, 'data' as unknown as string[])).to.eventually.be.fulfilled
-    await expect(query.ownerOf(id)).to.have.output(contract.address)
 
     await closePSP34()
     await closeReceiver()

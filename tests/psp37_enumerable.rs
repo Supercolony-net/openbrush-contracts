@@ -47,8 +47,6 @@ mod psp37_enumerable {
         psp37: psp37::Data<enumerable::Balances>,
     }
 
-    impl psp37::Internal for PSP37Struct {}
-
     impl PSP37 for PSP37Struct {}
 
     impl PSP37Mintable for PSP37Struct {}
