@@ -2,8 +2,6 @@ import {expect, getSigners} from '../helpers'
 import {ApiPromise} from '@polkadot/api'
 import ConstructorsPSP37 from '../../../typechain-generated/constructors/my_psp37'
 import ContractPSP37 from '../../../typechain-generated/contracts/my_psp37'
-import ConstructorsPSP37Receiver from '../../../typechain-generated/constructors/psp37_receiver'
-import ContractPSP37Receiver from '../../../typechain-generated/contracts/psp37_receiver'
 import {IdBuilder} from '../../../typechain-generated/types-arguments/my_psp37'
 
 describe('MY_PSP37', () => {

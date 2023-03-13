@@ -3,9 +3,6 @@ import {expect, getSigners} from '../helpers'
 import {ApiPromise} from '@polkadot/api'
 import ConstructorsPSP22 from '../../../typechain-generated/constructors/my_psp22_pallet'
 import ContractPSP22 from '../../../typechain-generated/contracts/my_psp22_pallet'
-import ConstructorsPSP22Receiver from '../../../typechain-generated/constructors/psp22_receiver'
-import ContractPSP22Receiver from '../../../typechain-generated/contracts/psp22_receiver'
-
 describe('MY_PSP22_PALLET', () => {
   async function setup() {
     const api = await ApiPromise.create()

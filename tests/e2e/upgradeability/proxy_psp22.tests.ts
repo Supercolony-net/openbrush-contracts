@@ -10,8 +10,6 @@ import ConstructorPSP22 from '../../../typechain-generated/constructors/my_psp22
 import ContractPSP22Metadata from '../../../typechain-generated/contracts/my_psp22_metadata_upgradeable'
 import ConstructorPSP22Metadata from '../../../typechain-generated/constructors/my_psp22_metadata_upgradeable'
 import {ApiPromise} from '@polkadot/api'
-import ConstructorsPSP22Receiver from '../../../typechain-generated/constructors/psp22_receiver'
-import ContractPSP22Receiver from '../../../typechain-generated/contracts/psp22_receiver'
 
 describe.skip('MY_UPGRADEABLE_PSP22', () => {
   async function setupPSP22() {
@@ -95,32 +93,6 @@ describe.skip('MY_UPGRADEABLE_PSP22', () => {
     }
   }
 
-  async function setup_receiver() {
-    const api = await ApiPromise.create()
-
-    const signers = getSigners()
-    const defaultSigner = signers[2]
-    const alice = signers[0]
-    const bob = signers[1]
-
-    const contractFactory = new ConstructorsPSP22Receiver(api, defaultSigner)
-    const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP22Receiver(contractAddress, defaultSigner, api)
-
-    return {
-      api,
-      defaultSigner,
-      alice,
-      bob,
-      contract,
-      query: contract.query,
-      tx: contract.tx,
-      close: async () => {
-        await api.disconnect()
-      }
-    }
-  }
-
   function setupProxy<T>(contract: T, proxyAddress: string): T {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -191,21 +163,6 @@ describe.skip('MY_UPGRADEABLE_PSP22', () => {
     // Close
     await closeProxy()
     await closePSP22()
-  })
-
-  it('MY_UPGRADEABLE_PSP22 - Transfers funds successfully if destination account is a receiver and supports transfers', async () => {
-    const { contract: psp22, abi, close: closePSP22} = await setupPSP22()
-    const { contract, close: closeProxy } = await setupProxyContract(abi.info.source.wasmHash.toString())
-    const proxy = setupProxy(psp22, contract.address)
-    const { contract: psp22_receiver, close: closeReceiver } = await setup_receiver()
-    await proxy.tx.initialize(1000)
-
-    await proxy.tx.transfer(psp22_receiver.address, 7, [])
-
-    // Close
-    await closeProxy()
-    await closePSP22()
-    await closeReceiver()
   })
 
   it('MY_UPGRADEABLE_PSP22 - Transfers funds successfully if destination account is a receiver a contract but not PSP22Receiver', async () => {
