@@ -33,32 +33,6 @@ describe('MY_PSP37', () => {
     }
   }
 
-  async function setup_receiver() {
-    const api = await ApiPromise.create()
-
-    const signers = getSigners()
-    const defaultSigner = signers[2]
-    const alice = signers[0]
-    const bob = signers[1]
-
-    const contractFactory = new ConstructorsPSP37Receiver(api, defaultSigner)
-    const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP37Receiver(contractAddress, defaultSigner, api)
-
-    return {
-      api,
-      defaultSigner,
-      alice,
-      bob,
-      contract,
-      query: contract.query,
-      tx: contract.tx,
-      close: async () => {
-        await api.disconnect()
-      }
-    }
-  }
-
   it('Balance of works', async () => {
     const { query, defaultSigner: sender, tx, close } = await setup()
 

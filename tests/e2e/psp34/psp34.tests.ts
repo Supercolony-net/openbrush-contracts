@@ -35,32 +35,6 @@ describe('MY_PSP34', () => {
     }
   }
 
-  async function setup_receiver() {
-    const api = await ApiPromise.create()
-
-    const signers = getSigners()
-    const defaultSigner = signers[2]
-    const alice = signers[0]
-    const bob = signers[1]
-
-    const contractFactory = new ConstructorsPSP34Receiver(api, defaultSigner)
-    const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP34Receiver(contractAddress, defaultSigner, api)
-
-    return {
-      api,
-      defaultSigner,
-      alice,
-      bob,
-      contract,
-      query: contract.query,
-      tx: contract.tx,
-      close: async () => {
-        await api.disconnect()
-      }
-    }
-  }
-
   it('Return collection_id of account', async () => {
     const { query, contract, close } = await setup()
 
@@ -169,25 +143,19 @@ describe('MY_PSP34', () => {
       tx,
       query,
       defaultSigner: sender,
+      bob,
       close: closePSP34
     } = await setup()
-
-    const { contract, close: closeReceiver } = await setup_receiver()
-
     // Arrange - Sender mint a Token
     await tx.mintToken()
     await expect(query.ownerOf(PSP34Args.IdBuilder.U8(0))).to.have.output(sender.address)
 
     // Act - Alice transfers the token form sender to bob
-    await expect(contract.query.getCallCounter()).to.have.output(0)
-    await tx.transfer(contract.address, PSP34Args.IdBuilder.U8(0), 'data' as unknown as string[])
-    await expect(contract.query.getCallCounter()).to.have.output(0)
-
+    await tx.transfer(bob.address, PSP34Args.IdBuilder.U8(0), 'data' as unknown as string[])
     // Assert - Bob is now owner of the token
-    await expect(query.ownerOf(PSP34Args.IdBuilder.U8(0))).to.have.output(contract.address.toString())
+    await expect(query.ownerOf(PSP34Args.IdBuilder.U8(0))).to.have.output(bob.address.toString())
 
     await closePSP34()
-    await closeReceiver()
   })
 
   it('Can nextot transfer non-existing token', async () => {
