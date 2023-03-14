@@ -46,19 +46,6 @@ mod psp34_enumerable {
         psp34: psp34::Data<enumerable::Balances>,
     }
 
-    impl psp34::Internal for PSP34Struct {
-        fn _do_safe_transfer_check(
-            &mut self,
-            _operator: &AccountId,
-            _from: &AccountId,
-            _to: &AccountId,
-            _id: &Id,
-            _data: &Vec<u8>,
-        ) -> Result<(), PSP34Error> {
-            Ok(())
-        }
-    }
-
     impl PSP34 for PSP34Struct {}
 
     impl PSP34Mintable for PSP34Struct {}

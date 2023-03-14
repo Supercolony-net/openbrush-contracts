@@ -84,17 +84,6 @@ mod psp34 {
         fn _emit_approval_event(&self, from: AccountId, to: AccountId, id: Option<Id>, approved: bool) {
             self.env().emit_event(Approval { from, to, id, approved });
         }
-
-        fn _do_safe_transfer_check(
-            &mut self,
-            _operator: &AccountId,
-            _from: &AccountId,
-            _to: &AccountId,
-            _id: &Id,
-            _data: &Vec<u8>,
-        ) -> Result<(), PSP34Error> {
-            Ok(())
-        }
     }
 
     impl psp34::Transfer for PSP34Struct {

@@ -31,7 +31,6 @@ pub use psp37::{
 
 use core::result::Result;
 use ink::{
-    env::CallFlags,
     prelude::{
         vec,
         vec::Vec,
@@ -54,7 +53,6 @@ use openbrush::{
         Balance,
         OccupiedStorage,
         Storage,
-        String,
     },
 };
 
@@ -185,15 +183,6 @@ pub trait Internal {
         to: &AccountId,
         id: Id,
         amount: Balance,
-        data: &Vec<u8>,
-    ) -> Result<(), PSP37Error>;
-
-    fn _do_safe_transfer_check(
-        &mut self,
-        operator: &AccountId,
-        from: &AccountId,
-        to: &AccountId,
-        ids_amounts: &Vec<(Id, Balance)>,
         data: &Vec<u8>,
     ) -> Result<(), PSP37Error>;
 }
@@ -371,46 +360,11 @@ where
         to: &AccountId,
         id: Id,
         value: Balance,
-        data: &Vec<u8>,
+        _data: &Vec<u8>,
     ) -> Result<(), PSP37Error> {
         self.data().balances.decrease_balance(from, &id, &value, false)?;
-        self._do_safe_transfer_check(&Self::env().caller(), from, to, &vec![(id.clone(), value)], &data)?;
         self.data().balances.increase_balance(to, &id, &value, false)?;
         Ok(())
-    }
-
-    default fn _do_safe_transfer_check(
-        &mut self,
-        operator: &AccountId,
-        from: &AccountId,
-        to: &AccountId,
-        ids_amounts: &Vec<(Id, Balance)>,
-        data: &Vec<u8>,
-    ) -> Result<(), PSP37Error> {
-        self.flush();
-        let builder = PSP37ReceiverRef::before_received_builder(
-            to,
-            operator.clone(),
-            from.clone(),
-            ids_amounts.clone(),
-            data.clone(),
-        )
-        .call_flags(CallFlags::default().set_allow_reentry(true));
-        let result = match builder.try_invoke() {
-            Ok(Ok(Ok(_))) => Ok(()),
-            Ok(Ok(Err(e))) => Err(e.into()),
-            // `NotCallable` means that the receiver is not a contract.
-            Err(ink::env::Error::NotCallable) => Ok(()),
-            // Means unknown method
-            Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
-            _ => {
-                Err(PSP37Error::SafeTransferCheckFailed(String::from(
-                    "Error during call to receiver",
-                )))
-            }
-        };
-        self.load();
-        result
     }
 }
 

@@ -47,19 +47,6 @@ mod psp37_enumerable {
         psp37: psp37::Data<enumerable::Balances>,
     }
 
-    impl psp37::Internal for PSP37Struct {
-        fn _do_safe_transfer_check(
-            &mut self,
-            _operator: &AccountId,
-            _from: &AccountId,
-            _to: &AccountId,
-            _ids_amounts: &Vec<(Id, Balance)>,
-            _data: &Vec<u8>,
-        ) -> Result<(), PSP37Error> {
-            Ok(())
-        }
-    }
-
     impl PSP37 for PSP37Struct {}
 
     impl PSP37Mintable for PSP37Struct {}

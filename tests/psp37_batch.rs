@@ -97,18 +97,6 @@ mod psp37_batch {
                 ids_amounts: _ids_amounts,
             });
         }
-
-        // Don't do cross call in test
-        fn _do_safe_transfer_check(
-            &mut self,
-            _operator: &AccountId,
-            _from: &AccountId,
-            _to: &AccountId,
-            _ids_amounts: &Vec<(Id, Balance)>,
-            _data: &Vec<u8>,
-        ) -> Result<(), PSP37Error> {
-            Ok(())
-        }
     }
 
     impl PSP37 for PSP37Struct {}

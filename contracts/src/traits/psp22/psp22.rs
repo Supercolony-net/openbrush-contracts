@@ -137,29 +137,3 @@ pub trait PSP22 {
     #[ink(message)]
     fn decrease_allowance(&mut self, spender: AccountId, delta_value: Balance) -> Result<(), PSP22Error>;
 }
-
-#[openbrush::wrapper]
-pub type PSP22ReceiverRef = dyn PSP22Receiver;
-
-/// PSP22Receiver is a trait for any contract that wants to support safe transfers from a PSP22
-/// token smart contract to avoid unexpected tokens in the balance of contract.
-/// This method is called before a transfer to ensure the recipient of the tokens acknowledges the receipt.
-#[openbrush::trait_definition]
-pub trait PSP22Receiver {
-    /// Ensures that the smart contract allows reception of PSP22 token(s).
-    /// Returns `Ok(())` if the contract allows the reception of the token(s) and Error `TransferRejected(String))` otherwise.
-    ///
-    /// This method will get called on every transfer to check whether the recipient in `transfer` or
-    /// `transfer_from` is a contract, and if it is, does it accept tokens.
-    /// This is done to prevent contracts from locking tokens forever.
-    ///
-    /// Returns `PSP22ReceiverError` if the contract does not accept the tokens.
-    #[ink(message)]
-    fn before_received(
-        &mut self,
-        operator: AccountId,
-        from: AccountId,
-        value: Balance,
-        data: Vec<u8>,
-    ) -> Result<(), PSP22ReceiverError>;
-}

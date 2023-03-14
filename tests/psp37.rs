@@ -88,18 +88,6 @@ mod psp37 {
                 value: _value,
             });
         }
-
-        // Don't do cross call in test
-        fn _do_safe_transfer_check(
-            &mut self,
-            _operator: &AccountId,
-            _from: &AccountId,
-            _to: &AccountId,
-            _ids_amounts: &Vec<(Id, Balance)>,
-            _data: &Vec<u8>,
-        ) -> Result<(), PSP37Error> {
-            Ok(())
-        }
     }
 
     impl psp37::Transfer for PSP37Struct {
@@ -573,30 +561,6 @@ mod psp37 {
         assert_eq!(
             nft.transfer(accounts.bob, token_id.clone(), transfer_amount, vec![]),
             Err(PSP37Error::InsufficientBalance),
-        );
-    }
-
-    #[ink::test]
-    fn before_received_should_fail_transfer() {
-        let token_id_1 = Id::U128(1);
-        let token_id_2 = Id::U128(2);
-        let token_1_amount = 1;
-        let token_2_amount = 20;
-        let accounts = accounts();
-        // Create a new contract instance.
-        let mut nft = PSP37Struct::new();
-        assert!(nft.mint(accounts.alice, token_id_1.clone(), token_1_amount).is_ok());
-        assert!(nft.mint(accounts.alice, token_id_2.clone(), token_2_amount).is_ok());
-        // Can transfer tokens
-        assert!(nft
-            .transfer_from(accounts.alice, accounts.bob, token_id_1, token_1_amount, vec![])
-            .is_ok());
-        // Turn on error on _before_token_transfer
-        nft.change_state_err_on_before();
-        // Alice gets an error on _before_token_transfer
-        assert_eq!(
-            nft.transfer_from(accounts.alice, accounts.bob, token_id_2, token_2_amount, vec![]),
-            Err(PSP37Error::Custom(String::from("Error on _before_token_transfer")))
         );
     }
 

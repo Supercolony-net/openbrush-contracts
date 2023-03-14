@@ -2,8 +2,6 @@ import {expect, getSigners} from '../helpers'
 import {ApiPromise} from '@polkadot/api'
 import ConstructorsPSP37 from '../../../typechain-generated/constructors/my_psp37'
 import ContractPSP37 from '../../../typechain-generated/contracts/my_psp37'
-import ConstructorsPSP37Receiver from '../../../typechain-generated/constructors/psp37_receiver'
-import ContractPSP37Receiver from '../../../typechain-generated/contracts/psp37_receiver'
 import {IdBuilder} from '../../../typechain-generated/types-arguments/my_psp37'
 
 describe('MY_PSP37', () => {
@@ -18,32 +16,6 @@ describe('MY_PSP37', () => {
     const contractFactory = new ConstructorsPSP37(api, defaultSigner)
     const contractAddress = (await contractFactory.new()).address
     const contract = new ContractPSP37(contractAddress, defaultSigner, api)
-
-    return {
-      api,
-      defaultSigner,
-      alice,
-      bob,
-      contract,
-      query: contract.query,
-      tx: contract.tx,
-      close: async () => {
-        await api.disconnect()
-      }
-    }
-  }
-
-  async function setup_receiver() {
-    const api = await ApiPromise.create()
-
-    const signers = getSigners()
-    const defaultSigner = signers[2]
-    const alice = signers[0]
-    const bob = signers[1]
-
-    const contractFactory = new ConstructorsPSP37Receiver(api, defaultSigner)
-    const contractAddress = (await contractFactory.new()).address
-    const contract = new ContractPSP37Receiver(contractAddress, defaultSigner, api)
 
     return {
       api,
@@ -113,74 +85,6 @@ describe('MY_PSP37', () => {
     await expect(query.allowance(sender.address, alice.address, token)).to.have.bnToNumber(10)
 
     await close()
-  })
-
-  it('PSP37 - contract(not receiver) can accept the transfer', async () => {
-    const { tx, query, defaultSigner: sender, close: close1 } = await setup()
-
-    const { contract, close: close2 } = await setup()
-
-    const token = IdBuilder.U8(0)
-
-
-    // Arrange
-    await tx.mintTokens(token, 1)
-    await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
-    await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
-
-    // Assert - Sender can send token to receiver
-    await tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])
-    await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(1)
-    await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(0)
-
-    await close1()
-    await close2()
-  })
-
-  it('PSP37 - receiver can accept the transfer', async () => {
-    const { tx, query, defaultSigner: sender, close: closePSP37 } = await setup()
-
-    const { contract, close: closeReceiver } = await setup_receiver()
-
-    const token = IdBuilder.U8(0)
-
-    // Arrange
-    await tx.mintTokens(token, 1)
-    await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
-    await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
-
-
-    // Assert - Sender can send token to receiver
-    await tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])
-    await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(1)
-    await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(0)
-
-    await closePSP37()
-    await closeReceiver()
-  })
-
-  it('PSP37 - receiver can reject the transfer', async () => {
-    const { tx, query, defaultSigner: sender, close: closePSP37 } = await setup()
-
-    const { contract, close: closeReceiver } = await setup_receiver()
-
-    const token = IdBuilder.U8(0)
-
-    // Arrange
-    await tx.mintTokens(token, 1)
-    await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
-    await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
-
-    // Act - Receiver wants to reject the next transfer
-    await contract.tx.revertNextTransfer()
-
-    // Assert - Sender cannot send token to receiver
-    await expect(tx.transferFrom(sender.address, contract.address, token, 1, 'data' as unknown as string[])).to.eventually.be.rejected
-    await expect(query.balanceOf(contract.address, token)).to.have.bnToNumber(0)
-    await expect(query.balanceOf(sender.address, token)).to.have.bnToNumber(1)
-
-    await closePSP37()
-    await closeReceiver()
   })
 
   it('Approve works', async () => {

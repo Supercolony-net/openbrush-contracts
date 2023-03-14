@@ -24,10 +24,7 @@ pub use crate::{
     psp22::Internal as _,
     traits::psp22::*,
 };
-use ink::{
-    env::CallFlags,
-    prelude::vec::Vec,
-};
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,
@@ -38,7 +35,6 @@ use openbrush::{
         AccountIdExt,
         Balance,
         Storage,
-        String,
     },
 };
 pub use psp22::{
@@ -132,14 +128,6 @@ pub trait Internal {
     fn _balance_of(&self, owner: &AccountId) -> Balance;
     fn _allowance(&self, owner: &AccountId, spender: &AccountId) -> Balance;
 
-    fn _do_safe_transfer_check(
-        &mut self,
-        from: &AccountId,
-        to: &AccountId,
-        value: &Balance,
-        data: &Vec<u8>,
-    ) -> Result<(), PSP22Error>;
-
     fn _transfer_from_to(
         &mut self,
         from: AccountId,
@@ -167,46 +155,12 @@ impl<T: Storage<Data>> Internal for T {
         self.data().allowances.get(&(owner, spender)).unwrap_or(0)
     }
 
-    default fn _do_safe_transfer_check(
-        &mut self,
-        from: &AccountId,
-        to: &AccountId,
-        value: &Balance,
-        data: &Vec<u8>,
-    ) -> Result<(), PSP22Error> {
-        self.flush();
-        let builder = PSP22ReceiverRef::before_received_builder(
-            to,
-            Self::env().caller(),
-            from.clone(),
-            value.clone(),
-            data.clone(),
-        )
-        .call_flags(CallFlags::default().set_allow_reentry(true));
-        let result = match builder.try_invoke() {
-            Ok(Ok(Ok(_))) => Ok(()),
-            Ok(Ok(Err(e))) => Err(e.into()),
-            // Means unknown method
-            Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
-            // `NotCallable` means that the receiver is not a contract.
-            Err(ink::env::Error::NotCallable) => Ok(()),
-            _ => {
-                Err(PSP22Error::SafeTransferCheckFailed(String::from(
-                    "Error during call to receiver",
-                )))
-            }
-        };
-        self.load();
-        result?;
-        Ok(())
-    }
-
     default fn _transfer_from_to(
         &mut self,
         from: AccountId,
         to: AccountId,
         amount: Balance,
-        data: Vec<u8>,
+        _data: Vec<u8>,
     ) -> Result<(), PSP22Error> {
         if from.is_zero() {
             return Err(PSP22Error::ZeroSenderAddress)
@@ -224,8 +178,6 @@ impl<T: Storage<Data>> Internal for T {
         self._before_token_transfer(Some(&from), Some(&to), &amount)?;
 
         self.data().balances.insert(&from, &(from_balance - amount));
-
-        self._do_safe_transfer_check(&from, &to, &amount, &data)?;
 
         let to_balance = self._balance_of(&to);
         self.data().balances.insert(&to, &(to_balance + amount));
