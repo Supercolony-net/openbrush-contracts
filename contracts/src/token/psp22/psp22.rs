@@ -61,7 +61,7 @@ impl<'a> TypeGuard<'a> for AllowancesKey {
 
 impl<T: Storage<Data>> PSP22 for T {
     default fn total_supply(&self) -> Balance {
-        self.data().supply.clone()
+        self._total_supply()
     }
 
     default fn balance_of(&self, owner: AccountId) -> Balance {
@@ -125,6 +125,7 @@ pub trait Internal {
     fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance);
     fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance);
 
+    fn _total_supply(&self) -> Balance;
     fn _balance_of(&self, owner: &AccountId) -> Balance;
     fn _allowance(&self, owner: &AccountId, spender: &AccountId) -> Balance;
 
@@ -146,6 +147,10 @@ pub trait Internal {
 impl<T: Storage<Data>> Internal for T {
     default fn _emit_transfer_event(&self, _from: Option<AccountId>, _to: Option<AccountId>, _amount: Balance) {}
     default fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance) {}
+
+    default fn _total_supply(&self) -> Balance {
+        self.data().supply.clone()
+    }
 
     default fn _balance_of(&self, owner: &AccountId) -> Balance {
         self.data().balances.get(owner).unwrap_or(0)
