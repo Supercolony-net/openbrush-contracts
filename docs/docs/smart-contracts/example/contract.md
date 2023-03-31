@@ -21,7 +21,7 @@ authors = ["Brushfam <dominik.krizo@727.ventures>"]
 edition = "2021"
 
 [dependencies]
-ink = { version = "~4.0.0-beta", default-features = false }
+ink = { version = "4.1.0-beta", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
