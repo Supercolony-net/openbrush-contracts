@@ -80,9 +80,10 @@ test-all = [
 
 [profile.release]
 panic = "abort"
-lto = true
+lto = false
 
 [profile.dev]
+
 panic = "abort"
-lto = true
+lto = false
 overflow-checks = false
