@@ -25,7 +25,6 @@ use ::ink::env::{
 };
 use core::mem::ManuallyDrop;
 use ink::{
-    prelude::vec::Vec,
     storage::traits::{
         Storable,
         StorageKey,
@@ -41,7 +40,7 @@ pub type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
 pub type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 pub type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 pub type EnvAccess = ::ink::EnvAccess<'static, DefaultEnvironment>;
-pub type String = Vec<u8>;
+pub type String = ink::prelude::string::String;
 
 /// Each object has access to default environment via `Self::env()`.
 /// It can be used for interaction with host functions of the blockchain.
