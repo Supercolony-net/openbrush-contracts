@@ -30,14 +30,16 @@ pub use crate::{
         *,
     },
 };
-use ink::prelude::vec::Vec;
 pub use metadata::Internal as _;
 use openbrush::{
     storage::{
         Mapping,
         TypeGuard,
     },
-    traits::Storage,
+    traits::{
+        String,
+        Storage
+    },
 };
 pub use psp37::{
     Internal as _,
@@ -49,40 +51,40 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
-    pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>, AttributesKey>,
+    pub attributes: Mapping<(Id, String), String, AttributesKey>,
     pub _reserved: Option<()>,
 }
 
 pub struct AttributesKey;
 
 impl<'a> TypeGuard<'a> for AttributesKey {
-    type Type = &'a (&'a Id, &'a Vec<u8>);
+    type Type = &'a (&'a Id, &'a String);
 }
 
 impl<T: Storage<Data>> PSP37Metadata for T {
-    default fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>> {
+    default fn get_attribute(&self, id: Id, key: String) -> Option<String> {
         self.data().attributes.get(&(&id, &key))
     }
 }
 
 pub trait Internal {
-    fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>);
+    fn _emit_attribute_set_event(&self, _id: &Id, _key: &String, _data: &String);
 
-    fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP37Error>;
+    fn _set_attribute(&mut self, id: &Id, key: &String, data: &String) -> Result<(), PSP37Error>;
 
-    fn _get_attribute(&self, id: &Id, key: &Vec<u8>) -> Option<Vec<u8>>;
+    fn _get_attribute(&self, id: &Id, key: &String) -> Option<String>;
 }
 
 impl<T: Storage<Data>> Internal for T {
-    default fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {}
+    default fn _emit_attribute_set_event(&self, _id: &Id, _key: &String, _data: &String) {}
 
-    default fn _set_attribute(&mut self, id: &Id, key: &Vec<u8>, data: &Vec<u8>) -> Result<(), PSP37Error> {
+    default fn _set_attribute(&mut self, id: &Id, key: &String, data: &String) -> Result<(), PSP37Error> {
         self.data().attributes.insert(&(&id, &key), data);
         self._emit_attribute_set_event(id, key, data);
         Ok(())
     }
 
-    default fn _get_attribute(&self, id: &Id, key: &Vec<u8>) -> Option<Vec<u8>> {
+    default fn _get_attribute(&self, id: &Id, key: &String) -> Option<String> {
         self.data().attributes.get(&(&id, &key))
     }
 }

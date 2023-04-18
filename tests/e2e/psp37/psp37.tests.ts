@@ -79,7 +79,6 @@ describe('MY_PSP37', () => {
 
     const token = IdBuilder.U8(0)
 
-
     await expect(query.allowance(sender.address, alice.address, token)).to.have.bnToNumber(0)
     await tx.approve(alice.address, token, 10)
     await expect(query.allowance(sender.address, alice.address, token)).to.have.bnToNumber(10)

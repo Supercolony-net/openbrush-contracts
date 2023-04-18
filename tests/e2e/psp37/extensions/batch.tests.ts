@@ -47,7 +47,7 @@ describe('MY_PSP37_BATCH', () => {
     await expect(query.balanceOf(alice.address, token1)).to.have.bnToNumber(amount1)
     await expect(query.balanceOf(alice.address, token2)).to.have.bnToNumber(amount2)
     await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(0)
-    await expect(query.balanceOf(sender.address, token1)).to.have.bnToNumber(0)
+    await expect(query.balanceOf(sender.address, token2)).to.have.bnToNumber(0)
 
     await close()
   })
