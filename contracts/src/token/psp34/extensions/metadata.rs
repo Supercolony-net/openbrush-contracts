@@ -44,7 +44,7 @@ use openbrush::{
     },
     traits::{
         Storage,
-        String
+        String,
     },
 };
 

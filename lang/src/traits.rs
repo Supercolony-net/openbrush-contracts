@@ -24,11 +24,9 @@ use ::ink::env::{
     Environment,
 };
 use core::mem::ManuallyDrop;
-use ink::{
-    storage::traits::{
-        Storable,
-        StorageKey,
-    },
+use ink::storage::traits::{
+    Storable,
+    StorageKey,
 };
 pub use openbrush_lang_macro::Storage;
 

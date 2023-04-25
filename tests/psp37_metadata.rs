@@ -29,7 +29,7 @@ mod psp37_metadata {
     };
     use openbrush::traits::{
         Storage,
-        String
+        String,
     };
     use openbrush_contracts::psp37::extensions::metadata::*;
 
@@ -79,8 +79,13 @@ mod psp37_metadata {
     fn metadata_works() {
         let mut nft = PSP37Struct::new();
 
-        assert!(nft.set_attribute(Id::U128(1), String::from("name"), String::from("TKN")).is_ok());
+        assert!(nft
+            .set_attribute(Id::U128(1), String::from("name"), String::from("TKN"))
+            .is_ok());
 
-        assert_eq!(nft.get_attribute(Id::U128(1), String::from("name")), Some(String::from("TKN")));
+        assert_eq!(
+            nft.get_attribute(Id::U128(1), String::from("name")),
+            Some(String::from("TKN"))
+        );
     }
 }

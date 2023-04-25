@@ -37,8 +37,8 @@ use openbrush::{
         TypeGuard,
     },
     traits::{
+        Storage,
         String,
-        Storage
     },
 };
 pub use psp37::{
