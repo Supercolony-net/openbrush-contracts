@@ -27,14 +27,17 @@ mod psp37_metadata {
         EmitEvent,
         Env,
     };
-    use openbrush::traits::Storage;
+    use openbrush::traits::{
+        Storage,
+        String
+    };
     use openbrush_contracts::psp37::extensions::metadata::*;
 
     #[ink(event)]
     pub struct AttributeSet {
         id: Id,
-        key: Vec<u8>,
-        data: Vec<u8>,
+        key: String,
+        data: String,
     }
 
     #[derive(Default, Storage)]
@@ -51,11 +54,11 @@ mod psp37_metadata {
     impl PSP37Metadata for PSP37Struct {}
 
     impl metadata::Internal for PSP37Struct {
-        fn _emit_attribute_set_event(&self, _id: &Id, _key: &Vec<u8>, _data: &Vec<u8>) {
+        fn _emit_attribute_set_event(&self, _id: &Id, _key: &String, _data: &String) {
             self.env().emit_event(AttributeSet {
                 id: _id.clone(),
-                key: _key.clone(),
-                data: _data.clone(),
+                key: _key.to_string(),
+                data: _data.to_string(),
             });
         }
     }
@@ -67,7 +70,7 @@ mod psp37_metadata {
         }
 
         #[ink(message)]
-        pub fn set_attribute(&mut self, id: Id, key: Vec<u8>, data: Vec<u8>) -> Result<(), PSP37Error> {
+        pub fn set_attribute(&mut self, id: Id, key: String, data: String) -> Result<(), PSP37Error> {
             self._set_attribute(&id, &key, &data)
         }
     }
@@ -76,8 +79,8 @@ mod psp37_metadata {
     fn metadata_works() {
         let mut nft = PSP37Struct::new();
 
-        assert!(nft.set_attribute(Id::U128(1), vec![0u8, 0u8], vec![1u8, 0u8]).is_ok());
+        assert!(nft.set_attribute(Id::U128(1), String::from("name"), String::from("TKN")).is_ok());
 
-        assert_eq!(nft.get_attribute(Id::U128(1), vec![0u8, 0u8]), Some(vec![1u8, 0u8]));
+        assert_eq!(nft.get_attribute(Id::U128(1), String::from("name")), Some(String::from("TKN")));
     }
 }
