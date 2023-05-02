@@ -120,7 +120,7 @@ pub trait StorageAsMut: StorageAsRef {
 impl<T> StorageAsRef for T {}
 impl<T: StorageAsRef> StorageAsMut for T {}
 
-pub const ZERO_ADDRESS: [u8; 32] = [0; 32];
+pub const ZERO_ADDRESS: [u8; 32] = [1; 32];
 
 /// The trait provides some useful methods for `AccountId` type.
 pub trait AccountIdExt {
