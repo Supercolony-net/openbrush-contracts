@@ -130,6 +130,17 @@ macro_rules! get_role_member {
 }
 
 #[macro_export]
+macro_rules! get_shares {
+    ($client:ident, $address:ident, $user:ident) => {
+        {
+            let _msg = build_message::<ContractRef>($address.clone())
+                .call(|contract| contract.shares(address_of!($user)));
+            $client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await.return_value()
+        }
+    }
+}
+
+#[macro_export]
 macro_rules! method_call {
     ($client:ident, $address:ident, $method:ident) => {
         {
