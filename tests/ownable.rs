@@ -33,6 +33,7 @@ mod ownable {
         traits::{
             AccountIdExt,
             Storage,
+            ZERO_ADDRESS
         },
     };
 
@@ -168,9 +169,8 @@ mod ownable {
     #[ink::test]
     fn transfer_ownership_fails_zero_account() {
         let mut my_ownable = MyOwnable::new();
-        let new_owner = AccountId::from([0u8; 32]);
         assert_eq!(
-            my_ownable.transfer_ownership(new_owner),
+            my_ownable.transfer_ownership(ZERO_ADDRESS.into()),
             Err(OwnableError::NewOwnerIsZero)
         );
     }
