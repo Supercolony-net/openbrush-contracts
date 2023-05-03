@@ -41,8 +41,10 @@ pub mod my_psp34_burnable {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     pub mod tests {
-        use openbrush::contracts::psp34::psp34_external::PSP34;
-        use openbrush::contracts::psp34::extensions::burnable::psp34burnable_external::PSP34Burnable;
+        use openbrush::contracts::psp34::{
+            extensions::burnable::psp34burnable_external::PSP34Burnable,
+            psp34_external::PSP34,
+        };
 
         #[rustfmt::skip]
         use super::*;
@@ -60,7 +62,8 @@ pub mod my_psp34_burnable {
         #[ink_e2e::test]
         async fn burn_wokrs(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             let constructor = ContractRef::new();
-            let address = client.instantiate("my_psp34_burnable", &ink_e2e::alice(), constructor, 0, None)
+            let address = client
+                .instantiate("my_psp34_burnable", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -70,7 +73,8 @@ pub mod my_psp34_burnable {
             let result = {
                 let _msg = build_message::<ContractRef>(address.clone())
                     .call(|contract| contract.burn(address_of!(alice), Id::U8(0u8)));
-                client.call(&ink_e2e::alice(), _msg, 0, None)
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
                     .await
                     .expect("call failed")
             };
@@ -84,7 +88,8 @@ pub mod my_psp34_burnable {
         #[ink_e2e::test]
         async fn burn_from_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             let constructor = ContractRef::new();
-            let address = client.instantiate("my_psp34_burnable", &ink_e2e::alice(), constructor, 0, None)
+            let address = client
+                .instantiate("my_psp34_burnable", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -94,9 +99,7 @@ pub mod my_psp34_burnable {
             let result = {
                 let _msg = build_message::<ContractRef>(address.clone())
                     .call(|contract| contract.burn(address_of!(alice), Id::U8(0u8)));
-                client.call(&ink_e2e::bob(), _msg, 0, None)
-                    .await
-                    .expect("call failed")
+                client.call(&ink_e2e::bob(), _msg, 0, None).await.expect("call failed")
             };
 
             assert_eq!(result.return_value(), Ok(()));

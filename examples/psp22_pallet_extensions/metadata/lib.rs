@@ -58,9 +58,13 @@ pub mod my_psp22_pallet_metadata {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     pub mod tests {
-        use openbrush::contracts::psp22_pallet::psp22_external::PSP22;
-        use openbrush::contracts::psp22_pallet::extensions::burnable::psp22burnable_external::PSP22Burnable;
-        use openbrush::contracts::psp22_pallet::extensions::metadata::psp22metadata_external::PSP22Metadata;
+        use openbrush::contracts::psp22_pallet::{
+            extensions::{
+                burnable::psp22burnable_external::PSP22Burnable,
+                metadata::psp22metadata_external::PSP22Metadata,
+            },
+            psp22_external::PSP22,
+        };
 
         #[rustfmt::skip]
         use super::*;
@@ -69,7 +73,7 @@ pub mod my_psp22_pallet_metadata {
 
         use test_helpers::{
             address_of,
-            balance_of
+            balance_of,
         };
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -85,28 +89,35 @@ pub mod my_psp22_pallet_metadata {
             let _symbol = String::from("TKN");
 
             let constructor = ContractRef::new(random_num(), 1, 1000, _name, _symbol, 18);
-            let address = client.instantiate("my_psp22_pallet_metadata", &ink_e2e::alice(), constructor, 1000000000000000000, None)
+            let address = client
+                .instantiate(
+                    "my_psp22_pallet_metadata",
+                    &ink_e2e::alice(),
+                    constructor,
+                    1000000000000000000,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let token_name = {
-                let _msg = build_message::<ContractRef>(address.clone())
-                    .call(|contract| contract.token_name());
+                let _msg = build_message::<ContractRef>(address.clone()).call(|contract| contract.token_name());
                 client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
-            }.return_value();
+            }
+            .return_value();
 
             let token_symbol = {
-                let _msg = build_message::<ContractRef>(address.clone())
-                    .call(|contract| contract.token_symbol());
+                let _msg = build_message::<ContractRef>(address.clone()).call(|contract| contract.token_symbol());
                 client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
-            }.return_value();
+            }
+            .return_value();
 
             let token_decimals = {
-                let _msg = build_message::<ContractRef>(address.clone())
-                    .call(|contract| contract.token_decimals());
+                let _msg = build_message::<ContractRef>(address.clone()).call(|contract| contract.token_decimals());
                 client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
-            }.return_value();
+            }
+            .return_value();
 
             assert!(matches!(token_name, Some(_name)));
             assert!(matches!(token_symbol, Some(_symbol)));

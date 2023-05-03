@@ -59,7 +59,8 @@ pub mod my_psp34_metadata {
             let symbol = String::from("MPS34");
 
             let constructor = ContractRef::new(id.clone(), name.clone(), symbol.clone());
-            let address = client.instantiate("my_psp34_metadata", &ink_e2e::alice(), constructor, 0, None)
+            let address = client
+                .instantiate("my_psp34_metadata", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -67,16 +68,16 @@ pub mod my_psp34_metadata {
             let result_name = {
                 let _msg = build_message::<ContractRef>(address.clone())
                     .call(|contract| contract.get_attribute(id.clone(), String::from("name")));
-                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None)
-                    .await
-            }.return_value();
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
 
             let result_symbol = {
                 let _msg = build_message::<ContractRef>(address.clone())
                     .call(|contract| contract.get_attribute(id.clone(), String::from("symbol")));
-                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None)
-                    .await
-            }.return_value();
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
 
             assert_eq!(result_name, Some(name));
             assert_eq!(result_symbol, Some(symbol));

@@ -58,8 +58,10 @@ pub mod my_psp22_pausable {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     pub mod tests {
-        use openbrush::contracts::psp22::psp22_external::PSP22;
-        use openbrush::contracts::pausable::pausable_external::Pausable;
+        use openbrush::contracts::{
+            pausable::pausable_external::Pausable,
+            psp22::psp22_external::PSP22,
+        };
 
         #[rustfmt::skip]
         use super::*;
@@ -68,7 +70,7 @@ pub mod my_psp22_pausable {
 
         use test_helpers::{
             address_of,
-            balance_of
+            balance_of,
         };
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -76,7 +78,8 @@ pub mod my_psp22_pausable {
         #[ink_e2e::test]
         async fn can_transfer_when_not_paused(client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             let constructor = ContractRef::new(1000);
-            let address = client.instantiate("my_psp22_pausable", &ink_e2e::alice(), constructor, 0, None)
+            let address = client
+                .instantiate("my_psp22_pausable", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -87,10 +90,12 @@ pub mod my_psp22_pausable {
             let transfer_tx = {
                 let _msg = build_message::<ContractRef>(address.clone())
                     .call(|contract| contract.transfer(address_of!(bob), 100, vec![]));
-                client.call(&ink_e2e::alice(), _msg, 0, None)
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
                     .await
                     .expect("transfer failed")
-            }.return_value();
+            }
+            .return_value();
 
             assert!(matches!(transfer_tx, Ok(())));
 
@@ -103,7 +108,8 @@ pub mod my_psp22_pausable {
         #[ink_e2e::test]
         async fn cannot_transfer_when_paused(client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             let constructor = ContractRef::new(1000);
-            let address = client.instantiate("my_psp22_pausable", &ink_e2e::alice(), constructor, 0, None)
+            let address = client
+                .instantiate("my_psp22_pausable", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -112,21 +118,22 @@ pub mod my_psp22_pausable {
             assert!(matches!(balance_of!(client, address, bob), 0));
 
             let pause_tx = {
-                let _msg = build_message::<ContractRef>(address.clone())
-                    .call(|contract| contract.change_state());
-                client.call(&ink_e2e::alice(), _msg, 0, None)
+                let _msg = build_message::<ContractRef>(address.clone()).call(|contract| contract.change_state());
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
                     .await
                     .expect("change_state failed")
-            }.return_value();
+            }
+            .return_value();
 
             assert!(matches!(pause_tx, Ok(())));
 
             let transfer_tx = {
                 let _msg = build_message::<ContractRef>(address.clone())
                     .call(|contract| contract.transfer(address_of!(bob), 100, vec![]));
-                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None)
-                    .await
-            }.return_value();
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
 
             assert!(matches!(transfer_tx, Err(_)));
 

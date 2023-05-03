@@ -57,28 +57,29 @@ pub mod my_psp22 {
             let _symbol = String::from("TKN");
 
             let constructor = ContractRef::new(1000, Some(_name), Some(_symbol), 18);
-            let address = client.instantiate("my_psp22_metadata", &ink_e2e::alice(), constructor, 0, None)
+            let address = client
+                .instantiate("my_psp22_metadata", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let token_name = {
-                let _msg = build_message::<ContractRef>(address.clone())
-                    .call(|contract| contract.token_name());
+                let _msg = build_message::<ContractRef>(address.clone()).call(|contract| contract.token_name());
                 client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
-            }.return_value();
+            }
+            .return_value();
 
             let token_symbol = {
-                let _msg = build_message::<ContractRef>(address.clone())
-                    .call(|contract| contract.token_symbol());
+                let _msg = build_message::<ContractRef>(address.clone()).call(|contract| contract.token_symbol());
                 client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
-            }.return_value();
+            }
+            .return_value();
 
             let token_decimals = {
-                let _msg = build_message::<ContractRef>(address.clone())
-                    .call(|contract| contract.token_decimals());
+                let _msg = build_message::<ContractRef>(address.clone()).call(|contract| contract.token_decimals());
                 client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
-            }.return_value();
+            }
+            .return_value();
 
             assert!(matches!(token_name, Some(_name)));
             assert!(matches!(token_symbol, Some(_symbol)));
