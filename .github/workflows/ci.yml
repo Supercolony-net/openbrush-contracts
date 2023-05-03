@@ -220,35 +220,6 @@ jobs:
         run: |
           npm i
           npm i ts-node
-
-      - name: Cache contract artifacts
-        id: cache-contract-artifacts
-        uses: actions/cache@v3
-        with:
-          path: artifacts
-          key: cache-contract-artifacts-${{ github.sha }}
-
-      - name: Generate Typechain code
-        run:
-          npm run build:release:no-compile
-
-      - name: Run Test Mocha
+      - name: Run Test
         run: |
-          for test in $(find tests -type f -regex ".*\.ts"); do
-            has_timeout=true
-            while $has_timeout
-            do
-              substrate-contracts-node --tmp --dev & P1=$!;
-              set +e;
-              output=$(npm run test:mocha-single ./$test || true);
-              set -e;
-              if echo $output | grep -q 'For async tests and hooks, ensure "done()" is called'; then
-                echo $output;
-                has_timeout=true
-              else
-                npm run test:mocha-single ./$test
-                has_timeout=false
-              fi
-              kill $P1;
-            done
-          done
+          ./e2e-tests.sh ./examples/**
