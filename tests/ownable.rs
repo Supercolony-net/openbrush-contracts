@@ -33,7 +33,7 @@ mod ownable {
         traits::{
             AccountIdExt,
             Storage,
-            ZERO_ADDRESS
+            ZERO_ADDRESS,
         },
     };
 
