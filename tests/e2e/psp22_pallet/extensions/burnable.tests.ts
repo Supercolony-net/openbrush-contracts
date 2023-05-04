@@ -14,7 +14,6 @@ describe('MY_PSP22_PALLET_BURNABLE', () => {
         const alice = signers[0]
         const bob = signers[1]
 
-
         const contractFactory = new ConstructorsPSP22(api, defaultSigner)
         const contractAddress = (await contractFactory.new(Math.floor(Math.random() * 10000) + 1, 1, 1000, {value: '10000000000000000'})).address
         const contract = new ContractPSP22(contractAddress, defaultSigner, api)
