@@ -220,13 +220,13 @@ jobs:
         run: |
           npm i
           npm i ts-node
+
       - name: Run Test
         run: |
           ./e2e-tests.sh ./examples/** ./examples
-
   typechain-e2e-tests:
     concurrency:
-      group: integration-tests-${{ github.ref }}
+      group: typechain-e2e-tests-${{ github.ref }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     needs: examples-builds
