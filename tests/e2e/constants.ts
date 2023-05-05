@@ -1,5 +1,5 @@
 export const consts = {
-  EMPTY_ADDRESS: '5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM'
+  EMPTY_ADDRESS: '5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZy6ftb'
 }
 
 export const Roles = {
