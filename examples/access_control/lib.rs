@@ -304,18 +304,6 @@ pub mod my_access_control {
                 .expect("instantiate failed")
                 .account_id;
 
-            // await tx.grantRole(Roles.Minter, alice.address)
-            // await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(true)
-            // await contract.withSigner(alice).tx.mint(alice.address, IdBuilder.U8(0))
-            // await expect(query.ownerOf(IdBuilder.U8(0))).to.have.output(alice.address)
-            //
-            // // Act - revoke Alice minter role
-            // await tx.revokeRole(Roles.Minter, alice.address)
-            // await expect(query.hasRole(Roles.Minter, alice.address)).to.have.output(false)
-            //
-            // // Assert - Alice cannot burn token
-            // await expect(contract.withSigner(alice).tx.burn(alice.address, IdBuilder.U8(0))).to.eventually.be.rejected
-
             assert_eq!(grant_role!(client, address, MINTER, bob), Ok(()));
             assert_eq!(has_role!(client, address, MINTER, bob), true);
 
