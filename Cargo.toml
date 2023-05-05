@@ -41,6 +41,9 @@ crate-type = [
     "rlib",
 ]
 
+[dev-dependencies]
+ink_e2e = "4.1.0"
+
 [features]
 default = ["std"]
 std = [

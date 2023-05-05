@@ -1,0 +1,12 @@
+[package]
+name = "test_helpers"
+version = "3.0.0"
+authors = ["Brushfam <varex.silver@727.ventures>"]
+edition = "2021"
+
+[lib]
+name = "test_helpers"
+path = "lib.rs"
+
+[profile.dev]
+codegen-units = 16

@@ -21,6 +21,11 @@ crate-type = [
     "cdylib",
 ]
 
+[dev-dependencies]
+ink_e2e = "4.1.0"
+test_helpers = { path = "../../test_helpers", default-features = false }
+rand = "0.8.5"
+
 [features]
 default = ["std"]
 std = [
@@ -31,6 +36,7 @@ std = [
     "openbrush/std",
 ]
 ink-as-dependency = []
+e2e-tests = []
 
 [profile.dev]
 codegen-units = 16

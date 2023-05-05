@@ -37,13 +37,15 @@ pub use psp34::{
     Transfer as _,
 };
 
-use ink::prelude::vec::Vec;
 use openbrush::{
     storage::{
         Mapping,
         TypeGuard,
     },
-    traits::Storage,
+    traits::{
+        Storage,
+        String,
+    },
 };
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
@@ -51,36 +53,36 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Default, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
-    pub attributes: Mapping<(Id, Vec<u8>), Vec<u8>, AttributesKey>,
+    pub attributes: Mapping<(Id, String), String, AttributesKey>,
     pub _reserved: Option<()>,
 }
 
 pub struct AttributesKey;
 
 impl<'a> TypeGuard<'a> for AttributesKey {
-    type Type = &'a (&'a Id, &'a Vec<u8>);
+    type Type = &'a (&'a Id, &'a String);
 }
 
 impl<T: Storage<Data>> PSP34Metadata for T {
-    default fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>> {
+    default fn get_attribute(&self, id: Id, key: String) -> Option<String> {
         self.data().attributes.get(&(&id, &key))
     }
 }
 
 pub trait Internal {
     /// Event is emitted when an attribute is set for a token.
-    fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>);
+    fn _emit_attribute_set_event(&self, _id: Id, _key: String, _data: String);
 
-    fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>);
+    fn _set_attribute(&mut self, id: Id, key: String, value: String);
 }
 
 impl<T> Internal for T
 where
     T: Storage<Data>,
 {
-    default fn _emit_attribute_set_event(&self, _id: Id, _key: Vec<u8>, _data: Vec<u8>) {}
+    default fn _emit_attribute_set_event(&self, _id: Id, _key: String, _data: String) {}
 
-    default fn _set_attribute(&mut self, id: Id, key: Vec<u8>, value: Vec<u8>) {
+    default fn _set_attribute(&mut self, id: Id, key: String, value: String) {
         self.data().attributes.insert(&(&id, &key), &value);
         self._emit_attribute_set_event(id, key, value);
     }

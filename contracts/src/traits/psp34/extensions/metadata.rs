@@ -22,7 +22,7 @@
 /// Metadata for PSP34
 pub use crate::traits::errors::PSP34Error;
 pub use crate::traits::psp34::Id;
-use ink::prelude::vec::Vec;
+use openbrush::traits::String;
 
 #[openbrush::wrapper]
 pub type PSP34MetadataRef = dyn PSP34Metadata;
@@ -33,5 +33,5 @@ pub trait PSP34Metadata {
     ///
     /// If `id` is a collection id of the token, it returns attributes for collection.
     #[ink(message)]
-    fn get_attribute(&self, id: Id, key: Vec<u8>) -> Option<Vec<u8>>;
+    fn get_attribute(&self, id: Id, key: String) -> Option<String>;
 }

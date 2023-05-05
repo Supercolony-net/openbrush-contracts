@@ -45,7 +45,7 @@ impl<T: Storage<psp22_pallet::Data>> PSP22Metadata for T {
         if name.is_empty() {
             None
         } else {
-            Some(String::from(name))
+            Some(String::from_utf8(name).expect("Invalid UTF-8 string for token"))
         }
     }
 
@@ -56,7 +56,7 @@ impl<T: Storage<psp22_pallet::Data>> PSP22Metadata for T {
         if symbol.is_empty() {
             None
         } else {
-            Some(String::from(symbol))
+            Some(String::from_utf8(symbol).expect("Invalid UTF-8 string for token"))
         }
     }
 

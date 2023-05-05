@@ -13,6 +13,10 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 # These dependencies
 openbrush = { path = "../../..", default-features = false, features = ["psp37"] }
 
+[dev-dependencies]
+ink_e2e = "4.1.0"
+test_helpers = { path = "../../test_helpers", default-features = false }
+
 [lib]
 name = "my_psp37_mintable"
 path = "lib.rs"
@@ -31,6 +35,7 @@ std = [
     "openbrush/std",
 ]
 ink-as-dependency = []
+e2e-tests = []
 
 [profile.dev]
 codegen-units = 16
