@@ -224,55 +224,55 @@ jobs:
         run: |
           ./e2e-tests.sh ./examples/** ./examples
 
-    typechain-e2e-tests:
-      concurrency:
-        group: integration-tests-${{ github.ref }}
-        cancel-in-progress: true
-      runs-on: ubuntu-latest
-      needs: examples-builds
-      container:
-        image: ghcr.io/brushfam/openbrush-contracts-ci
-        options: --user root
-        env:
-          CARGO_TARGET_DIR: /usr/local/cache/target
-      steps:
-        - uses: actions/setup-node@v1
-          with:
-            node-version: '16.x'
-        - uses: actions/checkout@v3
-        - name: NPM install dependencies
-          run: |
-            npm i
-            npm i ts-node
+  typechain-e2e-tests:
+    concurrency:
+      group: integration-tests-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    needs: examples-builds
+    container:
+      image: ghcr.io/brushfam/openbrush-contracts-ci
+      options: --user root
+      env:
+        CARGO_TARGET_DIR: /usr/local/cache/target
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+      - uses: actions/checkout@v3
+      - name: NPM install dependencies
+        run: |
+          npm i
+          npm i ts-node
 
-        - name: Cache contract artifacts
-          id: cache-contract-artifacts
-          uses: actions/cache@v3
-          with:
-            path: artifacts
-            key: cache-contract-artifacts-${{ github.sha }}
+      - name: Cache contract artifacts
+        id: cache-contract-artifacts
+        uses: actions/cache@v3
+        with:
+          path: artifacts
+          key: cache-contract-artifacts-${{ github.sha }}
 
-        - name: Generate Typechain code
-          run:
-            npm run build:release:no-compile
+      - name: Generate Typechain code
+        run:
+          npm run build:release:no-compile
 
-        - name: Run Test Mocha
-          run: |
-            for test in $(find tests -type f -regex ".*\.ts"); do
-              has_timeout=true
-              while $has_timeout
-              do
-                substrate-contracts-node --tmp --dev & P1=$!;
-                set +e;
-                output=$(npm run test:mocha-single ./$test || true);
-                set -e;
-                if echo $output | grep -q 'For async tests and hooks, ensure "done()" is called'; then
-                  echo $output;
-                  has_timeout=true
-                else
-                  npm run test:mocha-single ./$test
-                  has_timeout=false
-                fi
-                kill $P1;
-              done
+      - name: Run Test Mocha
+        run: |
+          for test in $(find tests -type f -regex ".*\.ts"); do
+            has_timeout=true
+            while $has_timeout
+            do
+              substrate-contracts-node --tmp --dev & P1=$!;
+              set +e;
+              output=$(npm run test:mocha-single ./$test || true);
+              set -e;
+              if echo $output | grep -q 'For async tests and hooks, ensure "done()" is called'; then
+                echo $output;
+                has_timeout=true
+              else
+                npm run test:mocha-single ./$test
+                has_timeout=false
+              fi
+              kill $P1;
             done
+          done
