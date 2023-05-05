@@ -7,7 +7,6 @@ members = [
 exclude = [
     "examples",
     "example_project_structure",
-    "mock"
 ]
 
 [package]
