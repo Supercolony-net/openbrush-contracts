@@ -45,7 +45,7 @@ pub mod my_psp22 {
         pub fn new(total_supply: Balance) -> Self {
             let mut instance = Self {
                 psp22: Default::default(),
-                hated_account: [0u8; 32].into(),
+                hated_account: [255; 32].into(),
             };
 
             instance
