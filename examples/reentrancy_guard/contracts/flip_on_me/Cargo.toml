@@ -1,6 +1,6 @@
 [package]
 name = "flip_on_me"
-version = "3.0.0"
+version = "3.1.1"
 authors = ["Brushfam <green@727.ventures>"]
 edition = "2021"
 

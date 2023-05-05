@@ -1,6 +1,6 @@
 [package]
 name = "openbrush_lang"
-version = "3.0.0"
+version = "3.1.1"
 authors = ["Brushfam <green@727.ventures>"]
 edition = "2021"
 
@@ -14,7 +14,7 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs"]
 
 [dependencies]
-openbrush_lang_macro = { version = "~3.0.0", path = "macro", default-features = false }
+openbrush_lang_macro = { version = "~3.1.1", path = "macro", default-features = false }
 
 ink = { version = "4.1.0", default-features = false}
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
