@@ -26,10 +26,10 @@ process_directory() {
     cd "$dir" || exit
 
     echo "Building contract in $dir"
-    cargo contract build
+    cargo contract build || exit
 
     echo "Running e2e-tests in $dir"
-    cargo test --features e2e-tests
+    cargo test --features e2e-tests || exit
 
     cd - || exit
   fi
