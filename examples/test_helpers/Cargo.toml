@@ -1,6 +1,6 @@
 [package]
 name = "test_helpers"
-version = "3.0.0"
+version = "3.1.1"
 authors = ["Brushfam <varex.silver@727.ventures>"]
 edition = "2021"
 

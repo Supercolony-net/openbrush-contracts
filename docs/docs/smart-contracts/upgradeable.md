@@ -13,7 +13,14 @@ Upgradeability allows experimenting and deploying the product at the early stage
 
 Decentralization can be achieved by providing the right to upgrade only to decentralized authority like governance, multisig, or another analog.
 
-There is also a possibility of smart contract upgradeability via `Proxy` and `Diamond` patterns, but these use `DelegateCall`. Delegate calls [were marked](https://github.com/paritytech/ink/pull/1331#discussion_r953736863) as a possible attack vector in ink! Therefore the `Proxy` and `Diamond` patterns will not work within OpenBrush until this is reimplemented in ink! 4.
+There is also a possibility of smart contract upgradeability via `Proxy` and `Diamond` patterns, but these use `DelegateCall`.
+Right now contracts that use `DelegateCall` are not supported by OpenBrush due to latest ink! changes, for more information, please check the following issues:
+
+- https://github.com/paritytech/ink/pull/1331#discussion_r953736863
+- https://github.com/Brushfam/openbrush-contracts/issues/36
+
+Our team is currently working on the new approach of working with `DelegateCall`. For now, we recommend using `Lazy` struct
+for the upgradeable contracts. `Lazy` is a wrapper for a storage field, that allows you to set it to its definite storage key.
 
 ## Storage layout
 
@@ -84,11 +91,12 @@ With this approach, you can order your units as you wish. You can add/remove/swa
 logic units and don't worry about storage layout because each logic unit will have its space 
 in the blockchain's storage. If storage keys are unique, those spaces don't overlap.
 
-OpenBrush provides [`openbrush::upgradeable_storage`](https://github.com/727-Ventures/openbrush-contracts/blob/main/lang/macro/src/lib.rs#L447) 
-attribute macro that implements all required traits with specified storage key(storage key is required input argument to macro). 
-Also, macro initializes the field with a default value if the field is not initialized before
-(it can be actual during the upgrade because new fields are not initialized yet).
-You can use that macro to define a logic unit.
+OpenBrush provides [`openbrush::upgradeable_storage`](https://github.com/727-Ventures/openbrush-contracts/blob/main/lang/macro/src/lib.rs#L447)
+attribute macro that implements some of the required traits with specified storage key(storage key is required input argument to macro).
+This way, macro will define the storage key for this struct, but WILL NOT set this struct by it's storage key automatically.
+So, you will need to perform such actions manually, or use `Lazy` wrapper. All of the `Lazy` and `Mapping` units that are defined inside of the type
+will have their definite storage keys to prevent storage corruption, also it will implement traits to ease the work with storage,
+like `Storage` to be accessible by using `.data()` method later.
 
 > **Note**: Each logic unit should have a unique storage key.
 The storage key should be used only once in the contract.
@@ -393,6 +401,9 @@ of your contract, permission system, etc.
 
 ### The `Diamond` Standard
 
+### Disclaimer
+Right now, you can't use diamond standard in OpenBrush because of the problems with delegate calls.
+
 Using `Diamond` Standard you can add support for several facets(logic layers) that 
 can be upgraded. [This standard](https://eips.ethereum.org/EIPS/eip-2535) came 
 from the ethereum network. It works in the same way in ink! but instead of the 
@@ -410,9 +421,6 @@ Each selector is unique and belongs only to one facet. So selectors of facets ca
 call to the smart contract to the corresponding facet (logic layer).
 `Diamond` contract has a function `diamond_cut` that allows registering each facet.
 
-OpenBrush provides default implementation for `Diamond` standard on ink!.
-For more details you can check [Diamond](diamond/diamond.md).
-
 All suggestions above ideally describe how to develop an upgradeable contract
 with multi-logic layers and many logic units.
 So here we will describe how to write facets (logic layers) with OpenBrush.
@@ -425,13 +433,7 @@ with storage.
 Each logic unit should have a unique storage key and be upgradeable (support initialization
 on demand, use storage key as an offset for all inner fields). It can be a struct with 
 one or many fields (structs without fields are useless) or an enum with at least two 
-variants (an enum with one variant is a structure). You can define struct/enum with the 
-`openbrush::upgradeable_storage` macro and have an independent logic unit. You can 
-create several units and combine them into one contract.
-
-> **Note**: If your contract has at least one field that is not defined with the 
-`openbrush::upgradeable_storage`, it will fail during execution. Each field should be 
-upgradeable in the facet.
+variants (an enum with one variant is a structure).
 
 As an example, we will define logic units for `PSP22` and `Ownable` facets.
 
